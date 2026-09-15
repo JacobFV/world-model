@@ -35,4 +35,4 @@ class ReferenceBuildTests(unittest.TestCase):
             store=self.prepare(Path(tmp),True)
             with self.assertRaisesRegex(ValueError,'type conflict'):
                 build_reference(Catalog(PROJECT/'data'),store,PROJECT)
-            self.assertFalse((store.root/'reference_evidence/latest.json').exists())
+            self.assertFalse((store.latest_path('reference_evidence')).exists())

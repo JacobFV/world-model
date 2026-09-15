@@ -1,6 +1,6 @@
 {
   "id": "demo_countries",
-  "schema_version": 1,
+  "schema_version": 2,
   "dependencies": [],
   "kind": "source",
   "status": "offline_example",
@@ -10,7 +10,7 @@
     "license": "CC0-1.0",
     "release": "fictional-v1"
   },
-  "entrypoint": "worldmodel.transforms:countries",
+  "entrypoint": "pipeline.py:run",
   "parameters": {
     "format": "csv"
   },
@@ -28,5 +28,38 @@
     "representative": false,
     "path": "tests/fixtures/countries.csv",
     "criteria": "Two local fictional fixture countries; no network."
-  }
+  },
+  "stages": [
+    {
+      "id": "parsed",
+      "entrypoint": "pipeline.py:parse",
+      "depends_on": [],
+      "schema": {
+        "format": "jsonl"
+      },
+      "validation": {
+        "allow_empty": false,
+        "max_rows": 100000
+      },
+      "cache": "content",
+      "retention": "retain"
+    },
+    {
+      "id": "normalized",
+      "entrypoint": "pipeline.py:run",
+      "depends_on": [
+        "parsed"
+      ],
+      "schema": {
+        "format": "evidence_jsonl"
+      },
+      "validation": {
+        "allow_empty": false,
+        "max_rows": 100000
+      },
+      "cache": "content",
+      "retention": "retain"
+    }
+  ],
+  "output_stage": "normalized"
 }

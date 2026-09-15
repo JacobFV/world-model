@@ -1,6 +1,6 @@
 {
   "id": "usaspending",
-  "schema_version": 1,
+  "schema_version": 2,
   "dependencies": [],
   "kind": "source",
   "status": "sample_adapter_ready",
@@ -16,7 +16,7 @@
     "payment"
   ],
   "setup": "Normalize award and transaction IDs; distinguish obligations from outlays and avoid double-counting totals.",
-  "entrypoint": "worldmodel.normalizers:normalize_sample",
+  "entrypoint": "pipeline.py:run",
   "parameters": {},
   "sampling": {
     "strategy": "download",
@@ -69,5 +69,22 @@
     "raw_fields": "preserved in attributes.source_row",
     "entity_identity": "source IDs, canonical geography, explicitly labeled unresolved references and aggregate cohorts",
     "coverage": "acquired sample only"
-  }
+  },
+  "stages": [
+    {
+      "id": "normalized",
+      "entrypoint": "pipeline.py:run",
+      "depends_on": [],
+      "schema": {
+        "format": "evidence_jsonl"
+      },
+      "validation": {
+        "allow_empty": false,
+        "max_rows": 100000
+      },
+      "cache": "content",
+      "retention": "retain"
+    }
+  ],
+  "output_stage": "normalized"
 }

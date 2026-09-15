@@ -1,6 +1,6 @@
 {
   "id": "nasdaq_index_reference",
-  "schema_version": 1,
+  "schema_version": 2,
   "dependencies": [],
   "kind": "source",
   "status": "blocked",
@@ -9,7 +9,7 @@
     "publisher": "Nasdaq",
     "license_status": "see_publisher_terms"
   },
-  "entrypoint": "worldmodel.market_sources:normalize",
+  "entrypoint": "pipeline.py:run",
   "parameters": {},
   "sampling": {
     "strategy": "blocked",
@@ -37,5 +37,22 @@
     "name": "NASDAQ-100",
     "provider": "Nasdaq",
     "identity_basis": "publisher overview page only; not normalized constituent evidence"
-  }
+  },
+  "stages": [
+    {
+      "id": "normalized",
+      "entrypoint": "pipeline.py:run",
+      "depends_on": [],
+      "schema": {
+        "format": "evidence_jsonl"
+      },
+      "validation": {
+        "allow_empty": false,
+        "max_rows": 100000
+      },
+      "cache": "content",
+      "retention": "retain"
+    }
+  ],
+  "output_stage": "normalized"
 }

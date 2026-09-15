@@ -53,15 +53,16 @@ class SamplingTests(unittest.TestCase):
         self.assertTrue(receipt['source']['sampling']['original_complete'])
         rows = [json.loads(line) for line in (self.store.artifact_dir(result['artifact']) / 'payload').read_text().splitlines()]
         self.assertEqual(rows, [{'country':'AA','value':'1'}, {'country':'BB','value':'2'}])
-        self.assertFalse((self.store.root / 'sample_test/raw-latest.json').exists())
-        self.assertEqual(list((self.store.root / 'sample_test/processing').iterdir()), [])
+        self.assertFalse((self.store.raw_latest_path('sample_test')).exists())
+        self.assertEqual(list(self.store.scratch_dir('sample_test').glob('sample-*')), [])
+        self.assertEqual(list(self.store.scratch_dir('sample_test').glob('import-*')), [])
 
     def test_oversized_download_is_not_retained(self):
         self.definition['sampling']['max_download_bytes'] = 10
         result = sample_dataset(self.store, self.definition, allow_network=True)
         self.assertEqual(result['status'], 'blocked')
         self.assertIn('budget', result['reason'])
-        self.assertEqual(list((self.store.root / 'sample_test/raw').iterdir()), [])
+        self.assertEqual(list((self.store.root / 'sample_test/artifacts/raw').iterdir()), [])
 
     def test_archive_extracts_rows_without_extracting_entire_member(self):
         stream = io.BytesIO()

@@ -1,6 +1,6 @@
 {
   "id": "demo_graph",
-  "schema_version": 1,
+  "schema_version": 2,
   "dependencies": [],
   "kind": "source",
   "status": "offline_example",
@@ -10,7 +10,7 @@
     "license": "CC0-1.0",
     "release": "fictional-v1"
   },
-  "entrypoint": "worldmodel.transforms:evidence_jsonl",
+  "entrypoint": "pipeline.py:run",
   "parameters": {
     "format": "jsonl"
   },
@@ -28,5 +28,22 @@
     "representative": false,
     "path": "tests/fixtures/graph.jsonl",
     "criteria": "Five local fictional evidence records; no network."
-  }
+  },
+  "stages": [
+    {
+      "id": "normalized",
+      "entrypoint": "pipeline.py:run",
+      "depends_on": [],
+      "schema": {
+        "format": "evidence_jsonl"
+      },
+      "validation": {
+        "allow_empty": false,
+        "max_rows": 100000
+      },
+      "cache": "content",
+      "retention": "retain"
+    }
+  ],
+  "output_stage": "normalized"
 }

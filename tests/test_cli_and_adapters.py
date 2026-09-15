@@ -62,7 +62,7 @@ class AdapterTests(unittest.TestCase):
                 url = f'http://127.0.0.1:{server.server_port}/fixture'
                 with self.assertRaisesRegex(ValueError, 'checksum'):
                     fetch(store, 'test', url, {}, allow_network=True, expected_sha256='0' * 64)
-                self.assertFalse((store.root / 'test/raw-latest.json').exists())
+                self.assertFalse((store.raw_latest_path('test')).exists())
                 with self.assertRaisesRegex(ValueError, 'limit'):
                     fetch(store, 'test', url, {}, allow_network=True, max_bytes=2)
                 ref = fetch(store, 'test', url, {}, allow_network=True)
@@ -82,8 +82,8 @@ class AdapterTests(unittest.TestCase):
             result = cli('demo')
             self.assertEqual(result['graph']['records'], 7)
             ref = result['output']
-            lineage = cli('lineage', f'{ref["dataset"]}@{ref["version"]}')
-            self.assertEqual(len(lineage['versions']), 4)
+            lineage = cli('lineage', f'{ref["dataset"]}/{ref["stage"]}@{ref["version"]}')
+            self.assertEqual(len(lineage['versions']), 5)
             self.assertEqual(len(lineage['artifacts']), 2)
             self.assertEqual(cli('verify', 'world_graph')['verified'], True)
             self.assertEqual(len(cli('neighbors', 'org:acme')['assertions']), 2)

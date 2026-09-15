@@ -13,10 +13,10 @@ from .util import digest, read_json
 def build_strategic(catalog, store, project):
     runner=Runner(catalog,store,project)
     inputs, coverage, records=[],[],[]
-    if (store.dataset_dir('world_evidence')/'latest.json').exists():
+    if (store.latest_path('world_evidence')).exists():
         inputs.append(store.latest('world_evidence'))
     for dataset in SOURCE_IDS:
-        pointer=store.dataset_dir(dataset)/'samples/latest.json'
+        pointer=store.sample_latest_path(dataset)
         if not pointer.exists():
             coverage.append({'dataset':dataset,'status':'not_acquired'})
             continue
@@ -24,7 +24,7 @@ def build_strategic(catalog, store, project):
         if sample['status']!='sampled':
             coverage.append({'dataset':dataset,'status':sample['status'],'reason':sample.get('reason')})
             continue
-        manifest=read_json(store.dataset_dir(dataset)/'samples'/sample['sample_id']/'manifest.json')
+        manifest=read_json(store.samples_dir(dataset)/sample['sample_id']/'manifest.json')
         ref=runner.run(dataset,raw_refs={dataset:[manifest['artifact']]})
         inputs.append(ref)
         coverage.append({'dataset':dataset,'status':'normalized','sample_id':sample['sample_id'],'artifact':manifest['artifact'],'output':ref,'rows':sample['rows']})

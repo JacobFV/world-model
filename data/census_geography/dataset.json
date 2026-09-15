@@ -1,6 +1,6 @@
 {
   "id": "census_geography",
-  "schema_version": 1,
+  "schema_version": 2,
   "dependencies": [],
   "kind": "source",
   "status": "sample_adapter_ready",
@@ -15,7 +15,7 @@
     "located_in"
   ],
   "setup": "Partition and decode geographic archives; preserve GEOID, geometry CRS and boundary vintage.",
-  "entrypoint": "worldmodel.normalizers:normalize_sample",
+  "entrypoint": "pipeline.py:run",
   "parameters": {},
   "sampling": {
     "strategy": "download",
@@ -42,5 +42,22 @@
     "raw_fields": "preserved in attributes.source_row",
     "entity_identity": "source IDs, canonical geography, explicitly labeled unresolved references and aggregate cohorts",
     "coverage": "acquired sample only"
-  }
+  },
+  "stages": [
+    {
+      "id": "normalized",
+      "entrypoint": "pipeline.py:run",
+      "depends_on": [],
+      "schema": {
+        "format": "evidence_jsonl"
+      },
+      "validation": {
+        "allow_empty": false,
+        "max_rows": 100000
+      },
+      "cache": "content",
+      "retention": "retain"
+    }
+  ],
+  "output_stage": "normalized"
 }

@@ -23,12 +23,12 @@ class IntegrityEdgeTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
             shutil.copytree(PROJECT / 'worldmodel', root / 'worldmodel', ignore=shutil.ignore_patterns('__pycache__'))
-            script = '''
+            script = r'''
 from pathlib import Path
 import worldmodel.transforms
 from worldmodel.provenance import capture_code
 p = Path('worldmodel/transforms.py')
-p.write_text(p.read_text().replace("float(row[metric])", "float(row[metric]) + 1000"))
+p.write_text(p.read_text() + '\n# modified after import\n')
 try:
     capture_code(Path.cwd(), 'worldmodel.transforms:countries')
 except ValueError as error:
@@ -51,7 +51,8 @@ else:
                 with self.assertWarnsRegex(RuntimeWarning, 'published'):
                     ref = Runner(Catalog(PROJECT / 'data'), store, PROJECT).run('demo_countries')
             self.assertTrue(store.verify(ref))
-            attempt = json.loads(next((Path(tmp) / 'demo_countries/runs').glob('*.json')).read_text())
+            attempt = next(json.loads(path.read_text()) for path in store.runs_dir('demo_countries').glob('*.json')
+                           if json.loads(path.read_text())['stage'] == 'normalized')
             self.assertEqual(attempt['status'], 'succeeded')
             self.assertIn('bookkeeping_error', attempt)
 

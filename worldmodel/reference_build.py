@@ -12,7 +12,7 @@ SOURCE_IDS=MARKETS+PEOPLE
 
 
 def source_status(catalog,store):
-    return [{**(explore(store,d) if (store.dataset_dir(d)/'samples/latest.json').exists()
+    return [{**(explore(store,d) if (store.sample_latest_path(d)).exists()
                 else {'dataset':d,'status':'not_acquired'}),
              'scope':catalog.get(d)['description']} for d in SOURCE_IDS]
 
@@ -22,7 +22,7 @@ def build_reference(catalog,store,project):
     runner=Runner(catalog,store,project)
     inputs=[]; coverage=[]; records=[]
     for base in ('strategic_evidence','world_evidence'):
-        if (store.dataset_dir(base)/'latest.json').exists():
+        if (store.latest_path(base)).exists():
             ref=store.latest(base); inputs.append(ref)
             coverage.extend(load_report(store,ref).get('coverage',[]) if base=='strategic_evidence' else [])
             # Follow the pinned base input, never a mutable latest pointer, for original source scopes.
@@ -37,7 +37,7 @@ def build_reference(catalog,store,project):
         if status['status']!='sampled':
             coverage.append({'dataset':dataset,'status':status['status'],'reason':status.get('reason'),'scope':status['scope']})
             continue
-        manifest=read_json(store.dataset_dir(dataset)/'samples'/status['sample_id']/'manifest.json')
+        manifest=read_json(store.samples_dir(dataset)/status['sample_id']/'manifest.json')
         ref=runner.run(dataset,raw_refs={dataset:[manifest['artifact']]})
         inputs.append(ref)
         coverage.append({'dataset':dataset,'status':'normalized','output':ref,'sample_id':status['sample_id'],

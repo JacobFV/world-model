@@ -1,4 +1,13 @@
 include LICENSE DATA_RIGHTS.md pyproject.toml
-recursive-include data dataset.json
+recursive-include data *.json *.py *.md .gitignore
+recursive-exclude data *.pyc
+prune data/*/artifacts
+prune data/*/scratch
+prune data/*/manifests
+prune data/*/raw
+prune data/*/final
+prune data/*/processing
+prune data/*/runs
+prune data/*/samples
 recursive-include tests/fixtures *.json *.jsonl *.csv
 recursive-include examples *.json *.jsonl *.csv *.py

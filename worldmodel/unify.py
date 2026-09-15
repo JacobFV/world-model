@@ -16,7 +16,7 @@ def unify(catalog, store, project):
         profile = explore(store, dataset)
         if profile['status'] != 'sampled':
             raise ValueError(f'{dataset}: a successful bounded sample is required before unify')
-        manifest = read_json(store.dataset_dir(dataset)/'samples'/profile['sample_id']/'manifest.json')
+        manifest = read_json(store.samples_dir(dataset)/profile['sample_id']/'manifest.json')
         samples[dataset] = manifest['artifact']
         coverage.append({'dataset': dataset, 'sample_id': profile['sample_id'],
                          'artifact': manifest['artifact'], 'representative': False})

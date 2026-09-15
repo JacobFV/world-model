@@ -1,10 +1,10 @@
 {
   "id": "world_evidence",
-  "schema_version": 1,
+  "schema_version": 2,
   "kind": "derived",
   "status": "sample_only",
   "description": "Typed evidence union of the 11 currently acquired real source samples; incomplete and nonrepresentative.",
-  "entrypoint": "worldmodel.transforms:union",
+  "entrypoint": "pipeline.py:run",
   "dependencies": [
     "census_geography",
     "census_population",
@@ -36,5 +36,22 @@
     "disk_budget_bytes": 67108864,
     "criteria": "Sample existing normalized graph only; no downloads.",
     "representative": false
-  }
+  },
+  "stages": [
+    {
+      "id": "graph",
+      "entrypoint": "pipeline.py:run",
+      "depends_on": [],
+      "schema": {
+        "format": "evidence_jsonl"
+      },
+      "validation": {
+        "allow_empty": false,
+        "max_rows": 100000
+      },
+      "cache": "content",
+      "retention": "retain"
+    }
+  ],
+  "output_stage": "graph"
 }

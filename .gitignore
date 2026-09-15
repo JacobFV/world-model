@@ -22,3 +22,8 @@ data/.sampling.lock
 .env.*
 !.env.example
 docs/generated/
+
+# Dataset-local .gitignore files own generated output exclusions.
+# Defense in depth for newly created runtime datasets.
+data/*/artifacts/
+data/*/scratch/

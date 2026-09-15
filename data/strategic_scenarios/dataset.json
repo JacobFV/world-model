@@ -1,10 +1,10 @@
 {
   "id": "strategic_scenarios",
   "kind": "source",
-  "schema_version": 1,
+  "schema_version": 2,
   "status": "synthetic_example",
   "description": "Explicit fictional scenario carriers, separate from observed world evidence.",
-  "entrypoint": "worldmodel.transforms:evidence_jsonl",
+  "entrypoint": "pipeline.py:run",
   "dependencies": [],
   "parameters": {
     "format": "jsonl"
@@ -17,5 +17,22 @@
     "max_download_bytes": 1048576,
     "max_uncompressed_bytes": 1048576,
     "disk_budget_bytes": 67108864
-  }
+  },
+  "stages": [
+    {
+      "id": "normalized",
+      "entrypoint": "pipeline.py:run",
+      "depends_on": [],
+      "schema": {
+        "format": "evidence_jsonl"
+      },
+      "validation": {
+        "allow_empty": false,
+        "max_rows": 100000
+      },
+      "cache": "content",
+      "retention": "retain"
+    }
+  ],
+  "output_stage": "normalized"
 }

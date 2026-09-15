@@ -1,15 +1,15 @@
 {
   "id": "treasury_debt",
-  "schema_version": 1,
+  "schema_version": 2,
   "dependencies": [],
   "kind": "source",
   "status": "sample_adapter_ready",
-  "description": "Daily federal debt stocks, Jan\u2013Mar 2025; first100 rows",
+  "description": "Daily federal debt stocks, Jan–Mar 2025; first100 rows",
   "source": {
     "publisher": "US Treasury",
     "license_status": "see_publisher_terms"
   },
-  "entrypoint": "worldmodel.strategic_sources:normalize",
+  "entrypoint": "pipeline.py:run",
   "parameters": {},
   "sampling": {
     "strategy": "download",
@@ -23,10 +23,27 @@
     "format": "json",
     "representative": false,
     "url": "https://api.fiscaldata.treasury.gov/services/api/fiscal_service/v2/accounting/od/debt_to_penny?filter=record_date%3Agte%3A2025-01-01%2Crecord_date%3Alte%3A2025-03-31&page%5Bsize%5D=100&sort=record_date",
-    "criteria": "Daily federal debt stocks, Jan\u2013Mar 2025; first100 rows",
+    "criteria": "Daily federal debt stocks, Jan–Mar 2025; first100 rows",
     "records_path": [
       "data"
     ],
     "documentation": "https://fiscaldata.treasury.gov/api-documentation/"
-  }
+  },
+  "stages": [
+    {
+      "id": "normalized",
+      "entrypoint": "pipeline.py:run",
+      "depends_on": [],
+      "schema": {
+        "format": "evidence_jsonl"
+      },
+      "validation": {
+        "allow_empty": false,
+        "max_rows": 100000
+      },
+      "cache": "content",
+      "retention": "retain"
+    }
+  ],
+  "output_stage": "normalized"
 }

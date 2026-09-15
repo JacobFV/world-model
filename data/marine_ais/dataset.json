@@ -1,6 +1,6 @@
 {
   "id": "marine_ais",
-  "schema_version": 1,
+  "schema_version": 2,
   "dependencies": [],
   "kind": "source",
   "status": "sample_adapter_ready",
@@ -9,7 +9,7 @@
     "publisher": "NOAA / BOEM / USCG MarineCadastre",
     "license_status": "see_publisher_terms"
   },
-  "entrypoint": "worldmodel.strategic_sources:normalize",
+  "entrypoint": "pipeline.py:run",
   "parameters": {},
   "sampling": {
     "strategy": "blocked",
@@ -26,5 +26,22 @@
     "criteria": "Historical AIS availability; no bulk daily download on laptop",
     "reason": "AccessAIS currently reports its ordering service unavailable. Bulk daily AIS archives remain available, but no selected archive or spatial export has been verified to fit the62MiB download buffer. No vessel tracks acquired.",
     "documentation": "https://marinecadastre.gov/accessais/"
-  }
+  },
+  "stages": [
+    {
+      "id": "normalized",
+      "entrypoint": "pipeline.py:run",
+      "depends_on": [],
+      "schema": {
+        "format": "evidence_jsonl"
+      },
+      "validation": {
+        "allow_empty": false,
+        "max_rows": 100000
+      },
+      "cache": "content",
+      "retention": "retain"
+    }
+  ],
+  "output_stage": "normalized"
 }

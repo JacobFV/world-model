@@ -35,7 +35,9 @@ class SubstrateTests(unittest.TestCase):
     def test_derived_output_has_exact_inputs_code_and_row_lineage(self):
         ref = self.build()
         manifest = self.store.manifest(ref)
-        self.assertEqual(manifest['code']['entrypoint'], 'worldmodel.transforms:happiness')
+        self.assertEqual(manifest['code']['entrypoint'], 'pipeline.py:run')
+        self.assertEqual(ref['stage'], 'graph')
+        self.assertIn('pipeline.py', manifest['code']['dataset_code']['files'])
         self.assertIn('worldmodel/transforms.py', manifest['code']['files'])
         self.assertEqual(len(manifest['inputs']), 1)
         rows = list(self.store.records(ref))
@@ -43,7 +45,7 @@ class SubstrateTests(unittest.TestCase):
         self.assertEqual(rows[0]['unit'], 'index_points')
         self.assertEqual(rows[0]['evidence'][0]['input'], manifest['inputs'][0])
         lineage = self.store.lineage(ref)
-        self.assertEqual(len(lineage['versions']), 2)
+        self.assertEqual(len(lineage['versions']), 3)
         self.assertEqual(len(lineage['artifacts']), 1)
         self.assertEqual(lineage['artifacts'][0]['source']['release'], 'fictional-v1')
 
@@ -76,9 +78,12 @@ class SubstrateTests(unittest.TestCase):
         self.store.import_file('demo_countries', bad, {'publisher': 'fixture'})
         with self.assertRaises(ValueError):
             self.runner.run('demo_countries')
-        self.assertEqual(list((self.root / 'data/demo_countries/final').iterdir()), [])
-        attempts = list((self.root / 'data/demo_countries/runs').glob('*.json'))
-        self.assertEqual(json.loads(attempts[0].read_text())['status'], 'failed')
+        self.assertFalse(self.store.latest_path('demo_countries').exists())
+        self.assertFalse(self.store.latest_path('demo_countries', 'normalized').exists())
+        self.assertTrue(self.store.latest_path('demo_countries', 'parsed').exists())
+        attempts = [json.loads(path.read_text()) for path in self.store.runs_dir('demo_countries').glob('*.json')]
+        self.assertEqual({attempt['status'] for attempt in attempts}, {'succeeded', 'failed'})
+        self.assertEqual(next(a for a in attempts if a['status'] == 'failed')['stage'], 'normalized')
 
     def test_raw_tampering_is_detected(self):
         ref = self.import_demo()
@@ -140,7 +145,7 @@ class SubstrateTests(unittest.TestCase):
         shutil.copytree(self.store.root, destination)
         moved = Store(destination)
         self.assertTrue(moved.verify(ref))
-        self.assertEqual(len(moved.lineage(ref)['versions']), 2)
+        self.assertEqual(len(moved.lineage(ref)['versions']), 3)
 
     def test_path_traversal_is_rejected(self):
         with self.assertRaises(ValueError):

@@ -31,7 +31,7 @@ def fetch(store, dataset, url, source, *, allow_network=False, expected_sha256=N
     if expected_sha256:
         hash_id(expected_sha256)
     base = store.initialize(dataset)
-    with tempfile.TemporaryDirectory(prefix='fetch-', dir=base / 'processing') as temporary:
+    with tempfile.TemporaryDirectory(prefix='fetch-', dir=store.scratch_dir(dataset)) as temporary:
         payload = Path(temporary) / 'download'
         for attempt in range(retries + 1):
             try:

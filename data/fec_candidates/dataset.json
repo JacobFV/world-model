@@ -1,6 +1,6 @@
 {
   "id": "fec_candidates",
-  "schema_version": 1,
+  "schema_version": 2,
   "dependencies": [],
   "kind": "source",
   "status": "sample_adapter_ready",
@@ -12,7 +12,7 @@
   "expected_outputs": [
     "person"
   ],
-  "entrypoint": "worldmodel.strategic_sources:normalize",
+  "entrypoint": "pipeline.py:run",
   "parameters": {},
   "sampling": {
     "strategy": "download",
@@ -31,5 +31,22 @@
     "url": "https://api.open.fec.gov/v1/candidates/?api_key=DEMO_KEY&candidate_id=H6WA05023&candidate_id=H6VA10134&per_page=25&page=1&sort=candidate_id",
     "criteria": "Two historical candidate IDs H6WA05023/H6VA10134 already referenced by committee evidence; published names and candidacy metadata only",
     "documentation": "https://api.open.fec.gov/developers/"
-  }
+  },
+  "stages": [
+    {
+      "id": "normalized",
+      "entrypoint": "pipeline.py:run",
+      "depends_on": [],
+      "schema": {
+        "format": "evidence_jsonl"
+      },
+      "validation": {
+        "allow_empty": false,
+        "max_rows": 100000
+      },
+      "cache": "content",
+      "retention": "retain"
+    }
+  ],
+  "output_stage": "normalized"
 }

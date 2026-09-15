@@ -1,6 +1,6 @@
 {
   "id": "iso_mic_venues",
-  "schema_version": 1,
+  "schema_version": 2,
   "dependencies": [],
   "kind": "source",
   "status": "sample_adapter_ready",
@@ -9,7 +9,7 @@
     "publisher": "ISO 10383 Registration Authority / SWIFT",
     "license_status": "see_publisher_terms"
   },
-  "entrypoint": "worldmodel.market_sources:normalize",
+  "entrypoint": "pipeline.py:run",
   "parameters": {},
   "sampling": {
     "strategy": "download",
@@ -34,5 +34,22 @@
     "completeness": "unknown",
     "scope": "Bounded selected US MIC reference records, including published Texas venue names; registration does not prove operation."
   },
-  "documentation_verified_on": "2026-09-15"
+  "documentation_verified_on": "2026-09-15",
+  "stages": [
+    {
+      "id": "normalized",
+      "entrypoint": "pipeline.py:run",
+      "depends_on": [],
+      "schema": {
+        "format": "evidence_jsonl"
+      },
+      "validation": {
+        "allow_empty": false,
+        "max_rows": 100000
+      },
+      "cache": "content",
+      "retention": "retain"
+    }
+  ],
+  "output_stage": "normalized"
 }

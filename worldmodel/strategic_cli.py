@@ -53,7 +53,7 @@ def _sample(store,dataset):
     profile=explore(store,dataset)
     if profile['status']!='sampled':
         raise ValueError('A successful bounded source sample is required')
-    manifest=read_json(store.dataset_dir(dataset)/'samples'/profile['sample_id']/'manifest.json')
+    manifest=read_json(store.samples_dir(dataset)/profile['sample_id']/'manifest.json')
     ref=manifest['artifact']
     rows=[json.loads(line) for line in (store.artifact_dir(ref)/'payload').read_text().splitlines() if line.strip()]
     return ref,rows
@@ -74,7 +74,7 @@ def execute(args,catalog,store,project,reference):
                 result=sample_dataset(store,definition,allow_network=args.allow_network)
                 print(f'{dataset}: {result["status"]}',file=sys.stderr,flush=True)
             else:
-                path=store.dataset_dir(dataset)/'samples/latest.json'
+                path=store.sample_latest_path(dataset)
                 result=read_json(path) if path.exists() else {'dataset':dataset,'status':'not_acquired'}
             results.append({**result,'description':definition['description']})
         return results

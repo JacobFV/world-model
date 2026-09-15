@@ -38,6 +38,7 @@ def validate_record(record):
     for item in evidence:
         ref = item.get('input', {})
         slug(ref.get('dataset'))
+        if 'stage' in ref:slug(ref['stage'])
         if ('version' in ref) == ('artifact' in ref):
             raise ValueError('evidence input needs exactly one version or artifact')
         hash_id(ref.get('version', ref.get('artifact')))

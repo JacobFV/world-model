@@ -421,7 +421,7 @@ def _publish(store, result, code, registry):
     dataset = slug(result['request'].get('dataset', 'materialized_view'))
     with store.lock(dataset) as base:
         run_id = uuid.uuid4().hex
-        staging = base/'processing'/run_id
+        staging = store.scratch_dir(dataset)/run_id
         staging.mkdir()
         try:
             atomic_json(staging/'view.json', result)
@@ -458,8 +458,8 @@ def _publish(store, result, code, registry):
                 store.verify(ref)
             else:
                 os.rename(staging, destination)
-            atomic_json(base/'latest.json', ref)
-            atomic_json(base/'runs'/f'{run_id}.json', {'run_id': run_id, 'status': 'succeeded',
+            store.publish_index(ref)
+            atomic_json(store.runs_dir(dataset)/f'{run_id}.json', {'run_id': run_id, 'status': 'succeeded',
                         'output': ref, 'completed_at': now(), 'kind': 'materialization'})
             return ref
         finally:

@@ -1,6 +1,6 @@
 {
   "id": "congress_people",
-  "schema_version": 1,
+  "schema_version": 2,
   "dependencies": [],
   "kind": "source",
   "status": "sample_adapter_ready",
@@ -18,7 +18,7 @@
     "holds_role",
     "role_in_organization"
   ],
-  "entrypoint": "worldmodel.people_sources:normalize",
+  "entrypoint": "pipeline.py:run",
   "parameters": {},
   "sampling": {
     "strategy": "download",
@@ -56,5 +56,22 @@
     "raw_fields": "source_row on person; source_term or source_affiliation on role; all claims retain raw line evidence",
     "identity": "Only published identifier crosswalks; names are aliases, never merge evidence",
     "temporal_scope": "Published term dates only"
-  }
+  },
+  "stages": [
+    {
+      "id": "normalized",
+      "entrypoint": "pipeline.py:run",
+      "depends_on": [],
+      "schema": {
+        "format": "evidence_jsonl"
+      },
+      "validation": {
+        "allow_empty": false,
+        "max_rows": 100000
+      },
+      "cache": "content",
+      "retention": "retain"
+    }
+  ],
+  "output_stage": "normalized"
 }

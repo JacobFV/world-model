@@ -65,7 +65,7 @@ def execute(args,catalog,store,project,reference):
         from .coverage import coverage_report
         from .process_library import default_registry
         inputs=[ref]; evaluations=[]
-        if (store.dataset_dir('series_calibration')/'latest.json').exists():
+        if (store.latest_path('series_calibration')).exists():
             fit=store.latest('series_calibration');evaluations.append({'artifact':fit,'report':load_report(store,fit)});inputs.append(fit)
         report=coverage_report(rows,default_registry().describe(),load_report(store,ref).get('coverage',[]),evaluations)
         output=publish_report(store,'reference_coverage',report,{'graph':ref},inputs=inputs,

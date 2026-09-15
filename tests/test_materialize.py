@@ -79,7 +79,7 @@ class MaterializeTests(unittest.TestCase):
     def test_budget_rejected_before_publication(self):
         with self.assertRaisesRegex(ValueError,'budget'):
             materialize(self.store,self.graph,{**self.request,'budget':1},self.registry)
-        self.assertFalse((self.store.root/'materialized_view/latest.json').exists())
+        self.assertFalse((self.store.latest_path('materialized_view')).exists())
 
     def test_conflicting_evidence_requires_explicit_reconciliation(self):
         conflicting={**self.rows[1],'id':'obs:a:other','value':15,'observed_at':'2024-01-01T00:00:01Z'}

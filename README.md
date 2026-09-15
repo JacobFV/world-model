@@ -147,47 +147,63 @@ Small real samples have been acquired and explored. See
 Samples remain separate from full pipeline pointers. API subsets, CSV, ZIP/CSV,
 and small XLSX are supported; source-specific limits and credentials still apply.
 
-## Directory contract
+## Dataset-local directory contract
+
+Each dataset keeps its declaration, processing code, tests and reviewable metadata
+in one directory. Source-specific adapters and formulas live in `pipeline.py`;
+shared ontology and generic readers remain in `worldmodel/`.
 
 ```text
-data/
-  census_population/
-    dataset.json                  # tracked declaration: adapter, source, parameters
-    raw/
-      <artifact-hash>/
-        payload                   # exact imported bytes; format unchanged
-        receipt.json              # publisher/release/URL, retrieval time, byte hash
-    processing/
-      <run-id>/                   # private staging; retained on transformation failure
-    final/
-      <version-hash>/
-        records.jsonl             # immutable validated records
-        manifest.json             # exact inputs, code, definition, parameters, outputs
-    runs/
-      <run-id>.json                # attempt status, timestamps, errors, output version
-    raw-latest.json               # convenience pointer; runs capture its resolved ref
-    latest.json                   # convenience pointer; never use as a provenance ref
-  rando_joes_happiness_index/      # exactly the same contract for computed data
-  world_graph/                    # the graph is another computed dataset
-    index.sqlite                  # rebuildable query cache, not authoritative data
+data/demo_countries/
+  dataset.json                   # tracked schema 2 declaration and stage DAG
+  pipeline.py                    # tracked parse/normalize implementation
+  README.md, .gitignore
+  tests/                         # local acceptance tests when present
+  manifests/                     # compact metadata and convenience pointers
+    raw/<artifact>.json
+    parsed/<version>.json
+    normalized/<version>.json
+    stages/<stage>/latest.json
+    raw-latest.json, latest.json
+  artifacts/                     # ignored immutable payloads and full manifests
+    raw/<artifact>/{payload,receipt.json}
+    parsed/<version>/{records.jsonl,manifest.json}
+    normalized/<version>/{records.jsonl,manifest.json}
+  scratch/                       # ignored staging, locks and run receipts
 ```
 
-Runtime directories are created by `init`, `import`, or `run`. Only declarations
-are tracked. Computed datasets normally have an empty `raw/` directory.
-An artifact hash identifies its receipt **including acquisition time and payload
-checksum**; repeated acquisitions remain distinguishable. A final version hash
-identifies its complete manifest. Identical builds with the same inputs, code,
-environment, and parameters reuse the published version, while recording a new
-attempt. They still execute and check the output; this is not a speculative cache.
+The same contract applies to computed datasets and graph materializations. Full
+artifact manifests are authoritative; compact `manifests/` indexes omit code
+source bodies and are suitable for metadata review. They do not contain the
+payload bytes needed to rebuild or verify a dataset.
+
+This is a greenfield layout. Old top-level `raw/`, `final/`, `processing/`, `runs/`
+and `samples/` paths are ignored and never read, moved or deleted by the new store.
+New imports and builds use `artifacts/`, `scratch/` and `manifests/`.
+
+Schema 2 declares named stages, their dependencies and an `output_stage`:
+
+```sh
+python3 -m worldmodel run demo_countries --stage parsed
+python3 -m worldmodel inspect demo_countries/parsed
+python3 -m worldmodel run demo_countries
+python3 -m worldmodel verify demo_countries/normalized
+```
+
+`cache: "content"` verifies and reuses matching stage artifacts without rerunning
+code. `cache: "off"` executes again. `retention: "rebuildable"` permits rebuilding
+an absent cached artifact directory; it does not schedule deletion. There is no
+automatic garbage collection. See the [dataset layout guide](docs/dataset-layout.md)
+for stage schemas, Context APIs, cache keys, exact references and recovery.
 
 ## What is implemented
 
 | Area | Implementation |
 | --- | --- |
-| Storage | Immutable raw and final artifacts; streaming checksums; staging and atomic rename |
-| Execution | Dependency validation, topological builds, exact input/raw pins, per-dataset writer locks |
+| Storage | Dataset-local immutable artifacts, compact metadata indexes, scratch staging and atomic rename |
+| Execution | External dataset and internal stage DAGs, verified stage caches, exact pins and per-dataset writer locks |
 | Provenance | Row/record references, recursive lineage and verification, source receipts, code snapshots |
-| Adapters | Streaming CSV/JSONL, bounded JSON arrays and Census-style header/table responses |
+| Adapters | Dataset-local source mappings and formulas; shared CSV/JSONL readers and bounded JSON inputs |
 | Acquisition | Local import; explicit HTTP(S) fetch with limits, timeouts, retries, optional expected checksum |
 | Ontology | Validated entities, observations, assertions, events; units, dimensions, valid and observed times |
 | Graph | Evidence-preserving union; indexed bounded neighborhoods; observation and temporal queries |
@@ -212,13 +228,16 @@ integration work. No complete global evidence base is claimed.
 Every version manifest includes:
 
 - `definition`: the exact dataset declaration, including its source metadata.
-- `code.entrypoint`: e.g. `worldmodel.transforms:happiness`.
-- `code.files` and `code.sources`: SHA-256 hashes and text snapshots of all project
-  Python implementation files, catalog declarations, and dependency/config files.
+- `code.entrypoint`: the local stage function, for example `pipeline.py:run`.
+- `code.files` and `code.sources`: hashes and source snapshots for the core implementation,
+  catalog declarations and dependency/config files.
+- `code.dataset_code`: local `dataset.json`, `pipeline.py`, Python helpers and JSON configuration with
+  portable relative names, hashes and source snapshots.
 - `code.git_commit`, `code.git_dirty`: Git identity when the checkout is a repository;
   actual file hashes work even without Git or with uncommitted edits.
 - Python, platform, and installed package versions.
-- `inputs`: exact `{dataset, version}` references; never mutable `latest` paths.
+- `inputs`: exact `{dataset, stage, version}` references for named stages, or
+  `{dataset, version}` for standalone products; never mutable `latest` paths.
 - `raw_inputs`: exact `{dataset, artifact}` references.
 - `parameters` and output checksums, byte sizes, and record counts.
 
@@ -226,7 +245,7 @@ Each record supplies evidence like:
 
 ```json
 {
-  "input": {"dataset": "demo_countries", "version": "<64-character-sha256>"},
+  "input": {"dataset": "demo_countries", "stage": "normalized", "version": "<64-character-sha256>"},
   "record_id": "fixture:AA:income"
 }
 ```
@@ -288,50 +307,57 @@ include `_provenance`, and bounded neighborhoods report `truncated` when capped.
 
 ```sh
 python3 -m worldmodel new country_income --kind source \
-  --entrypoint worldmodel.transforms:normalize \
   --description 'Country income observations from a selected release'
 ```
 
-Edit `data/country_income/dataset.json`. For a CSV with `country,income` columns,
-this is a complete mapping example (replace the illustrative source/time/unit
-metadata to match the selected real release):
+The command creates `data/country_income/dataset.json`, `pipeline.py`, a README,
+ignore rules and a test placeholder. Configure its source metadata and sampling
+policy, then implement the local stage. The scaffold fails explicitly until its
+transformation is provided.
+
+For a simple CSV mapping, the local `pipeline.py` can use a shared reader:
+
+```python
+from worldmodel.source_helpers import normalize
+
+
+def run(context):
+    yield from normalize(context)
+```
+
+Bind that reader through the dataset's `parameters`, for example:
 
 ```json
 {
-  "id": "country_income",
-  "schema_version": 1,
-  "kind": "source",
-  "status": "configured",
-  "dependencies": [],
-  "source": {"publisher": "Example fixture", "release": "fictional-v1"},
-  "entrypoint": "worldmodel.transforms:normalize",
-  "parameters": {
-    "format": "csv",
-    "constants": {
-      "kind": "observation", "metric": "income",
-      "unit": "fictional_currency_per_person",
-      "observed_at": "2025-01-01T00:00:00Z",
-      "valid_from": "2024-01-01", "valid_to": "2025-01-01"
-    },
-    "columns": {"value": "income"},
-    "dimensions": {"country": "country"},
-    "numeric_fields": ["value"],
-    "id_columns": ["country"]
-  }
+  "format": "csv",
+  "constants": {
+    "kind": "observation", "metric": "income",
+    "unit": "fictional_currency_per_person",
+    "observed_at": "2025-01-01T00:00:00Z",
+    "valid_from": "2024-01-01", "valid_to": "2025-01-01"
+  },
+  "columns": {"value": "income"},
+  "dimensions": {"country": "country"},
+  "numeric_fields": ["value"],
+  "id_columns": ["country"]
 }
 ```
+
+These values describe a fictional example. Replace units, periods and publisher
+metadata with the selected source's declarations. Keep the scaffold's schema 2
+stage definition and `output_stage`; the [layout guide](docs/dataset-layout.md)
+shows complete stage declarations.
 
 ```sh
 python3 -m worldmodel import country_income tests/fixtures/countries.csv
 python3 -m worldmodel run country_income
 ```
 
-`normalize` supports `null_values` and `missing_reason` for suppression/missing
-codes, `delimiter`, `encoding`, and `max_json_bytes`. Identifiers and dimensions
-stay strings, preserving leading zeroes. Numeric conversion is explicit.
-Use a custom transform for multi-metric responses, revision handling, geometry,
-source-specific units, or entity extraction. Never infer named entities from
-aggregate measurements.
+`normalize` supports explicit missing-value codes, `missing_reason`, `delimiter`,
+`encoding` and `max_json_bytes`. Identifiers and dimensions stay strings, preserving
+leading zeroes. Put source-specific revision handling, geometry, unit conversions
+and entity extraction in the dataset's local pipeline. Never infer named entities
+from aggregate measurements.
 
 For acquisition on the workstation, use `fetch DATASET URL --allow-network`,
 optionally with `--sha256`, `--max-bytes`, `--source-json`, and `--user-agent`.
@@ -342,38 +368,37 @@ pass all pages with repeated `--raw` arguments. Import preserves archives intact
 
 ## Add a computed dataset
 
-Create `worldmodel/my_metrics.py` with a function accepting `Context` and yielding
-validated records. Read declared dependencies through `context.records(dataset)`;
-attach `context.input_ref(dataset)` plus the contributing record IDs as evidence.
-Use `worldmodel/transforms.py:happiness` as the complete working example.
-
 ```sh
 python3 -m worldmodel new my_metric --kind derived \
-  --entrypoint worldmodel.my_metrics:compute \
+  --entrypoint pipeline.py:compute \
   --depends-on country_income --description 'A derived observation dataset'
-python3 -m worldmodel run my_metric
 ```
 
-Transforms are trusted Python code. They must read only declared inputs and keep
-random seeds, model weights, units, assumptions, and other dependencies explicit.
-Register model weights or auxiliary tables as input datasets too. The runner is
-not a Python sandbox and cannot discover hidden network/file reads inside plugins.
-One output stream currently contains normalized evidence records in JSONL. The
-example computation is deliberately small and holds country groups in memory;
-production joins should use partitioned input or a disk-backed analytical engine.
+Implement `data/my_metric/pipeline.py:compute` before running it. Read declared
+external inputs with `context.records(dataset)` and attach the exact
+`context.input_ref(dataset)` plus contributing record IDs as evidence. Read local
+stage dependencies with `context.stage_records(stage)` and `context.stage_ref(stage)`.
+See [the local happiness pipeline](data/rando_joes_happiness_index/pipeline.py) for
+a complete working computation.
+
+Transforms are trusted Python code, not a sandbox. Keep random seeds, model weights,
+units, assumptions and other dependencies explicit. Register auxiliary tables and
+model weights as input datasets. The runner cannot discover hidden network or file
+reads inside arbitrary code. Generic JSONL intermediates and normalized evidence
+stages have separate validation contracts; each stage writes a bounded output stream.
 
 Pin inputs for repeatable computations and comparative experiments:
 
 ```sh
 python3 -m worldmodel run rando_joes_happiness_index \
-  --input demo_countries@VERSION_HASH --parameters '{"income_weight":0.25}'
+  --input demo_countries/normalized@VERSION_HASH --parameters '{"income_weight":0.25}'
 python3 -m worldmodel run census_population \
   --raw census_population@ARTIFACT_HASH_1 --raw census_population@ARTIFACT_HASH_2
 ```
 
 Use the full hashes emitted by import/run. Parameter overrides apply only to the
 target dataset. Pins prevent rebuilding the pinned dependency; unpinned sources
-resolve `raw-latest.json` once and record that exact reference.
+resolve `manifests/raw-latest.json` once and record that exact reference.
 
 ## Move to the GB10
 
@@ -386,8 +411,9 @@ python3 -m worldmodel init
 python3 -m worldmodel catalog
 ```
 
-If you have existing runtime data, copy the **entire data tree**, including raw,
-final, receipts and manifests. References contain dataset IDs and hashes, not
+To transfer data created under this layout, copy the **entire dataset tree**,
+including `artifacts/` payloads/full manifests and `manifests/` metadata. Old-layout
+directories are not imported automatically. References contain dataset IDs and hashes, not
 absolute paths. Declarations come from the checkout or installed package resources;
 `--catalog-root` can select another declaration tree. Verify important pinned versions after copying.
 The SQLite index can be omitted and rebuilt:
@@ -406,19 +432,21 @@ cluster scheduler. ARM64/GB10 execution has not been tested on this machine.
 
 ## Publication and recovery
 
-A dataset lock excludes concurrent writers. A transformation runs in `processing/`;
-only complete validated output is renamed into `final/`. Transformation failures
-leave a failed run receipt and staging data for inspection. A killed process may
-leave a `running` receipt and orphan staging; do not treat it as published output.
-Kernel file locks release when a process exits; the `.lock` file itself may remain.
+A dataset lock excludes concurrent writers. Each stage executes in
+`scratch/<run-id>/`; only complete validated output is renamed into
+`artifacts/<stage>/<version>/`. Normal cleanup removes staging on success or
+failure, while attempt receipts remain under `scratch/runs/`. A killed process
+may leave an orphan staging directory or a `running` receipt. Neither is published
+output. Kernel locks release when a process exits.
 
-Rename is the publication commit point. Once a final directory exists, the exact
-version is authoritative. If updating `latest.json` or the run receipt then fails,
-the runner returns the published reference with a bookkeeping warning. Recover by
-verifying that exact reference and rerunning after restoring writable storage.
-A later successful run repairs the convenience pointer. Never delete a published
-version to conceal an audit error. The storage contract assumes ordinary local
-filesystem rename/locking semantics; network/object storage needs its own backend.
+Rename is the publication commit point. If compact-index, pointer or run-receipt
+bookkeeping fails after publication, the runner reports the exact published
+reference with a warning. Verify that reference, restore writable storage and rerun
+to repair convenience pointers. Never delete valid output to conceal an audit error.
+This contract assumes ordinary local filesystem rename/locking semantics.
+
+See [the layout guide](docs/dataset-layout.md) for cache verification, retention
+limits, code snapshots and the distinction between full and compact manifests.
 
 ## Project map
 
@@ -426,7 +454,9 @@ filesystem rename/locking semantics; network/object storage needs its own backen
 - `worldmodel/pipeline.py`: DAG builds, validation, publication and run audit.
 - `worldmodel/provenance.py`: code/environment snapshots.
 - `worldmodel/model.py`: shared record contracts.
-- `worldmodel/transforms.py`: adapters and computed examples.
+- `data/*/pipeline.py`: source-specific adapters, computations and named stages.
+- `worldmodel/source_helpers.py`: reusable readers and evidence-preserving operations.
+- `worldmodel/transforms.py`: compatibility imports for older Python callers.
 - `worldmodel/graph.py`: disposable temporal query projection.
 - `worldmodel/checkpoints.py`, `environments.py`: incremental temporal episodes and replay adapter.
 - `worldmodel/coupled_economy.py`: closed commercial-bank economy with step policies.
@@ -435,7 +465,8 @@ filesystem rename/locking semantics; network/object storage needs its own backen
 - `worldmodel/surfaces.py`, `interactive_surfaces.py`: standalone source-preserving views.
 - `worldmodel/resources.py`, `rights.py`: installed resources and inherited data terms.
 - `worldmodel/fetch.py`, `cli.py`: explicit acquisition and CLI.
-- `data/*/dataset.json`: dataset definitions and source integration requirements.
+- `data/*/dataset.json`: stage declarations, dependencies and source integration requirements.
+- `data/*/manifests/`: compact reviewable metadata; payloads remain in ignored `artifacts/`.
 - `tests/`: offline behavioral tests and fictional fixtures.
 
 ### Integrated policy and sensitivity examples

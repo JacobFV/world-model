@@ -10,16 +10,19 @@ from .graph import Graph
 from .pipeline import Runner
 from .store import Store
 from .resources import resource_roots
-from .util import atomic_json, slug, read_json
+from .util import atomic_json, slug, read_json, hash_id
 
 PROJECT = Path(__file__).resolve().parents[1]
 
 
 def reference(value, store):
-    if '@' in value:
-        dataset, version = value.split('@', 1)
-        return {'dataset': dataset, 'version': version}
-    return store.latest(value)
+    name, separator, version = value.partition('@')
+    pieces=name.split('/')
+    if len(pieces)>2:raise ValueError('Reference must be dataset[/stage][@version]')
+    dataset=slug(pieces[0]);stage=slug(pieces[1]) if len(pieces)==2 else None
+    if separator:
+        return {'dataset':dataset,**({'stage':stage} if stage else {}),'version':hash_id(version)}
+    return store.latest(dataset,stage=stage) if stage else store.latest(dataset)
 
 
 def parser():
@@ -50,7 +53,7 @@ def parser():
     new = sub.add_parser('new', help='Create a source or derived dataset declaration')
     new.add_argument('dataset')
     new.add_argument('--kind', choices=['source', 'derived'], required=True)
-    new.add_argument('--entrypoint', required=True)
+    new.add_argument('--entrypoint', default='pipeline.py:run', help='Local pipeline.py:function to scaffold')
     new.add_argument('--depends-on', action='append', default=[])
     new.add_argument('--description', required=True)
     imp = sub.add_parser('import', help='Snapshot a local file into immutable raw storage')
@@ -69,12 +72,13 @@ def parser():
     plan.add_argument('dataset')
     run = sub.add_parser('run')
     run.add_argument('dataset')
+    run.add_argument('--stage', help='Build a declared intermediate stage instead of the output stage')
     run.add_argument('--parameters', default='{}', help='JSON object; target only')
-    run.add_argument('--input', action='append', default=[], help='Pin dependency dataset@version')
+    run.add_argument('--input', action='append', default=[], help='Pin dependency dataset[/stage]@version')
     run.add_argument('--raw', action='append', default=[], help='Pin source dataset@artifact; repeat for shards')
     for name in ('inspect', 'lineage', 'verify'):
         command = sub.add_parser(name)
-        command.add_argument('reference', help='dataset or dataset@version')
+        command.add_argument('reference', help='dataset[/stage][@version]')
     sample = sub.add_parser('sample', help='Fetch bounded exploratory samples without changing full-data pointers')
     sample.add_argument('dataset', help='Dataset ID or all')
     sample.add_argument('--allow-network', action='store_true')
@@ -162,16 +166,9 @@ def execute(args):
         path = catalog.root / args.dataset / 'dataset.json'
         if path.exists():
             raise ValueError('Dataset already exists')
-        definition = {'id': args.dataset, 'schema_version': 1, 'kind': args.kind,
-                      'description': args.description, 'status': 'configured',
-                      'entrypoint': args.entrypoint, 'dependencies': args.depends_on, 'parameters': {},
-                      'sampling': {'strategy': 'derived' if args.kind == 'derived' else 'blocked',
-                                   'format': 'jsonl', 'max_rows': 100, 'max_sample_bytes': 1024 ** 2,
-                                   'max_download_bytes': 1024 ** 2, 'max_uncompressed_bytes': 1024 ** 2,
-                                   'disk_budget_bytes': 64 * 1024 ** 2,
-                                   'criteria': 'First 100 records, at most 1 MiB',
-                                   'reason': 'Configure a sampling URL and source-specific format'}}
-        atomic_json(path, definition)
+        from .dataset_scaffold import create_dataset
+        definition=create_dataset(catalog,args.dataset,kind=args.kind,description=args.description,
+                                  dependencies=args.depends_on,entrypoint=args.entrypoint)
         store.initialize(args.dataset)
         return definition
     if command in ('import', 'fetch'):
@@ -189,12 +186,14 @@ def execute(args):
                      expected_sha256=args.sha256, max_bytes=budget, headers=headers)
     if command == 'plan':
         return [{'dataset': name, 'status': catalog.get(name).get('status'),
-                 'entrypoint': catalog.get(name).get('entrypoint')} for name in catalog.plan(args.dataset)]
+                 'entrypoint': catalog.get(name).get('entrypoint'),
+                 'output_stage':catalog.get(name).get('output_stage'),
+                 'stages':catalog.get(name).get('stages',[])} for name in catalog.plan(args.dataset)]
     if command == 'run':
         inputs, raws = {}, {}
         for value in args.input:
             if '@' not in value:
-                raise ValueError('--input requires dataset@version')
+                raise ValueError('--input requires dataset[/stage]@version')
             ref = reference(value, store)
             if ref['dataset'] in inputs:
                 raise ValueError('Duplicate input pin')
@@ -204,7 +203,7 @@ def execute(args):
                 raise ValueError('--raw requires dataset@artifact')
             dataset, artifact = value.split('@', 1)
             raws.setdefault(dataset, []).append({'dataset': dataset, 'artifact': artifact})
-        return runner.run(args.dataset, parameters=object_json(args.parameters), raw_refs=raws, input_refs=inputs)
+        return runner.run(args.dataset, parameters=object_json(args.parameters), raw_refs=raws, input_refs=inputs, stage=args.stage)
     if command in ('inspect', 'lineage', 'verify'):
         ref = reference(args.reference, store)
         if command == 'inspect':

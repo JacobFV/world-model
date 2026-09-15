@@ -1,6 +1,6 @@
 {
   "id": "nasdaq_listings",
-  "schema_version": 1,
+  "schema_version": 2,
   "dependencies": [],
   "kind": "source",
   "status": "sample_adapter_ready",
@@ -9,7 +9,7 @@
     "publisher": "Nasdaq Trader",
     "license_status": "see_publisher_terms"
   },
-  "entrypoint": "worldmodel.market_sources:normalize",
+  "entrypoint": "pipeline.py:run",
   "parameters": {},
   "sampling": {
     "strategy": "download",
@@ -36,5 +36,22 @@
     "completeness": "unknown",
     "scope": "First 100 Nasdaq-listed directory rows excluding test issues. Source-scoped instrument/listing references; no legal issuer ID supplied."
   },
-  "documentation_verified_on": "2026-09-15"
+  "documentation_verified_on": "2026-09-15",
+  "stages": [
+    {
+      "id": "normalized",
+      "entrypoint": "pipeline.py:run",
+      "depends_on": [],
+      "schema": {
+        "format": "evidence_jsonl"
+      },
+      "validation": {
+        "allow_empty": false,
+        "max_rows": 100000
+      },
+      "cache": "content",
+      "retention": "retain"
+    }
+  ],
+  "output_stage": "normalized"
 }

@@ -21,7 +21,7 @@ def publish_report(store, dataset, report, parameters, *, inputs=(), raw_inputs=
     canonical(report)
     with store.lock(dataset) as base:
         run_id = uuid.uuid4().hex
-        staging = base/'processing'/run_id
+        staging = store.scratch_dir(dataset)/run_id
         staging.mkdir()
         try:
             atomic_json(staging/'report.json', report)
@@ -50,11 +50,11 @@ def publish_report(store, dataset, report, parameters, *, inputs=(), raw_inputs=
                 store.verify(ref)
             else:
                 os.rename(staging,destination)
-            atomic_json(base/'latest.json',ref)
-            atomic_json(base/'runs'/f'{run_id}.json',{'run_id':run_id,'status':'succeeded','output':ref,'completed_at':now()})
+            store.publish_index(ref)
+            atomic_json(store.runs_dir(dataset)/f'{run_id}.json',{'run_id':run_id,'status':'succeeded','output':ref,'completed_at':now()})
             return ref
         except Exception as error:
-            atomic_json(base/'runs'/f'{run_id}.json',{'run_id':run_id,'status':'failed','error':str(error),'completed_at':now()})
+            atomic_json(store.runs_dir(dataset)/f'{run_id}.json',{'run_id':run_id,'status':'failed','error':str(error),'completed_at':now()})
             raise
         finally:
             if staging.exists():

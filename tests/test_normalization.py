@@ -11,13 +11,13 @@ ROOT = Path(__file__).resolve().parents[1]
 class NormalizationTests(unittest.TestCase):
     def samples(self):
         missing = [dataset for dataset in AVAILABLE
-                   if not (ROOT / 'data' / dataset / 'samples/latest.json').exists()]
+                   if not (ROOT / 'data' / dataset / 'manifests/samples/latest.json').exists()]
         if missing:
             self.skipTest('Local acquired-sample integration test; missing samples: ' + ', '.join(missing))
         store = Store(ROOT / 'data')
         for dataset in AVAILABLE:
             definition = json.loads((ROOT / 'data' / dataset / 'dataset.json').read_text())
-            ref = json.loads((ROOT / 'data' / dataset / 'samples/latest.json').read_text())['artifact']
+            ref = json.loads((ROOT / 'data' / dataset / 'manifests/samples/latest.json').read_text())['artifact']
             yield dataset, list(normalize_sample(Context(store, definition, {}, [], [ref])))
 
     def test_all_real_samples_form_closed_typed_graph(self):

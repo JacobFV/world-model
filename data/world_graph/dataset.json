@@ -1,6 +1,6 @@
 {
   "id": "world_graph",
-  "schema_version": 1,
+  "schema_version": 2,
   "dependencies": [
     "demo_graph",
     "rando_joes_happiness_index"
@@ -8,7 +8,7 @@
   "kind": "derived",
   "status": "offline_example",
   "description": "Evidence-preserving graph materialization. Replace dependencies with normalized real datasets on the workstation.",
-  "entrypoint": "worldmodel.transforms:union",
+  "entrypoint": "pipeline.py:run",
   "parameters": {},
   "sampling": {
     "strategy": "derived",
@@ -23,5 +23,22 @@
     "records_path": [],
     "representative": false,
     "criteria": "First 100 records from an existing published version; never trigger upstream downloads or builds."
-  }
+  },
+  "stages": [
+    {
+      "id": "graph",
+      "entrypoint": "pipeline.py:run",
+      "depends_on": [],
+      "schema": {
+        "format": "evidence_jsonl"
+      },
+      "validation": {
+        "allow_empty": false,
+        "max_rows": 100000
+      },
+      "cache": "content",
+      "retention": "retain"
+    }
+  ],
+  "output_stage": "graph"
 }

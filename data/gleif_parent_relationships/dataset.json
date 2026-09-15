@@ -1,6 +1,6 @@
 {
   "id": "gleif_parent_relationships",
-  "schema_version": 1,
+  "schema_version": 2,
   "dependencies": [],
   "kind": "source",
   "status": "sample_adapter_ready",
@@ -9,7 +9,7 @@
     "publisher": "GLEIF",
     "license_status": "see_publisher_terms"
   },
-  "entrypoint": "worldmodel.market_sources:normalize",
+  "entrypoint": "pipeline.py:run",
   "parameters": {},
   "sampling": {
     "strategy": "download",
@@ -35,5 +35,22 @@
     "completeness": "unknown",
     "scope": "One published direct accounting-consolidation parent relationship for Bloomberg Finance L.P.; not a beneficial ownership or exposure ledger."
   },
-  "documentation_verified_on": "2026-09-15"
+  "documentation_verified_on": "2026-09-15",
+  "stages": [
+    {
+      "id": "normalized",
+      "entrypoint": "pipeline.py:run",
+      "depends_on": [],
+      "schema": {
+        "format": "evidence_jsonl"
+      },
+      "validation": {
+        "allow_empty": false,
+        "max_rows": 100000
+      },
+      "cache": "content",
+      "retention": "retain"
+    }
+  ],
+  "output_stage": "normalized"
 }

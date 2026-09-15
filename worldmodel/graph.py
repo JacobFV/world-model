@@ -28,9 +28,9 @@ class Graph:
         try:
             connection.executescript('''
                 CREATE TABLE records (
-                    dataset TEXT, version TEXT, id TEXT, entity_id TEXT, kind TEXT, metric TEXT,
+                    dataset TEXT, stage TEXT, version TEXT, input_ref TEXT, id TEXT, entity_id TEXT, kind TEXT, metric TEXT,
                     subject TEXT, object TEXT, observed_at TEXT, valid_from TEXT,
-                    valid_to TEXT, body TEXT, PRIMARY KEY(dataset,version,id));
+                    valid_to TEXT, body TEXT, PRIMARY KEY(dataset,stage,version,id));
                 CREATE INDEX subject_idx ON records(subject);
                 CREATE INDEX object_idx ON records(object);
                 CREATE INDEX entity_idx ON records(entity_id);
@@ -41,8 +41,8 @@ class Graph:
                 for ref in refs:
                     store.verify(ref)
                     for record in store.records(ref, verify=False):
-                        connection.execute('INSERT INTO records VALUES (?,?,?,?,?,?,?,?,?,?,?,?)',
-                                           (ref['dataset'], ref['version'], record['id'],
+                        connection.execute('INSERT INTO records VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)',
+                                           (ref['dataset'], ref.get('stage', 'final'), ref['version'], canonical(ref).decode(), record['id'],
                                             record.get('entity_id', record['id']) if record['kind'] == 'entity' else None,
                                             record['kind'],
                                             record.get('metric'), record.get('subject'), record.get('object'),
@@ -50,7 +50,7 @@ class Graph:
                                             time_key(record.get('valid_to')), canonical(record).decode()))
                         count += 1
                 connection.execute('INSERT INTO metadata VALUES (?,?)', ('inputs', canonical(refs).decode()))
-                connection.execute('INSERT INTO metadata VALUES (?,?)', ('schema_version', '1'))
+                connection.execute('INSERT INTO metadata VALUES (?,?)', ('schema_version', '2'))
             for ref in refs:
                 store.verify(ref)
             connection.close()
@@ -65,6 +65,13 @@ class Graph:
             raise ValueError('Graph index missing; run graph-build first')
         connection = sqlite3.connect(self.path.resolve().as_uri() + '?mode=ro', uri=True)
         connection.row_factory = sqlite3.Row
+        try:
+            row = connection.execute("SELECT value FROM metadata WHERE key='schema_version'").fetchone()
+            if row is None or row['value'] != '2':
+                raise ValueError('Graph index schema changed; run graph-build to rebuild')
+        except (sqlite3.Error, ValueError) as error:
+            connection.close()
+            raise ValueError('Graph index schema unsupported; run graph-build to rebuild') from error
         return connection
 
     @staticmethod
@@ -81,7 +88,7 @@ class Graph:
     @staticmethod
     def _decode(row):
         return {**json.loads(row['body']), '_provenance': {
-            'input': {'dataset': row['dataset'], 'version': row['version']}, 'record_id': row['id']}}
+            'input': json.loads(row['input_ref']), 'record_id': row['id']}}
 
     def neighbors(self, entity, hops=1, limit=100, valid_at=None, known_at=None):
         if not 1 <= hops <= 6 or not 1 <= limit <= 1000:
@@ -98,9 +105,9 @@ class Graph:
                 for node in sorted(frontier):
                     rows = connection.execute(
                         "SELECT * FROM records WHERE kind='assertion' AND (subject=? OR object=?)" + suffix
-                        + ' ORDER BY dataset,version,id LIMIT ?', [node, node, *time_args, limit + 1])
+                        + ' ORDER BY dataset,stage,version,id LIMIT ?', [node, node, *time_args, limit + 1])
                     for row in rows:
-                        key = (row['dataset'], row['version'], row['id'])
+                        key = (row['dataset'], row['stage'], row['version'], row['id'])
                         if key in claims:
                             continue
                         if len(claims) == limit:
@@ -119,7 +126,7 @@ class Graph:
             entities = []
             for node in sorted(visited):
                 rows = connection.execute("SELECT * FROM records WHERE kind='entity' AND entity_id=?" + suffix
-                                          + ' ORDER BY dataset,version,id LIMIT ?', [node, *time_args, limit + 1])
+                                          + ' ORDER BY dataset,stage,version,id LIMIT ?', [node, *time_args, limit + 1])
                 for row in rows:
                     if len(entities) == limit:
                         truncated = True
@@ -140,6 +147,6 @@ class Graph:
         try:
             return [self._decode(row) for row in connection.execute(
                 "SELECT * FROM records WHERE kind='observation' AND metric=?" + suffix
-                + ' ORDER BY dataset,version,id LIMIT ?', [metric, *args, limit])]
+                + ' ORDER BY dataset,stage,version,id LIMIT ?', [metric, *args, limit])]
         finally:
             connection.close()

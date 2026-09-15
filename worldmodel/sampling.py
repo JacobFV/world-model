@@ -278,7 +278,7 @@ def _sample_dataset(store, definition, *, allow_network=False):
         else:
             source_path = None
             acquisition = None
-        with tempfile.TemporaryDirectory(prefix='sample-', dir=base / 'processing') as temporary:
+        with tempfile.TemporaryDirectory(prefix='sample-', dir=store.scratch_dir(dataset)) as temporary:
             temporary = Path(temporary)
             if config['strategy'] == 'download':
                 source_path = temporary / 'original'
@@ -327,8 +327,13 @@ def _sample_dataset(store, definition, *, allow_network=False):
                         'code': capture_code(PROJECT, 'worldmodel.sampling:sample_dataset'),
                         'profile': profile(rows)}
             sample_id = digest(identity)
-            manifest_path = base / 'samples' / sample_id / 'manifest.json'
+            manifest_path = store.samples_dir(dataset) / sample_id / 'manifest.json'
             atomic_json(manifest_path, {**identity, 'sample_id': sample_id})
+            metadata = {**identity, 'sample_id': sample_id,
+                        'artifact_path': str(manifest_path.relative_to(base)),
+                        'code': {k:v for k,v in identity['code'].items() if k not in ('sources','packages')},
+                        'profile': {k:v for k,v in identity['profile'].items() if k != 'examples'}}
+            atomic_json(base/'manifests'/'samples'/f'{sample_id}.json', metadata)
             result.update(status='sampled', artifact=artifact, sample_id=sample_id,
                           rows=len(rows), retained_bytes=retained,
                           downloaded_bytes=acquisition['original_bytes'] if config['strategy'] == 'download' else 0,
@@ -337,15 +342,15 @@ def _sample_dataset(store, definition, *, allow_network=False):
     except (ValueError, OSError, KeyError, TypeError, csv.Error, zipfile.BadZipFile, ET.ParseError) as error:
         result.update(status='blocked', reason=str(error)[:1000])
     result['completed_at'] = now()
-    atomic_json(base / 'samples' / 'latest.json', result)
+    atomic_json(store.sample_latest_path(dataset), result)
     return result
 
 
 def explore(store, dataset):
-    result = read_json(store.dataset_dir(dataset) / 'samples/latest.json')
+    result = read_json(store.sample_latest_path(dataset))
     if result['status'] != 'sampled':
         return result
-    manifest = read_json(store.dataset_dir(dataset) / 'samples' / result['sample_id'] / 'manifest.json')
+    manifest = read_json(store.samples_dir(dataset) / result['sample_id'] / 'manifest.json')
     if digest({k:v for k,v in manifest.items() if k != 'sample_id'}) != result['sample_id']:
         raise ValueError('Sample manifest hash mismatch')
     store.artifact(manifest['artifact'])
@@ -361,7 +366,7 @@ def sample_dataset(store, definition, *, allow_network=False):
         except BlockingIOError as error:
             raise RuntimeError('Another sampler holds the shared disk buffer') from error
         try:
-            stale = list(store.root.glob('*/processing/sample-*'))
+            stale = list(store.root.glob('*/scratch/sample-*'))
             if stale:
                 raise ValueError('Stale sampling buffer exists after interrupted run; inspect and remove it before sampling')
             return _sample_dataset(store, definition, allow_network=allow_network)

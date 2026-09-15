@@ -34,7 +34,7 @@ def execute(args,catalog,store,project,reference):
         sources=[]
         for definition in catalog.list():
             if definition['kind']!='source':continue
-            name=definition['id'];pointer=store.dataset_dir(name)/'samples/latest.json'
+            name=definition['id'];pointer=store.sample_latest_path(name)
             sample=explore(store,name) if pointer.exists() else {'status':'not_acquired'}
             sources.append({'dataset':name,'status':sample['status'],'rows':sample.get('rows'),
                             'reason':sample.get('reason',definition.get('sampling',{}).get('reason')),
