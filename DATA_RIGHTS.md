@@ -14,7 +14,5 @@ redistribution. Computed or synthetic datasets keep their derivation lineage; ca
 output synthetic does not erase restrictions on copied or incorporated source content.
 The rights summary is a metadata inventory, not an automated legal determination.
 
-Retained source samples, computed artifacts and their source-rights metadata are
-versioned in this Git repository. Public Git visibility does not replace the source
-terms. Processing scratch, indexes and standalone browser exports remain excluded.
+Raw data and generated source-backed views are excluded from this Git repository.
 License terms for bundled fictional test fixtures are the project's MIT license.

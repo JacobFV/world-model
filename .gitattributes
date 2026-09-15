@@ -1,2 +1,0 @@
-# Artifact hashes require exact bytes, independent of checkout line-ending settings.
-data/** -text

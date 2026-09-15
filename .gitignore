@@ -6,17 +6,19 @@ build/
 dist/
 .DS_Store
 .env
-.env.*
-!.env.example
-
-# Retain dataset definitions, raw payloads/receipts, samples, final artifacts,
-# and latest pointers in Git so their provenance is available in a clone.
-# Only transient work and rebuildable indexes stay local.
+data/*/raw/
 data/*/processing/
+data/*/final/
 data/*/runs/
 data/*/.lock
-data/.sampling.lock
+data/*/latest.json
+data/*/raw-latest.json
 *.sqlite*
 
-# Standalone browser exports (their immutable reports live under data/*/final/).
+data/*/samples/
+data/.sampling.lock
+
+# Local credentials and generated source-backed previews
+.env.*
+!.env.example
 docs/generated/

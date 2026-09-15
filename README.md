@@ -29,13 +29,11 @@ The fictional demo and fixture-based checks run offline. Acquired-data integrati
 checks may skip when their local samples are absent; offline fixtures do not verify
 current external access or dataset completeness.
 
-Git includes retained source samples, sample manifests, computed artifact versions and
-latest pointers, so their data and provenance travel together. Processing scratch,
-run logs, SQLite indexes and standalone browser exports remain ignored. See the
-[data directory policy](data/README.md). Committed samples are bounded snapshots;
-refreshing or expanding them still requires the documented acquisition/build steps.
-Standalone wheels include the read-only catalog, fictional fixtures and examples,
-not the artifact history; writable runtime data remains separate.
+Downloaded evidence, generated dashboards and runtime artifact versions stay local
+and are excluded from Git. Real-evidence examples require their documented acquisition
+and build steps first. Committed verification reports record prior local runs;
+they do not bundle those datasets. Standalone wheels now include the read-only catalog,
+fictional fixtures and examples; writable runtime data remains separate.
 
 See [remaining concerns](docs/remaining-concerns.md) for implementation priorities,
 missing evidence, validation limits and licensing status.
