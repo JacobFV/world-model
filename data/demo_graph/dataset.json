@@ -1,0 +1,32 @@
+{
+  "id": "demo_graph",
+  "schema_version": 1,
+  "dependencies": [],
+  "kind": "source",
+  "status": "offline_example",
+  "description": "Fictional organizations, conflicting claims and aggregate observations.",
+  "source": {
+    "publisher": "World model fixtures",
+    "license": "CC0-1.0",
+    "release": "fictional-v1"
+  },
+  "entrypoint": "worldmodel.transforms:evidence_jsonl",
+  "parameters": {
+    "format": "jsonl"
+  },
+  "sampling": {
+    "strategy": "local",
+    "max_rows": 100,
+    "max_sample_bytes": 1048576,
+    "max_download_bytes": 1048576,
+    "max_uncompressed_bytes": 1048576,
+    "disk_budget_bytes": 67108864,
+    "timeout_seconds": 25,
+    "total_timeout_seconds": 90,
+    "format": "jsonl",
+    "records_path": [],
+    "representative": false,
+    "path": "tests/fixtures/graph.jsonl",
+    "criteria": "Five local fictional evidence records; no network."
+  }
+}

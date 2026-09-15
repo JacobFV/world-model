@@ -1,0 +1,24 @@
+__pycache__/
+*.py[cod]
+.venv/
+*.egg-info/
+build/
+dist/
+.DS_Store
+.env
+data/*/raw/
+data/*/processing/
+data/*/final/
+data/*/runs/
+data/*/.lock
+data/*/latest.json
+data/*/raw-latest.json
+*.sqlite*
+
+data/*/samples/
+data/.sampling.lock
+
+# Local credentials and generated source-backed previews
+.env.*
+!.env.example
+docs/generated/

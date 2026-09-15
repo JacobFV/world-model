@@ -1,0 +1,32 @@
+{
+  "id": "osm_topology",
+  "schema_version": 1,
+  "dependencies": [],
+  "kind": "source",
+  "status": "sample_adapter_ready",
+  "description": "First100 highway ways in a small San Francisco bounding box; full node IDs and geometry per retained way; bounded subgraph, not global coverage",
+  "source": {
+    "publisher": "OpenStreetMap contributors",
+    "license_status": "see_publisher_terms"
+  },
+  "entrypoint": "worldmodel.strategic_sources:normalize",
+  "parameters": {},
+  "sampling": {
+    "strategy": "download",
+    "max_rows": 100,
+    "max_sample_bytes": 1048576,
+    "max_download_bytes": 1048576,
+    "max_uncompressed_bytes": 1048576,
+    "disk_budget_bytes": 67108864,
+    "timeout_seconds": 25,
+    "total_timeout_seconds": 90,
+    "format": "json",
+    "representative": false,
+    "url": "https://overpass-api.de/api/interpreter?data=%5Bout%3Ajson%5D%5Btimeout%3A20%5D%5Bmaxsize%3A1048576%5D%3Bway%5B%22highway%22%5D%2837.774%2C-122.420%2C37.777%2C-122.416%29%3Bout+geom+100%3B",
+    "criteria": "First100 highway ways in a small San Francisco bounding box; full node IDs and geometry per retained way; bounded subgraph, not global coverage",
+    "records_path": [
+      "elements"
+    ],
+    "documentation": "https://wiki.openstreetmap.org/wiki/Overpass_QL"
+  }
+}

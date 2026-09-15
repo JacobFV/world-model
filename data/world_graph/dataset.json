@@ -1,0 +1,27 @@
+{
+  "id": "world_graph",
+  "schema_version": 1,
+  "dependencies": [
+    "demo_graph",
+    "rando_joes_happiness_index"
+  ],
+  "kind": "derived",
+  "status": "offline_example",
+  "description": "Evidence-preserving graph materialization. Replace dependencies with normalized real datasets on the workstation.",
+  "entrypoint": "worldmodel.transforms:union",
+  "parameters": {},
+  "sampling": {
+    "strategy": "derived",
+    "max_rows": 100,
+    "max_sample_bytes": 1048576,
+    "max_download_bytes": 1048576,
+    "max_uncompressed_bytes": 1048576,
+    "disk_budget_bytes": 67108864,
+    "timeout_seconds": 25,
+    "total_timeout_seconds": 90,
+    "format": "jsonl",
+    "records_path": [],
+    "representative": false,
+    "criteria": "First 100 records from an existing published version; never trigger upstream downloads or builds."
+  }
+}

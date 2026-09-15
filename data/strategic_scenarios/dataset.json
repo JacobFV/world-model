@@ -1,0 +1,21 @@
+{
+  "id": "strategic_scenarios",
+  "kind": "source",
+  "schema_version": 1,
+  "status": "synthetic_example",
+  "description": "Explicit fictional scenario carriers, separate from observed world evidence.",
+  "entrypoint": "worldmodel.transforms:evidence_jsonl",
+  "dependencies": [],
+  "parameters": {
+    "format": "jsonl"
+  },
+  "sampling": {
+    "strategy": "blocked",
+    "reason": "Local fictional scenario fixture; import explicitly.",
+    "max_rows": 100,
+    "max_sample_bytes": 1048576,
+    "max_download_bytes": 1048576,
+    "max_uncompressed_bytes": 1048576,
+    "disk_budget_bytes": 67108864
+  }
+}

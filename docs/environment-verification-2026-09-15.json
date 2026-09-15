@@ -1,0 +1,52 @@
+{
+  "date": "2026-09-15",
+  "tests": {
+    "command": "python3 -m unittest discover -s tests",
+    "passed": 224
+  },
+  "artifacts": {
+    "environment_episode": {
+      "dataset": "environment_episode",
+      "version": "6d2a11c718ad539294b4c850100a8602feabbb37e67457d4be05f2ff4107001d"
+    },
+    "subject_environment_episode": {
+      "dataset": "subject_environment_episode",
+      "version": "872d9c34e165639c9cdcaf1281ec2635a6ff1362308975cd5a6491af3a87b0f6"
+    },
+    "materialization_surface": {
+      "dataset": "materialization_surface",
+      "version": "cd7eec1c6e112c92a25584feac588c11f6717aafa0af7b2fbca7d1c667cc1054"
+    },
+    "world_surface": {
+      "dataset": "world_surface",
+      "version": "c64a0b0bbc6485ccdb0f711433402d1db185f7ea8b31210488f67cd8df246960"
+    }
+  },
+  "recursive_verification": "passed",
+  "two_entity_final_observation": {
+    "cash_0": 1468.0,
+    "cash_1": 1468.0
+  },
+  "single_subject_final_observation": {
+    "cash_0": 1468.0
+  },
+  "replay_calls": 42,
+  "episode_rewards": [
+    1.8,
+    1.7999999999999998,
+    1.7999999999999998,
+    1.8,
+    0.0,
+    2.16
+  ],
+  "surface_exports": {
+    "environment": {
+      "path": "docs/generated/environment.html",
+      "bytes": 20794
+    },
+    "world": {
+      "path": "docs/generated/world.html",
+      "bytes": 761767
+    }
+  }
+}

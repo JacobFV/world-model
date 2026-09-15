@@ -1,0 +1,45 @@
+{
+  "id": "census_population",
+  "schema_version": 1,
+  "dependencies": [],
+  "kind": "source",
+  "status": "sample_adapter_ready",
+  "description": "ACS, decennial census and population estimates",
+  "source": {
+    "publisher": "Census",
+    "license_status": "verify_for_selected_release"
+  },
+  "expected_outputs": [
+    "population",
+    "household",
+    "income"
+  ],
+  "setup": "Select release, geography, variables, units and suppression codes. Preserve margins of error as separate observations.",
+  "entrypoint": "worldmodel.normalizers:normalize_sample",
+  "parameters": {},
+  "sampling": {
+    "strategy": "download",
+    "max_rows": 100,
+    "max_sample_bytes": 1048576,
+    "max_download_bytes": 1048576,
+    "max_uncompressed_bytes": 1048576,
+    "disk_budget_bytes": 67108864,
+    "timeout_seconds": 25,
+    "total_timeout_seconds": 90,
+    "format": "csv",
+    "records_path": [],
+    "representative": false,
+    "url": "https://www2.census.gov/programs-surveys/popest/datasets/2020-2024/state/totals/NST-EST2024-ALLDATA.csv",
+    "criteria": "First 100 population-estimate rows from vintage 2024 state/national/region totals; preserve SUMLEV. This is Population Estimates, not ACS income.",
+    "documentation": "https://www2.census.gov/programs-surveys/popest/datasets/2020-2024/state/totals/",
+    "encoding": "utf-8-sig",
+    "alternative_reason": "ACS API returned an HTML Missing Key page; switched to official small population-estimates CSV."
+  },
+  "normalization": {
+    "adapter_version": 1,
+    "input_format": "sampled_jsonl",
+    "raw_fields": "preserved in attributes.source_row",
+    "entity_identity": "source IDs, canonical geography, explicitly labeled unresolved references and aggregate cohorts",
+    "coverage": "acquired sample only"
+  }
+}

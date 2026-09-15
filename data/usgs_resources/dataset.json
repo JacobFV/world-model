@@ -1,0 +1,46 @@
+{
+  "id": "usgs_resources",
+  "schema_version": 1,
+  "dependencies": [],
+  "kind": "source",
+  "status": "sample_adapter_ready",
+  "description": "Mineral commodities, mines and resource estimates",
+  "source": {
+    "publisher": "USGS",
+    "license_status": "verify_for_selected_release"
+  },
+  "expected_outputs": [
+    "resource",
+    "extraction",
+    "reserves"
+  ],
+  "setup": "Distinguish reserves, resources and production; pin commodity units, location precision and reporting period.",
+  "entrypoint": "worldmodel.normalizers:normalize_sample",
+  "parameters": {},
+  "sampling": {
+    "strategy": "download",
+    "max_rows": 100,
+    "max_sample_bytes": 1048576,
+    "max_download_bytes": 1048576,
+    "max_uncompressed_bytes": 1048576,
+    "disk_budget_bytes": 67108864,
+    "timeout_seconds": 25,
+    "total_timeout_seconds": 90,
+    "format": "json",
+    "records_path": [
+      "features"
+    ],
+    "representative": false,
+    "url": "https://energy.usgs.gov/arcgis/rest/services/MRData/Mineral_Resource_Data_System/MapServer/3/query?where=1%3D1&outFields=gid%2Cdep_id%2Csite_name%2Cdev_stat%2Ccode_list%2Curl%2Cgrade&returnGeometry=false&resultRecordCount=100&orderByFields=gid&f=json",
+    "unwrap_attributes": true,
+    "criteria": "First 100 MRDS mineral-resource records, no geometry; historic inventory, not verified current mine activity.",
+    "documentation": "https://energy.usgs.gov/arcgis/rest/services/MRData/Mineral_Resource_Data_System/MapServer"
+  },
+  "normalization": {
+    "adapter_version": 1,
+    "input_format": "sampled_jsonl",
+    "raw_fields": "preserved in attributes.source_row",
+    "entity_identity": "source IDs, canonical geography, explicitly labeled unresolved references and aggregate cohorts",
+    "coverage": "acquired sample only"
+  }
+}

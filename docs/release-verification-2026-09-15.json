@@ -1,0 +1,12 @@
+{
+  "date": "2026-09-15",
+  "target_repository": "JacobFV/world-model",
+  "scope": "Source, dataset declarations, fixtures, examples and documentation; acquired/runtime data and generated source-backed dashboards excluded",
+  "python_tested": "3.14.2",
+  "local_tests": {"command": "python3 -m unittest discover -s tests", "passed": 225, "skipped": 0},
+  "clean_source_checkout_tests": {"command": "python3 -m unittest discover -s tests", "passed": 219, "skipped": 6, "skip_reason": "Acquired-sample integration tests require local datasets"},
+  "clean_source_checkout_demo": "Offline fictional demo built and recursively verified",
+  "staged_credential_pattern_matches": 0,
+  "publication_fixes": ["Optional Git metadata tolerates missing git executable", "Data-dependent tests explicitly skip without local samples", "Fresh-checkout documentation clarifies excluded data and generated outputs"],
+  "remaining_concerns": "docs/remaining-concerns.md"
+}

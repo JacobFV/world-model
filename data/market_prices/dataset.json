@@ -1,0 +1,35 @@
+{
+  "id": "market_prices",
+  "schema_version": 1,
+  "dependencies": [],
+  "kind": "source",
+  "status": "blocked",
+  "description": "Security-level price coverage availability declaration.",
+  "source": {
+    "publisher": "Nasdaq",
+    "license_status": "see_publisher_terms"
+  },
+  "entrypoint": "worldmodel.market_sources:normalize",
+  "parameters": {},
+  "sampling": {
+    "strategy": "blocked",
+    "max_rows": 100,
+    "max_sample_bytes": 1048576,
+    "max_download_bytes": 65011712,
+    "max_uncompressed_bytes": 65011712,
+    "disk_budget_bytes": 67108864,
+    "timeout_seconds": 25,
+    "total_timeout_seconds": 90,
+    "format": "json",
+    "representative": false,
+    "reason": "Security-level price feed and entitlements are not configured; existing FRED macro series are separate and do not establish security prices or adjusted returns.",
+    "documentation": "https://indexes.nasdaqomx.com/Index/Overview/NDX",
+    "criteria": "No security prices, total returns or security adjustment factors acquired."
+  },
+  "coverage": {
+    "representative": false,
+    "completeness": "unknown",
+    "scope": "Security-level price coverage availability declaration."
+  },
+  "documentation_verified_on": "2026-09-15"
+}

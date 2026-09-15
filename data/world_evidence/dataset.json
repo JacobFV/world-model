@@ -1,0 +1,40 @@
+{
+  "id": "world_evidence",
+  "schema_version": 1,
+  "kind": "derived",
+  "status": "sample_only",
+  "description": "Typed evidence union of the 11 currently acquired real source samples; incomplete and nonrepresentative.",
+  "entrypoint": "worldmodel.transforms:union",
+  "dependencies": [
+    "census_geography",
+    "census_population",
+    "census_business",
+    "bls_labor",
+    "classifications",
+    "eia_energy",
+    "fec",
+    "sec_gleif",
+    "transport",
+    "usaspending",
+    "usgs_resources"
+  ],
+  "parameters": {
+    "scope": "bounded_real_samples",
+    "unavailable_sources": [
+      "bea_input_output",
+      "freight",
+      "usda_agriculture"
+    ]
+  },
+  "sampling": {
+    "strategy": "derived",
+    "format": "jsonl",
+    "max_rows": 100,
+    "max_sample_bytes": 1048576,
+    "max_download_bytes": 1048576,
+    "max_uncompressed_bytes": 1048576,
+    "disk_budget_bytes": 67108864,
+    "criteria": "Sample existing normalized graph only; no downloads.",
+    "representative": false
+  }
+}

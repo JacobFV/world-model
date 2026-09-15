@@ -1,0 +1,46 @@
+{
+  "id": "sec_gleif",
+  "schema_version": 1,
+  "dependencies": [],
+  "kind": "source",
+  "status": "sample_adapter_ready",
+  "description": "Company identities, filings, XBRL facts and LEI relationships",
+  "source": {
+    "publisher": "SEC / GLEIF",
+    "license_status": "verify_for_selected_release"
+  },
+  "expected_outputs": [
+    "organization",
+    "security",
+    "owns",
+    "controls"
+  ],
+  "setup": "Parse filing-specific contexts, accession IDs, units and periods. Match identifiers only with explicit evidence.",
+  "entrypoint": "worldmodel.normalizers:normalize_sample",
+  "parameters": {},
+  "sampling": {
+    "strategy": "download",
+    "max_rows": 25,
+    "max_sample_bytes": 1048576,
+    "max_download_bytes": 1048576,
+    "max_uncompressed_bytes": 1048576,
+    "disk_budget_bytes": 67108864,
+    "timeout_seconds": 25,
+    "total_timeout_seconds": 90,
+    "format": "json",
+    "records_path": [
+      "data"
+    ],
+    "representative": false,
+    "url": "https://api.gleif.org/api/v1/lei-records?filter%5Bentity.legalAddress.country%5D=US&page%5Bsize%5D=25&page%5Bnumber%5D=1&sort=lei",
+    "criteria": "First 25 US legal-address LEI records ordered by LEI. GLEIF only; no SEC filing archives.",
+    "documentation": "https://www.gleif.org/en/lei-data/gleif-api"
+  },
+  "normalization": {
+    "adapter_version": 1,
+    "input_format": "sampled_jsonl",
+    "raw_fields": "preserved in attributes.source_row",
+    "entity_identity": "source IDs, canonical geography, explicitly labeled unresolved references and aggregate cohorts",
+    "coverage": "acquired sample only"
+  }
+}

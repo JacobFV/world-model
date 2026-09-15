@@ -1,0 +1,62 @@
+{
+  "id": "openalex_people",
+  "schema_version": 1,
+  "dependencies": [],
+  "kind": "source",
+  "status": "sample_adapter_ready",
+  "description": "Bounded public scholarly author directory and publication affiliation years, with explicit ORCID and ROR crosswalks",
+  "source": {
+    "publisher": "OpenAlex / OurResearch",
+    "license_status": "verify_for_selected_release",
+    "authority": "scholarly_metadata_aggregator"
+  },
+  "expected_outputs": [
+    "person",
+    "role",
+    "organization",
+    "identifier_assignment",
+    "holds_role",
+    "role_in_organization"
+  ],
+  "entrypoint": "worldmodel.people_sources:normalize",
+  "parameters": {},
+  "sampling": {
+    "strategy": "download",
+    "max_rows": 100,
+    "max_sample_bytes": 1048576,
+    "max_download_bytes": 1048576,
+    "max_uncompressed_bytes": 1048576,
+    "disk_budget_bytes": 67108864,
+    "timeout_seconds": 25,
+    "total_timeout_seconds": 90,
+    "format": "json",
+    "records_path": [
+      "results"
+    ],
+    "representative": false,
+    "url": "https://api.openalex.org/authors?filter=has_orcid:true&sort=cited_by_count:desc&per-page=5&select=id,orcid,display_name,affiliations,updated_date",
+    "criteria": "First response page of five public author records with ORCID requested, sorted by citation count requested. Provider response order is preserved; no representativeness or ordering guarantee.",
+    "documentation": "https://developers.openalex.org/api-reference/authors"
+  },
+  "coverage": {
+    "scope": "Five selected public author records and publication affiliation years, not global academia or employment history",
+    "representative": false,
+    "completeness": "unknown",
+    "not_available": [
+      "private_movements",
+      "inferred_biography",
+      "complete_global_people_directory"
+    ]
+  },
+  "access": {
+    "probe": "HTTP 200 on 2026-09-15; bounded prefix read, not a retained acquisition",
+    "credentials": "No credentials required by verified endpoint probe; access policies may change",
+    "blockers": []
+  },
+  "normalization": {
+    "input_format": "sampled_jsonl",
+    "raw_fields": "source_row on person; source_term or source_affiliation on role; all claims retain raw line evidence",
+    "identity": "Only published identifier crosswalks; names are aliases, never merge evidence",
+    "temporal_scope": "Separate publication affiliation years; no employment or continuous affiliation inferred"
+  }
+}

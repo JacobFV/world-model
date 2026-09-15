@@ -1,0 +1,16 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "worldmodel-substrate"
+version = "0.1.0"
+description = "Versioned evidence datasets and a temporal world graph"
+requires-python = ">=3.11"
+dependencies = []
+
+[project.scripts]
+wm = "worldmodel.cli:main"
+
+[tool.setuptools.packages.find]
+include = ["worldmodel*"]

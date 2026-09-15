@@ -1,0 +1,38 @@
+{
+  "graph": {
+    "dataset": "world_evidence",
+    "version": "ddf5e08e7e79bbd2af33d920ffeb4ab159906a16509bb778eb06b7e7abc78091"
+  },
+  "typed_graph": {
+    "records": 3320,
+    "entities": 933,
+    "relations": 1164,
+    "counts": {
+      "entity": 988,
+      "assertion": 1164,
+      "observation": 1168
+    }
+  },
+  "sources_normalized": 11,
+  "sources_unavailable": [
+    "bea_input_output",
+    "freight",
+    "usda_agriculture"
+  ],
+  "process_contracts": 6,
+  "implementations": 18,
+  "scenario": {
+    "dataset": "california_population_scenario",
+    "version": "2b738d6d07476513ccc11f25aae94ce247b64d268bb3770b766db6666a6cea6b"
+  },
+  "scenario_verified": true,
+  "scenario_snapshots": 14,
+  "scenario_calls": 365,
+  "scenario_first_population": 39431263,
+  "scenario_last_population": 39827275.72944791,
+  "scenario_assumption": "1% annual growth, daily updates, uncalibrated retrospective scenario",
+  "tests": {
+    "count": 71,
+    "passed": true
+  }
+}

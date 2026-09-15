@@ -1,0 +1,35 @@
+{
+  "id": "fec_candidates",
+  "schema_version": 1,
+  "dependencies": [],
+  "kind": "source",
+  "status": "sample_adapter_ready",
+  "description": "Published FEC candidate names for two existing graph IDs; historical candidacy metadata, no inferred current office or movements",
+  "source": {
+    "publisher": "FEC",
+    "license_status": "verify_for_selected_release"
+  },
+  "expected_outputs": [
+    "person"
+  ],
+  "entrypoint": "worldmodel.strategic_sources:normalize",
+  "parameters": {},
+  "sampling": {
+    "strategy": "download",
+    "max_rows": 100,
+    "max_sample_bytes": 1048576,
+    "max_download_bytes": 1048576,
+    "max_uncompressed_bytes": 1048576,
+    "disk_budget_bytes": 67108864,
+    "timeout_seconds": 25,
+    "total_timeout_seconds": 90,
+    "format": "json",
+    "records_path": [
+      "results"
+    ],
+    "representative": false,
+    "url": "https://api.open.fec.gov/v1/candidates/?api_key=DEMO_KEY&candidate_id=H6WA05023&candidate_id=H6VA10134&per_page=25&page=1&sort=candidate_id",
+    "criteria": "Two historical candidate IDs H6WA05023/H6VA10134 already referenced by committee evidence; published names and candidacy metadata only",
+    "documentation": "https://api.open.fec.gov/developers/"
+  }
+}

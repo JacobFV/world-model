@@ -1,0 +1,38 @@
+{
+  "id": "iso_mic_venues",
+  "schema_version": 1,
+  "dependencies": [],
+  "kind": "source",
+  "status": "sample_adapter_ready",
+  "description": "Bounded selected US MIC reference records, including published Texas venue names; registration does not prove operation.",
+  "source": {
+    "publisher": "ISO 10383 Registration Authority / SWIFT",
+    "license_status": "see_publisher_terms"
+  },
+  "entrypoint": "worldmodel.market_sources:normalize",
+  "parameters": {},
+  "sampling": {
+    "strategy": "download",
+    "max_rows": 100,
+    "max_sample_bytes": 1048576,
+    "max_download_bytes": 65011712,
+    "max_uncompressed_bytes": 65011712,
+    "disk_budget_bytes": 67108864,
+    "timeout_seconds": 25,
+    "total_timeout_seconds": 90,
+    "format": "csv",
+    "representative": false,
+    "url": "https://www.iso20022.org/sites/default/files/ISO10383_MIC/ISO10383_MIC.csv",
+    "required_pattern": {
+      "MIC": "XNAS|XNYS|XASE|ARCX|BATS|XCHI|XBOS|BOSD|XBXO|TXSE|TXSD"
+    },
+    "criteria": "Only explicitly selected MIC codes in publisher file order, including Texas-related codes if present. Not all US venues; no operational inference.",
+    "documentation": "https://www.iso20022.org/market-identifier-codes"
+  },
+  "coverage": {
+    "representative": false,
+    "completeness": "unknown",
+    "scope": "Bounded selected US MIC reference records, including published Texas venue names; registration does not prove operation."
+  },
+  "documentation_verified_on": "2026-09-15"
+}

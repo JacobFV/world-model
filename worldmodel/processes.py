@@ -1,0 +1,228 @@
+"""Typed, replaceable illustrative processes and stable pressure integration."""
+from copy import deepcopy
+import json
+import hashlib
+import inspect
+import marshal
+import math
+
+TYPES = {'number', 'string', 'boolean', 'object', 'array', 'vector'}
+FIDELITIES = {'deterministic', 'stochastic', 'agent'}
+
+
+def _number(value, label, nonnegative=False):
+    if isinstance(value, bool) or not isinstance(value, (int, float)) or not math.isfinite(value):
+        raise ValueError(f'{label} must be finite numeric')
+    if nonnegative and value < 0:
+        raise ValueError(f'{label} must be nonnegative')
+    return value
+
+
+def _json(value):
+    try:
+        json.dumps(value, allow_nan=False)
+    except (TypeError, ValueError) as exc:
+        raise ValueError('Value must be finite JSON data') from exc
+
+
+def _typed(value, value_type):
+    if value_type == 'number':
+        _number(value, 'value')
+    elif value_type == 'vector':
+        if not isinstance(value, list) or not value:
+            raise ValueError('vector must be a nonempty numeric array')
+        for item in value:
+            _number(item, 'vector component')
+    elif value_type in {'string', 'boolean', 'object', 'array'}:
+        expected = {'string': str, 'boolean': bool, 'object': dict, 'array': list}[value_type]
+        if not isinstance(value, expected):
+            raise ValueError(f'value must have type {value_type}')
+        _json(value)
+    else:
+        raise ValueError(f'Unknown value type: {value_type}')
+
+
+def _pressure(p, value_type):
+    if not isinstance(p, dict) or p.get('mode') not in {'rate', 'target', 'set'}:
+        raise ValueError('Pressure must specify mode rate, target or set')
+    if 'unit' not in p or (p['unit'] is not None and not isinstance(p['unit'], str)):
+        raise ValueError('Pressure must declare unit')
+    _typed(p.get('value'), value_type)
+    _number(p.get('strength'), 'strength', True)
+    _number(p.get('confidence'), 'confidence', True)
+    _number(p['strength'] * p['confidence'], 'effective strength', True)
+    if p['mode'] != 'set' and value_type not in {'number', 'vector'}:
+        raise ValueError('Only numeric values support rate and target dynamics')
+
+
+def combine_pressures(current, pressures, dt_seconds, value_type='number'):
+    """Integrate constant rates and relaxations exactly; resolve exclusive sets."""
+    _number(dt_seconds, 'dt_seconds', True)
+    _typed(current, value_type)
+    for p in pressures:
+        _pressure(p, value_type)
+        if value_type == 'vector' and len(p['value']) != len(current):
+            raise ValueError('Pressure vector dimensions disagree with current state')
+    if len({p['unit'] for p in pressures}) > 1:
+        raise ValueError('Pressure units must match')
+    sets = [p for p in pressures if p['mode'] == 'set']
+    if sets:
+        if len(sets) != len(pressures):
+            raise ValueError('Set pressures are exclusive with rate/target dynamics')
+        weight = max(p['strength'] * p['confidence'] for p in sets)
+        winners = [p['value'] for p in sets if p['strength'] * p['confidence'] == weight]
+        if any(value != winners[0] for value in winners):
+            raise ValueError('Conflicting set targets have equal strength/confidence')
+        return deepcopy(winners[0] if weight > 0 and dt_seconds > 0 else current)
+    if not pressures or dt_seconds == 0:
+        return deepcopy(current)
+    if value_type == 'vector':
+        return [combine_pressures(value, [dict(p, value=p['value'][i]) for p in pressures], dt_seconds)
+                for i, value in enumerate(current)]
+    rates = sum(p['value'] * p['strength'] * p['confidence'] for p in pressures if p['mode'] == 'rate')
+    k = sum(p['strength'] * p['confidence'] for p in pressures if p['mode'] == 'target')
+    _number(k, 'combined relaxation strength', True)
+    _number(rates, 'combined rate')
+    if k:
+        target = sum(p['value'] * ((p['strength'] * p['confidence']) / k)
+                     for p in pressures if p['mode'] == 'target')
+        decay = math.exp(-k * dt_seconds)
+        fraction = -math.expm1(-k * dt_seconds)
+        result = current * decay + target * fraction + rates * (fraction / k)
+    else:
+        result = current + rates * dt_seconds
+    return _number(result, 'combined result')
+
+
+class ProcessRegistry:
+    """Registry descriptors are defensive JSON copies; fidelity never falls back."""
+    def __init__(self):
+        self._processes = {}
+        self._implementations = {}
+        self._handlers = {}
+
+    def register_process(self, spec):
+        _json(spec)
+        if not isinstance(spec.get('id'), str) or not spec['id'] or spec['id'] in self._processes:
+            raise ValueError('Process id must be unique and nonempty')
+        for key in ('inputs', 'outputs'):
+            if not isinstance(spec.get(key), dict):
+                raise ValueError(f'Process {key} must be a port mapping')
+            for name, port in spec[key].items():
+                if not isinstance(name, str) or not isinstance(port, dict) or port.get('type') not in TYPES:
+                    raise ValueError('Invalid port descriptor')
+                if port.get('unit') is not None and not isinstance(port['unit'], str):
+                    raise ValueError('Port unit must be string or null')
+                if not isinstance(port.get('required', True), bool):
+                    raise ValueError('Port required must be boolean')
+        for key in ('topology', 'description'):
+            if key not in spec:
+                raise ValueError(f'Process requires {key}')
+        self._processes[spec['id']] = deepcopy(spec)
+
+    def register_implementation(self, spec, handler):
+        _json(spec)
+        if not isinstance(spec.get('id'), str) or not spec['id'] or spec['id'] in self._implementations:
+            raise ValueError('Implementation id must be unique and nonempty')
+        if spec.get('process_id') not in self._processes or spec.get('fidelity') not in FIDELITIES:
+            raise ValueError('Unknown process or fidelity')
+        if _number(spec.get('max_step_seconds'), 'max_step_seconds', True) == 0:
+            raise ValueError('max_step_seconds must be positive')
+        _number(spec.get('cost_per_call'), 'cost_per_call', True)
+        if not callable(handler):
+            raise ValueError('Implementation handler must be callable')
+        for key in ('min_step_seconds', 'min_regime', 'max_regime'):
+            if key in spec:
+                _number(spec[key], key, True)
+        descriptor = deepcopy(spec)
+        identity = {'module': getattr(handler, '__module__', type(handler).__module__),
+                    'qualname': getattr(handler, '__qualname__', type(handler).__qualname__)}
+        try:
+            source = inspect.getsource(handler)
+        except (OSError, TypeError):
+            source = None
+        if source is not None:
+            identity['source'] = source
+            identity['source_sha256'] = hashlib.sha256(source.encode()).hexdigest()
+        elif hasattr(handler, '__code__'):
+            identity['code_sha256'] = hashlib.sha256(marshal.dumps(handler.__code__)).hexdigest()
+        else:
+            identity['source_unavailable'] = True
+        closure = getattr(handler, '__closure__', None)
+        if closure:
+            captured = {}
+            for name, cell in zip(handler.__code__.co_freevars, closure):
+                try:
+                    value = cell.cell_contents
+                    _json(value)
+                    captured[name] = deepcopy(value)
+                except (ValueError, TypeError):
+                    captured[name] = {'unserializable_type': type(cell.cell_contents).__qualname__}
+            identity['closure'] = captured
+        descriptor['handler_identity'] = identity
+        self._implementations[spec['id']] = descriptor
+        self._handlers[spec['id']] = handler
+
+    def describe(self):
+        return {'processes': [deepcopy(self._processes[k]) for k in sorted(self._processes)],
+                'implementations': [deepcopy(self._implementations[k]) for k in sorted(self._implementations)]}
+
+    def select(self, process_id, fidelity, step_seconds, remaining_budget, backend_available=False):
+        if process_id not in self._processes:
+            raise ValueError(f'Unknown process: {process_id}')
+        _number(step_seconds, 'step_seconds', True)
+        _number(remaining_budget, 'remaining_budget', True)
+        if step_seconds == 0 or fidelity not in FIDELITIES:
+            raise ValueError('Positive step and explicit supported fidelity required')
+        choices = [s for s in self._implementations.values() if s['process_id'] == process_id
+                   and s['fidelity'] == fidelity and step_seconds <= s['max_step_seconds']
+                   and step_seconds >= s.get('min_step_seconds', s.get('min_regime', 0))
+                   and step_seconds <= s.get('max_regime', s['max_step_seconds'])
+                   and s['cost_per_call'] <= remaining_budget
+                   and (backend_available or not (s.get('requires_backend') or fidelity == 'agent'))]
+        if not choices:
+            raise ValueError(f'No compatible implementation for {process_id}: fidelity={fidelity}, step={step_seconds}, budget={remaining_budget}, backend={backend_available}')
+        return deepcopy(min(choices, key=lambda s: (s['cost_per_call'], s['id'])))
+
+    def predict(self, implementation_id, inputs, parameters, context):
+        if implementation_id not in self._implementations:
+            raise ValueError(f'Unknown implementation: {implementation_id}')
+        impl = self._implementations[implementation_id]
+        process = self._processes[impl['process_id']]
+        dt = _number(context.get('dt_seconds'), 'dt_seconds', True)
+        if dt <= 0 or dt > impl['max_step_seconds'] or dt < impl.get('min_step_seconds', impl.get('min_regime', 0)) or dt > impl.get('max_regime', impl['max_step_seconds']):
+            raise ValueError('Prediction duration outside implementation regime')
+        if (impl['fidelity'] == 'agent' or impl.get('requires_backend')) and not callable(getattr(context.get('agent_backend'), 'predict', None)):
+            raise ValueError('Agent implementation requires explicit backend.predict')
+        if not isinstance(inputs, dict) or set(inputs) - set(process['inputs']):
+            raise ValueError('Unknown input ports')
+        for name, port in process['inputs'].items():
+            if name not in inputs:
+                if port.get('required', True):
+                    raise ValueError(f'Missing required input: {name}')
+                continue
+            item = inputs[name]
+            if not isinstance(item, dict) or 'value' not in item or 'unit' not in item or item.get('unit') != port.get('unit'):
+                raise ValueError(f'Input unit/value mismatch: {name}')
+            _typed(item['value'], port['type'])
+        _json(parameters)
+        result = self._handlers[implementation_id](deepcopy(inputs), deepcopy(parameters), context)
+        if not isinstance(result, dict):
+            raise ValueError('Prediction must return a dictionary')
+        result = deepcopy(result)
+        for key, default in [('pressures', []), ('events', []), ('memory', {}), ('diagnostics', {})]:
+            result.setdefault(key, default)
+            if not isinstance(result[key], type(default)):
+                raise ValueError(f'Prediction {key} has invalid type')
+        for p in result['pressures']:
+            if not isinstance(p, dict) or p.get('port') not in process['outputs']:
+                raise ValueError('Unknown pressure output port')
+            port = process['outputs'][p['port']]
+            _pressure(p, port['type'])
+            if p['unit'] != port.get('unit'):
+                raise ValueError(f'Output unit mismatch: {p["port"]}')
+            state = context.get('state', {})
+            if p['port'] in state and port['type'] == 'vector' and len(p['value']) != len(state[p['port']]):
+                raise ValueError('Output vector dimension mismatch')
+        _json(result)
+        return result

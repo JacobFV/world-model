@@ -1,0 +1,43 @@
+{
+  "id": "freight",
+  "schema_version": 1,
+  "dependencies": [],
+  "kind": "source",
+  "status": "sample_unavailable",
+  "description": "Commodity Flow Survey and Freight Analysis Framework",
+  "source": {
+    "publisher": "Census / BTS",
+    "license_status": "verify_for_selected_release"
+  },
+  "expected_outputs": [
+    "commodity_flow",
+    "origin",
+    "destination"
+  ],
+  "setup": "Preserve commodity revision, mode, geographic zones, value/tonnage units and modeled versus surveyed status.",
+  "entrypoint": "worldmodel.normalizers:normalize_sample",
+  "parameters": {},
+  "sampling": {
+    "strategy": "download",
+    "max_rows": 100,
+    "max_sample_bytes": 1048576,
+    "max_download_bytes": 65011712,
+    "max_uncompressed_bytes": 1048576,
+    "disk_budget_bytes": 67108864,
+    "timeout_seconds": 25,
+    "total_timeout_seconds": 90,
+    "format": "zip_csv",
+    "records_path": [],
+    "representative": false,
+    "criteria": "First 100 rows of the smaller reprocessed 1997-2012 state-level historical FAF file. Recent state archive is above the disk limit.",
+    "documentation": "https://www.bts.gov/faf/faf5",
+    "url": "https://faf.ornl.gov/faf5/data/download_files/FAF5.7.1_Reprocessed_1997-2012_State.zip"
+  },
+  "normalization": {
+    "adapter_version": 1,
+    "input_format": "sampled_jsonl",
+    "raw_fields": "preserved in attributes.source_row",
+    "entity_identity": "source IDs, canonical geography, explicitly labeled unresolved references and aggregate cohorts",
+    "coverage": "no acquired sample; adapter unavailable"
+  }
+}

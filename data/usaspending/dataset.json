@@ -1,0 +1,73 @@
+{
+  "id": "usaspending",
+  "schema_version": 1,
+  "dependencies": [],
+  "kind": "source",
+  "status": "sample_adapter_ready",
+  "description": "Agencies, recipients, awards and transactions",
+  "source": {
+    "publisher": "USAspending",
+    "license_status": "verify_for_selected_release"
+  },
+  "expected_outputs": [
+    "organization",
+    "contract",
+    "award",
+    "payment"
+  ],
+  "setup": "Normalize award and transaction IDs; distinguish obligations from outlays and avoid double-counting totals.",
+  "entrypoint": "worldmodel.normalizers:normalize_sample",
+  "parameters": {},
+  "sampling": {
+    "strategy": "download",
+    "max_rows": 100,
+    "max_sample_bytes": 1048576,
+    "max_download_bytes": 1048576,
+    "max_uncompressed_bytes": 1048576,
+    "disk_budget_bytes": 67108864,
+    "timeout_seconds": 25,
+    "total_timeout_seconds": 90,
+    "format": "json",
+    "records_path": [
+      "results"
+    ],
+    "representative": false,
+    "url": "https://api.usaspending.gov/api/v2/search/spending_by_award/",
+    "method": "POST",
+    "body": {
+      "filters": {
+        "time_period": [
+          {
+            "start_date": "2024-01-01",
+            "end_date": "2024-01-31"
+          }
+        ],
+        "award_type_codes": [
+          "A",
+          "B",
+          "C",
+          "D"
+        ]
+      },
+      "fields": [
+        "Award ID",
+        "Recipient Name",
+        "Award Amount",
+        "Awarding Agency"
+      ],
+      "page": 1,
+      "limit": 100,
+      "sort": "Award Amount",
+      "order": "desc"
+    },
+    "criteria": "First 100 contract awards by amount for January 2024; award summaries, not all transactions.",
+    "documentation": "https://api.usaspending.gov/docs/endpoints"
+  },
+  "normalization": {
+    "adapter_version": 1,
+    "input_format": "sampled_jsonl",
+    "raw_fields": "preserved in attributes.source_row",
+    "entity_identity": "source IDs, canonical geography, explicitly labeled unresolved references and aggregate cohorts",
+    "coverage": "acquired sample only"
+  }
+}

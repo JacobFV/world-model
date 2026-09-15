@@ -1,0 +1,32 @@
+{
+  "id": "fred_treasury2y",
+  "schema_version": 1,
+  "dependencies": [],
+  "kind": "source",
+  "status": "sample_adapter_ready",
+  "description": "DGS2: 2025-01-01 through 2025-03-31; dated historical sample, current vintage, not real-time historical availability",
+  "source": {
+    "publisher": "Federal Reserve Bank of St. Louis",
+    "license_status": "see_publisher_terms"
+  },
+  "entrypoint": "worldmodel.strategic_sources:normalize",
+  "parameters": {},
+  "sampling": {
+    "strategy": "download",
+    "max_rows": 100,
+    "max_sample_bytes": 1048576,
+    "max_download_bytes": 1048576,
+    "max_uncompressed_bytes": 1048576,
+    "disk_budget_bytes": 67108864,
+    "timeout_seconds": 25,
+    "total_timeout_seconds": 90,
+    "format": "csv",
+    "representative": false,
+    "url": "https://fred.stlouisfed.org/graph/fredgraph.csv?id=DGS2&cosd=2025-01-01&coed=2025-03-31",
+    "criteria": "DGS2: 2025-01-01 through 2025-03-31; dated historical sample, current vintage, not real-time historical availability",
+    "documentation": "https://fred.stlouisfed.org/series/DGS2",
+    "required_pattern": {
+      "observation_date": "2025-0[123]-\\d\\d"
+    }
+  }
+}

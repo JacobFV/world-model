@@ -1,0 +1,19 @@
+{
+  "dataset": "california_population_scenario",
+  "start": "2024-07-01T00:00:00Z",
+  "end": "2025-07-01T00:00:00Z",
+  "known_at": "2026-09-16T00:00:00Z",
+  "step_seconds": 2592000,
+  "seed": 7,
+  "budget": 1000,
+  "max_calls": 1000,
+  "targets": [{"entity": "geo:US:state:06", "variable": "population"}],
+  "bindings": [{
+    "id": "california_growth",
+    "process_id": "population_growth",
+    "fidelity": "deterministic",
+    "inputs": {"population": {"entity": "geo:US:state:06", "variable": "population"}},
+    "outputs": {"population": {"entity": "geo:US:state:06", "variable": "population"}},
+    "parameters": {"growth_rate_per_year": 0.01}
+  }]
+}

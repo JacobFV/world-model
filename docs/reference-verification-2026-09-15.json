@@ -1,0 +1,137 @@
+{
+  "date": "2026-09-15",
+  "tests": {
+    "command": "python3 -m unittest discover -s tests",
+    "passed": 196
+  },
+  "artifacts": {
+    "reference_evidence": {
+      "dataset": "reference_evidence",
+      "version": "72acca853a6eec979272f7c0db609e3f628a8c85d25ef7ca4ae7ece93c1802ee"
+    },
+    "reference_coverage": {
+      "dataset": "reference_coverage",
+      "version": "5ad881c3c3a0ab04dc694d194233919abf66b0d21b913882e26651b1514c79eb"
+    },
+    "exposure_scenario": {
+      "dataset": "exposure_scenario",
+      "version": "d2c587faee250ec368c818a313209c4494b469d712d8517139e3a221f9a9c6b6"
+    },
+    "reference_exposure_scenario": {
+      "dataset": "reference_exposure_scenario",
+      "version": "ca0b637ec145fc38ac5223c35e0bb7c324b161923adb45ef43a3a3d291a94287"
+    }
+  },
+  "recursive_verification": "passed",
+  "counts": {
+    "records": 17528,
+    "entities": 4255,
+    "relations": 7353,
+    "counts": {
+      "entity": 4613,
+      "assertion": 9554,
+      "observation": 3361
+    }
+  },
+  "sources": [
+    {
+      "dataset": "iso_mic_venues",
+      "downloaded_bytes": 589498,
+      "retained_bytes": 5106,
+      "rows": 11,
+      "sample_id": "01054bd51d3a8b703c485c740f72ee09a491703d759be3849025226b9c90caed",
+      "status": "sampled"
+    },
+    {
+      "dataset": "nasdaq_listings",
+      "downloaded_bytes": 348098,
+      "retained_bytes": 19405,
+      "rows": 100,
+      "sample_id": "a09bcc7d615ddc340503d0ec088006cd04c534a2ffe7d3398761bfcc66844f0f",
+      "status": "sampled"
+    },
+    {
+      "dataset": "gleif_parent_relationships",
+      "downloaded_bytes": 1238,
+      "retained_bytes": 1157,
+      "rows": 1,
+      "sample_id": "4ae6a798d05b91c7be66b7f2f962d953f532a2b99a655c2675c2d6f77fcbeeed",
+      "status": "sampled"
+    },
+    {
+      "dataset": "sec_issuer_reference",
+      "reason": "Missing SEC_USER_AGENT; source requires the User-Agent request header",
+      "status": "blocked"
+    },
+    {
+      "dataset": "nasdaq_index_reference",
+      "reason": "Official NDX reference page verified; no machine-readable bounded constituent endpoint configured. GIW automated weights/components require source access and entitlement verification; no membership acquired.",
+      "status": "blocked"
+    },
+    {
+      "dataset": "market_corporate_actions",
+      "reason": "Nasdaq Daily List documents issue and symbol changes; licensed feed access, dated records and adjustment policy are not configured. No corporate action history acquired.",
+      "status": "blocked"
+    },
+    {
+      "dataset": "market_prices",
+      "reason": "Security-level price feed and entitlements are not configured; existing FRED macro series are separate and do not establish security prices or adjusted returns.",
+      "status": "blocked"
+    },
+    {
+      "dataset": "market_obligations",
+      "reason": "SEC XBRL aggregate balances do not identify bilateral counterparties, dated payment schedules, seniority or currencies per contract. Filing-specific contract extraction and explicit counterparty IDs are required; no obligation network acquired.",
+      "status": "blocked"
+    },
+    {
+      "dataset": "congress_people",
+      "downloaded_bytes": 1468926,
+      "retained_bytes": 328271,
+      "rows": 100,
+      "sample_id": "14a9e5f95b29c1af0d595b0a6dff44d701882ce69bd4c802f3feccb84e6e4165",
+      "status": "sampled"
+    },
+    {
+      "dataset": "openalex_people",
+      "downloaded_bytes": 114457,
+      "retained_bytes": 107070,
+      "rows": 5,
+      "sample_id": "996911a59e90fa44cf215495ad40d90c4f62a60f70719b22cd8f769f3aeb4b79",
+      "status": "sampled"
+    }
+  ],
+  "queries": [
+    {
+      "namespace": "mic",
+      "value": "TXSE",
+      "status": "resolved"
+    },
+    {
+      "namespace": "ticker",
+      "value": "AAPL",
+      "status": "temporal_unknown"
+    }
+  ],
+  "synthetic_identity_example_statuses": [
+    "resolved",
+    "ambiguous",
+    "resolved",
+    "resolved"
+  ],
+  "cross_source_XNAS_inputs": [
+    "iso_mic_venues",
+    "nasdaq_listings"
+  ],
+  "coverage_identities": {
+    "completeness": "unknown",
+    "count_basis": "distinct source/canonical IDs before equivalence",
+    "entities": 4255,
+    "identifier_assignments": 2090,
+    "source_scoped_references": 426,
+    "universe_size": null
+  },
+  "exposure_example_shortfalls": {
+    "baseline": 4500.0,
+    "stressed": 4950.0
+  }
+}

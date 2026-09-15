@@ -1,0 +1,82 @@
+{
+  "dataset": "economy_temporal_view",
+  "start": "2024-01-01",
+  "end": "2024-01-03",
+  "known_at": "2026-09-16",
+  "step_seconds": 43200,
+  "budget": 1000,
+  "targets": [
+    {
+      "entity": "scenario:economy",
+      "variable": "economy_state"
+    }
+  ],
+  "initial_state": [
+    {
+      "entity": "scenario:economy",
+      "variable": "economy_state",
+      "value": {
+        "config": {
+          "days": 30,
+          "energy_price": 10,
+          "bank": {
+            "cash": 10000,
+            "annual_rate": 0.05,
+            "credit_limit": 10000
+          },
+          "supplier": {
+            "cash": 1000
+          },
+          "customers": {
+            "cash": 100000
+          },
+          "businesses": [
+            {
+              "id": "factory",
+              "cash": 1000,
+              "loan": 0,
+              "inventory": 20,
+              "storage_capacity": 200,
+              "credit_limit": 2000,
+              "daily_energy_need": 10,
+              "revenue_per_unit": 16,
+              "policy": {
+                "target_days": 3,
+                "anticipation": 2,
+                "expected_price_change": 0.25
+              }
+            }
+          ],
+          "shocks": [
+            {
+              "step": 10,
+              "energy_price": 14,
+              "annual_rate": 0.08
+            }
+          ]
+        },
+        "step": 0
+      },
+      "unit": null,
+      "type": "object"
+    }
+  ],
+  "bindings": [
+    {
+      "id": "economy",
+      "process_id": "bank_energy_business",
+      "inputs": {
+        "economy_state": {
+          "entity": "scenario:economy",
+          "variable": "economy_state"
+        }
+      },
+      "outputs": {
+        "economy_state": {
+          "entity": "scenario:economy",
+          "variable": "economy_state"
+        }
+      }
+    }
+  ]
+}

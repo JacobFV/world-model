@@ -1,0 +1,60 @@
+{
+  "id": "congress_people",
+  "schema_version": 1,
+  "dependencies": [],
+  "kind": "source",
+  "status": "sample_adapter_ready",
+  "description": "Community-maintained public Congressional person identifiers and dated House/Senate terms; first 100 source rows only",
+  "source": {
+    "publisher": "unitedstates/congress-legislators contributors (community, not official Congress publisher)",
+    "license_status": "verify_for_selected_release",
+    "authority": "community_directory"
+  },
+  "expected_outputs": [
+    "person",
+    "role",
+    "organization",
+    "identifier_assignment",
+    "holds_role",
+    "role_in_organization"
+  ],
+  "entrypoint": "worldmodel.people_sources:normalize",
+  "parameters": {},
+  "sampling": {
+    "strategy": "download",
+    "max_rows": 100,
+    "max_sample_bytes": 1048576,
+    "max_download_bytes": 4194304,
+    "max_uncompressed_bytes": 4194304,
+    "disk_budget_bytes": 67108864,
+    "timeout_seconds": 25,
+    "total_timeout_seconds": 90,
+    "format": "json",
+    "records_path": [],
+    "representative": false,
+    "url": "https://raw.githubusercontent.com/unitedstates/congress-legislators/gh-pages/legislators-current.json",
+    "criteria": "First 100 entries in the published current-member file in source order, including their published historical terms. File membership is not a verified current-office status.",
+    "documentation": "https://github.com/unitedstates/congress-legislators/blob/main/README.md"
+  },
+  "coverage": {
+    "scope": "US congressional directory sample; neither a full US nor a global person universe",
+    "representative": false,
+    "completeness": "unknown",
+    "not_available": [
+      "private_movements",
+      "inferred_biography",
+      "complete_global_people_directory"
+    ]
+  },
+  "access": {
+    "probe": "HTTP 200 on 2026-09-15; bounded prefix read, not a retained acquisition",
+    "credentials": "No credentials required by verified endpoint probe; access policies may change",
+    "blockers": []
+  },
+  "normalization": {
+    "input_format": "sampled_jsonl",
+    "raw_fields": "source_row on person; source_term or source_affiliation on role; all claims retain raw line evidence",
+    "identity": "Only published identifier crosswalks; names are aliases, never merge evidence",
+    "temporal_scope": "Published term dates only"
+  }
+}

@@ -1,0 +1,33 @@
+{
+  "id": "airport_nodes",
+  "schema_version": 1,
+  "dependencies": [],
+  "kind": "source",
+  "status": "sample_adapter_ready",
+  "description": "First100 California medium/large airports; full CSV downloaded temporarily within62MiB then discarded; no flights or schedules",
+  "source": {
+    "publisher": "OurAirports community",
+    "license_status": "see_publisher_terms"
+  },
+  "entrypoint": "worldmodel.strategic_sources:normalize",
+  "parameters": {},
+  "sampling": {
+    "strategy": "download",
+    "max_rows": 100,
+    "max_sample_bytes": 1048576,
+    "max_download_bytes": 65011712,
+    "max_uncompressed_bytes": 65011712,
+    "disk_budget_bytes": 67108864,
+    "timeout_seconds": 25,
+    "total_timeout_seconds": 90,
+    "format": "csv",
+    "representative": false,
+    "url": "https://ourairports.com/data/airports.csv",
+    "criteria": "First100 California medium/large airports; full CSV downloaded temporarily within62MiB then discarded; no flights or schedules",
+    "documentation": "https://ourairports.com/help/data-dictionary.html",
+    "required_pattern": {
+      "iso_region": "US-CA",
+      "type": "(?:large|medium)_airport"
+    }
+  }
+}

@@ -1,0 +1,15 @@
+# Reference backbone and coverage maps
+
+Approved scope: public people/roles, organizations/issuers, instruments/listings/venues/indices, ownership and obligation evidence, and links to strategic scenarios. Build source-preserving identity and coverage infrastructure; extend real bounded sources; no claim of comprehensive global coverage.
+
+Constraints: stdlib Python, immutable Store/Runner/artifacts, source samples <=100 rows/1MiB, shared64MiB temporary buffer, exact code/input lineage, no automatic name-based merges. Existing observed/synthetic separation remains. No Git repository. Implementation is authorized by user's assent to the preceding design; no new approval gate.
+
+A. Identity: temporal identifier assignments and explicit equivalence assertions. resolve_identifier(namespace,value,at,known_at) preserves ambiguity; names search only; issuer/instrument/listing/venue/index are distinct. Reject type-conflicting equivalence and contradictory unique identifiers; ticker reuse across time is supported. Reference lookup returns evidence and canonical IDs without rewriting raw claims.
+
+B. Markets: verified official bounded source configs + normalizers for exchange MIC directory (including relevant US/Texas venues if present), issuer/listing directory, index reference/constituents when source-access permits, ownership parent relationships and corporate actions/prices/obligations availability declarations with explicit blockers. Exact published status and date only, no assumed exchange launch/operation or fabricated constituent membership. Listing sources lacking issuer IDs create labeled source-scoped references, not asserted legal-entity identity.
+
+C. People: verified bounded public directory/role sources, e.g. congressional public identifiers and roles plus Wikidata public persons when accessible. Preserve role/term dates, affiliation, identifier crosswalks and observed times. No inferred private movements. Add generic person->role->organization and identity/alias/term schema. Concrete available sources take priority over speculative broad adapters.
+
+D. Coverage: three independent maps for identities, relationship/state/event evidence, and model validation. Report counts, scopes, missing domains, representative=false and completeness=unknown rather than scores implying a full universe. Model validation reports observed holdout results and declared illustrative/unvalidated kernels. Source readiness inventory includes obligations, ownership, corporate actions/prices, law, academia, posts and physical dependencies.
+
+E. Integrate reference-build graph with strategic_evidence; CLI source acquisition/build/lookup/search/coverage. Demonstrate one exact-ID cross-source connection, historical ticker reuse and ambiguity, real bounded market/person acquisitions, verified graph and coverage artifacts. Connect reference-backed entities to explicit scenario inputs without inferring financial exposures from names. Provide an evidence-backed exposure/obligation adapter and stress evaluation for supplied dated obligations, unit-safe source references, with explicit missing-state failures.

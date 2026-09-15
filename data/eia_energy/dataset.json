@@ -1,0 +1,46 @@
+{
+  "id": "eia_energy",
+  "schema_version": 1,
+  "dependencies": [],
+  "kind": "source",
+  "status": "sample_adapter_ready",
+  "description": "Energy facilities, generation, fuel and grid data",
+  "source": {
+    "publisher": "EIA / EPA / FERC",
+    "license_status": "verify_for_selected_release"
+  },
+  "expected_outputs": [
+    "facility",
+    "generation",
+    "fuel_consumption"
+  ],
+  "setup": "Resolve plant/generator identifiers; preserve reporting frequency, units and revisions.",
+  "entrypoint": "worldmodel.normalizers:normalize_sample",
+  "parameters": {},
+  "sampling": {
+    "strategy": "download",
+    "max_rows": 100,
+    "max_sample_bytes": 1048576,
+    "max_download_bytes": 1048576,
+    "max_uncompressed_bytes": 1048576,
+    "disk_budget_bytes": 67108864,
+    "timeout_seconds": 25,
+    "total_timeout_seconds": 90,
+    "format": "json",
+    "records_path": [
+      "response",
+      "data"
+    ],
+    "representative": false,
+    "url": "https://api.eia.gov/v2/electricity/retail-sales/data/?api_key=DEMO_KEY&frequency=annual&data%5B0%5D=sales&facets%5Bstateid%5D%5B%5D=CA&facets%5Bsectorid%5D%5B%5D=ALL&start=2023&end=2023&length=100",
+    "criteria": "California annual electricity retail sales, all sectors, 2023; public demo key only.",
+    "documentation": "https://www.eia.gov/opendata/documentation.php"
+  },
+  "normalization": {
+    "adapter_version": 1,
+    "input_format": "sampled_jsonl",
+    "raw_fields": "preserved in attributes.source_row",
+    "entity_identity": "source IDs, canonical geography, explicitly labeled unresolved references and aggregate cohorts",
+    "coverage": "acquired sample only"
+  }
+}

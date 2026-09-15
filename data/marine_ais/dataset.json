@@ -1,0 +1,30 @@
+{
+  "id": "marine_ais",
+  "schema_version": 1,
+  "dependencies": [],
+  "kind": "source",
+  "status": "sample_adapter_ready",
+  "description": "Historical AIS availability; no bulk daily download on laptop",
+  "source": {
+    "publisher": "NOAA / BOEM / USCG MarineCadastre",
+    "license_status": "see_publisher_terms"
+  },
+  "entrypoint": "worldmodel.strategic_sources:normalize",
+  "parameters": {},
+  "sampling": {
+    "strategy": "blocked",
+    "max_rows": 100,
+    "max_sample_bytes": 1048576,
+    "max_download_bytes": 65011712,
+    "max_uncompressed_bytes": 65011712,
+    "disk_budget_bytes": 67108864,
+    "timeout_seconds": 25,
+    "total_timeout_seconds": 90,
+    "format": "json",
+    "representative": false,
+    "url": "https://marinecadastre.gov/ais/",
+    "criteria": "Historical AIS availability; no bulk daily download on laptop",
+    "reason": "AccessAIS currently reports its ordering service unavailable. Bulk daily AIS archives remain available, but no selected archive or spatial export has been verified to fit the62MiB download buffer. No vessel tracks acquired.",
+    "documentation": "https://marinecadastre.gov/accessais/"
+  }
+}

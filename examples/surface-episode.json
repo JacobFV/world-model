@@ -1,0 +1,29 @@
+{
+  "title": "Materialization environment \u2014 assumed cashflow",
+  "panels": [
+    {
+      "kind": "value",
+      "title": "Selected cash balance (scenario USD)",
+      "entity": "fdic:cert:34383",
+      "variable": "cash"
+    },
+    {
+      "kind": "plot",
+      "title": "Cash over the episode",
+      "entity": "fdic:cert:34383",
+      "variable": "cash"
+    },
+    {
+      "kind": "table",
+      "title": "Cash snapshots and provenance",
+      "entity": "fdic:cert:34383",
+      "variable": "cash"
+    },
+    {
+      "kind": "plot",
+      "title": "Second entity: same materialization",
+      "entity": "lei:5493001KJTIIGC8Y1R12",
+      "variable": "cash"
+    }
+  ]
+}

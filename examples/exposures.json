@@ -1,0 +1,15 @@
+{
+  "as_of": "2026-09-15",
+  "end": "2027-09-15",
+  "currency": "USD",
+  "shock_bps": 300,
+  "entities": [
+    {"id": "scenario:producer", "cash": 12000},
+    {"id": "scenario:supplier", "cash": 3000},
+    {"id": "scenario:lender", "cash": 100000}
+  ],
+  "obligations": [
+    {"id": "scenario:trade_credit", "borrower": "scenario:producer", "lender": "scenario:supplier", "principal": 15000, "annual_rate": 0.04, "rate_type": "fixed", "maturity": "2027-09-15"},
+    {"id": "scenario:loan", "borrower": "scenario:supplier", "lender": "scenario:lender", "principal": 15000, "annual_rate": 0.06, "rate_type": "floating", "maturity": "2027-09-15"}
+  ]
+}

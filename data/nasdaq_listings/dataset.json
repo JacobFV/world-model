@@ -1,0 +1,40 @@
+{
+  "id": "nasdaq_listings",
+  "schema_version": 1,
+  "dependencies": [],
+  "kind": "source",
+  "status": "sample_adapter_ready",
+  "description": "First 100 Nasdaq-listed directory rows excluding test issues. Source-scoped instrument/listing references; no legal issuer ID supplied.",
+  "source": {
+    "publisher": "Nasdaq Trader",
+    "license_status": "see_publisher_terms"
+  },
+  "entrypoint": "worldmodel.market_sources:normalize",
+  "parameters": {},
+  "sampling": {
+    "strategy": "download",
+    "max_rows": 100,
+    "max_sample_bytes": 1048576,
+    "max_download_bytes": 65011712,
+    "max_uncompressed_bytes": 65011712,
+    "disk_budget_bytes": 67108864,
+    "timeout_seconds": 25,
+    "total_timeout_seconds": 90,
+    "format": "csv",
+    "representative": false,
+    "url": "https://www.nasdaqtrader.com/dynamic/SymDir/nasdaqlisted.txt",
+    "delimiter": "|",
+    "required_pattern": {
+      "Test Issue": "N",
+      "Symbol": "[A-Z0-9.$^-]+"
+    },
+    "criteria": "First 100 non-test Nasdaq-listed directory rows in published order; current downloaded snapshot without historical listing intervals.",
+    "documentation": "https://www.nasdaqtrader.com/Trader.aspx?id=SymbolDirDefs"
+  },
+  "coverage": {
+    "representative": false,
+    "completeness": "unknown",
+    "scope": "First 100 Nasdaq-listed directory rows excluding test issues. Source-scoped instrument/listing references; no legal issuer ID supplied."
+  },
+  "documentation_verified_on": "2026-09-15"
+}

@@ -1,0 +1,39 @@
+{
+  "id": "sec_issuer_reference",
+  "schema_version": 1,
+  "dependencies": [],
+  "kind": "source",
+  "status": "sample_adapter_ready",
+  "description": "One issuer reference using published CIK, name and unjoined ticker/exchange metadata.",
+  "source": {
+    "publisher": "SEC",
+    "license_status": "see_publisher_terms"
+  },
+  "entrypoint": "worldmodel.market_sources:normalize",
+  "parameters": {},
+  "sampling": {
+    "strategy": "download",
+    "max_rows": 100,
+    "max_sample_bytes": 1048576,
+    "max_download_bytes": 65011712,
+    "max_uncompressed_bytes": 65011712,
+    "disk_budget_bytes": 67108864,
+    "timeout_seconds": 25,
+    "total_timeout_seconds": 90,
+    "format": "json",
+    "representative": false,
+    "url": "https://data.sec.gov/submissions/CIK0000320193.json",
+    "singleton_record": true,
+    "headers_env": {
+      "User-Agent": "SEC_USER_AGENT"
+    },
+    "criteria": "Single Apple CIK submission metadata record; recent filing arrays retained as source payload but not normalized into filing or obligation claims.",
+    "documentation": "https://www.sec.gov/search-filings/edgar-application-programming-interfaces"
+  },
+  "coverage": {
+    "representative": false,
+    "completeness": "unknown",
+    "scope": "One issuer reference using published CIK, name and unjoined ticker/exchange metadata."
+  },
+  "documentation_verified_on": "2026-09-15"
+}

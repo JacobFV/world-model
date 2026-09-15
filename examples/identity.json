@@ -1,0 +1,246 @@
+{
+  "description": "Synthetic identity mechanics only; zero artifact digest is a placeholder to bind to an ingested fixture before publication. No real-world claims.",
+  "records": [
+    {
+      "id": "listing:old",
+      "kind": "entity",
+      "entity_type": "ticker_listing",
+      "label": "Illustrative old ABC listing",
+      "observed_at": "2020-01-01",
+      "evidence": [
+        {
+          "input": {
+            "dataset": "identity_fixture",
+            "artifact": "0000000000000000000000000000000000000000000000000000000000000000"
+          },
+          "locator": "synthetic:listing:old"
+        }
+      ],
+      "epistemic_status": "synthetic_scenario"
+    },
+    {
+      "id": "listing:new",
+      "kind": "entity",
+      "entity_type": "ticker_listing",
+      "label": "Illustrative new ABC listing",
+      "observed_at": "2020-01-01",
+      "evidence": [
+        {
+          "input": {
+            "dataset": "identity_fixture",
+            "artifact": "0000000000000000000000000000000000000000000000000000000000000000"
+          },
+          "locator": "synthetic:listing:new"
+        }
+      ],
+      "epistemic_status": "synthetic_scenario"
+    },
+    {
+      "id": "listing:other",
+      "kind": "entity",
+      "entity_type": "ticker_listing",
+      "label": "Illustrative second-venue ABC listing",
+      "observed_at": "2020-01-01",
+      "evidence": [
+        {
+          "input": {
+            "dataset": "identity_fixture",
+            "artifact": "0000000000000000000000000000000000000000000000000000000000000000"
+          },
+          "locator": "synthetic:listing:other"
+        }
+      ],
+      "epistemic_status": "synthetic_scenario"
+    },
+    {
+      "id": "person:directory",
+      "kind": "entity",
+      "entity_type": "person",
+      "label": "Illustrative public person",
+      "observed_at": "2020-01-01",
+      "evidence": [
+        {
+          "input": {
+            "dataset": "identity_fixture",
+            "artifact": "0000000000000000000000000000000000000000000000000000000000000000"
+          },
+          "locator": "synthetic:person:directory"
+        }
+      ],
+      "epistemic_status": "synthetic_scenario"
+    },
+    {
+      "id": "person:crosswalk",
+      "kind": "entity",
+      "entity_type": "person",
+      "label": "Illustrative public person",
+      "observed_at": "2020-01-01",
+      "evidence": [
+        {
+          "input": {
+            "dataset": "identity_fixture",
+            "artifact": "0000000000000000000000000000000000000000000000000000000000000000"
+          },
+          "locator": "synthetic:person:crosswalk"
+        }
+      ],
+      "epistemic_status": "synthetic_scenario"
+    },
+    {
+      "id": "assignment:old",
+      "kind": "assertion",
+      "subject": "listing:old",
+      "predicate": "identifier_assignment",
+      "observed_at": "2020-01-01",
+      "evidence": [
+        {
+          "input": {
+            "dataset": "identity_fixture",
+            "artifact": "0000000000000000000000000000000000000000000000000000000000000000"
+          },
+          "locator": "synthetic:assignment:old"
+        }
+      ],
+      "value": {
+        "namespace": "ticker",
+        "value": "ABC",
+        "scope": "XNYS"
+      },
+      "valid_from": "2000-01-01",
+      "valid_to": "2020-01-01",
+      "epistemic_status": "synthetic_scenario"
+    },
+    {
+      "id": "assignment:new",
+      "kind": "assertion",
+      "subject": "listing:new",
+      "predicate": "identifier_assignment",
+      "observed_at": "2020-01-01",
+      "evidence": [
+        {
+          "input": {
+            "dataset": "identity_fixture",
+            "artifact": "0000000000000000000000000000000000000000000000000000000000000000"
+          },
+          "locator": "synthetic:assignment:new"
+        }
+      ],
+      "value": {
+        "namespace": "ticker",
+        "value": "ABC",
+        "scope": "XNYS"
+      },
+      "valid_from": "2020-01-01",
+      "epistemic_status": "synthetic_scenario",
+      "valid_to": "2030-01-01"
+    },
+    {
+      "id": "assignment:other",
+      "kind": "assertion",
+      "subject": "listing:other",
+      "predicate": "identifier_assignment",
+      "observed_at": "2020-01-01",
+      "evidence": [
+        {
+          "input": {
+            "dataset": "identity_fixture",
+            "artifact": "0000000000000000000000000000000000000000000000000000000000000000"
+          },
+          "locator": "synthetic:assignment:other"
+        }
+      ],
+      "value": {
+        "namespace": "ticker",
+        "value": "ABC",
+        "scope": "XNAS"
+      },
+      "valid_from": "2020-01-01",
+      "epistemic_status": "synthetic_scenario",
+      "valid_to": "2030-01-01"
+    },
+    {
+      "id": "assignment:person",
+      "kind": "assertion",
+      "subject": "person:directory",
+      "predicate": "identifier_assignment",
+      "observed_at": "2020-01-01",
+      "evidence": [
+        {
+          "input": {
+            "dataset": "identity_fixture",
+            "artifact": "0000000000000000000000000000000000000000000000000000000000000000"
+          },
+          "locator": "synthetic:assignment:person"
+        }
+      ],
+      "value": {
+        "namespace": "example_public_id",
+        "value": "P1"
+      },
+      "epistemic_status": "synthetic_scenario"
+    },
+    {
+      "id": "equivalence:person",
+      "kind": "assertion",
+      "subject": "person:directory",
+      "predicate": "same_as",
+      "observed_at": "2020-01-01",
+      "evidence": [
+        {
+          "input": {
+            "dataset": "identity_fixture",
+            "artifact": "0000000000000000000000000000000000000000000000000000000000000000"
+          },
+          "locator": "synthetic:equivalence:person"
+        }
+      ],
+      "object": "person:crosswalk",
+      "epistemic_status": "synthetic_scenario"
+    },
+    {
+      "id": "alias:person",
+      "kind": "assertion",
+      "subject": "person:directory",
+      "predicate": "alias",
+      "observed_at": "2020-01-01",
+      "evidence": [
+        {
+          "input": {
+            "dataset": "identity_fixture",
+            "artifact": "0000000000000000000000000000000000000000000000000000000000000000"
+          },
+          "locator": "synthetic:alias:person"
+        }
+      ],
+      "value": "Illustrative alias",
+      "epistemic_status": "synthetic_scenario"
+    }
+  ],
+  "queries": [
+    {
+      "namespace": "ticker",
+      "value": "ABC",
+      "at": "2019-01-01",
+      "known_at": "2022-01-01"
+    },
+    {
+      "namespace": "ticker",
+      "value": "ABC",
+      "at": "2021-01-01",
+      "known_at": "2022-01-01"
+    },
+    {
+      "namespace": "ticker",
+      "value": "ABC",
+      "scope": "XNYS",
+      "at": "2021-01-01",
+      "known_at": "2022-01-01"
+    },
+    {
+      "namespace": "example_public_id",
+      "value": "P1",
+      "at": "2021-01-01",
+      "known_at": "2022-01-01"
+    }
+  ]
+}

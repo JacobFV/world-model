@@ -1,0 +1,4997 @@
+{
+  "date": "2026-09-15",
+  "real_sources_sampled": 11,
+  "real_source_rows": 762,
+  "retained_latest_real_payload_bytes": 519498,
+  "all_data_tree_bytes_at_report": 2909649,
+  "temporary_buffers_remaining": 0,
+  "results": [
+    {
+      "completed_at": "2026-09-15T10:14:21.370272+00:00",
+      "criteria": "BEA InputOutput table 259, year 2023; retain first 100 cells if complete response fits 1 MiB.",
+      "dataset": "bea_input_output",
+      "max_download_bytes": 1048576,
+      "max_rows": 100,
+      "max_sample_bytes": 1048576,
+      "reason": "Missing BEA_API_KEY; source requires an API key",
+      "started_at": "2026-09-15T10:14:21.369570+00:00",
+      "status": "blocked"
+    },
+    {
+      "artifact": {
+        "artifact": "f0e2becd16d945e16def289a7a85973c7b750d159e53db5ba041b1500b079265",
+        "dataset": "bls_labor"
+      },
+      "completed_at": "2026-09-15T10:17:16.563070+00:00",
+      "criteria": "One national unemployment-rate series (LNS14000000), requested year 2024; retain actual returned periods.",
+      "dataset": "bls_labor",
+      "downloaded_bytes": 1133,
+      "fields": [
+        "footnotes",
+        "period",
+        "periodName",
+        "value",
+        "year"
+      ],
+      "manifest": "bls_labor/samples/09019ed80922c72945589bd0998e9396806172d11ddaa32d521bc265b24a6eb1/manifest.json",
+      "max_download_bytes": 1048576,
+      "max_rows": 100,
+      "max_sample_bytes": 1048576,
+      "retained_bytes": 1010,
+      "rows": 12,
+      "sample_id": "09019ed80922c72945589bd0998e9396806172d11ddaa32d521bc265b24a6eb1",
+      "started_at": "2026-09-15T10:17:16.149010+00:00",
+      "status": "sampled",
+      "stop_reason": "source_exhausted",
+      "profile": {
+        "columns": {
+          "footnotes": {
+            "distinct_scalar_values": 0,
+            "missing": 0,
+            "types": [
+              "list"
+            ]
+          },
+          "period": {
+            "distinct_scalar_values": 12,
+            "missing": 0,
+            "types": [
+              "str"
+            ]
+          },
+          "periodName": {
+            "distinct_scalar_values": 12,
+            "missing": 0,
+            "types": [
+              "str"
+            ]
+          },
+          "value": {
+            "distinct_scalar_values": 4,
+            "missing": 0,
+            "types": [
+              "str"
+            ]
+          },
+          "year": {
+            "distinct_scalar_values": 1,
+            "missing": 0,
+            "types": [
+              "str"
+            ]
+          }
+        },
+        "examples": [
+          {
+            "footnotes": [
+              {}
+            ],
+            "period": "M12",
+            "periodName": "December",
+            "value": "4.1",
+            "year": "2024"
+          },
+          {
+            "footnotes": [
+              {}
+            ],
+            "period": "M11",
+            "periodName": "November",
+            "value": "4.2",
+            "year": "2024"
+          },
+          {
+            "footnotes": [
+              {}
+            ],
+            "period": "M10",
+            "periodName": "October",
+            "value": "4.1",
+            "year": "2024"
+          }
+        ],
+        "fields": [
+          "footnotes",
+          "period",
+          "periodName",
+          "value",
+          "year"
+        ],
+        "representative": false,
+        "rows": 12
+      },
+      "sampling": {
+        "config": {
+          "body": {
+            "endyear": "2024",
+            "seriesid": [
+              "LNS14000000"
+            ],
+            "startyear": "2024"
+          },
+          "criteria": "One national unemployment-rate series (LNS14000000), requested year 2024; retain actual returned periods.",
+          "disk_budget_bytes": 67108864,
+          "documentation": "https://www.bls.gov/developers/api_FAQs.htm",
+          "format": "json",
+          "max_download_bytes": 1048576,
+          "max_rows": 100,
+          "max_sample_bytes": 1048576,
+          "max_uncompressed_bytes": 1048576,
+          "method": "POST",
+          "records_path": [
+            "Results",
+            "series",
+            0,
+            "data"
+          ],
+          "representative": false,
+          "strategy": "download",
+          "timeout_seconds": 25,
+          "total_timeout_seconds": 90,
+          "url": "https://api.bls.gov/publicAPI/v1/timeseries/data/"
+        },
+        "content_type": "text/plain;charset=ISO-8859-1",
+        "etag": null,
+        "format": "jsonl",
+        "last_modified": null,
+        "method": "POST",
+        "original_bytes": 1133,
+        "original_complete": true,
+        "original_retained": false,
+        "original_sha256": "5035614e5527a963c48da7f135110489de4369d5d762c5c2012a2aab37b30cbf",
+        "request_body": {
+          "endyear": "2024",
+          "seriesid": [
+            "LNS14000000"
+          ],
+          "startyear": "2024"
+        },
+        "resolved_url": "https://api.bls.gov/publicAPI/v1/timeseries/data/",
+        "retained_rows": 12,
+        "sampled": true,
+        "selection": "first matching records; not a random sample",
+        "stop_reason": "source_exhausted",
+        "url": "https://api.bls.gov/publicAPI/v1/timeseries/data/"
+      }
+    },
+    {
+      "artifact": {
+        "artifact": "ca6fae8ca0272f0b784dac459596ef140a9b31ffa9938825c4f9077a213643b7",
+        "dataset": "census_business"
+      },
+      "completed_at": "2026-09-15T10:17:17.278229+00:00",
+      "criteria": "First 100 physical data rows of 2023 CBP state file; multiple NAICS/LFO/employment-size categories, not just all-sector totals.",
+      "dataset": "census_business",
+      "downloaded_bytes": 11115845,
+      "fields": [
+        "a1000",
+        "a1000nf",
+        "a100_249",
+        "a100_249nf",
+        "a10_19",
+        "a10_19nf",
+        "a20_49",
+        "a20_49nf",
+        "a250_499",
+        "a250_499nf",
+        "a500_999",
+        "a500_999nf",
+        "a50_99",
+        "a50_99nf",
+        "a5_9",
+        "a5_9nf",
+        "a<5",
+        "a<5nf",
+        "ap",
+        "ap_nf",
+        "e1000",
+        "e1000nf",
+        "e100_249",
+        "e100_249nf",
+        "e10_19",
+        "e10_19nf",
+        "e20_49",
+        "e20_49nf",
+        "e250_499",
+        "e250_499nf",
+        "e500_999",
+        "e500_999nf",
+        "e50_99",
+        "e50_99nf",
+        "e5_9",
+        "e5_9nf",
+        "e<5",
+        "e<5nf",
+        "emp",
+        "emp_nf",
+        "est",
+        "fipstate",
+        "lfo",
+        "n1000",
+        "n100_249",
+        "n10_19",
+        "n20_49",
+        "n250_499",
+        "n500_999",
+        "n50_99",
+        "n5_9",
+        "n<5",
+        "naics",
+        "q1000",
+        "q1000nf",
+        "q100_249",
+        "q100_249nf",
+        "q10_19",
+        "q10_19nf",
+        "q20_49",
+        "q20_49nf",
+        "q250_499",
+        "q250_499nf",
+        "q500_999",
+        "q500_999nf",
+        "q50_99",
+        "q50_99nf",
+        "q5_9",
+        "q5_9nf",
+        "q<5",
+        "q<5nf",
+        "qp1",
+        "qp1_nf"
+      ],
+      "manifest": "census_business/samples/d38f0ecd3a0f4e6df239c2cda107d82437e810ec64a52d5fbee28ded27184791/manifest.json",
+      "max_download_bytes": 65011712,
+      "max_rows": 100,
+      "max_sample_bytes": 1048576,
+      "retained_bytes": 102962,
+      "rows": 100,
+      "sample_id": "d38f0ecd3a0f4e6df239c2cda107d82437e810ec64a52d5fbee28ded27184791",
+      "started_at": "2026-09-15T10:17:16.696154+00:00",
+      "status": "sampled",
+      "stop_reason": "row_limit",
+      "profile": {
+        "columns": {
+          "a1000": {
+            "distinct_scalar_values": 7,
+            "missing": 0,
+            "types": [
+              "str"
+            ]
+          },
+          "a1000nf": {
+            "distinct_scalar_values": 3,
+            "missing": 0,
+            "types": [
+              "str"
+            ]
+          },
+          "a100_249": {
+            "distinct_scalar_values": 10,
+            "missing": 0,
+            "types": [
+              "str"
+            ]
+          },
+          "a100_249nf": {
+            "distinct_scalar_values": 3,
+            "missing": 0,
+            "types": [
+              "str"
+            ]
+          },
+          "a10_19": {
+            "distinct_scalar_values": 32,
+            "missing": 0,
+            "types": [
+              "str"
+            ]
+          },
+          "a10_19nf": {
+            "distinct_scalar_values": 3,
+            "missing": 0,
+            "types": [
+              "str"
+            ]
+          },
+          "a20_49": {
+            "distinct_scalar_values": 21,
+            "missing": 0,
+            "types": [
+              "str"
+            ]
+          },
+          "a20_49nf": {
+            "distinct_scalar_values": 3,
+            "missing": 0,
+            "types": [
+              "str"
+            ]
+          },
+          "a250_499": {
+            "distinct_scalar_values": 8,
+            "missing": 0,
+            "types": [
+              "str"
+            ]
+          },
+          "a250_499nf": {
+            "distinct_scalar_values": 3,
+            "missing": 0,
+            "types": [
+              "str"
+            ]
+          },
+          "a500_999": {
+            "distinct_scalar_values": 8,
+            "missing": 0,
+            "types": [
+              "str"
+            ]
+          },
+          "a500_999nf": {
+            "distinct_scalar_values": 3,
+            "missing": 0,
+            "types": [
+              "str"
+            ]
+          },
+          "a50_99": {
+            "distinct_scalar_values": 12,
+            "missing": 0,
+            "types": [
+              "str"
+            ]
+          },
+          "a50_99nf": {
+            "distinct_scalar_values": 3,
+            "missing": 0,
+            "types": [
+              "str"
+            ]
+          },
+          "a5_9": {
+            "distinct_scalar_values": 34,
+            "missing": 0,
+            "types": [
+              "str"
+            ]
+          },
+          "a5_9nf": {
+            "distinct_scalar_values": 4,
+            "missing": 0,
+            "types": [
+              "str"
+            ]
+          },
+          "a<5": {
+            "distinct_scalar_values": 51,
+            "missing": 0,
+            "types": [
+              "str"
+            ]
+          },
+          "a<5nf": {
+            "distinct_scalar_values": 4,
+            "missing": 0,
+            "types": [
+              "str"
+            ]
+          },
+          "ap": {
+            "distinct_scalar_values": 58,
+            "missing": 0,
+            "types": [
+              "str"
+            ]
+          },
+          "ap_nf": {
+            "distinct_scalar_values": 3,
+            "missing": 0,
+            "types": [
+              "str"
+            ]
+          },
+          "e1000": {
+            "distinct_scalar_values": 7,
+            "missing": 0,
+            "types": [
+              "str"
+            ]
+          },
+          "e1000nf": {
+            "distinct_scalar_values": 3,
+            "missing": 0,
+            "types": [
+              "str"
+            ]
+          },
+          "e100_249": {
+            "distinct_scalar_values": 10,
+            "missing": 0,
+            "types": [
+              "str"
+            ]
+          },
+          "e100_249nf": {
+            "distinct_scalar_values": 3,
+            "missing": 0,
+            "types": [
+              "str"
+            ]
+          },
+          "e10_19": {
+            "distinct_scalar_values": 32,
+            "missing": 0,
+            "types": [
+              "str"
+            ]
+          },
+          "e10_19nf": {
+            "distinct_scalar_values": 4,
+            "missing": 0,
+            "types": [
+              "str"
+            ]
+          },
+          "e20_49": {
+            "distinct_scalar_values": 21,
+            "missing": 0,
+            "types": [
+              "str"
+            ]
+          },
+          "e20_49nf": {
+            "distinct_scalar_values": 3,
+            "missing": 0,
+            "types": [
+              "str"
+            ]
+          },
+          "e250_499": {
+            "distinct_scalar_values": 8,
+            "missing": 0,
+            "types": [
+              "str"
+            ]
+          },
+          "e250_499nf": {
+            "distinct_scalar_values": 3,
+            "missing": 0,
+            "types": [
+              "str"
+            ]
+          },
+          "e500_999": {
+            "distinct_scalar_values": 8,
+            "missing": 0,
+            "types": [
+              "str"
+            ]
+          },
+          "e500_999nf": {
+            "distinct_scalar_values": 3,
+            "missing": 0,
+            "types": [
+              "str"
+            ]
+          },
+          "e50_99": {
+            "distinct_scalar_values": 12,
+            "missing": 0,
+            "types": [
+              "str"
+            ]
+          },
+          "e50_99nf": {
+            "distinct_scalar_values": 3,
+            "missing": 0,
+            "types": [
+              "str"
+            ]
+          },
+          "e5_9": {
+            "distinct_scalar_values": 34,
+            "missing": 0,
+            "types": [
+              "str"
+            ]
+          },
+          "e5_9nf": {
+            "distinct_scalar_values": 4,
+            "missing": 0,
+            "types": [
+              "str"
+            ]
+          },
+          "e<5": {
+            "distinct_scalar_values": 45,
+            "missing": 0,
+            "types": [
+              "str"
+            ]
+          },
+          "e<5nf": {
+            "distinct_scalar_values": 4,
+            "missing": 0,
+            "types": [
+              "str"
+            ]
+          },
+          "emp": {
+            "distinct_scalar_values": 56,
+            "missing": 0,
+            "types": [
+              "str"
+            ]
+          },
+          "emp_nf": {
+            "distinct_scalar_values": 3,
+            "missing": 0,
+            "types": [
+              "str"
+            ]
+          },
+          "est": {
+            "distinct_scalar_values": 42,
+            "missing": 0,
+            "types": [
+              "str"
+            ]
+          },
+          "fipstate": {
+            "distinct_scalar_values": 1,
+            "missing": 0,
+            "types": [
+              "str"
+            ]
+          },
+          "lfo": {
+            "distinct_scalar_values": 8,
+            "missing": 0,
+            "types": [
+              "str"
+            ]
+          },
+          "n1000": {
+            "distinct_scalar_values": 6,
+            "missing": 0,
+            "types": [
+              "str"
+            ]
+          },
+          "n100_249": {
+            "distinct_scalar_values": 10,
+            "missing": 0,
+            "types": [
+              "str"
+            ]
+          },
+          "n10_19": {
+            "distinct_scalar_values": 26,
+            "missing": 0,
+            "types": [
+              "str"
+            ]
+          },
+          "n20_49": {
+            "distinct_scalar_values": 19,
+            "missing": 0,
+            "types": [
+              "str"
+            ]
+          },
+          "n250_499": {
+            "distinct_scalar_values": 8,
+            "missing": 0,
+            "types": [
+              "str"
+            ]
+          },
+          "n500_999": {
+            "distinct_scalar_values": 8,
+            "missing": 0,
+            "types": [
+              "str"
+            ]
+          },
+          "n50_99": {
+            "distinct_scalar_values": 11,
+            "missing": 0,
+            "types": [
+              "str"
+            ]
+          },
+          "n5_9": {
+            "distinct_scalar_values": 29,
+            "missing": 0,
+            "types": [
+              "str"
+            ]
+          },
+          "n<5": {
+            "distinct_scalar_values": 38,
+            "missing": 0,
+            "types": [
+              "str"
+            ]
+          },
+          "naics": {
+            "distinct_scalar_values": 25,
+            "missing": 0,
+            "types": [
+              "str"
+            ]
+          },
+          "q1000": {
+            "distinct_scalar_values": 7,
+            "missing": 0,
+            "types": [
+              "str"
+            ]
+          },
+          "q1000nf": {
+            "distinct_scalar_values": 3,
+            "missing": 0,
+            "types": [
+              "str"
+            ]
+          },
+          "q100_249": {
+            "distinct_scalar_values": 10,
+            "missing": 0,
+            "types": [
+              "str"
+            ]
+          },
+          "q100_249nf": {
+            "distinct_scalar_values": 4,
+            "missing": 0,
+            "types": [
+              "str"
+            ]
+          },
+          "q10_19": {
+            "distinct_scalar_values": 32,
+            "missing": 0,
+            "types": [
+              "str"
+            ]
+          },
+          "q10_19nf": {
+            "distinct_scalar_values": 3,
+            "missing": 0,
+            "types": [
+              "str"
+            ]
+          },
+          "q20_49": {
+            "distinct_scalar_values": 21,
+            "missing": 0,
+            "types": [
+              "str"
+            ]
+          },
+          "q20_49nf": {
+            "distinct_scalar_values": 3,
+            "missing": 0,
+            "types": [
+              "str"
+            ]
+          },
+          "q250_499": {
+            "distinct_scalar_values": 8,
+            "missing": 0,
+            "types": [
+              "str"
+            ]
+          },
+          "q250_499nf": {
+            "distinct_scalar_values": 3,
+            "missing": 0,
+            "types": [
+              "str"
+            ]
+          },
+          "q500_999": {
+            "distinct_scalar_values": 8,
+            "missing": 0,
+            "types": [
+              "str"
+            ]
+          },
+          "q500_999nf": {
+            "distinct_scalar_values": 3,
+            "missing": 0,
+            "types": [
+              "str"
+            ]
+          },
+          "q50_99": {
+            "distinct_scalar_values": 12,
+            "missing": 0,
+            "types": [
+              "str"
+            ]
+          },
+          "q50_99nf": {
+            "distinct_scalar_values": 3,
+            "missing": 0,
+            "types": [
+              "str"
+            ]
+          },
+          "q5_9": {
+            "distinct_scalar_values": 34,
+            "missing": 0,
+            "types": [
+              "str"
+            ]
+          },
+          "q5_9nf": {
+            "distinct_scalar_values": 4,
+            "missing": 0,
+            "types": [
+              "str"
+            ]
+          },
+          "q<5": {
+            "distinct_scalar_values": 51,
+            "missing": 0,
+            "types": [
+              "str"
+            ]
+          },
+          "q<5nf": {
+            "distinct_scalar_values": 4,
+            "missing": 0,
+            "types": [
+              "str"
+            ]
+          },
+          "qp1": {
+            "distinct_scalar_values": 57,
+            "missing": 0,
+            "types": [
+              "str"
+            ]
+          },
+          "qp1_nf": {
+            "distinct_scalar_values": 3,
+            "missing": 0,
+            "types": [
+              "str"
+            ]
+          }
+        },
+        "examples": [
+          {
+            "a1000": "17432983",
+            "a1000nf": "G",
+            "a100_249": "15261855",
+            "a100_249nf": "G",
+            "a10_19": "9262913",
+            "a10_19nf": "G",
+            "a20_49": "15002265",
+            "a20_49nf": "G",
+            "a250_499": "10790940",
+            "a250_499nf": "G",
+            "a500_999": "10060595",
+            "a500_999nf": "G",
+            "a50_99": "11804388",
+            "a50_99nf": "G",
+            "a5_9": "6373105",
+            "a5_9nf": "G",
+            "a<5": "5051168",
+            "a<5nf": "G",
+            "ap": "101040212",
+            "ap_nf": "G",
+            "e1000": "243216",
+            "e1000nf": "G",
+            "e100_249": "275156",
+            "e100_249nf": "G",
+            "e10_19": "202127",
+            "e10_19nf": "G",
+            "e20_49": "322123",
+            "e20_49nf": "G",
+            "e250_499": "181687",
+            "e250_499nf": "G",
+            "e500_999": "143409",
+            "e500_999nf": "G",
+            "e50_99": "217895",
+            "e50_99nf": "G",
+            "e5_9": "140699",
+            "e5_9nf": "G",
+            "e<5": "96354",
+            "e<5nf": "G",
+            "emp": "1822666",
+            "emp_nf": "G",
+            "est": "105720",
+            "fipstate": "01",
+            "lfo": "-",
+            "n1000": "120",
+            "n100_249": "1823",
+            "n10_19": "14952",
+            "n20_49": "10667",
+            "n250_499": "528",
+            "n500_999": "210",
+            "n50_99": "3188",
+            "n5_9": "21196",
+            "n<5": "53036",
+            "naics": "------",
+            "q1000": "4455058",
+            "q1000nf": "G",
+            "q100_249": "3871397",
+            "q100_249nf": "G",
+            "q10_19": "2259899",
+            "q10_19nf": "G",
+            "q20_49": "3678993",
+            "q20_49nf": "G",
+            "q250_499": "2803743",
+            "q250_499nf": "G",
+            "q500_999": "2752454",
+            "q500_999nf": "G",
+            "q50_99": "2930134",
+            "q50_99nf": "G",
+            "q5_9": "1547570",
+            "q5_9nf": "G",
+            "q<5": "1087315",
+            "q<5nf": "G",
+            "qp1": "25386563",
+            "qp1_nf": "G"
+          },
+          {
+            "a1000": "9799140",
+            "a1000nf": "G",
+            "a100_249": "8541197",
+            "a100_249nf": "G",
+            "a10_19": "3426516",
+            "a10_19nf": "G",
+            "a20_49": "6197059",
+            "a20_49nf": "G",
+            "a250_499": "7050607",
+            "a250_499nf": "G",
+            "a500_999": "6765851",
+            "a500_999nf": "G",
+            "a50_99": "5310266",
+            "a50_99nf": "G",
+            "a5_9": "2260505",
+            "a5_9nf": "G",
+            "a<5": "1343300",
+            "a<5nf": "G",
+            "ap": "50694441",
+            "ap_nf": "G",
+            "e1000": "133225",
+            "e1000nf": "G",
+            "e100_249": "149392",
+            "e100_249nf": "G",
+            "e10_19": "66844",
+            "e10_19nf": "G",
+            "e20_49": "117413",
+            "e20_49nf": "G",
+            "e250_499": "116816",
+            "e250_499nf": "G",
+            "e500_999": "88909",
+            "e500_999nf": "G",
+            "e50_99": "85660",
+            "e50_99nf": "G",
+            "e5_9": "43200",
+            "e5_9nf": "G",
+            "e<5": "18849",
+            "e<5nf": "G",
+            "emp": "820308",
+            "emp_nf": "G",
+            "est": "27410",
+            "fipstate": "01",
+            "lfo": "C",
+            "n1000": "71",
+            "n100_249": "973",
+            "n10_19": "4948",
+            "n20_49": "3891",
+            "n250_499": "339",
+            "n500_999": "129",
+            "n50_99": "1239",
+            "n5_9": "6446",
+            "n<5": "9374",
+            "naics": "------",
+            "q1000": "2614124",
+            "q1000nf": "G",
+            "q100_249": "2236022",
+            "q100_249nf": "G",
+            "q10_19": "884145",
+            "q10_19nf": "G",
+            "q20_49": "1588806",
+            "q20_49nf": "G",
+            "q250_499": "1929701",
+            "q250_499nf": "G",
+            "q500_999": "1909195",
+            "q500_999nf": "G",
+            "q50_99": "1368342",
+            "q50_99nf": "G",
+            "q5_9": "570915",
+            "q5_9nf": "G",
+            "q<5": "316970",
+            "q<5nf": "G",
+            "qp1": "13418220",
+            "qp1_nf": "G"
+          },
+          {
+            "a1000": "1245516",
+            "a1000nf": "G",
+            "a100_249": "3721024",
+            "a100_249nf": "G",
+            "a10_19": "3893150",
+            "a10_19nf": "G",
+            "a20_49": "5702172",
+            "a20_49nf": "G",
+            "a250_499": "2163132",
+            "a250_499nf": "G",
+            "a500_999": "1584413",
+            "a500_999nf": "G",
+            "a50_99": "3998261",
+            "a50_99nf": "G",
+            "a5_9": "2671772",
+            "a5_9nf": "G",
+            "a<5": "2309661",
+            "a<5nf": "G",
+            "ap": "27289101",
+            "ap_nf": "G",
+            "e1000": "20947",
+            "e1000nf": "G",
+            "e100_249": "66112",
+            "e100_249nf": "G",
+            "e10_19": "82318",
+            "e10_19nf": "G",
+            "e20_49": "120171",
+            "e20_49nf": "G",
+            "e250_499": "33924",
+            "e250_499nf": "G",
+            "e500_999": "26203",
+            "e500_999nf": "G",
+            "e50_99": "72606",
+            "e50_99nf": "G",
+            "e5_9": "58058",
+            "e5_9nf": "G",
+            "e<5": "43673",
+            "e<5nf": "G",
+            "emp": "524012",
+            "emp_nf": "G",
+            "est": "45474",
+            "fipstate": "01",
+            "lfo": "Z",
+            "n1000": "12",
+            "n100_249": "443",
+            "n10_19": "6131",
+            "n20_49": "4031",
+            "n250_499": "97",
+            "n500_999": "40",
+            "n50_99": "1065",
+            "n5_9": "8751",
+            "n<5": "24904",
+            "naics": "------",
+            "q1000": "318240",
+            "q1000nf": "G",
+            "q100_249": "886283",
+            "q100_249nf": "G",
+            "q10_19": "907491",
+            "q10_19nf": "G",
+            "q20_49": "1338612",
+            "q20_49nf": "G",
+            "q250_499": "490999",
+            "q250_499nf": "G",
+            "q500_999": "399068",
+            "q500_999nf": "G",
+            "q50_99": "954041",
+            "q50_99nf": "G",
+            "q5_9": "630187",
+            "q5_9nf": "G",
+            "q<5": "478752",
+            "q<5nf": "G",
+            "qp1": "6403673",
+            "qp1_nf": "G"
+          }
+        ],
+        "fields": [
+          "a1000",
+          "a1000nf",
+          "a100_249",
+          "a100_249nf",
+          "a10_19",
+          "a10_19nf",
+          "a20_49",
+          "a20_49nf",
+          "a250_499",
+          "a250_499nf",
+          "a500_999",
+          "a500_999nf",
+          "a50_99",
+          "a50_99nf",
+          "a5_9",
+          "a5_9nf",
+          "a<5",
+          "a<5nf",
+          "ap",
+          "ap_nf",
+          "e1000",
+          "e1000nf",
+          "e100_249",
+          "e100_249nf",
+          "e10_19",
+          "e10_19nf",
+          "e20_49",
+          "e20_49nf",
+          "e250_499",
+          "e250_499nf",
+          "e500_999",
+          "e500_999nf",
+          "e50_99",
+          "e50_99nf",
+          "e5_9",
+          "e5_9nf",
+          "e<5",
+          "e<5nf",
+          "emp",
+          "emp_nf",
+          "est",
+          "fipstate",
+          "lfo",
+          "n1000",
+          "n100_249",
+          "n10_19",
+          "n20_49",
+          "n250_499",
+          "n500_999",
+          "n50_99",
+          "n5_9",
+          "n<5",
+          "naics",
+          "q1000",
+          "q1000nf",
+          "q100_249",
+          "q100_249nf",
+          "q10_19",
+          "q10_19nf",
+          "q20_49",
+          "q20_49nf",
+          "q250_499",
+          "q250_499nf",
+          "q500_999",
+          "q500_999nf",
+          "q50_99",
+          "q50_99nf",
+          "q5_9",
+          "q5_9nf",
+          "q<5",
+          "q<5nf",
+          "qp1",
+          "qp1_nf"
+        ],
+        "representative": false,
+        "rows": 100
+      },
+      "sampling": {
+        "config": {
+          "alternative_reason": "CBP API returned an HTML Missing Key page; official state ZIP fits disk budget.",
+          "archive_member": "cbp23st.txt",
+          "criteria": "First 100 physical data rows of 2023 CBP state file; multiple NAICS/LFO/employment-size categories, not just all-sector totals.",
+          "disk_budget_bytes": 67108864,
+          "documentation": "https://www2.census.gov/programs-surveys/cbp/datasets/2023/",
+          "format": "zip_csv",
+          "max_download_bytes": 65011712,
+          "max_rows": 100,
+          "max_sample_bytes": 1048576,
+          "max_uncompressed_bytes": 1048576,
+          "records_path": [],
+          "representative": false,
+          "strategy": "download",
+          "timeout_seconds": 25,
+          "total_timeout_seconds": 90,
+          "url": "https://www2.census.gov/programs-surveys/cbp/datasets/2023/cbp23st.zip"
+        },
+        "content_type": "application/zip",
+        "etag": null,
+        "format": "jsonl",
+        "last_modified": "Thu, 26 Jun 2025 12:00:29 GMT",
+        "method": "GET",
+        "original_bytes": 11115845,
+        "original_complete": true,
+        "original_retained": false,
+        "original_sha256": "9fc306ecc4f9633092e2432c2db2acdf53798da0480e6f6beeb953d583b41ede",
+        "request_body": null,
+        "resolved_url": "https://www2.census.gov/programs-surveys/cbp/datasets/2023/cbp23st.zip",
+        "retained_rows": 100,
+        "sampled": true,
+        "selection": "first matching records; not a random sample",
+        "stop_reason": "row_limit",
+        "url": "https://www2.census.gov/programs-surveys/cbp/datasets/2023/cbp23st.zip"
+      }
+    },
+    {
+      "artifact": {
+        "artifact": "a6d50f74578d9ada460fdf5d020b945efa6c54e006fa4edc77dff74e7e8e4703",
+        "dataset": "census_geography"
+      },
+      "completed_at": "2026-09-15T10:14:22.940491+00:00",
+      "criteria": "California counties, attributes only; omit polygon geometry and avoid TIGER ZIP archives.",
+      "dataset": "census_geography",
+      "downloaded_bytes": 5383,
+      "fields": [
+        "COUNTY",
+        "GEOID",
+        "NAME",
+        "STATE"
+      ],
+      "manifest": "census_geography/samples/6fc6429756ce176e4f37033ede19fceb8db07412388a536b4be91682c1925f66/manifest.json",
+      "max_download_bytes": 1048576,
+      "max_rows": 100,
+      "max_sample_bytes": 1048576,
+      "retained_bytes": 4087,
+      "rows": 58,
+      "sample_id": "6fc6429756ce176e4f37033ede19fceb8db07412388a536b4be91682c1925f66",
+      "started_at": "2026-09-15T10:14:22.536779+00:00",
+      "status": "sampled",
+      "stop_reason": "source_exhausted",
+      "profile": {
+        "columns": {
+          "COUNTY": {
+            "distinct_scalar_values": 58,
+            "missing": 0,
+            "types": [
+              "str"
+            ]
+          },
+          "GEOID": {
+            "distinct_scalar_values": 58,
+            "missing": 0,
+            "types": [
+              "str"
+            ]
+          },
+          "NAME": {
+            "distinct_scalar_values": 58,
+            "missing": 0,
+            "types": [
+              "str"
+            ]
+          },
+          "STATE": {
+            "distinct_scalar_values": 1,
+            "missing": 0,
+            "types": [
+              "str"
+            ]
+          }
+        },
+        "examples": [
+          {
+            "COUNTY": "001",
+            "GEOID": "06001",
+            "NAME": "Alameda County",
+            "STATE": "06"
+          },
+          {
+            "COUNTY": "003",
+            "GEOID": "06003",
+            "NAME": "Alpine County",
+            "STATE": "06"
+          },
+          {
+            "COUNTY": "005",
+            "GEOID": "06005",
+            "NAME": "Amador County",
+            "STATE": "06"
+          }
+        ],
+        "fields": [
+          "COUNTY",
+          "GEOID",
+          "NAME",
+          "STATE"
+        ],
+        "representative": false,
+        "rows": 58
+      },
+      "sampling": {
+        "config": {
+          "criteria": "California counties, attributes only; omit polygon geometry and avoid TIGER ZIP archives.",
+          "disk_budget_bytes": 67108864,
+          "documentation": "https://tigerweb.geo.census.gov/arcgis/rest/services/TIGERweb/State_County/MapServer",
+          "format": "json",
+          "max_download_bytes": 1048576,
+          "max_rows": 100,
+          "max_sample_bytes": 1048576,
+          "max_uncompressed_bytes": 1048576,
+          "records_path": [
+            "features"
+          ],
+          "representative": false,
+          "strategy": "download",
+          "timeout_seconds": 25,
+          "total_timeout_seconds": 90,
+          "unwrap_attributes": true,
+          "url": "https://tigerweb.geo.census.gov/arcgis/rest/services/TIGERweb/State_County/MapServer/1/query?where=STATE%3D%2706%27&outFields=GEOID%2CNAME%2CSTATE%2CCOUNTY&returnGeometry=false&resultRecordCount=100&orderByFields=GEOID&f=json"
+        },
+        "content_type": "application/json;charset=UTF-8",
+        "etag": "\"1784720359\"",
+        "format": "jsonl",
+        "last_modified": null,
+        "method": "GET",
+        "original_bytes": 5383,
+        "original_complete": true,
+        "original_retained": false,
+        "original_sha256": "6aa8afe186e7d553aeedda000a373c06615ffadfba61a0285923171de03fb27b",
+        "request_body": null,
+        "resolved_url": "https://tigerweb.geo.census.gov/arcgis/rest/services/TIGERweb/State_County/MapServer/1/query?where=STATE%3D%2706%27&outFields=GEOID%2CNAME%2CSTATE%2CCOUNTY&returnGeometry=false&resultRecordCount=100&orderByFields=GEOID&f=json",
+        "retained_rows": 58,
+        "sampled": true,
+        "selection": "first matching records; not a random sample",
+        "stop_reason": "source_exhausted",
+        "url": "https://tigerweb.geo.census.gov/arcgis/rest/services/TIGERweb/State_County/MapServer/1/query?where=STATE%3D%2706%27&outFields=GEOID%2CNAME%2CSTATE%2CCOUNTY&returnGeometry=false&resultRecordCount=100&orderByFields=GEOID&f=json"
+      }
+    },
+    {
+      "artifact": {
+        "artifact": "6c35557ff2d274c4e00d190c66f218e42ec8ba62e2c904c991ce15b9635fdc31",
+        "dataset": "census_population"
+      },
+      "completed_at": "2026-09-15T10:17:16.695038+00:00",
+      "criteria": "First 100 population-estimate rows from vintage 2024 state/national/region totals; preserve SUMLEV. This is Population Estimates, not ACS income.",
+      "dataset": "census_population",
+      "downloaded_bytes": 41378,
+      "fields": [
+        "BIRTHS2020",
+        "BIRTHS2021",
+        "BIRTHS2022",
+        "BIRTHS2023",
+        "BIRTHS2024",
+        "DEATHS2020",
+        "DEATHS2021",
+        "DEATHS2022",
+        "DEATHS2023",
+        "DEATHS2024",
+        "DIVISION",
+        "DOMESTICMIG2020",
+        "DOMESTICMIG2021",
+        "DOMESTICMIG2022",
+        "DOMESTICMIG2023",
+        "DOMESTICMIG2024",
+        "ESTIMATESBASE2020",
+        "INTERNATIONALMIG2020",
+        "INTERNATIONALMIG2021",
+        "INTERNATIONALMIG2022",
+        "INTERNATIONALMIG2023",
+        "INTERNATIONALMIG2024",
+        "NAME",
+        "NATURALCHG2020",
+        "NATURALCHG2021",
+        "NATURALCHG2022",
+        "NATURALCHG2023",
+        "NATURALCHG2024",
+        "NETMIG2020",
+        "NETMIG2021",
+        "NETMIG2022",
+        "NETMIG2023",
+        "NETMIG2024",
+        "NPOPCHG_2020",
+        "NPOPCHG_2021",
+        "NPOPCHG_2022",
+        "NPOPCHG_2023",
+        "NPOPCHG_2024",
+        "POPESTIMATE2020",
+        "POPESTIMATE2021",
+        "POPESTIMATE2022",
+        "POPESTIMATE2023",
+        "POPESTIMATE2024",
+        "RBIRTH2021",
+        "RBIRTH2022",
+        "RBIRTH2023",
+        "RBIRTH2024",
+        "RDEATH2021",
+        "RDEATH2022",
+        "RDEATH2023",
+        "RDEATH2024",
+        "RDOMESTICMIG2021",
+        "RDOMESTICMIG2022",
+        "RDOMESTICMIG2023",
+        "RDOMESTICMIG2024",
+        "REGION",
+        "RESIDUAL2020",
+        "RESIDUAL2021",
+        "RESIDUAL2022",
+        "RESIDUAL2023",
+        "RESIDUAL2024",
+        "RINTERNATIONALMIG2021",
+        "RINTERNATIONALMIG2022",
+        "RINTERNATIONALMIG2023",
+        "RINTERNATIONALMIG2024",
+        "RNATURALCHG2021",
+        "RNATURALCHG2022",
+        "RNATURALCHG2023",
+        "RNATURALCHG2024",
+        "RNETMIG2021",
+        "RNETMIG2022",
+        "RNETMIG2023",
+        "RNETMIG2024",
+        "STATE",
+        "SUMLEV"
+      ],
+      "manifest": "census_population/samples/2ccf6e0d6ee8fb1bc3d166bb8e8356221b503f62cff092491abc87fdb5276e70/manifest.json",
+      "max_download_bytes": 1048576,
+      "max_rows": 100,
+      "max_sample_bytes": 1048576,
+      "retained_bytes": 129105,
+      "rows": 66,
+      "sample_id": "2ccf6e0d6ee8fb1bc3d166bb8e8356221b503f62cff092491abc87fdb5276e70",
+      "started_at": "2026-09-15T10:17:16.564343+00:00",
+      "status": "sampled",
+      "stop_reason": "source_exhausted",
+      "profile": {
+        "columns": {
+          "BIRTHS2020": {
+            "distinct_scalar_values": 66,
+            "missing": 0,
+            "types": [
+              "str"
+            ]
+          },
+          "BIRTHS2021": {
+            "distinct_scalar_values": 66,
+            "missing": 0,
+            "types": [
+              "str"
+            ]
+          },
+          "BIRTHS2022": {
+            "distinct_scalar_values": 66,
+            "missing": 0,
+            "types": [
+              "str"
+            ]
+          },
+          "BIRTHS2023": {
+            "distinct_scalar_values": 66,
+            "missing": 0,
+            "types": [
+              "str"
+            ]
+          },
+          "BIRTHS2024": {
+            "distinct_scalar_values": 66,
+            "missing": 0,
+            "types": [
+              "str"
+            ]
+          },
+          "DEATHS2020": {
+            "distinct_scalar_values": 66,
+            "missing": 0,
+            "types": [
+              "str"
+            ]
+          },
+          "DEATHS2021": {
+            "distinct_scalar_values": 66,
+            "missing": 0,
+            "types": [
+              "str"
+            ]
+          },
+          "DEATHS2022": {
+            "distinct_scalar_values": 66,
+            "missing": 0,
+            "types": [
+              "str"
+            ]
+          },
+          "DEATHS2023": {
+            "distinct_scalar_values": 66,
+            "missing": 0,
+            "types": [
+              "str"
+            ]
+          },
+          "DEATHS2024": {
+            "distinct_scalar_values": 66,
+            "missing": 0,
+            "types": [
+              "str"
+            ]
+          },
+          "DIVISION": {
+            "distinct_scalar_values": 11,
+            "missing": 0,
+            "types": [
+              "str"
+            ]
+          },
+          "DOMESTICMIG2020": {
+            "distinct_scalar_values": 65,
+            "missing": 0,
+            "types": [
+              "str"
+            ]
+          },
+          "DOMESTICMIG2021": {
+            "distinct_scalar_values": 65,
+            "missing": 0,
+            "types": [
+              "str"
+            ]
+          },
+          "DOMESTICMIG2022": {
+            "distinct_scalar_values": 65,
+            "missing": 0,
+            "types": [
+              "str"
+            ]
+          },
+          "DOMESTICMIG2023": {
+            "distinct_scalar_values": 65,
+            "missing": 0,
+            "types": [
+              "str"
+            ]
+          },
+          "DOMESTICMIG2024": {
+            "distinct_scalar_values": 65,
+            "missing": 0,
+            "types": [
+              "str"
+            ]
+          },
+          "ESTIMATESBASE2020": {
+            "distinct_scalar_values": 66,
+            "missing": 0,
+            "types": [
+              "str"
+            ]
+          },
+          "INTERNATIONALMIG2020": {
+            "distinct_scalar_values": 62,
+            "missing": 0,
+            "types": [
+              "str"
+            ]
+          },
+          "INTERNATIONALMIG2021": {
+            "distinct_scalar_values": 66,
+            "missing": 0,
+            "types": [
+              "str"
+            ]
+          },
+          "INTERNATIONALMIG2022": {
+            "distinct_scalar_values": 66,
+            "missing": 0,
+            "types": [
+              "str"
+            ]
+          },
+          "INTERNATIONALMIG2023": {
+            "distinct_scalar_values": 66,
+            "missing": 0,
+            "types": [
+              "str"
+            ]
+          },
+          "INTERNATIONALMIG2024": {
+            "distinct_scalar_values": 66,
+            "missing": 0,
+            "types": [
+              "str"
+            ]
+          },
+          "NAME": {
+            "distinct_scalar_values": 66,
+            "missing": 0,
+            "types": [
+              "str"
+            ]
+          },
+          "NATURALCHG2020": {
+            "distinct_scalar_values": 66,
+            "missing": 0,
+            "types": [
+              "str"
+            ]
+          },
+          "NATURALCHG2021": {
+            "distinct_scalar_values": 66,
+            "missing": 0,
+            "types": [
+              "str"
+            ]
+          },
+          "NATURALCHG2022": {
+            "distinct_scalar_values": 66,
+            "missing": 0,
+            "types": [
+              "str"
+            ]
+          },
+          "NATURALCHG2023": {
+            "distinct_scalar_values": 65,
+            "missing": 0,
+            "types": [
+              "str"
+            ]
+          },
+          "NATURALCHG2024": {
+            "distinct_scalar_values": 66,
+            "missing": 0,
+            "types": [
+              "str"
+            ]
+          },
+          "NETMIG2020": {
+            "distinct_scalar_values": 66,
+            "missing": 0,
+            "types": [
+              "str"
+            ]
+          },
+          "NETMIG2021": {
+            "distinct_scalar_values": 66,
+            "missing": 0,
+            "types": [
+              "str"
+            ]
+          },
+          "NETMIG2022": {
+            "distinct_scalar_values": 66,
+            "missing": 0,
+            "types": [
+              "str"
+            ]
+          },
+          "NETMIG2023": {
+            "distinct_scalar_values": 66,
+            "missing": 0,
+            "types": [
+              "str"
+            ]
+          },
+          "NETMIG2024": {
+            "distinct_scalar_values": 66,
+            "missing": 0,
+            "types": [
+              "str"
+            ]
+          },
+          "NPOPCHG_2020": {
+            "distinct_scalar_values": 66,
+            "missing": 0,
+            "types": [
+              "str"
+            ]
+          },
+          "NPOPCHG_2021": {
+            "distinct_scalar_values": 66,
+            "missing": 0,
+            "types": [
+              "str"
+            ]
+          },
+          "NPOPCHG_2022": {
+            "distinct_scalar_values": 66,
+            "missing": 0,
+            "types": [
+              "str"
+            ]
+          },
+          "NPOPCHG_2023": {
+            "distinct_scalar_values": 66,
+            "missing": 0,
+            "types": [
+              "str"
+            ]
+          },
+          "NPOPCHG_2024": {
+            "distinct_scalar_values": 66,
+            "missing": 0,
+            "types": [
+              "str"
+            ]
+          },
+          "POPESTIMATE2020": {
+            "distinct_scalar_values": 66,
+            "missing": 0,
+            "types": [
+              "str"
+            ]
+          },
+          "POPESTIMATE2021": {
+            "distinct_scalar_values": 66,
+            "missing": 0,
+            "types": [
+              "str"
+            ]
+          },
+          "POPESTIMATE2022": {
+            "distinct_scalar_values": 66,
+            "missing": 0,
+            "types": [
+              "str"
+            ]
+          },
+          "POPESTIMATE2023": {
+            "distinct_scalar_values": 66,
+            "missing": 0,
+            "types": [
+              "str"
+            ]
+          },
+          "POPESTIMATE2024": {
+            "distinct_scalar_values": 66,
+            "missing": 0,
+            "types": [
+              "str"
+            ]
+          },
+          "RBIRTH2021": {
+            "distinct_scalar_values": 66,
+            "missing": 0,
+            "types": [
+              "str"
+            ]
+          },
+          "RBIRTH2022": {
+            "distinct_scalar_values": 66,
+            "missing": 0,
+            "types": [
+              "str"
+            ]
+          },
+          "RBIRTH2023": {
+            "distinct_scalar_values": 66,
+            "missing": 0,
+            "types": [
+              "str"
+            ]
+          },
+          "RBIRTH2024": {
+            "distinct_scalar_values": 66,
+            "missing": 0,
+            "types": [
+              "str"
+            ]
+          },
+          "RDEATH2021": {
+            "distinct_scalar_values": 66,
+            "missing": 0,
+            "types": [
+              "str"
+            ]
+          },
+          "RDEATH2022": {
+            "distinct_scalar_values": 66,
+            "missing": 0,
+            "types": [
+              "str"
+            ]
+          },
+          "RDEATH2023": {
+            "distinct_scalar_values": 66,
+            "missing": 0,
+            "types": [
+              "str"
+            ]
+          },
+          "RDEATH2024": {
+            "distinct_scalar_values": 66,
+            "missing": 0,
+            "types": [
+              "str"
+            ]
+          },
+          "RDOMESTICMIG2021": {
+            "distinct_scalar_values": 65,
+            "missing": 0,
+            "types": [
+              "str"
+            ]
+          },
+          "RDOMESTICMIG2022": {
+            "distinct_scalar_values": 65,
+            "missing": 0,
+            "types": [
+              "str"
+            ]
+          },
+          "RDOMESTICMIG2023": {
+            "distinct_scalar_values": 65,
+            "missing": 0,
+            "types": [
+              "str"
+            ]
+          },
+          "RDOMESTICMIG2024": {
+            "distinct_scalar_values": 65,
+            "missing": 0,
+            "types": [
+              "str"
+            ]
+          },
+          "REGION": {
+            "distinct_scalar_values": 6,
+            "missing": 0,
+            "types": [
+              "str"
+            ]
+          },
+          "RESIDUAL2020": {
+            "distinct_scalar_values": 65,
+            "missing": 0,
+            "types": [
+              "str"
+            ]
+          },
+          "RESIDUAL2021": {
+            "distinct_scalar_values": 65,
+            "missing": 0,
+            "types": [
+              "str"
+            ]
+          },
+          "RESIDUAL2022": {
+            "distinct_scalar_values": 65,
+            "missing": 0,
+            "types": [
+              "str"
+            ]
+          },
+          "RESIDUAL2023": {
+            "distinct_scalar_values": 64,
+            "missing": 0,
+            "types": [
+              "str"
+            ]
+          },
+          "RESIDUAL2024": {
+            "distinct_scalar_values": 60,
+            "missing": 0,
+            "types": [
+              "str"
+            ]
+          },
+          "RINTERNATIONALMIG2021": {
+            "distinct_scalar_values": 66,
+            "missing": 0,
+            "types": [
+              "str"
+            ]
+          },
+          "RINTERNATIONALMIG2022": {
+            "distinct_scalar_values": 66,
+            "missing": 0,
+            "types": [
+              "str"
+            ]
+          },
+          "RINTERNATIONALMIG2023": {
+            "distinct_scalar_values": 66,
+            "missing": 0,
+            "types": [
+              "str"
+            ]
+          },
+          "RINTERNATIONALMIG2024": {
+            "distinct_scalar_values": 66,
+            "missing": 0,
+            "types": [
+              "str"
+            ]
+          },
+          "RNATURALCHG2021": {
+            "distinct_scalar_values": 66,
+            "missing": 0,
+            "types": [
+              "str"
+            ]
+          },
+          "RNATURALCHG2022": {
+            "distinct_scalar_values": 66,
+            "missing": 0,
+            "types": [
+              "str"
+            ]
+          },
+          "RNATURALCHG2023": {
+            "distinct_scalar_values": 66,
+            "missing": 0,
+            "types": [
+              "str"
+            ]
+          },
+          "RNATURALCHG2024": {
+            "distinct_scalar_values": 66,
+            "missing": 0,
+            "types": [
+              "str"
+            ]
+          },
+          "RNETMIG2021": {
+            "distinct_scalar_values": 66,
+            "missing": 0,
+            "types": [
+              "str"
+            ]
+          },
+          "RNETMIG2022": {
+            "distinct_scalar_values": 66,
+            "missing": 0,
+            "types": [
+              "str"
+            ]
+          },
+          "RNETMIG2023": {
+            "distinct_scalar_values": 66,
+            "missing": 0,
+            "types": [
+              "str"
+            ]
+          },
+          "RNETMIG2024": {
+            "distinct_scalar_values": 66,
+            "missing": 0,
+            "types": [
+              "str"
+            ]
+          },
+          "STATE": {
+            "distinct_scalar_values": 53,
+            "missing": 0,
+            "types": [
+              "str"
+            ]
+          },
+          "SUMLEV": {
+            "distinct_scalar_values": 4,
+            "missing": 0,
+            "types": [
+              "str"
+            ]
+          }
+        },
+        "examples": [
+          {
+            "BIRTHS2020": "894123",
+            "BIRTHS2021": "3584459",
+            "BIRTHS2022": "3680380",
+            "BIRTHS2023": "3648896",
+            "BIRTHS2024": "3605563",
+            "DEATHS2020": "852024",
+            "DEATHS2021": "3438423",
+            "DEATHS2022": "3456354",
+            "DEATHS2023": "3154285",
+            "DEATHS2024": "3086925",
+            "DIVISION": "0",
+            "DOMESTICMIG2020": "0",
+            "DOMESTICMIG2021": "0",
+            "DOMESTICMIG2022": "0",
+            "DOMESTICMIG2023": "0",
+            "DOMESTICMIG2024": "0",
+            "ESTIMATESBASE2020": "331515736",
+            "INTERNATIONALMIG2020": "19885",
+            "INTERNATIONALMIG2021": "376004",
+            "INTERNATIONALMIG2022": "1693535",
+            "INTERNATIONALMIG2023": "2294299",
+            "INTERNATIONALMIG2024": "2786119",
+            "NAME": "United States",
+            "NATURALCHG2020": "42099",
+            "NATURALCHG2021": "146036",
+            "NATURALCHG2022": "224026",
+            "NATURALCHG2023": "494611",
+            "NATURALCHG2024": "518638",
+            "NETMIG2020": "19885",
+            "NETMIG2021": "376004",
+            "NETMIG2022": "1693535",
+            "NETMIG2023": "2294299",
+            "NETMIG2024": "2786119",
+            "NPOPCHG_2020": "61984",
+            "NPOPCHG_2021": "522040",
+            "NPOPCHG_2022": "1917561",
+            "NPOPCHG_2023": "2788910",
+            "NPOPCHG_2024": "3304757",
+            "POPESTIMATE2020": "331577720",
+            "POPESTIMATE2021": "332099760",
+            "POPESTIMATE2022": "334017321",
+            "POPESTIMATE2023": "336806231",
+            "POPESTIMATE2024": "340110988",
+            "RBIRTH2021": "10.801809939",
+            "RBIRTH2022": "11.050249588",
+            "RBIRTH2023": "10.878854772",
+            "RBIRTH2024": "10.65289196",
+            "RDEATH2021": "10.361728712",
+            "RDEATH2022": "10.377617084",
+            "RDEATH2023": "9.4042166248",
+            "RDEATH2024": "9.1205391541",
+            "RDOMESTICMIG2021": "0",
+            "RDOMESTICMIG2022": "0",
+            "RDOMESTICMIG2023": "0",
+            "RDOMESTICMIG2024": "0",
+            "REGION": "0",
+            "RESIDUAL2020": "0",
+            "RESIDUAL2021": "0",
+            "RESIDUAL2022": "0",
+            "RESIDUAL2023": "0",
+            "RESIDUAL2024": "0",
+            "RINTERNATIONALMIG2021": "1.1330925377",
+            "RINTERNATIONALMIG2022": "5.0847967972",
+            "RINTERNATIONALMIG2023": "6.8402458237",
+            "RINTERNATIONALMIG2024": "8.2317864631",
+            "RNATURALCHG2021": "0.4400812274",
+            "RNATURALCHG2022": "0.6726325038",
+            "RNATURALCHG2023": "1.4746381475",
+            "RNATURALCHG2024": "1.5323528061",
+            "RNETMIG2021": "1.1330925377",
+            "RNETMIG2022": "5.0847967972",
+            "RNETMIG2023": "6.8402458237",
+            "RNETMIG2024": "8.2317864631",
+            "STATE": "00",
+            "SUMLEV": "010"
+          },
+          {
+            "BIRTHS2020": "146099",
+            "BIRTHS2021": "572866",
+            "BIRTHS2022": "589061",
+            "BIRTHS2023": "580016",
+            "BIRTHS2024": "574868",
+            "DEATHS2020": "193352",
+            "DEATHS2021": "560739",
+            "DEATHS2022": "564177",
+            "DEATHS2023": "527913",
+            "DEATHS2024": "515524",
+            "DIVISION": "0",
+            "DOMESTICMIG2020": "-132548",
+            "DOMESTICMIG2021": "-268038",
+            "DOMESTICMIG2022": "-447635",
+            "DOMESTICMIG2023": "-278245",
+            "DOMESTICMIG2024": "-192109",
+            "ESTIMATESBASE2020": "57617706",
+            "INTERNATIONALMIG2020": "4430",
+            "INTERNATIONALMIG2021": "80445",
+            "INTERNATIONALMIG2022": "332834",
+            "INTERNATIONALMIG2023": "468264",
+            "INTERNATIONALMIG2024": "567420",
+            "NAME": "Northeast Region",
+            "NATURALCHG2020": "-47253",
+            "NATURALCHG2021": "12127",
+            "NATURALCHG2022": "24884",
+            "NATURALCHG2023": "52103",
+            "NATURALCHG2024": "59344",
+            "NETMIG2020": "-128118",
+            "NETMIG2021": "-187593",
+            "NETMIG2022": "-114801",
+            "NETMIG2023": "190019",
+            "NETMIG2024": "375311",
+            "NPOPCHG_2020": "-186248",
+            "NPOPCHG_2021": "-178925",
+            "NPOPCHG_2022": "-92936",
+            "NPOPCHG_2023": "238706",
+            "NPOPCHG_2024": "434632",
+            "POPESTIMATE2020": "57431458",
+            "POPESTIMATE2021": "57252533",
+            "POPESTIMATE2022": "57159597",
+            "POPESTIMATE2023": "57398303",
+            "POPESTIMATE2024": "57832935",
+            "RBIRTH2021": "9.9903394537",
+            "RBIRTH2022": "10.297177406",
+            "RBIRTH2023": "10.126163276",
+            "RBIRTH2024": "9.977641653",
+            "RDEATH2021": "9.778853964",
+            "RDEATH2022": "9.8621885634",
+            "RDEATH2023": "9.2165271884",
+            "RDEATH2024": "8.9476431729",
+            "RDOMESTICMIG2021": "-4.674375171",
+            "RDOMESTICMIG2022": "-7.824957022",
+            "RDOMESTICMIG2023": "-4.857718237",
+            "RDOMESTICMIG2024": "-3.334321549",
+            "REGION": "1",
+            "RESIDUAL2020": "-10877",
+            "RESIDUAL2021": "-3459",
+            "RESIDUAL2022": "-3019",
+            "RESIDUAL2023": "-3416",
+            "RESIDUAL2024": "-23",
+            "RINTERNATIONALMIG2021": "1.4028985092",
+            "RINTERNATIONALMIG2022": "5.8181593158",
+            "RINTERNATIONALMIG2023": "8.1751498587",
+            "RINTERNATIONALMIG2024": "9.8483711509",
+            "RNATURALCHG2021": "0.2114854897",
+            "RNATURALCHG2022": "0.4349888425",
+            "RNATURALCHG2023": "0.909636088",
+            "RNATURALCHG2024": "1.0299984801",
+            "RNETMIG2021": "-3.271476661",
+            "RNETMIG2022": "-2.006797706",
+            "RNETMIG2023": "3.3174316219",
+            "RNETMIG2024": "6.5140496017",
+            "STATE": "00",
+            "SUMLEV": "020"
+          },
+          {
+            "BIRTHS2020": "35418",
+            "BIRTHS2021": "139200",
+            "BIRTHS2022": "144784",
+            "BIRTHS2023": "142434",
+            "BIRTHS2024": "140809",
+            "DEATHS2020": "46219",
+            "DEATHS2021": "143868",
+            "DEATHS2022": "149599",
+            "DEATHS2023": "143299",
+            "DEATHS2024": "141865",
+            "DIVISION": "1",
+            "DOMESTICMIG2020": "-47186",
+            "DOMESTICMIG2021": "36464",
+            "DOMESTICMIG2022": "-44792",
+            "DOMESTICMIG2023": "-31474",
+            "DOMESTICMIG2024": "-24138",
+            "ESTIMATESBASE2020": "15122011",
+            "INTERNATIONALMIG2020": "1563",
+            "INTERNATIONALMIG2021": "26729",
+            "INTERNATIONALMIG2022": "110315",
+            "INTERNATIONALMIG2023": "121836",
+            "INTERNATIONALMIG2024": "147466",
+            "NAME": "New England",
+            "NATURALCHG2020": "-10801",
+            "NATURALCHG2021": "-4668",
+            "NATURALCHG2022": "-4815",
+            "NATURALCHG2023": "-865",
+            "NATURALCHG2024": "-1056",
+            "NETMIG2020": "-45623",
+            "NETMIG2021": "63193",
+            "NETMIG2022": "65523",
+            "NETMIG2023": "90362",
+            "NETMIG2024": "123328",
+            "NPOPCHG_2020": "-64661",
+            "NPOPCHG_2021": "60795",
+            "NPOPCHG_2022": "57488",
+            "NPOPCHG_2023": "87940",
+            "NPOPCHG_2024": "122512",
+            "POPESTIMATE2020": "15057350",
+            "POPESTIMATE2021": "15118145",
+            "POPESTIMATE2022": "15175633",
+            "POPESTIMATE2023": "15263573",
+            "POPESTIMATE2024": "15386085",
+            "RBIRTH2021": "9.2260292665",
+            "RBIRTH2022": "9.5586625082",
+            "RBIRTH2023": "9.3585883942",
+            "RBIRTH2024": "9.1882917584",
+            "RDEATH2021": "9.5354193858",
+            "RDEATH2022": "9.8765495674",
+            "RDEATH2023": "9.415422991",
+            "RDEATH2024": "9.257199542",
+            "RDOMESTICMIG2021": "2.4167954826",
+            "RDOMESTICMIG2022": "-2.957174902",
+            "RDOMESTICMIG2023": "-2.067990867",
+            "RDOMESTICMIG2024": "-1.575090985",
+            "REGION": "1",
+            "RESIDUAL2020": "-8237",
+            "RESIDUAL2021": "2270",
+            "RESIDUAL2022": "-3220",
+            "RESIDUAL2023": "-1557",
+            "RESIDUAL2024": "240",
+            "RINTERNATIONALMIG2021": "1.7715699444",
+            "RINTERNATIONALMIG2022": "7.2830136934",
+            "RINTERNATIONALMIG2023": "8.0052022382",
+            "RINTERNATIONALMIG2024": "9.62268486",
+            "RNATURALCHG2021": "-0.309390119",
+            "RNATURALCHG2022": "-0.317887059",
+            "RNATURALCHG2023": "-0.056834597",
+            "RNATURALCHG2024": "-0.068907784",
+            "RNETMIG2021": "4.188365427",
+            "RNETMIG2022": "4.3258387911",
+            "RNETMIG2023": "5.9372113714",
+            "RNETMIG2024": "8.0475938753",
+            "STATE": "00",
+            "SUMLEV": "030"
+          }
+        ],
+        "fields": [
+          "BIRTHS2020",
+          "BIRTHS2021",
+          "BIRTHS2022",
+          "BIRTHS2023",
+          "BIRTHS2024",
+          "DEATHS2020",
+          "DEATHS2021",
+          "DEATHS2022",
+          "DEATHS2023",
+          "DEATHS2024",
+          "DIVISION",
+          "DOMESTICMIG2020",
+          "DOMESTICMIG2021",
+          "DOMESTICMIG2022",
+          "DOMESTICMIG2023",
+          "DOMESTICMIG2024",
+          "ESTIMATESBASE2020",
+          "INTERNATIONALMIG2020",
+          "INTERNATIONALMIG2021",
+          "INTERNATIONALMIG2022",
+          "INTERNATIONALMIG2023",
+          "INTERNATIONALMIG2024",
+          "NAME",
+          "NATURALCHG2020",
+          "NATURALCHG2021",
+          "NATURALCHG2022",
+          "NATURALCHG2023",
+          "NATURALCHG2024",
+          "NETMIG2020",
+          "NETMIG2021",
+          "NETMIG2022",
+          "NETMIG2023",
+          "NETMIG2024",
+          "NPOPCHG_2020",
+          "NPOPCHG_2021",
+          "NPOPCHG_2022",
+          "NPOPCHG_2023",
+          "NPOPCHG_2024",
+          "POPESTIMATE2020",
+          "POPESTIMATE2021",
+          "POPESTIMATE2022",
+          "POPESTIMATE2023",
+          "POPESTIMATE2024",
+          "RBIRTH2021",
+          "RBIRTH2022",
+          "RBIRTH2023",
+          "RBIRTH2024",
+          "RDEATH2021",
+          "RDEATH2022",
+          "RDEATH2023",
+          "RDEATH2024",
+          "RDOMESTICMIG2021",
+          "RDOMESTICMIG2022",
+          "RDOMESTICMIG2023",
+          "RDOMESTICMIG2024",
+          "REGION",
+          "RESIDUAL2020",
+          "RESIDUAL2021",
+          "RESIDUAL2022",
+          "RESIDUAL2023",
+          "RESIDUAL2024",
+          "RINTERNATIONALMIG2021",
+          "RINTERNATIONALMIG2022",
+          "RINTERNATIONALMIG2023",
+          "RINTERNATIONALMIG2024",
+          "RNATURALCHG2021",
+          "RNATURALCHG2022",
+          "RNATURALCHG2023",
+          "RNATURALCHG2024",
+          "RNETMIG2021",
+          "RNETMIG2022",
+          "RNETMIG2023",
+          "RNETMIG2024",
+          "STATE",
+          "SUMLEV"
+        ],
+        "representative": false,
+        "rows": 66
+      },
+      "sampling": {
+        "config": {
+          "alternative_reason": "ACS API returned an HTML Missing Key page; switched to official small population-estimates CSV.",
+          "criteria": "First 100 population-estimate rows from vintage 2024 state/national/region totals; preserve SUMLEV. This is Population Estimates, not ACS income.",
+          "disk_budget_bytes": 67108864,
+          "documentation": "https://www2.census.gov/programs-surveys/popest/datasets/2020-2024/state/totals/",
+          "encoding": "utf-8-sig",
+          "format": "csv",
+          "max_download_bytes": 1048576,
+          "max_rows": 100,
+          "max_sample_bytes": 1048576,
+          "max_uncompressed_bytes": 1048576,
+          "records_path": [],
+          "representative": false,
+          "strategy": "download",
+          "timeout_seconds": 25,
+          "total_timeout_seconds": 90,
+          "url": "https://www2.census.gov/programs-surveys/popest/datasets/2020-2024/state/totals/NST-EST2024-ALLDATA.csv"
+        },
+        "content_type": "text/csv",
+        "etag": null,
+        "format": "jsonl",
+        "last_modified": "Thu, 19 Dec 2024 13:35:06 GMT",
+        "method": "GET",
+        "original_bytes": 41378,
+        "original_complete": true,
+        "original_retained": false,
+        "original_sha256": "b8b50bd345d8a5f33d5c8a28c95aeaa0a50971356f000d9b48276a65fd9022a7",
+        "request_body": null,
+        "resolved_url": "https://www2.census.gov/programs-surveys/popest/datasets/2020-2024/state/totals/NST-EST2024-ALLDATA.csv",
+        "retained_rows": 66,
+        "sampled": true,
+        "selection": "first matching records; not a random sample",
+        "stop_reason": "source_exhausted",
+        "url": "https://www2.census.gov/programs-surveys/popest/datasets/2020-2024/state/totals/NST-EST2024-ALLDATA.csv"
+      }
+    },
+    {
+      "artifact": {
+        "artifact": "29e7b281e44ee4e8ffae58af54b8d15319facaa01e712dfa0e338a2cd8b4f125",
+        "dataset": "classifications"
+      },
+      "completed_at": "2026-09-15T10:17:17.518053+00:00",
+      "criteria": "First 100 valid six-digit NAICS 2022 code/title rows; skip blank workbook formatting rows.",
+      "dataset": "classifications",
+      "downloaded_bytes": 44036,
+      "fields": [
+        "2022 NAICS Code",
+        "2022 NAICS Title"
+      ],
+      "manifest": "classifications/samples/fcdf1dd62d97c9d462fb0cb01cc3752873306afa866a317e0e9c3c91cee3dd37/manifest.json",
+      "max_download_bytes": 65011712,
+      "max_rows": 100,
+      "max_sample_bytes": 1048576,
+      "retained_bytes": 8002,
+      "rows": 100,
+      "sample_id": "fcdf1dd62d97c9d462fb0cb01cc3752873306afa866a317e0e9c3c91cee3dd37",
+      "started_at": "2026-09-15T10:17:17.279550+00:00",
+      "status": "sampled",
+      "stop_reason": "row_limit",
+      "profile": {
+        "columns": {
+          "2022 NAICS Code": {
+            "distinct_scalar_values": 100,
+            "missing": 0,
+            "types": [
+              "str"
+            ]
+          },
+          "2022 NAICS Title": {
+            "distinct_scalar_values": 100,
+            "missing": 0,
+            "types": [
+              "str"
+            ]
+          }
+        },
+        "examples": [
+          {
+            "2022 NAICS Code": "111110",
+            "2022 NAICS Title": "Soybean Farming"
+          },
+          {
+            "2022 NAICS Code": "111120",
+            "2022 NAICS Title": "Oilseed (except Soybean) Farming "
+          },
+          {
+            "2022 NAICS Code": "111130",
+            "2022 NAICS Title": "Dry Pea and Bean Farming "
+          }
+        ],
+        "fields": [
+          "2022 NAICS Code",
+          "2022 NAICS Title"
+        ],
+        "representative": false,
+        "rows": 100
+      },
+      "sampling": {
+        "config": {
+          "criteria": "First 100 valid six-digit NAICS 2022 code/title rows; skip blank workbook formatting rows.",
+          "disk_budget_bytes": 67108864,
+          "documentation": "https://www.census.gov/naics/",
+          "format": "xlsx",
+          "max_download_bytes": 65011712,
+          "max_rows": 100,
+          "max_sample_bytes": 1048576,
+          "max_uncompressed_bytes": 1048576,
+          "records_path": [],
+          "representative": false,
+          "required_pattern": {
+            "2022 NAICS Code": "[0-9]{6}"
+          },
+          "strategy": "download",
+          "timeout_seconds": 25,
+          "total_timeout_seconds": 90,
+          "url": "https://www.census.gov/naics/2022NAICS/6-digit_2022_Codes.xlsx"
+        },
+        "content_type": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        "etag": null,
+        "format": "jsonl",
+        "last_modified": "Mon, 13 Jul 2026 19:46:21 GMT",
+        "method": "GET",
+        "original_bytes": 44036,
+        "original_complete": true,
+        "original_retained": false,
+        "original_sha256": "3e3c90d4d36d874c0fd2da22a222c794654dbfa404320304152f5317781aefb7",
+        "request_body": null,
+        "resolved_url": "https://www.census.gov/naics/2022NAICS/6-digit_2022_Codes.xlsx",
+        "retained_rows": 100,
+        "sampled": true,
+        "selection": "first matching records; not a random sample",
+        "stop_reason": "row_limit",
+        "url": "https://www.census.gov/naics/2022NAICS/6-digit_2022_Codes.xlsx"
+      }
+    },
+    {
+      "artifact": {
+        "artifact": "798c753f44fa9170fb81c714a1a07af80eb7b9ba2816ae546964bae5eefe53fc",
+        "dataset": "demo_countries"
+      },
+      "completed_at": "2026-09-15T10:14:24.242409+00:00",
+      "criteria": "Two local fictional fixture countries; no network.",
+      "dataset": "demo_countries",
+      "downloaded_bytes": 0,
+      "fields": [
+        "country",
+        "income",
+        "life_satisfaction"
+      ],
+      "manifest": "demo_countries/samples/196b78c82bc258f834c3e254ba6151aa5fc6f7389cae1fcc453aa924be52938e/manifest.json",
+      "max_download_bytes": 1048576,
+      "max_rows": 100,
+      "max_sample_bytes": 1048576,
+      "retained_bytes": 116,
+      "rows": 2,
+      "sample_id": "196b78c82bc258f834c3e254ba6151aa5fc6f7389cae1fcc453aa924be52938e",
+      "started_at": "2026-09-15T10:14:24.222288+00:00",
+      "status": "sampled",
+      "stop_reason": "source_exhausted",
+      "profile": {
+        "columns": {
+          "country": {
+            "distinct_scalar_values": 2,
+            "missing": 0,
+            "types": [
+              "str"
+            ]
+          },
+          "income": {
+            "distinct_scalar_values": 2,
+            "missing": 0,
+            "types": [
+              "str"
+            ]
+          },
+          "life_satisfaction": {
+            "distinct_scalar_values": 2,
+            "missing": 0,
+            "types": [
+              "str"
+            ]
+          }
+        },
+        "examples": [
+          {
+            "country": "AA",
+            "income": "50000",
+            "life_satisfaction": "8"
+          },
+          {
+            "country": "BB",
+            "income": "40000",
+            "life_satisfaction": "6"
+          }
+        ],
+        "fields": [
+          "country",
+          "income",
+          "life_satisfaction"
+        ],
+        "representative": false,
+        "rows": 2
+      },
+      "sampling": {
+        "config": {
+          "criteria": "Two local fictional fixture countries; no network.",
+          "disk_budget_bytes": 67108864,
+          "format": "csv",
+          "max_download_bytes": 1048576,
+          "max_rows": 100,
+          "max_sample_bytes": 1048576,
+          "max_uncompressed_bytes": 1048576,
+          "path": "tests/fixtures/countries.csv",
+          "records_path": [],
+          "representative": false,
+          "strategy": "local",
+          "timeout_seconds": 25,
+          "total_timeout_seconds": 90
+        },
+        "format": "jsonl",
+        "local_fixture": "tests/fixtures/countries.csv",
+        "original_bytes": 55,
+        "original_complete": true,
+        "original_retained": false,
+        "original_sha256": "a77906c88f4ffb0fc4172c0d926c141478bf568dcc1f9094bbb5ecf54af110f5",
+        "retained_rows": 2,
+        "sampled": true,
+        "selection": "first matching records; not a random sample",
+        "stop_reason": "source_exhausted"
+      }
+    },
+    {
+      "artifact": {
+        "artifact": "8c49a137531022eed0278c4c2d78c2f80eda75d13293d6db08cd00427293c12b",
+        "dataset": "demo_graph"
+      },
+      "completed_at": "2026-09-15T10:14:24.262880+00:00",
+      "criteria": "Five local fictional evidence records; no network.",
+      "dataset": "demo_graph",
+      "downloaded_bytes": 0,
+      "fields": [
+        "attributes",
+        "dimensions",
+        "entity_type",
+        "id",
+        "kind",
+        "label",
+        "metric",
+        "observed_at",
+        "predicate",
+        "subject",
+        "unit",
+        "valid_from",
+        "valid_to",
+        "value"
+      ],
+      "manifest": "demo_graph/samples/31499d1143878805f90de87dd155ac66a044b0861eec823e9198b9ec65e6dcfd/manifest.json",
+      "max_download_bytes": 1048576,
+      "max_rows": 100,
+      "max_sample_bytes": 1048576,
+      "retained_bytes": 1005,
+      "rows": 5,
+      "sample_id": "31499d1143878805f90de87dd155ac66a044b0861eec823e9198b9ec65e6dcfd",
+      "started_at": "2026-09-15T10:14:24.242722+00:00",
+      "status": "sampled",
+      "stop_reason": "source_exhausted",
+      "profile": {
+        "columns": {
+          "attributes": {
+            "distinct_scalar_values": 0,
+            "missing": 3,
+            "types": [
+              "NoneType",
+              "dict"
+            ]
+          },
+          "dimensions": {
+            "distinct_scalar_values": 0,
+            "missing": 4,
+            "types": [
+              "NoneType",
+              "dict"
+            ]
+          },
+          "entity_type": {
+            "distinct_scalar_values": 2,
+            "missing": 3,
+            "types": [
+              "NoneType",
+              "str"
+            ]
+          },
+          "id": {
+            "distinct_scalar_values": 5,
+            "missing": 0,
+            "types": [
+              "str"
+            ]
+          },
+          "kind": {
+            "distinct_scalar_values": 3,
+            "missing": 0,
+            "types": [
+              "str"
+            ]
+          },
+          "label": {
+            "distinct_scalar_values": 2,
+            "missing": 3,
+            "types": [
+              "NoneType",
+              "str"
+            ]
+          },
+          "metric": {
+            "distinct_scalar_values": 1,
+            "missing": 4,
+            "types": [
+              "NoneType",
+              "str"
+            ]
+          },
+          "observed_at": {
+            "distinct_scalar_values": 4,
+            "missing": 0,
+            "types": [
+              "str"
+            ]
+          },
+          "predicate": {
+            "distinct_scalar_values": 1,
+            "missing": 3,
+            "types": [
+              "NoneType",
+              "str"
+            ]
+          },
+          "subject": {
+            "distinct_scalar_values": 1,
+            "missing": 3,
+            "types": [
+              "NoneType",
+              "str"
+            ]
+          },
+          "unit": {
+            "distinct_scalar_values": 1,
+            "missing": 4,
+            "types": [
+              "NoneType",
+              "str"
+            ]
+          },
+          "valid_from": {
+            "distinct_scalar_values": 1,
+            "missing": 2,
+            "types": [
+              "NoneType",
+              "str"
+            ]
+          },
+          "valid_to": {
+            "distinct_scalar_values": 1,
+            "missing": 2,
+            "types": [
+              "NoneType",
+              "str"
+            ]
+          },
+          "value": {
+            "distinct_scalar_values": 3,
+            "missing": 2,
+            "types": [
+              "NoneType",
+              "float",
+              "int"
+            ]
+          }
+        },
+        "examples": [
+          {
+            "entity_type": "organization",
+            "id": "org:acme",
+            "kind": "entity",
+            "label": "Acme (fictional)",
+            "observed_at": "2024-01-01T00:00:00Z"
+          },
+          {
+            "entity_type": "facility",
+            "id": "asset:factory",
+            "kind": "entity",
+            "label": "Example factory (fictional)",
+            "observed_at": "2024-01-01T00:00:00Z"
+          },
+          {
+            "attributes": {
+              "asset": "asset:factory"
+            },
+            "id": "claim:ownership-a",
+            "kind": "assertion",
+            "observed_at": "2024-02-01T00:00:00Z",
+            "predicate": "ownership_fraction",
+            "subject": "org:acme",
+            "valid_from": "2024-01-01",
+            "valid_to": "2025-01-01",
+            "value": 0.6
+          }
+        ],
+        "fields": [
+          "attributes",
+          "dimensions",
+          "entity_type",
+          "id",
+          "kind",
+          "label",
+          "metric",
+          "observed_at",
+          "predicate",
+          "subject",
+          "unit",
+          "valid_from",
+          "valid_to",
+          "value"
+        ],
+        "representative": false,
+        "rows": 5
+      },
+      "sampling": {
+        "config": {
+          "criteria": "Five local fictional evidence records; no network.",
+          "disk_budget_bytes": 67108864,
+          "format": "jsonl",
+          "max_download_bytes": 1048576,
+          "max_rows": 100,
+          "max_sample_bytes": 1048576,
+          "max_uncompressed_bytes": 1048576,
+          "path": "tests/fixtures/graph.jsonl",
+          "records_path": [],
+          "representative": false,
+          "strategy": "local",
+          "timeout_seconds": 25,
+          "total_timeout_seconds": 90
+        },
+        "format": "jsonl",
+        "local_fixture": "tests/fixtures/graph.jsonl",
+        "original_bytes": 1005,
+        "original_complete": true,
+        "original_retained": false,
+        "original_sha256": "a0fa257f5f6f45a42034664eda9d24184f42d525b63da5f81f562cea9de19a05",
+        "retained_rows": 5,
+        "sampled": true,
+        "selection": "first matching records; not a random sample",
+        "stop_reason": "source_exhausted"
+      }
+    },
+    {
+      "artifact": {
+        "artifact": "32fef046ae45b1e9d2dca597495abf1aaab42d3c0525a89582f2e1a691fed487",
+        "dataset": "eia_energy"
+      },
+      "completed_at": "2026-09-15T10:14:26.866501+00:00",
+      "criteria": "California annual electricity retail sales, all sectors, 2023; public demo key only.",
+      "dataset": "eia_energy",
+      "downloaded_bytes": 699,
+      "fields": [
+        "period",
+        "sales",
+        "sales-units",
+        "sectorName",
+        "sectorid",
+        "stateDescription",
+        "stateid"
+      ],
+      "manifest": "eia_energy/samples/b529cdd17549d8f7fbc48fef58cbbd7ac698b7be2c1cb3667d38ef5b0c7f2ac2/manifest.json",
+      "max_download_bytes": 1048576,
+      "max_rows": 100,
+      "max_sample_bytes": 1048576,
+      "retained_bytes": 171,
+      "rows": 1,
+      "sample_id": "b529cdd17549d8f7fbc48fef58cbbd7ac698b7be2c1cb3667d38ef5b0c7f2ac2",
+      "started_at": "2026-09-15T10:14:24.263187+00:00",
+      "status": "sampled",
+      "stop_reason": "source_exhausted",
+      "profile": {
+        "columns": {
+          "period": {
+            "distinct_scalar_values": 1,
+            "missing": 0,
+            "types": [
+              "str"
+            ]
+          },
+          "sales": {
+            "distinct_scalar_values": 1,
+            "missing": 0,
+            "types": [
+              "str"
+            ]
+          },
+          "sales-units": {
+            "distinct_scalar_values": 1,
+            "missing": 0,
+            "types": [
+              "str"
+            ]
+          },
+          "sectorName": {
+            "distinct_scalar_values": 1,
+            "missing": 0,
+            "types": [
+              "str"
+            ]
+          },
+          "sectorid": {
+            "distinct_scalar_values": 1,
+            "missing": 0,
+            "types": [
+              "str"
+            ]
+          },
+          "stateDescription": {
+            "distinct_scalar_values": 1,
+            "missing": 0,
+            "types": [
+              "str"
+            ]
+          },
+          "stateid": {
+            "distinct_scalar_values": 1,
+            "missing": 0,
+            "types": [
+              "str"
+            ]
+          }
+        },
+        "examples": [
+          {
+            "period": "2023",
+            "sales": "239480.45202",
+            "sales-units": "million kilowatt hours",
+            "sectorName": "all sectors",
+            "sectorid": "ALL",
+            "stateDescription": "California",
+            "stateid": "CA"
+          }
+        ],
+        "fields": [
+          "period",
+          "sales",
+          "sales-units",
+          "sectorName",
+          "sectorid",
+          "stateDescription",
+          "stateid"
+        ],
+        "representative": false,
+        "rows": 1
+      },
+      "sampling": {
+        "config": {
+          "criteria": "California annual electricity retail sales, all sectors, 2023; public demo key only.",
+          "disk_budget_bytes": 67108864,
+          "documentation": "https://www.eia.gov/opendata/documentation.php",
+          "format": "json",
+          "max_download_bytes": 1048576,
+          "max_rows": 100,
+          "max_sample_bytes": 1048576,
+          "max_uncompressed_bytes": 1048576,
+          "records_path": [
+            "response",
+            "data"
+          ],
+          "representative": false,
+          "strategy": "download",
+          "timeout_seconds": 25,
+          "total_timeout_seconds": 90,
+          "url": "https://api.eia.gov/v2/electricity/retail-sales/data/?api_key=DEMO_KEY&frequency=annual&data%5B0%5D=sales&facets%5Bstateid%5D%5B%5D=CA&facets%5Bsectorid%5D%5B%5D=ALL&start=2023&end=2023&length=100"
+        },
+        "content_type": "application/json",
+        "etag": null,
+        "format": "jsonl",
+        "last_modified": null,
+        "method": "GET",
+        "original_bytes": 699,
+        "original_complete": true,
+        "original_retained": false,
+        "original_sha256": "c3ed4374c4aad927874738514d61a94f955987de9a0306e9604d24b9b3c0f2d0",
+        "request_body": null,
+        "resolved_url": "https://api.eia.gov/v2/electricity/retail-sales/data/?api_key=%5BREDACTED%5D&frequency=annual&data%5B0%5D=sales&facets%5Bstateid%5D%5B%5D=CA&facets%5Bsectorid%5D%5B%5D=ALL&start=2023&end=2023&length=100",
+        "retained_rows": 1,
+        "sampled": true,
+        "selection": "first matching records; not a random sample",
+        "stop_reason": "source_exhausted",
+        "url": "https://api.eia.gov/v2/electricity/retail-sales/data/?api_key=%5BREDACTED%5D&frequency=annual&data%5B0%5D=sales&facets%5Bstateid%5D%5B%5D=CA&facets%5Bsectorid%5D%5B%5D=ALL&start=2023&end=2023&length=100"
+      }
+    },
+    {
+      "artifact": {
+        "artifact": "42e1549a8b42c7825eda62a042f86c91b4d685d977226d90be567ee6adb74bb8",
+        "dataset": "fec"
+      },
+      "completed_at": "2026-09-15T10:14:43.580973+00:00",
+      "criteria": "First 100 committee records for 2024, sorted by committee ID; no individual contributions.",
+      "dataset": "fec",
+      "downloaded_bytes": 123880,
+      "fields": [
+        "affiliated_committee_name",
+        "candidate_ids",
+        "committee_id",
+        "committee_type",
+        "committee_type_full",
+        "cycles",
+        "designated_agent_city",
+        "designated_agent_first_name",
+        "designated_agent_last_name",
+        "designated_agent_middle_name",
+        "designated_agent_name",
+        "designated_agent_phone_number",
+        "designated_agent_prefix",
+        "designated_agent_state",
+        "designated_agent_street1",
+        "designated_agent_street2",
+        "designated_agent_suffix",
+        "designated_agent_title",
+        "designated_agent_zip",
+        "designation",
+        "designation_full",
+        "filing_frequency",
+        "first_f1_date",
+        "first_file_date",
+        "last_f1_date",
+        "last_file_date",
+        "name",
+        "organization_type",
+        "organization_type_full",
+        "party",
+        "party_full",
+        "sponsor_candidate_ids",
+        "sponsor_candidate_list",
+        "state",
+        "treasurer_name"
+      ],
+      "manifest": "fec/samples/8bef7812aaf07dab722c8c07e0673b496492e441ab722aa2b5afec25720d101e/manifest.json",
+      "max_download_bytes": 1048576,
+      "max_rows": 100,
+      "max_sample_bytes": 1048576,
+      "retained_bytes": 123759,
+      "rows": 100,
+      "sample_id": "8bef7812aaf07dab722c8c07e0673b496492e441ab722aa2b5afec25720d101e",
+      "started_at": "2026-09-15T10:14:26.866914+00:00",
+      "status": "sampled",
+      "stop_reason": "row_limit",
+      "profile": {
+        "columns": {
+          "affiliated_committee_name": {
+            "distinct_scalar_values": 89,
+            "missing": 6,
+            "types": [
+              "NoneType",
+              "str"
+            ]
+          },
+          "candidate_ids": {
+            "distinct_scalar_values": 0,
+            "missing": 0,
+            "types": [
+              "list"
+            ]
+          },
+          "committee_id": {
+            "distinct_scalar_values": 100,
+            "missing": 0,
+            "types": [
+              "str"
+            ]
+          },
+          "committee_type": {
+            "distinct_scalar_values": 5,
+            "missing": 0,
+            "types": [
+              "str"
+            ]
+          },
+          "committee_type_full": {
+            "distinct_scalar_values": 5,
+            "missing": 0,
+            "types": [
+              "str"
+            ]
+          },
+          "cycles": {
+            "distinct_scalar_values": 0,
+            "missing": 0,
+            "types": [
+              "list"
+            ]
+          },
+          "designated_agent_city": {
+            "distinct_scalar_values": 27,
+            "missing": 52,
+            "types": [
+              "NoneType",
+              "str"
+            ]
+          },
+          "designated_agent_first_name": {
+            "distinct_scalar_values": 45,
+            "missing": 52,
+            "types": [
+              "NoneType",
+              "str"
+            ]
+          },
+          "designated_agent_last_name": {
+            "distinct_scalar_values": 47,
+            "missing": 52,
+            "types": [
+              "NoneType",
+              "str"
+            ]
+          },
+          "designated_agent_middle_name": {
+            "distinct_scalar_values": 7,
+            "missing": 93,
+            "types": [
+              "NoneType",
+              "str"
+            ]
+          },
+          "designated_agent_name": {
+            "distinct_scalar_values": 48,
+            "missing": 52,
+            "types": [
+              "NoneType",
+              "str"
+            ]
+          },
+          "designated_agent_phone_number": {
+            "distinct_scalar_values": 39,
+            "missing": 61,
+            "types": [
+              "NoneType",
+              "str"
+            ]
+          },
+          "designated_agent_prefix": {
+            "distinct_scalar_values": 3,
+            "missing": 96,
+            "types": [
+              "NoneType",
+              "str"
+            ]
+          },
+          "designated_agent_state": {
+            "distinct_scalar_values": 20,
+            "missing": 52,
+            "types": [
+              "NoneType",
+              "str"
+            ]
+          },
+          "designated_agent_street1": {
+            "distinct_scalar_values": 48,
+            "missing": 52,
+            "types": [
+              "NoneType",
+              "str"
+            ]
+          },
+          "designated_agent_street2": {
+            "distinct_scalar_values": 16,
+            "missing": 83,
+            "types": [
+              "NoneType",
+              "str"
+            ]
+          },
+          "designated_agent_suffix": {
+            "distinct_scalar_values": 1,
+            "missing": 99,
+            "types": [
+              "NoneType",
+              "str"
+            ]
+          },
+          "designated_agent_title": {
+            "distinct_scalar_values": 15,
+            "missing": 53,
+            "types": [
+              "NoneType",
+              "str"
+            ]
+          },
+          "designated_agent_zip": {
+            "distinct_scalar_values": 39,
+            "missing": 52,
+            "types": [
+              "NoneType",
+              "str"
+            ]
+          },
+          "designation": {
+            "distinct_scalar_values": 3,
+            "missing": 0,
+            "types": [
+              "str"
+            ]
+          },
+          "designation_full": {
+            "distinct_scalar_values": 3,
+            "missing": 0,
+            "types": [
+              "str"
+            ]
+          },
+          "filing_frequency": {
+            "distinct_scalar_values": 4,
+            "missing": 0,
+            "types": [
+              "str"
+            ]
+          },
+          "first_f1_date": {
+            "distinct_scalar_values": 84,
+            "missing": 0,
+            "types": [
+              "str"
+            ]
+          },
+          "first_file_date": {
+            "distinct_scalar_values": 48,
+            "missing": 0,
+            "types": [
+              "str"
+            ]
+          },
+          "last_f1_date": {
+            "distinct_scalar_values": 93,
+            "missing": 0,
+            "types": [
+              "str"
+            ]
+          },
+          "last_file_date": {
+            "distinct_scalar_values": 33,
+            "missing": 0,
+            "types": [
+              "str"
+            ]
+          },
+          "name": {
+            "distinct_scalar_values": 100,
+            "missing": 0,
+            "types": [
+              "str"
+            ]
+          },
+          "organization_type": {
+            "distinct_scalar_values": 5,
+            "missing": 30,
+            "types": [
+              "NoneType",
+              "str"
+            ]
+          },
+          "organization_type_full": {
+            "distinct_scalar_values": 5,
+            "missing": 30,
+            "types": [
+              "NoneType",
+              "str"
+            ]
+          },
+          "party": {
+            "distinct_scalar_values": 6,
+            "missing": 35,
+            "types": [
+              "NoneType",
+              "str"
+            ]
+          },
+          "party_full": {
+            "distinct_scalar_values": 5,
+            "missing": 36,
+            "types": [
+              "NoneType",
+              "str"
+            ]
+          },
+          "sponsor_candidate_ids": {
+            "distinct_scalar_values": 0,
+            "missing": 100,
+            "types": [
+              "NoneType"
+            ]
+          },
+          "sponsor_candidate_list": {
+            "distinct_scalar_values": 0,
+            "missing": 0,
+            "types": [
+              "list"
+            ]
+          },
+          "state": {
+            "distinct_scalar_values": 34,
+            "missing": 0,
+            "types": [
+              "str"
+            ]
+          },
+          "treasurer_name": {
+            "distinct_scalar_values": 99,
+            "missing": 0,
+            "types": [
+              "str"
+            ]
+          }
+        },
+        "examples": [
+          {
+            "affiliated_committee_name": "HALLMARK CARDS, INC.",
+            "candidate_ids": [],
+            "committee_id": "C00000059",
+            "committee_type": "Q",
+            "committee_type_full": "PAC - Qualified",
+            "cycles": [
+              1976,
+              1978,
+              1980,
+              1982,
+              1984,
+              1986,
+              1988,
+              1990,
+              1992,
+              1994,
+              1996,
+              1998,
+              2000,
+              2002,
+              2004,
+              2006,
+              2008,
+              2010,
+              2012,
+              2014,
+              2016,
+              2018,
+              2020,
+              2022,
+              2024,
+              2026
+            ],
+            "designated_agent_city": "KANSAS CITY",
+            "designated_agent_first_name": "AL",
+            "designated_agent_last_name": "MAURO",
+            "designated_agent_middle_name": null,
+            "designated_agent_name": "MAURO, AL",
+            "designated_agent_phone_number": null,
+            "designated_agent_prefix": null,
+            "designated_agent_state": "MO",
+            "designated_agent_street1": "2501 MCGEE, MD853",
+            "designated_agent_street2": null,
+            "designated_agent_suffix": null,
+            "designated_agent_title": "DEPUTY TREASURER",
+            "designated_agent_zip": "64108",
+            "designation": "B",
+            "designation_full": "Lobbyist/Registrant PAC",
+            "filing_frequency": "M",
+            "first_f1_date": "1976-04-22",
+            "first_file_date": "1976-04-22",
+            "last_f1_date": "2022-04-26",
+            "last_file_date": "2026-09-04",
+            "name": "HALLMARK CARDS, INC. PAC (HALLPAC)",
+            "organization_type": "C",
+            "organization_type_full": "Corporation",
+            "party": "UNK",
+            "party_full": "UNKNOWN",
+            "sponsor_candidate_ids": null,
+            "sponsor_candidate_list": [],
+            "state": "MO",
+            "treasurer_name": "KLEIN, CASSIE MS."
+          },
+          {
+            "affiliated_committee_name": "AMERICAN MEDICAL ASSOCIATION",
+            "candidate_ids": [],
+            "committee_id": "C00000422",
+            "committee_type": "Q",
+            "committee_type_full": "PAC - Qualified",
+            "cycles": [
+              1976,
+              1978,
+              1980,
+              1982,
+              1984,
+              1986,
+              1988,
+              1990,
+              1992,
+              1994,
+              1996,
+              1998,
+              2000,
+              2002,
+              2004,
+              2006,
+              2008,
+              2010,
+              2012,
+              2014,
+              2016,
+              2018,
+              2020,
+              2022,
+              2024,
+              2026
+            ],
+            "designated_agent_city": "WASHINGTON",
+            "designated_agent_first_name": "TERRI",
+            "designated_agent_last_name": "FOLK",
+            "designated_agent_middle_name": null,
+            "designated_agent_name": "FOLK, TERRI MS.",
+            "designated_agent_phone_number": "2027897461",
+            "designated_agent_prefix": "MS.",
+            "designated_agent_state": "DC",
+            "designated_agent_street1": "25 MASSACHUSETTS AVE NW",
+            "designated_agent_street2": "STE 600",
+            "designated_agent_suffix": null,
+            "designated_agent_title": "DESIGNATED AGENT",
+            "designated_agent_zip": "200017400",
+            "designation": "B",
+            "designation_full": "Lobbyist/Registrant PAC",
+            "filing_frequency": "M",
+            "first_f1_date": "1975-07-03",
+            "first_file_date": "1975-03-06",
+            "last_f1_date": "2024-12-17",
+            "last_file_date": "2026-08-17",
+            "name": "AMERICAN MEDICAL ASSOCIATION POLITICAL ACTION COMMITTEE",
+            "organization_type": null,
+            "organization_type_full": null,
+            "party": null,
+            "party_full": null,
+            "sponsor_candidate_ids": null,
+            "sponsor_candidate_list": [],
+            "state": "DC",
+            "treasurer_name": "JORDAN, JOHN ROBERT MR."
+          },
+          {
+            "affiliated_committee_name": null,
+            "candidate_ids": [],
+            "committee_id": "C00000489",
+            "committee_type": "N",
+            "committee_type_full": "PAC - Nonqualified",
+            "cycles": [
+              1976,
+              1978,
+              1980,
+              1982,
+              1984,
+              1986,
+              1988,
+              1990,
+              1992,
+              1994,
+              1996,
+              1998,
+              2000,
+              2002,
+              2004,
+              2006,
+              2008,
+              2010,
+              2012,
+              2014,
+              2016,
+              2018,
+              2020,
+              2022,
+              2024,
+              2026
+            ],
+            "designated_agent_city": null,
+            "designated_agent_first_name": null,
+            "designated_agent_last_name": null,
+            "designated_agent_middle_name": null,
+            "designated_agent_name": null,
+            "designated_agent_phone_number": null,
+            "designated_agent_prefix": null,
+            "designated_agent_state": null,
+            "designated_agent_street1": null,
+            "designated_agent_street2": null,
+            "designated_agent_suffix": null,
+            "designated_agent_title": null,
+            "designated_agent_zip": null,
+            "designation": "U",
+            "designation_full": "Unauthorized",
+            "filing_frequency": "Q",
+            "first_f1_date": "1976-09-21",
+            "first_file_date": "1976-07-13",
+            "last_f1_date": "2021-09-02",
+            "last_file_date": "2026-07-13",
+            "name": "D R I V E POLITICAL FUND CHAPTER 886",
+            "organization_type": "L",
+            "organization_type_full": "Labor Organization",
+            "party": null,
+            "party_full": null,
+            "sponsor_candidate_ids": null,
+            "sponsor_candidate_list": [],
+            "state": "OK",
+            "treasurer_name": "JERRY SIMS JR"
+          }
+        ],
+        "fields": [
+          "affiliated_committee_name",
+          "candidate_ids",
+          "committee_id",
+          "committee_type",
+          "committee_type_full",
+          "cycles",
+          "designated_agent_city",
+          "designated_agent_first_name",
+          "designated_agent_last_name",
+          "designated_agent_middle_name",
+          "designated_agent_name",
+          "designated_agent_phone_number",
+          "designated_agent_prefix",
+          "designated_agent_state",
+          "designated_agent_street1",
+          "designated_agent_street2",
+          "designated_agent_suffix",
+          "designated_agent_title",
+          "designated_agent_zip",
+          "designation",
+          "designation_full",
+          "filing_frequency",
+          "first_f1_date",
+          "first_file_date",
+          "last_f1_date",
+          "last_file_date",
+          "name",
+          "organization_type",
+          "organization_type_full",
+          "party",
+          "party_full",
+          "sponsor_candidate_ids",
+          "sponsor_candidate_list",
+          "state",
+          "treasurer_name"
+        ],
+        "representative": false,
+        "rows": 100
+      },
+      "sampling": {
+        "config": {
+          "criteria": "First 100 committee records for 2024, sorted by committee ID; no individual contributions.",
+          "disk_budget_bytes": 67108864,
+          "documentation": "https://api.open.fec.gov/developers/",
+          "format": "json",
+          "max_download_bytes": 1048576,
+          "max_rows": 100,
+          "max_sample_bytes": 1048576,
+          "max_uncompressed_bytes": 1048576,
+          "records_path": [
+            "results"
+          ],
+          "representative": false,
+          "strategy": "download",
+          "timeout_seconds": 25,
+          "total_timeout_seconds": 90,
+          "url": "https://api.open.fec.gov/v1/committees/?api_key=DEMO_KEY&per_page=100&page=1&cycle=2024&sort=committee_id"
+        },
+        "content_type": "application/json",
+        "etag": null,
+        "format": "jsonl",
+        "last_modified": null,
+        "method": "GET",
+        "original_bytes": 123880,
+        "original_complete": true,
+        "original_retained": false,
+        "original_sha256": "8282459a91a4479ccfd8ca8a275a9df05b655f3e6dd1a5f9c92f06fc5ca58d4c",
+        "request_body": null,
+        "resolved_url": "https://api.open.fec.gov/v1/committees/?api_key=%5BREDACTED%5D&per_page=100&page=1&cycle=2024&sort=committee_id",
+        "retained_rows": 100,
+        "sampled": true,
+        "selection": "first matching records; not a random sample",
+        "stop_reason": "row_limit",
+        "url": "https://api.open.fec.gov/v1/committees/?api_key=%5BREDACTED%5D&per_page=100&page=1&cycle=2024&sort=committee_id"
+      }
+    },
+    {
+      "completed_at": "2026-09-15T10:17:24.550446+00:00",
+      "criteria": "First 100 rows of the smaller reprocessed 1997-2012 state-level historical FAF file. Recent state archive is above the disk limit.",
+      "dataset": "freight",
+      "max_download_bytes": 65011712,
+      "max_rows": 100,
+      "max_sample_bytes": 1048576,
+      "reason": "Network/timeout failure from https://faf.ornl.gov/faf5/data/download_files/FAF5.7.1_Reprocessed_1997-2012_State.zip",
+      "started_at": "2026-09-15T10:17:24.377267+00:00",
+      "status": "blocked"
+    },
+    {
+      "artifact": {
+        "artifact": "08aca317c4d8372bb8df22629a15a38efac4380808296551404438a497f49fdf",
+        "dataset": "rando_joes_happiness_index"
+      },
+      "completed_at": "2026-09-15T10:18:02.106154+00:00",
+      "criteria": "First 100 records from an existing published version; never trigger upstream downloads or builds.",
+      "dataset": "rando_joes_happiness_index",
+      "downloaded_bytes": 0,
+      "fields": [
+        "dimensions",
+        "evidence",
+        "id",
+        "kind",
+        "methodology",
+        "metric",
+        "observed_at",
+        "unit",
+        "valid_from",
+        "valid_to",
+        "value"
+      ],
+      "manifest": "rando_joes_happiness_index/samples/45cd93bf512520aeedcce02f13b120d12bb8773f0db9822631eb0e37016d769d/manifest.json",
+      "max_download_bytes": 1048576,
+      "max_rows": 100,
+      "max_sample_bytes": 1048576,
+      "retained_bytes": 1272,
+      "rows": 2,
+      "sample_id": "45cd93bf512520aeedcce02f13b120d12bb8773f0db9822631eb0e37016d769d",
+      "started_at": "2026-09-15T10:18:02.074926+00:00",
+      "status": "sampled",
+      "stop_reason": "source_exhausted",
+      "profile": {
+        "columns": {
+          "dimensions": {
+            "distinct_scalar_values": 0,
+            "missing": 0,
+            "types": [
+              "dict"
+            ]
+          },
+          "evidence": {
+            "distinct_scalar_values": 0,
+            "missing": 0,
+            "types": [
+              "list"
+            ]
+          },
+          "id": {
+            "distinct_scalar_values": 2,
+            "missing": 0,
+            "types": [
+              "str"
+            ]
+          },
+          "kind": {
+            "distinct_scalar_values": 1,
+            "missing": 0,
+            "types": [
+              "str"
+            ]
+          },
+          "methodology": {
+            "distinct_scalar_values": 1,
+            "missing": 0,
+            "types": [
+              "str"
+            ]
+          },
+          "metric": {
+            "distinct_scalar_values": 1,
+            "missing": 0,
+            "types": [
+              "str"
+            ]
+          },
+          "observed_at": {
+            "distinct_scalar_values": 1,
+            "missing": 0,
+            "types": [
+              "str"
+            ]
+          },
+          "unit": {
+            "distinct_scalar_values": 1,
+            "missing": 0,
+            "types": [
+              "str"
+            ]
+          },
+          "valid_from": {
+            "distinct_scalar_values": 1,
+            "missing": 0,
+            "types": [
+              "str"
+            ]
+          },
+          "valid_to": {
+            "distinct_scalar_values": 1,
+            "missing": 0,
+            "types": [
+              "str"
+            ]
+          },
+          "value": {
+            "distinct_scalar_values": 2,
+            "missing": 0,
+            "types": [
+              "float"
+            ]
+          }
+        },
+        "examples": [
+          {
+            "dimensions": {
+              "country": "AA"
+            },
+            "evidence": [
+              {
+                "input": {
+                  "dataset": "demo_countries",
+                  "version": "8c393ecbabbcfe2ddd49e9614fbb8df0d76ea0147f8e873679c7944b4f326515"
+                },
+                "record_id": "fixture:AA:income"
+              },
+              {
+                "input": {
+                  "dataset": "demo_countries",
+                  "version": "8c393ecbabbcfe2ddd49e9614fbb8df0d76ea0147f8e873679c7944b4f326515"
+                },
+                "record_id": "fixture:AA:life_satisfaction"
+              }
+            ],
+            "id": "happiness:AA",
+            "kind": "observation",
+            "methodology": "Illustrative synthetic index; not a validated measure of happiness",
+            "metric": "rando_joes_happiness_index",
+            "observed_at": "2025-01-01T00:00:00Z",
+            "unit": "index_points",
+            "valid_from": "2024-01-01",
+            "valid_to": "2025-01-01",
+            "value": 65.0
+          },
+          {
+            "dimensions": {
+              "country": "BB"
+            },
+            "evidence": [
+              {
+                "input": {
+                  "dataset": "demo_countries",
+                  "version": "8c393ecbabbcfe2ddd49e9614fbb8df0d76ea0147f8e873679c7944b4f326515"
+                },
+                "record_id": "fixture:BB:income"
+              },
+              {
+                "input": {
+                  "dataset": "demo_countries",
+                  "version": "8c393ecbabbcfe2ddd49e9614fbb8df0d76ea0147f8e873679c7944b4f326515"
+                },
+                "record_id": "fixture:BB:life_satisfaction"
+              }
+            ],
+            "id": "happiness:BB",
+            "kind": "observation",
+            "methodology": "Illustrative synthetic index; not a validated measure of happiness",
+            "metric": "rando_joes_happiness_index",
+            "observed_at": "2025-01-01T00:00:00Z",
+            "unit": "index_points",
+            "valid_from": "2024-01-01",
+            "valid_to": "2025-01-01",
+            "value": 50.0
+          }
+        ],
+        "fields": [
+          "dimensions",
+          "evidence",
+          "id",
+          "kind",
+          "methodology",
+          "metric",
+          "observed_at",
+          "unit",
+          "valid_from",
+          "valid_to",
+          "value"
+        ],
+        "representative": false,
+        "rows": 2
+      },
+      "sampling": {
+        "config": {
+          "criteria": "First 100 records from an existing published version; never trigger upstream downloads or builds.",
+          "disk_budget_bytes": 67108864,
+          "format": "jsonl",
+          "max_download_bytes": 1048576,
+          "max_rows": 100,
+          "max_sample_bytes": 1048576,
+          "max_uncompressed_bytes": 1048576,
+          "records_path": [],
+          "representative": false,
+          "strategy": "derived",
+          "timeout_seconds": 25,
+          "total_timeout_seconds": 90
+        },
+        "format": "jsonl",
+        "input_version": {
+          "dataset": "rando_joes_happiness_index",
+          "version": "cee561ed3b401db111238e738ef0de92faa8c1257fbe1c7f6564fed57c9b0666"
+        },
+        "original_bytes": 1272,
+        "original_complete": true,
+        "original_retained": false,
+        "original_sha256": "4e3b5293f12d9bc2ba7d5a94a1418f462a1af36552898e4e366761c827149354",
+        "retained_rows": 2,
+        "sampled": true,
+        "selection": "first matching records; not a random sample",
+        "stop_reason": "source_exhausted"
+      }
+    },
+    {
+      "artifact": {
+        "artifact": "72d7f208a651082d26ad27e940c12e700146f93dccafadbdc0bf885f6643b2fd",
+        "dataset": "sec_gleif"
+      },
+      "completed_at": "2026-09-15T10:14:44.689234+00:00",
+      "criteria": "First 25 US legal-address LEI records ordered by LEI. GLEIF only; no SEC filing archives.",
+      "dataset": "sec_gleif",
+      "downloaded_bytes": 69034,
+      "fields": [
+        "attributes",
+        "id",
+        "links",
+        "relationships",
+        "type"
+      ],
+      "manifest": "sec_gleif/samples/6451c192b852e054965ae1920aba0b846e36919b1780cb1622aca4464a51bc98/manifest.json",
+      "max_download_bytes": 1048576,
+      "max_rows": 25,
+      "max_sample_bytes": 1048576,
+      "retained_bytes": 67096,
+      "rows": 25,
+      "sample_id": "6451c192b852e054965ae1920aba0b846e36919b1780cb1622aca4464a51bc98",
+      "started_at": "2026-09-15T10:14:43.582597+00:00",
+      "status": "sampled",
+      "stop_reason": "row_limit",
+      "profile": {
+        "columns": {
+          "attributes": {
+            "distinct_scalar_values": 0,
+            "missing": 0,
+            "types": [
+              "dict"
+            ]
+          },
+          "id": {
+            "distinct_scalar_values": 25,
+            "missing": 0,
+            "types": [
+              "str"
+            ]
+          },
+          "links": {
+            "distinct_scalar_values": 0,
+            "missing": 0,
+            "types": [
+              "dict"
+            ]
+          },
+          "relationships": {
+            "distinct_scalar_values": 0,
+            "missing": 0,
+            "types": [
+              "dict"
+            ]
+          },
+          "type": {
+            "distinct_scalar_values": 1,
+            "missing": 0,
+            "types": [
+              "str"
+            ]
+          }
+        },
+        "examples": [
+          {
+            "attributes": {
+              "bic": null,
+              "conformityFlag": "NON_CONFORMING",
+              "entity": {
+                "associatedEntity": {
+                  "lei": null,
+                  "name": null
+                },
+                "category": "FUND",
+                "creationDate": "2012-11-29T00:00:00Z",
+                "eventGroups": [],
+                "expiration": {
+                  "date": null,
+                  "reason": null
+                },
+                "headquartersAddress": {
+                  "addressLines": [
+                    "C/O FIDELITY MANAGEMENT & RESEARCH COMPANY LLC",
+                    "CORPORATION TRUST CENTER",
+                    "1209 ORANGE ST"
+                  ],
+                  "addressNumber": null,
+                  "addressNumberWithinBuilding": null,
+                  "city": "WILMINGTON",
+                  "country": "US",
+                  "language": "en",
+                  "mailRouting": null,
+                  "postalCode": "19801",
+                  "region": "US-MA"
+                },
+                "jurisdiction": "US",
+                "legalAddress": {
+                  "addressLines": [
+                    "245 SUMMER STREET"
+                  ],
+                  "addressNumber": null,
+                  "addressNumberWithinBuilding": null,
+                  "city": "BOSTON",
+                  "country": "US",
+                  "language": "en",
+                  "mailRouting": null,
+                  "postalCode": "02210",
+                  "region": "US-MA"
+                },
+                "legalForm": {
+                  "id": "8888",
+                  "other": "FUND"
+                },
+                "legalName": {
+                  "language": "en",
+                  "name": "Fidelity Advisor Leveraged Company Stock Fund"
+                },
+                "otherAddresses": [],
+                "otherNames": [
+                  {
+                    "language": "en",
+                    "name": "FIDELITY ADVISOR SERIES I - Fidelity Advisor Leveraged Company Stock Fund",
+                    "type": "PREVIOUS_LEGAL_NAME"
+                  }
+                ],
+                "registeredAs": "S000005113",
+                "registeredAt": {
+                  "id": "RA000665",
+                  "other": null
+                },
+                "status": "ACTIVE",
+                "subCategory": null,
+                "successorEntities": [],
+                "successorEntity": {
+                  "lei": null,
+                  "name": null
+                },
+                "transliteratedOtherNames": []
+              },
+              "gem": null,
+              "lei": "001GPB6A9XPE8XJICC14",
+              "mic": null,
+              "ocid": null,
+              "qcc": null,
+              "registration": {
+                "corroborationLevel": "FULLY_CORROBORATED",
+                "initialRegistrationDate": "2012-11-29T16:33:00Z",
+                "lastUpdateDate": "2025-04-19T13:30:05Z",
+                "managingLou": "5493001KJTIIGC8Y1R12",
+                "nextRenewalDate": "2025-04-18T15:48:53Z",
+                "otherValidationAuthorities": [],
+                "status": "LAPSED",
+                "validatedAs": "S000005113",
+                "validatedAt": {
+                  "id": "RA000665",
+                  "other": null
+                }
+              },
+              "spglobal": [
+                "28120130"
+              ]
+            },
+            "id": "001GPB6A9XPE8XJICC14",
+            "links": {
+              "self": "https://api.gleif.org/api/v1/lei-records/001GPB6A9XPE8XJICC14"
+            },
+            "relationships": {
+              "direct-parent": {
+                "links": {
+                  "reporting-exception": "https://api.gleif.org/api/v1/lei-records/001GPB6A9XPE8XJICC14/direct-parent-reporting-exception"
+                }
+              },
+              "field-modifications": {
+                "links": {
+                  "related": "https://api.gleif.org/api/v1/lei-records/001GPB6A9XPE8XJICC14/field-modifications"
+                }
+              },
+              "fund-manager": {
+                "links": {
+                  "lei-record": "https://api.gleif.org/api/v1/lei-records/001GPB6A9XPE8XJICC14/fund-manager",
+                  "relationship-record": "https://api.gleif.org/api/v1/lei-records/001GPB6A9XPE8XJICC14/fund-manager-relationship"
+                }
+              },
+              "lei-issuer": {
+                "links": {
+                  "related": "https://api.gleif.org/api/v1/lei-records/001GPB6A9XPE8XJICC14/lei-issuer"
+                }
+              },
+              "managing-lou": {
+                "links": {
+                  "related": "https://api.gleif.org/api/v1/lei-records/001GPB6A9XPE8XJICC14/managing-lou"
+                }
+              },
+              "ultimate-parent": {
+                "links": {
+                  "reporting-exception": "https://api.gleif.org/api/v1/lei-records/001GPB6A9XPE8XJICC14/ultimate-parent-reporting-exception"
+                }
+              },
+              "umbrella-fund": {
+                "links": {
+                  "lei-record": "https://api.gleif.org/api/v1/lei-records/001GPB6A9XPE8XJICC14/umbrella-fund",
+                  "relationship-record": "https://api.gleif.org/api/v1/lei-records/001GPB6A9XPE8XJICC14/umbrella-fund-relationship"
+                }
+              }
+            },
+            "type": "lei-records"
+          },
+          {
+            "attributes": {
+              "bic": null,
+              "conformityFlag": "NON_CONFORMING",
+              "entity": {
+                "associatedEntity": {
+                  "lei": null,
+                  "name": null
+                },
+                "category": "GENERAL",
+                "creationDate": "2007-07-10T00:00:00Z",
+                "eventGroups": [],
+                "expiration": {
+                  "date": null,
+                  "reason": null
+                },
+                "headquartersAddress": {
+                  "addressLines": [
+                    "22nd Floor",
+                    "888 7th Avenue"
+                  ],
+                  "addressNumber": null,
+                  "addressNumberWithinBuilding": null,
+                  "city": "New York",
+                  "country": "US",
+                  "language": "en",
+                  "mailRouting": null,
+                  "postalCode": "10106",
+                  "region": "US-NY"
+                },
+                "jurisdiction": "US-DE",
+                "legalAddress": {
+                  "addressLines": [
+                    "C/O CORPORATION SERVICE COMPANY",
+                    "251 LITTLE FALLS DRIVE"
+                  ],
+                  "addressNumber": null,
+                  "addressNumberWithinBuilding": null,
+                  "city": "WILMINGTON",
+                  "country": "US",
+                  "language": "en",
+                  "mailRouting": null,
+                  "postalCode": "19808",
+                  "region": "US-DE"
+                },
+                "legalForm": {
+                  "id": "T91T",
+                  "other": null
+                },
+                "legalName": {
+                  "language": "en",
+                  "name": "Hutchin Hill Capital, LP"
+                },
+                "otherAddresses": [],
+                "otherNames": [],
+                "registeredAs": "4386463",
+                "registeredAt": {
+                  "id": "RA000602",
+                  "other": null
+                },
+                "status": "ACTIVE",
+                "subCategory": null,
+                "successorEntities": [],
+                "successorEntity": {
+                  "lei": null,
+                  "name": null
+                },
+                "transliteratedOtherNames": []
+              },
+              "gem": null,
+              "lei": "004L5FPTUREIWK9T2N63",
+              "mic": null,
+              "ocid": "us_de/4386463",
+              "qcc": null,
+              "registration": {
+                "corroborationLevel": "FULLY_CORROBORATED",
+                "initialRegistrationDate": "2012-06-06T15:56:00Z",
+                "lastUpdateDate": "2026-05-27T17:40:22Z",
+                "managingLou": "5493001KJTIIGC8Y1R12",
+                "nextRenewalDate": "2018-05-08T13:46:00Z",
+                "otherValidationAuthorities": [],
+                "status": "LAPSED",
+                "validatedAs": "4386463",
+                "validatedAt": {
+                  "id": "RA000602",
+                  "other": null
+                }
+              },
+              "spglobal": [
+                "46304466"
+              ]
+            },
+            "id": "004L5FPTUREIWK9T2N63",
+            "links": {
+              "self": "https://api.gleif.org/api/v1/lei-records/004L5FPTUREIWK9T2N63"
+            },
+            "relationships": {
+              "direct-parent": {
+                "links": {
+                  "reporting-exception": "https://api.gleif.org/api/v1/lei-records/004L5FPTUREIWK9T2N63/direct-parent-reporting-exception"
+                }
+              },
+              "field-modifications": {
+                "links": {
+                  "related": "https://api.gleif.org/api/v1/lei-records/004L5FPTUREIWK9T2N63/field-modifications"
+                }
+              },
+              "lei-issuer": {
+                "links": {
+                  "related": "https://api.gleif.org/api/v1/lei-records/004L5FPTUREIWK9T2N63/lei-issuer"
+                }
+              },
+              "managing-lou": {
+                "links": {
+                  "related": "https://api.gleif.org/api/v1/lei-records/004L5FPTUREIWK9T2N63/managing-lou"
+                }
+              },
+              "ultimate-parent": {
+                "links": {
+                  "reporting-exception": "https://api.gleif.org/api/v1/lei-records/004L5FPTUREIWK9T2N63/ultimate-parent-reporting-exception"
+                }
+              }
+            },
+            "type": "lei-records"
+          },
+          {
+            "attributes": {
+              "bic": null,
+              "conformityFlag": "CONFORMING",
+              "entity": {
+                "associatedEntity": {
+                  "lei": null,
+                  "name": null
+                },
+                "category": "FUND",
+                "creationDate": "2011-09-30T22:00:00Z",
+                "eventGroups": [
+                  {
+                    "events": [
+                      {
+                        "effectiveDate": "2025-05-13T22:00:00Z",
+                        "recordedDate": "2025-05-14T06:51:02Z",
+                        "status": "COMPLETED",
+                        "type": "CHANGE_LEGAL_NAME",
+                        "validationDocuments": "OTHER_OFFICIAL_DOCUMENTS"
+                      }
+                    ],
+                    "groupType": "STANDALONE"
+                  },
+                  {
+                    "events": [
+                      {
+                        "effectiveDate": "2025-05-07T22:00:00Z",
+                        "recordedDate": "2025-05-08T07:28:05Z",
+                        "status": "COMPLETED",
+                        "type": "CHANGE_LEGAL_NAME",
+                        "validationDocuments": "OTHER_OFFICIAL_DOCUMENTS"
+                      }
+                    ],
+                    "groupType": "STANDALONE"
+                  }
+                ],
+                "expiration": {
+                  "date": null,
+                  "reason": null
+                },
+                "headquartersAddress": {
+                  "addressLines": [
+                    "c/o VANGUARD FIDUCIARY TRUST COMPANY, VANGUARD FIDUCIARY TRUST COMPANY; VANGUARD FINANCIAL CENTER; 100 VANGUARD BLVD"
+                  ],
+                  "addressNumber": null,
+                  "addressNumberWithinBuilding": null,
+                  "city": "MALVERN",
+                  "country": "US",
+                  "language": "en",
+                  "mailRouting": "c/o VANGUARD FIDUCIARY TRUST COMPANY",
+                  "postalCode": "19355",
+                  "region": "US-PA"
+                },
+                "jurisdiction": "US-PA",
+                "legalAddress": {
+                  "addressLines": [
+                    "c/o VANGUARD FIDUCIARY TRUST COMPANY, VANGUARD FINANCIAL CENTER 100 VANGUARD BLVD"
+                  ],
+                  "addressNumber": null,
+                  "addressNumberWithinBuilding": null,
+                  "city": "MALVERN",
+                  "country": "US",
+                  "language": "en",
+                  "mailRouting": null,
+                  "postalCode": "19355",
+                  "region": "US-PA"
+                },
+                "legalForm": {
+                  "id": "8888",
+                  "other": "Trust"
+                },
+                "legalName": {
+                  "language": "en",
+                  "name": "Vanguard Fiduciary Trust Company Vanguard Russell 1000 Growth Index Trust"
+                },
+                "otherAddresses": [],
+                "otherNames": [
+                  {
+                    "language": "en",
+                    "name": "VANGUARD FIDUCIARY TRUST COMPANY RUSSELL 1000 GROWTH INDEX TRUST",
+                    "type": "PREVIOUS_LEGAL_NAME"
+                  },
+                  {
+                    "language": "en",
+                    "name": "Vanguard Russell 1000 Growth Index Trust",
+                    "type": "PREVIOUS_LEGAL_NAME"
+                  }
+                ],
+                "registeredAs": null,
+                "registeredAt": {
+                  "id": "RA999999",
+                  "other": null
+                },
+                "status": "ACTIVE",
+                "subCategory": null,
+                "successorEntities": [],
+                "successorEntity": {
+                  "lei": null,
+                  "name": null
+                },
+                "transliteratedOtherNames": []
+              },
+              "gem": null,
+              "lei": "00EHHQ2ZHDCFXJCPCL46",
+              "mic": null,
+              "ocid": null,
+              "qcc": null,
+              "registration": {
+                "corroborationLevel": "ENTITY_SUPPLIED_ONLY",
+                "initialRegistrationDate": "2012-10-05T20:30:00Z",
+                "lastUpdateDate": "2026-05-29T12:21:14Z",
+                "managingLou": "5299000J2N45DDNE4Y28",
+                "nextRenewalDate": "2027-06-24T09:39:46Z",
+                "otherValidationAuthorities": [],
+                "status": "ISSUED",
+                "validatedAs": null,
+                "validatedAt": {
+                  "id": "RA999999",
+                  "other": null
+                }
+              },
+              "spglobal": [
+                "224286279"
+              ]
+            },
+            "id": "00EHHQ2ZHDCFXJCPCL46",
+            "links": {
+              "self": "https://api.gleif.org/api/v1/lei-records/00EHHQ2ZHDCFXJCPCL46"
+            },
+            "relationships": {
+              "direct-parent": {
+                "links": {
+                  "reporting-exception": "https://api.gleif.org/api/v1/lei-records/00EHHQ2ZHDCFXJCPCL46/direct-parent-reporting-exception"
+                }
+              },
+              "field-modifications": {
+                "links": {
+                  "related": "https://api.gleif.org/api/v1/lei-records/00EHHQ2ZHDCFXJCPCL46/field-modifications"
+                }
+              },
+              "fund-manager": {
+                "links": {
+                  "lei-record": "https://api.gleif.org/api/v1/lei-records/00EHHQ2ZHDCFXJCPCL46/fund-manager",
+                  "relationship-record": "https://api.gleif.org/api/v1/lei-records/00EHHQ2ZHDCFXJCPCL46/fund-manager-relationship"
+                }
+              },
+              "isins": {
+                "links": {
+                  "related": "https://api.gleif.org/api/v1/lei-records/00EHHQ2ZHDCFXJCPCL46/isins"
+                }
+              },
+              "lei-issuer": {
+                "links": {
+                  "related": "https://api.gleif.org/api/v1/lei-records/00EHHQ2ZHDCFXJCPCL46/lei-issuer"
+                }
+              },
+              "managing-lou": {
+                "links": {
+                  "related": "https://api.gleif.org/api/v1/lei-records/00EHHQ2ZHDCFXJCPCL46/managing-lou"
+                }
+              },
+              "ultimate-parent": {
+                "links": {
+                  "reporting-exception": "https://api.gleif.org/api/v1/lei-records/00EHHQ2ZHDCFXJCPCL46/ultimate-parent-reporting-exception"
+                }
+              }
+            },
+            "type": "lei-records"
+          }
+        ],
+        "fields": [
+          "attributes",
+          "id",
+          "links",
+          "relationships",
+          "type"
+        ],
+        "representative": false,
+        "rows": 25
+      },
+      "sampling": {
+        "config": {
+          "criteria": "First 25 US legal-address LEI records ordered by LEI. GLEIF only; no SEC filing archives.",
+          "disk_budget_bytes": 67108864,
+          "documentation": "https://www.gleif.org/en/lei-data/gleif-api",
+          "format": "json",
+          "max_download_bytes": 1048576,
+          "max_rows": 25,
+          "max_sample_bytes": 1048576,
+          "max_uncompressed_bytes": 1048576,
+          "records_path": [
+            "data"
+          ],
+          "representative": false,
+          "strategy": "download",
+          "timeout_seconds": 25,
+          "total_timeout_seconds": 90,
+          "url": "https://api.gleif.org/api/v1/lei-records?filter%5Bentity.legalAddress.country%5D=US&page%5Bsize%5D=25&page%5Bnumber%5D=1&sort=lei"
+        },
+        "content_type": "application/vnd.api+json",
+        "etag": null,
+        "format": "jsonl",
+        "last_modified": null,
+        "method": "GET",
+        "original_bytes": 69034,
+        "original_complete": true,
+        "original_retained": false,
+        "original_sha256": "3f543c5917d4a390887e2b70d39b63c1d88663e6cb8054fdad24928116d3e8f1",
+        "request_body": null,
+        "resolved_url": "https://api.gleif.org/api/v1/lei-records?filter%5Bentity.legalAddress.country%5D=US&page%5Bsize%5D=25&page%5Bnumber%5D=1&sort=lei",
+        "retained_rows": 25,
+        "sampled": true,
+        "selection": "first matching records; not a random sample",
+        "stop_reason": "row_limit",
+        "url": "https://api.gleif.org/api/v1/lei-records?filter%5Bentity.legalAddress.country%5D=US&page%5Bsize%5D=25&page%5Bnumber%5D=1&sort=lei"
+      }
+    },
+    {
+      "artifact": {
+        "artifact": "e03f60696fd4d79fe4f58527d312a72a30bbc59aba2b1b3e8d42cb933686dded",
+        "dataset": "transport"
+      },
+      "completed_at": "2026-09-15T10:14:46.747107+00:00",
+      "criteria": "First 100 highway ways in a small San Francisco bounding box; tags and center only, not full network geometry.",
+      "dataset": "transport",
+      "downloaded_bytes": 44331,
+      "fields": [
+        "center",
+        "id",
+        "tags",
+        "type"
+      ],
+      "manifest": "transport/samples/c750632442bfbdfc4e5a19cfd217495bee129126d3de0d0086c64bb092df51c3/manifest.json",
+      "max_download_bytes": 1048576,
+      "max_rows": 100,
+      "max_sample_bytes": 1048576,
+      "retained_bytes": 33998,
+      "rows": 100,
+      "sample_id": "c750632442bfbdfc4e5a19cfd217495bee129126d3de0d0086c64bb092df51c3",
+      "started_at": "2026-09-15T10:14:44.689637+00:00",
+      "status": "sampled",
+      "stop_reason": "row_limit",
+      "profile": {
+        "columns": {
+          "center": {
+            "distinct_scalar_values": 0,
+            "missing": 0,
+            "types": [
+              "dict"
+            ]
+          },
+          "id": {
+            "distinct_scalar_values": 100,
+            "missing": 0,
+            "types": [
+              "int"
+            ]
+          },
+          "tags": {
+            "distinct_scalar_values": 0,
+            "missing": 0,
+            "types": [
+              "dict"
+            ]
+          },
+          "type": {
+            "distinct_scalar_values": 1,
+            "missing": 0,
+            "types": [
+              "str"
+            ]
+          }
+        },
+        "examples": [
+          {
+            "center": {
+              "lat": 37.7701111,
+              "lon": -122.4145645
+            },
+            "id": 8916048,
+            "tags": {
+              "highway": "residential",
+              "lit": "yes",
+              "name": "Isis Street",
+              "sidewalk:both": "separate",
+              "surface": "asphalt",
+              "tiger:cfcc": "A41",
+              "tiger:county": "San Francisco, CA",
+              "tiger:name_base": "Isis",
+              "tiger:name_type": "St",
+              "tiger:reviewed": "no"
+            },
+            "type": "way"
+          },
+          {
+            "center": {
+              "lat": 37.7699713,
+              "lon": -122.4139326
+            },
+            "id": 8916341,
+            "tags": {
+              "highway": "residential",
+              "name": "Bernice Street",
+              "sidewalk:both": "separate",
+              "surface": "asphalt",
+              "tiger:cfcc": "A41",
+              "tiger:county": "San Francisco, CA",
+              "tiger:name_base": "Bernice",
+              "tiger:name_type": "St",
+              "tiger:reviewed": "no"
+            },
+            "type": "way"
+          },
+          {
+            "center": {
+              "lat": 37.7755147,
+              "lon": -122.4146716
+            },
+            "id": 8916498,
+            "tags": {
+              "highway": "residential",
+              "name": "Washburn Street",
+              "oneway": "yes",
+              "sidewalk:both": "separate",
+              "tiger:cfcc": "A41",
+              "tiger:county": "San Francisco, CA",
+              "tiger:name_base": "Washburn",
+              "tiger:name_type": "St"
+            },
+            "type": "way"
+          }
+        ],
+        "fields": [
+          "center",
+          "id",
+          "tags",
+          "type"
+        ],
+        "representative": false,
+        "rows": 100
+      },
+      "sampling": {
+        "config": {
+          "criteria": "First 100 highway ways in a small San Francisco bounding box; tags and center only, not full network geometry.",
+          "disk_budget_bytes": 67108864,
+          "documentation": "https://wiki.openstreetmap.org/wiki/Overpass_API",
+          "format": "json",
+          "max_download_bytes": 1048576,
+          "max_rows": 100,
+          "max_sample_bytes": 1048576,
+          "max_uncompressed_bytes": 1048576,
+          "records_path": [
+            "elements"
+          ],
+          "representative": false,
+          "strategy": "download",
+          "timeout_seconds": 25,
+          "total_timeout_seconds": 90,
+          "url": "https://overpass-api.de/api/interpreter?data=%5Bout%3Ajson%5D%5Btimeout%3A20%5D%5Bmaxsize%3A16777216%5D%3Bway%5B%22highway%22%5D%2837.77%2C-122.42%2C37.78%2C-122.41%29%3Bout+tags+center+100%3B"
+        },
+        "content_type": "application/json",
+        "etag": null,
+        "format": "jsonl",
+        "last_modified": null,
+        "method": "GET",
+        "original_bytes": 44331,
+        "original_complete": true,
+        "original_retained": false,
+        "original_sha256": "5bb7902b210e00799ce7a9f0dfcb67a5ce09e522b818a8ab558178968c7430ca",
+        "request_body": null,
+        "resolved_url": "https://overpass-api.de/api/interpreter?data=%5Bout%3Ajson%5D%5Btimeout%3A20%5D%5Bmaxsize%3A16777216%5D%3Bway%5B%22highway%22%5D%2837.77%2C-122.42%2C37.78%2C-122.41%29%3Bout+tags+center+100%3B",
+        "retained_rows": 100,
+        "sampled": true,
+        "selection": "first matching records; not a random sample",
+        "stop_reason": "row_limit",
+        "url": "https://overpass-api.de/api/interpreter?data=%5Bout%3Ajson%5D%5Btimeout%3A20%5D%5Bmaxsize%3A16777216%5D%3Bway%5B%22highway%22%5D%2837.77%2C-122.42%2C37.78%2C-122.41%29%3Bout+tags+center+100%3B"
+      }
+    },
+    {
+      "artifact": {
+        "artifact": "6f7498b2a12d4ef86faa76331d1187bd24e5aae960d09107bbcb9632df11d1ec",
+        "dataset": "usaspending"
+      },
+      "completed_at": "2026-09-15T10:14:47.999218+00:00",
+      "criteria": "First 100 contract awards by amount for January 2024; award summaries, not all transactions.",
+      "dataset": "usaspending",
+      "downloaded_bytes": 30943,
+      "fields": [
+        "Award Amount",
+        "Award ID",
+        "Awarding Agency",
+        "Recipient Name",
+        "agency_slug",
+        "awarding_agency_id",
+        "generated_internal_id",
+        "internal_id"
+      ],
+      "manifest": "usaspending/samples/8150c844ee0625590bc2d67b28ec04395929ffee779e066029e26a709ee03a10/manifest.json",
+      "max_download_bytes": 1048576,
+      "max_rows": 100,
+      "max_sample_bytes": 1048576,
+      "retained_bytes": 30450,
+      "rows": 100,
+      "sample_id": "8150c844ee0625590bc2d67b28ec04395929ffee779e066029e26a709ee03a10",
+      "started_at": "2026-09-15T10:14:46.747514+00:00",
+      "status": "sampled",
+      "stop_reason": "row_limit",
+      "profile": {
+        "columns": {
+          "Award Amount": {
+            "distinct_scalar_values": 99,
+            "missing": 0,
+            "types": [
+              "float"
+            ]
+          },
+          "Award ID": {
+            "distinct_scalar_values": 99,
+            "missing": 0,
+            "types": [
+              "str"
+            ]
+          },
+          "Awarding Agency": {
+            "distinct_scalar_values": 4,
+            "missing": 0,
+            "types": [
+              "str"
+            ]
+          },
+          "Recipient Name": {
+            "distinct_scalar_values": 51,
+            "missing": 0,
+            "types": [
+              "str"
+            ]
+          },
+          "agency_slug": {
+            "distinct_scalar_values": 4,
+            "missing": 0,
+            "types": [
+              "str"
+            ]
+          },
+          "awarding_agency_id": {
+            "distinct_scalar_values": 4,
+            "missing": 0,
+            "types": [
+              "int"
+            ]
+          },
+          "generated_internal_id": {
+            "distinct_scalar_values": 99,
+            "missing": 0,
+            "types": [
+              "str"
+            ]
+          },
+          "internal_id": {
+            "distinct_scalar_values": 100,
+            "missing": 0,
+            "types": [
+              "int"
+            ]
+          }
+        },
+        "examples": [
+          {
+            "Award Amount": 51269205263.03,
+            "Award ID": "HT940216C0001",
+            "Awarding Agency": "Department of Defense",
+            "Recipient Name": "HUMANA GOVERNMENT BUSINESS INC",
+            "agency_slug": "department-of-defense",
+            "awarding_agency_id": 1173,
+            "generated_internal_id": "CONT_AWD_HT940216C0001_9700_-NONE-_-NONE-",
+            "internal_id": 307885715
+          },
+          {
+            "Award Amount": 48063737196.35,
+            "Award ID": "DEAC0494AL85000",
+            "Awarding Agency": "Department of Energy",
+            "Recipient Name": "LOCKHEED MARTIN CORP",
+            "agency_slug": "department-of-energy",
+            "awarding_agency_id": 930,
+            "generated_internal_id": "CONT_AWD_DEAC0494AL85000_8900_-NONE-_-NONE-",
+            "internal_id": 295476065
+          },
+          {
+            "Award Amount": 43198566451.99,
+            "Award ID": "DENA0003525",
+            "Awarding Agency": "Department of Energy",
+            "Recipient Name": "NATIONAL TECHNOLOGY & ENGINEERING SOLUTIONS OF SANDIA, LLC",
+            "agency_slug": "department-of-energy",
+            "awarding_agency_id": 930,
+            "generated_internal_id": "CONT_AWD_DENA0003525_8900_-NONE-_-NONE-",
+            "internal_id": 295527116
+          }
+        ],
+        "fields": [
+          "Award Amount",
+          "Award ID",
+          "Awarding Agency",
+          "Recipient Name",
+          "agency_slug",
+          "awarding_agency_id",
+          "generated_internal_id",
+          "internal_id"
+        ],
+        "representative": false,
+        "rows": 100
+      },
+      "sampling": {
+        "config": {
+          "body": {
+            "fields": [
+              "Award ID",
+              "Recipient Name",
+              "Award Amount",
+              "Awarding Agency"
+            ],
+            "filters": {
+              "award_type_codes": [
+                "A",
+                "B",
+                "C",
+                "D"
+              ],
+              "time_period": [
+                {
+                  "end_date": "2024-01-31",
+                  "start_date": "2024-01-01"
+                }
+              ]
+            },
+            "limit": 100,
+            "order": "desc",
+            "page": 1,
+            "sort": "Award Amount"
+          },
+          "criteria": "First 100 contract awards by amount for January 2024; award summaries, not all transactions.",
+          "disk_budget_bytes": 67108864,
+          "documentation": "https://api.usaspending.gov/docs/endpoints",
+          "format": "json",
+          "max_download_bytes": 1048576,
+          "max_rows": 100,
+          "max_sample_bytes": 1048576,
+          "max_uncompressed_bytes": 1048576,
+          "method": "POST",
+          "records_path": [
+            "results"
+          ],
+          "representative": false,
+          "strategy": "download",
+          "timeout_seconds": 25,
+          "total_timeout_seconds": 90,
+          "url": "https://api.usaspending.gov/api/v2/search/spending_by_award/"
+        },
+        "content_type": "application/json",
+        "etag": null,
+        "format": "jsonl",
+        "last_modified": null,
+        "method": "POST",
+        "original_bytes": 30943,
+        "original_complete": true,
+        "original_retained": false,
+        "original_sha256": "c91a364b160f6a10908cdf92248ad2f175939c8432a194757903885bd6c34a64",
+        "request_body": {
+          "fields": [
+            "Award ID",
+            "Recipient Name",
+            "Award Amount",
+            "Awarding Agency"
+          ],
+          "filters": {
+            "award_type_codes": [
+              "A",
+              "B",
+              "C",
+              "D"
+            ],
+            "time_period": [
+              {
+                "end_date": "2024-01-31",
+                "start_date": "2024-01-01"
+              }
+            ]
+          },
+          "limit": 100,
+          "order": "desc",
+          "page": 1,
+          "sort": "Award Amount"
+        },
+        "resolved_url": "https://api.usaspending.gov/api/v2/search/spending_by_award/",
+        "retained_rows": 100,
+        "sampled": true,
+        "selection": "first matching records; not a random sample",
+        "stop_reason": "row_limit",
+        "url": "https://api.usaspending.gov/api/v2/search/spending_by_award/"
+      }
+    },
+    {
+      "completed_at": "2026-09-15T10:14:47.999869+00:00",
+      "criteria": "2023 annual surveyed corn yield by state; first 100 rows, no county/farm microdata.",
+      "dataset": "usda_agriculture",
+      "max_download_bytes": 1048576,
+      "max_rows": 100,
+      "max_sample_bytes": 1048576,
+      "reason": "Missing USDA_NASS_API_KEY; source requires an API key",
+      "started_at": "2026-09-15T10:14:47.999639+00:00",
+      "status": "blocked"
+    },
+    {
+      "artifact": {
+        "artifact": "27564532e5d12824f8a99953eaea4288970d89f495e97ebec5754a63af131fdd",
+        "dataset": "usgs_resources"
+      },
+      "completed_at": "2026-09-15T10:17:24.376169+00:00",
+      "criteria": "First 100 MRDS mineral-resource records, no geometry; historic inventory, not verified current mine activity.",
+      "dataset": "usgs_resources",
+      "downloaded_bytes": 21108,
+      "fields": [
+        "code_list",
+        "dep_id",
+        "dev_stat",
+        "gid",
+        "grade",
+        "site_name",
+        "url"
+      ],
+      "manifest": "usgs_resources/samples/a5bc0c51fc6c14a30e6eae687daca4464bc136b9499bc252723359ffb440a3c5/manifest.json",
+      "max_download_bytes": 1048576,
+      "max_rows": 100,
+      "max_sample_bytes": 1048576,
+      "retained_bytes": 18858,
+      "rows": 100,
+      "sample_id": "a5bc0c51fc6c14a30e6eae687daca4464bc136b9499bc252723359ffb440a3c5",
+      "started_at": "2026-09-15T10:17:17.519114+00:00",
+      "status": "sampled",
+      "stop_reason": "row_limit",
+      "profile": {
+        "columns": {
+          "code_list": {
+            "distinct_scalar_values": 41,
+            "missing": 0,
+            "types": [
+              "str"
+            ]
+          },
+          "dep_id": {
+            "distinct_scalar_values": 100,
+            "missing": 0,
+            "types": [
+              "str"
+            ]
+          },
+          "dev_stat": {
+            "distinct_scalar_values": 2,
+            "missing": 0,
+            "types": [
+              "str"
+            ]
+          },
+          "gid": {
+            "distinct_scalar_values": 100,
+            "missing": 0,
+            "types": [
+              "int"
+            ]
+          },
+          "grade": {
+            "distinct_scalar_values": 3,
+            "missing": 0,
+            "types": [
+              "str"
+            ]
+          },
+          "site_name": {
+            "distinct_scalar_values": 87,
+            "missing": 0,
+            "types": [
+              "str"
+            ]
+          },
+          "url": {
+            "distinct_scalar_values": 100,
+            "missing": 0,
+            "types": [
+              "str"
+            ]
+          }
+        },
+        "examples": [
+          {
+            "code_list": " CU AU AG ",
+            "dep_id": "10000001",
+            "dev_stat": "Occurrence",
+            "gid": 1,
+            "grade": "C",
+            "site_name": "Lookout Prospect",
+            "url": "https://mrdata.usgs.gov/mrds/show-mrds.php?dep_id=10000001"
+          },
+          {
+            "code_list": " CU AU ",
+            "dep_id": "10000002",
+            "dev_stat": "Occurrence",
+            "gid": 2,
+            "grade": "C",
+            "site_name": "Lucky Find Prospect",
+            "url": "https://mrdata.usgs.gov/mrds/show-mrds.php?dep_id=10000002"
+          },
+          {
+            "code_list": " CU ZN AU ",
+            "dep_id": "10000003",
+            "dev_stat": "Occurrence",
+            "gid": 3,
+            "grade": "C",
+            "site_name": "Mccullough Prospect",
+            "url": "https://mrdata.usgs.gov/mrds/show-mrds.php?dep_id=10000003"
+          }
+        ],
+        "fields": [
+          "code_list",
+          "dep_id",
+          "dev_stat",
+          "gid",
+          "grade",
+          "site_name",
+          "url"
+        ],
+        "representative": false,
+        "rows": 100
+      },
+      "sampling": {
+        "config": {
+          "criteria": "First 100 MRDS mineral-resource records, no geometry; historic inventory, not verified current mine activity.",
+          "disk_budget_bytes": 67108864,
+          "documentation": "https://energy.usgs.gov/arcgis/rest/services/MRData/Mineral_Resource_Data_System/MapServer",
+          "format": "json",
+          "max_download_bytes": 1048576,
+          "max_rows": 100,
+          "max_sample_bytes": 1048576,
+          "max_uncompressed_bytes": 1048576,
+          "records_path": [
+            "features"
+          ],
+          "representative": false,
+          "strategy": "download",
+          "timeout_seconds": 25,
+          "total_timeout_seconds": 90,
+          "unwrap_attributes": true,
+          "url": "https://energy.usgs.gov/arcgis/rest/services/MRData/Mineral_Resource_Data_System/MapServer/3/query?where=1%3D1&outFields=gid%2Cdep_id%2Csite_name%2Cdev_stat%2Ccode_list%2Curl%2Cgrade&returnGeometry=false&resultRecordCount=100&orderByFields=gid&f=json"
+        },
+        "content_type": "application/json; charset=UTF-8",
+        "etag": "W/\"ed2795d6\"",
+        "format": "jsonl",
+        "last_modified": null,
+        "method": "GET",
+        "original_bytes": 21108,
+        "original_complete": true,
+        "original_retained": false,
+        "original_sha256": "00ebf0c64290fdb897cf16bfe29f59590cf4110c08d31508ccfb4f9daa1e41cd",
+        "request_body": null,
+        "resolved_url": "https://energy.usgs.gov/arcgis/rest/services/MRData/Mineral_Resource_Data_System/MapServer/3/query?where=1%3D1&outFields=gid%2Cdep_id%2Csite_name%2Cdev_stat%2Ccode_list%2Curl%2Cgrade&returnGeometry=false&resultRecordCount=100&orderByFields=gid&f=json",
+        "retained_rows": 100,
+        "sampled": true,
+        "selection": "first matching records; not a random sample",
+        "stop_reason": "row_limit",
+        "url": "https://energy.usgs.gov/arcgis/rest/services/MRData/Mineral_Resource_Data_System/MapServer/3/query?where=1%3D1&outFields=gid%2Cdep_id%2Csite_name%2Cdev_stat%2Ccode_list%2Curl%2Cgrade&returnGeometry=false&resultRecordCount=100&orderByFields=gid&f=json"
+      }
+    },
+    {
+      "artifact": {
+        "artifact": "ea37d03c913b2a6b2cc021e2b05a4ab9f0ec711ee70d4eafa027de747f00740f",
+        "dataset": "world_graph"
+      },
+      "completed_at": "2026-09-15T10:18:02.227568+00:00",
+      "criteria": "First 100 records from an existing published version; never trigger upstream downloads or builds.",
+      "dataset": "world_graph",
+      "downloaded_bytes": 0,
+      "fields": [
+        "attributes",
+        "dimensions",
+        "entity_id",
+        "entity_type",
+        "evidence",
+        "id",
+        "kind",
+        "label",
+        "methodology",
+        "metric",
+        "observed_at",
+        "predicate",
+        "subject",
+        "unit",
+        "valid_from",
+        "valid_to",
+        "value"
+      ],
+      "manifest": "world_graph/samples/3c054ae18268b3a498494c84d287cdcf1e689a5b5ffda901a8c8e2cd84025e62/manifest.json",
+      "max_download_bytes": 1048576,
+      "max_rows": 100,
+      "max_sample_bytes": 1048576,
+      "retained_bytes": 3183,
+      "rows": 7,
+      "sample_id": "3c054ae18268b3a498494c84d287cdcf1e689a5b5ffda901a8c8e2cd84025e62",
+      "started_at": "2026-09-15T10:18:02.193894+00:00",
+      "status": "sampled",
+      "stop_reason": "source_exhausted",
+      "profile": {
+        "columns": {
+          "attributes": {
+            "distinct_scalar_values": 0,
+            "missing": 5,
+            "types": [
+              "NoneType",
+              "dict"
+            ]
+          },
+          "dimensions": {
+            "distinct_scalar_values": 0,
+            "missing": 4,
+            "types": [
+              "NoneType",
+              "dict"
+            ]
+          },
+          "entity_id": {
+            "distinct_scalar_values": 2,
+            "missing": 5,
+            "types": [
+              "NoneType",
+              "str"
+            ]
+          },
+          "entity_type": {
+            "distinct_scalar_values": 2,
+            "missing": 5,
+            "types": [
+              "NoneType",
+              "str"
+            ]
+          },
+          "evidence": {
+            "distinct_scalar_values": 0,
+            "missing": 0,
+            "types": [
+              "list"
+            ]
+          },
+          "id": {
+            "distinct_scalar_values": 7,
+            "missing": 0,
+            "types": [
+              "str"
+            ]
+          },
+          "kind": {
+            "distinct_scalar_values": 3,
+            "missing": 0,
+            "types": [
+              "str"
+            ]
+          },
+          "label": {
+            "distinct_scalar_values": 2,
+            "missing": 5,
+            "types": [
+              "NoneType",
+              "str"
+            ]
+          },
+          "methodology": {
+            "distinct_scalar_values": 1,
+            "missing": 5,
+            "types": [
+              "NoneType",
+              "str"
+            ]
+          },
+          "metric": {
+            "distinct_scalar_values": 2,
+            "missing": 4,
+            "types": [
+              "NoneType",
+              "str"
+            ]
+          },
+          "observed_at": {
+            "distinct_scalar_values": 4,
+            "missing": 0,
+            "types": [
+              "str"
+            ]
+          },
+          "predicate": {
+            "distinct_scalar_values": 1,
+            "missing": 5,
+            "types": [
+              "NoneType",
+              "str"
+            ]
+          },
+          "subject": {
+            "distinct_scalar_values": 1,
+            "missing": 5,
+            "types": [
+              "NoneType",
+              "str"
+            ]
+          },
+          "unit": {
+            "distinct_scalar_values": 2,
+            "missing": 4,
+            "types": [
+              "NoneType",
+              "str"
+            ]
+          },
+          "valid_from": {
+            "distinct_scalar_values": 1,
+            "missing": 2,
+            "types": [
+              "NoneType",
+              "str"
+            ]
+          },
+          "valid_to": {
+            "distinct_scalar_values": 1,
+            "missing": 2,
+            "types": [
+              "NoneType",
+              "str"
+            ]
+          },
+          "value": {
+            "distinct_scalar_values": 5,
+            "missing": 2,
+            "types": [
+              "NoneType",
+              "float",
+              "int"
+            ]
+          }
+        },
+        "examples": [
+          {
+            "entity_id": "org:acme",
+            "entity_type": "organization",
+            "evidence": [
+              {
+                "input": {
+                  "dataset": "demo_graph",
+                  "version": "801fbed3b6b1c73b468abb7c94c4ce318ad6e6d8c3fca72b2abddf0c6dfd7cf5"
+                },
+                "record_id": "org:acme"
+              }
+            ],
+            "id": "view:05f690465e70c379f58aba5adcfeeb7e6eda5a821b7d227f9a4b9fa5e2ef8a8c",
+            "kind": "entity",
+            "label": "Acme (fictional)",
+            "observed_at": "2024-01-01T00:00:00Z"
+          },
+          {
+            "entity_id": "asset:factory",
+            "entity_type": "facility",
+            "evidence": [
+              {
+                "input": {
+                  "dataset": "demo_graph",
+                  "version": "801fbed3b6b1c73b468abb7c94c4ce318ad6e6d8c3fca72b2abddf0c6dfd7cf5"
+                },
+                "record_id": "asset:factory"
+              }
+            ],
+            "id": "view:4cce9c5f4812874b713bb82a7a8679e9f31d51d3c81d2734f6b9f2b4c1a39a3d",
+            "kind": "entity",
+            "label": "Example factory (fictional)",
+            "observed_at": "2024-01-01T00:00:00Z"
+          },
+          {
+            "attributes": {
+              "asset": "asset:factory"
+            },
+            "evidence": [
+              {
+                "input": {
+                  "dataset": "demo_graph",
+                  "version": "801fbed3b6b1c73b468abb7c94c4ce318ad6e6d8c3fca72b2abddf0c6dfd7cf5"
+                },
+                "record_id": "claim:ownership-a"
+              }
+            ],
+            "id": "view:a9f2815b9221abb6cb57e22473514987c608377b83880fb21bdc316a4cff362b",
+            "kind": "assertion",
+            "observed_at": "2024-02-01T00:00:00Z",
+            "predicate": "ownership_fraction",
+            "subject": "org:acme",
+            "valid_from": "2024-01-01",
+            "valid_to": "2025-01-01",
+            "value": 0.6
+          }
+        ],
+        "fields": [
+          "attributes",
+          "dimensions",
+          "entity_id",
+          "entity_type",
+          "evidence",
+          "id",
+          "kind",
+          "label",
+          "methodology",
+          "metric",
+          "observed_at",
+          "predicate",
+          "subject",
+          "unit",
+          "valid_from",
+          "valid_to",
+          "value"
+        ],
+        "representative": false,
+        "rows": 7
+      },
+      "sampling": {
+        "config": {
+          "criteria": "First 100 records from an existing published version; never trigger upstream downloads or builds.",
+          "disk_budget_bytes": 67108864,
+          "format": "jsonl",
+          "max_download_bytes": 1048576,
+          "max_rows": 100,
+          "max_sample_bytes": 1048576,
+          "max_uncompressed_bytes": 1048576,
+          "records_path": [],
+          "representative": false,
+          "strategy": "derived",
+          "timeout_seconds": 25,
+          "total_timeout_seconds": 90
+        },
+        "format": "jsonl",
+        "input_version": {
+          "dataset": "world_graph",
+          "version": "4b04229d2c8f5580516bdec440be5dc736f308f2e49d554fea7304ee1e44ed6b"
+        },
+        "original_bytes": 3183,
+        "original_complete": true,
+        "original_retained": false,
+        "original_sha256": "bb3c8d26cadd5fb249276d515b12f6e7970b085ce6c892e40b79a42a54768afb",
+        "retained_rows": 7,
+        "sampled": true,
+        "selection": "first matching records; not a random sample",
+        "stop_reason": "source_exhausted"
+      }
+    }
+  ]
+}

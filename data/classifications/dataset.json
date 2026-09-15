@@ -1,0 +1,46 @@
+{
+  "id": "classifications",
+  "schema_version": 1,
+  "dependencies": [],
+  "kind": "source",
+  "status": "sample_adapter_ready",
+  "description": "NAICS, NAPCS, SIC and industry/commodity crosswalks",
+  "source": {
+    "publisher": "Census / BEA",
+    "license_status": "verify_for_selected_release"
+  },
+  "expected_outputs": [
+    "industry",
+    "product",
+    "maps_to"
+  ],
+  "setup": "Namespace identifiers by classification and revision; keep many-to-many mappings and mapping methodology.",
+  "entrypoint": "worldmodel.normalizers:normalize_sample",
+  "parameters": {},
+  "sampling": {
+    "strategy": "download",
+    "max_rows": 100,
+    "max_sample_bytes": 1048576,
+    "max_download_bytes": 65011712,
+    "max_uncompressed_bytes": 1048576,
+    "disk_budget_bytes": 67108864,
+    "timeout_seconds": 25,
+    "total_timeout_seconds": 90,
+    "format": "xlsx",
+    "records_path": [],
+    "representative": false,
+    "url": "https://www.census.gov/naics/2022NAICS/6-digit_2022_Codes.xlsx",
+    "criteria": "First 100 valid six-digit NAICS 2022 code/title rows; skip blank workbook formatting rows.",
+    "documentation": "https://www.census.gov/naics/",
+    "required_pattern": {
+      "2022 NAICS Code": "[0-9]{6}"
+    }
+  },
+  "normalization": {
+    "adapter_version": 1,
+    "input_format": "sampled_jsonl",
+    "raw_fields": "preserved in attributes.source_row",
+    "entity_identity": "source IDs, canonical geography, explicitly labeled unresolved references and aggregate cohorts",
+    "coverage": "acquired sample only"
+  }
+}

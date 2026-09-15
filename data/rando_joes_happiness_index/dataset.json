@@ -1,0 +1,30 @@
+{
+  "id": "rando_joes_happiness_index",
+  "schema_version": 1,
+  "dependencies": [
+    "demo_countries"
+  ],
+  "kind": "derived",
+  "status": "offline_example",
+  "description": "Illustrative computed dataset with country-level record lineage. Not a validated index.",
+  "entrypoint": "worldmodel.transforms:happiness",
+  "parameters": {
+    "input_dataset": "demo_countries",
+    "income_weight": 0.5,
+    "income_scale": 100000
+  },
+  "sampling": {
+    "strategy": "derived",
+    "max_rows": 100,
+    "max_sample_bytes": 1048576,
+    "max_download_bytes": 1048576,
+    "max_uncompressed_bytes": 1048576,
+    "disk_budget_bytes": 67108864,
+    "timeout_seconds": 25,
+    "total_timeout_seconds": 90,
+    "format": "jsonl",
+    "records_path": [],
+    "representative": false,
+    "criteria": "First 100 records from an existing published version; never trigger upstream downloads or builds."
+  }
+}

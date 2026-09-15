@@ -1,0 +1,41 @@
+{
+  "id": "nasdaq_index_reference",
+  "schema_version": 1,
+  "dependencies": [],
+  "kind": "source",
+  "status": "blocked",
+  "description": "Nasdaq-100 index documentation and constituent acquisition availability.",
+  "source": {
+    "publisher": "Nasdaq",
+    "license_status": "see_publisher_terms"
+  },
+  "entrypoint": "worldmodel.market_sources:normalize",
+  "parameters": {},
+  "sampling": {
+    "strategy": "blocked",
+    "max_rows": 100,
+    "max_sample_bytes": 1048576,
+    "max_download_bytes": 65011712,
+    "max_uncompressed_bytes": 65011712,
+    "disk_budget_bytes": 67108864,
+    "timeout_seconds": 25,
+    "total_timeout_seconds": 90,
+    "format": "json",
+    "representative": false,
+    "reason": "Official NDX reference page verified; no machine-readable bounded constituent endpoint configured. GIW automated weights/components require source access and entitlement verification; no membership acquired.",
+    "documentation": "https://indexes.nasdaqomx.com/Index/Overview/NDX",
+    "criteria": "Documentation-only availability declaration; neither index membership nor index prices acquired."
+  },
+  "coverage": {
+    "representative": false,
+    "completeness": "unknown",
+    "scope": "Nasdaq-100 index documentation and constituent acquisition availability."
+  },
+  "documentation_verified_on": "2026-09-15",
+  "reference": {
+    "index_symbol": "NDX",
+    "name": "NASDAQ-100",
+    "provider": "Nasdaq",
+    "identity_basis": "publisher overview page only; not normalized constituent evidence"
+  }
+}

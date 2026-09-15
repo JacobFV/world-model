@@ -1,0 +1,50 @@
+{
+  "id": "bea_input_output",
+  "schema_version": 1,
+  "dependencies": [],
+  "kind": "source",
+  "status": "sample_unavailable",
+  "description": "Supply-use and input-output accounts",
+  "source": {
+    "publisher": "BEA",
+    "license_status": "verify_for_selected_release"
+  },
+  "expected_outputs": [
+    "industry",
+    "commodity",
+    "consumes",
+    "produces"
+  ],
+  "setup": "Pin table vintage, valuation basis, industry crosswalks and units; coefficients are aggregate constraints.",
+  "entrypoint": "worldmodel.normalizers:normalize_sample",
+  "parameters": {},
+  "sampling": {
+    "strategy": "download",
+    "max_rows": 100,
+    "max_sample_bytes": 1048576,
+    "max_download_bytes": 1048576,
+    "max_uncompressed_bytes": 1048576,
+    "disk_budget_bytes": 67108864,
+    "timeout_seconds": 25,
+    "total_timeout_seconds": 90,
+    "format": "bea_json",
+    "records_path": [
+      "BEAAPI",
+      "Results",
+      "Data"
+    ],
+    "representative": false,
+    "url": "https://apps.bea.gov/api/data/?method=GetData&datasetname=InputOutput&TableID=259&Year=2023&ResultFormat=JSON",
+    "api_key_env": "BEA_API_KEY",
+    "api_key_parameter": "UserID",
+    "criteria": "BEA InputOutput table 259, year 2023; retain first 100 cells if complete response fits 1 MiB.",
+    "documentation": "https://apps.bea.gov/api/signup/"
+  },
+  "normalization": {
+    "adapter_version": 1,
+    "input_format": "sampled_jsonl",
+    "raw_fields": "preserved in attributes.source_row",
+    "entity_identity": "source IDs, canonical geography, explicitly labeled unresolved references and aggregate cohorts",
+    "coverage": "no acquired sample; adapter unavailable"
+  }
+}
