@@ -20,7 +20,8 @@ only reachable nodes are selected. Without seeds, IDs are sorted. Missing
 and excluded endpoints are explicitly reported; positions are abstract.
 Hard bounds: 100,000 input rows, 20,000 characters per displayed field, and
 8 MB final HTML. Oversized fields/documents are rejected, never silently clipped.
-All labels, values and provenance are escaped, with no scripts or remote assets.
+All labels, values and provenance are escaped. Static mode has no scripts;
+interactive=True adds local DOM controls with no remote assets.
 """
 
 from datetime import datetime, timezone
@@ -303,6 +304,8 @@ def render_surface(data, spec):
             raise ValueError(f'{field} must be a list of at most {_MAX_ROWS} objects')
     if sum(len(data.get(f, [])) for f in ('snapshots', 'records')) > _MAX_ROWS:
         raise ValueError('surface input exceeds row bound')
+    if 'interactive' in spec and type(spec['interactive']) is not bool:
+        raise ValueError('interactive must be boolean')
     panels = spec.get('panels')
     if not isinstance(panels, list) or len(panels) > 16:
         raise ValueError('panels must be a list of at most 16 panels')
@@ -328,6 +331,9 @@ def render_surface(data, spec):
             raise ValueError('unknown surface panel kind')
         sections.append('<section><h2>' + _text(panel.get('title', kind.title())) + '</h2>' + content + '</section>')
     html = '<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>' + title + '</title><style>body{font:15px system-ui;margin:24px;color:#172033;background:#f8fafc}main{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,600px),1fr));gap:20px}section{background:white;border:1px solid #cbd5e1;border-radius:12px;padding:22px;min-width:0;overflow:auto}h2{margin-top:0}.table-scroll{overflow-x:auto}table{border-collapse:collapse;width:100%;min-width:650px;font-size:12px}td,th{border:1px solid #e2e8f0;padding:9px;text-align:left;vertical-align:top;min-width:70px;overflow-wrap:break-word}th{white-space:nowrap;background:#f1f5f9}td:last-child{min-width:100px}svg{width:100%;min-width:380px}text{font:12px system-ui}details{margin:10px 0;max-width:100%}summary{cursor:pointer;color:#2563eb;font-weight:600}pre{white-space:pre-wrap;overflow-wrap:anywhere;max-width:65ch;font:12px/1.6 ui-monospace,monospace;background:#f8fafc;padding:12px}li{overflow-wrap:anywhere;margin:8px 0}.scalar{font-size:48px;font-weight:650;line-height:1.2;overflow-wrap:anywhere;margin:20px 0 12px}.scalar-unit{font-size:20px;color:#64748b;font-weight:400;margin-left:12px}.value-context{line-height:1.8;color:#475569}.selection-note{font-size:12px;color:#64748b}</style></head><body><h1>' + title + '</h1><main>' + ''.join(sections) + '</main></body></html>'
+    if spec.get('interactive'):
+        from .interactive_surfaces import enhance
+        html = enhance(html, data, spec)
     if len(html.encode('utf-8')) > 8_000_000:
         raise ValueError('surface output exceeds 8 MB bound')
     return html

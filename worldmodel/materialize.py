@@ -342,13 +342,13 @@ def materialize(store, graph_ref, request, registry=None, agent_backend=None):
                           if isinstance(value, tuple) else deepcopy(value)
                           for port, value in binding['inputs_resolved'].items()}
                 memory = deepcopy(memories.get(binding['entity_id'], {}))
+                pending_cost = sum(b['implementation']['cost_per_call'] for b, *_ in pending_predictions)
                 context = {'dt_seconds': min(binding['cadence_seconds'], duration-elapsed),
                            'time': (start+timedelta(seconds=elapsed)).isoformat(), 'rng': rngs[name],
                            'state': {port: deepcopy(state[key]['value'])
                                      for port,key in binding['outputs_resolved'].items()},
                            'entity_id': binding['entity_id'], 'memory': memory, 'agent_backend': agent_backend,
-                           'budget': request['budget'], 'remaining_budget': request['budget']-cost}
-                pending_cost = sum(b['implementation']['cost_per_call'] for b, *_ in pending_predictions)
+                           'budget': request['budget'], 'remaining_budget': request['budget']-cost-pending_cost}
                 if calls + len(pending_predictions) + 1 > request['max_calls'] or cost + pending_cost + binding['implementation']['cost_per_call'] > request['budget']:
                     raise ValueError('Materialization runtime budget exceeded before handler call')
                 prediction = registry.predict(binding['implementation']['id'], inputs,
@@ -360,7 +360,7 @@ def materialize(store, graph_ref, request, registry=None, agent_backend=None):
                 held[name] = prediction['pressures']
                 if binding['implementation']['fidelity'] == 'agent':
                     memories[binding['entity_id']] = deepcopy(prediction.get('memory', memory))
-                next_due[name] = round(elapsed + binding['cadence_seconds'], 6)
+                next_due[name] = round(min(duration, elapsed + binding['cadence_seconds']), 6)
                 calls += 1
                 cost += binding['implementation']['cost_per_call']
                 traces.append({'time': (start+timedelta(seconds=elapsed)).isoformat(),
@@ -448,6 +448,8 @@ def _publish(store, result, code, registry):
                         'code': code, 'registry': registry, 'backend_identity': result['backend_identity'],
                         'outputs': {name: {'sha256': file_hash(staging/name), 'bytes': (staging/name).stat().st_size}
                                     for name in ('view.json', 'records.jsonl')}}
+            from .rights import inherited_rights
+            identity['rights'] = inherited_rights(store, [result['graph']], [])
             version = digest(identity)
             ref = {'dataset': dataset, 'version': version}
             atomic_json(staging/'manifest.json', {**identity, 'version': version})

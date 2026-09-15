@@ -5,6 +5,7 @@ History contains routed input values. Evaluators must replay deterministically o
 own equivalent transactional state; the built-in adapter uses bounded replay.
 """
 from copy import deepcopy
+from contextlib import nullcontext
 from datetime import timedelta
 import math
 from .util import canonical
@@ -103,9 +104,10 @@ class Environment:
     def reset(self,seed=0):
         if type(seed) is not int:raise ValueError('Seed must be integer')
         self._evaluations=0
-        result=self._call([],seed);observation=self._outputs(result)
-        self._reward(result,result) # Validate reward selectors even before a transition.
-        done=self._terminated(result)
+        with self.evaluate.transaction() if hasattr(self.evaluate,'transaction') else nullcontext():
+            result=self._call([],seed);observation=self._outputs(result)
+            self._reward(result,result) # Validate reward selectors even before a transition.
+            done=self._terminated(result)
         self._history=[];self._seed=seed;self._result=deepcopy(result);self._done=done or self._evaluations>=self.spec['max_evaluations']
         return observation,{'step':0,'terminated':done,'truncated':self._evaluations>=self.spec['max_evaluations'],'reward_unit':'normalized_score'}
 
@@ -125,12 +127,13 @@ class Environment:
             inputs.append({'binding':descriptor['binding'],'port':descriptor['port'],'value':value,'unit':descriptor['unit']})
         history=self._history+[{'inputs':inputs}]
         try:
-            result=self._call(history,self._seed)
+            with self.evaluate.transaction() if hasattr(self.evaluate,'transaction') else nullcontext():
+                result=self._call(history,self._seed)
+                observation=self._outputs(result);reward=self._reward(self._result,result)
+                terminated=self._terminated(result)
         except BudgetExceeded as error:
             self._done=True
             return self._outputs(self._result),0.0,False,True,{'step':len(self._history),'reward_unit':'normalized_score','truncation_reason':str(error)}
-        observation=self._outputs(result);reward=self._reward(self._result,result)
-        terminated=self._terminated(result)
         truncated=len(history)>=self.spec['max_steps'] or self._evaluations>=self.spec['max_evaluations']
         self._history=history;self._result=deepcopy(result);self._done=terminated or truncated
         return observation,reward,terminated,truncated,{'step':len(history),'reward_unit':'normalized_score'}
@@ -187,3 +190,7 @@ backends are unsupported because replay would repeat their side effects/costs.
         if self.total_calls+calls>self.max_total_calls:raise BudgetExceeded('Cumulative environment replay call budget exceeded')
         self.total_calls+=calls
         return materialize(self.store,self.graph_ref,request,registry=registry)
+
+
+# Stateful alternative; TemporalEvaluator remains the replay reference.
+from .checkpoints import CheckpointEvaluator

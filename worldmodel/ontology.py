@@ -69,11 +69,12 @@ from .banking import schema as _banking_schema
 from .fields import schema as _field_schema
 from .actor_kernels import schema as _actor_schema
 from .institutional_schema import schema as _institutional_schema
+from .coupled_economy import schema as _coupled_schema
 from .exposure import schema as _exposure_schema
 from .identity import schema as _identity_schema
 from .market_sources import schema as _market_schema
 from .people_sources import schema as _people_schema
-for _extension in (_exposure_schema(), _identity_schema(), _market_schema(), _people_schema(), _source_schema(), _banking_schema(), _field_schema(), _actor_schema(), _institutional_schema()):
+for _extension in (_coupled_schema(), _exposure_schema(), _identity_schema(), _market_schema(), _people_schema(), _source_schema(), _banking_schema(), _field_schema(), _actor_schema(), _institutional_schema()):
     for _name, _descriptor in _extension['entity_types'].items():
         if _name in PARENTS and PARENTS[_name] != _descriptor['parent']:
             raise ValueError('Conflicting entity hierarchy: ' + _name)

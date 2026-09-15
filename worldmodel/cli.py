@@ -9,6 +9,7 @@ from .fetch import fetch
 from .graph import Graph
 from .pipeline import Runner
 from .store import Store
+from .resources import resource_roots
 from .util import atomic_json, slug, read_json
 
 PROJECT = Path(__file__).resolve().parents[1]
@@ -22,9 +23,11 @@ def reference(value, store):
 
 
 def parser():
+    from .resources import resource_roots
+    roots = resource_roots()
     p = argparse.ArgumentParser(prog='wm', description='Versioned evidence datasets and temporal graph')
-    p.add_argument('--data-root', type=Path, default=Path(os.environ.get('WORLD_MODEL_DATA', PROJECT / 'data')))
-    p.add_argument('--catalog-root', type=Path, default=PROJECT / 'data')
+    p.add_argument('--data-root', type=Path, default=roots['data'])
+    p.add_argument('--catalog-root', type=Path, default=roots['catalog'])
     sub = p.add_subparsers(dest='command', required=True)
     from .strategic_cli import add_commands
     add_commands(sub)
@@ -32,6 +35,8 @@ def parser():
     add_reference(sub)
     from .environment_cli import add_commands as add_environment
     add_environment(sub)
+    from .advanced_cli import add_commands as add_advanced
+    add_advanced(sub)
     sub.add_parser('catalog', help='List declarations and readiness')
     sub.add_parser('ontology', help='Describe typed entities, relations and variables')
     sub.add_parser('processes', help='Describe process contracts and registered implementations')
@@ -111,6 +116,9 @@ def execute(args):
     from .environment_cli import COMMANDS as ENV_COMMANDS, execute as environment_execute
     if command in ENV_COMMANDS:
         return environment_execute(args, catalog, store, PROJECT, reference)
+    from .advanced_cli import COMMANDS as ADVANCED_COMMANDS, execute as advanced_execute
+    if command in ADVANCED_COMMANDS:
+        return advanced_execute(args, catalog, store, PROJECT, reference)
     if command == 'ontology':
         from .ontology import describe
         return describe()
@@ -214,7 +222,7 @@ def execute(args):
     graph = Graph(getattr(args, 'index', None) or default_index)
     if command == 'demo':
         for dataset, filename in [('demo_countries', 'countries.csv'), ('demo_graph', 'graph.jsonl')]:
-            store.import_file(dataset, PROJECT / 'tests/fixtures' / filename,
+            store.import_file(dataset, resource_roots()['fixtures'] / filename,
                               catalog.get(dataset)['source'])
         ref = runner.run('world_graph')
         return {'output': ref, 'graph': graph.build(store, [ref]), 'fictional_data': True}

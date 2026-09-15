@@ -219,6 +219,8 @@ class ProcessRegistry:
                 raise ValueError('Unknown pressure output port')
             port = process['outputs'][p['port']]
             _pressure(p, port['type'])
+            if impl.get('output_timing') == 'end_of_step' and p['mode'] != 'set':
+                raise ValueError('end_of_step implementations may emit only set pressures')
             if p['unit'] != port.get('unit'):
                 raise ValueError(f'Output unit mismatch: {p["port"]}')
             state = context.get('state', {})

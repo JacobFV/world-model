@@ -1,0 +1,209 @@
+{
+  "description": "Fictional commercial-bank production economy with daily policy actions. Inventory reward uses explicit nested units (goods units); outer object has unit null. No empirical calibration.",
+  "materialization": {
+    "dataset": "coupled_economy_view",
+    "start": "2024-01-01",
+    "end": "2024-01-04",
+    "known_at": "2026-09-16",
+    "mode": "forecast",
+    "step_seconds": 86400,
+    "budget": 100,
+    "targets": [
+      {
+        "entity": "scenario:economy",
+        "variable": "economy_state"
+      }
+    ],
+    "initial_state": [
+      {
+        "entity": "scenario:economy",
+        "variable": "economy_state",
+        "value": {
+          "banks": [
+            {
+              "id": "a",
+              "reserves": 100.0,
+              "equity": 100.0,
+              "loans": {},
+              "accounts": {
+                "firm": 0.0
+              },
+              "status": "solvent"
+            },
+            {
+              "id": "b",
+              "reserves": 100.0,
+              "equity": 50.0,
+              "loans": {},
+              "accounts": {
+                "worker": 50.0
+              },
+              "status": "solvent"
+            }
+          ],
+          "firms": [
+            {
+              "id": "firm",
+              "bank": "a",
+              "worker": "worker",
+              "inventory": 0,
+              "capacity": 10,
+              "unit_cost": 5,
+              "status": "active"
+            }
+          ],
+          "households": [
+            {
+              "id": "worker",
+              "bank": "b"
+            }
+          ],
+          "step": 0,
+          "history": [],
+          "initial_reserves": 200.0
+        },
+        "unit": null,
+        "type": "object"
+      }
+    ],
+    "bindings": [
+      {
+        "id": "economy",
+        "process_id": "coupled_economy",
+        "inputs": {
+          "economy_state": {
+            "entity": "scenario:economy",
+            "variable": "economy_state"
+          },
+          "economy_policy": {
+            "value": {
+              "firms": {
+                "firm": {
+                  "production": 4,
+                  "price": 10,
+                  "credit_limit": 50
+                }
+              },
+              "households": {
+                "worker": {
+                  "purchases": {
+                    "firm": 3
+                  }
+                }
+              }
+            },
+            "unit": null
+          }
+        },
+        "outputs": {
+          "economy_state": {
+            "entity": "scenario:economy",
+            "variable": "economy_state"
+          }
+        }
+      }
+    ]
+  },
+  "step_seconds": 86400,
+  "seed": 17,
+  "max_total_calls": 20,
+  "environment": {
+    "actions": {
+      "policy": {
+        "binding": "economy",
+        "port": "economy_policy",
+        "type": "object",
+        "unit": null
+      }
+    },
+    "observations": {
+      "inventory": {
+        "entity": "scenario:economy",
+        "variable": "economy_state",
+        "unit": null,
+        "path": [
+          "firms",
+          0,
+          "inventory"
+        ]
+      }
+    },
+    "reward": {
+      "terms": [
+        {
+          "selector": {
+            "entity": "scenario:economy",
+            "variable": "economy_state",
+            "unit": null,
+            "path": [
+              "firms",
+              0,
+              "inventory"
+            ]
+          },
+          "mode": "delta",
+          "weight": 1,
+          "scale": 1
+        }
+      ]
+    },
+    "max_steps": 3
+  },
+  "actions": [
+    {
+      "policy": {
+        "firms": {
+          "firm": {
+            "production": 4,
+            "price": 10,
+            "credit_limit": 50
+          }
+        },
+        "households": {
+          "worker": {
+            "purchases": {
+              "firm": 3
+            }
+          }
+        }
+      }
+    },
+    {
+      "policy": {
+        "firms": {
+          "firm": {
+            "production": 2,
+            "price": 10,
+            "credit_limit": 50,
+            "repay": 10
+          }
+        },
+        "households": {
+          "worker": {
+            "purchases": {
+              "firm": 2
+            }
+          }
+        }
+      }
+    },
+    {
+      "policy": {
+        "firms": {
+          "firm": {
+            "production": 0,
+            "price": 10,
+            "credit_limit": 50
+          }
+        },
+        "households": {
+          "worker": {
+            "purchases": {
+              "firm": 2
+            }
+          }
+        }
+      }
+    }
+  ]
+}

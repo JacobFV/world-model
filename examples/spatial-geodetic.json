@@ -1,0 +1,20 @@
+{
+  "description": "Synthetic degree-coordinate supports; velocity vectors are stored and lifecycle-conserved componentwise, without a vector diffusion or atmospheric solver.",
+  "coordinate_system": {"kind": "geodetic", "axes": ["latitude", "longitude"], "unit": "degree"},
+  "world": {
+    "description": "Synthetic point supports at the equator and one degree north. Measures are explicit assumptions, not inferred from positions.",
+    "measure_unit": "km2",
+    "cells": [
+      {"id": "cell:equator", "measure": 1, "coordinates": [0, 0]},
+      {"id": "cell:north", "measure": 1, "coordinates": [1, 0]}
+    ],
+    "edges": [{"id": "edge:north", "source": "cell:equator", "target": "cell:north"}],
+    "fields": {
+      "mass": {"kind": "extensive", "unit": "kg", "values": {"cell:equator": 10, "cell:north": 5}},
+      "signed_signal": {"kind": "intensive", "unit": "signal_unit", "values": {"cell:equator": -2, "cell:north": 4}},
+      "velocity": {"kind": "intensive", "value_type": "vector", "unit": "m/s", "values": {"cell:equator": [-2, 4], "cell:north": [1, -2]}}
+    }
+  },
+  "distance": {"source": "cell:equator", "target": "cell:north"},
+  "selection": {"cells": ["cell:equator", "cell:north"], "fields": ["mass"]}
+}

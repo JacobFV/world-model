@@ -145,3 +145,39 @@ class SurfaceTests(unittest.TestCase):
         for seeds in ('e:z', ['e:missing'], ['e:z', 'e:y', 'e:x']):
             with self.assertRaises(ValueError):
                 render_surface({'records': records}, {'panels': [{'kind': 'graph', 'seeds': seeds, 'limit': 2}]})
+
+class InteractiveSurfaceTests(unittest.TestCase):
+    def test_interactive_controls_safe_payload_and_static_default(self):
+        import json
+        import re
+        data={'snapshots':[dict(time=t,entity='actor:a',variable='stock',value=t,unit='unit',
+            origin='forecast',evidence=['</script><img src=x onerror=alert(1)>\u2028']) for t in range(3)]}
+        spec={'interactive':True,'panels':[{'kind':'table'},{'kind':'plot','entity':'actor:a','variable':'stock'}]}
+        original=copy.deepcopy((data,spec))
+        html=render_surface(data,spec)
+        self.assertIn('id="surface-controls"',html)
+        self.assertIn('id="surface-time"',html)
+        self.assertIn('Export view specification',html)
+        self.assertIn('Move earlier',html)
+        payload=re.search(r'<script id="surface-data" type="application/json">(.*?)</script>',html,re.S).group(1)
+        parsed=json.loads(payload)
+        self.assertEqual(parsed['panels'][0]['rows'][0]['evidence'],data['snapshots'][0]['evidence'])
+        self.assertNotIn('<',payload);self.assertNotIn('\u2028',payload)
+        self.assertNotIn('innerHTML',html);self.assertNotIn('eval(',html)
+        self.assertNotIn('<img src=x',html)
+        self.assertEqual((data,spec),original)
+        self.assertNotIn('<script',render_surface(data,{'panels':[{'kind':'table'}]}))
+
+    def test_interactive_validation_and_metadata_for_map_graph(self):
+        data=SurfaceTests().coordinates()
+        data['records']=[{'kind':'entity','id':'geo:a','label':'A','evidence':['record:1']}]
+        html=render_surface(data,{'interactive':True,'panels':[{'kind':'map'},{'kind':'graph'}]})
+        for text in ('raw:1','record:1','Linked entity','Source details','Static supplied topology'):
+            self.assertIn(text,html)
+        with self.assertRaisesRegex(ValueError,'interactive'):
+            render_surface(data,{'interactive':'yes','panels':[]})
+
+    def test_interactive_graph_accepts_explicit_entity_id_without_record_id(self):
+        html=render_surface({'records':[{'kind':'entity','entity_id':'entity:a','label':'A'}]},
+                            {'interactive':True,'panels':[{'kind':'graph'}]})
+        self.assertIn('entity:a',html)

@@ -1,66 +1,109 @@
-# Remaining concerns
+# Implemented mitigations and remaining concerns
 
-This repository is an experimental evidence and simulation substrate. Passing tests
-establish implemented behavior; they do not establish world coverage or predictive validity.
+This repository is an experimental evidence and simulation substrate. Implementation
+checks establish software behavior, not complete world coverage or predictive validity.
+The concerns below distinguish working mechanisms from unresolved empirical and
+operational requirements.
 
-## Highest-priority implementation work
+## Temporal execution and environments
 
-1. **Couple economic mechanisms.** The behavioral economy uses a cash-funded lender;
-   commercial-bank deposit creation runs in a separate accounting kernel. Production,
-   contracting, credit decisions and settlement need one consistent transaction path.
-   Its replay-derived economy state also needs explicit dynamic policy inputs before
-   it can support closed-loop economic policy training.
-2. **Replace episode replay with checkpoints.** Current temporal environments replay
-   each prefix. Calls grow quadratically with episode length, and process step sizes
-   must align. Add transactional checkpoints for graph state, RNG, memory and schedule.
-   Live LLM kernels are deliberately unsupported by this replay adapter.
-3. **Add RL integration and evaluation.** The environment exposes reset/step tuples;
-   Gymnasium spaces/wrappers, vectorization, training algorithms and policy evaluation
-   are absent. Output selection does not implement noisy sensors, reporting delays,
-   permissions or an actor's beliefs. Define these explicitly for first-person tasks.
-4. **Complete evolving topology.** Lifecycle reconstruction and eligibility checks work,
-   but births, deaths and mergers do not automatically mutate arbitrary coupled runs.
-   Field supports remain finite and in memory; distributed storage, adaptive meshes,
-   vector fields and geodetic geometry are not implemented.
+**Implemented:** `CheckpointEvaluator` persists state, RNG streams, agent memory,
+literal inputs, held pressures and next-due times. The environment CLI defaults to
+this incremental evaluator; `--backend replay` retains the reference implementation.
+Numerical and output-validation failures roll back the transition. Trusted JSON
+checkpoints bind graph, request, registry and source identity and validate scheduler
+and pressure contracts on restore. Nonaligned observations preserve process cadence;
+end-of-step implementations emit discrete `set` pressures only.
 
-## Evidence and validation
+**Remaining:** cumulative snapshots, traces and transaction state still occupy memory
+and are copied. Checkpoint checksums are not authentication. Live backend effects
+cannot roll back: attempts are audited, a failed live transition blocks further
+steps, and live-backend restore is rejected. Exactly-once external execution across
+processes, global quota enforcement and a distributed scheduler are not implemented.
 
-5. **Acquire missing economic structure.** Samples are bounded and nonrepresentative.
-   Real bilateral obligations, complete ownership, supplier dependencies, adjusted
-   security prices, corporate actions and index constituents remain missing. SEC sources
-   need a real contact header; some feeds require access arrangements. Roads are local
-   subsets, and airport references are not flights or passenger movements.
-6. **Validate mechanisms independently.** Government/actor kernels are illustrative;
-   there is no integrated, calibrated geopolitical simulator. A prior descriptive WTI
-   holdout did not beat persistence. Sensitivity analysis, out-of-time evaluation,
-   accounting reconciliation and external benchmarks must precede claims about strategic
-   prediction. A policy can optimize a misspecified simulator.
-7. **Improve temporal identity and reconciliation.** Undated ticker assignments report
-   uncertainty, and explicit equivalence avoids name-based merging. Coverage remains
-   sparse; richer dated crosswalks, instrument continuity and explicit reconciliation
-   of conflicting sources are still needed. Entity counts include source-scoped IDs.
+## Coupled economic mechanisms
 
-## Distribution and usability
+**Implemented:** `coupled_economy` connects firms and households to one commercial-bank
+ledger. Explicit step policies control lending, production, purchases, repayment and
+bankruptcy. Transfers settle through deposits and bank reserves; each committed step
+checks accounting. Conservative cumulative transaction, posting and ledger-work budgets
+reject oversized scenarios before transfers. The process registry exposes state feedback and a separate dynamic
+policy input, so the checkpoint environment can change policy without rewriting prior
+steps. The older cash-funded and replay economy kernels remain separate examples.
 
-8. **Use a source checkout.** The CLI finds dataset definitions, fixtures and code for
-   provenance relative to the source tree. The current wheel configuration packages
-   Python modules only; a standalone installed wheel does not provide the full catalog
-   workflow. Package resources/configuration need an explicit distribution design.
-9. **Keep local artifacts distinct from repository contents.** Downloaded data, runtime
-   versions and generated source-backed dashboards are excluded from Git. Committed
-   verification reports describe prior local runs; their artifact hashes are not
-   downloadable releases. A fresh clone can run tests and the fictional demo offline;
-   real-evidence commands need acquisition/normalization first. Six integration tests
-   explicitly skip without the acquired samples; fixture-based coverage should expand.
-10. **Resolve licensing before redistribution.** There is no project license selected
-    yet. Public visibility alone does not grant general reuse rights. Dataset-specific
-    terms are separate; source configs record known publishers and access/terms status.
-    A GitHub source release does not grant rights to redistribute acquired datasets.
-11. **Extend visual interaction.** Current HTML surfaces are static and bounded. Maps
-    display explicit coordinates without terrain/basemaps; large graphs truncate with
-    counts. Interactive layers, linked selection, animation and richer diagram editing
-    remain future work.
+**Remaining:** this is a closed synthetic economy, not reconstructed business accounts.
+Labor limits, price discovery, interest, collateral recovery, inventory valuation,
+central-bank responses and empirical behavioral calibration remain absent or outside
+this kernel's scope. Accounting consistency does not establish realistic incentives,
+market equilibrium or a useful real-world policy.
+
+## Spatial state and lifecycle
+
+**Implemented:** `SpatialStore` persists explicit supports, topology and field values
+in SQLite. Bounded selections and lifecycle batches support birth, death, merge and
+split, with atomic transactions, conservation checks and explicit external inputs.
+Cartesian and latitude/longitude axis conventions are declared. Signed scalar and
+vector values can be stored and conserved componentwise.
+
+**Remaining:** numerical evolution delegates bounded nonnegative scalar selections to
+`FieldWorld`. This is not a distributed field solver, adaptive mesh, geodetic PDE
+solver or general vector-field dynamics engine. Coordinates locate supports; they do
+not infer polygons, terrain or missing topology. Explicit coordinate pairs support
+spherical geodetic distance; this is not road or navigable-water distance. Boundary cuts require
+explicit handling. Spatial lifecycle edits do not automatically mutate every arbitrary
+coupled temporal model.
+
+## RL and first-person observations
+
+**Implemented:** explicit scalar space declarations, an optional Gymnasium adapter,
+synchronous vector environments, and bounded tabular Q-learning with disjoint training
+and evaluation seeds and a fixed-action baseline. The perception wrapper implements
+allowlists, masks, reporting delays, seeded numeric noise and bounded delivered-observation
+memory. The toy benchmark is an offline integration example.
+
+**Remaining:** the vector adapter is local and sequential. A partial batch failure
+requires reset, not distributed rollback. The numerical Gym adapter supports explicitly
+bounded scalar observations and continuous scalar actions, not arbitrary nested ports.
+Perception is an interface contract, not a security sandbox or inferred human beliefs.
+Toy rewards and held-out seeds do not validate strategic behavior outside the simulator.
+
+## Evidence, identity and validity
+
+**Implemented:** bounded source acquisition and access inventories, evidence-preserving
+identity references, dated reconciliation policies with retained candidates and audit,
+unit- and dimension-aware claim selection, bounded sensitivity sweeps, holdout gates, accounting checks and explicit model-assessment gates.
+These mechanisms expose uncertainty; they do not remove it.
+
+**Remaining:** real bilateral obligations, complete ownership, supplier dependencies,
+adjusted security histories, corporate actions and index constituents remain incomplete.
+The bounded Apple SEC asset and issuer samples now work with the configured contact
+header. Other sources may require credentials, licensed access or a release-specific adapter. Roads are local subsets; airport references are not flight or passenger
+movements. Samples are bounded and nonrepresentative. Sparse source-scoped IDs do not
+establish complete real-world entity coverage. Independent temporal crosswalks, benchmarks
+and mechanism calibration remain necessary. The previously documented descriptive WTI
+holdout did not beat persistence; no calibrated geopolitical simulator is claimed.
+
+## Distribution, rights and visual inspection
+
+**Implemented:** wheels bundle read-only catalog declarations, fictional fixtures and
+examples. Writable runtime data is configured independently; `wm resources` reports
+paths. Code and documentation use MIT. Derived reports and materializations retain
+source rights metadata recursively, including unspecified or restricted terms.
+Interactive standalone HTML adds linked entity selection, filtering, time playback,
+source inspection, panel visibility/reordering and specification export.
+
+**Remaining:** acquired evidence, runtime artifacts and generated source-backed dashboards
+are local, not bundled releases. Fixture coverage does not verify access to a current
+external feed. MIT does not relicense third-party data; rights inventories do not decide
+license compatibility or grant redistribution rights. Unknown terms remain visible and
+require review for redistribution, without blocking local computation. Maps have no
+remote basemap or reconstructed terrain. Graph playback does not infer historical
+topology. Visual editing changes panel layout/specification, not source data or a general
+canvas diagram. ARM64/GB10 deployment and nonlocal filesystem backends need their own
+operational verification.
 
 See [environments and surfaces](environments-and-surfaces.md),
-[reference backbone](reference-backbone.md), and [strategic systems](strategic-systems.md)
-for exact implemented contracts and runnable examples.
+[checkpoint details](checkpoint-environments.md), [reference backbone](reference-backbone.md),
+[strategic systems](strategic-systems.md), and [code/data rights](../DATA_RIGHTS.md).
+
+See [the verification record](concern-resolution-verification-2026-09-15.json) for exact local checks and artifact references.

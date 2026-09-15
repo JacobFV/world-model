@@ -148,7 +148,8 @@ class Runner:
                     if file_hash(self.project / name) != expected:
                         raise ValueError('Code changed during execution; rerun with stable code')
                 output = staging / 'records.jsonl'
-                identity = {'schema_version': 1, 'dataset': dataset, 'definition': definition,
+                from .rights import inherited_rights
+                identity = {'rights':inherited_rights(self.store,inputs,raw_inputs), 'schema_version': 1, 'dataset': dataset, 'definition': definition,
                             'code': code, 'parameters': parameters, 'inputs': inputs,
                             'raw_inputs': raw_inputs,
                             'outputs': {'records.jsonl': {'sha256': file_hash(output),

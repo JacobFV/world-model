@@ -1,0 +1,44 @@
+{
+  "banks": [
+    {
+      "id": "a",
+      "reserves": 100.0,
+      "equity": 100.0,
+      "loans": {},
+      "accounts": {
+        "firm": 0.0
+      },
+      "status": "solvent"
+    },
+    {
+      "id": "b",
+      "reserves": 100.0,
+      "equity": 50.0,
+      "loans": {},
+      "accounts": {
+        "worker": 50.0
+      },
+      "status": "solvent"
+    }
+  ],
+  "firms": [
+    {
+      "id": "firm",
+      "bank": "a",
+      "worker": "worker",
+      "inventory": 0,
+      "capacity": 10,
+      "unit_cost": 5,
+      "status": "active"
+    }
+  ],
+  "households": [
+    {
+      "id": "worker",
+      "bank": "b"
+    }
+  ],
+  "step": 0,
+  "history": [],
+  "initial_reserves": 200.0
+}

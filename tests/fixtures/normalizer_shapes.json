@@ -1,0 +1,13 @@
+{
+  "census_geography": {"STATE":"06","GEOID":"06999","NAME":"Fictional County"},
+  "census_population": {"SUMLEV":"040","STATE":"06","NAME":"Fixture State","POPESTIMATE2024":"123"},
+  "census_business": {"fipstate":"06","naics":"999999","lfo":"001","emp":"0","emp_nf":"D","est":"3","ap":"5","qp1":"1"},
+  "bls_labor": {"year":"2024","period":"M01","value":"4.2"},
+  "classifications": {"2022 NAICS Code":"999999","2022 NAICS Title":"Fictional Industry"},
+  "eia_energy": {"stateid":"CA","stateDescription":"Fixture State","sectorid":"TEST","sectorName":"Fictional Sector","sales":"12","sales-units":"million kilowatt hours","period":"2024"},
+  "fec": {"committee_id":"TEST00001","name":"Fictional Committee","state":"CA","candidate_ids":["TESTPERSON"]},
+  "sec_gleif": {"id":"FICTIONAL_LEI_REFERENCE","attributes":{"entity":{"legalName":{"name":"Fictional Organization"},"category":"GENERAL","jurisdiction":"US","status":"ACTIVE"}}},
+  "transport": {"type":"way","id":999999999999,"tags":{"name":"Fictional Road","tiger:county":"San Francisco, CA"},"center":{"lat":37.77,"lon":-122.42}},
+  "usaspending": {"generated_internal_id":"FICTIONAL","Award ID":"FICTIONAL AWARD","awarding_agency_id":"TEST","Awarding Agency":"Fictional Agency","Recipient Name":"Fictional Recipient","Award Amount":12},
+  "usgs_resources": {"dep_id":"TEST","site_name":"Fictional Deposit","dev_stat":"Unknown","code_list":"TEST"}
+}

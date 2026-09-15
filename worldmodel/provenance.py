@@ -17,7 +17,8 @@ def capture_code(project, entrypoint):
         raise ValueError('Project does not match loaded implementation')
     paths = list((project / 'worldmodel').rglob('*.py'))
     paths += list((project / 'data').glob('*/dataset.json'))
-    paths += [project / name for name in ('pyproject.toml', 'uv.lock', 'requirements.txt')
+    paths += [p for p in (_PACKAGE_ROOT / '_resources').rglob('*') if p.is_file() and '__pycache__' not in p.parts and p.suffix not in ('.pyc', '.pyo')]
+    paths += [project / name for name in ('pyproject.toml', 'uv.lock', 'requirements.txt', 'LICENSE', 'DATA_RIGHTS.md')
               if (project / name).is_file()]
     files = {str(path.relative_to(project)): file_hash(path) for path in sorted(paths)}
     sources = {name: (project / name).read_text(encoding='utf-8') for name in files}

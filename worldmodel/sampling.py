@@ -284,7 +284,8 @@ def _sample_dataset(store, definition, *, allow_network=False):
                 source_path = temporary / 'original'
                 acquisition = download(config, source_path)
             elif config['strategy'] == 'local':
-                source_path = PROJECT / config['path']
+                from .resources import local_fixture
+                source_path = local_fixture(config['path'], PROJECT)
                 if source_path.stat().st_size > config['max_download_bytes']:
                     raise ValueError('Local fixture exceeds budget')
                 acquisition = {'local_fixture': config['path'], 'original_bytes': source_path.stat().st_size,

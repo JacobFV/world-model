@@ -25,23 +25,27 @@ python3 -m worldmodel demo
 python3 -m worldmodel catalog
 ```
 
-Six acquired-data integration tests skip when their local samples are absent; the
-remaining tests and fictional demo run offline.
+The fictional demo and fixture-based checks run offline. Acquired-data integration
+checks may skip when their local samples are absent; offline fixtures do not verify
+current external access or dataset completeness.
 
 Downloaded evidence, generated dashboards and runtime artifact versions stay local
 and are excluded from Git. Real-evidence examples require their documented acquisition
 and build steps first. Committed verification reports record prior local runs;
-they do not bundle those datasets. The full CLI workflow currently requires this
-source checkout rather than a standalone wheel installation.
+they do not bundle those datasets. Standalone wheels now include the read-only catalog,
+fictional fixtures and examples; writable runtime data remains separate.
 
 See [remaining concerns](docs/remaining-concerns.md) for implementation priorities,
 missing evidence, validation limits and licensing status.
 
 ## Strategic systems and field foundations
 
-The project now includes fields/topologies with lazy graph projections, multimodal
+The project includes fields/topologies with lazy graph projections, multimodal
 routing, bank accounting, energy/business scenarios, numerical actor kernels,
-lifecycle events, policy comparison and chronological model validation.
+lifecycle events, policy comparison and chronological model validation. A coupled
+synthetic economy connects production and per-step purchasing/credit policies to one
+commercial-bank ledger. `SpatialStore` adds persistent SQLite state, bounded spatial
+reads and transactional birth/death/merge/split operations with conservation checks.
 See [the current guide](docs/strategic-systems.md) for runnable examples, acquired
 source coverage and the limits of each model.
 
@@ -55,8 +59,16 @@ obligation stress with explicit evidence inputs.
 
 [Materialization environments](docs/environments-and-surfaces.md) map declared inputs
 to actions, selected outputs to observations, and explicit state criteria to rewards.
-The same API handles multi-entity and single-subject views. Standalone HTML surfaces
-compose values, tables, plots, coordinate maps and graph diagrams.
+The same API handles multi-entity and single-subject views. The CLI now defaults to
+incremental checkpoint execution; `--backend replay` preserves the reference evaluator.
+JSON checkpoints retain scheduler state, RNG and memory, with transactional rollback
+and explicit limitations for external backend effects.
+
+Bounded tabular training/evaluation, synchronous vector environments and observation
+masks/delays/noise are available in the Python API. Gymnasium is an optional adapter
+for explicitly bounded scalar spaces. Standalone HTML surfaces compose values, tables,
+plots, coordinate maps and graph diagrams. Set `"interactive": true` for linked entity
+selection, filtering, playback, source inspection and panel layout controls.
 
 ## Typed graph and process views
 
@@ -75,7 +87,8 @@ Forecasts are explicit scenarios using illustrative, uncalibrated processes.
 ## Run it now, offline
 
 Python 3.11+ on macOS or Linux. No runtime dependencies, services, credentials,
-or data downloads are required. Run commands from this checkout:
+or data downloads are required for the core fictional demo. Run from this checkout
+or use the installed `wm` command:
 
 ```sh
 python3 -m worldmodel catalog
@@ -94,8 +107,29 @@ of 217 establishments. That observation does not create 217 businesses.
 
 All commands emit JSON. Errors go to stderr with a nonzero exit code. You can
 optionally install the CLI with `python3 -m pip install -e .` and use `wm`.
-Keep the checkout: it supplies the catalog, demo fixtures, and implementation source;
-a standalone wheel is not the deployment unit.
+A built wheel also supplies the catalog, fictional demo fixtures, examples and
+implementation source for provenance. Inspect installation paths with:
+
+```sh
+wm resources
+wm --data-root /tmp/worldmodel-installed-demo demo
+```
+
+Outside a checkout, the default writable root is
+`$XDG_DATA_HOME/worldmodel` (or `~/.local/share/worldmodel`). `WORLD_MODEL_DATA` and
+`--data-root` override it; `--catalog-root` selects another declaration tree. Installed
+examples are located under the path returned by `wm resources`, so relative
+`examples/...` paths below refer to the checkout. Optional Gymnasium support is
+available through the `rl` installation extra; the core package has no runtime dependencies.
+
+## Code and dataset rights
+
+Code and documentation are [MIT licensed](LICENSE). Third-party source data retains
+its own terms. Derived artifacts preserve input lineage and source license/attribution
+metadata, including unspecified or restricted terms; MIT does not relicense those
+inputs. `wm rights DATASET` reports the inherited inventory. Unknown terms do not block
+local computation, but the metadata does not grant redistribution rights or decide
+license compatibility. See [code and data rights](DATA_RIGHTS.md).
 
 ## Laptop-sized real samples
 
@@ -157,14 +191,21 @@ attempt. They still execute and check the output; this is not a speculative cach
 | Acquisition | Local import; explicit HTTP(S) fetch with limits, timeouts, retries, optional expected checksum |
 | Ontology | Validated entities, observations, assertions, events; units, dimensions, valid and observed times |
 | Graph | Evidence-preserving union; indexed bounded neighborhoods; observation and temporal queries |
+| Temporal execution | Incremental checkpoint evaluator, replay reference, seeded processes, explicit inputs and rewards |
+| Economy | Closed synthetic firms/households/commercial-bank ledger with dynamic policy and accounting checks |
+| Spatial state | SQLite selections, persistent supports/topology, atomic lifecycle changes and conservation |
+| RL/perception | Bounded tabular learning/evaluation, local vector adapter, masks/delays/noise, optional Gymnasium |
+| Inspection | Static or interactive standalone HTML, linked selection/playback, provenance and explicit limits |
+| Distribution | Bundled catalog/fictional fixtures/examples, separate writable data root, inherited rights metadata |
 | Examples | Offline source pipelines, a computed country index, a derived graph |
 
-The catalog has **14 source-family declarations plus four runnable example/derived
-datasets**. The family declarations describe the intended mapping and are marked
-`requires_configuration`. Their sampling policies are configured and executable, but they are not finished SEC, GIS, archive, or other
-publisher-specific connectors. Running one without a configured adapter fails
-before acquisition. Real release selection, specialized parsing, identity
-resolution, and crosswalk choices are the next data integration work, on the GB10.
+The catalog includes source-family declarations and runnable example/derived datasets.
+Declarations marked `requires_configuration` describe intended mappings; a sampling
+policy does not by itself finish a publisher-specific connector. Running a source
+without a configured adapter fails before acquisition. `wm evidence-audit` inventories
+catalog access/readiness and explicit sample limits. Release selection, missing
+bilateral relationships, dated identity crosswalks and licensed feeds remain data
+integration work. No complete global evidence base is claimed.
 
 ## Provenance: “this function, this code, these inputs”
 
@@ -336,7 +377,8 @@ resolve `raw-latest.json` once and record that exact reference.
 
 ## Move to the GB10
 
-Copy this checkout. Set the data root to a local filesystem with adequate space:
+Copy this checkout or install a built wheel. Set the data root to a local filesystem
+with adequate space:
 
 ```sh
 export WORLD_MODEL_DATA=/mnt/world-model/data
@@ -346,8 +388,8 @@ python3 -m worldmodel catalog
 
 If you have existing runtime data, copy the **entire data tree**, including raw,
 final, receipts and manifests. References contain dataset IDs and hashes, not
-absolute paths. Declarations continue to come from this checkout; `--catalog-root`
-can select another declaration tree. Verify important pinned versions after copying.
+absolute paths. Declarations come from the checkout or installed package resources;
+`--catalog-root` can select another declaration tree. Verify important pinned versions after copying.
 The SQLite index can be omitted and rebuilt:
 
 ```sh
@@ -386,6 +428,29 @@ filesystem rename/locking semantics; network/object storage needs its own backen
 - `worldmodel/model.py`: shared record contracts.
 - `worldmodel/transforms.py`: adapters and computed examples.
 - `worldmodel/graph.py`: disposable temporal query projection.
+- `worldmodel/checkpoints.py`, `environments.py`: incremental temporal episodes and replay adapter.
+- `worldmodel/coupled_economy.py`: closed commercial-bank economy with step policies.
+- `worldmodel/spatial_store.py`: persistent spatial state and lifecycle transactions.
+- `worldmodel/rl.py`, `perception.py`: bounded learning/evaluation and observation wrappers.
+- `worldmodel/surfaces.py`, `interactive_surfaces.py`: standalone source-preserving views.
+- `worldmodel/resources.py`, `rights.py`: installed resources and inherited data terms.
 - `worldmodel/fetch.py`, `cli.py`: explicit acquisition and CLI.
 - `data/*/dataset.json`: dataset definitions and source integration requirements.
 - `tests/`: offline behavioral tests and fictional fixtures.
+
+### Integrated policy and sensitivity examples
+
+After building `strategic_scenarios`, the coupled example makes daily policy changes
+through the environment action port:
+
+```sh
+wm environment strategic_scenarios --request examples/environment-coupled-economy.json --dataset coupled_environment_episode
+wm sensitivity --request examples/sensitivity-coupled-economy.json
+python3 examples/train-materialization.py
+wm assess-model series_calibration
+```
+
+The training script uses a small fictional checkpoint environment, disjoint seeds,
+and an explicit inventory objective. The sensitivity sweep changes opening credit
+limits. Neither establishes real-world policy validity. `assess-model` requires an
+existing calibration report and records failure when its holdout misses the baseline.

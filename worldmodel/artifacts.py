@@ -31,7 +31,8 @@ def publish_report(store, dataset, report, parameters, *, inputs=(), raw_inputs=
                     if any(canonical(item['input']) not in allowed for item in record['evidence']):
                         raise ValueError('Output evidence must reference a declared input')
                     stream.write(canonical(record)+b'\n')
-            identity = {'schema_version':1,'dataset':dataset,
+            from .rights import inherited_rights
+            identity = {'rights':inherited_rights(store,inputs,raw_inputs), 'schema_version':1,'dataset':dataset,
                         'definition':{'id':dataset,'kind':'derived','schema_version':1,'entrypoint':entrypoint},
                         'parameters':parameters,'inputs':list(inputs),'raw_inputs':list(raw_inputs),'code':code,
                         'outputs':{name:{'sha256':file_hash(staging/name),'bytes':(staging/name).stat().st_size}

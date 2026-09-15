@@ -2,7 +2,7 @@
 import hashlib
 from pathlib import Path
 
-__version__ = '0.1.0'
+__version__ = '0.2.0'
 _PACKAGE_ROOT = Path(__file__).resolve().parent
 # Long-lived SDK processes must restart after editing implementation files. This
 # prevents importlib's module cache from running old code under new source hashes.

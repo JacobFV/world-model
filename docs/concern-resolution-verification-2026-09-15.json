@@ -1,0 +1,503 @@
+{
+  "date": "2026-09-15",
+  "release": "0.2.0",
+  "scope": "Experimental evidence/materialization runtime; software checks do not establish complete world coverage or predictive validity.",
+  "runtime": {
+    "python": "3.14.2",
+    "platform": "macOS-26.2-arm64-arm-64bit-Mach-O"
+  },
+  "tests": {
+    "local": {
+      "command": "python3 -m unittest discover -s tests -q",
+      "ran": 322,
+      "passed": 322,
+      "skipped": 0,
+      "seconds": 25.425
+    },
+    "clean_source_snapshot": {
+      "same_command": true,
+      "ran": 322,
+      "passed": 316,
+      "skipped": 6,
+      "seconds": 19.821,
+      "skip_reason": "Acquired sample integration tests require local evidence; fictional normalizer shape contracts run offline."
+    }
+  },
+  "source_files": {
+    "worldmodel/__init__.py": "3ad6c91c4ab7e19afb16009404947eb6e993f6615d951be0a6f86562546a31c7",
+    "worldmodel/__main__.py": "935a1c1166b0c1ea35a82256345000bf2c73ded718d77773bc27a71ecce28f7d",
+    "worldmodel/actor_kernels.py": "a89c2efc70ef68b5094ff690e57b1e1905fe37dfd4ec2871a52a09853a5ed922",
+    "worldmodel/advanced_cli.py": "449f1587e4dddfd28cedf7752ea2a150916069822ed701a7a7354a4e90453839",
+    "worldmodel/artifacts.py": "2fbce6d796bc43138aad60ea60e623a755ad3b4726c79f8fe20796dce8c929d0",
+    "worldmodel/banking.py": "e41c0e1553e1be93171597201f11a814353afd474f1bf191f952ffd422da349b",
+    "worldmodel/calibration.py": "42a3723c7e65818cfe70f69581b211f1004092574b9fe810268e92318d730eba",
+    "worldmodel/catalog.py": "f5b95b543ece11bab4e0eb6b79b996d9243cb721f80b9de026985003317dfaf4",
+    "worldmodel/checkpoints.py": "53b8b556c8bb67c760692cf24368bc0a5e6b5c2030c8e5bdbb89d1e34a39db4e",
+    "worldmodel/cli.py": "6d2629d00d39eae5bc49177b7ea442e04c2e55cfa6afea3e686e55e59f8169c6",
+    "worldmodel/coupled_economy.py": "fbf856f891afa4e605190d4ea782a5ad64366187c5fcc1e9db21c0005cc20635",
+    "worldmodel/coverage.py": "c245b3ca587b2f0425908aaf99b755d77cef0a3d585af8a5ac6f5b9e5534e6f2",
+    "worldmodel/economy.py": "f2f284a37cfb04efc2bda4bac4159f25baed006bef0a003142da49b356aa212e",
+    "worldmodel/economy_processes.py": "822ad89357928fc63fc622d28ff903c04e8b35f47b1abecaa7ad9dae32bc3ed7",
+    "worldmodel/economy_seeding.py": "de4908b4d48fffd81d1970c2e7ff3baa7f2cd1e44f93cc553018bdd07a98246a",
+    "worldmodel/environment_cli.py": "dcbe02435e66b22f3b5211d24fc2995551e80c8f81d978d9c5be0a697fc5a72e",
+    "worldmodel/environments.py": "e27256e6fce1c98c70330e4435644b5befb9b53af6e7de7a771239dc5c97c7e2",
+    "worldmodel/exposure.py": "0151954f48974b0e1fcf1d36d1cd5ead8895ddb0e0978aeaabe9f6d2bd7bd335",
+    "worldmodel/fetch.py": "fb561b8ffa3b816b5b439990990830ed6b02c55734cb1f92f1c76aa54d2a1770",
+    "worldmodel/fields.py": "46a534307eec0e234fdc626acfa34857ee028148f122157d13ee7de0b55833b3",
+    "worldmodel/foundation_cli.py": "d72056ed3f346a181a16b5c840a454a230e8a5d9bae16dc517de7a99d108f15e",
+    "worldmodel/graph.py": "33177c772caa45405dd12c698481b8530114927f6e58925d90473912c59a90f8",
+    "worldmodel/identity.py": "c08e17da9b9c8a083396fb5002ace7bbba552bd99f2d2c0d55f0db5c86a5e814",
+    "worldmodel/institutional_schema.py": "2834e0cc6d5f3066041628c3d1ec05d7cb5342d0e25201038792b5b5111d6093",
+    "worldmodel/interactive_surfaces.py": "532c094e370d5780a586c3a39bfbd7b9caafc770d6d6979080554cb5e108716e",
+    "worldmodel/lifecycle.py": "8a6b1f72d0bff9846fa88fc68156f2ac326396c81e448ace2e533f76780d8674",
+    "worldmodel/market_sources.py": "fa9a798f6e4bad9620f47e5aa8c277e1773a643fcc0fb88cabf96cd50cefcbdc",
+    "worldmodel/materialize.py": "3ba4cad6b1e1321a41232d046e9bd78a01174eed26f73ee115bd04e03114944d",
+    "worldmodel/model.py": "7195c0a8dc58430fe930d93e53ef8d34712b6d365c9cc170fa6b6421c7848b9d",
+    "worldmodel/normalizers.py": "e36de05cc04a1b68e30f1b1b3c8afb486c8511e64a8378251bb4906b580a51b9",
+    "worldmodel/ontology.py": "72fe9ed37245135a95343699b8af6ea5525a35f737f08f893ffe0e21ad52fb94",
+    "worldmodel/people_sources.py": "971eb8bf4f7798b241e5cc9c8070a50392ed44c8022d253bfbd08bc07aec9731",
+    "worldmodel/perception.py": "ed17f9136ee347ede892df682450a1dcc29eaee505737905d8da6980ce715f2f",
+    "worldmodel/pipeline.py": "6c34dab35e7cbe15fcdeb0f9ed5af98d75db54618350acdc0675588864273df2",
+    "worldmodel/process_library.py": "7133a7f9667ae9e94d8d40d2e7cccf12327f97f260092a77d6cadae1032507d7",
+    "worldmodel/processes.py": "2c105884234ef3df58eb6e0a37ae226784ee21cf9d8469f94cc21dcfeeb9343b",
+    "worldmodel/provenance.py": "cbf89d2aa57cc7a31d2fb4e17537dec48b6a105cc205c576789c26d66c230668",
+    "worldmodel/reconciliation.py": "c5431c30d1521109012b2f8edb69d1376dfa0572beefa2b3c29bc97ad11aa1d1",
+    "worldmodel/reference_build.py": "dd01c0a663ebc7c1867cfe2f8b9455138040a79bb959b64ad0328cdc999593e8",
+    "worldmodel/reference_cli.py": "31c6f2d63b6f79faa314ddb3b5cd2967414ca08a430d1094507c00e37ae90c19",
+    "worldmodel/resources.py": "cdf1daa3f00a8b6cc41330b674b023ffb8259ec2b6ed955676b6808b6b9df9f1",
+    "worldmodel/rights.py": "48d7a9bfc35d2a3bea4bc4ccac7e6a08f1cc30359839b7557b3743f385568207",
+    "worldmodel/rl.py": "af1d5bfafd74e8f523ce80ffd449edbcb2f46f6247a1c38c6b5bc2a05172dff4",
+    "worldmodel/sampling.py": "8de3fbd90b153d23fdfeb0e195d47931c1107718ffcf56a4ae3f2c31a4e81b7e",
+    "worldmodel/spatial_store.py": "2f7696436a4c4db31417a15c90b0dad5979269a0d1973882941318ca79b52e24",
+    "worldmodel/store.py": "e755be15dc0bc6b1a9ebbac6922a46eb5c1adde37af88a3f094dea756510ed30",
+    "worldmodel/strategic_build.py": "9f3725caacd1dc7cab45a91606bedea05e242a73bc5e75c3cc82aad6efcc8322",
+    "worldmodel/strategic_cli.py": "b5dc5a6d6811bafb3d36c4f8e7dc32f534eda9efd69a05d688ac436e6fcd40ab",
+    "worldmodel/strategic_sources.py": "38b4c659f45432219588f9a3d9fc13689d10540c2e1a5b5e44540220f343f91b",
+    "worldmodel/strategy.py": "e152d5fdfc8f69a20577e1ee90d53bf3dff582f9f94e769ca54a832910889753",
+    "worldmodel/surfaces.py": "027b76883089f2c4f273c7be0fa56a6bec72d00afccbc0d766d3f5f91f721efe",
+    "worldmodel/transforms.py": "b6aa54480419c4e707fcc4a563d367834160139f6771bbc687cb4fe93a70e389",
+    "worldmodel/transport.py": "011fe2868864016ac7c955de85a0c9ed94c5c2ceb02e77370ef5720bb0049889",
+    "worldmodel/unify.py": "406dc257e75fedd4743d1b8e678e5e7750421b54acba7b13f389ab8ba6b2b396",
+    "worldmodel/util.py": "12ec9d1a71194d58fd546fff7923770280c1f149e980ba2a1014b4ffe888a838",
+    "worldmodel/validation.py": "9df73b5ba5f9ba85c41cae08253ea6a515178139134e2a3697ed79b347b8de47",
+    "worldmodel/view_state.py": "fde84ee37c0fb4389a7c0dcaac209c2dd45a0c9e5df9e4f7775daab7a186055e"
+  },
+  "standalone_wheel": {
+    "build": "python3 -m pip wheel --no-deps --no-build-isolation .",
+    "install": "pip install --no-deps --force-reinstall worldmodel_substrate-0.2.0-py3-none-any.whl",
+    "outside_checkout": true,
+    "smoke_commands": [
+      "resources",
+      "demo",
+      "verify world_graph",
+      "sample demo_countries",
+      "sample demo_graph",
+      "coupled-economy",
+      "spatial",
+      "rl-benchmark"
+    ],
+    "bundled_training_script_executed": true,
+    "gymnasium_version": "1.3.0",
+    "gymnasium_check_env": "passed",
+    "files": 144,
+    "bytes": 235466,
+    "sha256": "6b289911998904a0d39c6a9755296fb121469d2b5311da0788b3ad21d2679eb9",
+    "acquired_data_bundled": false
+  },
+  "artifacts": {
+    "reference_evidence": {
+      "artifact": {
+        "dataset": "reference_evidence",
+        "version": "561aceb42564be29d48f2eca2c7e4f02bf75096ca13158f79d4046864de43799"
+      },
+      "verification": true
+    },
+    "coupled_economy_scenario": {
+      "artifact": {
+        "dataset": "coupled_economy_scenario",
+        "version": "93cd4376ce72c6bc01c163c95a5295619c056e2846943eaf214e80ebee1c25c1"
+      },
+      "verification": true
+    },
+    "coupled_environment_episode": {
+      "artifact": {
+        "dataset": "coupled_environment_episode",
+        "version": "f1e249b1213f9046fa5bb252695ba04cd4f5ba5873300abf4e0fe88cfa9fe81e"
+      },
+      "verification": true
+    },
+    "environment_episode": {
+      "artifact": {
+        "dataset": "environment_episode",
+        "version": "daecad1daa340c69b510cebadb2e3e1d06637715ae05e0d6bf11f60e97dab0f7"
+      },
+      "verification": true
+    },
+    "replay_environment_episode": {
+      "artifact": {
+        "dataset": "replay_environment_episode",
+        "version": "e61cce6e3d336f44ae43cca4380b03ee3512808b6b1d781798862629323817a2"
+      },
+      "verification": true
+    },
+    "spatial_scenario": {
+      "artifact": {
+        "dataset": "spatial_scenario",
+        "version": "e1b875b8c07434b73a605b168a1c04b72be56a167fa0c8d3bb98daedc2a06ef4"
+      },
+      "verification": true
+    },
+    "rl_benchmark": {
+      "artifact": {
+        "dataset": "rl_benchmark",
+        "version": "623836b187f7fac57d9de2f0701241017ff8f964ab7d8c320ba7f0bbccd5dd01"
+      },
+      "verification": true
+    },
+    "sensitivity_scenario": {
+      "artifact": {
+        "dataset": "sensitivity_scenario",
+        "version": "fe6d4e4013c7a0045c3bb9948dde8936251e3b5f1a4f29114067e9b56564829b"
+      },
+      "verification": true
+    },
+    "model_assessment": {
+      "artifact": {
+        "dataset": "model_assessment",
+        "version": "70e00940a9f7cf8a6a0a8b379ea52815f53a0af6fdd2d459b355c1c2d6614032"
+      },
+      "verification": true
+    },
+    "materialization_surface": {
+      "artifact": {
+        "dataset": "materialization_surface",
+        "version": "26a98a3899e5ed3b95147cf2e3fef365fe38cf6784734bc5c780d26c442f0a82"
+      },
+      "verification": true
+    },
+    "execution_comparison": {
+      "frames_equal": true,
+      "checkpoint_calls": 12,
+      "replay_calls": 42,
+      "final": {
+        "cash_0": 1468.0,
+        "cash_1": 1468.0
+      }
+    },
+    "coupled_accounting": [
+      {
+        "balanced": true,
+        "goods_closing": 1,
+        "goods_destroyed": 0,
+        "goods_opening": 0,
+        "loan_created": 20.0,
+        "loan_defaulted": 0.0,
+        "loan_repaid": 0.0,
+        "reserve_change": 0
+      },
+      {
+        "balanced": true,
+        "goods_closing": 1,
+        "goods_destroyed": 0,
+        "goods_opening": 1,
+        "loan_created": 0.0,
+        "loan_defaulted": 0.0,
+        "loan_repaid": 10.0,
+        "reserve_change": 0
+      },
+      {
+        "balanced": true,
+        "goods_closing": 0,
+        "goods_destroyed": 1,
+        "goods_opening": 1,
+        "loan_created": 0.0,
+        "loan_defaulted": 0.0,
+        "loan_repaid": 0.0,
+        "reserve_change": 0
+      }
+    ],
+    "reference_counts": {
+      "records": 17556,
+      "kinds": {
+        "entity": 4615,
+        "assertion": 9557,
+        "observation": 3384
+      },
+      "distinct_entity_ids": 4615
+    }
+  },
+  "materialization_training": {
+    "artifact": {
+      "dataset": "materialization_learning_example",
+      "version": "fe0b288da8816c85ac873d812f41cf97201ed19fc48ce8bcc078ffad26d42dd5"
+    },
+    "transitions": 60,
+    "training_seeds": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11
+    ],
+    "evaluation_seeds": [
+      100,
+      101,
+      102,
+      103
+    ],
+    "evaluation": {
+      "episodes": 4,
+      "returns": [
+        2.0,
+        2.0,
+        2.0,
+        2.0
+      ],
+      "mean_return": 2.0,
+      "trainer_capped_episodes": 0
+    },
+    "baseline": {
+      "episodes": 4,
+      "returns": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "mean_return": 0.0,
+      "trainer_capped_episodes": 0
+    },
+    "mean_return_improvement": 2.0,
+    "causally_validated": false,
+    "limitations": [
+      "Reward is inventory accumulation, not validated economic welfare.",
+      "The graph provides provenance; this economy uses explicit fictional endowments.",
+      "Different seeds do not create different deterministic economic scenarios.",
+      "Held-out scores demonstrate interface integration, not policy generalization."
+    ]
+  },
+  "installed_materialization_training": {
+    "artifact": {
+      "dataset": "installed_materialization_learning_example",
+      "version": "4e7032a427b85668d9dfa1d94ae3fce9a46e365d1120ec0dfae07c55da9563e2"
+    },
+    "transitions": 60,
+    "evaluation_mean_return": 2.0,
+    "baseline_mean_return": 0.0
+  },
+  "spatial": {
+    "mass_before_kg": 15,
+    "mass_after_kg": 14.999999999999998,
+    "geodetic_distance_check": {
+      "distance_m": 111195.0802335329,
+      "model": "great-circle sphere, mean Earth radius 6371008.8 m; not ellipsoidal or road distance",
+      "coordinate_unit": "degree"
+    }
+  },
+  "holdout_assessment": {
+    "artifact": {
+      "dataset": "model_assessment",
+      "version": "70e00940a9f7cf8a6a0a8b379ea52815f53a0af6fdd2d459b355c1c2d6614032"
+    },
+    "status": "fails_descriptive_holdout",
+    "passes": false,
+    "reasons": [
+      "does_not_meet_baseline_improvement"
+    ],
+    "count": 30,
+    "mae": 0.8155618803201942,
+    "baseline_mae": 0.7760000000000015,
+    "relative_improvement": -0.0509818045363307,
+    "causally_validated": false
+  },
+  "browser": {
+    "browser": "Google Chrome headless with isolated temporary profile",
+    "standalone_html": true,
+    "checks": [
+      "timeline filtering",
+      "linked entity selection",
+      "source inspection",
+      "panel visibility",
+      "clear selection"
+    ],
+    "screenshot_visually_inspected": true,
+    "html_sha256": "da71272751a0374f2fed0176e9fcc04eea4a852b64dac3871ce2d71757f73ec8"
+  },
+  "source_acquisition": {
+    "sec": [
+      {
+        "dataset": "sec_company_assets",
+        "started_at": "2026-09-15T15:05:40.583206+00:00",
+        "criteria": "Apple CIK0000320193 us-gaap Assets observations ending2023\u20132025, first100 filings; filing duplicates/revisions preserved",
+        "max_rows": 100,
+        "max_sample_bytes": 1048576,
+        "max_download_bytes": 65011712,
+        "status": "sampled",
+        "artifact": {
+          "dataset": "sec_company_assets",
+          "artifact": "a248f12516d8d90e3142adfbe084f02b83e2dfcaa509138f9729a59b52e083f7"
+        },
+        "sample_id": "472a5404da554e0361c7004f286cddd2c6100397150ba1c85a7ef71cf13d3eb2",
+        "rows": 23,
+        "retained_bytes": 3115,
+        "downloaded_bytes": 19972,
+        "stop_reason": "source_exhausted",
+        "fields": [
+          "accn",
+          "end",
+          "filed",
+          "form",
+          "fp",
+          "frame",
+          "fy",
+          "val"
+        ],
+        "manifest": "sec_company_assets/samples/472a5404da554e0361c7004f286cddd2c6100397150ba1c85a7ef71cf13d3eb2/manifest.json",
+        "completed_at": "2026-09-15T15:05:41.987788+00:00"
+      },
+      {
+        "dataset": "sec_issuer_reference",
+        "started_at": "2026-09-15T15:05:41.991196+00:00",
+        "criteria": "Single Apple CIK submission metadata record; recent filing arrays retained as source payload but not normalized into filing or obligation claims.",
+        "max_rows": 100,
+        "max_sample_bytes": 1048576,
+        "max_download_bytes": 65011712,
+        "status": "sampled",
+        "artifact": {
+          "dataset": "sec_issuer_reference",
+          "artifact": "58da79ac85a335e610ba8cb76b29be88437ccc91d42f7716c2ef85d0aac8fdba"
+        },
+        "sample_id": "b0a5bb4a3099279c08ad9d06a73d4909d728d534fcd8c42e7b33066e85df8c54",
+        "rows": 1,
+        "retained_bytes": 164092,
+        "downloaded_bytes": 164091,
+        "stop_reason": "source_exhausted",
+        "fields": [
+          "addresses",
+          "category",
+          "cik",
+          "description",
+          "ein",
+          "entityType",
+          "exchanges",
+          "filings",
+          "fiscalYearEnd",
+          "flags",
+          "formerNames",
+          "insiderTransactionForIssuerExists",
+          "insiderTransactionForOwnerExists",
+          "investorWebsite",
+          "lei",
+          "name",
+          "ownerOrg",
+          "phone",
+          "sic",
+          "sicDescription",
+          "stateOfIncorporation",
+          "stateOfIncorporationDescription",
+          "tickers",
+          "website"
+        ],
+        "manifest": "sec_issuer_reference/samples/b0a5bb4a3099279c08ad9d06a73d4909d728d534fcd8c42e7b33066e85df8c54/manifest.json",
+        "completed_at": "2026-09-15T15:05:43.901234+00:00"
+      }
+    ],
+    "freight_retry": [
+      {
+        "dataset": "freight",
+        "started_at": "2026-09-15T15:14:06.344418+00:00",
+        "criteria": "First 100 rows of the smaller reprocessed 1997-2012 state-level historical FAF file. Recent state archive is above the disk limit.",
+        "max_rows": 100,
+        "max_sample_bytes": 1048576,
+        "max_download_bytes": 65011712,
+        "status": "blocked",
+        "reason": "Network/timeout failure from https://faf.ornl.gov/faf5/data/download_files/FAF5.7.1_Reprocessed_1997-2012_State.zip",
+        "completed_at": "2026-09-15T15:14:06.689809+00:00"
+      }
+    ],
+    "catalog_source_status_counts": {
+      "sampled": 31,
+      "blocked": 8,
+      "not_acquired": 1
+    },
+    "remaining_access_gaps": [
+      {
+        "dataset": "bea_input_output",
+        "status": "blocked",
+        "reason": "Missing BEA_API_KEY; source requires an API key"
+      },
+      {
+        "dataset": "freight",
+        "status": "blocked",
+        "reason": "Network/timeout failure from https://faf.ornl.gov/faf5/data/download_files/FAF5.7.1_Reprocessed_1997-2012_State.zip"
+      },
+      {
+        "dataset": "marine_ais",
+        "status": "blocked",
+        "reason": "AccessAIS currently reports its ordering service unavailable. Bulk daily AIS archives remain available, but no selected archive or spatial export has been verified to fit the62MiB download buffer. No vessel tracks acquired."
+      },
+      {
+        "dataset": "market_corporate_actions",
+        "status": "blocked",
+        "reason": "Nasdaq Daily List documents issue and symbol changes; licensed feed access, dated records and adjustment policy are not configured. No corporate action history acquired."
+      },
+      {
+        "dataset": "market_obligations",
+        "status": "blocked",
+        "reason": "SEC XBRL aggregate balances do not identify bilateral counterparties, dated payment schedules, seniority or currencies per contract. Filing-specific contract extraction and explicit counterparty IDs are required; no obligation network acquired."
+      },
+      {
+        "dataset": "market_prices",
+        "status": "blocked",
+        "reason": "Security-level price feed and entitlements are not configured; existing FRED macro series are separate and do not establish security prices or adjusted returns."
+      },
+      {
+        "dataset": "nasdaq_index_reference",
+        "status": "blocked",
+        "reason": "Official NDX reference page verified; no machine-readable bounded constituent endpoint configured. GIW automated weights/components require source access and entitlement verification; no membership acquired."
+      },
+      {
+        "dataset": "usda_agriculture",
+        "status": "blocked",
+        "reason": "Missing USDA_NASS_API_KEY; source requires an API key"
+      }
+    ]
+  },
+  "rights": {
+    "code_license": "MIT",
+    "sources_in_reference_graph": 29,
+    "source_terms_unspecified": 29,
+    "policy": "metadata_only_no_local_execution_gate",
+    "derived_samples_follow_original_input_version": true
+  },
+  "review_regressions": [
+    "JSON native checkpoint values preserve types",
+    "end-of-step kernels enforce set-only pressures",
+    "replay and checkpoint pending-cost contexts agree",
+    "restore validates held pressures and scheduler before mutation",
+    "post-noise observation bytes and failed reporting bounded",
+    "large finite RL means stay finite",
+    "filtered observation wrappers integrate with numerical adapters",
+    "coupled purchase cross-products preflight cumulative work",
+    "installed local fixtures resolve bundled paths",
+    "compiled Python bytecode excluded from text provenance",
+    "rights follow derived sample parents",
+    "reconciliation respects units and dimensions"
+  ],
+  "residual_limits": [
+    "Complete roads, ocean transits, personal movements, ownership and bilateral obligations are not acquired.",
+    "No empirically calibrated integrated economic or geopolitical simulator is claimed; WTI holdout fails persistence baseline.",
+    "SQLite spatial storage is local; general vector/PDE dynamics and distributed/adaptive mesh execution remain absent.",
+    "Live external agent effects cannot roll back and live-backend checkpoint restore is rejected.",
+    "Histories remain in memory with bounded work; GB10/Linux ARM64 deployment needs workstation verification.",
+    "Third-party source rights are retained, not relicensed by MIT."
+  ],
+  "artifact_availability": "Immutable artifact references and generated HTML describe local verified runs, not downloadable data releases. Code, configs, fictional fixtures and example recipes are in Git; acquired data remain excluded."
+}

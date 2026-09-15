@@ -1,0 +1,4 @@
+include LICENSE DATA_RIGHTS.md pyproject.toml
+recursive-include data dataset.json
+recursive-include tests/fixtures *.json *.jsonl *.csv
+recursive-include examples *.json *.jsonl *.csv *.py
