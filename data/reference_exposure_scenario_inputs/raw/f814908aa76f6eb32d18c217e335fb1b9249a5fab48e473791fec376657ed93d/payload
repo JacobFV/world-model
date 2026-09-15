@@ -1,0 +1,41 @@
+{
+  "as_of": "2026-09-15",
+  "end": "2027-09-15",
+  "currency": "USD",
+  "shock_bps": 300,
+  "entities": [
+    {
+      "id": "lei:5493001KJTIIGC8Y1R12",
+      "cash": 12000
+    },
+    {
+      "id": "lei:549300B56MD0ZC402L06",
+      "cash": 3000
+    },
+    {
+      "id": "fdic:cert:34383",
+      "cash": 100000
+    }
+  ],
+  "obligations": [
+    {
+      "id": "scenario:trade_credit",
+      "borrower": "lei:5493001KJTIIGC8Y1R12",
+      "lender": "lei:549300B56MD0ZC402L06",
+      "principal": 15000,
+      "annual_rate": 0.04,
+      "rate_type": "fixed",
+      "maturity": "2027-09-15"
+    },
+    {
+      "id": "scenario:loan",
+      "borrower": "lei:549300B56MD0ZC402L06",
+      "lender": "fdic:cert:34383",
+      "principal": 15000,
+      "annual_rate": 0.06,
+      "rate_type": "floating",
+      "maturity": "2027-09-15"
+    }
+  ],
+  "description": "Invented financial obligations and cash attached to public graph IDs for API demonstration only. These are not reported transactions or financial states."
+}

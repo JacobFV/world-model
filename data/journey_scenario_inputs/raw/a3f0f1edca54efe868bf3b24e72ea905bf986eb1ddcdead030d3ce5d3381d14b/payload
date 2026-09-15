@@ -1,0 +1,11 @@
+{
+  "origin": "fictional:home",
+  "destination": "fictional:destination",
+  "departure_time": "2026-10-01T09:00:00Z",
+  "objective": "earliest_arrival",
+  "permitted_modes": ["road", "walk", "air", "sea", "rail", "transfer"],
+  "closed_edges": [],
+  "demand": 1,
+  "max_expansions": 1000,
+  "max_labels": 10000
+}

@@ -1,0 +1,24 @@
+{
+  "world": {
+    "description": "Synthetic coastal support. Coordinates are illustrative Cartesian kilometers; no actual territorial sovereignty is asserted.",
+    "measure_unit": "km2",
+    "cells": [
+      {"id": "cell:coast", "measure": 1, "coordinates": [0, 0], "tags": ["land", "coast"]},
+      {"id": "cell:bay", "measure": 2, "coordinates": [1, 0], "tags": ["water", "bay"]},
+      {"id": "cell:ocean", "measure": 5, "coordinates": [2, 0], "tags": ["water", "ocean"]}
+    ],
+    "edges": [
+      {"id": "edge:coast-bay", "source": "cell:coast", "target": "cell:bay", "conductance": 0.00001, "transport_rate": 0.000001},
+      {"id": "edge:bay-ocean", "source": "cell:bay", "target": "cell:ocean", "conductance": 0.00002, "transport_rate": 0.000002}
+    ],
+    "fields": {
+      "material_stock": {"kind": "extensive", "unit": "tonne", "values": {"cell:coast": 100, "cell:bay": 0, "cell:ocean": 0}},
+      "material_density": {"kind": "intensive", "unit": "tonne/km2", "values": {"cell:coast": 100, "cell:bay": 0, "cell:ocean": 0}}
+    },
+    "claims": [
+      {"id": "claim:state-a", "claimant": "actor:state-a", "cells": ["cell:coast", "cell:bay"], "label": "Fictional claim A"},
+      {"id": "claim:state-b", "claimant": "actor:state-b", "cells": ["cell:bay", "cell:ocean"], "label": "Fictional overlapping claim B"}
+    ]
+  },
+  "evolution": {"duration_seconds": 86400, "step_seconds": 3600, "max_substeps": 100, "max_work": 10000}
+}

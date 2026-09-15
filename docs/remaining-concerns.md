@@ -92,8 +92,9 @@ source rights metadata recursively, including unspecified or restricted terms.
 Interactive standalone HTML adds linked entity selection, filtering, time playback,
 source inspection, panel visibility/reordering and specification export.
 
-**Remaining:** acquired evidence, runtime artifacts and generated source-backed dashboards
-are local, not bundled releases. Fixture coverage does not verify access to a current
+**Remaining:** Git retains the bounded samples and artifact history; wheels do not
+bundle that data. Standalone browser exports and indexes remain local. Fixture
+coverage does not verify access to a current
 external feed. MIT does not relicense third-party data; rights inventories do not decide
 license compatibility or grant redistribution rights. Unknown terms remain visible and
 require review for redistribution, without blocking local computation. Maps have no

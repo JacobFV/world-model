@@ -1,0 +1,6 @@
+{"kind": "entity", "id": "scenario:economy", "entity_type": "scenario", "label": "Fictional economy scenario", "observed_at": "2024-01-01", "attributes": {"synthetic": true}}
+{"kind": "entity", "id": "scenario:banking", "entity_type": "scenario", "label": "Fictional banking scenario", "observed_at": "2024-01-01", "attributes": {"synthetic": true}}
+{"kind": "entity", "id": "scenario:fields", "entity_type": "scenario", "label": "Fictional fields scenario", "observed_at": "2024-01-01", "attributes": {"synthetic": true}}
+{"kind": "entity", "id": "scenario:human", "entity_type": "person", "label": "Fictional human scenario", "observed_at": "2024-01-01", "attributes": {"synthetic": true}}
+{"kind": "entity", "id": "scenario:business", "entity_type": "business", "label": "Fictional business scenario", "observed_at": "2024-01-01", "attributes": {"synthetic": true}}
+{"kind": "entity", "id": "scenario:government", "entity_type": "government_agency", "label": "Fictional government scenario", "observed_at": "2024-01-01", "attributes": {"synthetic": true}}

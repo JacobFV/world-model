@@ -1,0 +1,17 @@
+{
+  "epistemic_status": "synthetic_scenario",
+  "description": "Fictional places, services, vehicles and capacities. Costs share one scenario currency unit.",
+  "nodes": [
+    {"id": "fictional:home"}, {"id": "fictional:airport-a"},
+    {"id": "fictional:airport-b"}, {"id": "fictional:port-a"},
+    {"id": "fictional:port-b"}, {"id": "fictional:destination"}
+  ],
+  "edges": [
+    {"id": "taxi-a", "source": "fictional:home", "target": "fictional:airport-a", "mode": "road", "duration_seconds": 1800, "cost": 40, "capacity": 4, "evidence": []},
+    {"id": "flight-ab", "source": "fictional:airport-a", "target": "fictional:airport-b", "mode": "air", "duration_seconds": 3600, "cost": 200, "capacity": 20, "departures": ["2026-10-01T10:00:00Z", "2026-10-01T14:00:00Z"], "vehicle_id": "fictional:aircraft", "evidence": []},
+    {"id": "rail-b", "source": "fictional:airport-b", "target": "fictional:destination", "mode": "rail", "duration_seconds": 1200, "cost": 10, "capacity": 100, "departures": ["2026-10-01T11:15:00Z", "2026-10-01T15:15:00Z"], "evidence": []},
+    {"id": "walk-a", "source": "fictional:home", "target": "fictional:port-a", "mode": "walk", "duration_seconds": 1200, "cost": 0, "evidence": []},
+    {"id": "ferry-ab", "source": "fictional:port-a", "target": "fictional:port-b", "mode": "sea", "duration_seconds": 14400, "cost": 30, "capacity": 50, "departures": ["2026-10-01T09:30:00Z"], "vehicle_id": "fictional:ferry", "evidence": []},
+    {"id": "transfer-b", "source": "fictional:port-b", "target": "fictional:destination", "mode": "transfer", "duration_seconds": 900, "cost": 5, "evidence": []}
+  ]
+}

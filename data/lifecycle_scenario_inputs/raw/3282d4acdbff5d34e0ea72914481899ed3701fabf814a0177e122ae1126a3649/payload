@@ -1,0 +1,78 @@
+{
+  "description": "Entirely fictional append-only lifecycle scenario; counts are explicitly additive demonstration units",
+  "entities": [
+    {
+      "id": "scenario:person:ada",
+      "entity_type": "person",
+      "label": "Fictional Ada"
+    },
+    {
+      "id": "scenario:business:a",
+      "entity_type": "business",
+      "label": "Fictional business a"
+    },
+    {
+      "id": "scenario:business:b",
+      "entity_type": "business",
+      "label": "Fictional business b"
+    },
+    {
+      "id": "scenario:business:ab",
+      "entity_type": "business",
+      "label": "Fictional business ab"
+    }
+  ],
+  "events": [
+    {
+      "id": "scenario:event:birth",
+      "type": "birth",
+      "entity": "scenario:person:ada",
+      "size": 1,
+      "occurred_at": "1980-01-01",
+      "observed_at": "1980-01-02"
+    },
+    {
+      "id": "scenario:event:incorporation:a",
+      "type": "incorporation",
+      "entity": "scenario:business:a",
+      "size": 10,
+      "occurred_at": "2020-01-01",
+      "observed_at": "2020-01-02"
+    },
+    {
+      "id": "scenario:event:incorporation:b",
+      "type": "incorporation",
+      "entity": "scenario:business:b",
+      "size": 20,
+      "occurred_at": "2020-01-01",
+      "observed_at": "2020-01-02"
+    },
+    {
+      "id": "scenario:event:growth:a",
+      "type": "growth",
+      "entity": "scenario:business:a",
+      "delta": 5,
+      "occurred_at": "2021-01-01",
+      "observed_at": "2021-01-02"
+    },
+    {
+      "id": "scenario:event:merge",
+      "type": "merge",
+      "sources": [
+        "scenario:business:a",
+        "scenario:business:b"
+      ],
+      "target": "scenario:business:ab",
+      "occurred_at": "2022-01-01",
+      "observed_at": "2022-01-02"
+    },
+    {
+      "id": "scenario:event:dissolve",
+      "type": "dissolution",
+      "entity": "scenario:business:ab",
+      "occurred_at": "2024-01-01",
+      "observed_at": "2024-02-01"
+    }
+  ],
+  "conserve_size": true
+}

@@ -1,0 +1,79 @@
+{
+  "human_state": {
+    "status": "alive",
+    "wealth": 100,
+    "risk_aversion": 0,
+    "temperature": 5,
+    "choices": [
+      {
+        "id": "work",
+        "cost": 2,
+        "outcomes": [
+          {
+            "value": 10,
+            "probability": 1
+          }
+        ]
+      },
+      {
+        "id": "venture",
+        "outcomes": [
+          {
+            "value": 30,
+            "probability": 0.5
+          },
+          {
+            "value": -10,
+            "probability": 0.5
+          }
+        ]
+      }
+    ]
+  },
+  "business_state": {
+    "status": "active",
+    "cash": 1000,
+    "capacity": 100,
+    "base_demand": 80,
+    "base_price": 10,
+    "elasticity": 1.5,
+    "labor_cost_per_unit": 2,
+    "markup": 0.2,
+    "inputs": [
+      {
+        "id": "energy",
+        "inventory": 100,
+        "required_per_unit": 2,
+        "unit_cost": 2
+      }
+    ],
+    "candidate_prices": [
+      7,
+      9,
+      11,
+      15
+    ]
+  },
+  "government_state": {
+    "status": "active",
+    "inflation": 0.06,
+    "inflation_target": 0.02,
+    "output_gap": 0.02,
+    "neutral_rate": 0.01,
+    "policy_rate": 0.04,
+    "smoothing": 0,
+    "budget": 100,
+    "programs": [
+      {
+        "id": "infrastructure",
+        "requested": 80,
+        "benefit_per_dollar": 2
+      },
+      {
+        "id": "education",
+        "requested": 80,
+        "benefit_per_dollar": 3
+      }
+    ]
+  }
+}

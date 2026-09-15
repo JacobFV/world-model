@@ -1,19 +1,38 @@
-# Dataset catalog
+# Versioned datasets
 
 Each child directory is a dataset, whether imported, computed, or materialized as
-a graph. `dataset.json` is the tracked definition; raw data, staging, run receipts
-and published results are created at runtime and ignored by Git.
+a graph. Git retains the available data and its provenance together:
 
-The four `offline_example` entries are runnable with the repository fixtures.
-The fourteen `requires_configuration` source families record the ingestion scope,
-expected outputs and mapping requirements. They intentionally have no guessed
-release URL or universal parser. Configure exact releases, adapter entrypoints
-and mappings before using them. Split a family into individual datasets when
-releases, formats, licensing or update schedules differ.
+| Path | Git policy | Purpose |
+| --- | --- | --- |
+| `dataset.json` | Track | Dataset definition and sampling limits |
+| `raw/<artifact>/payload` | Track | Retained source sample or imported input |
+| `raw/<artifact>/receipt.json` | Track | Source metadata, acquisition context and checksum |
+| `samples/<sample-id>/manifest.json` | Track | Selection criteria, source hash and sample profile |
+| `samples/latest.json` | Track | Current exploratory sample, including blocked status |
+| `final/<version>/` | Track | Immutable normalized/computed records, reports and manifests |
+| `latest.json`, `raw-latest.json` | Track | Current published version/input |
+| `processing/` | Ignore | Temporary downloads and in-progress writes |
+| `runs/` | Ignore | Local execution logs; durable provenance remains in manifests |
+| `.lock`, SQLite indexes and sidecars | Ignore | Writer coordination and rebuildable indexes |
 
-See the root README for commands, schema, provenance, and workstation setup.
+All retained versions are tracked. Do not remove an older raw or final artifact
+merely because it is no longer latest: another artifact may reference it. Verification
+follows immutable references recursively, so payloads and their receipts/manifests
+must travel together.
 
-Each definition also has a laptop `sampling` policy. Sampling is available even
-when the production entrypoint still requires configuration. `sample all
---allow-network` acquires bounded excerpts; `explore DATASET` verifies and displays
-the retained profile. See `docs/sampling.md` and the exploration report.
+A clone can inspect the committed samples and computed results without fetching
+sources again. They remain bounded, nonrepresentative snapshots; source access and
+completeness are separate questions. Rebuild SQLite query indexes locally as needed.
+
+```sh
+python3 -m worldmodel explore sec_company_assets
+python3 -m worldmodel verify reference_evidence
+```
+
+Python wheels continue to bundle only catalog definitions, fictional fixtures and
+examples, not this artifact history. For bulk acquisitions outside the shared sample
+collection, use an external `WORLD_MODEL_DATA` directory or `--data-root`.
+
+Source datasets retain their own terms; see [data rights](../DATA_RIGHTS.md).
+Sampling limits and commands are described in [laptop sampling](../docs/sampling.md).

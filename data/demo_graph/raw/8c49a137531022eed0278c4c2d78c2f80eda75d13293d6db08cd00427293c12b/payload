@@ -1,0 +1,5 @@
+{"entity_type":"organization","id":"org:acme","kind":"entity","label":"Acme (fictional)","observed_at":"2024-01-01T00:00:00Z"}
+{"entity_type":"facility","id":"asset:factory","kind":"entity","label":"Example factory (fictional)","observed_at":"2024-01-01T00:00:00Z"}
+{"attributes":{"asset":"asset:factory"},"id":"claim:ownership-a","kind":"assertion","observed_at":"2024-02-01T00:00:00Z","predicate":"ownership_fraction","subject":"org:acme","valid_from":"2024-01-01","valid_to":"2025-01-01","value":0.6}
+{"attributes":{"asset":"asset:factory"},"id":"claim:ownership-b","kind":"assertion","observed_at":"2024-09-01T00:00:00Z","predicate":"ownership_fraction","subject":"org:acme","valid_from":"2024-01-01","valid_to":"2025-01-01","value":0.8}
+{"dimensions":{"geo":"geo:US","industry":"naics:2022:31-33"},"id":"obs:establishments","kind":"observation","metric":"establishment_count","observed_at":"2025-01-01T00:00:00Z","unit":"establishments","valid_from":"2024-01-01","valid_to":"2025-01-01","value":217}

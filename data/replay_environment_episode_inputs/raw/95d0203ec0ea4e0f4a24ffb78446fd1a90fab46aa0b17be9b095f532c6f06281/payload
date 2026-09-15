@@ -1,0 +1,175 @@
+{
+  "description": "Invented cash, revenue and spending attached to known entity IDs. Demonstrates environment mechanics, not actual financial state or a calibrated economy.",
+  "materialization": {
+    "dataset": "environment_cashflow_view",
+    "start": "2026-09-15T00:00:00Z",
+    "end": "2026-09-15T06:00:00Z",
+    "known_at": "2026-09-16",
+    "step_seconds": 3600,
+    "mode": "forecast",
+    "targets": [
+      {
+        "entity": "fdic:cert:34383",
+        "variable": "cash"
+      },
+      {
+        "entity": "lei:5493001KJTIIGC8Y1R12",
+        "variable": "cash"
+      }
+    ],
+    "initial_state": [
+      {
+        "entity": "fdic:cert:34383",
+        "variable": "cash",
+        "value": 1000,
+        "unit": "USD"
+      },
+      {
+        "entity": "lei:5493001KJTIIGC8Y1R12",
+        "variable": "cash",
+        "value": 1000,
+        "unit": "USD"
+      }
+    ],
+    "bindings": [
+      {
+        "id": "cash_0",
+        "process_id": "investment_cash_flow",
+        "fidelity": "deterministic",
+        "cadence_seconds": 3600,
+        "inputs": {
+          "cash": {
+            "entity": "fdic:cert:34383",
+            "variable": "cash"
+          },
+          "revenue": {
+            "value": 0.05,
+            "unit": "USD/second"
+          },
+          "expenditure": {
+            "value": 0.02,
+            "unit": "USD/second"
+          }
+        },
+        "outputs": {
+          "cash": {
+            "entity": "fdic:cert:34383",
+            "variable": "cash"
+          }
+        }
+      },
+      {
+        "id": "cash_1",
+        "process_id": "investment_cash_flow",
+        "fidelity": "deterministic",
+        "cadence_seconds": 3600,
+        "inputs": {
+          "cash": {
+            "entity": "lei:5493001KJTIIGC8Y1R12",
+            "variable": "cash"
+          },
+          "revenue": {
+            "value": 0.05,
+            "unit": "USD/second"
+          },
+          "expenditure": {
+            "value": 0.02,
+            "unit": "USD/second"
+          }
+        },
+        "outputs": {
+          "cash": {
+            "entity": "lei:5493001KJTIIGC8Y1R12",
+            "variable": "cash"
+          }
+        }
+      }
+    ]
+  },
+  "step_seconds": 3600,
+  "seed": 17,
+  "max_total_calls": 100,
+  "environment": {
+    "actions": {
+      "spend_0": {
+        "binding": "cash_0",
+        "port": "expenditure",
+        "type": "number",
+        "unit": "USD/second",
+        "minimum": 0,
+        "maximum": 0.1
+      },
+      "spend_1": {
+        "binding": "cash_1",
+        "port": "expenditure",
+        "type": "number",
+        "unit": "USD/second",
+        "minimum": 0,
+        "maximum": 0.1
+      }
+    },
+    "observations": {
+      "cash_0": {
+        "entity": "fdic:cert:34383",
+        "variable": "cash",
+        "unit": "USD"
+      },
+      "cash_1": {
+        "entity": "lei:5493001KJTIIGC8Y1R12",
+        "variable": "cash",
+        "unit": "USD"
+      }
+    },
+    "reward": {
+      "terms": [
+        {
+          "selector": {
+            "entity": "fdic:cert:34383",
+            "variable": "cash",
+            "unit": "USD"
+          },
+          "mode": "delta",
+          "weight": 1,
+          "scale": 100
+        },
+        {
+          "selector": {
+            "entity": "lei:5493001KJTIIGC8Y1R12",
+            "variable": "cash",
+            "unit": "USD"
+          },
+          "mode": "delta",
+          "weight": 1,
+          "scale": 100
+        }
+      ]
+    },
+    "max_steps": 6
+  },
+  "actions": [
+    {
+      "spend_0": 0.02,
+      "spend_1": 0.03
+    },
+    {
+      "spend_0": 0.04,
+      "spend_1": 0.01
+    },
+    {
+      "spend_0": 0.01,
+      "spend_1": 0.04
+    },
+    {
+      "spend_0": 0.03,
+      "spend_1": 0.02
+    },
+    {
+      "spend_0": 0.05,
+      "spend_1": 0.05
+    },
+    {
+      "spend_0": 0.02,
+      "spend_1": 0.02
+    }
+  ]
+}
