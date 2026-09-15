@@ -11,6 +11,9 @@ def add_commands(sub):
     env.add_argument('reference');env.add_argument('--request',type=Path,required=True)
     env.add_argument('--backend',choices=['checkpoint','replay'],default='checkpoint')
     env.add_argument('--dataset',default='environment_episode')
+    env.add_argument('--journal',type=Path,help='Opt-in durable local SQLite episode journal')
+    env.add_argument('--session',help='Stable journal session identifier')
+    env.add_argument('--resume',action='store_true',help='Explicitly resume an existing journal session')
     surface=sub.add_parser('surface',help='Render a verified materialization or graph as a standalone HTML surface')
     surface.add_argument('reference');surface.add_argument('--spec',type=Path,required=True)
     surface.add_argument('--dataset',default='materialization_surface')
@@ -23,11 +26,17 @@ def execute(args,catalog,store,project,reference):
     graph=reference(args.reference,store)
     if args.command=='environment':
         from .environments import Environment,TemporalEvaluator,CheckpointEvaluator
+        if (getattr(args,'session',None) or getattr(args,'resume',False)) and not getattr(args,'journal',None):
+            raise ValueError('--session/--resume require --journal')
+        if getattr(args,'journal',None) and (not getattr(args,'session',None) or args.backend!='checkpoint'):
+            raise ValueError('--journal requires --session and checkpoint backend')
         raw,request=_local_input(store,args.dataset,args.request,'environment input/output/reward specification and action sequence')
         evaluator=CheckpointEvaluator if getattr(args,'backend','replay')=='checkpoint' else TemporalEvaluator
         adapter=evaluator(store,graph,request['materialization'],request['step_seconds'],
                                   max_total_calls=request.get('max_total_calls',10000))
         env=Environment(adapter,request['environment'])
+        if getattr(args,'journal',None):
+            return _journal_episode(args,store,adapter,env,request,raw)
         observation,info=env.reset(request.get('seed',0))
         frames=[{'observation':observation,'info':info,'reward':None}]
         materialization_ref=adapter.publish() if isinstance(adapter,CheckpointEvaluator) else env.materialization['artifact']
@@ -59,9 +68,37 @@ def execute(args,catalog,store,project,reference):
     if data.get('snapshots'):
         records=[r for r in records if r['kind']!='observation']
     data={**data,'records':records}
-    html=render_surface(data,spec)
+    entrypoint='worldmodel.surfaces:render_surface'
+    if 'spatial_selection' in spec:
+        from .spatial_surfaces import render_spatial_surface
+        visual={k:v for k,v in spec.items() if k not in ('spatial_selection','spatial_bounds')}
+        html=render_spatial_surface(data,spec['spatial_selection'],spec=visual or None,
+                                   materialization_ref=graph,**spec.get('spatial_bounds',{}))
+        entrypoint='worldmodel.spatial_surfaces:render_spatial_surface'
+    else:html=render_surface(data,spec)
     artifact=publish_report(store,args.dataset,{'html':html,'source':graph,'spec':spec}, {'source':graph,'spec':spec},
-                            inputs=[graph],raw_inputs=[raw],entrypoint='worldmodel.surfaces:render_surface')
+                            inputs=[graph],raw_inputs=[raw],entrypoint=entrypoint)
     args.output.parent.mkdir(parents=True,exist_ok=True)
     args.output.write_text(html,encoding='utf-8')
     return {'artifact':artifact,'html_export':str(args.output.resolve()),'bytes':len(html.encode())}
+
+
+def _journal_episode(args,store,adapter,env,request,raw):
+    import os
+    from .execution_journal import ExecutionJournal
+    from .journaled_environment import JournaledEnvironment
+    if len(request['actions'])>request['environment']['max_steps']:raise ValueError('Action sequence exceeds episode horizon')
+    args.journal.parent.mkdir(parents=True,exist_ok=True)
+    secret=os.environ.get('WORLD_MODEL_JOURNAL_KEY')
+    with ExecutionJournal(args.journal,signing_key=secret.encode() if secret else None) as journal:
+        episode=JournaledEnvironment(env,journal,args.session,seed=request.get('seed',0),resume=args.resume,
+                                     max_process_calls=request.get('max_total_calls',10000))
+        observation,info=episode.reset_outcome
+        frames=[{'observation':observation,'info':info,'reward':None}]
+        for index,action in enumerate([] if info.get('terminated') or info.get('truncated') else request['actions']):
+            observation,reward,terminated,truncated,info=episode.step(action,action_id='action:'+str(index))
+            frames.append({'observation':observation,'reward':reward,'terminated':terminated,'truncated':truncated,'info':info})
+            if terminated or truncated:break
+        artifact=episode.publish(store,args.dataset,request=request,raw_inputs=[raw])
+        return {'artifact':artifact,'frames':frames,'process_calls':adapter.total_calls,'backend':'journal',
+                'session':args.session,'quota':journal.quota(episode.quota_name)}

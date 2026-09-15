@@ -19,8 +19,8 @@ class Graph:
     def build(self, store, refs):
         if not refs:
             raise ValueError('Graph build requires at least one version')
-        if len({ref['dataset'] for ref in refs}) != len(refs):
-            raise ValueError('Select one version per dataset for a graph snapshot')
+        if len({(ref['dataset'],ref.get('stage','final')) for ref in refs}) != len(refs):
+            raise ValueError('Select one version per dataset stage for a graph snapshot')
         self.path.parent.mkdir(parents=True, exist_ok=True)
         temporary = self.path.with_name(self.path.name + '.' + uuid.uuid4().hex + '.tmp')
         connection = sqlite3.connect(temporary)

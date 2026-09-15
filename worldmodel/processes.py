@@ -113,11 +113,19 @@ class ProcessRegistry:
                     raise ValueError('Invalid port descriptor')
                 if port.get('unit') is not None and not isinstance(port['unit'], str):
                     raise ValueError('Port unit must be string or null')
+                if 'temporal' in port:
+                    temporal=port['temporal']
+                    if not isinstance(temporal,dict) or set(temporal)!={'lag_seconds','max_age_seconds','missing'} or temporal['missing'] not in ('error','omit'):
+                        raise ValueError('Input temporal contract requires lag, maximum age and missing policy')
+                    _number(temporal['lag_seconds'],'input lag',True);_number(temporal['max_age_seconds'],'input maximum age',True)
+                    if key!='inputs':raise ValueError('Temporal contracts apply only to input ports')
                 if not isinstance(port.get('required', True), bool):
                     raise ValueError('Port required must be boolean')
         for key in ('topology', 'description'):
             if key not in spec:
                 raise ValueError(f'Process requires {key}')
+        from .process_contracts import validate_conserved_outputs
+        validate_conserved_outputs(spec)
         self._processes[spec['id']] = deepcopy(spec)
 
     def register_implementation(self, spec, handler):
@@ -134,7 +142,10 @@ class ProcessRegistry:
         for key in ('min_step_seconds', 'min_regime', 'max_regime'):
             if key in spec:
                 _number(spec[key], key, True)
+        if 'approximation' in spec and (not isinstance(spec['approximation'], list) or any(not isinstance(v,str) for v in spec['approximation'])):
+            raise ValueError('Implementation approximation must be explicit strings')
         descriptor = deepcopy(spec)
+        descriptor.setdefault('approximation', ['No approximation statement supplied by this implementation.'])
         identity = {'module': getattr(handler, '__module__', type(handler).__module__),
                     'qualname': getattr(handler, '__qualname__', type(handler).__qualname__)}
         try:
@@ -196,7 +207,18 @@ class ProcessRegistry:
             raise ValueError('Agent implementation requires explicit backend.predict')
         if not isinstance(inputs, dict) or set(inputs) - set(process['inputs']):
             raise ValueError('Unknown input ports')
+        inputs = deepcopy(inputs)
         for name, port in process['inputs'].items():
+            if name in inputs and port.get('temporal'):
+                from .process_contracts import select_timed_input
+                item = inputs[name]
+                if not isinstance(item,dict) or item.get('unit') != port.get('unit'):
+                    raise ValueError('Timed input unit mismatch')
+                selected = select_timed_input(item.get('value'), {'unit':port.get('unit'), **port['temporal']}, at=context['time'], known_at=context.get('known_at',context['time']))
+                if selected is None:
+                    inputs.pop(name)
+                else:
+                    inputs[name] = selected
             if name not in inputs:
                 if port.get('required', True):
                     raise ValueError(f'Missing required input: {name}')
@@ -210,6 +232,8 @@ class ProcessRegistry:
         if not isinstance(result, dict):
             raise ValueError('Prediction must return a dictionary')
         result = deepcopy(result)
+        if any(p.get('temporal') for p in process['inputs'].values()):
+            result['input_receipts']={name:deepcopy(inputs.get(name)) for name,p in process['inputs'].items() if p.get('temporal')}
         for key, default in [('pressures', []), ('events', []), ('memory', {}), ('diagnostics', {})]:
             result.setdefault(key, default)
             if not isinstance(result[key], type(default)):

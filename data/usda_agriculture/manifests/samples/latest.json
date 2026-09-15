@@ -1,0 +1,1 @@
+{"completed_at":"2026-09-15T16:53:35.819417+00:00","criteria":"2023 annual surveyed corn yield by state; first 100 rows, no county/farm microdata.","dataset":"usda_agriculture","max_download_bytes":1048576,"max_rows":100,"max_sample_bytes":1048576,"reason":"Missing USDA_NASS_API_KEY; source requires an API key","started_at":"2026-09-15T16:53:35.819233+00:00","status":"blocked"}

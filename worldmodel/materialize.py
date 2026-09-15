@@ -106,6 +106,10 @@ def _plan(registry, request, targets, duration, backend):
             else:
                 raise ValueError('Input binding requires a variable reference or typed literal')
         bindings[name] = {**binding, 'inputs_resolved': inputs, 'outputs_resolved': outputs}
+    for binding in bindings.values():
+        for declaration in specs[binding['process_id']].get('conserved_quantities', []):
+            if any(len(producers[binding['outputs_resolved'][port]]) != 1 for port in declaration['ports']):
+                raise ValueError('Conserved output cannot have multiple writers; exchange through one coupling authority')
     keys, active = set(targets), set()
     pending = list(targets)
     while pending:
@@ -158,12 +162,17 @@ def _plan(registry, request, targets, duration, backend):
                          'entity_id': entity})
     if total_cost > request['budget'] or total_calls > request['max_calls']:
         raise ValueError(f'Materialization budget exceeded: {total_calls} calls, cost {total_cost}')
+    lifecycle=request.get('lifecycle',{})
+    lifecycle_work=2*(total_calls+1)*(len(lifecycle.get('events',[]))+len(lifecycle.get('entities',[])))
+    if lifecycle_work>10000000:
+        raise ValueError('Lifecycle reconstruction work budget exceeded before execution')
     if agents and (not isinstance(getattr(backend, 'identity', None), dict) or not backend.identity):
         raise ValueError('Agent backend requires an explicit identity dictionary for provenance')
     return selected, sorted(keys), {'bindings': [
         {k:v for k,v in binding.items() if not k.endswith('_resolved')} for binding in selected],
         'variables': [{'entity': e, 'variable': v} for e,v in sorted(keys)],
-        'estimated_calls': total_calls, 'estimated_cost': total_cost,
+        'estimated_calls': total_calls, 'estimated_cost': total_cost, 'estimated_lifecycle_work':lifecycle_work,
+        'fidelity_selection': [{'binding':b['id'],'implementation':b['implementation']['id'],'fidelity':b['implementation']['fidelity'],'estimated_cost_per_call':b['implementation']['cost_per_call'],'approximation':b['implementation']['approximation']} for b in selected],
         'dependency_policy': 'all producers of reachable variables; simultaneous feedback'}, specs
 
 
@@ -338,13 +347,15 @@ def materialize(store, graph_ref, request, registry=None, agent_backend=None):
             pending_predictions = []
             for binding in due:
                 name = binding['id']
+                from .process_contracts import require_execution_eligible
+                require_execution_eligible(request, binding['entity_id'], (start+timedelta(seconds=elapsed)).isoformat(), min(binding['cadence_seconds'], duration-elapsed))
                 inputs = {port: {'value': deepcopy(state[value]['value']), 'unit': state[value]['unit']}
                           if isinstance(value, tuple) else deepcopy(value)
                           for port, value in binding['inputs_resolved'].items()}
                 memory = deepcopy(memories.get(binding['entity_id'], {}))
                 pending_cost = sum(b['implementation']['cost_per_call'] for b, *_ in pending_predictions)
                 context = {'dt_seconds': min(binding['cadence_seconds'], duration-elapsed),
-                           'time': (start+timedelta(seconds=elapsed)).isoformat(), 'rng': rngs[name],
+                           'time': (start+timedelta(seconds=elapsed)).isoformat(), 'known_at':request['known_at'], 'rng': rngs[name],
                            'state': {port: deepcopy(state[key]['value'])
                                      for port,key in binding['outputs_resolved'].items()},
                            'entity_id': binding['entity_id'], 'memory': memory, 'agent_backend': agent_backend,
@@ -395,6 +406,9 @@ def materialize(store, graph_ref, request, registry=None, agent_backend=None):
                     if type(value) in (int, float):
                         if value < output_spec.get('minimum', -math.inf) or value > output_spec.get('maximum', math.inf):
                             raise ValueError(f'Forecast violates declared output bounds for {key}')
+            from .process_contracts import audit_conserved_outputs
+            for binding in bindings:
+                audit_conserved_outputs(specs[binding['process_id']], {p:state[k]['value'] for p,k in binding['outputs_resolved'].items()}, {p:new_state[k]['value'] for p,k in binding['outputs_resolved'].items()})
             state, elapsed = new_state, boundary
             if elapsed == sample_times[sample_index]:
                 snapshots += _snapshots(state, targets, start+timedelta(seconds=elapsed), request)

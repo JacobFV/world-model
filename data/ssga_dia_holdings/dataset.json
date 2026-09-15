@@ -1,0 +1,54 @@
+{
+  "id": "ssga_dia_holdings",
+  "schema_version": 2,
+  "dependencies": [],
+  "kind": "source",
+  "status": "configured_bounded_source",
+  "description": "Published DIA fund holdings snapshot; not official Dow membership or issuer ownership.",
+  "source": {
+    "publisher": "State Street Investment Management",
+    "documentation": "https://www.ssga.com/us/en/intermediary/etfs/state-street-spdr-dow-jones-industrial-average-etf-trust-dia",
+    "license_status": "publisher terms apply; raw workbook not redistributed",
+    "unit_basis": "publisher table headers and fund page definitions"
+  },
+  "entrypoint": "pipeline.py:run",
+  "sampling": {
+    "strategy": "download",
+    "max_rows": 100,
+    "max_sample_bytes": 1048576,
+    "max_download_bytes": 2000000,
+    "max_uncompressed_bytes": 8000000,
+    "disk_budget_bytes": 67108864,
+    "timeout_seconds": 25,
+    "total_timeout_seconds": 90,
+    "format": "xlsx",
+    "records_path": [],
+    "representative": false,
+    "criteria": "First100 matching published rows; workbook currently newest first for dated history; physical row and metadata preserved.",
+    "url": "https://www.ssga.com/library-content/products/fund-data/etfs/us/holdings-daily-us-en-dia.xlsx",
+    "header_row": 5,
+    "stop_when_blank": "Ticker",
+    "context_cells": {
+      "fund": "B1",
+      "ticker": "B2",
+      "date": "B3"
+    }
+  },
+  "stages": [
+    {
+      "id": "normalized",
+      "entrypoint": "pipeline.py:run",
+      "depends_on": [],
+      "schema": {
+        "format": "evidence_jsonl"
+      },
+      "validation": {
+        "allow_empty": false,
+        "max_rows": 100000
+      },
+      "cache": "content",
+      "retention": "retain"
+    }
+  ],
+  "output_stage": "normalized"
+}

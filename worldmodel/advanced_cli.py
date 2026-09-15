@@ -3,7 +3,7 @@ from pathlib import Path
 from .artifacts import publish_report,load_report
 from .util import read_json
 
-COMMANDS={'coupled-economy','rights','evidence-audit','assess-model','reconcile','rl-benchmark','resources','spatial','sensitivity'}
+COMMANDS={'coupled-economy','rights','evidence-audit','assess-model','reconcile','rl-benchmark','resources','spatial','spatial-timeline','sensitivity','benchmark-scenarios','cross-domain'}
 
 
 def add_commands(sub):
@@ -15,9 +15,10 @@ def add_commands(sub):
         if name=='reconcile':command.add_argument('--request',type=Path,required=True)
     rl=sub.add_parser('rl-benchmark',help='Train and evaluate a tiny fictional tabular benchmark on disjoint seeds')
     rl.add_argument('--dataset',default='rl_benchmark')
-    for name in ('coupled-economy','spatial','sensitivity'):
+    for name in ('coupled-economy','spatial','spatial-timeline','sensitivity','benchmark-scenarios','cross-domain'):
         command=sub.add_parser(name);command.add_argument('--request',type=Path,required=True)
         command.add_argument('--dataset',default=name.replace('-','_')+'_scenario')
+        if name=='cross-domain':command.add_argument('--fidelity',choices=['aggregate','unit'],default='aggregate')
 
 
 def execute(args,catalog,store,project,reference):
@@ -61,7 +62,15 @@ def execute(args,catalog,store,project,reference):
         ref=publish_report(store,'reconciliation',result,request,inputs=[source],raw_inputs=[raw],entrypoint='worldmodel.reconciliation:reconcile_claims')
         return {'artifact':ref,**result}
     raw,request=_local_input(store,args.dataset,args.request,'explicit scenario configuration')
-    if args.command=='sensitivity':
+    if args.command=='cross-domain':
+        from .composition import materialize_composition
+        result=materialize_composition(request,fidelity=args.fidelity)
+        entrypoint='worldmodel.composition:materialize_composition'
+    elif args.command=='benchmark-scenarios':
+        from .scenario_benchmark import benchmark_scenarios
+        result=benchmark_scenarios(**request)
+        entrypoint='worldmodel.scenario_benchmark:benchmark_scenarios'
+    elif args.command=='sensitivity':
         from .validation import parameter_sweep
         from .coupled_economy import simulate_coupled_economy
         if request.get('model')!='coupled_economy':raise ValueError('Unknown sensitivity model')
@@ -70,6 +79,14 @@ def execute(args,catalog,store,project,reference):
     elif args.command=='coupled-economy':
         from .coupled_economy import simulate_coupled_economy
         result=simulate_coupled_economy(request);entrypoint='worldmodel.coupled_economy:simulate_coupled_economy'
+    elif args.command=='spatial-timeline':
+        from .spatial_store import SpatialStore
+        import tempfile
+        with tempfile.TemporaryDirectory(prefix='worldmodel-timeline-') as tmp:
+            with SpatialStore(Path(tmp)/'state.sqlite') as spatial:
+                spatial.initialize(request['world'],coordinate_system=request['coordinate_system'])
+                result=spatial.evolve_timeline(request['request'])
+        entrypoint='worldmodel.spatial_store:SpatialStore.evolve_timeline'
     else:
         from .spatial_store import SpatialStore
         # This command reconstructs an immutable scenario; the Python API opens persistent databases directly.
@@ -83,5 +100,7 @@ def execute(args,catalog,store,project,reference):
                 result={'transitions':transitions,'materialization':spatial.materialize(**selection),
                         'audit':spatial.audit(),'epistemic_status':'synthetic_scenario'}
         entrypoint='worldmodel.spatial_store:SpatialStore.materialize'
-    ref=publish_report(store,args.dataset,result,{'request':request},raw_inputs=[raw],entrypoint=entrypoint)
+    parameters={'request':request}
+    if args.command=='cross-domain':parameters['fidelity']=args.fidelity
+    ref=publish_report(store,args.dataset,result,parameters,raw_inputs=[raw],entrypoint=entrypoint)
     return {'artifact':ref,**result}

@@ -1,0 +1,15 @@
+{
+  "start": "2026-01-02T21:00:00Z",
+  "end": "2026-01-02T21:00:01Z",
+  "step_seconds": 1,
+  "known_at": "2026-01-02T21:02:00Z",
+  "budget": 1,
+  "seed": 0,
+  "targets": [
+    {
+      "entity": "fiction:security",
+      "variable": "security_price_quote"
+    }
+  ],
+  "bindings": []
+}

@@ -85,10 +85,32 @@ for _extension in (_coupled_schema(), _exposure_schema(), _identity_schema(), _m
                 raise ValueError('Conflicting ontology definition: ' + _name)
             _target[_name] = _descriptor
 PARENTS['scenario'] = 'entity'
+PARENTS['cash_balance']='asset'
 ENTITY_TYPES.update(PARENTS)
 _v('economy_state', None, 'entity', 'object')
 _v('banking_state', None, 'entity', 'object')
 _v('fields_state', None, 'entity', 'object')
+_v('composition_state', 'composition-state', 'entity', 'object')
+_v('composition_config', 'composition-config', 'entity', 'object')
+
+ENTITY_TYPES.update(PARENTS)
+RELATIONS.update({'position_holder':{'domain':'investment_position','range':'investment_fund'},
+                  'position_instrument':{'domain':'investment_position','range':['security','cash_balance']}})
+for name,unit,domain in [('position_shares','shares','investment_position'),('portfolio_weight','percent','investment_position'),
+                         ('fund_nav','USD/share','investment_fund'),('fund_shares_outstanding','shares','investment_fund'),
+                         ('fund_net_assets','USD','investment_fund'),('fund_premium_discount','percent','investment_fund')]:
+    _v(name,unit,domain)
+_v('published_instrument_identifier','category','asset','object')
+_v('position_cash','USD','investment_position')
+
+RELATIONS['issued_document_by']={'domain':['publication','law'],'range':'government_agency'}
+_v('document_status','category','entity','object')
+_v('publication_metadata','category','publication','object')
+_v('corn_yield','BU / ACRE','aggregate_cohort')
+
+from .financial_identity import schema as _financial_schema
+RELATIONS.update(_financial_schema()['relations'])
+VARIABLES.update(_financial_schema()['variables'])
 
 def is_a(actual, expected):
     if isinstance(expected, (list, tuple)):

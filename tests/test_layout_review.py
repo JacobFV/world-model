@@ -1,4 +1,5 @@
 """Packaging regressions found by independent greenfield layout review."""
+from contextlib import closing
 from pathlib import Path
 import shutil
 import subprocess
@@ -87,7 +88,7 @@ class LayoutStageConsumerReviewTests(unittest.TestCase):
         from worldmodel.graph import Graph
         with tempfile.TemporaryDirectory() as temporary:
             path=Path(temporary)/'graph.sqlite'
-            with sqlite3.connect(path) as db:
+            with closing(sqlite3.connect(path)) as db, db:
                 db.execute('CREATE TABLE metadata(key TEXT PRIMARY KEY,value TEXT)')
                 db.execute("INSERT INTO metadata VALUES('schema_version','1')")
             with self.assertRaisesRegex(ValueError,'rebuild|graph-build'):

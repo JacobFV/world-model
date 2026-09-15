@@ -1,109 +1,98 @@
-# Implemented mitigations and remaining concerns
+# Implementation and remaining empirical limits
 
-This repository is an experimental evidence and simulation substrate. Implementation
-checks establish software behavior, not complete world coverage or predictive validity.
-The concerns below distinguish working mechanisms from unresolved empirical and
-operational requirements.
+The laptop implementation is an experimental evidence and simulation substrate.
+Its completion record is [handoff-completion.md](handoff-completion.md); the original
+interruption checklist remains in [RESUME-PLAN.md](RESUME-PLAN.md). Tests establish
+software contracts, not world coverage or predictive validity.
 
-## Temporal execution and environments
+## Durable execution
 
-**Implemented:** `CheckpointEvaluator` persists state, RNG streams, agent memory,
-literal inputs, held pressures and next-due times. The environment CLI defaults to
-this incremental evaluator; `--backend replay` retains the reference implementation.
-Numerical and output-validation failures roll back the transition. Trusted JSON
-checkpoints bind graph, request, registry and source identity and validate scheduler
-and pressure contracts on restore. Nonaligned observations preserve process cadence;
-end-of-step implementations emit discrete `set` pressures only.
+The incremental scheduler preserves state, RNG streams, agent memory, inputs and
+held pressures. The opt-in SQLite journal binds action outcomes to checkpoints,
+deduplicates committed actions, charges failed attempts, and blocks unresolved
+provider effects. Backups support verification, optional HMAC authentication and
+retention without deleting quota/effect authority. See [execution-journal.md](execution-journal.md).
 
-**Remaining:** cumulative snapshots, traces and transaction state still occupy memory
-and are copied. Checkpoint checksums are not authentication. Live backend effects
-cannot roll back: attempts are audited, a failed live transition blocks further
-steps, and live-backend restore is rejected. Exactly-once external execution across
-processes, global quota enforcement and a distributed scheduler are not implemented.
+Remaining limits: histories and checkpoint copies consume memory. Local SQLite
+coordination is not a distributed scheduler; copying a database does not create a
+global quota. Provider effects cannot roll back. Exactly-once execution still
+requires provider support. Superseded live writers are fenced by durable action attempt and checkpoint state.
+HMAC keys must be supplied and protected separately;
+checksums alone do not authenticate data, and backups are not encrypted.
 
-## Coupled economic mechanisms
+## Economy and fields
 
-**Implemented:** `coupled_economy` connects firms and households to one commercial-bank
-ledger. Explicit step policies control lending, production, purchases, repayment and
-bankruptcy. Transfers settle through deposits and bank reserves; each committed step
-checks accounting. Conservative cumulative transaction, posting and ledger-work budgets
-reject oversized scenarios before transfers. The process registry exposes state feedback and a separate dynamic
-policy input, so the checkpoint environment can change policy without rewriting prior
-steps. The older cash-funded and replay economy kernels remain separate examples.
+The bank-ledger economy now includes explicit labor limits, daily interest and
+policy-rate transmission, inventory costing, bounded demand/price feedback and
+funded collateral recovery. Each committed step checks accounting and work bounds.
+See [economy-mechanisms.md](economy-mechanisms.md).
 
-**Remaining:** this is a closed synthetic economy, not reconstructed business accounts.
-Labor limits, price discovery, interest, collateral recovery, inventory valuation,
-central-bank responses and empirical behavioral calibration remain absent or outside
-this kernel's scope. Accounting consistency does not establish realistic incentives,
-market equilibrium or a useful real-world policy.
+Signed scalar and vector transport/diffusion now supports atomic dated spatial
+lifecycle changes, closed-boundary conservation, planar polygon selection and
+explicit refinement/coarsening. Timeline views retain actual active topology and
+source details. See [field-dynamics.md](field-dynamics.md) and
+[spatial-surfaces.md](spatial-surfaces.md).
 
-## Spatial state and lifecycle
+Explicit process input-time, conservation and aggregation contracts plus a replayable
+cross-domain example are described in [process-composition.md](process-composition.md).
 
-**Implemented:** `SpatialStore` persists explicit supports, topology and field values
-in SQLite. Bounded selections and lifecycle batches support birth, death, merge and
-split, with atomic transactions, conservation checks and explicit external inputs.
-Cartesian and latitude/longitude axis conventions are declared. Signed scalar and
-vector values can be stored and conserved componentwise.
+These are synthetic mechanisms. Parameters are assumptions, not estimated causal
+responses. The field solver is bounded and local, with explicitly supplied topology,
+coordinate systems and component frames. It does not infer navigable water, roads,
+terrain or geodetic physics from coordinates. Spatial support lifecycle and an
+institution's legal lifecycle are distinct contracts.
 
-**Remaining:** numerical evolution delegates bounded nonnegative scalar selections to
-`FieldWorld`. This is not a distributed field solver, adaptive mesh, geodetic PDE
-solver or general vector-field dynamics engine. Coordinates locate supports; they do
-not infer polygons, terrain or missing topology. Explicit coordinate pairs support
-spherical geodetic distance; this is not road or navigable-water distance. Boundary cuts require
-explicit handling. Spatial lifecycle edits do not automatically mutate every arbitrary
-coupled temporal model.
+## Evidence and coverage
 
-## RL and first-person observations
+All dataset-specific transformations live in each dataset directory; shared code
+provides parsing, provenance, graph and execution mechanics. Acquired artifacts are
+ignored; tracked code and compact manifests make the work reproducible. Observations,
+source claims, reviewed assertions and synthetic scenarios remain distinguishable.
 
-**Implemented:** explicit scalar space declarations, an optional Gymnasium adapter,
-synchronous vector environments, and bounded tabular Q-learning with disjoint training
-and evaluation seeds and a fixed-action baseline. The perception wrapper implements
-allowlists, masks, reporting delays, seeded numeric noise and bounded delivered-observation
-memory. The toy benchmark is an offline integration example.
+DIA holdings are dated fund positions, not official index membership or issuer
+ownership. NAV is not adjusted exchange price. Temporal financial crosswalks keep
+issuer, security and listing identities separate. Reviewed contract inputs and
+canonical market import adapters require supplied evidence and explicit policies. See
+[financial-evidence-imports.md](financial-evidence-imports.md).
 
-**Remaining:** the vector adapter is local and sequential. A partial batch failure
-requires reset, not distributed rollback. The numerical Gym adapter supports explicitly
-bounded scalar observations and continuous scalar actions, not arbitrary nested ports.
-Perception is an interface contract, not a security sandbox or inferred human beliefs.
-Toy rewards and held-out seeds do not validate strategic behavior outside the simulator.
+Federal Register, Crossref, NASA and conflict adapters preserve source status,
+publication dates and reported uncertainty. Bounded samples do not establish complete
+public-figure, institution, research, law or conflict coverage. Aircraft ownership
+never proves a person's presence; routes and observed movements are separate.
 
-## Evidence, identity and validity
+Current acquisition outcomes and exact access dependencies are recorded in
+[source-access-2026-09-15.json](source-access-2026-09-15.json). USDA, BEA and UCDP may
+require credentials. Authorized adjusted prices, corporate-action feeds, complete
+index histories and bilateral contracts have not been conjured from aggregate data.
+MarineCadastre's status endpoint is now online; a bounded track export remains
+unverified. Freight acquisition must retain an actual access/size failure if it
+cannot complete within the configured buffer.
 
-**Implemented:** bounded source acquisition and access inventories, evidence-preserving
-identity references, dated reconciliation policies with retained candidates and audit,
-unit- and dimension-aware claim selection, bounded sensitivity sweeps, holdout gates, accounting checks and explicit model-assessment gates.
-These mechanisms expose uncertainty; they do not remove it.
+## Learning and validation
 
-**Remaining:** real bilateral obligations, complete ownership, supplier dependencies,
-adjusted security histories, corporate actions and index constituents remain incomplete.
-The bounded Apple SEC asset and issuer samples now work with the configured contact
-header. Other sources may require credentials, licensed access or a release-specific adapter. Roads are local subsets; airport references are not flight or passenger
-movements. Samples are bounded and nonrepresentative. Sparse source-scoped IDs do not
-establish complete real-world entity coverage. Independent temporal crosswalks, benchmarks
-and mechanism calibration remain necessary. The previously documented descriptive WTI
-holdout did not beat persistence; no calibrated geopolitical simulator is claimed.
+Chronological train/validation/test benchmarks freeze model selection before final
+scoring and retain persistence comparisons, missing values, input evidence and
+vintage assumptions. A losing model remains a valid recorded outcome. Parameter and
+scenario comparisons expose ambiguity rather than labeling a plausible fit causal.
+See [benchmarks.md](benchmarks.md) and [structured-rollouts.md](structured-rollouts.md). The previous WTI holdout failed persistence;
+that historical finding remains unchanged.
 
-## Distribution, rights and visual inspection
+Structured RL spaces, isolated numerical rollouts and held-out synthetic scenarios
+are software tools. They do not establish real-world strategic usefulness.
+Observation restrictions are explicit interfaces, not a security boundary or an
+inferred model of human beliefs. Trusted Python factories may have effects outside
+the runner; numerical workers reject known live backends but are not sandboxes.
 
-**Implemented:** wheels bundle read-only catalog declarations, fictional fixtures and
-examples. Writable runtime data is configured independently; `wm resources` reports
-paths. Code and documentation use MIT. Derived reports and materializations retain
-source rights metadata recursively, including unspecified or restricted terms.
-Interactive standalone HTML adds linked entity selection, filtering, time playback,
-source inspection, panel visibility/reordering and specification export.
+## Distribution and operational scale
 
-**Remaining:** acquired evidence, runtime artifacts and generated source-backed dashboards
-are local, not bundled releases. Fixture coverage does not verify access to a current
-external feed. MIT does not relicense third-party data; rights inventories do not decide
-license compatibility or grant redistribution rights. Unknown terms remain visible and
-require review for redistribution, without blocking local computation. Maps have no
-remote basemap or reconstructed terrain. Graph playback does not infer historical
-topology. Visual editing changes panel layout/specification, not source data or a general
-canvas diagram. ARM64/GB10 deployment and nonlocal filesystem backends need their own
-operational verification.
+Code/documentation use MIT. Dataset and upstream rights remain separate and flow
+through provenance; a derived artifact does not erase upstream obligations. Wheels
+bundle declarations, transformation code and fictional fixtures, not acquired data
+or credentials. Standalone views make no hidden network requests.
 
-See [environments and surfaces](environments-and-surfaces.md),
-[checkpoint details](checkpoint-environments.md), [reference backbone](reference-backbone.md),
-[strategic systems](strategic-systems.md), and [code/data rights](../DATA_RIGHTS.md).
+Full-scale GB10/Linux ARM64 execution remains deferred by user instruction. Local
+verification does not establish distributed reliability, global coverage or
+calibrated geopolitical prediction. Those require actual scale runs, source access,
+independent ground truth and an empirical validation design.
 
-See [the verification record](concern-resolution-verification-2026-09-15.json) for exact local checks and artifact references.
+Final local checks: [handoff verification](handoff-verification-2026-09-15.json).

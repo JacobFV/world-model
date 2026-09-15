@@ -8,7 +8,7 @@ from .pipeline import Runner
 from .sampling import explore
 from .util import digest, read_json
 
-SOURCE_IDS=MARKETS+PEOPLE
+SOURCE_IDS=MARKETS+PEOPLE+('ssga_dia_holdings','ssga_dia_nav','ssga_dia_premium','federal_register_documents','crossref_research','nasa_publications','ucdp_conflicts')
 
 
 def source_status(catalog,store):

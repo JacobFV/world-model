@@ -1,0 +1,178 @@
+{
+  "date": "2026-09-15",
+  "version": "0.3.0",
+  "scope": "All laptop software handoff streams; GB10/full-scale and empirical/source-access dependencies excluded",
+  "tests": {
+    "full": {
+      "command": "python3 -m unittest discover -s tests -q",
+      "tests": 501,
+      "skipped": 7,
+      "status": "passed"
+    },
+    "clean_source": {
+      "tests": 501,
+      "skipped": 7,
+      "status": "passed",
+      "resource_warnings": 0
+    },
+    "optional_gym": {
+      "tests": 17,
+      "skipped": 0,
+      "status": "passed"
+    },
+    "skip_reason": "Six legacy acquired-data checks lack their local inputs; one optionalGym check on stdlib interpreter. Fresh optionalGym environment separately passed."
+  },
+  "distribution": {
+    "installed_version": "0.3.0",
+    "catalogs": 52,
+    "gym_checker": "passed",
+    "cli_examples": "passed",
+    "spawn_oracle": "passed",
+    "catalog_root": "/private/tmp/wm-030-venv/lib/python3.14/site-packages/worldmodel/_resources/catalog",
+    "built_from_sdist": true,
+    "wheel_sha256": "012e15835e7ea070b154c5c1695aadb21534f1405b44c4a67df8ee060264e503",
+    "acquired_payloads_bundled": false
+  },
+  "browser": {
+    "engine": "headless Chrome",
+    "status": "passed",
+    "checks": [
+      "timeline support/edge replacement",
+      "source after disappearance",
+      "layers",
+      "playback",
+      "clear selection",
+      "export settings/source reference"
+    ],
+    "screenshot_visually_inspected": true
+  },
+  "cli": {
+    "status": "passed",
+    "examples": [
+      "demo",
+      "coupled-economy",
+      "benchmark-scenarios",
+      "spatial-timeline",
+      "surface",
+      "cross-domain aggregate",
+      "cross-domain unit"
+    ],
+    "temporary_runtime_removed": true
+  },
+  "evidence": {
+    "reference": {
+      "dataset": "reference_evidence",
+      "version": "65a3cad1a91e16862544c4e2728683f8d30b5f20a864455a392929d135302e52"
+    },
+    "counts": {
+      "records": 10955,
+      "entities": 2811,
+      "relations": 5268,
+      "counts": {
+        "entity": 3102,
+        "assertion": 7391,
+        "observation": 462
+      }
+    },
+    "queries": {
+      "dataset": "domain_reference_queries",
+      "version": "d78078b4578af7c306ee95cc781082262b740868db6e1be517ee80434cfd5a4d"
+    },
+    "query_counts": [
+      {
+        "dataset": "federal_register_documents",
+        "entities": 2,
+        "assertions": 2,
+        "truncated": false
+      },
+      {
+        "dataset": "crossref_research",
+        "entities": 2,
+        "assertions": 1,
+        "truncated": false
+      },
+      {
+        "dataset": "nasa_publications",
+        "entities": 2,
+        "assertions": 2,
+        "truncated": false
+      },
+      {
+        "dataset": "congress_people",
+        "entities": 9,
+        "assertions": 18,
+        "truncated": false
+      }
+    ]
+  },
+  "acquisition": {
+    "sampled": 11,
+    "blocked": 6,
+    "retained_bytes": 543839,
+    "report": "source-access-2026-09-15.json"
+  },
+  "nav_benchmark": {
+    "artifact": {
+      "dataset": "dia_nav_benchmark",
+      "version": "ff2bf91690add8deccf21992bf3c22130a242f715bc1ad0aaaae8be573d0776a"
+    },
+    "selected_model": "drift",
+    "test": {
+      "count": 20,
+      "mae": 3.1812891423728815,
+      "bias": 1.0524426118644068,
+      "absolute_error_quantiles": {
+        "0.5": 3.148583711864407,
+        "0.9": 5.928125288135593,
+        "1": 7.412459711864407
+      },
+      "beats_persistence": false
+    },
+    "baseline": {
+      "count": 20,
+      "mae": 3.0936438,
+      "bias": 0.6142159,
+      "absolute_error_quantiles": {
+        "0.5": 2.723873,
+        "0.9": 6.272962,
+        "1": 6.974233
+      }
+    },
+    "selection_hash": "66e55c7e2e5bc28fb14e23ee5499d9fb1566c68373579f629a2bb6c674634ea3",
+    "series": "ssga:fund:DIA:fund_nav",
+    "unit": "USD/share",
+    "forecast_protocol": "rolling one-step next available observation, not fixed-horizon or real-time-vintage validation",
+    "causally_calibrated": false,
+    "partition_rows": [
+      60,
+      20,
+      20
+    ],
+    "plan": "nav-benchmark-plan.json",
+    "interpretation": "Selected drift loses to persistence on the final20 observations. No causal or real-time-vintage claim."
+  },
+  "composition": {
+    "money_cents": 1000,
+    "resource_kg": 10,
+    "fidelity_final_states_equal": true,
+    "aggregate_transfer_receipts": 6,
+    "unit_transfer_receipts": 10,
+    "generic_environment_and_checkpoint_replay": "passed"
+  },
+  "reviews_fixed": [
+    "Validation targets unavailable at selection cutoff",
+    "Superseded provider-writer action/attempt fencing",
+    "Composition outer known_at propagation",
+    "Constructor resource overflow cleanup",
+    "Lifecycle work bound",
+    "SQLite test fixture cleanup",
+    "DIA cash classification",
+    "Quoted RSS HTML declaration vs XML DTD"
+  ],
+  "limitations": [
+    "No causally calibrated policy-response claim",
+    "Incomplete/credentialed/authorized sources remain explicit",
+    "Provider exactly-once and distributed reliability remain external requirements",
+    "Full-scale GB10 validation deferred"
+  ]
+}

@@ -3,7 +3,7 @@
   "schema_version": 2,
   "dependencies": [],
   "kind": "source",
-  "status": "sample_unavailable",
+  "status": "adapter_ready_requires_key",
   "description": "Agriculture census, Quick Stats and cropland data",
   "source": {
     "publisher": "USDA",
@@ -43,7 +43,7 @@
     "input_format": "sampled_jsonl",
     "raw_fields": "preserved in attributes.source_row",
     "entity_identity": "source IDs, canonical geography, explicitly labeled unresolved references and aggregate cohorts",
-    "coverage": "no acquired sample; adapter unavailable"
+    "coverage": "fictional shape validated; real access requires USDA_NASS_API_KEY"
   },
   "stages": [
     {

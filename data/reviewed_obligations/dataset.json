@@ -1,0 +1,38 @@
+{
+  "id": "reviewed_obligations",
+  "schema_version": 2,
+  "kind": "source",
+  "status": "ready_for_authorized_file_import",
+  "dependencies": [
+    "contract_candidates"
+  ],
+  "description": "Explicit reviewed obligation mappings; unknown terms stay unknown",
+  "entrypoint": "pipeline.py:run",
+  "parameters": {},
+  "source": {
+    "publisher": "user-supplied authorized documents/reviews",
+    "license_status": "inherited_from_inputs"
+  },
+  "coverage": {
+    "representative": false,
+    "completeness": "unknown",
+    "scope": "No external documents acquired; fictional tests only"
+  },
+  "stages": [
+    {
+      "id": "reviewed",
+      "entrypoint": "pipeline.py:run",
+      "depends_on": [],
+      "schema": {
+        "format": "evidence_jsonl"
+      },
+      "validation": {
+        "allow_empty": false,
+        "max_rows": 50000
+      },
+      "cache": "content",
+      "retention": "retain"
+    }
+  ],
+  "output_stage": "reviewed"
+}

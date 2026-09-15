@@ -1,0 +1,56 @@
+{
+  "network": {
+    "nodes": [
+      {
+        "id": "a"
+      },
+      {
+        "id": "b"
+      },
+      {
+        "id": "c"
+      }
+    ],
+    "edges": [
+      {
+        "id": "road",
+        "source": "a",
+        "target": "b",
+        "mode": "road",
+        "duration_seconds": 60,
+        "duration_range_seconds": [
+          45,
+          120
+        ],
+        "cost": 0
+      },
+      {
+        "id": "air",
+        "source": "b",
+        "target": "c",
+        "mode": "air",
+        "duration_seconds": 60,
+        "cost": 1,
+        "departures": [
+          "2026-01-01T00:02:00Z",
+          "2026-01-01T00:05:00Z"
+        ]
+      }
+    ],
+    "transfers": [
+      {
+        "node": "b",
+        "from_mode": "road",
+        "to_mode": "air",
+        "minimum_seconds": 60,
+        "valid_from": "2026-01-01T00:00:00Z",
+        "valid_to": "2026-01-02T00:00:00Z"
+      }
+    ]
+  },
+  "request": {
+    "origin": "a",
+    "destination": "c",
+    "departure_time": "2026-01-01T00:00:00Z"
+  }
+}

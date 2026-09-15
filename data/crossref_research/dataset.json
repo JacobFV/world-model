@@ -1,0 +1,53 @@
+{
+  "id": "crossref_research",
+  "schema_version": 2,
+  "dependencies": [],
+  "kind": "source",
+  "status": "configured_bounded_source",
+  "description": "Publisher-deposited publication, author and citation metadata; source-scoped affiliations with unknown tenure.",
+  "source": {
+    "publisher": "Crossref",
+    "documentation": "https://www.crossref.org/documentation/retrieve-metadata/rest-api/",
+    "license_status": "retain publisher/source terms; metadata does not grant content redistribution"
+  },
+  "entrypoint": "pipeline.py:run",
+  "sampling": {
+    "strategy": "download",
+    "url": "https://api.crossref.org/works?rows=5&filter=type:journal-article&sort=published&order=desc",
+    "documentation": "https://www.crossref.org/documentation/retrieve-metadata/rest-api/",
+    "format": "json",
+    "records_path": [
+      "message",
+      "items"
+    ],
+    "max_rows": 100,
+    "max_sample_bytes": 1048576,
+    "max_download_bytes": 1048576,
+    "max_uncompressed_bytes": 1048576,
+    "disk_budget_bytes": 67108864,
+    "timeout_seconds": 20,
+    "total_timeout_seconds": 40,
+    "representative": false,
+    "criteria": "One explicit first-page request; up to100 matching rows. No pagination, no completeness claim.",
+    "success_statuses": [
+      "ok"
+    ]
+  },
+  "stages": [
+    {
+      "id": "normalized",
+      "entrypoint": "pipeline.py:run",
+      "depends_on": [],
+      "schema": {
+        "format": "evidence_jsonl"
+      },
+      "validation": {
+        "allow_empty": false,
+        "max_rows": 100000
+      },
+      "cache": "content",
+      "retention": "retain"
+    }
+  ],
+  "output_stage": "normalized"
+}

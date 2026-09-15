@@ -1,0 +1,17 @@
+{
+  "dataset": "ssga_dia_nav",
+  "metric": "fund_nav",
+  "sample_id": "76e7dda381aa6e308d35a7d65af595235766924f5bd3a1f4bb8a0521be76d2fe",
+  "date_range": [
+    "2026-04-22",
+    "2026-09-14"
+  ],
+  "train_end": "2026-07-17",
+  "validation_end": "2026-08-14",
+  "partition_rows": [
+    60,
+    20,
+    20
+  ],
+  "policy": "Cuts selected from dates only before inspecting numeric targets; candidate set persistence/mean/drift/AR1; one final scoring run."
+}

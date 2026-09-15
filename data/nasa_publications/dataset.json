@@ -1,0 +1,47 @@
+{
+  "id": "nasa_publications",
+  "schema_version": 2,
+  "dependencies": [],
+  "kind": "source",
+  "status": "configured_bounded_source",
+  "description": "NASA public publication metadata; articles are reported claims, not modeled world truth.",
+  "source": {
+    "publisher": "NASA",
+    "documentation": "https://www.nasa.gov/rss-feeds/",
+    "license_status": "retain publisher/source terms; metadata does not grant content redistribution"
+  },
+  "entrypoint": "pipeline.py:run",
+  "sampling": {
+    "strategy": "download",
+    "url": "https://www.nasa.gov/feed/",
+    "documentation": "https://www.nasa.gov/rss-feeds/",
+    "format": "rss",
+    "records_path": [],
+    "max_rows": 100,
+    "max_sample_bytes": 1048576,
+    "max_download_bytes": 1048576,
+    "max_uncompressed_bytes": 1048576,
+    "disk_budget_bytes": 67108864,
+    "timeout_seconds": 20,
+    "total_timeout_seconds": 40,
+    "representative": false,
+    "criteria": "One explicit first-page request; up to100 matching rows. No pagination, no completeness claim."
+  },
+  "stages": [
+    {
+      "id": "normalized",
+      "entrypoint": "pipeline.py:run",
+      "depends_on": [],
+      "schema": {
+        "format": "evidence_jsonl"
+      },
+      "validation": {
+        "allow_empty": false,
+        "max_rows": 100000
+      },
+      "cache": "content",
+      "retention": "retain"
+    }
+  ],
+  "output_stage": "normalized"
+}

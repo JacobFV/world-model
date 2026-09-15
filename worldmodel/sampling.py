@@ -137,7 +137,7 @@ def json_rows(path, config):
         for key in ('error', 'errors', 'errorMessage'):
             if payload.get(key):
                 raise ValueError(f'Source returned an error: {str(payload[key])[:300]}')
-        if payload.get('status') not in (None, 'REQUEST_SUCCEEDED'):
+        if payload.get('status') is not None and payload.get('status') not in config.get('success_statuses', ['REQUEST_SUCCEEDED']):
             raise ValueError(f'Source status: {payload.get("status")}; {str(payload.get("message"))[:300]}')
         if payload.get('remark'):
             raise ValueError(f'Source returned incomplete query: {str(payload["remark"])[:300]}')
@@ -172,37 +172,8 @@ def json_rows(path, config):
 
 
 def xlsx_rows(archive, config):
-    """Read a small worksheet, with a total uncompressed XML budget. Never extract files."""
-    budget = config['max_uncompressed_bytes']
-    consumed = 0
-    def xml(member):
-        nonlocal consumed
-        info = archive.getinfo(member)
-        if consumed + info.file_size > budget:
-            raise ValueError('XLSX XML exceeds uncompressed budget')
-        content = archive.read(member)
-        consumed += len(content)
-        return ET.fromstring(content)
-    ns = {'s':'http://schemas.openxmlformats.org/spreadsheetml/2006/main'}
-    strings = []
-    if 'xl/sharedStrings.xml' in archive.namelist():
-        strings = [''.join(element.itertext()) for element in xml('xl/sharedStrings.xml').findall('s:si', ns)]
-    sheet = config.get('archive_member', 'xl/worksheets/sheet1.xml')
-    header = None
-    for element in xml(sheet).findall('.//s:row', ns):
-        values = {}
-        for cell in element.findall('s:c', ns):
-            column = ''.join(char for char in cell.attrib.get('r', '') if char.isalpha())
-            value = cell.find('s:v', ns)
-            text = value.text if value is not None else ''.join(cell.itertext())
-            if cell.attrib.get('t') == 's' and value is not None:
-                text = strings[int(text)]
-            values[column] = text
-        if header is None:
-            header = {key: value for key, value in values.items() if value}
-            continue
-        if values:
-            yield {name: values.get(column) for column, name in header.items()}
+    from .workbooks import xlsx_rows as rows
+    yield from rows(archive, config)
 
 
 def extract_rows(path, config):
@@ -214,6 +185,21 @@ def extract_rows(path, config):
         raise ValueError(f'Expected data but received {detail}')
     if format_name in ('json', 'census_json', 'bea_json'):
         yield from json_rows(path, config)
+    elif format_name == 'rss':
+        if path.stat().st_size > config['max_uncompressed_bytes']:raise ValueError('RSS exceeds XML budget')
+        content=path.read_bytes()
+        from xml.parsers import expat
+        parser=expat.ParserCreate()
+        def reject_declaration(*args):raise ValueError('RSS DTD/entities are forbidden')
+        parser.StartDoctypeDeclHandler=reject_declaration
+        parser.EntityDeclHandler=reject_declaration
+        try:parser.Parse(content,True)
+        except expat.ExpatError as exc:raise ValueError('Invalid RSS XML') from exc
+        root=ET.fromstring(content)
+        for index,item in enumerate(root.findall('./channel/item'),1):
+            yield {'title':item.findtext('title'),'link':item.findtext('link'),'guid':item.findtext('guid'),
+                   'published':item.findtext('pubDate'),'author':item.findtext('{http://purl.org/dc/elements/1.1/}creator'),
+                   '_source':{'item':index}}
     elif format_name == 'csv':
         with path.open('rb') as stream:
             yield from csv_rows(stream, config)

@@ -116,4 +116,6 @@ def default_registry():
     register_actor_kernels(registry)
     from .coupled_economy import register_coupled_economy_processes
     register_coupled_economy_processes(registry)
+    from .composition import register_composition_process
+    register_composition_process(registry)
     return registry

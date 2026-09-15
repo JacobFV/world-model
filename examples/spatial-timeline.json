@@ -1,0 +1,122 @@
+{
+  "coordinate_system": {
+    "kind": "cartesian",
+    "axes": [
+      "x",
+      "y"
+    ],
+    "unit": "m"
+  },
+  "world": {
+    "measure_unit": "m2",
+    "cells": [
+      {
+        "id": "cell:a",
+        "measure": 1,
+        "coordinates": [
+          0,
+          0
+        ]
+      },
+      {
+        "id": "cell:b",
+        "measure": 1,
+        "coordinates": [
+          1,
+          0
+        ]
+      }
+    ],
+    "edges": [
+      {
+        "id": "edge:ab",
+        "source": "cell:a",
+        "target": "cell:b",
+        "conductance": 1,
+        "transport_rate": 0
+      }
+    ],
+    "fields": {
+      "signed": {
+        "kind": "extensive",
+        "unit": "signal",
+        "values": {
+          "cell:a": -2,
+          "cell:b": 2
+        }
+      },
+      "vector": {
+        "kind": "intensive",
+        "unit": "m/s",
+        "value_type": "vector",
+        "values": {
+          "cell:a": [
+            -2,
+            4
+          ],
+          "cell:b": [
+            2,
+            -4
+          ]
+        }
+      }
+    }
+  },
+  "request": {
+    "start": "2026-09-15T00:00:00Z",
+    "end": "2026-09-15T00:00:01Z",
+    "sample_seconds": 0.5,
+    "step_seconds": 0.25,
+    "boundary": "closed",
+    "edge_units": {
+      "conductance": "m2/second",
+      "transport_rate": "1/second"
+    },
+    "component_frames": {
+      "vector": {
+        "kind": "fixed_global",
+        "axes": [
+          "x",
+          "y"
+        ]
+      }
+    },
+    "events": [
+      {
+        "time": "2026-09-15T00:00:00.5Z",
+        "events": [
+          {
+            "type": "split",
+            "cell": "cell:a",
+            "children": [
+              {
+                "id": "cell:a1",
+                "measure": 0.5,
+                "coordinates": [
+                  0,
+                  0
+                ]
+              },
+              {
+                "id": "cell:a2",
+                "measure": 0.5,
+                "coordinates": [
+                  0.1,
+                  0
+                ]
+              }
+            ],
+            "edges": [
+              {
+                "id": "edge:a2b",
+                "source": "cell:a2",
+                "target": "cell:b",
+                "conductance": 1
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

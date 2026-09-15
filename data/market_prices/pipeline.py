@@ -1,8 +1,5 @@
-'Security-level price coverage availability declaration.'
-import json
-from worldmodel.util import digest
-from worldmodel.source_helpers import _iso_date, _code
+"""Strict authorized canonical quote import; no network access or inferred adjustments."""
+from worldmodel.financial_feeds import feed_records
 
 def run(context):
-    dataset = 'market_prices'
-    raise ValueError('No acquired source adapter: ' + dataset)
+    yield from feed_records(context,'prices')

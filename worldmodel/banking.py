@@ -1,8 +1,9 @@
 """Exact-cent commercial-bank ledger, separate from behavioral credit models.
 
 Loans create deposits; settlement moves existing reserves. No reserve creation,
-capital injection, interest, regulatory-capital rule, or central-bank reaction is
-inferred. Equity may become negative and insolvency is explicitly retained.
+capital injection, regulatory-capital rule, or central-bank reaction is
+inferred. Explicit interest payments reduce deposits and raise bank equity.
+Equity may become negative and insolvency is explicitly retained.
 """
 from copy import deepcopy
 from decimal import Decimal, InvalidOperation
@@ -59,7 +60,7 @@ def simulate_banking(config):
     """Apply a bounded transaction sequence atomically to a copied opening state.
 
     Config banks require id,reserves,loans:{borrower:principal},equity,accounts.
-    Loan transactions use bank,borrower,amount. Transfers use bank,from_account,
+    Loan and interest transactions use bank,borrower,amount. Transfers use bank,from_account,
     to_bank,to_account,amount. New destination accounts start at zero. All amounts
     use one USD denomination, exact cents. Signed equity preserves insolvency;
     negative reserves, loans, deposits and transaction amounts are prohibited.
@@ -106,7 +107,7 @@ def simulate_banking(config):
         if not isinstance(transaction, dict):
             raise ValueError('Transaction must be an object')
         kind = transaction.get('kind')
-        fields = {'kind', 'bank', 'amount', 'borrower'} if kind in ('originate', 'repay', 'default') else {'kind', 'bank', 'amount', 'from_account', 'to_bank', 'to_account'} if kind == 'transfer' else None
+        fields = {'kind', 'bank', 'amount', 'borrower'} if kind in ('originate', 'repay', 'default', 'interest') else {'kind', 'bank', 'amount', 'from_account', 'to_bank', 'to_account'} if kind == 'transfer' else None
         if fields is None or set(transaction) != fields:
             raise ValueError('Unknown transaction kind or missing/unknown transaction fields')
         bank_id = _name(transaction['bank'], 'bank')
@@ -125,7 +126,7 @@ def simulate_banking(config):
             totals[bid] = totals.get(bid, 0) + debit - credit
             postings.append({'bank': bid, 'account': account, 'debit': _units(debit), 'credit': _units(credit)})
 
-        if kind in ('originate', 'repay', 'default'):
+        if kind in ('originate', 'repay', 'default', 'interest'):
             borrower = _name(transaction['borrower'], 'borrower')
             loan = bank['loans'].get(borrower, 0)
             deposit = bank['accounts'].get(borrower, 0)
@@ -136,6 +137,15 @@ def simulate_banking(config):
                 bank['accounts'][borrower] = deposit + amount
                 posting(bank_id, 'loans:' + borrower, debit=amount)
                 posting(bank_id, 'deposits:' + borrower, credit=amount)
+            elif kind == 'interest':
+                if borrower not in bank['loans']:
+                    raise ValueError('Interest requires a known borrower loan account')
+                if amount > deposit:
+                    raise ValueError('Insufficient borrower deposit for interest')
+                bank['accounts'][borrower] = deposit - amount
+                bank['equity'] += amount
+                posting(bank_id, 'deposits:' + borrower, debit=amount)
+                posting(bank_id, 'equity', credit=amount)
             else:
                 if amount > loan:
                     raise ValueError('Repayment/default exceeds outstanding borrower principal')
@@ -188,7 +198,7 @@ def simulate_banking(config):
             'epistemic_status': 'synthetic_scenario', 'calibration_status': 'accounting identities only; no behavioral calibration',
             'assumptions': ['Commercial loan origination creates deposits; repayment extinguishes both.',
                             'Fixed aggregate reserves; no central-bank lending, reserve interest or bailout.',
-                            'No interest, capital adequacy, liquidity regulation, collateral recovery or borrower credit model.',
+                            'Interest is an explicit paid amount; no automatic accrual, capital adequacy, liquidity regulation or borrower credit model.',
                             'Default is an explicit full principal write-off amount; deposits are not erased.',
                             'Equity may be negative; insolvent banks cannot originate but can settle funded transfers and repayments.']}
 

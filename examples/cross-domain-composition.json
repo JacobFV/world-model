@@ -1,0 +1,98 @@
+{
+  "start": "2026-01-01T00:00:00Z",
+  "step_seconds": 1,
+  "coordinate_system": {
+    "kind": "cartesian",
+    "axes": [
+      "x",
+      "y"
+    ],
+    "unit": "m"
+  },
+  "world": {
+    "measure_unit": "m2",
+    "cells": [
+      {
+        "id": "cell:depot",
+        "measure": 2
+      },
+      {
+        "id": "cell:buyer",
+        "measure": 1
+      }
+    ],
+    "fields": {
+      "resource": {
+        "kind": "extensive",
+        "unit": "kg",
+        "values": {
+          "cell:depot": 10,
+          "cell:buyer": 0
+        }
+      }
+    }
+  },
+  "accounts": {
+    "government": 1000,
+    "buyer": 0,
+    "producer": 0
+  },
+  "roles": {
+    "government": "government",
+    "buyer": "buyer",
+    "producer": "producer"
+  },
+  "policy_observations": [
+    {
+      "value": 100,
+      "unit": "cent",
+      "information_time": "2026-01-01T00:00:00Z",
+      "valid_time": "2026-01-01T00:00:00Z"
+    }
+  ],
+  "policy_contract": {
+    "unit": "cent",
+    "lag_seconds": 0,
+    "max_age_seconds": 10,
+    "missing": "error"
+  },
+  "price_cents_per_kg": 20,
+  "steps": [
+    {
+      "source": "cell:depot",
+      "target": "cell:buyer",
+      "demand_kg": 2,
+      "events": [
+        {
+          "type": "split",
+          "cell": "cell:depot",
+          "children": [
+            {
+              "id": "cell:d1",
+              "measure": 1
+            },
+            {
+              "id": "cell:d2",
+              "measure": 1
+            }
+          ],
+          "edges": []
+        }
+      ]
+    },
+    {
+      "source": "cell:d1",
+      "target": "cell:buyer",
+      "demand_kg": 2,
+      "events": []
+    }
+  ],
+  "observations": {
+    "accounts": [
+      "buyer"
+    ],
+    "cells": [
+      "cell:buyer"
+    ]
+  }
+}

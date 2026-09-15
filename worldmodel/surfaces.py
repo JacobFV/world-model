@@ -316,7 +316,11 @@ def render_surface(data, spec):
             raise ValueError('panel must be an object')
         kind = panel.get('kind')
         limit = _limit(panel, 200 if kind == 'graph' else 500)
-        if kind == 'graph':
+        if kind == 'spatial' or (kind == 'graph' and panel.get('source') == 'spatial'):
+            if not spec.get('interactive') or not data.get('spatial_frames'):
+                raise ValueError('Spatial panels require interactive explicit frames')
+            content = '<p>Explicit spatial frames; enable JavaScript to inspect the selected state.</p>'
+        elif kind == 'graph':
             content = _graph(data.get('records', []), limit, panel)
         elif kind == 'map':
             content = _map(_rows(data, panel), panel, limit)

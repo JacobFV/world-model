@@ -1,0 +1,40 @@
+{
+  "artifact": {
+    "dataset": "dia_nav_benchmark",
+    "version": "ff2bf91690add8deccf21992bf3c22130a242f715bc1ad0aaaae8be573d0776a"
+  },
+  "selected_model": "drift",
+  "test": {
+    "count": 20,
+    "mae": 3.1812891423728815,
+    "bias": 1.0524426118644068,
+    "absolute_error_quantiles": {
+      "0.5": 3.148583711864407,
+      "0.9": 5.928125288135593,
+      "1": 7.412459711864407
+    },
+    "beats_persistence": false
+  },
+  "baseline": {
+    "count": 20,
+    "mae": 3.0936438,
+    "bias": 0.6142159,
+    "absolute_error_quantiles": {
+      "0.5": 2.723873,
+      "0.9": 6.272962,
+      "1": 6.974233
+    }
+  },
+  "selection_hash": "66e55c7e2e5bc28fb14e23ee5499d9fb1566c68373579f629a2bb6c674634ea3",
+  "series": "ssga:fund:DIA:fund_nav",
+  "unit": "USD/share",
+  "forecast_protocol": "rolling one-step next available observation, not fixed-horizon or real-time-vintage validation",
+  "causally_calibrated": false,
+  "partition_rows": [
+    60,
+    20,
+    20
+  ],
+  "plan": "nav-benchmark-plan.json",
+  "interpretation": "Selected drift loses to persistence on the final20 observations. No causal or real-time-vintage claim."
+}

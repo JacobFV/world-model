@@ -1,0 +1,166 @@
+{
+  "initial_state": {
+    "banks": [
+      {
+        "id": "a",
+        "reserves": 100,
+        "equity": 100,
+        "accounts": {
+          "firm": 0
+        },
+        "loans": {}
+      },
+      {
+        "id": "b",
+        "reserves": 100,
+        "equity": 50,
+        "accounts": {
+          "worker": 50
+        },
+        "loans": {}
+      }
+    ],
+    "firms": [
+      {
+        "id": "firm",
+        "bank": "a",
+        "worker": "worker",
+        "inventory": 0,
+        "capacity": 10,
+        "unit_cost": 5,
+        "labor_per_unit": 2
+      }
+    ],
+    "households": [
+      {
+        "id": "worker",
+        "bank": "b",
+        "labor_capacity": 8
+      }
+    ],
+    "mechanisms": {
+      "inventory_valuation": true,
+      "interest": {
+        "policy_rate": 0.04,
+        "spread": 0.02,
+        "day_count": 365,
+        "duration_days": 1,
+        "insufficient": "defer",
+        "policy_rule": {
+          "reference_rate": 0.04,
+          "inflation_target": 0.02,
+          "inflation_response": 1.5,
+          "output_response": 0.5,
+          "minimum_rate": 0,
+          "maximum_rate": 0.25
+        }
+      },
+      "price_feedback": {
+        "initial_price": 8,
+        "minimum_price": 4,
+        "maximum_price": 15,
+        "target_inventory": 4,
+        "adjustment": 0.25,
+        "unmet_demand_response": 0.1
+      },
+      "demand_feedback": {
+        "reference_price": 10,
+        "elasticity": 1,
+        "energy_response": 1,
+        "rate_response": 1
+      }
+    }
+  },
+  "policies": [
+    {
+      "firms": {
+        "firm": {
+          "production": 4,
+          "credit_limit": 50
+        }
+      },
+      "households": {
+        "worker": {
+          "purchases": {
+            "firm": 1
+          }
+        }
+      }
+    },
+    {
+      "firms": {
+        "firm": {
+          "production": 4,
+          "credit_limit": 50
+        }
+      },
+      "households": {
+        "worker": {
+          "purchases": {
+            "firm": 2
+          },
+          "labor_capacity": 6
+        }
+      }
+    },
+    {
+      "firms": {
+        "firm": {
+          "production": 1,
+          "credit_limit": 50
+        }
+      },
+      "households": {
+        "worker": {
+          "purchases": {
+            "firm": 2
+          }
+        }
+      },
+      "policy_rate": 0.2
+    },
+    {
+      "firms": {
+        "firm": {
+          "production": 0,
+          "credit_limit": 50,
+          "bankrupt": true,
+          "collateral_sale": {
+            "buyer": "worker",
+            "units": 3,
+            "unit_price": 5
+          }
+        }
+      },
+      "households": {
+        "worker": {
+          "purchases": {
+            "firm": 0
+          }
+        }
+      },
+      "policy_rate": 0.2
+    }
+  ],
+  "shocks": [
+    {
+      "inflation": 0.02,
+      "output_gap": 0
+    },
+    {
+      "inflation": 0.06,
+      "output_gap": -0.02,
+      "unit_cost": {
+        "firm": 8
+      },
+      "expected_energy_change": 0.5,
+      "expected_rate_change": 0.1
+    },
+    {
+      "inventory_loss": {
+        "firm": 1
+      }
+    },
+    {}
+  ]
+}

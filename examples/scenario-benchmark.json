@@ -1,0 +1,485 @@
+{
+  "scenarios": [
+    {
+      "id": "train_normal",
+      "split": "train",
+      "weight": 1,
+      "config": {
+        "initial_state": {
+          "banks": [
+            {
+              "id": "a",
+              "reserves": 100,
+              "equity": 100,
+              "accounts": {
+                "firm": 0
+              },
+              "loans": {
+                "firm": 0
+              }
+            },
+            {
+              "id": "b",
+              "reserves": 100,
+              "equity": 50,
+              "accounts": {
+                "worker": 50
+              },
+              "loans": {}
+            }
+          ],
+          "firms": [
+            {
+              "id": "firm",
+              "bank": "a",
+              "worker": "worker",
+              "inventory": 0,
+              "capacity": 10,
+              "unit_cost": 5
+            }
+          ],
+          "households": [
+            {
+              "id": "worker",
+              "bank": "b",
+              "labor_capacity": 4
+            }
+          ],
+          "mechanisms": {
+            "interest": {
+              "policy_rate": 0.04,
+              "spread": 0.02,
+              "day_count": 365,
+              "insufficient": "defer"
+            }
+          }
+        },
+        "shocks": [
+          {},
+          {
+            "unit_cost": {
+              "firm": 5
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "train_supply",
+      "split": "train",
+      "weight": 1,
+      "config": {
+        "initial_state": {
+          "banks": [
+            {
+              "id": "a",
+              "reserves": 100,
+              "equity": 100,
+              "accounts": {
+                "firm": 0
+              },
+              "loans": {
+                "firm": 0
+              }
+            },
+            {
+              "id": "b",
+              "reserves": 100,
+              "equity": 50,
+              "accounts": {
+                "worker": 50
+              },
+              "loans": {}
+            }
+          ],
+          "firms": [
+            {
+              "id": "firm",
+              "bank": "a",
+              "worker": "worker",
+              "inventory": 0,
+              "capacity": 10,
+              "unit_cost": 5
+            }
+          ],
+          "households": [
+            {
+              "id": "worker",
+              "bank": "b",
+              "labor_capacity": 2
+            }
+          ],
+          "mechanisms": {
+            "interest": {
+              "policy_rate": 0.08,
+              "spread": 0.02,
+              "day_count": 365,
+              "insufficient": "defer"
+            }
+          }
+        },
+        "shocks": [
+          {},
+          {
+            "unit_cost": {
+              "firm": 7
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "validation_liquidity",
+      "split": "validation",
+      "weight": 1,
+      "config": {
+        "initial_state": {
+          "banks": [
+            {
+              "id": "a",
+              "reserves": 8,
+              "equity": 8,
+              "accounts": {
+                "firm": 0
+              },
+              "loans": {
+                "firm": 0
+              }
+            },
+            {
+              "id": "b",
+              "reserves": 100,
+              "equity": 50,
+              "accounts": {
+                "worker": 50
+              },
+              "loans": {}
+            }
+          ],
+          "firms": [
+            {
+              "id": "firm",
+              "bank": "a",
+              "worker": "worker",
+              "inventory": 0,
+              "capacity": 10,
+              "unit_cost": 5
+            }
+          ],
+          "households": [
+            {
+              "id": "worker",
+              "bank": "b",
+              "labor_capacity": 3
+            }
+          ],
+          "mechanisms": {
+            "interest": {
+              "policy_rate": 0.2,
+              "spread": 0.02,
+              "day_count": 365,
+              "insufficient": "defer"
+            }
+          }
+        },
+        "shocks": [
+          {},
+          {
+            "unit_cost": {
+              "firm": 5
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "test_labor",
+      "split": "test",
+      "weight": 1,
+      "config": {
+        "initial_state": {
+          "banks": [
+            {
+              "id": "a",
+              "reserves": 100,
+              "equity": 100,
+              "accounts": {
+                "firm": 0
+              },
+              "loans": {
+                "firm": 0
+              }
+            },
+            {
+              "id": "b",
+              "reserves": 100,
+              "equity": 50,
+              "accounts": {
+                "worker": 50
+              },
+              "loans": {}
+            }
+          ],
+          "firms": [
+            {
+              "id": "firm",
+              "bank": "a",
+              "worker": "worker",
+              "inventory": 0,
+              "capacity": 10,
+              "unit_cost": 5
+            }
+          ],
+          "households": [
+            {
+              "id": "worker",
+              "bank": "b",
+              "labor_capacity": 1
+            }
+          ],
+          "mechanisms": {
+            "interest": {
+              "policy_rate": 0.08,
+              "spread": 0.02,
+              "day_count": 365,
+              "insufficient": "defer"
+            }
+          }
+        },
+        "shocks": [
+          {},
+          {
+            "unit_cost": {
+              "firm": 9
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "test_rate",
+      "split": "test",
+      "weight": 1,
+      "config": {
+        "initial_state": {
+          "banks": [
+            {
+              "id": "a",
+              "reserves": 15,
+              "equity": 15,
+              "accounts": {
+                "firm": 0
+              },
+              "loans": {
+                "firm": 0
+              }
+            },
+            {
+              "id": "b",
+              "reserves": 100,
+              "equity": 50,
+              "accounts": {
+                "worker": 50
+              },
+              "loans": {}
+            }
+          ],
+          "firms": [
+            {
+              "id": "firm",
+              "bank": "a",
+              "worker": "worker",
+              "inventory": 0,
+              "capacity": 10,
+              "unit_cost": 5
+            }
+          ],
+          "households": [
+            {
+              "id": "worker",
+              "bank": "b",
+              "labor_capacity": 6
+            }
+          ],
+          "mechanisms": {
+            "interest": {
+              "policy_rate": 0.3,
+              "spread": 0.02,
+              "day_count": 365,
+              "insufficient": "defer"
+            }
+          }
+        },
+        "shocks": [
+          {},
+          {
+            "unit_cost": {
+              "firm": 6
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "policies": [
+    {
+      "id": "baseline",
+      "actions": [
+        {
+          "firms": {
+            "firm": {
+              "production": 0,
+              "price": 10,
+              "credit_limit": 50,
+              "repay": 0
+            }
+          },
+          "households": {
+            "worker": {
+              "purchases": {
+                "firm": 0
+              }
+            }
+          }
+        },
+        {
+          "firms": {
+            "firm": {
+              "production": 0,
+              "price": 10,
+              "credit_limit": 50,
+              "repay": 0
+            }
+          },
+          "households": {
+            "worker": {
+              "purchases": {
+                "firm": 0
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "cautious",
+      "actions": [
+        {
+          "firms": {
+            "firm": {
+              "production": 2,
+              "price": 10,
+              "credit_limit": 50,
+              "repay": 5
+            }
+          },
+          "households": {
+            "worker": {
+              "purchases": {
+                "firm": 1
+              }
+            }
+          }
+        },
+        {
+          "firms": {
+            "firm": {
+              "production": 2,
+              "price": 10,
+              "credit_limit": 50,
+              "repay": 5
+            }
+          },
+          "households": {
+            "worker": {
+              "purchases": {
+                "firm": 1
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "expansion",
+      "actions": [
+        {
+          "firms": {
+            "firm": {
+              "production": 4,
+              "price": 10,
+              "credit_limit": 50,
+              "repay": 0
+            }
+          },
+          "households": {
+            "worker": {
+              "purchases": {
+                "firm": 1
+              }
+            }
+          }
+        },
+        {
+          "firms": {
+            "firm": {
+              "production": 4,
+              "price": 10,
+              "credit_limit": 50,
+              "repay": 0
+            }
+          },
+          "households": {
+            "worker": {
+              "purchases": {
+                "firm": 1
+              }
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "objectives": {
+    "inventory": {
+      "path": [
+        "firms",
+        0,
+        "inventory"
+      ],
+      "unit": "goods",
+      "direction": "maximize"
+    },
+    "debt": {
+      "path": [
+        "banks",
+        0,
+        "loans",
+        "firm"
+      ],
+      "unit": "USD",
+      "direction": "minimize"
+    },
+    "household_cash": {
+      "path": [
+        "banks",
+        1,
+        "accounts",
+        "worker"
+      ],
+      "unit": "USD",
+      "direction": "maximize"
+    }
+  },
+  "selection_objective": "inventory",
+  "baseline_ids": [
+    "baseline"
+  ],
+  "constraints": {
+    "debt": {
+      "maximum": 40
+    }
+  },
+  "shortlist_size": 2,
+  "max_transitions": 100
+}

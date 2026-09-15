@@ -1,0 +1,11 @@
+/artifacts/
+/scratch/
+__pycache__/
+/raw/
+/final/
+/processing/
+/runs/
+/samples/
+/latest.json
+/raw-latest.json
+/.lock

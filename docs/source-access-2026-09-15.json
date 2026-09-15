@@ -1,0 +1,224 @@
+{
+  "scope": "Bounded primary-source probes and retained acquisitions; nonrepresentative, no bulk workload.",
+  "sources": [
+    {
+      "dataset": "ssga_dia_holdings",
+      "status": "probe_success",
+      "download_bytes": 19190,
+      "rows_header": 5,
+      "snapshot_cell": "B3",
+      "url": "https://www.ssga.com/library-content/products/fund-data/etfs/us/holdings-daily-us-en-dia.xlsx"
+    },
+    {
+      "dataset": "ssga_dia_nav",
+      "status": "probe_success",
+      "download_bytes": 268304,
+      "rows_header": 4,
+      "url": "https://www.ssga.com/library-content/products/fund-data/etfs/us/navhist-us-en-dia.xlsx"
+    },
+    {
+      "dataset": "ssga_dia_premium",
+      "status": "probe_success",
+      "download_bytes": 30240,
+      "rows_header": 4,
+      "unit": "percent",
+      "unit_evidence": "Publisher formula ((4PM midpoint -4PM INAV)/4PM INAV)*100; latest workbook -.007509 rounds to webpage -.01%.",
+      "documentation": "https://www.ssga.com/us/en/intermediary/etfs/state-street-spdr-dow-jones-industrial-average-etf-trust-dia"
+    },
+    {
+      "dataset": "freight",
+      "status": "access_failed",
+      "url": "https://faf.ornl.gov/faf6/data/Download_Files/ZIP/FAF6.0_State.zip",
+      "documentation": "https://www.bts.gov/faf",
+      "reason": "urllib URLError:[Errno54] Connection reset by peer;20MB cap; no TLS validation bypass."
+    },
+    {
+      "dataset": "bea_input_output",
+      "status": "no_key_alternative_not_acquired",
+      "documentation": "https://www.bea.gov/itable/input-output",
+      "reason": "Current annual tables route to dynamic BEA application; no verified bounded no-key supply/use workbook exposed in inspected page. Existing API requires BEA_API_KEY. Concordance not substituted for flows."
+    },
+    {
+      "dataset": "marine_ais",
+      "status": "service_online_export_not_acquired",
+      "url": "https://marinecadastre.gov/accessais/api/v1/status",
+      "reason": "HTTP200 success with database OK and redis ready. UI orders exports asynchronously; no order submitted and no bounded track archive verified."
+    }
+  ],
+  "acquisitions": [
+    {
+      "dataset": "ssga_dia_holdings",
+      "status": "sampled",
+      "rows": 31,
+      "sample_id": "16ee9a07ce9273a2be9053809f89d09d50d51d84c904e704b2e29657dfe886c3",
+      "artifact": {
+        "dataset": "ssga_dia_holdings",
+        "artifact": "6d179cac43905d1922d7a91a62c90f145175d683d29edd2c25264609c25d5955"
+      },
+      "original_bytes": 19190,
+      "retained_bytes": 10915,
+      "retrieved_at": "2026-09-15T16:53:33.182362+00:00"
+    },
+    {
+      "dataset": "ssga_dia_nav",
+      "status": "sampled",
+      "rows": 100,
+      "sample_id": "76e7dda381aa6e308d35a7d65af595235766924f5bd3a1f4bb8a0521be76d2fe",
+      "artifact": {
+        "dataset": "ssga_dia_nav",
+        "artifact": "66d21e095ad4c2a773ceb82158a681381f8e49ccd7a0a66c9da4310d5035a511"
+      },
+      "original_bytes": 268304,
+      "retained_bytes": 27276,
+      "retrieved_at": "2026-09-15T16:53:33.586330+00:00"
+    },
+    {
+      "dataset": "ssga_dia_premium",
+      "status": "sampled",
+      "rows": 100,
+      "sample_id": "4a96a09175e2a9b6c8083b2cb5b7907efac801a3eadf5deb7b4b05860ce96562",
+      "artifact": {
+        "dataset": "ssga_dia_premium",
+        "artifact": "e83c5a18ddd800c274c93bf8912d33ce60707861f3685d09f2d7f3ee1e8d0560"
+      },
+      "original_bytes": 30240,
+      "retained_bytes": 21026,
+      "retrieved_at": "2026-09-15T16:53:33.870846+00:00"
+    },
+    {
+      "dataset": "federal_register_documents",
+      "status": "sampled",
+      "rows": 5,
+      "sample_id": "e2ade6dad39bd2a690263cad9618a2a50c3a282e4276866b25b9522186d2c462",
+      "artifact": {
+        "dataset": "federal_register_documents",
+        "artifact": "00da04dbece60ff3578c3bb2fa7e654cb047b5d7d7600c92b6efd36a1a65d20f"
+      },
+      "original_bytes": 8782,
+      "retained_bytes": 8539,
+      "retrieved_at": "2026-09-15T16:53:34.167651+00:00"
+    },
+    {
+      "dataset": "crossref_research",
+      "status": "sampled",
+      "rows": 5,
+      "sample_id": "fc918978db40c114a0d30e01e81ce84d5e72b5e5de96a41b1df9d9cf574f0daa",
+      "artifact": {
+        "dataset": "crossref_research",
+        "artifact": "4d89fcdf954e5367b75637a1ad8d0653033057ebb272a231eb7435ba8f01fc61"
+      },
+      "original_bytes": 12075,
+      "retained_bytes": 11631,
+      "retrieved_at": "2026-09-15T16:53:35.639466+00:00"
+    },
+    {
+      "dataset": "ucdp_conflicts",
+      "status": "blocked",
+      "reason": "Missing UCDP_ACCESS_TOKEN; source requires the x-ucdp-access-token request header"
+    },
+    {
+      "dataset": "usda_agriculture",
+      "status": "blocked",
+      "reason": "Missing USDA_NASS_API_KEY; source requires an API key"
+    },
+    {
+      "dataset": "bea_input_output",
+      "status": "blocked",
+      "reason": "Missing BEA_API_KEY; source requires an API key"
+    },
+    {
+      "dataset": "marine_ais",
+      "status": "blocked",
+      "reason": "AccessAIS status endpoint returned HTTP200 on2026-09-15. Its export flow requires an asynchronous order; no bounded synchronous track export or bulk archive has been verified within62MiB. No vessel tracks acquired."
+    },
+    {
+      "dataset": "freight",
+      "status": "blocked",
+      "reason": "Network/timeout failure from https://faf.ornl.gov/faf6/data/Download_Files/ZIP/FAF6.0_State.zip"
+    },
+    {
+      "dataset": "nasa_publications",
+      "status": "sampled",
+      "rows": 10,
+      "sample_id": "4632675f7b84c1e0aff008d1e24032532bd36c08c831badc9bbd8f0386421233",
+      "artifact": {
+        "dataset": "nasa_publications",
+        "artifact": "cd71f171f90d94093408dd1f067793fe00f65d451f89a1cfa9073d644fb810ec"
+      },
+      "original_bytes": 219258,
+      "retained_bytes": 3443,
+      "retrieved_at": "2026-09-15T16:55:06.814639+00:00"
+    },
+    {
+      "dataset": "iso_mic_venues",
+      "status": "sampled",
+      "rows": 11,
+      "sample_id": "b5508ad97041312f307d62f7edb499884bd2b521e3b706e27eb45fbc11df2d18",
+      "artifact": {
+        "dataset": "iso_mic_venues",
+        "artifact": "eea451ad6f219c2f64940d117b4849618e7b90ff6e187ff4b7f35305ae3f949a"
+      },
+      "original_bytes": 589498,
+      "retained_bytes": 5106,
+      "retrieved_at": "2026-09-15T16:55:49.162364+00:00"
+    },
+    {
+      "dataset": "nasdaq_listings",
+      "status": "sampled",
+      "rows": 100,
+      "sample_id": "5043c5df51a4024b405fe0b0044bbf61d3b1e1662294d5fe551b22bf9cb0fcab",
+      "artifact": {
+        "dataset": "nasdaq_listings",
+        "artifact": "0e1007baf83b924e33aa58bd7b6edb7102a88a67f8b1fe4c81664913dbcbccb8"
+      },
+      "original_bytes": 348098,
+      "retained_bytes": 19405,
+      "retrieved_at": "2026-09-15T16:55:49.774082+00:00"
+    },
+    {
+      "dataset": "gleif_parent_relationships",
+      "status": "sampled",
+      "rows": 1,
+      "sample_id": "76d84b8dc30349e4b6cad942cab791f68bdc4bab2a7a32a00f6dbcf689525eff",
+      "artifact": {
+        "dataset": "gleif_parent_relationships",
+        "artifact": "fa0cf082f00469a452ccbb3278c29069a30aa4d7fa83981093de66cfc69893b8"
+      },
+      "original_bytes": 1238,
+      "retained_bytes": 1157,
+      "retrieved_at": "2026-09-15T16:55:50.936889+00:00"
+    },
+    {
+      "dataset": "sec_issuer_reference",
+      "status": "blocked",
+      "reason": "Missing SEC_USER_AGENT; source requires the User-Agent request header"
+    },
+    {
+      "dataset": "congress_people",
+      "status": "sampled",
+      "rows": 100,
+      "sample_id": "c582cad8c39f8a084a6f6101556aace466d6c2fb98bba183a5c8a09ce3820e33",
+      "artifact": {
+        "dataset": "congress_people",
+        "artifact": "4a2b9970bd54e7f90fb3d768209a56bb7a71843180a520c82211b4e41ef2b365"
+      },
+      "original_bytes": 1468926,
+      "retained_bytes": 328271,
+      "retrieved_at": "2026-09-15T16:55:51.450362+00:00"
+    },
+    {
+      "dataset": "openalex_people",
+      "status": "sampled",
+      "rows": 5,
+      "sample_id": "0107a053d911f87343cda28d268c3302d7bc28d951ce39f06481e50290ba6b65",
+      "artifact": {
+        "dataset": "openalex_people",
+        "artifact": "0c95f3efe6bd10e17ef9648519000165ccc053d5b61a3006426cd30a094bd63d"
+      },
+      "original_bytes": 114457,
+      "retained_bytes": 107070,
+      "retrieved_at": "2026-09-15T16:55:52.390216+00:00"
+    }
+  ],
+  "public_payloads_committed": false
+}

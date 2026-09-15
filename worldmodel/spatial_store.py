@@ -5,7 +5,8 @@ use the declared axis order and inclusive point coordinates (no antimeridian
 wrapping). Query limits bound rows brought into Python. Lifecycle batches use a
 single SQLite transaction; foreign keys prevent dangling topology/membership.
 Signed scalars and vectors can be stored and conserved componentwise. Evolution
-deliberately delegates only nonnegative scalar selections to FieldWorld.
+offers opt-in signed/vector timelines; legacy materialization uses FieldWorld.
+Explicit planar polygons have separate bounded queries from support locations.
 """
 from contextlib import contextmanager
 from copy import deepcopy
@@ -76,6 +77,10 @@ class SpatialStore:
                 id TEXT PRIMARY KEY, measure REAL NOT NULL CHECK(measure > 0),
                 x REAL, y REAL, payload TEXT NOT NULL);
             CREATE INDEX IF NOT EXISTS cells_coordinates ON cells(x,y,id);
+            CREATE TABLE IF NOT EXISTS cell_geometry (
+                cell TEXT PRIMARY KEY REFERENCES cells(id) ON DELETE CASCADE,
+                xmin REAL, ymin REAL, xmax REAL, ymax REAL);
+            CREATE INDEX IF NOT EXISTS geometry_bounds ON cell_geometry(xmin,xmax,ymin,ymax);
             CREATE TABLE IF NOT EXISTS fields (name TEXT PRIMARY KEY, payload TEXT NOT NULL);
             CREATE TABLE IF NOT EXISTS field_values (
                 cell TEXT NOT NULL REFERENCES cells(id) ON DELETE CASCADE,
@@ -137,7 +142,7 @@ class SpatialStore:
         return json.loads(row['payload'])
 
     def _insert_cell(self, cell):
-        if not isinstance(cell, dict) or set(cell) - {'id', 'measure', 'coordinates', 'tags'}:
+        if not isinstance(cell, dict) or set(cell) - {'id', 'measure', 'coordinates', 'tags', 'geometry'}:
             raise ValueError('Cell requires id, measure and optional coordinates/tags')
         identifier(cell['id'])
         if self.db.execute('SELECT 1 FROM claims WHERE id=? OR claimant=? LIMIT 1', (cell['id'], cell['id'])).fetchone():
@@ -154,8 +159,18 @@ class SpatialStore:
                 _finite(coordinate, 'coordinate')
             if self._metadata()['coordinate_system']['kind'] == 'geodetic' and (abs(coords[0]) > 90 or abs(coords[1]) > 180):
                 raise ValueError('Latitude/longitude outside degree ranges')
+        geometry = cell.get('geometry')
+        if geometry is not None:
+            from .spatial_geometry import validate_polygon, polygon_bounds
+            validate_polygon(geometry)
+            metadata = self._metadata()
+            if {k:v for k,v in geometry['crs'].items() if k != 'id'} != metadata['coordinate_system'] or metadata.get('geometry_crs', geometry['crs']) != geometry['crs']:
+                raise ValueError('Polygon CRS differs from store CRS')
+            self.db.execute('INSERT OR IGNORE INTO metadata VALUES(?,?)', ('geometry_crs', _json(geometry['crs'])))
         self.db.execute('INSERT INTO cells VALUES(?,?,?,?,?)',
                         (cell['id'], cell['measure'], *(coords or [None, None]), _json(cell)))
+        if geometry is not None:
+            self.db.execute('INSERT INTO cell_geometry VALUES(?,?,?,?,?)', (cell['id'], *polygon_bounds(geometry)))
 
     def _validate_value(self, value, definition):
         if definition['value_type'] == 'vector':
@@ -269,6 +284,47 @@ class SpatialStore:
                                    (*bounds, limit + 1)).fetchall()
             return {'cells': [json.loads(r['payload']) for r in rows[:limit]], 'truncated': len(rows) > limit,
                     'coordinate_system': metadata['coordinate_system']}
+
+    def _geometry_query(self, bounds, predicate, *, crs, limit, max_candidates):
+        from .spatial_geometry import validate_crs, validate_bounds
+        _limit(limit); _limit(max_candidates, 10000)
+        validate_bounds(bounds); validate_crs(crs)
+        with self._transaction():
+            if self._metadata().get('geometry_crs') != crs:
+                raise ValueError('CRS mismatch or no declared polygon geometry')
+            rows = self.db.execute("""SELECT c.payload FROM cell_geometry g JOIN cells c ON c.id=g.cell
+                WHERE g.xmax>=? AND g.ymax>=? AND g.xmin<=? AND g.ymin<=?
+                ORDER BY c.id LIMIT ?""", (*bounds, max_candidates+1)).fetchall()
+            matches = []
+            for row in rows[:max_candidates]:
+                cell = json.loads(row['payload'])
+                if predicate(cell):
+                    matches.append(cell)
+                    if len(matches)>limit:
+                        break
+            return {'cells':matches[:limit], 'truncated':len(matches)>limit or len(rows)>max_candidates,
+                    'candidate_truncated':len(rows)>max_candidates, 'crs':deepcopy(crs)}
+
+    def geometry_bbox(self, bounds, *, crs, limit=1000, max_candidates=10000):
+        """Planar polygon intersection; independent of the point bbox query."""
+        from .spatial_geometry import polygon_intersects_bbox
+        return self._geometry_query(bounds, lambda c: polygon_intersects_bbox(c['geometry'],bounds,crs=crs),
+                                    crs=crs,limit=limit,max_candidates=max_candidates)
+
+    def containing(self, point, *, crs, limit=1000, max_candidates=10000):
+        from .spatial_geometry import point_in_polygon, _point
+        _point(point)
+        return self._geometry_query(list(point)+list(point), lambda c: point_in_polygon(point,c['geometry'],crs=crs),
+                                    crs=crs,limit=limit,max_candidates=max_candidates)
+
+    def geometry_neighbors(self, cell, *, crs, limit=1000, max_candidates=10000):
+        from .spatial_geometry import polygon_bounds, polygons_adjacent
+        with self._transaction():
+            geometry = self._cell(cell).get('geometry')
+            if geometry is None:
+                raise ValueError('Cell has no polygon geometry')
+            return self._geometry_query(polygon_bounds(geometry), lambda c: c['id'] != cell and polygons_adjacent(geometry,c['geometry'],crs=crs),
+                                        crs=crs,limit=limit,max_candidates=max_candidates)
 
     def neighborhood(self, cell, *, hops=1, limit=1000, max_edges=10000):
         """Undirected reachability over explicit edges, with bounded visited work."""
@@ -403,6 +459,11 @@ class SpatialStore:
             return {'distance_m': 2 * 6371008.8 * math.asin(math.sqrt(min(1, max(0, h)))),
                     'model': 'great-circle sphere, mean Earth radius 6371008.8 m; not ellipsoidal or road distance',
                     'coordinate_unit': 'degree'}
+
+    def evolve_timeline(self, request):
+        """Atomically persist bounded signed/vector evolution and dated lifecycle."""
+        from .field_dynamics import evolve_spatial_timeline
+        return evolve_spatial_timeline(self, request)
 
     def _integrals(self, ids):
         definitions = self._definitions()

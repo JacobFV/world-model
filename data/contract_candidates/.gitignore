@@ -1,0 +1,10 @@
+/artifacts/
+/scratch/
+/raw/
+/final/
+/processing/
+/runs/
+/samples/
+/latest.json
+/raw-latest.json
+/.lock

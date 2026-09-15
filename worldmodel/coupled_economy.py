@@ -3,11 +3,12 @@
 Policy is a per-step action, never a rewritten simulation configuration. All
 monetary state lives exclusively in the bank ledger. Production converts paid
 labor into indivisible goods; household purchases consume goods immediately.
-Reported profit is revenue less this step's production cash outlay (not accrual
-profit or inventory valuation). Bankruptcy is an explicit policy decision; it
-freezes remaining inventory and writes off principal without seizing deposits.
-No interest, labor supply limit, price discovery, collateral recovery, central
-bank reaction, calibrated behavior, or causal validation is asserted.
+Reported profit remains revenue less this step's production cash outlay.
+Optional mechanisms add labor limits, deposit-paid interest, bounded policy-rate
+feedback, weighted-average inventory costs, lagged price/demand response, and
+funded collateral recovery. See docs/economy-mechanisms.md for equations, timing
+and limitations. None of these mechanisms asserts empirical calibration or
+causal validity; absent options preserve the original synthetic behavior.
 
 Work is conservatively preflighted across the entire retained policy history:
 at most 10000 reserved transactions and 1000000 transaction × ledger-balance
@@ -17,6 +18,7 @@ the household/firm cross-product and retained journals, not just actor count.
 """
 from copy import deepcopy
 from .banking import _money, _units, simulate_banking
+from . import economy_mechanisms as mechanisms
 
 
 def _object(value, allowed, name):
@@ -44,21 +46,34 @@ def _work_budget(state, policies=()):
 
     def reserve(policy, journal=()):
         nonlocal transactions, postings
-        _object(policy, ('firms', 'households'), 'policy')
-        slots = 0
+        _object(policy, ('firms', 'households', 'policy_rate'), 'policy')
+        slots = 2 * len(firms) if 'interest' in state.get('mechanisms', {}) else 0
+        if 'policy_rate' in policy:
+            mechanisms.number(policy['policy_rate'], 'policy_rate')
+            if 'interest' not in state.get('mechanisms', {}): raise ValueError('policy_rate requires interest mechanism')
         for name, owners in (('firms', firms), ('households', households)):
             mapping = policy.get(name, {})
             if not isinstance(mapping, dict) or set(mapping) - owners:
                 raise ValueError('Policy references unknown actor')
         for action in policy.get('firms', {}).values():
-            _object(action, ('production', 'price', 'credit_limit', 'repay', 'bankrupt'), 'firm action')
+            _object(action, ('production', 'price', 'credit_limit', 'repay', 'bankrupt', 'collateral_sale'), 'firm action')
             bankrupt = action.get('bankrupt', False)
             if not isinstance(bankrupt, bool):
                 raise ValueError('bankrupt must be boolean')
             slots += 2 * (_count(action.get('production', 0), 'production') > 0)
             slots += (_money(action.get('repay', 0), 'repay') > 0) + bankrupt
+            if 'collateral_sale' in action:
+                if not bankrupt: raise ValueError('collateral_sale requires declared bankruptcy')
+                sale = action['collateral_sale']
+                _object(sale, ('buyer', 'units', 'unit_price'), 'collateral sale')
+                if set(sale) != {'buyer', 'units', 'unit_price'} or not isinstance(sale['buyer'], str) or sale['buyer'] not in households:
+                    raise ValueError('Collateral sale requires a known household buyer and explicit terms')
+                _count(sale['units'], 'collateral units')
+                if _money(sale['unit_price'], 'collateral price') <= 0: raise ValueError('Collateral price must be positive')
+                slots += 2
         for action in policy.get('households', {}).values():
-            _object(action, ('purchases',), 'household action')
+            _object(action, ('purchases', 'labor_capacity'), 'household action')
+            if 'labor_capacity' in action: _count(action['labor_capacity'], 'labor_capacity')
             purchases = action.get('purchases', {})
             if not isinstance(purchases, dict) or set(purchases) - firms:
                 raise ValueError('Unknown purchase firm')
@@ -90,10 +105,10 @@ def _work_budget(state, policies=()):
 
 
 def _validate(state):
-    _object(state, ('banks', 'firms', 'households', 'step', 'history', 'initial_reserves'), 'economy state')
-    if set(state) != {'banks', 'firms', 'households', 'step', 'history', 'initial_reserves'}:
+    _object(state, ('banks', 'firms', 'households', 'step', 'history', 'initial_reserves', 'mechanisms', 'expectations'), 'economy state')
+    if not {'banks', 'firms', 'households', 'step', 'history', 'initial_reserves'} <= set(state):
         raise ValueError('Incomplete economy state')
-    if not isinstance(state['history'], list) or state['step'] != len(state['history']) or not 0 <= state['step'] <= 1000:
+    if type(state['step']) is not int or not isinstance(state['history'], list) or state['step'] != len(state['history']) or not 0 <= state['step'] <= 1000:
         raise ValueError('Invalid bounded step/history')
     for name in ('firms', 'households'):
         if not isinstance(state[name], list) or not 1 <= len(state[name]) <= 100:
@@ -107,7 +122,7 @@ def _validate(state):
     actors = {}
     for kind in ('households', 'firms'):
         for actor in state[kind]:
-            _object(actor, ('id', 'bank') if kind == 'households' else ('id', 'bank', 'worker', 'inventory', 'capacity', 'unit_cost', 'status'), kind)
+            _object(actor, ('id', 'bank', 'labor_capacity') if kind == 'households' else ('id', 'bank', 'worker', 'inventory', 'capacity', 'unit_cost', 'status', 'labor_per_unit', 'inventory_value', 'interest_arrears', 'last_price', 'last_unmet_demand'), kind)
             aid = actor.get('id')
             if not isinstance(aid, str) or not aid or aid in actors or actor.get('bank') not in banks:
                 raise ValueError('Actor requires unique ID and known bank')
@@ -128,73 +143,76 @@ def _validate(state):
                 raise ValueError('Every account and loan must belong to its actor at its bank')
         if set(bank['loans']) - {f['id'] for f in state['firms']}:
             raise ValueError('Only firms borrow in this economy')
+    mechanisms.validate_fields(state)
     _work_budget(state)
     return ledger['banks']
 
 
 def initialize_economy(config):
     """Create a persistent state from banks, firms and households endowments."""
-    _object(config, ('banks', 'firms', 'households'), 'initial economy')
-    if set(config) != {'banks', 'firms', 'households'}:
+    _object(config, ('banks', 'firms', 'households', 'mechanisms'), 'initial economy')
+    if not {'banks', 'firms', 'households'} <= set(config):
         raise ValueError('Initial economy requires banks, firms and households')
     state = deepcopy(config)
     for firm in state['firms']:
         firm.setdefault('status', 'active')
     state.update(step=0, history=[], initial_reserves=_units(sum(_money(b['reserves'], 'reserves') for b in state['banks'])))
+    mechanisms.initialize_fields(state)
     state['banks'] = _validate(state)
     return state
 
 
 def step_economy(state, policy, shock=None):
-    """Return a new state; errors leave all caller objects unchanged.
-
-    Firm actions: production (units), price (USD/unit), credit_limit (maximum
-    outstanding principal), repay (USD), bankrupt (bool). Household actions:
-    purchases:{firm:units}. Omitted actions mean zero. Defaults are explicit
-    bankruptcy decisions; bank solvency and reserves constrain feasible output.
-    Exogenous shock supports inventory_loss only. Missing credit or settlement
-    liquidity deterministically rations production/purchases, with audit events.
-    """
+    """Advance one day atomically; see docs/economy-mechanisms.md for options."""
     banks_list = _validate(state)
-    if state['step'] >= 1000:
-        raise ValueError('Economy horizon is bounded to 1000 steps')
-    _object(policy, ('firms', 'households'), 'policy')
+    if state['step'] >= 1000: raise ValueError('Economy horizon is bounded to 1000 steps')
+    _object(policy, ('firms', 'households', 'policy_rate'), 'policy')
     work = _work_budget(state, [policy])
     shock = {} if shock is None else shock
-    _object(shock, ('inventory_loss',), 'shock')
-    out = deepcopy(state)
-    out['banks'] = banks_list
+    _object(shock, ('inventory_loss', 'unit_cost', 'inflation', 'output_gap', 'expected_energy_change', 'expected_rate_change'), 'shock')
+    out = deepcopy(state); out['banks'] = banks_list
+    options = out.get('mechanisms', {})
     actors = {x['id']: x for x in out['firms'] + out['households']}
     firms = {x['id']: x for x in out['firms']}
     households = {x['id']: x for x in out['households']}
-    for key, owners in [('firms', firms), ('households', households)]:
-        mapping = policy.get(key, {})
-        if not isinstance(mapping, dict) or set(mapping) - set(owners):
-            raise ValueError('Policy references unknown actor')
-    losses = shock.get('inventory_loss', {})
-    if not isinstance(losses, dict) or set(losses) - set(firms):
-        raise ValueError('Shock references unknown firm')
+    for key in ('inventory_loss', 'unit_cost'):
+        mapping = shock.get(key, {})
+        if not isinstance(mapping, dict) or set(mapping) - set(firms): raise ValueError('Shock references unknown firm')
+        for fid, value in mapping.items():
+            if key == 'inventory_loss':
+                _count(value, key)
+                if value > firms[fid]['inventory']: raise ValueError('Inventory loss exceeds available goods')
+            elif _money(value, key) <= 0: raise ValueError('unit_cost shock must be positive cents')
+    for key in ('inflation', 'output_gap', 'expected_energy_change', 'expected_rate_change'):
+        if key in shock: mechanisms.number(shock[key], key, -1, 1)
+    if any(k in shock for k in ('expected_energy_change', 'expected_rate_change')) and 'demand_feedback' not in options:
+        raise ValueError('Expectation shocks require demand_feedback')
+    rate_audit = mechanisms.apply_rate(options, policy, shock)
     actions = {}
-    for fid in firms:
+    for fid, firm in firms.items():
         p = policy.get('firms', {}).get(fid, {})
-        _object(p, ('production', 'price', 'credit_limit', 'repay', 'bankrupt'), 'firm action')
-        if not isinstance(p.get('bankrupt', False), bool): raise ValueError('bankrupt must be boolean')
         actions[fid] = dict(production=_count(p.get('production', 0), 'production'),
-                            price=_money(p.get('price', 1), 'price'),
+                            price=mechanisms.price_for(firm, p, options),
                             credit_limit=_money(p.get('credit_limit', 0), 'credit_limit'),
                             repay=_money(p.get('repay', 0), 'repay'), bankrupt=p.get('bankrupt', False))
         if actions[fid]['price'] <= 0: raise ValueError('price must be positive')
+        if 'collateral_sale' in p:
+            sale = p['collateral_sale']
+            if sale['units'] > firm['inventory'] - shock.get('inventory_loss', {}).get(fid, 0):
+                raise ValueError('Collateral sale units exceed available inventory')
+            if firm['status'] == 'bankrupt' and sale['units']: raise ValueError('Previously bankrupt firm cannot sell collateral again')
+            actions[fid]['collateral_sale'] = sale
     for hid in households:
         p = policy.get('households', {}).get(hid, {})
-        _object(p, ('purchases',), 'household action')
-        purchases = p.get('purchases', {})
-        if not isinstance(purchases, dict) or set(purchases) - set(firms): raise ValueError('Unknown purchase firm')
-        for value in purchases.values(): _count(value, 'purchases')
+        for value in p.get('purchases', {}).values(): _count(value, 'purchases')
+        if 'labor_capacity' in p: households[hid]['labor_capacity'] = _count(p['labor_capacity'], 'labor_capacity')
+    labor_enabled = any('labor_capacity' in h for h in households.values()) or any('labor_per_unit' in f for f in firms.values())
+    labor = {hid: {'capacity': h.get('labor_capacity'), 'requested': 0, 'allocated': 0, 'unmet': 0} for hid, h in households.items()}
     events, journal = [], []
-    created = repaid = defaulted = 0
+    created = repaid = defaulted = paid_interest = 0
+    opening_principal = {f['id']: _money(next(b for b in state['banks'] if b['id'] == f['bank'])['loans'].get(f['id'], 0), 'principal') for f in state['firms']}
 
-    def bank(actor):
-        return next(b for b in out['banks'] if b['id'] == actors[actor]['bank'])
+    def bank(actor): return next(b for b in out['banks'] if b['id'] == actors[actor]['bank'])
 
     def transact(kind, actor, cents, target=None):
         if not cents: return
@@ -207,72 +225,138 @@ def step_economy(state, policy, shock=None):
         events.extend(result['events'])
 
     def liquidity(actor, target):
-        b = bank(actor)
-        return _money(b['reserves'], 'reserves') if actors[actor]['bank'] != actors[target]['bank'] else 100000000000000
+        return _money(bank(actor)['reserves'], 'reserves') if actors[actor]['bank'] != actors[target]['bank'] else 100000000000000
 
-    metrics = {}
+    metrics = {fid: dict(produced=0, sold=0, revenue=0, cost=0, profit=0) for fid in firms}
+    cogs = {fid: 0 for fid in firms}; write_down = {fid: 0 for fid in firms}
+    interest_cost = {fid: 0 for fid in firms}; interest_payments = {fid: 0 for fid in firms}
+    unmet_demand = {fid: 0 for fid in firms}; recoveries = {}
     opening_goods = sum(f['inventory'] for f in firms.values())
+    opening_value = sum(_money(f.get('inventory_value', 0), 'inventory_value') for f in firms.values())
     destroyed = 0
+
+    def bankrupt(fid, sale=None, cause='declared'):
+        nonlocal defaulted, repaid
+        firm = firms[fid]
+        if firm['status'] == 'bankrupt': return
+        recovered = proceeds = sold = 0
+        if sale is not None:
+            buyer = sale['buyer']; price = _money(sale['unit_price'], 'unit_price')
+            sold = min(sale['units'], _money(bank(buyer)['accounts'][buyer], 'deposit') // price, liquidity(buyer, fid) // price)
+            proceeds = sold * price
+            transact('transfer', buyer, proceeds, fid)
+            cogs[fid] += mechanisms.inventory_remove(firm, sold)
+            metrics[fid]['sold'] += sold; metrics[fid]['revenue'] += proceeds
+            recovered = min(proceeds, _money(bank(fid)['loans'].get(fid, 0), 'loan'))
+            transact('repay', fid, recovered); repaid += recovered
+            recoveries[fid] = recovered
+            events.append({'kind': 'collateral_sale', 'firm': fid, 'buyer': buyer, 'requested_units': sale['units'],
+                           'sold_units': sold, 'proceeds': _units(proceeds), 'principal_recovered': _units(recovered),
+                           'rationed': sold < sale['units'], 'book_cost': _units(cogs[fid]) if 'inventory_value' in firm else None})
+        principal = _money(bank(fid)['loans'].get(fid, 0), 'loan')
+        transact('default', fid, principal); defaulted += principal
+        firm['status'] = 'bankrupt'
+        events.append({'kind': 'firm_bankrupt', 'firm': fid, 'written_off': _units(principal), 'cause': cause})
+
     for fid in sorted(firms):
         firm, p = firms[fid], actions[fid]
-        loss = _count(losses.get(fid, 0), 'inventory_loss')
-        if loss > firm['inventory']: raise ValueError('Inventory loss exceeds available goods')
-        firm['inventory'] -= loss
-        destroyed += loss
-        m = metrics[fid] = dict(produced=0, sold=0, revenue=0, cost=0, profit=0)
-        if p['bankrupt']:
-            principal = _money(bank(fid)['loans'].get(fid, 0), 'loan')
-            transact('default', fid, principal)
-            defaulted += principal
-            firm['status'] = 'bankrupt'
-            events.append({'kind': 'firm_bankrupt', 'firm': fid, 'written_off': _units(principal)})
+        loss = shock.get('inventory_loss', {}).get(fid, 0)
+        write_down[fid] += mechanisms.inventory_remove(firm, loss); destroyed += loss
+        if fid in shock.get('unit_cost', {}): firm['unit_cost'] = shock['unit_cost'][fid]
+        if p['bankrupt']: bankrupt(fid, p.get('collateral_sale'))
         if firm['status'] == 'bankrupt': continue
         b = bank(fid)
         cash, debt = _money(b['accounts'][fid], 'deposit'), _money(b['loans'].get(fid, 0), 'loan')
         credit = max(0, p['credit_limit'] - debt) if _money(b['equity'], 'equity', signed=True) > 0 else 0
         unit_cost = _money(firm['unit_cost'], 'unit_cost')
-        produced = min(p['production'], firm['capacity'], (cash + credit) // unit_cost, liquidity(fid, firm['worker']) // unit_cost)
-        cost = produced * unit_cost
-        loan = max(0, cost - cash)
-        transact('originate', fid, loan)
-        created += loan
+        worker = labor[firm['worker']]; per_unit = firm.get('labor_per_unit', 1)
+        worker['requested'] += p['production'] * per_unit
+        available_labor = (worker['capacity'] - worker['allocated']) // per_unit if worker['capacity'] is not None else 1000000
+        produced = min(p['production'], firm['capacity'], (cash + credit) // unit_cost,
+                       liquidity(fid, firm['worker']) // unit_cost, available_labor)
+        cost = produced * unit_cost; loan = max(0, cost - cash)
+        transact('originate', fid, loan); created += loan
         transact('transfer', fid, cost, firm['worker'])
+        worker['allocated'] += produced * per_unit
         firm['inventory'] += produced
         if firm['inventory'] > 1000000: raise ValueError('Inventory exceeds bounded range')
-        m.update(produced=produced, cost=cost)
+        if 'inventory_value' in firm: firm['inventory_value'] = _units(_money(firm['inventory_value'], 'inventory_value') + cost)
+        metrics[fid].update(produced=produced, cost=cost)
         if produced < p['production']:
-            events.append({'kind': 'production_rationed', 'firm': fid, 'requested': p['production'], 'produced': produced, 'fallback': 'reduce_to_funded_settleable_capacity'})
+            events.append({'kind': 'production_rationed', 'firm': fid, 'requested': p['production'], 'produced': produced,
+                           'fallback': 'reduce_to_funded_settleable_labor_and_capacity' if labor_enabled else 'reduce_to_funded_settleable_capacity'})
     for hid in sorted(households):
         for fid, requested in sorted(policy.get('households', {}).get(hid, {}).get('purchases', {}).items()):
             price = actions[fid]['price']
+            demand = mechanisms.demand_units(requested, price, options, state.get('expectations', {}))
             available = firms[fid]['inventory'] if firms[fid]['status'] == 'active' else 0
-            bought = min(requested, available, _money(bank(hid)['accounts'][hid], 'deposit') // price, liquidity(hid, fid) // price)
+            bought = min(demand, available, _money(bank(hid)['accounts'][hid], 'deposit') // price, liquidity(hid, fid) // price)
             transact('transfer', hid, bought * price, fid)
-            firms[fid]['inventory'] -= bought
-            metrics[fid]['sold'] += bought
-            metrics[fid]['revenue'] += bought * price
-            if bought < requested: events.append({'kind': 'purchase_rationed', 'household': hid, 'firm': fid, 'requested': requested, 'bought': bought})
+            cogs[fid] += mechanisms.inventory_remove(firms[fid], bought)
+            metrics[fid]['sold'] += bought; metrics[fid]['revenue'] += bought * price
+            unmet_demand[fid] += demand - bought
+            if bought < demand:
+                events.append({'kind': 'purchase_rationed', 'household': hid, 'firm': fid, 'requested': demand, 'bought': bought})
+            if 'demand_feedback' in options:
+                events.append({'kind': 'demand_feedback', 'household': hid, 'firm': fid, 'base_units': requested,
+                               'demand_units': demand, 'price': _units(price), 'lagged_expectations': deepcopy(state['expectations'])})
     for fid in sorted(firms):
+        firm = firms[fid]
+        if 'interest' in options and firm['status'] == 'active':
+            interest_cost[fid] = mechanisms.interest_due(opening_principal[fid], options['interest'])
+            due = interest_cost[fid] + _money(firm['interest_arrears'], 'interest_arrears')
+            paid = min(due, _money(bank(fid)['accounts'][fid], 'deposit'))
+            transact('interest', fid, paid); paid_interest += paid; interest_payments[fid] = paid
+            firm['interest_arrears'] = _units(due - paid)
+            if due > paid:
+                events.append({'kind': 'interest_unpaid', 'firm': fid, 'amount': _units(due - paid), 'treatment': 'memorandum_arrears'})
+                if options['interest']['insufficient'] == 'bankrupt': bankrupt(fid, cause='unpaid_interest')
         amount = min(actions[fid]['repay'], _money(bank(fid)['accounts'][fid], 'deposit'), _money(bank(fid)['loans'].get(fid, 0), 'loan'))
-        transact('repay', fid, amount)
-        repaid += amount
+        transact('repay', fid, amount); repaid += amount
     final_goods = sum(f['inventory'] for f in firms.values())
     if opening_goods + sum(m['produced'] - m['sold'] for m in metrics.values()) - destroyed != final_goods:
         raise ValueError('Goods conservation failed')
     def totals(bs, key): return sum(_money(v, key) for b in bs for v in b[key].values())
-    if totals(out['banks'], 'accounts') - totals(state['banks'], 'accounts') != created - repaid:
+    if totals(out['banks'], 'accounts') - totals(state['banks'], 'accounts') != created - repaid - paid_interest:
         raise ValueError('Deposit creation/extinction mismatch')
     if totals(out['banks'], 'loans') - totals(state['banks'], 'loans') != created - repaid - defaulted:
         raise ValueError('Debt creation/extinction mismatch')
-    for m in metrics.values():
+    equity_change = sum(_money(b['equity'], 'equity', signed=True) for b in out['banks']) - sum(_money(b['equity'], 'equity', signed=True) for b in state['banks'])
+    if equity_change != paid_interest - defaulted: raise ValueError('Equity income/loss mismatch')
+    if options.get('inventory_valuation'):
+        closing_value = sum(_money(f['inventory_value'], 'inventory_value') for f in firms.values())
+        if opening_value + sum(m['cost'] for m in metrics.values()) - sum(cogs.values()) - sum(write_down.values()) != closing_value:
+            raise ValueError('Inventory cost conservation failed')
+    for fid, m in metrics.items():
         m['profit'] = m['revenue'] - m['cost']
+        if options.get('inventory_valuation'):
+            m.update(cost_of_goods_sold=_units(cogs[fid]), inventory_write_down=_units(write_down[fid]),
+                     operating_profit=_units(m['revenue'] - cogs[fid] - write_down[fid]))
+        if 'interest' in options:
+            m.update(interest_due=_units(interest_cost[fid]), interest_paid=_units(interest_payments[fid]),
+                     cash_surplus_after_interest=_units(m['profit'] - interest_payments[fid]))
+        if fid in recoveries: m['collateral_recovered'] = _units(recoveries[fid])
         for k in ('cost', 'revenue', 'profit'): m[k] = _units(m[k])
+        if 'price_feedback' in options:
+            firms[fid]['last_price'] = _units(actions[fid]['price'])
+            firms[fid]['last_unmet_demand'] = min(1000000, unmet_demand[fid])
     record = {'step': out['step'] + 1, 'policy': deepcopy(policy), 'shock': deepcopy(shock), 'firms': metrics, 'work': work,
               'events': events, 'journal': journal, 'accounting': {'balanced': True, 'reserve_change': 0,
               'loan_created': _units(created), 'loan_repaid': _units(repaid), 'loan_defaulted': _units(defaulted),
               'goods_opening': opening_goods, 'goods_destroyed': destroyed, 'goods_closing': final_goods}}
-    out['history'].append(record)
-    out['step'] += 1
+    if 'interest' in options:
+        record['accounting']['interest_paid'] = _units(paid_interest); record['monetary_policy'] = rate_audit
+    if options.get('inventory_valuation'):
+        record['accounting'].update(inventory_cost_opening=_units(opening_value), inventory_cost_closing=_units(closing_value))
+    if labor_enabled:
+        for worker in labor.values(): worker['unmet'] = worker['requested'] - worker['allocated']
+        record['labor'] = labor
+    if 'price_feedback' in options or 'demand_feedback' in options:
+        record['prices'] = {fid: _units(p['price']) for fid, p in actions.items()}
+    if 'demand_feedback' in options:
+        for source, target in [('expected_energy_change', 'energy_change'), ('expected_rate_change', 'rate_change')]:
+            if source in shock: out['expectations'][target] = shock[source]
+    out['history'].append(record); out['step'] += 1
     _validate(out)
     return out
 

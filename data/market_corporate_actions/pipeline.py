@@ -1,8 +1,5 @@
-'Corporate action data availability declaration.'
-import json
-from worldmodel.util import digest
-from worldmodel.source_helpers import _iso_date, _code
+"""Strict authorized dated corporate-action import; successor identities stay explicit."""
+from worldmodel.financial_feeds import feed_records
 
 def run(context):
-    dataset = 'market_corporate_actions'
-    raise ValueError('No acquired source adapter: ' + dataset)
+    yield from feed_records(context,'corporate_actions')

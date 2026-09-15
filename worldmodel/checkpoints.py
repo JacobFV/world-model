@@ -170,10 +170,12 @@ class CheckpointEvaluator:
             for b in self.bindings:
                 name=b['id']
                 if data['next_due'][name]>elapsed:continue
+                from .process_contracts import require_execution_eligible
+                require_execution_eligible(self.request,b['entity_id'],(self.start+timedelta(seconds=elapsed)).isoformat(),min(b['cadence_seconds'],self.duration-elapsed))
                 inputs={p:{'value':deepcopy(state[v]['value']),'unit':state[v]['unit']} if isinstance(v,tuple) else deepcopy(data['literals'][name][p]) for p,v in b['inputs_resolved'].items()}
                 memory=deepcopy(data['memories'].get(b['entity_id'],{}))
                 context={'dt_seconds':min(b['cadence_seconds'],self.duration-elapsed),
-                    'time':(self.start+timedelta(seconds=elapsed)).isoformat(),'rng':data['rngs'][name],
+                    'time':(self.start+timedelta(seconds=elapsed)).isoformat(),'known_at':self.request['known_at'],'rng':data['rngs'][name],
                     'state':{p:deepcopy(state[k]['value']) for p,k in b['outputs_resolved'].items()},
                     'entity_id':b['entity_id'],'memory':memory,'agent_backend':self.backend,
                     'budget':self.request['budget'],'remaining_budget':self.request['budget']-data['cost']-sum(x[0]['implementation']['cost_per_call'] for x in pending)}
@@ -214,6 +216,9 @@ class CheckpointEvaluator:
                     spec=self.specs[b['process_id']]['outputs'][port];value=new[key]['value']
                     if type(value) in (int,float) and not spec.get('minimum',-math.inf)<=value<=spec.get('maximum',math.inf):
                         raise ValueError('Forecast violates declared output bounds')
+            from .process_contracts import audit_conserved_outputs
+            for b in self.bindings:
+                audit_conserved_outputs(self.specs[b['process_id']],{p:state[k]['value'] for p,k in b['outputs_resolved'].items()},{p:new[k]['value'] for p,k in b['outputs_resolved'].items()})
             data['state']=new;data['elapsed']=boundary
 
     def result(self):
@@ -252,7 +257,7 @@ class CheckpointEvaluator:
                 spec=self.specs[b['process_id']]['inputs'][port]
                 if not isinstance(item,dict) or set(item)!={'value','unit'} or item['unit']!=spec.get('unit'):
                     raise ValueError('Checkpoint literal unit mismatch')
-                try:_typed(item['value'],spec['type'])
+                try:_typed(item['value'],'array' if spec.get('temporal') else spec['type'])
                 except ValueError as exc:raise ValueError('Checkpoint literal type mismatch') from exc
         if set(data['state'])!=set(self.keys):raise ValueError('Checkpoint state keys mismatch')
         temporal._compatible(data['state'],self.bindings,self.specs)
@@ -306,10 +311,15 @@ class CheckpointEvaluator:
         checkpoint=json.loads(canonical(checkpoint))
         return {**checkpoint,'checksum':digest(checkpoint)}
 
-    def restore(self,checkpoint):
+    def restore(self,checkpoint,*,journal_capability=None):
         _json_native(checkpoint)
-        if self.live:raise ValueError('Live backend checkpoint restore cannot guarantee exactly-once external effects')
-        if self.blocked:raise ValueError('Blocked backend session cannot restore')
+        authorized=False
+        if self.live and journal_capability is not None:
+            from .journaled_environment import JournaledBackend
+            if type(self.backend) is not JournaledBackend:raise ValueError('Journal capability requires a journaled backend')
+            authorized=self.backend.authorize_restore(journal_capability,self)
+        if self.live and not authorized:raise ValueError('Live backend checkpoint restore cannot guarantee exactly-once external effects')
+        if self.blocked and not authorized:raise ValueError('Blocked backend session cannot restore')
         if len(canonical(checkpoint))>32*1024*1024:raise ValueError('Checkpoint exceeds 32 MiB')
         candidate=deepcopy(checkpoint)
         checksum=candidate.pop('checksum',None)
@@ -327,6 +337,7 @@ class CheckpointEvaluator:
         except (KeyError,TypeError,IndexError,OverflowError) as exc:
             raise ValueError('Invalid checkpoint structure') from exc
         self._verify();self._data=data;self.attempted_calls=max(self.attempted_calls,data['calls'])
+        if authorized:self.blocked=False
         return self.result()
 
     @contextmanager

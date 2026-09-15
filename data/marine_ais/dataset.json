@@ -3,7 +3,7 @@
   "schema_version": 2,
   "dependencies": [],
   "kind": "source",
-  "status": "sample_adapter_ready",
+  "status": "access_verified_export_not_acquired",
   "description": "Historical AIS availability; no bulk daily download on laptop",
   "source": {
     "publisher": "NOAA / BOEM / USCG MarineCadastre",
@@ -24,7 +24,7 @@
     "representative": false,
     "url": "https://marinecadastre.gov/ais/",
     "criteria": "Historical AIS availability; no bulk daily download on laptop",
-    "reason": "AccessAIS currently reports its ordering service unavailable. Bulk daily AIS archives remain available, but no selected archive or spatial export has been verified to fit the62MiB download buffer. No vessel tracks acquired.",
+    "reason": "AccessAIS status endpoint returned HTTP200 on2026-09-15. Its export flow requires an asynchronous order; no bounded synchronous track export or bulk archive has been verified within62MiB. No vessel tracks acquired.",
     "documentation": "https://marinecadastre.gov/accessais/"
   },
   "stages": [

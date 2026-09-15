@@ -1,0 +1,36 @@
+{
+  "id": "contract_candidates",
+  "schema_version": 2,
+  "kind": "source",
+  "status": "ready_for_authorized_file_import",
+  "dependencies": [],
+  "description": "Bounded document extraction candidates",
+  "entrypoint": "pipeline.py:run",
+  "parameters": {},
+  "source": {
+    "publisher": "user-supplied authorized documents/reviews",
+    "license_status": "inherited_from_inputs"
+  },
+  "coverage": {
+    "representative": false,
+    "completeness": "unknown",
+    "scope": "No external documents acquired; fictional tests only"
+  },
+  "stages": [
+    {
+      "id": "candidates",
+      "entrypoint": "pipeline.py:run",
+      "depends_on": [],
+      "schema": {
+        "format": "jsonl"
+      },
+      "validation": {
+        "allow_empty": false,
+        "max_rows": 50000
+      },
+      "cache": "content",
+      "retention": "retain"
+    }
+  ],
+  "output_stage": "candidates"
+}

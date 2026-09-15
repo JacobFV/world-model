@@ -485,3 +485,22 @@ The training script uses a small fictional checkpoint environment, disjoint seed
 and an explicit inventory objective. The sensitivity sweep changes opening credit
 limits. Neither establishes real-world policy validity. `assess-model` requires an
 existing calibration report and records failure when its holdout misses the baseline.
+
+## Handoff expansion
+
+The latest laptop implementation adds journaled resume, richer banking/production
+mechanisms, signed/vector spatial timelines, structured RL spaces, isolated rollout
+workers, dated financial imports and reviewed contract extraction. Process composition
+and verification status are tracked in [the completion ledger](docs/handoff-completion.md).
+
+```sh
+python3 -m worldmodel coupled-economy --request examples/economy-policy-feedback.json
+python3 -m worldmodel benchmark-scenarios --request examples/scenario-benchmark.json
+python3 -m worldmodel spatial-timeline --request examples/spatial-timeline.json --dataset spatial_timeline
+python3 -m worldmodel surface spatial_timeline --spec examples/spatial-surface.json --output /tmp/spatial.html
+```
+
+[Bounded source outcomes](docs/source-access-2026-09-15.json) distinguish acquired
+samples from credentials/export gaps. [Chronological benchmarks](docs/benchmarks.md)
+keep final-test outcomes separate from model selection. Full-scale GB10 execution
+remains deferred.

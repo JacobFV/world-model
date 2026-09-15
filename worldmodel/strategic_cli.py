@@ -7,7 +7,7 @@ from .util import read_json, now
 
 from .foundation_cli import COMMANDS as FOUNDATION_COMMANDS
 
-COMMANDS=FOUNDATION_COMMANDS | {'sources','strategic-build','route','economy','banking','strategies','calibrate','report'}
+COMMANDS=FOUNDATION_COMMANDS | {'sources','strategic-build','route','economy','banking','strategies','calibrate','benchmark-series','report'}
 
 
 def add_commands(sub):
@@ -37,6 +37,10 @@ def add_commands(sub):
     calibration.add_argument('--metric',required=True)
     calibration.add_argument('--train-end',required=True)
     calibration.add_argument('--dataset',default='series_calibration')
+    benchmark=sub.add_parser('benchmark-series',help='Select on validation and score an untouched final time partition')
+    benchmark.add_argument('reference');benchmark.add_argument('--metric',required=True)
+    benchmark.add_argument('--train-end',required=True);benchmark.add_argument('--validation-end',required=True)
+    benchmark.add_argument('--dataset',default='series_benchmark')
     report=sub.add_parser('report',help='Read an immutable domain report')
     report.add_argument('reference')
 
@@ -83,6 +87,21 @@ def execute(args,catalog,store,project,reference):
         return build_strategic(catalog,store,project)
     if command=='report':
         return load_report(store,reference(args.reference,store))
+    if command=='benchmark-series':
+        from .benchmarks import benchmark_series
+        graph=reference(args.reference,store)
+        records=[r for r in store.records(graph) if r.get('kind')=='observation' and r.get('metric')==args.metric
+                 and r.get('epistemic_status','observed')=='observed']
+        if any(not isinstance(r.get('subject'),str) or not r['subject'] or not r.get('valid_from') for r in records):
+            raise ValueError('Benchmark observations require explicit subject identity and valid_from')
+        rows=[{'series':r['subject']+':'+r['metric'],'time':r['valid_from'],
+               'value':r['value'],'unit':r['unit'],'vintage':'retrospective source vintage; not real-time availability',
+               'evidence':[{'input':graph,'record_id':r['id']}]}
+              for r in records]
+        result=benchmark_series(rows,args.train_end,args.validation_end)
+        artifact=publish_report(store,args.dataset,result,{'metric':args.metric,'train_end':args.train_end,'validation_end':args.validation_end},
+                                inputs=[graph],entrypoint='worldmodel.benchmarks:benchmark_series')
+        return {'artifact':artifact,**result}
     if command=='calibrate':
         from .calibration import fit_ar1
         graph=reference(args.reference,store)
