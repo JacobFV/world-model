@@ -1,0 +1,30 @@
+effective,event,from_geoid,to_geoid,population,population_basis,note
+1990-12-07,part_to_new,02290,02068,1682,1990 detached population,Denali Borough created from Yukon-Koyukuk
+1990-12-07,part_to_new,02240,02068,0,unpopulated part,Denali Borough created from Southeast Fairbanks
+1992-09-22,split,02231,02232,3679,1990 population,Skagway-Yakutat-Angoon remainder
+1992-09-22,split,02231,02282,725,1990 population,Yakutat City and Borough
+1995-06-30,merge,51780,51083,,,South Boston city added to Halifax County
+1997-07-22,recode,12025,12086,,,Dade County renamed Miami-Dade County
+1997-07-01,boundary,24033,24031,5156,1990 added population,Takoma Park to Montgomery County
+1997-11-07,merge,30113,30031,0,unpopulated portion,Yellowstone NP annexed to Gallatin
+1997-11-07,merge,30113,30067,52,1990 added population,Yellowstone NP annexed to Park
+2001-07-01,merge,51560,51005,4289,estimated added population,Clifton Forge city added to Alleghany County
+2001-11-15,part_to_new,08001,08014,15870,estimated detached population,Broomfield County from Adams
+2001-11-15,part_to_new,08013,08014,21512,estimated detached population,Broomfield County from Boulder
+2001-11-15,part_to_new,08059,08014,1726,estimated detached population,Broomfield County from Jefferson
+2001-11-15,part_to_new,08123,08014,69,estimated detached population,Broomfield County from Weld
+2007-06-20,split,02232,02230,862,population,Skagway Municipality
+2007-06-20,split,02232,02105,2574,population,Hoonah-Angoon Census Area
+2007-07-01,boundary,51199,51700,293,estimated net detached population,York County / Newport News exchange
+2008-05-19,part_to_existing,02201,02130,7,estimated added population,Outer Ketchikan to Ketchikan Gateway
+2008-05-19,recode,02201,02198,6115,estimated population of remainder,renamed Prince of Wales-Hyder
+2008-06-01,split,02280,02275,2448,estimated population incl. Meyers Chuck area,Wrangell City and Borough
+2008-06-01,split,02280,02195,4260,estimated population,Petersburg Census Area
+2013-01-03,boundary,02105,02195,1,estimated detached population,part to Petersburg Borough
+2013-01-03,boundary,02195,02198,613,estimated added population,part of former Petersburg CA to Prince of Wales-Hyder
+2013-07-01,merge,51515,51019,6222,estimated net added population,Bedford city added to Bedford County
+2015-05-01,recode,46113,46102,,,Shannon County renamed Oglala Lakota County
+2015-07-01,recode,02270,02158,,,Wade Hampton renamed Kusilvak Census Area
+2019-01-02,split,02261,02063,,population not published on change page,Chugach Census Area
+2019-01-02,split,02261,02066,,population not published on change page,Copper River Census Area
+2022-06-06,replace_system,09,09,,use ct_county_planning_region_cousub.csv,Connecticut counties replaced by planning regions (87 FR 34233)

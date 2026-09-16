@@ -24,6 +24,47 @@ def identifier(value):
         raise ValueError(f'Expected namespaced identifier: {value!r}')
 
 
+MATCH_STATUSES = ('unreviewed', 'needs_review', 'accepted', 'rejected', 'source_asserted')
+PRICE_BASES = ('nominal', 'real', 'index', 'unspecified')
+
+
+def _validate_optional(record):
+    """Optional fields added for units, reconciliation and entity resolution (all backward compatible)."""
+    if 'conversion' in record:
+        from .units import validate_conversion
+        if not isinstance(record.get('unit'), str):
+            raise ValueError('conversion requires a record unit')
+        validate_conversion(record['conversion'], record['unit'])
+    if 'price_basis' in record:
+        if record['price_basis'] not in PRICE_BASES:
+            raise ValueError('price_basis must be one of ' + ', '.join(PRICE_BASES))
+        if record['price_basis'] == 'real' and not (isinstance(record.get('base_period'), str) and record['base_period']):
+            raise ValueError('Real (constant-price) values require base_period')
+    if 'base_period' in record and not (isinstance(record['base_period'], str) and record['base_period']):
+        raise ValueError('base_period must be a nonempty string')
+    for field in ('retracts', 'supersedes'):
+        if field in record:
+            if not isinstance(record[field], list) or not record[field]:
+                raise ValueError(field + ' must be a nonempty list of record IDs')
+            for value in record[field]:
+                identifier(value)
+    if record.get('vintage') is not None:
+        instant(record['vintage'])
+    if 'match' in record:
+        match = record['match']
+        if record.get('kind') != 'assertion' or not isinstance(match, dict):
+            raise ValueError('match metadata belongs to assertions and must be an object')
+        if not isinstance(match.get('method'), str) or not match['method']:
+            raise ValueError('match requires a method')
+        if match.get('reviewer_status', 'unreviewed') not in MATCH_STATUSES:
+            raise ValueError('Unknown match reviewer_status')
+        score = match.get('score')
+        if score is not None and (isinstance(score, bool) or not isinstance(score, (int, float)) or not 0 <= score <= 1):
+            raise ValueError('match score must be in [0,1]')
+        if 'features' in match and not isinstance(match['features'], dict):
+            raise ValueError('match features must be an object')
+
+
 def validate_record(record):
     if not isinstance(record, dict):
         raise ValueError('Record must be an object')
@@ -59,6 +100,7 @@ def validate_record(record):
     if confidence is not None and (isinstance(confidence, bool) or not isinstance(confidence, (int, float))
                                    or not 0 <= confidence <= 1):
         raise ValueError('confidence must be in [0,1]')
+    _validate_optional(record)
     if kind == 'entity':
         identifier(record.get('entity_id', record['id']))
         if record.get('entity_type') not in ENTITY_TYPES:

@@ -108,6 +108,22 @@ _v('document_status','category','entity','object')
 _v('publication_metadata','category','publication','object')
 _v('corn_yield','BU / ACRE','aggregate_cohort')
 
+# Process ports of the registered model families (worldmodel/models), declared with the
+# exact type/unit of each port descriptor. Region-pair ports keep explicit _a/_b roles.
+for name, unit, domain in [('background_rate', 'events/month', 'location'), ('intensity', 'events/month', 'location'),
+                           ('neighbor_intensity', 'events/month', 'location'), ('inflation', 'percent', 'jurisdiction'),
+                           ('output_gap', 'percent', 'jurisdiction'), ('population_a', 'people', 'location'),
+                           ('population_b', 'people', 'location'), ('employment_rate_a', 'ratio', 'location'),
+                           ('employment_rate_b', 'ratio', 'location'), ('base_outmigration_rate_a', 'per_year', 'location'),
+                           ('base_outmigration_rate_b', 'per_year', 'location')]:
+    _v(name, unit, domain)
+# Family configuration/forecast objects use family-prefixed names (as composition_config does),
+# because one shared name cannot carry eleven distinct units.
+for _family in ('assets', 'commodities', 'conflict', 'elections', 'influence', 'legislative', 'market_abm',
+                'monetary', 'regional', 'sanctions', 'trade'):
+    _v(_family + '_config', _family + '-config', 'entity', 'object')
+    _v(_family + '_forecast', _family + '-forecast', 'entity', 'object')
+
 from .financial_identity import schema as _financial_schema
 RELATIONS.update(_financial_schema()['relations'])
 VARIABLES.update(_financial_schema()['variables'])

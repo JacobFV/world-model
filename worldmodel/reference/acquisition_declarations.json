@@ -1,0 +1,462 @@
+{
+  "schema": "worldmodel.reference.acquisition_declaration/1",
+  "note": "Reference datasets too large or too restricted to track. Each 'acquisition' object follows docs/full-acquisition.md and can be copied into data/<proposed_dataset_id>/dataset.json by the acquisition owner. size_bytes values were read from HTTP Content-Range/Content-Length on 2026-09-15; null means the server did not disclose a size. Each declaration lists the catalog dataset(s) that now acquire it under catalog_datasets (2026-09-15).",
+  "declarations": [
+    {
+      "proposed_dataset_id": "census_zcta_county_rel2020",
+      "purpose": "ZCTA5 (2020) to county (2020) many-to-many crosswalk with land-area parts",
+      "loader": "worldmodel.crosswalks:zcta_county_crosswalk",
+      "format": "pipe-delimited text",
+      "size_bytes": 6821287,
+      "licence": "US Census Bureau; public domain (17 U.S.C. 105)",
+      "weights": "land area parts (AREALAND_PART); population weights require decennial block-level aggregation and are not implied",
+      "acquisition": {
+        "strategy": "files",
+        "desired_bytes": 6821287,
+        "documentation": "https://www.census.gov/geographies/reference-files/time-series/geo/relationship-files.2020.html",
+        "files": [
+          {
+            "url": "https://www2.census.gov/geo/docs/maps-data/data/rel2020/zcta520/tab20_zcta520_county20_natl.txt",
+            "name": "tab20_zcta520_county20_natl.txt"
+          }
+        ],
+        "reader": {
+          "format": "csv",
+          "delimiter": "|"
+        }
+      },
+      "catalog_datasets": [
+        "census_relationship_files"
+      ]
+    },
+    {
+      "proposed_dataset_id": "census_zcta_vintage_rel",
+      "purpose": "ZCTA5 2010 to 2020 relationship (vintage crosswalk)",
+      "loader": "worldmodel.crosswalks:load_concordance_csv",
+      "format": "pipe-delimited text",
+      "size_bytes": 18310430,
+      "licence": "US Census Bureau; public domain",
+      "acquisition": {
+        "strategy": "files",
+        "desired_bytes": 18310430,
+        "files": [
+          {
+            "url": "https://www2.census.gov/geo/docs/maps-data/data/rel2020/zcta520/tab20_zcta510_zcta520_natl.txt",
+            "name": "tab20_zcta510_zcta520_natl.txt"
+          }
+        ],
+        "reader": {
+          "format": "csv",
+          "delimiter": "|"
+        }
+      },
+      "catalog_datasets": [
+        "census_relationship_files"
+      ]
+    },
+    {
+      "proposed_dataset_id": "census_cousub_vintage_rel",
+      "purpose": "County subdivision 2010 to 2020 relationship with area parts (aggregate to county for boundary changes)",
+      "loader": "worldmodel.crosswalks:load_concordance_csv",
+      "format": "pipe-delimited text",
+      "size_bytes": 9563389,
+      "licence": "US Census Bureau; public domain",
+      "acquisition": {
+        "strategy": "files",
+        "desired_bytes": 9563389,
+        "files": [
+          {
+            "url": "https://www2.census.gov/geo/docs/maps-data/data/rel2020/cousub/tab20_cousub20_cousub10_natl.txt",
+            "name": "tab20_cousub20_cousub10_natl.txt"
+          }
+        ],
+        "reader": {
+          "format": "csv",
+          "delimiter": "|"
+        }
+      },
+      "catalog_datasets": [
+        "census_relationship_files"
+      ]
+    },
+    {
+      "proposed_dataset_id": "census_cbsa_delineations",
+      "purpose": "CBSA/CSA delineation vintages (county to CBSA) 2018, 2020, 2023",
+      "loader": "worldmodel.crosswalks:load_concordance_csv (after xlsx/xls extraction)",
+      "format": "xlsx/xls",
+      "size_bytes": 1052598,
+      "licence": "OMB/US Census Bureau; public domain",
+      "acquisition": {
+        "strategy": "files",
+        "desired_bytes": 1052598,
+        "files": [
+          {
+            "url": "https://www2.census.gov/programs-surveys/metro-micro/geographies/reference-files/2023/delineation-files/list1_2023.xlsx",
+            "name": "list1_2023.xlsx"
+          },
+          {
+            "url": "https://www2.census.gov/programs-surveys/metro-micro/geographies/reference-files/2020/delineation-files/list1_2020.xls",
+            "name": "list1_2020.xls"
+          },
+          {
+            "url": "https://www2.census.gov/programs-surveys/metro-micro/geographies/reference-files/2018/delineation-files/list1_Sep_2018.xls",
+            "name": "list1_Sep_2018.xls"
+          }
+        ]
+      },
+      "catalog_datasets": [
+        "cbsa_delineations"
+      ]
+    },
+    {
+      "proposed_dataset_id": "census_trade_concordance",
+      "purpose": "HS-10 import/export commodity codes to NAICS, SITC Rev.4, end-use (annual vintages)",
+      "loader": "worldmodel.crosswalks:load_concordance_csv (after xlsx extraction)",
+      "format": "xlsx",
+      "size_bytes": null,
+      "size_note": "server does not report size; each workbook is a few MiB",
+      "licence": "US Census Bureau; public domain",
+      "acquisition": {
+        "strategy": "files",
+        "desired_bytes": 20971520,
+        "files": [
+          {
+            "url": "https://www.census.gov/foreign-trade/reference/codes/concordance/impconcord24.xlsx",
+            "name": "impconcord24.xlsx"
+          },
+          {
+            "url": "https://www.census.gov/foreign-trade/reference/codes/concordance/expconcord24.xlsx",
+            "name": "expconcord24.xlsx"
+          }
+        ]
+      },
+      "catalog_datasets": [
+        "trade_concordances"
+      ]
+    },
+    {
+      "proposed_dataset_id": "wits_hs_sitc_concordance",
+      "purpose": "HS 2017 (H5) to SITC Rev.3 concordance",
+      "loader": "worldmodel.crosswalks:load_concordance_csv",
+      "format": "zip containing CSV (766,666 bytes uncompressed)",
+      "size_bytes": 156493,
+      "licence": "World Bank WITS terms of use; concordance derived from UN Statistics Division tables (verify redistribution)",
+      "acquisition": {
+        "strategy": "files",
+        "desired_bytes": 156493,
+        "files": [
+          {
+            "url": "https://wits.worldbank.org/data/public/concordance/Concordance_H5_to_S3.zip",
+            "name": "Concordance_H5_to_S3.zip"
+          }
+        ],
+        "reader": {
+          "format": "csv",
+          "members": [
+            "*.CSV"
+          ]
+        }
+      },
+      "catalog_datasets": [
+        "trade_concordances"
+      ]
+    },
+    {
+      "proposed_dataset_id": "bea_io_supply_use_tables",
+      "purpose": "BEA summary/detail IO industry and commodity codes with NAICS concordance sheets",
+      "loader": "worldmodel.crosswalks:load_concordance_csv (after xlsx extraction)",
+      "format": "zip of xlsx",
+      "size_bytes": 36774692,
+      "licence": "US Bureau of Economic Analysis; public domain",
+      "acquisition": {
+        "strategy": "files",
+        "desired_bytes": 36774692,
+        "files": [
+          {
+            "url": "https://apps.bea.gov/industry/iTables%20Static%20Files/AllTablesIO.zip",
+            "name": "AllTablesIO.zip"
+          },
+          {
+            "url": "https://apps.bea.gov/industry/iTables%20Static%20Files/AllTablesSUP.zip",
+            "name": "AllTablesSUP.zip"
+          }
+        ]
+      },
+      "catalog_datasets": [
+        "bea_input_output"
+      ]
+    },
+    {
+      "proposed_dataset_id": "gleif_golden_copy",
+      "purpose": "LEI level-1 records (registration authority entity IDs incl. SEC CIK where published) and level-2 parent relationships",
+      "loader": "worldmodel.resolution.deterministic:link_mapping('gleif_sec_cik', ...)",
+      "format": "zip containing CSV",
+      "size_bytes": 527780874,
+      "licence": "GLEIF data: CC0 1.0",
+      "acquisition": {
+        "strategy": "files",
+        "desired_bytes": 527780874,
+        "files": [
+          {
+            "url": "https://goldencopy.gleif.org/api/v2/golden-copies/publishes/lei2/latest.csv",
+            "name": "lei2-latest.csv.zip"
+          },
+          {
+            "url": "https://goldencopy.gleif.org/api/v2/golden-copies/publishes/rr/latest.csv",
+            "name": "rr-latest.csv.zip"
+          }
+        ],
+        "reader": {
+          "format": "csv",
+          "members": [
+            "*.csv"
+          ]
+        }
+      },
+      "catalog_datasets": [
+        "sec_gleif",
+        "gleif_parent_relationships"
+      ]
+    },
+    {
+      "proposed_dataset_id": "gleif_isin_lei_mapping",
+      "purpose": "ISIN to LEI mapping (issuer-security links; not listing identity)",
+      "loader": "worldmodel.resolution.deterministic:link_mapping",
+      "format": "zip containing CSV",
+      "size_bytes": null,
+      "size_note": "not disclosed; tens of MiB",
+      "licence": "GLEIF / ANNA mapping; CC0 1.0 per GLEIF open-data terms (verify)",
+      "acquisition": {
+        "strategy": "files",
+        "desired_bytes": 104857600,
+        "files": [
+          {
+            "url": "https://mapping.gleif.org/api/v2/isin-lei/latest/download",
+            "name": "isin-lei-latest.zip"
+          }
+        ]
+      }
+    },
+    {
+      "proposed_dataset_id": "sec_ticker_exchange",
+      "purpose": "CIK to ticker and exchange snapshots (undated: snapshot date is the only validity evidence)",
+      "loader": "worldmodel.resolution.deterministic:link_mapping('sec_cik_ticker', ...)",
+      "format": "JSON",
+      "size_bytes": null,
+      "licence": "SEC EDGAR; public domain; fair-access policy requires a contact User-Agent",
+      "acquisition": {
+        "strategy": "files",
+        "desired_bytes": 2097152,
+        "user_agent_env": "SEC_USER_AGENT",
+        "rate_limit": {
+          "requests_per_second": 5.0
+        },
+        "files": [
+          {
+            "url": "https://www.sec.gov/files/company_tickers_exchange.json",
+            "name": "company_tickers_exchange.json"
+          }
+        ]
+      },
+      "catalog_datasets": [
+        "sec_issuer_reference"
+      ]
+    },
+    {
+      "proposed_dataset_id": "sec_submissions_bulk",
+      "purpose": "EDGAR submissions (former names with dates, tickers, exchanges, addresses) for dated issuer identity",
+      "loader": "worldmodel.resolution.engine:ResolutionEngine (names/addresses) and deterministic CIK links",
+      "format": "zip of JSON",
+      "size_bytes": 1563570506,
+      "licence": "SEC EDGAR; public domain; requires SEC_USER_AGENT",
+      "acquisition": {
+        "strategy": "files",
+        "desired_bytes": 1563570506,
+        "user_agent_env": "SEC_USER_AGENT",
+        "rate_limit": {
+          "requests_per_second": 5.0
+        },
+        "files": [
+          {
+            "url": "https://www.sec.gov/Archives/edgar/daily-index/bulkdata/submissions.zip",
+            "name": "submissions.zip"
+          }
+        ]
+      },
+      "catalog_datasets": [
+        "sec_issuer_reference"
+      ]
+    },
+    {
+      "proposed_dataset_id": "fec_bulk_identity",
+      "purpose": "FEC candidates (cn), committees (cm) and candidate-committee linkages (ccl) by cycle",
+      "loader": "worldmodel.resolution.deterministic:link_mapping('fec_candidate_committee', ...)",
+      "format": "zip of pipe-delimited text",
+      "size_bytes": 1334116,
+      "size_note": "2024 cycle: cn24 356,397 + cm24 883,457 + ccl24 94,262 bytes; multiply roughly by cycles requested",
+      "licence": "Federal Election Commission; public domain (commercial-use restrictions apply to contributor names, not these tables)",
+      "acquisition": {
+        "strategy": "url_list",
+        "desired_bytes": 26214400,
+        "url_template": "https://www.fec.gov/files/bulk-downloads/{cycle}/{table}{yy}.zip",
+        "parameters": {
+          "cycle": [
+            "2016",
+            "2018",
+            "2020",
+            "2022",
+            "2024",
+            "2026"
+          ],
+          "table": [
+            "cn",
+            "cm",
+            "ccl"
+          ],
+          "yy": "derived from cycle"
+        },
+        "reader": {
+          "format": "csv",
+          "delimiter": "|"
+        }
+      },
+      "catalog_datasets": [
+        "fec_candidates"
+      ]
+    },
+    {
+      "proposed_dataset_id": "congress_legislators_ids",
+      "purpose": "bioguide, ICPSR, FEC candidate, GovTrack, OpenSecrets and Wikidata IDs with dated terms",
+      "loader": "worldmodel.resolution.deterministic:link_mapping('bioguide_icpsr'|'bioguide_fec_candidate', ...)",
+      "format": "JSON",
+      "size_bytes": 14951965,
+      "licence": "unitedstates/congress-legislators; CC0 1.0",
+      "acquisition": {
+        "strategy": "files",
+        "desired_bytes": 14951965,
+        "files": [
+          {
+            "url": "https://unitedstates.github.io/congress-legislators/legislators-current.json",
+            "name": "legislators-current.json"
+          },
+          {
+            "url": "https://unitedstates.github.io/congress-legislators/legislators-historical.json",
+            "name": "legislators-historical.json"
+          }
+        ]
+      },
+      "catalog_datasets": [
+        "congress_people"
+      ]
+    },
+    {
+      "proposed_dataset_id": "voteview_members",
+      "purpose": "Voteview member table (ICPSR, bioguide, congress, party) for ICPSR links",
+      "loader": "worldmodel.resolution.deterministic:link_mapping('bioguide_icpsr', ...)",
+      "format": "CSV",
+      "size_bytes": 6201466,
+      "licence": "Voteview (Lewis et al.); free with citation (verify terms before redistribution)",
+      "acquisition": {
+        "strategy": "files",
+        "desired_bytes": 6201466,
+        "files": [
+          {
+            "url": "https://voteview.com/static/data/out/members/HSall_members.csv",
+            "name": "HSall_members.csv"
+          }
+        ],
+        "reader": {
+          "format": "csv"
+        }
+      },
+      "catalog_datasets": [
+        "voteview_rollcalls"
+      ]
+    },
+    {
+      "proposed_dataset_id": "ofac_sdn",
+      "purpose": "OFAC SDN list (UIDs, aliases, addresses, identifiers) for sanctions entity matching",
+      "loader": "worldmodel.resolution.engine:ResolutionEngine + link_mapping('ofac_opensanctions', ...)",
+      "format": "XML",
+      "size_bytes": 29082239,
+      "licence": "US Department of the Treasury; public domain",
+      "acquisition": {
+        "strategy": "files",
+        "desired_bytes": 29082239,
+        "files": [
+          {
+            "url": "https://sanctionslistservice.ofac.treas.gov/api/PublicationPreview/exports/SDN.XML",
+            "name": "SDN.XML"
+          }
+        ]
+      },
+      "catalog_datasets": [
+        "ofac_sanctions"
+      ]
+    },
+    {
+      "proposed_dataset_id": "opensanctions_targets",
+      "purpose": "OpenSanctions consolidated targets with referents (e.g. ofac-<uid>)",
+      "loader": "worldmodel.resolution.deterministic:link_mapping('ofac_opensanctions', ...)",
+      "format": "CSV",
+      "size_bytes": 462678568,
+      "licence": "CC BY-NC 4.0 (non-commercial); commercial use requires an OpenSanctions licence",
+      "acquisition": {
+        "strategy": "files",
+        "desired_bytes": 462678568,
+        "files": [
+          {
+            "url": "https://data.opensanctions.org/datasets/latest/default/targets.simple.csv",
+            "name": "targets.simple.csv"
+          }
+        ],
+        "reader": {
+          "format": "csv"
+        }
+      },
+      "catalog_datasets": [
+        "opensanctions"
+      ]
+    },
+    {
+      "proposed_dataset_id": "fdic_institutions_identity",
+      "purpose": "FDIC certificate to Federal Reserve RSSD ID, names, addresses and dated status",
+      "loader": "worldmodel.resolution.deterministic:link_mapping('fdic_cert_rssd', ...)",
+      "format": "paged JSON/CSV API",
+      "size_bytes": null,
+      "licence": "FDIC; public domain",
+      "acquisition": {
+        "strategy": "paged_api",
+        "desired_bytes": 52428800,
+        "documentation": "https://banks.data.fdic.gov/docs/"
+      },
+      "catalog_datasets": [
+        "fdic_bank_financials"
+      ]
+    }
+  ],
+  "not_located": [
+    {
+      "dataset": "IMF country codes",
+      "note": "IMF SDMX CL_AREA codelist; no stable bulk URL verified. World Bank codes are tracked in worldbank_economies.csv."
+    },
+    {
+      "dataset": "Census county 2010-2020 relationship file",
+      "note": "tab20_county20_county10_natl.txt returned 404; aggregate census_cousub_vintage_rel instead.",
+      "resolved": "Census publishes no county 2010<->2020 file; census_relationship_files derives it by aggregating the tract 2010<->2020 relationship file."
+    },
+    {
+      "dataset": "WITS HS to ISIC concordance",
+      "note": "Concordance_H5_to_I3.zip returned an HTML page, not an archive.",
+      "resolved": "WITS publishes no HS2017/HS2022->ISIC file; trade_concordances includes the newest available, HS2012->ISIC Rev.3 (wits_hs12_isic3)."
+    },
+    {
+      "dataset": "HS to BEA commodity codes",
+      "note": "No official direct table; compose HS->NAICS (census_trade_concordance) with BEA<-NAICS (bea_io_supply_use_tables); splits need weights."
+    },
+    {
+      "dataset": "USAspending UEI to LEI",
+      "note": "Only where recipient records publish an LEI; comes from the usaspending acquisition, no separate file."
+    }
+  ]
+}

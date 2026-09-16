@@ -24,7 +24,23 @@ def coverage_report(records, registry, sources, evaluations=()):
     scoped = sum(any(any(r.get('attributes', {}).get(k) for k in
                         ('synthetic_reference', 'unresolved_identity', 'legal_identity_unresolved')) for r in group)
                  for group in entities.values())
+    links = Counter()
+    for r in rows:
+        if r.get('kind') == 'assertion' and r.get('predicate') == 'same_as':
+            match = r.get('match') if isinstance(r.get('match'), dict) else None
+            links['explicit' if match is None else match.get('reviewer_status', 'unreviewed')] += 1
+    namespaces = Counter(r['value'].get('namespace') for r in assertions
+                         if r['predicate'] == 'identifier_assignment' and isinstance(r.get('value'), dict))
+    units = Counter(r.get('unit') for r in observations if isinstance(r.get('unit'), str))
+    from .units import is_valid_unit
+    unparseable = {unit: count for unit, count in units.items() if not is_valid_unit(unit)}
     return {'representative': False, 'scope': 'All retained evidence history; counts do not assert current activity or global coverage.',
+            'identity_links': {'same_as_by_review_status': dict(sorted(links.items())),
+                               'identifier_namespaces': dict(sorted(namespaces.items())),
+                               'interpretation': 'Only explicit, source_asserted and accepted links join identities; '
+                                                 'unreviewed inferred links remain candidates.'},
+            'units': {'distinct_units': len(units), 'parseable': len(units) - len(unparseable),
+                      'unparseable': dict(sorted(unparseable.items(), key=lambda x: (-x[1], x[0]))[:50])},
             'excluded_scenario_records': len(rows)-len(evidence),
             'identities': {'entities': len(entities), 'count_basis': 'distinct source/canonical IDs before equivalence',
                            'source_scoped_references': scoped, 'universe_size': None, 'completeness': 'unknown',

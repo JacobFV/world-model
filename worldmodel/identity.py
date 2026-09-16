@@ -12,7 +12,9 @@ _UNIQUE = {'mic', 'lei', 'isin', 'bioguide', 'wikidata', 'sec_cik'}
 
 def schema():
     return {'entity_types': {},
-            'relations': {'same_as': {'domain': 'entity', 'range': 'entity'}},
+            'relations': {'same_as': {'domain': 'entity', 'range': 'entity'},
+                          'listed_as': {'domain': ['organization', 'security'], 'range': 'ticker_listing'},
+                          'authorized_committee': {'domain': 'person', 'range': 'political_committee'}},
             'variables': {
                 'identifier_assignment': {'domain': 'entity', 'unit': None, 'type': 'object'},
                 'alias': {'domain': 'entity', 'unit': None, 'type': 'string'}}}
@@ -49,14 +51,40 @@ def _scope(value):
     return value.strip().upper()
 
 
+MATCH_REVIEW_STATUSES = ('unreviewed', 'needs_review', 'accepted', 'rejected', 'source_asserted')
+
+
+def is_equivalence(record, accept_matches='reviewed'):
+    """Whether a same_as assertion joins identity components.
+
+    Unmarked same_as claims (no ``match`` block, observed) keep their historical meaning.
+    Inferred/probabilistic links join only when reviewed as accepted, or when a published
+    mapping asserted them (``source_asserted``). ``accept_matches='all'`` is an explicit
+    opt-in to union unreviewed inferred links; rejected links never join.
+    """
+    if accept_matches not in ('reviewed', 'all'):
+        raise ValueError('accept_matches must be reviewed or all')
+    match = record.get('match')
+    status = match.get('reviewer_status', 'unreviewed') if isinstance(match, dict) else None
+    if status == 'rejected':
+        return False
+    if match is None and record.get('epistemic_status') in (None, 'observed'):
+        return True
+    if status in ('accepted', 'source_asserted'):
+        return True
+    return accept_matches == 'all'
+
+
 class IdentityIndex:
-    def __init__(self, records):
+    def __init__(self, records, *, accept_matches='reviewed'):
         # Lazy imports keep schema() safe for ontology initialization.
         from .model import instant
         from .ontology import is_a
         self._instant = instant
         self._records = deepcopy(list(records))
         self._entities, self._assignments, self._equivalences, self._aliases = {}, [], [], []
+        self._candidate_links = []
+        self.accept_matches = accept_matches
         ids = set()
         for r in self._records:
             if r['id'] in ids:
@@ -74,6 +102,8 @@ class IdentityIndex:
             elif r.get('kind') == 'assertion':
                 target = {'identifier_assignment': self._assignments, 'same_as': self._equivalences,
                           'alias': self._aliases}.get(r['predicate'])
+                if r['predicate'] == 'same_as' and not is_equivalence(r, accept_matches):
+                    target = self._candidate_links
                 if target is not None:
                     target.append(r)
         for key, rows in self._entities.items():
@@ -248,6 +278,12 @@ class IdentityIndex:
                 'status': status, 'matches': result, 'temporal_unknown_candidates': candidates,
                 'conflicts': ([{'reason': 'multiple_candidate_targets' if candidates else 'multiple_active_targets',
                                 'canonical_ids': all_ids}] if len(all_ids) > 1 else [])}
+
+    def candidate_links(self, entity_id, at, known_at):
+        """Unaccepted inferred same_as links touching an entity (never unioned into components)."""
+        at_time, known = self._instant(at), self._instant(known_at)
+        return deepcopy(sorted((r for r in self._candidate_links if entity_id in (r['subject'], r.get('object'))
+                                and self._visible(r, at_time, known)), key=lambda r: r['id']))
 
     def search(self, query, at, known_at, limit=20):
         if not isinstance(query, str) or isinstance(limit, bool) or not isinstance(limit, int) or limit < 0:

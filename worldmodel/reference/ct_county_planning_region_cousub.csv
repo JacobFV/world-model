@@ -1,0 +1,175 @@
+old_county,old_county_name,new_county,new_county_name,old_cousub_geoid,new_cousub_geoid,cousub_name
+09001,Fairfield County,09120,Greater Bridgeport Planning Region,0900108070,0912008070,Bridgeport town
+09001,Fairfield County,09120,Greater Bridgeport Planning Region,0900123890,0912023890,Easton town
+09001,Fairfield County,09120,Greater Bridgeport Planning Region,0900126620,0912026620,Fairfield town
+09001,Fairfield County,09120,Greater Bridgeport Planning Region,0900148620,0912048620,Monroe town
+09001,Fairfield County,09120,Greater Bridgeport Planning Region,0900174190,0912074190,Stratford town
+09001,Fairfield County,09120,Greater Bridgeport Planning Region,0900177200,0912077200,Trumbull town
+09001,Fairfield County,09120,Greater Bridgeport Planning Region,0900100000,0912000000,County subdivisions not defined
+09001,Fairfield County,09140,Naugatuck Valley Planning Region,0900168170,0914068170,Shelton town
+09001,Fairfield County,09190,Western Connecticut Planning Region,0900100000,0919000000,County subdivisions not defined
+09001,Fairfield County,09190,Western Connecticut Planning Region,0900156060,0919056060,Norwalk town
+09001,Fairfield County,09190,Western Connecticut Planning Region,0900104720,0919004720,Bethel town
+09001,Fairfield County,09190,Western Connecticut Planning Region,0900108980,0919008980,Brookfield town
+09001,Fairfield County,09190,Western Connecticut Planning Region,0900118500,0919018500,Danbury town
+09001,Fairfield County,09190,Western Connecticut Planning Region,0900118850,0919018850,Darien town
+09001,Fairfield County,09190,Western Connecticut Planning Region,0900133620,0919033620,Greenwich town
+09001,Fairfield County,09190,Western Connecticut Planning Region,0900150580,0919050580,New Canaan town
+09001,Fairfield County,09190,Western Connecticut Planning Region,0900150860,0919050860,New Fairfield town
+09001,Fairfield County,09190,Western Connecticut Planning Region,0900152980,0919052980,Newtown town
+09001,Fairfield County,09190,Western Connecticut Planning Region,0900163970,0919063970,Ridgefield town
+09001,Fairfield County,09190,Western Connecticut Planning Region,0900168310,0919068310,Sherman town
+09001,Fairfield County,09190,Western Connecticut Planning Region,0900173070,0919073070,Stamford town
+09001,Fairfield County,09190,Western Connecticut Planning Region,0900183430,0919083430,Weston town
+09001,Fairfield County,09190,Western Connecticut Planning Region,0900183500,0919083500,Westport town
+09001,Fairfield County,09190,Western Connecticut Planning Region,0900186370,0919086370,Wilton town
+09001,Fairfield County,09190,Western Connecticut Planning Region,0900163480,0919063480,Redding town
+09003,Hartford County,09110,Capitol Planning Region,0900312270,0911012270,Canton town
+09003,Hartford County,09110,Capitol Planning Region,0900332640,0911032640,Granby town
+09003,Hartford County,09110,Capitol Planning Region,0900345820,0911045820,Marlborough town
+09003,Hartford County,09110,Capitol Planning Region,0900302060,0911002060,Avon town
+09003,Hartford County,09110,Capitol Planning Region,0900304300,0911004300,Berlin town
+09003,Hartford County,09110,Capitol Planning Region,0900305910,0911005910,Bloomfield town
+09003,Hartford County,09110,Capitol Planning Region,0900322070,0911022070,East Granby town
+09003,Hartford County,09110,Capitol Planning Region,0900322630,0911022630,East Hartford town
+09003,Hartford County,09110,Capitol Planning Region,0900325990,0911025990,Enfield town
+09003,Hartford County,09110,Capitol Planning Region,0900327600,0911027600,Farmington town
+09003,Hartford County,09110,Capitol Planning Region,0900331240,0911031240,Glastonbury town
+09003,Hartford County,09110,Capitol Planning Region,0900337070,0911037070,Hartford town
+09003,Hartford County,09110,Capitol Planning Region,0900344700,0911044700,Manchester town
+09003,Hartford County,09110,Capitol Planning Region,0900350440,0911050440,New Britain town
+09003,Hartford County,09110,Capitol Planning Region,0900352140,0911052140,Newington town
+09003,Hartford County,09110,Capitol Planning Region,0900360120,0911060120,Plainville town
+09003,Hartford County,09110,Capitol Planning Region,0900368940,0911068940,Simsbury town
+09003,Hartford County,09110,Capitol Planning Region,0900370550,0911070550,Southington town
+09003,Hartford County,09110,Capitol Planning Region,0900371390,0911071390,South Windsor town
+09003,Hartford County,09110,Capitol Planning Region,0900382590,0911082590,West Hartford town
+09003,Hartford County,09110,Capitol Planning Region,0900384900,0911084900,Wethersfield town
+09003,Hartford County,09110,Capitol Planning Region,0900387000,0911087000,Windsor town
+09003,Hartford County,09110,Capitol Planning Region,0900387070,0911087070,Windsor Locks town
+09003,Hartford County,09110,Capitol Planning Region,0900324800,0911024800,East Windsor town
+09003,Hartford County,09110,Capitol Planning Region,0900365370,0911065370,Rocky Hill town
+09003,Hartford County,09110,Capitol Planning Region,0900374540,0911074540,Suffield town
+09003,Hartford County,09140,Naugatuck Valley Planning Region,0900308490,0914008490,Bristol town
+09003,Hartford County,09160,Northwest Hills Planning Region,0900310100,0916010100,Burlington town
+09003,Hartford County,09160,Northwest Hills Planning Region,0900337140,0916037140,Hartland town
+09005,Litchfield County,09140,Naugatuck Valley Planning Region,0900575730,0914075730,Thomaston town
+09005,Litchfield County,09140,Naugatuck Valley Planning Region,0900580490,0914080490,Watertown town
+09005,Litchfield County,09140,Naugatuck Valley Planning Region,0900587910,0914087910,Woodbury town
+09005,Litchfield County,09140,Naugatuck Valley Planning Region,0900560750,0914060750,Plymouth town
+09005,Litchfield County,09140,Naugatuck Valley Planning Region,0900504930,0914004930,Bethlehem town
+09005,Litchfield County,09160,Northwest Hills Planning Region,0900543370,0916043370,Litchfield town
+09005,Litchfield County,09160,Northwest Hills Planning Region,0900551350,0916051350,New Hartford town
+09005,Litchfield County,09160,Northwest Hills Planning Region,0900553470,0916053470,Norfolk town
+09005,Litchfield County,09160,Northwest Hills Planning Region,0900554030,0916054030,North Canaan town
+09005,Litchfield County,09160,Northwest Hills Planning Region,0900567960,0916067960,Sharon town
+09005,Litchfield County,09160,Northwest Hills Planning Region,0900576570,0916076570,Torrington town
+09005,Litchfield County,09160,Northwest Hills Planning Region,0900579510,0916079510,Warren town
+09005,Litchfield County,09160,Northwest Hills Planning Region,0900579720,0916079720,Washington town
+09005,Litchfield County,09160,Northwest Hills Planning Region,0900586440,0916086440,Winchester town
+09005,Litchfield County,09160,Northwest Hills Planning Region,0900502760,0916002760,Barkhamsted town
+09005,Litchfield County,09160,Northwest Hills Planning Region,0900565930,0916065930,Roxbury town
+09005,Litchfield County,09160,Northwest Hills Planning Region,0900566420,0916066420,Salisbury town
+09005,Litchfield County,09160,Northwest Hills Planning Region,0900510940,0916010940,Canaan town
+09005,Litchfield County,09160,Northwest Hills Planning Region,0900516050,0916016050,Colebrook town
+09005,Litchfield County,09160,Northwest Hills Planning Region,0900517240,0916017240,Cornwall town
+09005,Litchfield County,09160,Northwest Hills Planning Region,0900532290,0916032290,Goshen town
+09005,Litchfield County,09160,Northwest Hills Planning Region,0900537280,0916037280,Harwinton town
+09005,Litchfield County,09160,Northwest Hills Planning Region,0900540290,0916040290,Kent town
+09005,Litchfield County,09160,Northwest Hills Planning Region,0900549460,0916049460,Morris town
+09005,Litchfield County,09190,Western Connecticut Planning Region,0900552630,0919052630,New Milford town
+09005,Litchfield County,09190,Western Connecticut Planning Region,0900508210,0919008210,Bridgewater town
+09007,Middlesex County,09130,Lower Connecticut River Valley Planning Region,0900781680,0913081680,Westbrook town
+09007,Middlesex County,09130,Lower Connecticut River Valley Planning Region,0900700000,0913000000,County subdivisions not defined
+09007,Middlesex County,09130,Lower Connecticut River Valley Planning Region,0900719130,0913019130,Deep River town
+09007,Middlesex County,09130,Lower Connecticut River Valley Planning Region,0900722280,0913022280,East Haddam town
+09007,Middlesex County,09130,Lower Connecticut River Valley Planning Region,0900722490,0913022490,East Hampton town
+09007,Middlesex County,09130,Lower Connecticut River Valley Planning Region,0900726270,0913026270,Essex town
+09007,Middlesex County,09130,Lower Connecticut River Valley Planning Region,0900735230,0913035230,Haddam town
+09007,Middlesex County,09130,Lower Connecticut River Valley Planning Region,0900740710,0913040710,Killingworth town
+09007,Middlesex County,09130,Lower Connecticut River Valley Planning Region,0900747080,0913047080,Middlefield town
+09007,Middlesex County,09130,Lower Connecticut River Valley Planning Region,0900757320,0913057320,Old Saybrook town
+09007,Middlesex County,09130,Lower Connecticut River Valley Planning Region,0900761800,0913061800,Portland town
+09007,Middlesex County,09130,Lower Connecticut River Valley Planning Region,0900747360,0913047360,Middletown town
+09007,Middlesex County,09130,Lower Connecticut River Valley Planning Region,0900714300,0913014300,Chester town
+09007,Middlesex County,09130,Lower Connecticut River Valley Planning Region,0900718080,0913018080,Cromwell town
+09007,Middlesex County,09130,Lower Connecticut River Valley Planning Region,0900720810,0913020810,Durham town
+09007,Middlesex County,09130,Lower Connecticut River Valley Planning Region,0900715350,0913015350,Clinton town
+09009,New Haven County,09140,Naugatuck Valley Planning Region,0900914160,0914014160,Cheshire town
+09009,New Haven County,09140,Naugatuck Valley Planning Region,0900919550,0914019550,Derby town
+09009,New Haven County,09140,Naugatuck Valley Planning Region,0900967610,0914067610,Seymour town
+09009,New Haven County,09140,Naugatuck Valley Planning Region,0900949950,0914049950,Naugatuck town
+09009,New Haven County,09140,Naugatuck Valley Planning Region,0900987560,0914087560,Wolcott town
+09009,New Haven County,09140,Naugatuck Valley Planning Region,0900903250,0914003250,Beacon Falls town
+09009,New Haven County,09140,Naugatuck Valley Planning Region,0900946940,0914046940,Middlebury town
+09009,New Haven County,09140,Naugatuck Valley Planning Region,0900980070,0914080070,Waterbury town
+09009,New Haven County,09140,Naugatuck Valley Planning Region,0900958300,0914058300,Oxford town
+09009,New Haven County,09140,Naugatuck Valley Planning Region,0900969640,0914069640,Southbury town
+09009,New Haven County,09140,Naugatuck Valley Planning Region,0900962290,0914062290,Prospect town
+09009,New Haven County,09140,Naugatuck Valley Planning Region,0900901220,0914001220,Ansonia town
+09009,New Haven County,09170,South Central Connecticut Planning Region,0900922910,0917022910,East Haven town
+09009,New Haven County,09170,South Central Connecticut Planning Region,0900987700,0917087700,Woodbridge town
+09009,New Haven County,09170,South Central Connecticut Planning Region,0900935650,0917035650,Hamden town
+09009,New Haven County,09170,South Central Connecticut Planning Region,0900946520,0917046520,Meriden town
+09009,New Haven County,09170,South Central Connecticut Planning Region,0900952070,0917052070,New Haven town
+09009,New Haven County,09170,South Central Connecticut Planning Region,0900953890,0917053890,North Branford town
+09009,New Haven County,09170,South Central Connecticut Planning Region,0900954870,0917054870,North Haven town
+09009,New Haven County,09170,South Central Connecticut Planning Region,0900957600,0917057600,Orange town
+09009,New Haven County,09170,South Central Connecticut Planning Region,0900978740,0917078740,Wallingford town
+09009,New Haven County,09170,South Central Connecticut Planning Region,0900982870,0917082870,West Haven town
+09009,New Haven County,09170,South Central Connecticut Planning Region,0900947535,0917047535,Milford town
+09009,New Haven County,09170,South Central Connecticut Planning Region,0900900000,0917000000,County subdivisions not defined
+09009,New Haven County,09170,South Central Connecticut Planning Region,0900944560,0917044560,Madison town
+09009,New Haven County,09170,South Central Connecticut Planning Region,0900904580,0917004580,Bethany town
+09009,New Haven County,09170,South Central Connecticut Planning Region,0900907310,0917007310,Branford town
+09009,New Haven County,09170,South Central Connecticut Planning Region,0900934950,0917034950,Guilford town
+09011,New London County,09130,Lower Connecticut River Valley Planning Region,0901144210,0913044210,Lyme town
+09011,New London County,09130,Lower Connecticut River Valley Planning Region,0901157040,0913057040,Old Lyme town
+09011,New London County,09150,Northeastern Connecticut Planning Region,0901178600,0915078600,Voluntown town
+09011,New London County,09180,Southeastern Connecticut Planning Region,0901106820,0918006820,Bozrah town
+09011,New London County,09180,Southeastern Connecticut Planning Region,0901115910,0918015910,Colchester town
+09011,New London County,09180,Southeastern Connecticut Planning Region,0901123400,0918023400,East Lyme town
+09011,New London County,09180,Southeastern Connecticut Planning Region,0901129910,0918029910,Franklin town
+09011,New London County,09180,Southeastern Connecticut Planning Region,0901133900,0918033900,Griswold town
+09011,New London County,09180,Southeastern Connecticut Planning Region,0901134250,0918034250,Groton town
+09011,New London County,09180,Southeastern Connecticut Planning Region,0901148900,0918048900,Montville town
+09011,New London County,09180,Southeastern Connecticut Planning Region,0901155500,0918055500,North Stonington town
+09011,New London County,09180,Southeastern Connecticut Planning Region,0901156270,0918056270,Norwich town
+09011,New London County,09180,Southeastern Connecticut Planning Region,0901162150,0918062150,Preston town
+09011,New London County,09180,Southeastern Connecticut Planning Region,0901166210,0918066210,Salem town
+09011,New London County,09180,Southeastern Connecticut Planning Region,0901171670,0918071670,Sprague town
+09011,New London County,09180,Southeastern Connecticut Planning Region,0901180280,0918080280,Waterford town
+09011,New London County,09180,Southeastern Connecticut Planning Region,0901100000,0918000000,County subdivisions not defined
+09011,New London County,09180,Southeastern Connecticut Planning Region,0901142390,0918042390,Lebanon town
+09011,New London County,09180,Southeastern Connecticut Planning Region,0901143230,0918043230,Lisbon town
+09011,New London County,09180,Southeastern Connecticut Planning Region,0901142600,0918042600,Ledyard town
+09011,New London County,09180,Southeastern Connecticut Planning Region,0901173770,0918073770,Stonington town
+09011,New London County,09180,Southeastern Connecticut Planning Region,0901152350,0918052350,New London town
+09013,Tolland County,09110,Capitol Planning Region,0901306260,0911006260,Bolton town
+09013,Tolland County,09110,Capitol Planning Region,0901325360,0911025360,Ellington town
+09013,Tolland County,09110,Capitol Planning Region,0901337910,0911037910,Hebron town
+09013,Tolland County,09110,Capitol Planning Region,0901369220,0911069220,Somers town
+09013,Tolland County,09110,Capitol Planning Region,0901372090,0911072090,Stafford town
+09013,Tolland County,09110,Capitol Planning Region,0901376290,0911076290,Tolland town
+09013,Tolland County,09110,Capitol Planning Region,0901378250,0911078250,Vernon town
+09013,Tolland County,09110,Capitol Planning Region,0901385950,0911085950,Willington town
+09013,Tolland County,09110,Capitol Planning Region,0901301080,0911001080,Andover town
+09013,Tolland County,09110,Capitol Planning Region,0901316400,0911016400,Columbia town
+09013,Tolland County,09110,Capitol Planning Region,0901317800,0911017800,Coventry town
+09013,Tolland County,09110,Capitol Planning Region,0901344910,0911044910,Mansfield town
+09013,Tolland County,09150,Northeastern Connecticut Planning Region,0901377830,0915077830,Union town
+09015,Windham County,09150,Northeastern Connecticut Planning Region,0901536000,0915036000,Hampton town
+09015,Windham County,09150,Northeastern Connecticut Planning Region,0901573420,0915073420,Sterling town
+09015,Windham County,09150,Northeastern Connecticut Planning Region,0901575870,0915075870,Thompson town
+09015,Windham County,09150,Northeastern Connecticut Planning Region,0901588190,0915088190,Woodstock town
+09015,Windham County,09150,Northeastern Connecticut Planning Region,0901562710,0915062710,Putnam town
+09015,Windham County,09150,Northeastern Connecticut Planning Region,0901540500,0915040500,Killingly town
+09015,Windham County,09150,Northeastern Connecticut Planning Region,0901501430,0915001430,Ashford town
+09015,Windham County,09150,Northeastern Connecticut Planning Region,0901509190,0915009190,Brooklyn town
+09015,Windham County,09150,Northeastern Connecticut Planning Region,0901512130,0915012130,Canterbury town
+09015,Windham County,09150,Northeastern Connecticut Planning Region,0901513810,0915013810,Chaplin town
+09015,Windham County,09150,Northeastern Connecticut Planning Region,0901521860,0915021860,Eastford town
+09015,Windham County,09150,Northeastern Connecticut Planning Region,0901559980,0915059980,Plainfield town
+09015,Windham County,09150,Northeastern Connecticut Planning Region,0901561030,0915061030,Pomfret town
+09015,Windham County,09150,Northeastern Connecticut Planning Region,0901567400,0915067400,Scotland town
+09015,Windham County,09180,Southeastern Connecticut Planning Region,0901586790,0918086790,Windham town

@@ -1,0 +1,142 @@
+{
+ "generated_by": "worldmodel.reference.build_reference_files",
+ "hand_curated": {
+  "COUNTY_CHANGES": "US Census Bureau, Substantial Changes to Counties 1970-present pages (1990s-2020s)",
+  "ISO_HISTORICAL": "ISO 3166-3 formerly used codes (subset)",
+  "LINK_OVERRIDES": "COW/GW code periods to ISO alpha-3 with basis"
+ },
+ "outputs": [
+  {
+   "file": "countries_iso3166.csv",
+   "rows": 261,
+   "sha256": "96b8fd07e7b33075b84812969f029acac2e128f4eec65e4594cddbfd49f02e2f"
+  },
+  {
+   "file": "worldbank_economies.csv",
+   "rows": 295,
+   "sha256": "7babc7dbf2785773bfc466eb0f544cca99ab7e0d3dca948fe46e1258387aa757"
+  },
+  {
+   "file": "country_states_cow.csv",
+   "rows": 243,
+   "sha256": "fb084c06a41933ebcc386bee387e6c452cd222d98a5223361457d27b3a9d4a2d"
+  },
+  {
+   "file": "country_states_gw.csv",
+   "rows": 239,
+   "sha256": "7c2452e4e7414967b693eed1a63560b5300468a05ce43870ff2398b2b68827b7"
+  },
+  {
+   "file": "country_system_links.csv",
+   "rows": 455,
+   "sha256": "cc7668de546421a2571e81f1ed8030817763d4517018669dddae9193daef885b"
+  },
+  {
+   "file": "currencies_iso4217.csv",
+   "rows": 330,
+   "sha256": "1bdc390dbeabd8fed5ee81139f21cb9bc714983ce51cbc729e1c995a9de2d528"
+  },
+  {
+   "file": "us_states.csv",
+   "rows": 57,
+   "sha256": "fe9fb4dad67bd5b1e8be9a9245f50174d4a4a5313d39e859650493148b8f8258"
+  },
+  {
+   "file": "us_counties.csv",
+   "rows": 3256,
+   "sha256": "1ab2b46124b7586c40445ada34a0de7bdc05f106b8b083d466407366cbf5374c"
+  },
+  {
+   "file": "us_county_changes.csv",
+   "rows": 29,
+   "sha256": "a94a5bc77cc6d76fd79efc7bb6e0ec2ba08b586135e866ff241c55f7168211d3"
+  },
+  {
+   "file": "ct_county_planning_region_cousub.csv",
+   "rows": 174,
+   "sha256": "42381d5034723d412d0a668b51da02315fd5f34c3f157a897d0ab28594a514f7"
+  },
+  {
+   "file": "naics_2022_codes.csv",
+   "rows": 2125,
+   "sha256": "2ac7b1e62ee8d01ae8bb11399732812e26182d9356f80ddaa55c7ff030efa3be"
+  },
+  {
+   "file": "naics_2012_2017.csv",
+   "rows": 1069,
+   "sha256": "100a727cdade18ed94e120ca8fc7b4469e46373edef5f105f4569cc617ba42c5"
+  },
+  {
+   "file": "naics_2017_2022.csv",
+   "rows": 1150,
+   "sha256": "0175c036f8483cfdec4dd84f8c7db53c2dab03439e668b0396d3f98b5cca68d1"
+  }
+ ],
+ "sources": {
+  "country-codes.csv": {
+   "licence": "ODC-PDDL-1.0 (datahub.io core dataset compiling ISO 3166 / UN M49 codes)",
+   "sha256": "67b009b529330b0a6043551189f43faa785c9c3cc0011ad2bdb4eac876356c43",
+   "url": "https://raw.githubusercontent.com/datasets/country-codes/main/data/country-codes.csv"
+  },
+  "ct_crosswalk.xlsx": {
+   "licence": "US Census Bureau; public domain",
+   "sha256": "f70c3ce6bac6e1e667ee29c150735224a9fb19d66edbdef17822ddc8006c238a",
+   "url": "https://www2.census.gov/geo/docs/reference/ct_change/ct_cou_to_cousub_crosswalk.xlsx"
+  },
+  "currency-codes.csv": {
+   "licence": "ODC-PDDL-1.0 (datahub.io core dataset compiling ISO 4217 lists)",
+   "sha256": "c4b6829a966f0564e77dc6c2d100d268cce61b30f7637bf3d5ec626b0393407f",
+   "url": "https://raw.githubusercontent.com/datasets/currency-codes/main/data/codes-all.csv"
+  },
+  "gaz_counties_2023.zip": {
+   "licence": "US Census Bureau; public domain",
+   "sha256": "919df59ba90759cce85468c0337e898e4b39c08eaffce86ddd88fa41f1f7f0c8",
+   "url": "https://www2.census.gov/geo/docs/maps-data/data/gazetteer/2023_Gazetteer/2023_Gaz_counties_national.zip"
+  },
+  "iisystem.dat": {
+   "licence": "Gleditsch & Ward (1999) independent states list; academic use with citation",
+   "sha256": "c9e559020492c246d2d7b60ac5b6fbd75ba1e681136be2212ed1444b0a28e067",
+   "url": "http://ksgleditsch.com/data/iisystem.dat"
+  },
+  "microstatessystem.dat": {
+   "licence": "Gleditsch & Ward microstates list; academic use with citation",
+   "sha256": "5a220717ca4fa27b69c4ef0670f9897438999ef5a08ee5e18dda84574e04b629",
+   "url": "http://ksgleditsch.com/data/microstatessystem.dat"
+  },
+  "naics12_17.xlsx": {
+   "licence": "US Census Bureau; public domain",
+   "sha256": "17f463f7e8385df1cc762fadf0dd5c25910aa27034ca96275a906608399188f5",
+   "url": "https://www.census.gov/naics/concordances/2012_to_2017_NAICS.xlsx"
+  },
+  "naics17_22.xlsx": {
+   "licence": "US Census Bureau; public domain",
+   "sha256": "4662cc7ed9e7f3fb8a968e9504a7d06e448f5b65a349996a5627439df193eb30",
+   "url": "https://www.census.gov/naics/concordances/2017_to_2022_NAICS.xlsx"
+  },
+  "naics2022_2_6.xlsx": {
+   "licence": "US Census Bureau; public domain",
+   "sha256": "be12ba41002803359f49181c9bf33a03fbd08578f4f4a4c0bbad7aadaaea0316",
+   "url": "https://www.census.gov/naics/2022NAICS/2-6%20digit_2022_Codes.xlsx"
+  },
+  "national_county2020.txt": {
+   "licence": "US Census Bureau; public domain",
+   "sha256": "9f6e5f6eb6ac2f5e9a36d5fd01dec77991bddc75118f748a069441a4782970d6",
+   "url": "https://www2.census.gov/geo/docs/reference/codes2020/national_county2020.txt"
+  },
+  "state.txt": {
+   "licence": "US Census Bureau; public domain (17 U.S.C. 105)",
+   "sha256": "bea4e03f71a1fa0045ae732aabad11fa541e5932b071c2369bb0d325e8cba5a0",
+   "url": "https://www2.census.gov/geo/docs/reference/state.txt"
+  },
+  "states2016.csv": {
+   "licence": "Correlates of War Project State System Membership v2016; free use with citation",
+   "sha256": "3d78d333ea75a7791bf5772b203d2ab96b27e70ed52825f5293c474195f47888",
+   "url": "https://correlatesofwar.org/wp-content/uploads/states2016.csv"
+  },
+  "wb_countries.json": {
+   "licence": "World Bank API country metadata; CC BY 4.0",
+   "sha256": "d29d57f8adf954c5e2a1520a02fb2c7b45575d8db3bd327a9dff47d66914231c",
+   "url": "https://api.worldbank.org/v2/country?format=json&per_page=400"
+  }
+ }
+}
