@@ -1,0 +1,226 @@
+{
+ "query": "resolution_evaluation",
+ "population": {
+  "sanctions_organizations": 195582,
+  "with_a_published_lei": 2277,
+  "whose_lei_is_in_the_gleif_pool": 2275,
+  "gleif_entities_in_pool": 251908,
+  "gleif_entities_available": 3431064,
+  "gleif_sample_size": 250000,
+  "gleif_pool_selection": "every labelled partner, plus distractors drawn with probability 0.5 in LEI order until the quota fills - a bounded pool, not a uniform sample of all LEI entities"
+ },
+ "model": {
+  "training": "unsupervised EM (no identifier supervision)",
+  "threshold": 0.95,
+  "lower": 0.5,
+  "view_digest": "d24b035cae052f605dde60b1293a2ca6a65991ea5fb8f43b9966ea531751896b",
+  "counts": {
+   "clusters": 344279,
+   "entities": 447490,
+   "merged_entities": 103211,
+   "largest_cluster": 50,
+   "links_used": 103211
+  }
+ },
+ "held_out_scores": {
+  "labelled_pairs": 2275,
+  "labelled_entities_linked_to_some_gleif_entity": 442,
+  "linked_to_the_published_lei": 10,
+  "linked_to_a_different_lei": 432,
+  "recall": 0.0044,
+  "precision_on_labelled_subset": 0.0226
+ },
+ "examples": {
+  "correct": [
+   {
+    "sanctions_entity": "ofac:party:44758",
+    "sanctions_label": "Obshchestvo S Ogranichennoi Otvetstvennostyu Kommercheski Bank Sinko Bank",
+    "published_lei": "lei:2534001TS0M7VRJK2567",
+    "gleif_entities_in_the_same_cluster": 31,
+    "sample": [
+     "lei:2534001TS0M7VRJK2567",
+     "lei:097900CAKA0000122389",
+     "lei:2138003H4B2F4C2JFA27",
+     "lei:2138008CIT5PYQCRZ932"
+    ],
+    "sample_labels": [
+     "Общество с ограниченной ответственностью Коммерческий банк \"СИНКО-БАНК\"",
+     "ERSTE Medical Assets a.s.",
+     "SUPREME SERVICES AND INVESTMENTS LIMITED",
+     "ERSTE MONTI IMMOBILIENGESELLSCHAFT MBH & CO. KG"
+    ]
+   },
+   {
+    "sanctions_entity": "ofac:party:47735",
+    "sanctions_label": "LIEMETA AG",
+    "published_lei": "lei:875500HOXPGEOJIZCR36",
+    "gleif_entities_in_the_same_cluster": 32,
+    "sample": [
+     "lei:875500HOXPGEOJIZCR36",
+     "lei:2138003Z1EWERJAIZ280",
+     "lei:213800C2Y5KPFZLWQW33",
+     "lei:213800CLZOM1NZNXZY72"
+    ],
+    "sample_labels": [
+     "LIEMETA AG in Liquidation",
+     "LIONMEDE LIMITED",
+     "LINDOW LTD",
+     "LYNETTA LIMITED"
+    ]
+   },
+   {
+    "sanctions_entity": "ofac:party:50044",
+    "sanctions_label": "LMG Lighthouse Trust Reg",
+    "published_lei": "lei:529900V5BDH8G1KWHI29",
+    "gleif_entities_in_the_same_cluster": 8,
+    "sample": [
+     "lei:529900V5BDH8G1KWHI29",
+     "lei:213800LFAZHAK7QHZC67",
+     "lei:213800M2ZM8TLCM9LO89",
+     "lei:213800UWGBZAHLH9GZ54"
+    ],
+    "sample_labels": [
+     "LMG Lighthouse Trust reg. in Liquidation",
+     "LMG CONSULTING SERVICES LTD",
+     "LMG LIGHTHOUSE TRUST REG. AS TRUSTEE OF THE MARTA TRUST",
+     "LMG SHIPPING AND TRADING INC."
+    ]
+   },
+   {
+    "sanctions_entity": "ofac:party:51402",
+    "sanctions_label": "Karpis AG",
+    "published_lei": "lei:875500KMMBZ815XS0H29",
+    "gleif_entities_in_the_same_cluster": 3,
+    "sample": [
+     "lei:875500KMMBZ815XS0H29",
+     "lei:2138005Y467BCQ3QOT77",
+     "lei:2138007NPG1TPZXRT138"
+    ],
+    "sample_labels": [
+     "KARPIS AG in Liquidation",
+     "KROPZ PLC",
+     "KÆRVEJ 34 APS"
+    ]
+   },
+   {
+    "sanctions_entity": "ofac:party:51662",
+    "sanctions_label": "BBR Bank Joint Stock Company",
+    "published_lei": "lei:253400MF70R9W1E92E58",
+    "gleif_entities_in_the_same_cluster": 2,
+    "sample": [
+     "lei:253400MF70R9W1E92E58",
+     "lei:254900P4V0CVZ009V694"
+    ],
+    "sample_labels": [
+     "ББР Банк (акционерное общество)",
+     "BBR BARTE LOGISTICS SRL"
+    ]
+   }
+  ],
+  "incorrect": [
+   {
+    "sanctions_entity": "ofac:party:17013",
+    "sanctions_label": "VTB BANK PUBLIC JOINT STOCK COMPANY",
+    "published_lei": "lei:253400V1H6ART1UQ0N98",
+    "gleif_entities_in_the_same_cluster": 11,
+    "sample": [
+     "lei:15DYKVGPQCMYBH2DZ583",
+     "lei:213800TSGOCDDMG21X53",
+     "lei:253400T0JJDT6AWX3K92",
+     "lei:25490071D47DFCHOZ745"
+    ],
+    "sample_labels": [
+     "VTB BANK (AUSTRIA) AG",
+     "VIETNAM PROPERTY HOLDING",
+     "ВТБ Лизинг (акционерное общество)",
+     "VTB Capital Russia & CIS Equity Fund Ltd."
+    ]
+   },
+   {
+    "sanctions_entity": "ofac:party:17016",
+    "sanctions_label": "Gazprombank Joint Stock Company",
+    "published_lei": "lei:253400WSS48YWMBUA688",
+    "gleif_entities_in_the_same_cluster": 2,
+    "sample": [
+     "lei:213800ECPDR8PB81NW98",
+     "lei:213800I9VC1F4284X642"
+    ],
+    "sample_labels": [
+     "GOSFORD INVESTMENTS LIMITED",
+     "GAZPROMNEFT MARINE BUNKER BALKAN SA"
+    ]
+   },
+   {
+    "sanctions_entity": "ofac:party:17248",
+    "sanctions_label": "LUKOIL OAO",
+    "published_lei": "lei:549300LCJ1UJXHYBWI24",
+    "gleif_entities_in_the_same_cluster": 11,
+    "sample": [
+     "lei:213800FXBZXOXNXKWP95",
+     "lei:5299003QMIGNY6ER6R04",
+     "lei:5299007PQV6X4DPL9Y20",
+     "lei:549300A5FRPFRLEC5B51"
+    ],
+    "sample_labels": [
+     "LUKOIL SECURITIES LIMITED",
+     "Nasa Aik banka a.d. Beograd",
+     "LUKOIL INTERNATIONAL GmbH",
+     "LUKOIL ASIA PACIFIC PTE LTD"
+    ]
+   },
+   {
+    "sanctions_entity": "ofac:party:18268",
+    "sanctions_label": "EXIMBANK OF RUSSIA JSC",
+    "published_lei": "lei:253400HA6URWT39X2982",
+    "gleif_entities_in_the_same_cluster": 2,
+    "sample": [
+     "lei:254900C4DS5234TLPS79",
+     "lei:254900MAXEP7F4MM9569"
+    ],
+    "sample_labels": [
+     "Exim Bank Comores S.A.",
+     "Exim Bank (Uganda) Limited"
+    ]
+   },
+   {
+    "sanctions_entity": "ofac:party:18291",
+    "sanctions_label": "BANK BELVEB OJSC",
+    "published_lei": "lei:25340038P8SYW80B9W34",
+    "gleif_entities_in_the_same_cluster": 8,
+    "sample": [
+     "lei:2138001N4NMSYRFXWR88",
+     "lei:2138001ZC9B3J3EPXU19",
+     "lei:21380029HC6X9K42O468",
+     "lei:2138002KSVYO8VKTEK05"
+    ],
+    "sample_labels": [
+     "BANK OF ENGLAND ASSET PURCHASE FACILITY FUND LIMITED",
+     "BANK OF SCOTLAND STRUCTURED ASSET FINANCE LIMITED",
+     "THE BANK OF NEW YORK (NOMINEES) LIMITED",
+     "BANK OF AFRICA-NIGER"
+    ]
+   }
+  ]
+ },
+ "datasets_used": [
+  "ofac_sanctions",
+  "opensanctions",
+  "opensanctions_graph",
+  "other_sanctions_lists",
+  "sec_gleif"
+ ],
+ "timings": {
+  "add_records": 16.574721484001202,
+  "candidate_pairs": 1269.308954401,
+  "compare": 26.279953435994685,
+  "estimate": 4.705865818999882,
+  "cluster": 11.402401247003581
+ },
+ "seconds": 1364.7,
+ "interpretation": [
+  "These matches are INFERRED from names and addresses. unify-resolve does not attach them; only published same_as rows and shared unique identifiers are attached to the index.",
+  "Recall is bounded by blocking: a pair whose names share no blocking key is never compared.",
+  "Precision here is measured only where a published LEI exists on the sanctions side. It is a proxy.",
+  "A smaller --gleif-sample makes precision look better than a full-pool run, because there are fewer plausible wrong partners. The sample size is reported above; set --gleif-sample 0 for the full pool."
+ ]
+}

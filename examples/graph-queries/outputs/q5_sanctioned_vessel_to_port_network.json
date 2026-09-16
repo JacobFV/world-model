@@ -1,0 +1,314 @@
+{
+ "query": "q5_sanctioned_vessel_to_port_network",
+ "answer": {
+  "sanctioned_vessel_identities_joined_by_imo_or_mmsi": 89,
+  "of_which_also_present_in_marine_ais": 89,
+  "clusters_holding_two_mmsi_values_for_one_hull": 2,
+  "reflagged_examples": [
+   {
+    "vessels": [
+     "mmsi:477732100",
+     "mmsi:563302200"
+    ],
+    "listings": [
+     "opensanctions:NK-a2fJJB9GEksyn4BRmLaeo2"
+    ],
+    "members": [
+     "mmsi:477732100",
+     "mmsi:563302200",
+     "opensanctions:NK-a2fJJB9GEksyn4BRmLaeo2"
+    ],
+    "datasets_describing_the_vessel": [
+     "marine_ais"
+    ],
+    "event_records": 0
+   },
+   {
+    "vessels": [
+     "mmsi:636023226",
+     "mmsi:636090799"
+    ],
+    "listings": [
+     "opensanctions:NK-kWU63AbFDGyPXMvmXU3cjM"
+    ],
+    "members": [
+     "mmsi:636023226",
+     "mmsi:636090799",
+     "opensanctions:NK-kWU63AbFDGyPXMvmXU3cjM"
+    ],
+    "datasets_describing_the_vessel": [
+     "marine_ais"
+    ],
+    "event_records": 0
+   }
+  ],
+  "example": {
+   "vessels": [
+    "mmsi:215193000"
+   ],
+   "listings": [
+    "ofac:party:58121",
+    "opensanctions:NK-8fSPGSst7ThBkX5Q7kduoM",
+    "us_csl:58121"
+   ],
+   "members": [
+    "mmsi:215193000",
+    "ofac:party:58121",
+    "opensanctions:NK-8fSPGSst7ThBkX5Q7kduoM",
+    "us_csl:58121"
+   ],
+   "datasets_describing_the_vessel": [
+    "marine_ais"
+   ],
+   "event_records": 0
+  },
+  "example_claims_about_the_vessel": [
+   {
+    "from_dataset": "marine_ais",
+    "predicate": "identified_by",
+    "value": "imo:9506693",
+    "object": null
+   },
+   {
+    "from_dataset": "ofac_sanctions",
+    "predicate": "identifier",
+    "value": {
+     "document_id": "52678",
+     "id": "imo:9506693",
+     "number": "IMO 9506693",
+     "scheme": "Vessel Registration Identification",
+     "validity": "Valid"
+    },
+    "object": null
+   },
+   {
+    "from_dataset": "ofac_sanctions",
+    "predicate": "identifier",
+    "value": {
+     "document_id": "52679",
+     "id": "mmsi:352005381",
+     "number": "352005381",
+     "scheme": "MMSI",
+     "validity": "Valid"
+    },
+    "object": null
+   },
+   {
+    "from_dataset": "ofac_sanctions",
+    "predicate": "sanctions_feature",
+    "value": {
+     "type": "VESSEL TYPE",
+     "value": "Chemical/Oil Tanker"
+    },
+    "object": null
+   },
+   {
+    "from_dataset": "ofac_sanctions",
+    "predicate": "sanctions_feature",
+    "value": {
+     "type": "Vessel Year of Build",
+     "value": "2011"
+    },
+    "object": null
+   },
+   {
+    "from_dataset": "opensanctions",
+    "predicate": "associated_country",
+    "value": null,
+    "object": "iso3:PAN"
+   },
+   {
+    "from_dataset": "opensanctions",
+    "predicate": "identifier",
+    "value": {
+     "value": "352005381"
+    },
+    "object": null
+   },
+   {
+    "from_dataset": "opensanctions",
+    "predicate": "identifier",
+    "value": {
+     "value": "3E8661"
+    },
+    "object": null
+   },
+   {
+    "from_dataset": "opensanctions",
+    "predicate": "identifier",
+    "value": {
+     "id": "imo:9506693",
+     "value": "IMO9506693"
+    },
+    "object": null
+   },
+   {
+    "from_dataset": "other_sanctions_lists",
+    "predicate": "listed_on",
+    "value": null,
+    "object": "us_csl:list:sdn"
+   },
+   {
+    "from_dataset": "other_sanctions_lists",
+    "predicate": "same_designation_as",
+    "value": null,
+    "object": "ofac:party:58121"
+   },
+   {
+    "from_dataset": "other_sanctions_lists",
+    "predicate": "subject_to_sanctions_program",
+    "value": null,
+    "object": "ofac:program:IRAN-EO13902"
+   }
+  ],
+  "port_reference": {
+   "ports_by_namespace": {
+    "usace:port:": 150,
+    "wpi:": 400,
+    "marad:strategic_seaport:": 18
+   },
+   "examples": [
+    {
+     "port": {
+      "entity_id": "usace:port:2417",
+      "label": "Galveston, TX",
+      "from_dataset": "transport"
+     },
+     "identifiers": []
+    },
+    {
+     "port": {
+      "entity_id": "usace:port:2294",
+      "label": "Memphis-Shelby County Port, TN",
+      "from_dataset": "transport"
+     },
+     "identifiers": []
+    },
+    {
+     "port": {
+      "entity_id": "wpi:7950",
+      "label": "Maurer",
+      "from_dataset": "transport"
+     },
+     "identifiers": []
+    },
+    {
+     "port": {
+      "entity_id": "wpi:47620",
+      "label": "Iharana",
+      "from_dataset": "transport"
+     },
+     "identifiers": []
+    },
+    {
+     "port": {
+      "entity_id": "marad:strategic_seaport:924c0b842ed785de",
+      "label": "Beaumont, TX",
+      "from_dataset": "transport"
+     },
+     "identifiers": []
+    },
+    {
+     "port": {
+      "entity_id": "marad:strategic_seaport:cc8d24b14a7dd91f",
+      "label": "Long Beach, CA",
+      "from_dataset": "transport"
+     },
+     "identifiers": []
+    }
+   ],
+   "note": "ports are reference entities in this index: they carry no graph edge, so they are not nodes of the routable networks below. Joining a vessel to a port needs a spatial match."
+  },
+  "routable_networks": {
+   "inland_waterway": {
+    "edges_in_index": 6853,
+    "seed": "usace:waterway_node:10",
+    "sample": [
+     {
+      "subject": "usace:waterway_node:10",
+      "predicate": "waterway_connects_to",
+      "object": "usace:waterway_node:20",
+      "weight": 1.0,
+      "valid_from": null,
+      "valid_to": null,
+      "observed_at": "2026-09-15T19:27:57.775743+00:00",
+      "from_dataset": "transport",
+      "record_id": "usace:waterway_link:200100:6223"
+     },
+     {
+      "subject": "usace:waterway_node:20",
+      "predicate": "waterway_connects_to",
+      "object": "usace:waterway_node:300840",
+      "weight": 1.0,
+      "valid_from": null,
+      "valid_to": null,
+      "observed_at": "2026-09-15T19:27:53.153267+00:00",
+      "from_dataset": "transport",
+      "record_id": "usace:waterway_link:200210:5411"
+     }
+    ]
+   },
+   "rail": {
+    "edges_in_index": 302771,
+    "seed": "ntad:rail_node:300000",
+    "sample": [
+     {
+      "subject": "ntad:rail_node:300000",
+      "predicate": "rail_connects_to",
+      "object": "ntad:rail_node:300003",
+      "weight": 1.0,
+      "valid_from": null,
+      "valid_to": null,
+      "observed_at": "2026-09-15T19:03:12.356123+00:00",
+      "from_dataset": "transport",
+      "record_id": "ntad:rail_link:451809"
+     },
+     {
+      "subject": "ntad:rail_node:300001",
+      "predicate": "rail_connects_to",
+      "object": "ntad:rail_node:300000",
+      "weight": 1.0,
+      "valid_from": null,
+      "valid_to": null,
+      "observed_at": "2026-09-15T19:03:12.356123+00:00",
+      "from_dataset": "transport",
+      "record_id": "ntad:rail_link:451811"
+     },
+     {
+      "subject": "ntad:rail_node:300003",
+      "predicate": "rail_connects_to",
+      "object": "ntad:rail_node:300002",
+      "weight": 1.0,
+      "valid_from": null,
+      "valid_to": null,
+      "observed_at": "2026-09-15T19:03:12.356123+00:00",
+      "from_dataset": "transport",
+      "record_id": "ntad:rail_link:451810"
+     }
+    ]
+   }
+  }
+ },
+ "which_dataset_supplied_which_edge": {
+  "vessel sanctions listing plus its IMO / MMSI": "ofac_sanctions / other_sanctions_lists / opensanctions / opensanctions_graph",
+  "listing <-> AIS vessel identity": "asserted: the same IMO or MMSI value is published on both sides",
+  "AIS vessel entity and position events": "marine_ais",
+  "ports, UN/LOCODEs and the waterway node network": "transport (USACE + World Port Index + USACE waterway network)",
+  "air nodes for contrast": "airport_nodes"
+ },
+ "what_this_does_not_establish": [
+  "An MMSI is a radio station identity that is reassigned between vessels over time, so an MMSI match across datasets with disjoint periods can be two different ships. IMO numbers are stable; MMSI is not.",
+  "AIS is self-reported and can be spoofed, gapped or switched off. Absence of a position is not absence of a voyage.",
+  "The transport waterway network and the OSM road graphs are separate graphs with no published spatial crosswalk, and the OSM extracts are outside the default profile.",
+  "No port call is asserted here: proximity in the network is not a visit, and freight volumes (freight, 31.1M FAF rows) are outside the default profile.",
+  "Port entities carry identifiers but no edges, so they are not nodes of the waterway or rail graphs. Joining a vessel to a port would need a spatial match, which nothing here performs.",
+  "AIS position reports are event records keyed on the report, not on the vessel, so they are not reachable from the vessel ID by a graph traversal in this index."
+ ],
+ "datasets_used": [
+  "marine_ais",
+  "ofac_sanctions",
+  "opensanctions",
+  "other_sanctions_lists",
+  "transport"
+ ]
+}

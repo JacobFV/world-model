@@ -40,10 +40,15 @@ def parser():
     add_environment(sub)
     from .advanced_cli import add_commands as add_advanced
     add_advanced(sub)
+    from .acquisition_cli import add_commands as add_acquisition
+    add_acquisition(sub)
+    from .identity_cli import add_commands as add_identity; add_identity(sub)
+    from .estimation_cli import add_commands as add_estimation; add_estimation(sub)
+    from .models_cli import add_commands as add_models; add_models(sub)
+    from .unify_cli import add_commands as add_unify; add_unify(sub)
     sub.add_parser('catalog', help='List declarations and readiness')
     sub.add_parser('ontology', help='Describe typed entities, relations and variables')
     sub.add_parser('processes', help='Describe process contracts and registered implementations')
-    sub.add_parser('unify', help='Normalize existing real samples and build a verified typed graph offline')
     mat = sub.add_parser('materialize', help='Publish a requested temporal view or explicit forecast scenario')
     mat.add_argument('reference')
     mat.add_argument('--request', type=Path, required=True)
@@ -123,15 +128,23 @@ def execute(args):
     from .advanced_cli import COMMANDS as ADVANCED_COMMANDS, execute as advanced_execute
     if command in ADVANCED_COMMANDS:
         return advanced_execute(args, catalog, store, PROJECT, reference)
+    from .acquisition_cli import COMMANDS as ACQUISITION_COMMANDS, execute as acquisition_execute
+    if command in ACQUISITION_COMMANDS:
+        return acquisition_execute(args, catalog, store, PROJECT, reference)
+    from .estimation_cli import COMMANDS as ESTIMATION_COMMANDS, execute as estimation_execute
+    if command in ESTIMATION_COMMANDS: return estimation_execute(args, catalog, store, PROJECT, reference)
+    from .models_cli import COMMANDS as MODEL_COMMANDS, execute as models_execute
+    if command in MODEL_COMMANDS: return models_execute(args, catalog, store, PROJECT, reference)
+    from .identity_cli import COMMANDS as IDENTITY_COMMANDS, execute as identity_execute
+    if command in IDENTITY_COMMANDS: return identity_execute(args, catalog, store, PROJECT, reference)
     if command == 'ontology':
         from .ontology import describe
         return describe()
     if command == 'processes':
         from .process_library import default_registry
         return default_registry().describe()
-    if command == 'unify':
-        from .unify import unify
-        return unify(catalog, store, PROJECT)
+    from .unify_cli import COMMANDS as UNIFY_COMMANDS, execute as unify_execute
+    if command in UNIFY_COMMANDS: return unify_execute(args, catalog, store, PROJECT, reference)
     if command in ('materialize', 'view'):
         from .materialize import materialize, load_view
         ref = reference(args.reference, store)
@@ -234,6 +247,9 @@ def execute(args):
 
 
 def main(argv=None):
+    if argv is None:  # Real command-line startup: load <project>/.env and $WORLD_MODEL_ENV_FILE.
+        from .env import load_project_env
+        load_project_env()
     args = parser().parse_args(argv)
     try:
         result = execute(args)

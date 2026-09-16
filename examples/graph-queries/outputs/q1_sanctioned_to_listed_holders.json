@@ -1,0 +1,163 @@
+{
+ "query": "q1_sanctioned_to_listed_holders",
+ "answer": {
+  "sanctions_listings": [
+   {
+    "entity_id": "opensanctions:gem-own-e100000002326",
+    "label": "SunCoke Energy",
+    "entity_type": "business",
+    "label_from": "opensanctions_graph",
+    "also_described_by": [
+     "opensanctions_graph"
+    ]
+   }
+  ],
+  "legal_entity": {
+   "entity_id": "lei:1KF1J2NXQE2PI0QOB943",
+   "label": "SUNCOKE ENERGY, INC.",
+   "entity_type": "organization",
+   "label_from": "sec_gleif",
+   "also_described_by": [
+    "sec_gleif"
+   ]
+  },
+  "asserted_identity_cluster": [
+   "lei:1KF1J2NXQE2PI0QOB943",
+   "opensanctions:gem-own-e100000002326"
+  ],
+  "corporate_group_edges": [
+   {
+    "subject": "lei:5493002789CX3L0CJP65",
+    "predicate": "owns",
+    "object": "lei:1KF1J2NXQE2PI0QOB943",
+    "weight": 1.0,
+    "valid_from": null,
+    "valid_to": null,
+    "observed_at": "2026-09-15T19:58:11.459895+00:00",
+    "from_dataset": "opensanctions_graph",
+    "record_id": "osgraph:c1256afa660073d9df0db995075890d05df3b9bd207ad0dc1ea91817f9f9178b"
+   },
+   {
+    "subject": "lei:0NONMH8REY0TF2TI6Z60",
+    "predicate": "fund_managed_by",
+    "object": "lei:5493002789CX3L0CJP65",
+    "weight": 1.0,
+    "valid_from": "2006-02-23T00:00:00+00:00",
+    "valid_to": null,
+    "observed_at": "2026-09-15T18:44:50.661036+00:00",
+    "from_dataset": "gleif_parent_relationships",
+    "record_id": "gleif_rr:lei:0NONMH8REY0TF2TI6Z60:fund_managed_by:lei:5493002789CX3L0CJP65"
+   },
+   {
+    "subject": "lei:0VFR5I6Y0CN9MU5JCZ52",
+    "predicate": "fund_managed_by",
+    "object": "lei:5493002789CX3L0CJP65",
+    "weight": 1.0,
+    "valid_from": "1994-03-29T00:00:00+00:00",
+    "valid_to": null,
+    "observed_at": "2026-09-15T18:44:50.661036+00:00",
+    "from_dataset": "gleif_parent_relationships",
+    "record_id": "gleif_rr:lei:0VFR5I6Y0CN9MU5JCZ52:fund_managed_by:lei:5493002789CX3L0CJP65"
+   },
+   {
+    "subject": "lei:12WZ1W76P8QD4VJ6OB47",
+    "predicate": "fund_managed_by",
+    "object": "lei:5493002789CX3L0CJP65",
+    "weight": 1.0,
+    "valid_from": "2006-02-16T00:00:00+00:00",
+    "valid_to": null,
+    "observed_at": "2026-09-15T18:44:50.661036+00:00",
+    "from_dataset": "gleif_parent_relationships",
+    "record_id": "gleif_rr:lei:12WZ1W76P8QD4VJ6OB47:fund_managed_by:lei:5493002789CX3L0CJP65"
+   },
+   {
+    "subject": "lei:147HBSXFO6HWZRQP8T25",
+    "predicate": "fund_managed_by",
+    "object": "lei:5493002789CX3L0CJP65",
+    "weight": 1.0,
+    "valid_from": "2006-02-23T00:00:00+00:00",
+    "valid_to": null,
+    "observed_at": "2026-09-15T18:44:50.661036+00:00",
+    "from_dataset": "gleif_parent_relationships",
+    "record_id": "gleif_rr:lei:147HBSXFO6HWZRQP8T25:fund_managed_by:lei:5493002789CX3L0CJP65"
+   },
+   {
+    "subject": "lei:157FPOCFDEEVUKWE4M41",
+    "predicate": "fund_managed_by",
+    "object": "lei:5493002789CX3L0CJP65",
+    "weight": 1.0,
+    "valid_from": "2009-08-11T00:00:00+00:00",
+    "valid_to": null,
+    "observed_at": "2026-09-15T18:44:50.661036+00:00",
+    "from_dataset": "gleif_parent_relationships",
+    "record_id": "gleif_rr:lei:157FPOCFDEEVUKWE4M41:fund_managed_by:lei:5493002789CX3L0CJP65"
+   }
+  ],
+  "securities_issued_by_the_legal_entity": [
+   {
+    "subject": "lei:1KF1J2NXQE2PI0QOB943",
+    "predicate": "issuer_security",
+    "object": "isin:US86722A1034",
+    "weight": 1.0,
+    "valid_from": null,
+    "valid_to": null,
+    "observed_at": "2026-09-15T18:43:45.793908+00:00",
+    "from_dataset": "sec_gleif",
+    "record_id": "gleif_isin:US86722A1034:1KF1J2NXQE2PI0QOB943"
+   },
+   {
+    "subject": "lei:1KF1J2NXQE2PI0QOB943",
+    "predicate": "issuer_security",
+    "object": "isin:US86722AAD54",
+    "weight": 1.0,
+    "valid_from": null,
+    "valid_to": null,
+    "observed_at": "2026-09-15T18:43:45.793908+00:00",
+    "from_dataset": "sec_gleif",
+    "record_id": "gleif_isin:US86722AAD54:1KF1J2NXQE2PI0QOB943"
+   },
+   {
+    "subject": "lei:1KF1J2NXQE2PI0QOB943",
+    "predicate": "issuer_security",
+    "object": "isin:USU86651AB92",
+    "weight": 1.0,
+    "valid_from": null,
+    "valid_to": null,
+    "observed_at": "2026-09-15T18:43:45.793908+00:00",
+    "from_dataset": "sec_gleif",
+    "record_id": "gleif_isin:USU86651AB92:1KF1J2NXQE2PI0QOB943"
+   }
+  ],
+  "sec_listings_and_securities": [],
+  "reported_holdings_of_group_issuers": []
+ },
+ "counts": {
+  "clusters_joining_a_sanctions_listing_to_an_lei": 1880,
+  "clusters_joining_an_lei_to_an_sec_cik": 25,
+  "clusters_joining_all_three": 0,
+  "corporate_group_edges": 200,
+  "securities_issued": 3,
+  "holdings_found": 0
+ },
+ "where_the_evidence_runs_out": "The sanctions-to-securities chain is only as long as the published identifiers. In this index 1880 clusters join a sanctions listing to a GLEIF LEI and 25 join an LEI to an SEC CIK, but 0 join all three: no published mapping connects these particular sanctioned legal entities to an SEC filer, so the 13F leg does not fire. That is a gap in the published evidence, not an assertion that no such holding exists.",
+ "which_dataset_supplied_which_edge": {
+  "sanctions listing and its published LEI": "ofac_sanctions / other_sanctions_lists / opensanctions",
+  "listing <-> LEI identity": "asserted: both sides publish the same LEI value (unify-resolve)",
+  "legal entity, legal name, jurisdiction": "sec_gleif (GLEIF LEI-CDF golden copy)",
+  "consolidation parents": "gleif_parent_relationships (GLEIF Level 2)",
+  "LEI <-> CIK and venue listings": "sec_issuer_reference",
+  "reported holdings": "sec_ownership_datasets (SEC structured ownership data sets)"
+ },
+ "what_this_does_not_establish": [
+  "Not a sanctions determination. A listing applies to the named party on the named list; membership of a corporate group does not transfer it.",
+  "Identity here is asserted by publishers sharing an LEI value, not inferred from names. Where a sanctions record publishes no LEI, absence of a link is absence of published evidence.",
+  "GLEIF Level 2 records accounting consolidation, which is not the same as control or beneficial ownership, and carries reporting exceptions.",
+  "Holdings are as-filed at the filing date and are not current positions.",
+  "The default unify profile excludes sec_13f_history and companies_house_uk, so holdings and UK PSC ownership are only as complete as sec_ownership_datasets and the selected scope."
+ ],
+ "datasets_used": [
+  "gleif_parent_relationships",
+  "opensanctions_graph",
+  "sec_gleif"
+ ]
+}

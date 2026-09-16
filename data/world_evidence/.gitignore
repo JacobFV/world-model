@@ -10,3 +10,6 @@
 /raw-latest.json
 __pycache__/
 *.py[cod]
+/index.sqlite
+/index.sqlite*
+/*.sqlite

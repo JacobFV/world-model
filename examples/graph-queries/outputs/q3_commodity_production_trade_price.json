@@ -1,0 +1,630 @@
+{
+ "query": "q3_commodity_production_trade_price",
+ "answer": {
+  "commodity_term": "wheat",
+  "the_same_crop_under_four_code_systems": {
+   "nass": [
+    {
+     "entity_id": "nass:commodity:wheat",
+     "label": "Wheat",
+     "from_dataset": "usda_agriculture"
+    },
+    {
+     "entity_id": "nass:commodity:buckwheat",
+     "label": "Buckwheat",
+     "from_dataset": "usda_agriculture"
+    }
+   ],
+   "usda_psd": [
+    {
+     "entity_id": "usda_psd:commodity:0410000",
+     "label": "Wheat",
+     "from_dataset": "usda_fas_psd"
+    }
+   ],
+   "schedule_b": [
+    {
+     "entity_id": "scheduleb2025:1001110000",
+     "label": "DURUM WHEAT SEED",
+     "from_dataset": "classifications"
+    },
+    {
+     "entity_id": "scheduleb2025:1001190000",
+     "label": "DURUM WHEAT, EXCEPT SEED",
+     "from_dataset": "classifications"
+    },
+    {
+     "entity_id": "scheduleb2025:1001910000",
+     "label": "WHEAT AND MESLIN SEED (EXCEPT DURUM)",
+     "from_dataset": "classifications"
+    },
+    {
+     "entity_id": "scheduleb2025:1001992015",
+     "label": "WHITE WHEAT, EXCEPT SEED",
+     "from_dataset": "classifications"
+    },
+    {
+     "entity_id": "scheduleb2025:1001992055",
+     "label": "WHEAT AND MESLIN, EXCLUDING DURUM WHEAT, SEED, NESOI",
+     "from_dataset": "classifications"
+    },
+    {
+     "entity_id": "scheduleb2025:1008100000",
+     "label": "BUCKWHEAT",
+     "from_dataset": "classifications"
+    }
+   ],
+   "naics": [
+    {
+     "entity_id": "naics2022:11114",
+     "label": "Wheat Farming",
+     "from_dataset": "classifications"
+    },
+    {
+     "entity_id": "naics2022:111140",
+     "label": "Wheat Farming",
+     "from_dataset": "classifications"
+    }
+   ],
+   "hs_codes_used_for_the_trade_leg": [
+    "hs:10",
+    "hs:1001",
+    "hs:100111",
+    "hs:100119",
+    "hs:100191",
+    "hs:100199",
+    "hs:1008",
+    "hs:100810",
+    "hs:11",
+    "hs:1101",
+    "hs:110100",
+    "hs:1102",
+    "hs:110290",
+    "hs:1103",
+    "hs:110311",
+    "hs:110320",
+    "hs:1108",
+    "hs:110811",
+    "hs:110819",
+    "hs:1109",
+    "hs:110900",
+    "hs:12",
+    "hs:1209",
+    "hs:120929",
+    "hs:19",
+    "hs:1901",
+    "hs:190190",
+    "hs:1904",
+    "hs:190430",
+    "hs:23",
+    "hs:2302",
+    "hs:230230",
+    "hs:35",
+    "hs:3504",
+    "hs:350400"
+   ],
+   "hs_code_basis": "DERIVED by truncating the Schedule B code (its first six digits are the HS6 code); the published classified_as edges reach NAICS, SITC and end-use, not HS"
+  },
+  "physical_production_and_prices_received": [
+   {
+    "from_dataset": "usda_agriculture",
+    "metric": "area_harvested",
+    "unit": "ACRES",
+    "examples": [
+     {
+      "subject": "geo:US",
+      "value": 24769000,
+      "valid_from": "2018-01-01",
+      "valid_to": "2019-01-01",
+      "code": "nass:commodity:wheat",
+      "dimensions": {
+       "class": "winter",
+       "commodity": "nass:commodity:wheat",
+       "frequency": "annual",
+       "program": "survey",
+       "reference_period": "year - jun forecast"
+      }
+     },
+     {
+      "subject": "geo:US",
+      "value": 13174000,
+      "valid_from": "2004-01-01",
+      "valid_to": "2005-01-01",
+      "code": "nass:commodity:wheat",
+      "dimensions": {
+       "class": "spring, (excl durum)",
+       "commodity": "nass:commodity:wheat",
+       "frequency": "annual",
+       "program": "survey",
+       "reference_period": "year"
+      }
+     }
+    ]
+   },
+   {
+    "from_dataset": "usda_agriculture",
+    "metric": "area_harvested",
+    "unit": "OPERATIONS",
+    "examples": [
+     {
+      "subject": "geo:US",
+      "value": 4642,
+      "valid_from": "2002-01-01",
+      "valid_to": "2003-01-01",
+      "code": "nass:commodity:wheat",
+      "dimensions": {
+       "class": "spring, durum",
+       "commodity": "nass:commodity:wheat",
+       "frequency": "annual",
+       "production_practice": "irrigated, none of crop",
+       "program": "census",
+       "reference_period": "year"
+      }
+     },
+     {
+      "subject": "geo:US",
+      "value": 340,
+      "valid_from": "2022-01-01",
+      "valid_to": "2023-01-01",
+      "code": "nass:commodity:buckwheat",
+      "dimensions": {
+       "commodity": "nass:commodity:buckwheat",
+       "frequency": "annual",
+       "program": "census",
+       "reference_period": "year"
+      }
+     }
+    ]
+   },
+   {
+    "from_dataset": "usda_agriculture",
+    "metric": "production",
+    "unit": "$",
+    "examples": [
+     {
+      "subject": "geo:US",
+      "value": 12245482000,
+      "valid_from": "2012-01-01",
+      "valid_to": "2013-01-01",
+      "code": "nass:commodity:wheat",
+      "dimensions": {
+       "class": "winter",
+       "commodity": "nass:commodity:wheat",
+       "frequency": "annual",
+       "program": "survey",
+       "reference_period": "year"
+      }
+     },
+     {
+      "subject": "geo:US",
+      "value": 16701285000,
+      "valid_from": "2008-01-01",
+      "valid_to": "2009-01-01",
+      "code": "nass:commodity:wheat",
+      "dimensions": {
+       "commodity": "nass:commodity:wheat",
+       "frequency": "annual",
+       "program": "survey",
+       "reference_period": "year"
+      }
+     }
+    ]
+   },
+   {
+    "from_dataset": "usda_agriculture",
+    "metric": "production",
+    "unit": "BU",
+    "examples": [
+     {
+      "subject": "geo:US",
+      "value": 53959000,
+      "valid_from": "2019-01-01",
+      "valid_to": "2020-01-01",
+      "code": "nass:commodity:wheat",
+      "dimensions": {
+       "class": "spring, durum",
+       "commodity": "nass:commodity:wheat",
+       "frequency": "annual",
+       "program": "survey",
+       "reference_period": "year"
+      }
+     },
+     {
+      "subject": "geo:US",
+      "value": 1326223000,
+      "valid_from": "2019-01-01",
+      "valid_to": "2020-01-01",
+      "code": "nass:commodity:wheat",
+      "dimensions": {
+       "class": "winter",
+       "commodity": "nass:commodity:wheat",
+       "frequency": "annual",
+       "program": "survey",
+       "reference_period": "year - aug forecast"
+      }
+     }
+    ]
+   },
+   {
+    "from_dataset": "usda_agriculture",
+    "metric": "yield",
+    "unit": "BU / ACRE",
+    "examples": [
+     {
+      "subject": "geo:US",
+      "value": 39.1,
+      "valid_from": "2007-01-01",
+      "valid_to": "2008-01-01",
+      "code": "nass:commodity:wheat",
+      "dimensions": {
+       "class": "spring, (excl durum)",
+       "commodity": "nass:commodity:wheat",
+       "frequency": "annual",
+       "program": "survey",
+       "reference_period": "year - jul forecast"
+      }
+     },
+     {
+      "subject": "geo:US",
+      "value": 43.2,
+      "valid_from": "2004-01-01",
+      "valid_to": "2005-01-01",
+      "code": "nass:commodity:wheat",
+      "dimensions": {
+       "class": "spring, (excl durum)",
+       "commodity": "nass:commodity:wheat",
+       "frequency": "annual",
+       "program": "survey",
+       "reference_period": "year"
+      }
+     }
+    ]
+   }
+  ],
+  "country_supply_and_distribution_balances": [
+   {
+    "from_dataset": "usda_fas_psd",
+    "metric": "domestic_consumption",
+    "unit": "1000 t",
+    "examples": [
+     {
+      "subject": "iso3:USA",
+      "value": 36184,
+      "valid_from": "2000-01-01",
+      "valid_to": "2001-01-01",
+      "code": "usda_psd:commodity:0410000",
+      "dimensions": {
+       "commodity": "usda_psd:commodity:0410000",
+       "frequency": "annual",
+       "marketing_year": 2000
+      }
+     },
+     {
+      "subject": "iso3:USA",
+      "value": 32434,
+      "valid_from": "2001-01-01",
+      "valid_to": "2002-01-01",
+      "code": "usda_psd:commodity:0410000",
+      "dimensions": {
+       "commodity": "usda_psd:commodity:0410000",
+       "frequency": "annual",
+       "marketing_year": 2001
+      }
+     }
+    ]
+   },
+   {
+    "from_dataset": "usda_fas_psd",
+    "metric": "ending_stocks",
+    "unit": "1000 t",
+    "examples": [
+     {
+      "subject": "iso3:USA",
+      "value": 23846,
+      "valid_from": "2000-01-01",
+      "valid_to": "2001-01-01",
+      "code": "usda_psd:commodity:0410000",
+      "dimensions": {
+       "commodity": "usda_psd:commodity:0410000",
+       "frequency": "annual",
+       "marketing_year": 2000
+      }
+     },
+     {
+      "subject": "iso3:USA",
+      "value": 21150,
+      "valid_from": "2001-01-01",
+      "valid_to": "2002-01-01",
+      "code": "usda_psd:commodity:0410000",
+      "dimensions": {
+       "commodity": "usda_psd:commodity:0410000",
+       "frequency": "annual",
+       "marketing_year": 2001
+      }
+     }
+    ]
+   },
+   {
+    "from_dataset": "usda_fas_psd",
+    "metric": "exports",
+    "unit": "1000 t",
+    "examples": [
+     {
+      "subject": "iso3:USA",
+      "value": 28904,
+      "valid_from": "2000-01-01",
+      "valid_to": "2001-01-01",
+      "code": "usda_psd:commodity:0410000",
+      "dimensions": {
+       "commodity": "usda_psd:commodity:0410000",
+       "frequency": "annual",
+       "marketing_year": 2000
+      }
+     },
+     {
+      "subject": "iso3:USA",
+      "value": 26190,
+      "valid_from": "2001-01-01",
+      "valid_to": "2002-01-01",
+      "code": "usda_psd:commodity:0410000",
+      "dimensions": {
+       "commodity": "usda_psd:commodity:0410000",
+       "frequency": "annual",
+       "marketing_year": 2001
+      }
+     }
+    ]
+   },
+   {
+    "from_dataset": "usda_fas_psd",
+    "metric": "imports",
+    "unit": "1000 t",
+    "examples": [
+     {
+      "subject": "iso3:USA",
+      "value": 2445,
+      "valid_from": "2000-01-01",
+      "valid_to": "2001-01-01",
+      "code": "usda_psd:commodity:0410000",
+      "dimensions": {
+       "commodity": "usda_psd:commodity:0410000",
+       "frequency": "annual",
+       "marketing_year": 2000
+      }
+     },
+     {
+      "subject": "iso3:USA",
+      "value": 2927,
+      "valid_from": "2001-01-01",
+      "valid_to": "2002-01-01",
+      "code": "usda_psd:commodity:0410000",
+      "dimensions": {
+       "commodity": "usda_psd:commodity:0410000",
+       "frequency": "annual",
+       "marketing_year": 2001
+      }
+     }
+    ]
+   },
+   {
+    "from_dataset": "usda_fas_psd",
+    "metric": "production",
+    "unit": "1000 t",
+    "examples": [
+     {
+      "subject": "iso3:USA",
+      "value": 60641,
+      "valid_from": "2000-01-01",
+      "valid_to": "2001-01-01",
+      "code": "usda_psd:commodity:0410000",
+      "dimensions": {
+       "commodity": "usda_psd:commodity:0410000",
+       "frequency": "annual",
+       "marketing_year": 2000
+      }
+     },
+     {
+      "subject": "iso3:USA",
+      "value": 53001,
+      "valid_from": "2001-01-01",
+      "valid_to": "2002-01-01",
+      "code": "usda_psd:commodity:0410000",
+      "dimensions": {
+       "commodity": "usda_psd:commodity:0410000",
+       "frequency": "annual",
+       "marketing_year": 2001
+      }
+     }
+    ]
+   }
+  ],
+  "reported_bilateral_trade": [
+   {
+    "from_dataset": "un_comtrade",
+    "metric": "trade_net_weight",
+    "unit": "kg",
+    "examples": [
+     {
+      "subject": "iso3:USA",
+      "value": 0,
+      "valid_from": "2024-01-01",
+      "valid_to": "2024-02-01",
+      "code": "hs:12",
+      "dimensions": {
+       "classification": "H6",
+       "customs_code": "C00",
+       "flow": "export",
+       "frequency": "monthly",
+       "mode_of_supply": "0",
+       "mode_of_transport": 0,
+       "partner": "comtrade:area:0",
+       "partner2": 0,
+       "product": "hs:12"
+      }
+     },
+     {
+      "subject": "iso3:USA",
+      "value": 0,
+      "valid_from": "2024-01-01",
+      "valid_to": "2024-02-01",
+      "code": "hs:19",
+      "dimensions": {
+       "classification": "H6",
+       "customs_code": "C00",
+       "flow": "export",
+       "frequency": "monthly",
+       "mode_of_supply": "0",
+       "mode_of_transport": 0,
+       "partner": "comtrade:area:0",
+       "partner2": 0,
+       "product": "hs:19"
+      }
+     }
+    ]
+   },
+   {
+    "from_dataset": "un_comtrade",
+    "metric": "trade_value",
+    "unit": "USD",
+    "examples": [
+     {
+      "subject": "iso3:USA",
+      "value": 3704967325,
+      "valid_from": "2024-01-01",
+      "valid_to": "2024-02-01",
+      "code": "hs:12",
+      "dimensions": {
+       "classification": "H6",
+       "customs_code": "C00",
+       "flow": "export",
+       "frequency": "monthly",
+       "mode_of_supply": "0",
+       "mode_of_transport": 0,
+       "partner": "comtrade:area:0",
+       "partner2": 0,
+       "product": "hs:12"
+      }
+     },
+     {
+      "subject": "iso3:USA",
+      "value": 389457082,
+      "valid_from": "2024-01-01",
+      "valid_to": "2024-02-01",
+      "code": "hs:19",
+      "dimensions": {
+       "classification": "H6",
+       "customs_code": "C00",
+       "flow": "export",
+       "frequency": "monthly",
+       "mode_of_supply": "0",
+       "mode_of_transport": 0,
+       "partner": "comtrade:area:0",
+       "partner2": 0,
+       "product": "hs:19"
+      }
+     }
+    ]
+   }
+  ],
+  "published_code_bridge": [
+   {
+    "subject": "scheduleb2025:1001110000",
+    "predicate": "classified_as",
+    "object": "naics2022:111140",
+    "weight": 1.0,
+    "valid_from": null,
+    "valid_to": null,
+    "observed_at": "2026-09-15T19:05:03.833674+00:00",
+    "from_dataset": "classifications",
+    "record_id": "class:classified:scheduleb2025:1001110000:naics"
+   },
+   {
+    "subject": "scheduleb2025:1001110000",
+    "predicate": "classified_as",
+    "object": "sitc4:04110",
+    "weight": 1.0,
+    "valid_from": null,
+    "valid_to": null,
+    "observed_at": "2026-09-15T19:05:03.833674+00:00",
+    "from_dataset": "classifications",
+    "record_id": "class:classified:scheduleb2025:1001110000:sitc"
+   },
+   {
+    "subject": "scheduleb2025:1001110000",
+    "predicate": "classified_as",
+    "object": "enduse:10140",
+    "weight": 1.0,
+    "valid_from": null,
+    "valid_to": null,
+    "observed_at": "2026-09-15T19:05:03.833674+00:00",
+    "from_dataset": "classifications",
+    "record_id": "class:classified:scheduleb2025:1001110000:enduse"
+   },
+   {
+    "subject": "scheduleb2025:1001190000",
+    "predicate": "classified_as",
+    "object": "naics2022:111140",
+    "weight": 1.0,
+    "valid_from": null,
+    "valid_to": null,
+    "observed_at": "2026-09-15T19:05:03.833674+00:00",
+    "from_dataset": "classifications",
+    "record_id": "class:classified:scheduleb2025:1001190000:naics"
+   },
+   {
+    "subject": "scheduleb2025:1001190000",
+    "predicate": "classified_as",
+    "object": "sitc4:04110",
+    "weight": 1.0,
+    "valid_from": null,
+    "valid_to": null,
+    "observed_at": "2026-09-15T19:05:03.833674+00:00",
+    "from_dataset": "classifications",
+    "record_id": "class:classified:scheduleb2025:1001190000:sitc"
+   },
+   {
+    "subject": "scheduleb2025:1001190000",
+    "predicate": "classified_as",
+    "object": "enduse:00000",
+    "weight": 1.0,
+    "valid_from": null,
+    "valid_to": null,
+    "observed_at": "2026-09-15T19:05:03.833674+00:00",
+    "from_dataset": "classifications",
+    "record_id": "class:classified:scheduleb2025:1001190000:enduse"
+   }
+  ]
+ },
+ "counts": {
+  "nass_codes": 2,
+  "psd_codes": 1,
+  "schedule_b_codes": 19,
+  "naics_codes": 2,
+  "hs_codes_reached": 35,
+  "production_series": 5,
+  "balance_series": 5,
+  "trade_series": 2,
+  "code_bridge_edges": 24
+ },
+ "which_dataset_supplied_which_edge": {
+  "physical production, area harvested and prices received by farmers": "usda_agriculture (USDA NASS)",
+  "country supply and distribution balances": "usda_fas_psd (USDA FAS PSD)",
+  "reported bilateral trade values and weights": "un_comtrade",
+  "Schedule B -> NAICS / SITC / end-use code bridge": "classifications (classified_as assertions)",
+  "Schedule B -> HS": "DERIVED by truncation, not published as an edge in this catalog",
+  "identity of the crop across the three code systems": "NOT published as a crosswalk. The three code sets are matched here on their published English labels - INFERRED, not asserted."
+ },
+ "what_this_does_not_establish": [
+  "The crop identity across NASS, PSD and HS is a label match, not a published crosswalk. Treat it as a hypothesis to check, not as a join key.",
+  "This is not a commodity balance. NASS bushels, PSD metric tonnes and Comtrade kilograms use different commodity definitions, marketing years and coverage; nothing here reconciles them. worldmodel.units.convert refuses bushels-to-mass without an explicit commodity.",
+  "Comtrade is reported trade: importer and exporter reports of the same flow disagree, and aggregate rows are flagged is_aggregate. The harmonised mirror-flow dataset (cepii_baci, 89.2M rows) is outside the default profile.",
+  "A price received by farmers is not a futures or spot price, and marketing-year averages are not daily quotes.",
+  "maps_to edges carry no split weights, so quantities must not be summed across a mapping without worldmodel.crosswalks apportionment."
+ ],
+ "datasets_used": [
+  "classifications",
+  "un_comtrade",
+  "usda_agriculture",
+  "usda_fas_psd"
+ ]
+}

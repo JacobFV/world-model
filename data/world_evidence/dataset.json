@@ -2,29 +2,15 @@
   "id": "world_evidence",
   "schema_version": 2,
   "kind": "derived",
-  "status": "sample_only",
-  "description": "Typed evidence union of the 11 currently acquired real source samples; incomplete and nonrepresentative.",
+  "status": "complete",
+  "description": "Catalog-scale unified graph: the pinned scope, per-dataset counts and coverage of one streaming unify build. The queryable product is index.sqlite; see docs/unified-graph.md.",
   "entrypoint": "pipeline.py:run",
-  "dependencies": [
-    "census_geography",
-    "census_population",
-    "census_business",
-    "bls_labor",
-    "classifications",
-    "eia_energy",
-    "fec",
-    "sec_gleif",
-    "transport",
-    "usaspending",
-    "usgs_resources"
-  ],
+  "dependencies": [],
   "parameters": {
-    "scope": "bounded_real_samples",
-    "unavailable_sources": [
-      "bea_input_output",
-      "freight",
-      "usda_agriculture"
-    ]
+    "scope": "selected by worldmodel.unify (profile, --datasets, --domain, --exclude); every input is pinned as dataset@stage@version in the published manifest",
+    "built_by": "worldmodel.unify:unify",
+    "index": "index.sqlite (rebuild: python3 -m worldmodel unify)",
+    "legacy_union_stage": "the graph stage below is the superseded sample-era union of eleven bounded samples; unify no longer runs it"
   },
   "sampling": {
     "strategy": "derived",
@@ -46,7 +32,7 @@
         "format": "evidence_jsonl"
       },
       "validation": {
-        "allow_empty": false,
+        "allow_empty": true,
         "max_rows": 100000
       },
       "cache": "content",

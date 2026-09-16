@@ -1,0 +1,158 @@
+{
+ "query": "q6_bank_filings_to_identity_to_group",
+ "answer": {
+  "sec_filer": {
+   "entity_id": "sec:cik:0000769218",
+   "label": "AEGON LTD.",
+   "entity_type": "business",
+   "label_from": "sec_company_assets",
+   "also_described_by": [
+    "sec_company_assets",
+    "sec_financial_statements"
+   ]
+  },
+  "gleif_legal_entity": {
+   "entity_id": "lei:O4QK7KMMK83ITNTHUG69",
+   "label": "Aegon Ltd.",
+   "entity_type": "organization",
+   "label_from": "sec_gleif",
+   "also_described_by": [
+    "sec_gleif"
+   ]
+  },
+  "asserted_identity_cluster": [
+   "lei:O4QK7KMMK83ITNTHUG69",
+   "sec:cik:0000769218"
+  ],
+  "filer_edges": [
+   {
+    "subject": "sec:cik:0000769218",
+    "predicate": "classified_as",
+    "object": "sic:6311",
+    "weight": 1.0,
+    "valid_from": null,
+    "valid_to": null,
+    "observed_at": "2026-09-15T20:11:01.445966+00:00",
+    "from_dataset": "sec_issuer_reference",
+    "record_id": "secsub:0000769218:sic"
+   },
+   {
+    "subject": "sec:cik:0000769218",
+    "predicate": "issuer_listing",
+    "object": "ticker:XNYS:AEG",
+    "weight": 1.0,
+    "valid_from": null,
+    "valid_to": null,
+    "observed_at": "2026-09-15T20:11:01.445966+00:00",
+    "from_dataset": "sec_issuer_reference",
+    "record_id": "secsub:0000769218:listing:0"
+   },
+   {
+    "subject": "sec:cik:0000769218",
+    "predicate": "issuer_listing",
+    "object": "ticker:OTC:AEGOF",
+    "weight": 1.0,
+    "valid_from": null,
+    "valid_to": null,
+    "observed_at": "2026-09-15T20:11:01.445966+00:00",
+    "from_dataset": "sec_issuer_reference",
+    "record_id": "secsub:0000769218:listing:1"
+   }
+  ],
+  "legal_entity_edges": [
+   {
+    "subject": "lei:213800115BSUHPDI8695",
+    "predicate": "ultimately_consolidated_by",
+    "object": "lei:O4QK7KMMK83ITNTHUG69",
+    "weight": 1.0,
+    "valid_from": "2021-01-08T00:00:00+00:00",
+    "valid_to": null,
+    "observed_at": "2026-09-15T18:44:50.661036+00:00",
+    "from_dataset": "gleif_parent_relationships",
+    "record_id": "gleif_rr:lei:213800115BSUHPDI8695:ultimately_consolidated_by:lei:O4QK7KMMK83ITNTHUG69"
+   },
+   {
+    "subject": "lei:2138003M3NTP1HB19R27",
+    "predicate": "ultimately_consolidated_by",
+    "object": "lei:O4QK7KMMK83ITNTHUG69",
+    "weight": 1.0,
+    "valid_from": "2015-11-27T00:00:00+00:00",
+    "valid_to": null,
+    "observed_at": "2026-09-15T18:44:50.661036+00:00",
+    "from_dataset": "gleif_parent_relationships",
+    "record_id": "gleif_rr:lei:2138003M3NTP1HB19R27:ultimately_consolidated_by:lei:O4QK7KMMK83ITNTHUG69"
+   },
+   {
+    "subject": "lei:2138004URG54I4AY7C42",
+    "predicate": "ultimately_consolidated_by",
+    "object": "lei:O4QK7KMMK83ITNTHUG69",
+    "weight": 1.0,
+    "valid_from": "2015-07-15T00:00:00+00:00",
+    "valid_to": null,
+    "observed_at": "2026-09-15T18:44:50.661036+00:00",
+    "from_dataset": "gleif_parent_relationships",
+    "record_id": "gleif_rr:lei:2138004URG54I4AY7C42:ultimately_consolidated_by:lei:O4QK7KMMK83ITNTHUG69"
+   }
+  ],
+  "corporate_group_edges": [
+   {
+    "subject": "lei:213800115BSUHPDI8695",
+    "predicate": "ultimately_consolidated_by",
+    "object": "lei:O4QK7KMMK83ITNTHUG69",
+    "weight": 1.0,
+    "valid_from": "2021-01-08T00:00:00+00:00",
+    "valid_to": null,
+    "observed_at": "2026-09-15T18:44:50.661036+00:00",
+    "from_dataset": "gleif_parent_relationships",
+    "record_id": "gleif_rr:lei:213800115BSUHPDI8695:ultimately_consolidated_by:lei:O4QK7KMMK83ITNTHUG69"
+   },
+   {
+    "subject": "lei:2138003M3NTP1HB19R27",
+    "predicate": "ultimately_consolidated_by",
+    "object": "lei:O4QK7KMMK83ITNTHUG69",
+    "weight": 1.0,
+    "valid_from": "2015-11-27T00:00:00+00:00",
+    "valid_to": null,
+    "observed_at": "2026-09-15T18:44:50.661036+00:00",
+    "from_dataset": "gleif_parent_relationships",
+    "record_id": "gleif_rr:lei:2138003M3NTP1HB19R27:ultimately_consolidated_by:lei:O4QK7KMMK83ITNTHUG69"
+   },
+   {
+    "subject": "lei:2138004URG54I4AY7C42",
+    "predicate": "ultimately_consolidated_by",
+    "object": "lei:O4QK7KMMK83ITNTHUG69",
+    "weight": 1.0,
+    "valid_from": "2015-07-15T00:00:00+00:00",
+    "valid_to": null,
+    "observed_at": "2026-09-15T18:44:50.661036+00:00",
+    "from_dataset": "gleif_parent_relationships",
+    "record_id": "gleif_rr:lei:2138004URG54I4AY7C42:ultimately_consolidated_by:lei:O4QK7KMMK83ITNTHUG69"
+   }
+  ],
+  "candidate_fdic_institutions": []
+ },
+ "counts": {
+  "asserted_cik_lei_clusters": 25,
+  "group_edges": 200,
+  "fdic_entities_scanned": 27833,
+  "name_matched_fdic_candidates": 0
+ },
+ "which_dataset_supplied_which_edge": {
+  "CIK, SIC classification, venue listing, published LEI": "sec_issuer_reference",
+  "CIK <-> LEI identity": "asserted: sec_issuer_reference publishes the LEI that is the GLEIF entity ID",
+  "legal name, legal form, jurisdiction, ISIN links": "sec_gleif",
+  "consolidation parents and fund managers": "gleif_parent_relationships",
+  "FDIC certificate, FED_RSSD, county, call-report financials": "fdic_bank_financials",
+  "FDIC <-> SEC/GLEIF link": "NOT published. The name match shown is inferred and unreviewed."
+ },
+ "what_this_does_not_establish": [
+  "The FDIC leg is the honest failure in this chain: no published crosswalk links an FDIC certificate to a CIK or an LEI, so the candidate institutions are name-string matches, explicitly inferred and unreviewed. They must not be treated as identity.",
+  "fdic_cert <-> rssd is declared 1:1 by the repo mapping specs but 943 certificate pairs in the published directory share a FED_RSSD, so unify-resolve deliberately does not cluster on rssd.",
+  "GLEIF Level 2 records accounting consolidation, not control or beneficial ownership.",
+  "sec_financial_statements contributes structure only under the default profile: its 50.5M XBRL facts need \"--datasets sec_financial_statements\" (or --profile all) to be queryable here."
+ ],
+ "datasets_used": [
+  "gleif_parent_relationships",
+  "sec_issuer_reference"
+ ]
+}

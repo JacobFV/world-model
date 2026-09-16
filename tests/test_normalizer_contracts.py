@@ -14,9 +14,13 @@ class OfflineNormalizerContracts(unittest.TestCase):
         for dataset,row in fixtures.items():
             with self.subTest(dataset=dataset),tempfile.TemporaryDirectory() as tmp:
                 path=Path(tmp)/'payload';path.write_text(json.dumps(row)+'\n')
-                path.with_name('receipt.json').write_text(json.dumps({'retrieved_at':'2026-01-01','source':{'sampling':{'config':{'body':{'seriesid':['LNS14000000']}}}}}))
+                receipt={'retrieved_at':'2026-01-01','bytes':path.stat().st_size,'source':{'sampling':{'config':{'body':{'seriesid':['LNS14000000']}}}}}
+                path.with_name('receipt.json').write_text(json.dumps(receipt))
                 context=Mock(definition={'id':dataset},raw_inputs=[{'dataset':dataset,'artifact':'0'*64}])
                 context.raw_path.return_value=path
+                # Mirror worldmodel.pipeline.Context for a single-payload sample artifact.
+                context.raw_receipt.return_value=receipt
+                context.raw_coverage.return_value={'layout':'payload','sampled':True,'complete':False,'stop_reason':None,'shards':1,'bytes':receipt['bytes']}
                 context.raw_evidence.return_value=[{'input':context.raw_inputs[0],'locator':'fictional-row:1'}]
                 rows=list(normalize_sample(context));self.assertTrue(rows)
                 validate_typed_graph(rows)

@@ -1,0 +1,187 @@
+{
+ "query": "q4_legislator_bills_votes_money",
+ "answer": {
+  "person": {
+   "entity_id": "bioguide:A000055",
+   "label": "Robert B. Aderholt",
+   "entity_type": "person",
+   "label_from": "congress_people",
+   "also_described_by": [
+    "congress_people"
+   ]
+  },
+  "asserted_identity_cluster": [
+   "bioguide:A000055",
+   "fec:candidate:H6AL04098",
+   "icpsr:29701",
+   "opensanctions:Q672671"
+  ],
+  "edges_by_dataset": {
+   "congress_people": {
+    "committee_member": {
+     "edges": 4,
+     "example": {
+      "subject": "bioguide:A000055",
+      "predicate": "committee_member",
+      "object": "congress:committee:hsap00",
+      "weight": 1.0,
+      "valid_from": null,
+      "valid_to": null,
+      "observed_at": "2026-09-15T19:05:24.895119+00:00",
+      "from_dataset": "congress_people",
+      "record_id": "congress_people:91690a2ff9ac0f7c15e588359a3e1a8c70cac91e"
+     }
+    },
+    "holds_role": {
+     "edges": 15,
+     "example": {
+      "subject": "bioguide:A000055",
+      "predicate": "holds_role",
+      "object": "congress:role:d6e6ed03998e32391db6b4758ca4dd4aa6be5e671865b6e0b17ce1a895a5f59f",
+      "weight": 1.0,
+      "valid_from": "1997-01-07T00:00:00+00:00",
+      "valid_to": "1999-01-03T00:00:00+00:00",
+      "observed_at": "2026-09-15T19:05:18.788361+00:00",
+      "from_dataset": "congress_people",
+      "record_id": "congress_people:1d00622f58e9fe957bfaae4d9f97832be27590e4"
+     }
+    },
+    "same_as": {
+     "edges": 2,
+     "example": {
+      "subject": "bioguide:A000055",
+      "predicate": "same_as",
+      "object": "bioguide:A000055",
+      "weight": 1.0,
+      "valid_from": null,
+      "valid_to": null,
+      "observed_at": "2026-09-15T19:05:18.788361+00:00",
+      "from_dataset": "congress_people",
+      "record_id": "congress_people:6b4b0b3515451325d1b2f9efef9818c4c102639d"
+     }
+    }
+   },
+   "fec": {
+    "authorized_committee_of": {
+     "edges": 14,
+     "example": {
+      "subject": "fec:committee:C00313247",
+      "predicate": "authorized_committee_of",
+      "object": "bioguide:A000055",
+      "weight": 1.0,
+      "valid_from": "2025-01-01T00:00:00+00:00",
+      "valid_to": "2027-01-01T00:00:00+00:00",
+      "observed_at": "2026-09-15T18:57:57.160536+00:00",
+      "from_dataset": "fec",
+      "record_id": "fec:linkage:2026:258915"
+     }
+    },
+    "opposes_candidate": {
+     "edges": 3,
+     "example": {
+      "subject": "fec:committee:C00522458",
+      "predicate": "opposes_candidate",
+      "object": "bioguide:A000055",
+      "weight": 1.0,
+      "valid_from": "2019-01-01T00:00:00+00:00",
+      "valid_to": "2021-01-01T00:00:00+00:00",
+      "observed_at": "2026-09-15T18:57:23.306204+00:00",
+      "from_dataset": "fec",
+      "record_id": "fec:opposes_candidate:2020:C00522458:H6AL04098"
+     }
+    },
+    "supports_candidate": {
+     "edges": 2622,
+     "example": {
+      "subject": "fec:committee:C00000729",
+      "predicate": "supports_candidate",
+      "object": "bioguide:A000055",
+      "weight": 1.0,
+      "valid_from": "2025-01-01T00:00:00+00:00",
+      "valid_to": "2027-01-01T00:00:00+00:00",
+      "observed_at": "2026-09-15T18:58:04.639942+00:00",
+      "from_dataset": "fec",
+      "record_id": "fec:supports_candidate:2026:C00000729:H6AL04098"
+     }
+    }
+   },
+   "fec_candidates": {
+    "principal_campaign_committee": {
+     "edges": 16,
+     "example": {
+      "subject": "bioguide:A000055",
+      "predicate": "principal_campaign_committee",
+      "object": "fec:committee:C00313247",
+      "weight": 1.0,
+      "valid_from": "2025-01-01T00:00:00+00:00",
+      "valid_to": "2027-01-01T00:00:00+00:00",
+      "observed_at": "2026-09-15T19:01:03.251799+00:00",
+      "from_dataset": "fec_candidates",
+      "record_id": "fec_candidates:pcc:2026:H6AL04098"
+     }
+    }
+   },
+   "govinfo_billstatus": {
+    "cosponsored_measure": {
+     "edges": 311,
+     "example": {
+      "subject": "bioguide:A000055",
+      "predicate": "cosponsored_measure",
+      "object": "congress:bill:113-hr-621",
+      "weight": 1.0,
+      "valid_from": "2013-06-25T00:00:00+00:00",
+      "valid_to": null,
+      "observed_at": "2026-09-15T19:32:02.315221+00:00",
+      "from_dataset": "govinfo_billstatus",
+      "record_id": "govinfo_billstatus:cosponsor:113-hr-621:A000055:2013-06-25"
+     }
+    },
+    "sponsored_measure": {
+     "edges": 13,
+     "example": {
+      "subject": "bioguide:A000055",
+      "predicate": "sponsored_measure",
+      "object": "congress:bill:113-hr-3000",
+      "weight": 1.0,
+      "valid_from": "2013-08-02T00:00:00+00:00",
+      "valid_to": null,
+      "observed_at": "2026-09-15T19:32:02.315221+00:00",
+      "from_dataset": "govinfo_billstatus",
+      "record_id": "govinfo_billstatus:sponsor:113-hr-3000:A000055"
+     }
+    }
+   }
+  },
+  "campaign_finance_observations": []
+ },
+ "counts": {
+  "edges_on_the_resolved_person": 3000,
+  "datasets_contributing_edges": 4,
+  "cluster_members": 4
+ },
+ "which_dataset_supplied_which_edge": {
+  "person, terms, party, committee assignment": "congress_people",
+  "bioguide <-> icpsr and bioguide <-> fec:candidate identity": "congress_people same_as (published congress-legislators ID lists)",
+  "roll-call positions and ideal points": "voteview_rollcalls",
+  "sponsored and cosponsored measures, referrals": "govinfo_billstatus",
+  "House roll-call events and amendments": "congress_gov_api",
+  "candidacies and principal campaign committee": "fec_candidates",
+  "committee registration, finance and support": "fec",
+  "lobbying registrants, clients and contacts": "lda_lobbying"
+ },
+ "what_this_does_not_establish": [
+  "No influence claim. A lobbying registrant reporting contact with a chamber or committee is not a contact with this person, and a contribution is not a vote.",
+  "Voteview historically issued new ICPSR IDs on party switches, so one person can hold several; the cluster reflects the published ID lists, not an inference.",
+  "FEC candidate IDs are per office, so one person legitimately holds House and Senate IDs.",
+  "No published crosswalk links LDA clients or USAspending recipients (UEI) to FEC committees' connected organizations; those names remain literals.",
+  "usaspending is outside the default profile, so federal awards to a legislator's district are not in this index scope.",
+  "Campaign finance *amounts* are absent by scope, not by absence: fec contributes structure only under the default profile, so its 7.7M observations need \"--datasets fec\". The committee links shown here are the structure those amounts hang on.",
+  "An OpenSanctions entry for a sitting legislator is a politically-exposed-person record, not a sanctions designation."
+ ],
+ "datasets_used": [
+  "congress_people",
+  "fec",
+  "fec_candidates",
+  "govinfo_billstatus"
+ ]
+}

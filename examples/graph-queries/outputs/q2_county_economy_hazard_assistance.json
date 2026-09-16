@@ -1,0 +1,763 @@
+{
+ "query": "q2_county_economy_hazard_assistance",
+ "answer": {
+  "county": {
+   "entity_id": "geo:US:county:01001",
+   "label": "Autauga County, Alabama",
+   "entity_type": "county",
+   "label_from": "acs_5yr_tables",
+   "also_described_by": [
+    "acs_5yr_tables",
+    "bea_national_regional",
+    "bls_labor"
+   ]
+  },
+  "containment": [
+   {
+    "subject": "geo:US:county:01001",
+    "predicate": "within",
+    "object": "geo:US:state:01",
+    "weight": 1.0,
+    "valid_from": null,
+    "valid_to": null,
+    "observed_at": "2026-09-15T19:15:54.030513+00:00",
+    "from_dataset": "acs_5yr_tables",
+    "record_id": "acs:within:geo:US:county:01001"
+   },
+   {
+    "subject": "geo:US:tract:01001020100",
+    "predicate": "within",
+    "object": "geo:US:county:01001",
+    "weight": 1.0,
+    "valid_from": null,
+    "valid_to": null,
+    "observed_at": "2026-09-15T19:15:54.030513+00:00",
+    "from_dataset": "acs_5yr_tables",
+    "record_id": "acs:within:geo:US:tract:01001020100"
+   },
+   {
+    "subject": "geo:US:tract:01001020200",
+    "predicate": "within",
+    "object": "geo:US:county:01001",
+    "weight": 1.0,
+    "valid_from": null,
+    "valid_to": null,
+    "observed_at": "2026-09-15T19:15:54.030513+00:00",
+    "from_dataset": "acs_5yr_tables",
+    "record_id": "acs:within:geo:US:tract:01001020200"
+   },
+   {
+    "subject": "geo:US:tract:01001020300",
+    "predicate": "within",
+    "object": "geo:US:county:01001",
+    "weight": 1.0,
+    "valid_from": null,
+    "valid_to": null,
+    "observed_at": "2026-09-15T19:15:54.030513+00:00",
+    "from_dataset": "acs_5yr_tables",
+    "record_id": "acs:within:geo:US:tract:01001020300"
+   }
+  ],
+  "geography": {
+   "dataset": "census_geography",
+   "metrics": {
+    "land_area": {
+     "observations": 1,
+     "example": {
+      "value": 1539631459,
+      "unit": "m2",
+      "valid_from": "2024-01-01",
+      "valid_to": "2025-01-01",
+      "missing_reason": null
+     }
+    },
+    "latitude": {
+     "observations": 1,
+     "example": {
+      "value": 32.532237,
+      "unit": "degrees",
+      "valid_from": "2024-01-01",
+      "valid_to": "2025-01-01",
+      "missing_reason": null
+     }
+    },
+    "longitude": {
+     "observations": 1,
+     "example": {
+      "value": -86.64644,
+      "unit": "degrees",
+      "valid_from": "2024-01-01",
+      "valid_to": "2025-01-01",
+      "missing_reason": null
+     }
+    },
+    "water_area": {
+     "observations": 1,
+     "example": {
+      "value": 25677536,
+      "unit": "m2",
+      "valid_from": "2024-01-01",
+      "valid_to": "2025-01-01",
+      "missing_reason": null
+     }
+    }
+   }
+  },
+  "employment": {
+   "dataset": "census_business",
+   "metrics": {
+    "annual_payroll": {
+     "observations": 15,
+     "example": {
+      "value": 385755,
+      "unit": "thousand_USD",
+      "valid_from": "2019-01-01",
+      "valid_to": "2020-01-01",
+      "missing_reason": null
+     }
+    },
+    "employment": {
+     "observations": 15,
+     "example": {
+      "value": 11510,
+      "unit": "people",
+      "valid_from": "2019-03-12",
+      "valid_to": "2019-03-19",
+      "missing_reason": null
+     }
+    },
+    "establishment_count": {
+     "observations": 15,
+     "example": {
+      "value": 867,
+      "unit": "establishments",
+      "valid_from": "2019-01-01",
+      "valid_to": "2020-01-01",
+      "missing_reason": null
+     }
+    },
+    "first_quarter_payroll": {
+     "observations": 15,
+     "example": {
+      "value": 99870,
+      "unit": "thousand_USD",
+      "valid_from": "2019-01-01",
+      "valid_to": "2019-04-01",
+      "missing_reason": null
+     }
+    }
+   }
+  },
+  "jobs": {
+   "dataset": "lehd_lodes",
+   "metrics": {
+    "jobs_count": {
+     "observations": 27,
+     "example": {
+      "value": 12369,
+      "unit": "jobs",
+      "valid_from": "2023-01-01",
+      "valid_to": "2024-01-01",
+      "missing_reason": null
+     }
+    }
+   }
+  },
+  "population": {
+   "dataset": "census_population",
+   "metrics": {
+    "births": {
+     "observations": 5,
+     "example": {
+      "value": 162,
+      "unit": "people",
+      "valid_from": "2020-04-01",
+      "valid_to": "2020-07-01",
+      "missing_reason": null
+     }
+    },
+    "births_rate": {
+     "observations": 4,
+     "example": {
+      "value": 11.617273497,
+      "unit": "per_1000_population",
+      "valid_from": "2020-07-01",
+      "valid_to": "2021-07-01",
+      "missing_reason": null
+     }
+    },
+    "deaths": {
+     "observations": 5,
+     "example": {
+      "value": 175,
+      "unit": "people",
+      "valid_from": "2020-04-01",
+      "valid_to": "2020-07-01",
+      "missing_reason": null
+     }
+    },
+    "deaths_rate": {
+     "observations": 4,
+     "example": {
+      "value": 11.735817104,
+      "unit": "per_1000_population",
+      "valid_from": "2020-07-01",
+      "valid_to": "2021-07-01",
+      "missing_reason": null
+     }
+    },
+    "group_quarters_population": {
+     "observations": 6,
+     "example": {
+      "value": 483,
+      "unit": "people",
+      "valid_from": "2020-04-01",
+      "valid_to": "2020-04-02",
+      "missing_reason": null
+     }
+    },
+    "natural_change": {
+     "observations": 5,
+     "example": {
+      "value": -13,
+      "unit": "people",
+      "valid_from": "2020-04-01",
+      "valid_to": "2020-07-01",
+      "missing_reason": null
+     }
+    },
+    "net_domestic_migration": {
+     "observations": 5,
+     "example": {
+      "value": 101,
+      "unit": "people",
+      "valid_from": "2020-04-01",
+      "valid_to": "2020-07-01",
+      "missing_reason": null
+     }
+    },
+    "net_international_migration": {
+     "observations": 5,
+     "example": {
+      "value": 0,
+      "unit": "people",
+      "valid_from": "2020-04-01",
+      "valid_to": "2020-07-01",
+      "missing_reason": null
+     }
+    },
+    "net_migration": {
+     "observations": 5,
+     "example": {
+      "value": 101,
+      "unit": "people",
+      "valid_from": "2020-04-01",
+      "valid_to": "2020-07-01",
+      "missing_reason": null
+     }
+    },
+    "population": {
+     "observations": 6,
+     "example": {
+      "value": 58800,
+      "unit": "people",
+      "valid_from": "2020-04-01",
+      "valid_to": "2020-04-02",
+      "missing_reason": null
+     }
+    },
+    "population_change": {
+     "observations": 5,
+     "example": {
+      "value": 109,
+      "unit": "people",
+      "valid_from": "2020-04-01",
+      "valid_to": "2020-07-01",
+      "missing_reason": null
+     }
+    },
+    "population_change_residual": {
+     "observations": 5,
+     "example": {
+      "value": 21,
+      "unit": "people",
+      "valid_from": "2020-04-01",
+      "valid_to": "2020-07-01",
+      "missing_reason": null
+     }
+    }
+   }
+  },
+  "demographics": {
+   "dataset": "acs_5yr_tables",
+   "metrics": {
+    "acs_b01001_001": {
+     "observations": 1,
+     "example": {
+      "value": 59947,
+      "unit": "people",
+      "valid_from": "2020-01-01",
+      "valid_to": "2025-01-01",
+      "missing_reason": null
+     }
+    },
+    "acs_b01001_002": {
+     "observations": 1,
+     "example": {
+      "value": 29126,
+      "unit": "people",
+      "valid_from": "2020-01-01",
+      "valid_to": "2025-01-01",
+      "missing_reason": null
+     }
+    },
+    "acs_b01001_003": {
+     "observations": 1,
+     "example": {
+      "value": 2031,
+      "unit": "people",
+      "valid_from": "2020-01-01",
+      "valid_to": "2025-01-01",
+      "missing_reason": null
+     }
+    },
+    "acs_b01001_004": {
+     "observations": 1,
+     "example": {
+      "value": 1693,
+      "unit": "people",
+      "valid_from": "2020-01-01",
+      "valid_to": "2025-01-01",
+      "missing_reason": null
+     }
+    },
+    "acs_b01001_005": {
+     "observations": 1,
+     "example": {
+      "value": 2177,
+      "unit": "people",
+      "valid_from": "2020-01-01",
+      "valid_to": "2025-01-01",
+      "missing_reason": null
+     }
+    },
+    "acs_b01001_006": {
+     "observations": 1,
+     "example": {
+      "value": 1275,
+      "unit": "people",
+      "valid_from": "2020-01-01",
+      "valid_to": "2025-01-01",
+      "missing_reason": null
+     }
+    },
+    "acs_b01001_007": {
+     "observations": 1,
+     "example": {
+      "value": 672,
+      "unit": "people",
+      "valid_from": "2020-01-01",
+      "valid_to": "2025-01-01",
+      "missing_reason": null
+     }
+    },
+    "acs_b01001_008": {
+     "observations": 1,
+     "example": {
+      "value": 239,
+      "unit": "people",
+      "valid_from": "2020-01-01",
+      "valid_to": "2025-01-01",
+      "missing_reason": null
+     }
+    },
+    "acs_b01001_009": {
+     "observations": 1,
+     "example": {
+      "value": 363,
+      "unit": "people",
+      "valid_from": "2020-01-01",
+      "valid_to": "2025-01-01",
+      "missing_reason": null
+     }
+    },
+    "acs_b01001_010": {
+     "observations": 1,
+     "example": {
+      "value": 1000,
+      "unit": "people",
+      "valid_from": "2020-01-01",
+      "valid_to": "2025-01-01",
+      "missing_reason": null
+     }
+    },
+    "acs_b01001_011": {
+     "observations": 1,
+     "example": {
+      "value": 2148,
+      "unit": "people",
+      "valid_from": "2020-01-01",
+      "valid_to": "2025-01-01",
+      "missing_reason": null
+     }
+    },
+    "acs_b01001_012": {
+     "observations": 1,
+     "example": {
+      "value": 1663,
+      "unit": "people",
+      "valid_from": "2020-01-01",
+      "valid_to": "2025-01-01",
+      "missing_reason": null
+     }
+    }
+   }
+  },
+  "agriculture": {
+   "dataset": "usda_agriculture",
+   "metrics": {
+    "active_gins": {
+     "observations": 1,
+     "example": {
+      "value": 1,
+      "unit": "NUMBER",
+      "valid_from": "2023-05-01",
+      "valid_to": "2023-06-01",
+      "missing_reason": null
+     }
+    },
+    "area_bearing": {
+     "observations": 3,
+     "example": {
+      "value": null,
+      "unit": "ACRES",
+      "valid_from": "2007-01-01",
+      "valid_to": "2008-01-01",
+      "missing_reason": "nass_suppressed_withheld_to_avoid_disclosing_individual_operations"
+     }
+    },
+    "area_bearing_non_bearing": {
+     "observations": 7,
+     "example": {
+      "value": 8,
+      "unit": "OPERATIONS",
+      "valid_from": "2022-01-01",
+      "valid_to": "2023-01-01",
+      "missing_reason": null
+     }
+    },
+    "area_grown": {
+     "observations": 2,
+     "example": {
+      "value": 8,
+      "unit": "ACRES",
+      "valid_from": "2022-01-01",
+      "valid_to": "2023-01-01",
+      "missing_reason": null
+     }
+    },
+    "area_harvested": {
+     "observations": 25,
+     "example": {
+      "value": 1,
+      "unit": "OPERATIONS",
+      "valid_from": "2017-01-01",
+      "valid_to": "2018-01-01",
+      "missing_reason": null
+     }
+    },
+    "area_in_production": {
+     "observations": 4,
+     "example": {
+      "value": 34,
+      "unit": "OPERATIONS",
+      "valid_from": "2007-01-01",
+      "valid_to": "2008-01-01",
+      "missing_reason": null
+     }
+    },
+    "area_non_bearing": {
+     "observations": 1,
+     "example": {
+      "value": 13,
+      "unit": "OPERATIONS",
+      "valid_from": "2012-01-01",
+      "valid_to": "2013-01-01",
+      "missing_reason": null
+     }
+    },
+    "area_planted": {
+     "observations": 1,
+     "example": {
+      "value": 6600,
+      "unit": "ACRES",
+      "valid_from": "2003-01-01",
+      "valid_to": "2004-01-01",
+      "missing_reason": null
+     }
+    },
+    "ginned_bales": {
+     "observations": 8,
+     "example": {
+      "value": null,
+      "unit": "RUNNING BALES",
+      "valid_from": "2014-05-01",
+      "valid_to": "2014-05-02",
+      "missing_reason": "nass_suppressed_withheld_to_avoid_disclosing_individual_operations"
+     }
+    },
+    "production": {
+     "observations": 4,
+     "example": {
+      "value": 371,
+      "unit": "TONS",
+      "valid_from": "2017-01-01",
+      "valid_to": "2018-01-01",
+      "missing_reason": null
+     }
+    },
+    "sales": {
+     "observations": 4,
+     "example": {
+      "value": 3,
+      "unit": "OPERATIONS",
+      "valid_from": "2007-01-01",
+      "valid_to": "2008-01-01",
+      "missing_reason": null
+     }
+    }
+   }
+  },
+  "hazard_risk": {
+   "dataset": "fema_nri",
+   "metrics": {
+    "agriculture_value_exposure": {
+     "observations": 1,
+     "example": {
+      "value": 27630646,
+      "unit": "USD",
+      "valid_from": "2025-12-01",
+      "valid_to": "2026-12-01",
+      "missing_reason": null
+     }
+    },
+    "area": {
+     "observations": 1,
+     "example": {
+      "value": 610.47050844,
+      "unit": "mi2",
+      "valid_from": "2025-12-01",
+      "valid_to": "2026-12-01",
+      "missing_reason": null
+     }
+    },
+    "building_value_exposure": {
+     "observations": 1,
+     "example": {
+      "value": 10241406107,
+      "unit": "USD",
+      "valid_from": "2025-12-01",
+      "valid_to": "2026-12-01",
+      "missing_reason": null
+     }
+    },
+    "community_risk_factor": {
+     "observations": 1,
+     "example": {
+      "value": 1.038181192,
+      "unit": "index",
+      "valid_from": "2025-12-01",
+      "valid_to": "2026-12-01",
+      "missing_reason": null
+     }
+    },
+    "expected_annual_loss": {
+     "observations": 21,
+     "example": {
+      "value": 13096.648972809982,
+      "unit": "USD/year",
+      "valid_from": "2025-12-01",
+      "valid_to": "2026-12-01",
+      "missing_reason": null
+     }
+    },
+    "expected_annual_loss_risk_value": {
+     "observations": 4,
+     "example": {
+      "value": 394681.80022421794,
+      "unit": "USD/year",
+      "valid_from": "2025-12-01",
+      "valid_to": "2026-12-01",
+      "missing_reason": null
+     }
+    },
+    "expected_annual_loss_score": {
+     "observations": 6,
+     "example": {
+      "value": 31.219059405940598,
+      "unit": "score_0_100",
+      "valid_from": "2025-12-01",
+      "valid_to": "2026-12-01",
+      "missing_reason": null
+     }
+    },
+    "hazard_annualized_frequency": {
+     "observations": 5,
+     "example": {
+      "value": 0.36842105263157854,
+      "unit": "events/year",
+      "valid_from": "2025-12-01",
+      "valid_to": "2026-12-01",
+      "missing_reason": null
+     }
+    },
+    "hazard_event_count": {
+     "observations": 3,
+     "example": {
+      "value": 7,
+      "unit": "events",
+      "valid_from": "2025-12-01",
+      "valid_to": "2026-12-01",
+      "missing_reason": null
+     }
+    },
+    "hazard_exposure_total": {
+     "observations": 4,
+     "example": {
+      "value": 815335836753,
+      "unit": "USD",
+      "valid_from": "2025-12-01",
+      "valid_to": "2026-12-01",
+      "missing_reason": null
+     }
+    },
+    "hazard_risk_index_score": {
+     "observations": 4,
+     "example": {
+      "value": 28.18066157760814,
+      "unit": "score_0_100",
+      "valid_from": "2025-12-01",
+      "valid_to": "2026-12-01",
+      "missing_reason": null
+     }
+    },
+    "historic_loss_ratio": {
+     "observations": 9,
+     "example": {
+      "value": 0.0012865245459174,
+      "unit": "ratio",
+      "valid_from": "2025-12-01",
+      "valid_to": "2026-12-01",
+      "missing_reason": null
+     }
+    }
+   }
+  },
+  "climate": {
+   "dataset": "noaa_climdiv",
+   "metrics": {
+    "average_temperature": {
+     "observations": 60,
+     "example": {
+      "value": 62.633,
+      "unit": "degF",
+      "valid_from": "1895-01-01",
+      "valid_to": "1896-01-01",
+      "missing_reason": null
+     }
+    }
+   }
+  },
+  "migration_flows": {
+   "dataset": "irs_soi_migration",
+   "edges": 56,
+   "examples": [
+    {
+     "subject": "irs:migration_flow:county:96000-01001",
+     "predicate": "flow_destination",
+     "object": "geo:US:county:01001",
+     "weight": 1.0,
+     "valid_from": null,
+     "valid_to": null,
+     "observed_at": "2026-09-15T18:44:42.640778+00:00",
+     "from_dataset": "irs_soi_migration",
+     "record_id": "irsmig:flow:county:96000-01001:destination"
+    },
+    {
+     "subject": "irs:migration_flow:county:97000-01001",
+     "predicate": "flow_destination",
+     "object": "geo:US:county:01001",
+     "weight": 1.0,
+     "valid_from": null,
+     "valid_to": null,
+     "observed_at": "2026-09-15T18:44:42.640778+00:00",
+     "from_dataset": "irs_soi_migration",
+     "record_id": "irsmig:flow:county:97000-01001:destination"
+    },
+    {
+     "subject": "irs:migration_flow:county:97001-01001",
+     "predicate": "flow_destination",
+     "object": "geo:US:county:01001",
+     "weight": 1.0,
+     "valid_from": null,
+     "valid_to": null,
+     "observed_at": "2026-09-15T18:44:42.640778+00:00",
+     "from_dataset": "irs_soi_migration",
+     "record_id": "irsmig:flow:county:97001-01001:destination"
+    },
+    {
+     "subject": "irs:migration_flow:county:97003-01001",
+     "predicate": "flow_destination",
+     "object": "geo:US:county:01001",
+     "weight": 1.0,
+     "valid_from": null,
+     "valid_to": null,
+     "observed_at": "2026-09-15T18:44:42.640778+00:00",
+     "from_dataset": "irs_soi_migration",
+     "record_id": "irsmig:flow:county:97003-01001:destination"
+    }
+   ]
+  }
+ },
+ "counts": {
+  "datasets_describing_this_county": 8,
+  "observations_inspected": 391,
+  "migration_flow_edges": 56
+ },
+ "which_dataset_supplied_which_edge": {
+  "county -> state -> nation containment, and tract -> county": "census_geography / acs_5yr_tables (within assertions)",
+  "geography": "census_geography",
+  "employment": "census_business",
+  "jobs": "lehd_lodes",
+  "population": "census_population",
+  "demographics": "acs_5yr_tables",
+  "agriculture": "usda_agriculture",
+  "hazard_risk": "fema_nri",
+  "climate": "noaa_climdiv",
+  "county-to-county migration flows": "irs_soi_migration (flow_source / flow_destination edges)"
+ },
+ "datasets_that_describe_counties_but_cannot_be_reached_by_a_geoid_join": {
+  "noaa_storm_events": "observations and events are anchored on noaa:storm_event:<id>; the county travels in dimensions and participants, not as a subject or an edge",
+  "openfema": "records are anchored on fema:disaster:<id> and FEMA project identifiers; county names without a FIPS stay dimensions",
+  "epa_aqs_daily": "published after this index was built (the catalog is live)"
+ },
+ "what_this_does_not_establish": [
+  "Joining on a GEOID is a join on a geography vintage, not on a stable place: Connecticut replaced its counties with planning regions from 2022, and older vintages in these datasets still use the legacy codes. Cross-vintage totals need worldmodel.crosswalks, not a string match.",
+  "No causal claim. Hazard risk, employment, climate and migration are separate measurements of the same polygon.",
+  "Periods differ: CBP employment is a March pay period, Population Estimates are 1 July stocks, ACS is a five-year average, nClimDiv is monthly, NRI is a single 2025 vintage, LODES is an annual snapshot.",
+  "Suppressed CBP cells are null with a missing_reason and are not zero.",
+  "The hazard leg is expected annual loss and a risk rating, not a forecast and not an insurance price.",
+  "Storm damage and disaster assistance are missing by construction, not by absence: NOAA Storm Events and OpenFEMA anchor their records on event and disaster identifiers, so a GEOID join never reaches them. Traversing dimensions and event participants is a different query."
+ ],
+ "datasets_used": [
+  "acs_5yr_tables",
+  "census_business",
+  "census_geography",
+  "census_population",
+  "fema_nri",
+  "irs_soi_migration",
+  "lehd_lodes",
+  "noaa_climdiv",
+  "usda_agriculture"
+ ]
+}
