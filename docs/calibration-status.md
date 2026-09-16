@@ -1,20 +1,26 @@
 # Calibration status on real data
 
 What the estimation layer produced when it was run on the normalized datasets published
-in this catalog on 2026-09-15. Every attempt was pre-registered in
+in this catalog on 2026-09-15 and 2026-09-16. Every attempt was pre-registered in
 [`worldmodel/estimation/real_data_plan.json`](../worldmodel/estimation/real_data_plan.json)
 — splits, loader options, entity-selection rules and acceptance criteria were frozen
 before any holdout was scored. Nothing below was re-specified after seeing a test result.
 
-**Two attempt runs pass, and one process is validated.**
-`monetary_model.fred_realtime_v2` (fourth wave) meets every declared criterion on
-real-time FRED vintages with base-consistent ratios, and it is the only required component of `monetary_model`, so that
-process is now **validated**. `default_hazard.fdic_laus_quarterly` (second wave) also passes,
-but on *substituted* series; re-run on its declared primary series it fails, so
-`default_hazard` must be read as not validated on the series `requirements.json` names.
-`coupled_economy` needs nine components and has seven failing and two not yet re-run against
-the panel. Every other attempt fails at least one criterion, and those failures are results
-too, recorded here with their reasons.
+**Six current attempt runs pass (eight including two superseded ones), and three processes
+are validated** (fifth wave, 2026-09-16).
+`monetary_model.fred_realtime_v2` (fourth wave) was the first. Two more joined it after the
+interval work: `inventory_balance.eia_weekly_v2` and `elections_model.medsl_house_districts`
+each meet every declared criterion and each is the only required component of its process, so
+`resource_inventory` and `elections_model` are now **validated** as well.
+`credit_growth.fred_realtime_v3` also passes, and `default_hazard` passes on two variants of a
+*substituted* delinquency series but fails on its declared primary series, so it must still be
+read as not validated on the series `requirements.json` names. `coupled_economy` needs nine
+components and has two passing (one of them on a substitute) and seven failing or missing.
+`regional_model` fails on both the short CBP panel and the long QCEW panel. Every failure below
+is a result too, recorded with its reason.
+
+*Validated* here means exactly one thing: every declared acceptance criterion passed on a
+holdout that was untouched until it was scored. It does not mean the model is right.
 
 ```sh
 python3 -m worldmodel calibrate-all                        # rerun every attempt
@@ -61,6 +67,14 @@ from the sources.
 | `credit_growth.fred_realtime_v2` | coupled_economy / credit_growth | fred_macro_panel@7dcce89c (TOTALSL corrected), monthly 1943-2024 (975) | 141 | **fail** | interval_coverage |
 | `labor_demand.fred_realtime_v2` | coupled_economy / labor_demand | fred_macro_panel@7dcce89c (INDPRO all bases), monthly 1939-2024 (1,029) | 143 | **fail** | beats_persistence_dm, interval_coverage |
 | `monetary_model.fred_realtime_v2` | monetary_model | fred_macro_panel@7dcce89c + fred_cpi@34fe03f5, quarterly first releases, base-paired (106) | 36 | **pass** | none |
+| `inventory_balance.eia_weekly_v2` | resource_inventory / inventory_balance | eia_energy@f5cd9308, weekly 1991-02..2024-12 (1,767) | 258 | **pass** | none |
+| `credit_growth.fred_realtime_v3` | coupled_economy / credit_growth | fred_macro_panel@7dcce89c (TOTALSL), monthly 1943-2024 (975) | 141 | **pass** | none |
+| `regional_model.cbp_state_sectors_v2` | regional_model | census_business@5b0995c7, 51 states × NAICS sectors, 2019-2023 | 51 | **fail** | interval_coverage, no_revision_leakage |
+| `regional_model.qcew_state_sectors` | regional_model | bls_labor@ffd7f43a (QCEW private, 53 areas × 20 sectors, 2005-2024) | 318 | **fail** | interval_coverage, no_revision_leakage |
+| `elections_model.medsl_house_districts` | elections_model | mit_election_returns@017e0d4f + fec_candidates@a46824fd + fec@93722c10 + fred_macro_panel@7dcce89c, 13 cycles (5,476 district-cycles) | 774 | **pass** | none |
+| `default_hazard.fdic_cps_quarterly` | coupled_economy / default_hazard | fdic_bank_financials@6283087f + bls_labor@ffd7f43a (LNS14000000) + DFF, quarterly 2010-2025 (62) | 19 | **pass** | none |
+| `default_hazard.fdic_laus_quarterly_v2` | coupled_economy / default_hazard | same on the completed bls_labor@ffd7f43a | 19 | **pass** | none |
+| `monetary_model.cpi_okun_proxy_v2` | monetary_model | fred_cpi@34fe03f5 + DFF + bls_labor@ffd7f43a (LAUS states), monthly 1990-2024 (420) | 120 | **fail** (superseded) | beats_persistence_dm, no_revision_leakage |
 
 Baseline names below: *persistence* = last value, *drift* = linear extrapolation,
 *mean* = historical mean, plus each family's supplied mechanism-off baseline. All
@@ -70,6 +84,9 @@ small p means the model has lower loss.
 ## Components
 
 ### resource_inventory / inventory_balance — fail (interval coverage)
+
+*Superseded by `inventory_balance.eia_weekly_v2` (fifth wave), which passes on the same data and
+splits with a declared predictive distribution. This record is kept unchanged.*
 
 Weekly U.S. crude balance, `retrospective` vintage policy (EIA bulk records carry only an
 acquisition timestamp; the requirement's 5-day publication lag is applied, and the
@@ -251,6 +268,9 @@ a genuine supply shifter (USDA PSD or EIA monthly with an instrument) is the dec
 step.
 
 ### regional_model — fail (interval coverage, revision leakage)
+
+*Superseded by `regional_model.cbp_state_sectors_v2` and joined by
+`regional_model.qcew_state_sectors` (fifth wave); both still fail. This record is kept unchanged.*
 
 County Business Patterns employment by state and NAICS sector, 2019-2023 (base-year shares
 2019, validation target 2022, holdout target 2023 = 51 state forecasts).
@@ -457,13 +477,17 @@ Reading these honestly:
   adjustment speed is textbook, and it halves persistence's error (p = 0.001). It fails only
   because its 80% intervals cover 98.8% of outcomes — the in-sample residual scale is far too
   wide for a rate that moves in discrete steps. `credit_growth` (p = 0.002) fails the mirror
-  problem: intervals too narrow (0.596).
+  problem: intervals too narrow (0.596). *Fifth wave: `credit_growth` passes once the data-revision
+  component is added; `interest_pass_through` was not re-attempted, and its over-coverage has the
+  same shape as the `regional` one — a variance component that is right in form but far too large.*
 - **`default_hazard` on its declared primary series fails where the substitute passed.** It beats
   persistence (p = 0.033) with good coverage, but `persistence` = 1.0038 breaches the declared
   [0, 1] bound (a unit root in the delinquency logit), and `unemployment_sensitivity` is
   **negative** (−1.26) — the opposite sign to the +2.19 the FDIC/LAUS substitute produced. The two
   attempts disagree about the mechanism's sign, which is a reason to trust neither until the
-  specification is revisited; the substitute's pass should not be read as validating the
+  specification is revisited (*fifth wave: the disagreement is not the unemployment series — the
+  published national CPS rate gives +2.12 — so it is the delinquency measure or the sample*); the
+  substitute's pass should not be read as validating the
   declared component.
 - **Four have no forecast skill at all** (`deposit_growth`, `labor_demand`, `energy_purchasing`,
   `policy_rule`): monthly deposit and payroll levels are near-random walks that an ADL in growth
@@ -538,7 +562,8 @@ under the workaround and +22.5 before it.
 
 36 holdout quarters (106 rows survive the base-pairing requirement; 14 quarters are dropped where
 no common base existed at the first release), coverage 0.861, bias −0.0008, 0 skipped origins.
-All six criteria pass, so `monetary_model` remains the one validated process. Artifact
+All six criteria pass, so `monetary_model` was the first validated process (the fifth wave adds
+`resource_inventory` and `elections_model`). Artifact
 `4b7e1066…`.
 
 **What changed substantively:** `phi_pi` = 0.38 means the fitted rule does **not** satisfy the
@@ -548,23 +573,306 @@ persistence (p = 0.059, close to the 0.10 threshold) and on well-calibrated inte
 the structural coefficients being credible.
 
 
+## Fifth wave (interval calibration, the elections family, and the completed `bls_labor`)
+
+Three strands ran on 2026-09-16. Every attempt below was pre-registered in the plan —
+including the diagnosis it rests on and the interval method it declares — before any
+holdout was scored.
+
+### What changed in the code, and what it did not change
+
+Predictive distributions are now an explicit, declared choice rather than a fixed
+assumption (`worldmodel/estimation/intervals.py`): `gaussian_in_sample` (the default),
+`gaussian_trailing`, `student_t_trailing` and `empirical_trailing`, plus two independent
+variance components that can be added to any of them — coefficient uncertainty `x'Vx`
+and the dispersion of the revisions a publisher has already made by the origin. The
+`regional` forecaster declares `pooled_year_draw` or `per_unit_year_mean`. No fudge
+factor was introduced: each method is estimated from information available at the forecast
+origin, and which one an attempt uses is frozen in `real_data_plan.json`.
+
+**The default path is unchanged, and the earlier verdicts stand.** With
+`interval_method` left at its default the estimator returns no predictive specification,
+`predict` takes the identical old branch, and no forecast row carries a `predictive` field,
+so reports are byte-identical. This was checked by rerunning the three superseded attempts'
+holdouts directly: `inventory_balance.eia_weekly` reproduced coverage 0.6395 on 258
+forecasts with MAE 3,755.44; `credit_growth.fred_realtime_v2` reproduced coverage 0.5957 on
+141 with MAE 52.507; `regional_model.cbp_state_sectors` reproduced coverage 1.000 on 51 with
+MAE 0.011558 — each matching the number recorded above. The `Point.first_value` field added
+to support the revision component is read only by that component and appears in no audit or
+digest.
+
+### resource_inventory / inventory_balance — **pass** (was: interval coverage)
+
+**Diagnosis.** v1 failed `interval_coverage` alone (0.640) while beating persistence at
+p = 0.00093, so the mechanism was informative and the uncertainty was not. The failure was
+not "intervals too narrow" but *a static scale against a moving one*. Over the holdout the
+mean predictive sd moved only 3,121 → 3,380 while the realized one-step RMSE moved
+4,473 / 3,082 / 6,113 / 5,838 / 3,243 across 2020-2024, and yearly coverage ran
+0.60 / 0.83 / 0.42 / 0.54 / 0.82. Inside the *training* window the same expanding in-sample
+Gaussian **over**-covers (0.894-0.908 against a nominal 0.80), because 1991-1995 residuals
+(sd 4,563) inflate it relative to 2006-2010 (sd 1,562). Standardized holdout errors also
+have kurtosis 4.3 and are left-skewed (10% quantile −2.28, 90% +1.09). So: heteroskedasticity
+across regimes first, tail shape second; not in-sample optimism (n = 1,500 against two
+coefficients) and not serial correlation.
+
+**Declared method.** `empirical_trailing`, window 52 weeks (one year, the petroleum stock
+cycle), 40 quantile nodes, plus `x'Vx`. The scale is the root mean square of the last 52
+one-step residuals; the shape is the empirical quantiles of residuals standardized by their
+own trailing scale. Chosen on training-window evidence only: over 1991-2019 the trailing
+Gaussian attains 0.789-0.796 and the trailing empirical 0.797-0.808 at a nominal 0.80.
+
+| Metric | v1 (gaussian_in_sample) | v2 (empirical_trailing) |
+| --- | --- | --- |
+| 80% interval coverage | 0.640 **fail** | **0.764 pass** |
+| mean interval width | 8,285 | 11,982 |
+| CRPS | 2,730.2 | 2,723.4 |
+| MAE / RMSE | 3,755.4 / 4,731.4 | identical |
+| DM p vs persistence (squared / absolute) | 0.00093 | 0.00093 / 0.0037 |
+| coverage by year 2020…2024 | 0.60 0.83 0.42 0.54 0.82 | 0.75 0.85 0.54 0.81 0.88 |
+
+Parameters are unchanged (`flow_scale` 0.5612 ± 0.0280, `unmeasured_net_flow` 1.7499 ± 0.1800);
+only the predictive distribution moved. The predictive sd now tracks the regime
+(4,060 / 3,601 / 4,310 / 6,346 / 4,545 by year) instead of sitting flat, and the standardized
+shape is visibly asymmetric (10%/90% nodes −1.47 / +1.15 against Gaussian ∓1.28).
+**Verdict: pass — all six criteria.** `resource_inventory` requires only this component, so
+the process is validated. 2022 still under-covers locally (0.54): a trailing window cannot
+anticipate a volatility jump, only follow it. Report `ef9e071705b1…`, artifact `5850d01bae2e…`.
+
+### coupled_economy / credit_growth — **pass** (was: interval coverage)
+
+**Diagnosis.** v2 failed `interval_coverage` alone (0.596) while beating persistence at
+p = 0.0022. The scored error is not the error the residuals measure. Under the strict
+real-time policy the forecast is anchored on the TOTALSL level available at the origin while
+the actual is the latest vintage available at the evaluation cutoff, so the scored error
+carries the anchor's later revision. TOTALSL log revisions from first release to latest have
+sd 0.0177 for 2013+ periods and 0.0348 for 1997-2012 (mean +0.070), against a model residual
+scale of 0.0057. Realized standardized holdout errors have root mean square 3.73, close to the
+ratio of the revision scale to the residual scale (0.0177 / 0.0057 ≈ 3.1), and coverage bunches by year (0.00 in 2016 and 2022,
+1.00 in 2014, 2018, 2019 and 2024) rather than scattering, which is one persistent revision
+episode per benchmark rather than model noise. Excess kurtosis is negligible (3.78), so tails
+are not the problem.
+
+**Declared method.** The in-sample residual scale plus an independent revision component: the
+standard deviation of the log revisions *already made by the origin*, over the most recent 60
+periods at least 12 months old. Twelve months is the shortest age at which a G.19 period has
+been through one annual benchmark; five years keeps the estimate inside the current revision
+regime instead of averaging over the 2000s benchmark that moved the level about 5%. The mean
+revision is reported and deliberately not used to shift the point forecast, so systematic
+revision bias stays visible in the bias statistic instead of being absorbed into the mechanism.
+
+| Metric | v2 | v3 (+ revision component) |
+| --- | --- | --- |
+| 80% interval coverage | 0.596 **fail** | **0.773 pass** |
+| mean interval width (billion USD) | 57.2 | 245.2 |
+| MAE / RMSE | 52.51 / 75.74 | identical |
+| DM p vs persistence (squared / absolute) | 0.0022 | 0.0022 / 0.0011 |
+| predictive scale at the 2024 refit | residual 0.00557 | residual 0.00557 ⊕ revision 0.01178 = 0.01303 |
+
+Parameters unchanged (`persistence_sum` 0.8226 ± 0.0420, `mean_growth_per_month` 0.00724 ±
+0.00103). The revision diagnostic at that refit: 60 mature periods, mean revision +0.0097,
+largest +0.0272. **Verdict: pass — all six criteria, with a caveat that belongs next to it.**
+Coverage passes *on average* while remaining badly clustered by year (0.33, then 1.00 for
+2014-2020, then 0.42 / 0.08 / 0.50 / 1.00): 141 monthly forecasts contain perhaps a dozen
+independent revision episodes, so the coverage statistic has far fewer effective observations
+than its count suggests. The interval is now the right *object*; its sampling error is larger
+than `n = 141` implies. Report `8ecb67bb78f9…`, artifact `ae5704206691…`.
+
+### regional_model — **fail** on both panels, in opposite directions
+
+**Diagnosis (CBP).** v1 failed `interval_coverage` at 1.000 while halving the
+year-effect-only baseline error at p = 4.1e-06. The predictive sd of 0.0540 decomposes into a
+pooled within-year residual sd of 0.0201 and a between-year term of 0.0502. The between-year
+term is the variance of *three* year effects (−0.013, +0.071, +0.050) whose dispersion is the
+2020 collapse and the 2021 rebound, added at full size as if next year were a fresh draw. The
+within-year part is pooled across states whose own residual sds run from 0.0009 to 0.047 — a
+factor of fifty — so one scale is simultaneously far too wide for stable states and too narrow
+for volatile ones. Realized 2023 cross-state error sd was 0.0115 with a common component of
++0.0078.
+
+**Declared method.** `per_unit_year_mean`: each state's own residual mean square shrunk toward
+the pooled one by a single prior observation, plus the sampling variance of the *estimated*
+year level (between-year variance / Y) instead of the variance of a fresh draw.
+
+| Attempt | n | MAE (log growth) | year_effect_only MAE | DM p | coverage | width | Verdict |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| `cbp_state_sectors` (v1) | 51 | 0.011558 | 0.023979 | 4.1e-06 | 1.000 | 0.1385 | fail |
+| `cbp_state_sectors_v2` | 51 | 0.011558 | 0.023979 | 4.1e-06 | **0.980** | 0.0810 | fail |
+| `qcew_state_sectors` | 318 | 0.021089 | 0.030656 | 1.2e-04 | **0.597** | 0.0370 | fail |
+
+**Verdict: fail, both.** On CBP the interval narrowed by 42% and coverage moved 1.000 → 0.980,
+still outside 0.80 ± 0.15, and `no_revision_leakage` still fails because CBP publishes no
+vintages. The deeper point, which was declared in advance: with a single holdout year all 51
+forecasts share one draw of the common component, so `interval_coverage` on this design is one
+Bernoulli trial and not a coverage estimate at all.
+
+`qcew_state_sectors` was registered to make the criterion evaluable — the rebuilt `bls_labor`
+carries QCEW annual averages back to 1990, and the attempt declares 2005-2024, giving twenty
+years and nineteen growth years instead of four and three, with a six-year holdout
+(2019-2024 × 53 areas = 318 forecasts).
+The mechanism holds up on the long panel: `shift_share_elasticity` 1.2586 (cluster-robust SE
+0.3269, n = 1,007 state-years, base-year shares 2005), MAE 0.0211 against 0.0307 for
+year-effect-only at p = 1.2e-04 and 0.0422 for persistence at p = 4.3e-10. Coverage, however,
+now fails from the *other* side, 0.597, and the year-by-year pattern says exactly why:
+0.85 (2019), **0.04 (2020)**, 0.38 (2021), 0.45 (2022), 0.98 (2023), 0.89 (2024). Outside the
+pandemic the intervals are roughly right; the common component of 2020-2022 is not something
+nineteen pre-pandemic year effects can price. `no_revision_leakage` also fails, and this is
+structural rather than incidental: **no published employment source in this catalog carries
+vintages**, so `regional_model` cannot pass that criterion on CBP or QCEW whatever the
+intervals do.
+
+The declared next step, which is a *new* attempt and not a re-specification of this one: keep
+the per-unit within-year scale but restore the fresh-draw between-year term
+(`between × (1 + 1/Y)`) rather than the sampling variance of the mean, since the QCEW holdout
+shows the common component behaves like a draw and not like an estimated level. That was not
+run here, because changing it after seeing this result would be tuning.
+Reports `9c97d892752c…` / `91090501d2aa…`, artifacts `e9c2cc3c35c4…` / `974b6f334590…`.
+
+### elections_model — **pass** (all seven criteria); the process is validated
+
+`mit_election_returns` published 33,805 U.S. House district rows, so the family is no longer
+blocked. `worldmodel/estimation/loaders.py::elections_data` builds one row per district-cycle
+general election (no primaries, no specials) from four datasets, and the split is by **election
+year**: fit through 2016, validate 2018-2020, test 2022-2024. Each holdout origin refits on
+cycles up to and including the previous one, so no future election informs a past prediction.
+
+Two declared substitutions, both recorded in the plan before the run:
+
+- **district presidential lean → lagged normalized House lean.** No published dataset here
+  gives presidential vote by congressional district (presidential returns are county and
+  statewide, and counties do not nest inside districts). `pvi` is the district's two-party
+  Democratic share in its most recent *contested* cycle within three cycles, minus the national
+  two-party Democratic House share of that same cycle.
+- **A229RX0 → DSPIC96.** `fred_macro_panel` does not publish real disposable income per
+  capita. `econ` is twelve-month real disposable personal income growth read from the ALFRED
+  vintage available **on election day**, with both endpoints on one base period — so the
+  economic fundamental is the number a real-time observer had, not today's revised value
+  (2000: +3.97%, 2008: +0.03%, 2020: +5.47%, 2022: −2.89%, 2024: +3.13%).
+
+5,476 district-cycles over 13 cycles (2000-2024), 4,805 contested; 175 rows dropped for having
+no contested lean within three cycles. Incumbency comes from the FEC candidate master
+(`CAND_ICI`): +1 for a Democratic incumbent and no Republican one, −1 in the mirror case, 0 for
+an open or ambiguous seat.
+
+| Parameter (final fit, cutoff 2024-12-31, n = 4,805) | Estimate | Cluster-robust SE |
+| --- | --- | --- |
+| `pvi` | 0.5308 | 0.0631 |
+| `incumbent` | 0.0408 | 0.0083 |
+| `midterm_x_president` | −0.0136 | 0.0061 |
+| `fundraising` (log receipts ratio) | 0.00844 | 0.00102 |
+| `econ_x_president` | −0.00094 | 0.00099 |
+| `const` | 0.5017 | 0.0046 |
+| `sigma_national` | 0.0181 | — |
+| `sigma_district` | 0.0605 | — |
+
+| Metric (774 holdout district forecasts, 2022 and 2024) | Model | Persistence | District mean | Incumbent-party-holds | Drift |
+| --- | --- | --- | --- | --- | --- |
+| MAE (two-party share) | 0.04359 | 0.04199 | 0.08215 | 0.07937 | 0.04746 |
+| RMSE | 0.06076 | 0.06932 | 0.10785 | 0.09992 | 0.07561 |
+| CRPS | 0.03264 | — | — | — | — |
+| DM p vs model (squared) | — | **0.0032** | 1.1e-32 | 1.4e-40 | 3.6e-05 |
+| DM p vs model (absolute) | — | 0.86 | 4.5e-48 | 1.1e-60 | 0.012 |
+
+80% coverage 0.877 (0.820 in 2022, 0.934 in 2024), mean width 0.168, bias −0.0005, 0 skipped
+origins. Report `8fa3a1dc22a6…`, artifact `de194e061f15…`.
+
+**Verdict: pass — all seven criteria, and four things that must be said next to it.**
+
+1. **The model beats previous-margin persistence on squared loss and not on absolute loss.**
+   MAE is slightly worse (0.0436 against 0.0420) while RMSE is clearly better (0.0608 against
+   0.0693): the fundamentals model avoids the large misses that persistence makes where a seat
+   swings, and pays for it with a little extra error in the many safe seats. The declared
+   criterion is the squared-loss DM test (p = 0.0032); on absolute loss p = 0.86. Both are
+   reported because reporting only the one that passes would be dishonest.
+2. **The economy term is insignificant and has the wrong sign** (−0.00094 ± 0.00099): in this
+   specification, real income growth under a Democratic president is associated with a very
+   slightly *lower* Democratic share. Nothing in the pass depends on it; it should not be read
+   as a fundamentals result. The work is being done by `pvi` (0.53), incumbency (+4.1 points)
+   and the midterm penalty (−1.4 points).
+3. **The seat count, the declared secondary target, is worse than the naive rules.** 2022:
+   predicted 192.3 Democratic seats (80% interval 169-216) against 205 actual; 2024: predicted
+   219.2 (203-235) against 213. MAE 9.5 seats against 4.5 for incumbent-party-holds and 4.6 for
+   the historical mean. Seats are scored under `secondary` and never enter acceptance — which is
+   the declared design, but it means this model should not be used to forecast a majority.
+4. **Fundraising is a conditional input, not a forecast.** FEC weball receipts are cycle totals
+   whose coverage ends after election day (2000: 2001-06-30 … 2024: 2025-01-30), so the holdout
+   tests the mechanism given realized fundraising, not the ability to forecast it, and the
+   report labels the forecast `conditional_on_realized_inputs`. Receipts are summed over all of
+   a party's candidates in a district-cycle, including primary losers; five district-cycles with
+   a negative party total were clamped to zero (a correction recorded in the plan, made before
+   any result existed). Fusion-party lines in New York and Connecticut are not credited to the
+   major party they endorse, which is how MEDSL publishes them.
+
+### `bls_labor` rebuilt: which verdicts moved (none) and what the rebuild settled (the sign question)
+
+`bls_labor` was republished at `ffd7f43a2761` with 60,872,022 rows. The version four attempts
+had used, `50917b81`, came from an incomplete download holding 18,183,421 rows — about 30% of
+the data. The four affected published versions are `1d1666274ab3…` and `67438abce213…` (the
+report and estimate of `default_hazard.fdic_laus_quarterly`) and `eb00e7c49161…` and
+`f781a9557dcb…` (the same pair for `monetary_model.cpi_okun_proxy`). Both attempts were
+re-registered with identical splits, criteria, overrides and loader options and rerun.
+
+| Attempt | Verdict on `50917b81` | Verdict on `ffd7f43a` | Movement |
+| --- | --- | --- | --- |
+| `default_hazard.fdic_laus_quarterly` → `_v2` | pass | **pass** | none: intercept −0.4301 → −0.43009, persistence 0.9382 → 0.93821, unemployment_sensitivity 2.1853 → 2.18535, rate_sensitivity 1.6492 → 1.64919; MAE 0.0289, coverage 0.947, DM 0.020 all reproduce |
+| `monetary_model.cpi_okun_proxy` → `_v2` | fail | **fail** | none: `phi_pi` 0.7517, `rho` 0.9774, MAE 0.1818, coverage 0.692, DM ≈ 1.0 all reproduce |
+
+That both reproduce to the printed precision is the evidence, and the inference from it is
+that the seasonally adjusted LAUS state levels behind the constructed national rate were
+already complete in the interim build: what the missing 70% held was series these two attempts
+never read (QCEW, OEWS, the CES state and metro panel) and one they could not — the national
+CPS series, which was absent entirely.
+Both v2 reports were also read against newer versions of their unpinned inputs
+(`fred_policy_rate@966a0099`, `fred_cpi@34fe03f5`) because only `bls_labor` was pinned, which
+the plan's run notes record; that the numbers still reproduce exactly is independent evidence
+that those rebuilds changed metadata and not values.
+
+**The rebuild also settled the open sign question, and the answer is not the comfortable one.**
+The completed build carries the national CPS unemployment rate (`LNS14000000`, 943 monthly
+observations 1948-2026) that the partial build omitted, so one of the two substitutions behind
+the only passing `default_hazard` attempt could be removed. `default_hazard.fdic_cps_quarterly`
+uses the published national series directly, with the same splits:
+
+| Parameter | LAUS aggregate (v2) | Published CPS (`LNS14000000`) | Declared primary series (DRCCLACBS + UNRATE) |
+| --- | --- | --- | --- |
+| `hazard_intercept` | −0.4301 (0.0466) | −0.4165 (0.0477) | — |
+| `persistence` | 0.9382 (0.0094) | 0.9404 (0.0096) | 1.0038 (0.0219) — **outside [0,1]** |
+| `unemployment_sensitivity` | **+2.1853** (0.2263) | **+2.1176** (0.2318) | **−1.2593** (0.2866) |
+| `rate_sensitivity` | 1.6492 (0.2848) | 1.6366 (0.2876) | 0.2393 (0.3116) |
+| Verdict | pass (6/6) | **pass (6/6)** | fail (parameter bounds) |
+
+The CPS attempt passes every criterion (19 holdout quarters 2021-2025, MAE 0.0290 against
+0.0419 for persistence, DM p = 0.021, coverage 0.947, 0 skipped origins; report
+`a29e4a61e35c…`, artifact `87c11480d3a4…`). **The sign contradiction survives the fix.**
+Unemployment sensitivity is +2.12 with the published national CPS rate and +2.19 with the
+constructed LAUS aggregate, against −1.26 on the declared primary pair — so the disagreement
+was never the unemployment series. What differs is the *left-hand side*: the FDIC aggregate
+noncurrent-loan rate of all bank loans versus FRED's credit-card delinquency rate, over
+different samples (2010-2025 retrospective versus 1991-2025 real-time). The passing attempts
+therefore say "noncurrent loans of FDIC-insured banks rise with unemployment and the policy
+rate", which is economically sensible, and they do **not** validate the declared
+`default_hazard` component, whose own series produce the opposite sign and a unit root. A
+grouped hazard on the FDIC bank panel with the declared credit-card series as a second
+equation is the declared next step; it was not run here.
+
 ## Blocked on data
 
 `python3 -m worldmodel estimation-load` prints this machine-readably. After
-`fred_macro_panel`, thirteen of fifteen components and five of eleven families are loadable;
-what remains blocked is:
+`fred_macro_panel`, the House district returns and the completed `bls_labor`, thirteen of
+fifteen components and six of eleven families are loadable; what remains blocked is:
 
 | Component / family | Missing input | Dataset that must publish it |
 | --- | --- | --- |
 | field_diffusion_transport | per-cell concentrations with a topology (county PM2.5) | epa_aqs_daily |
 | bilateral_flow_gravity | FAF5 OD tonnage and OD distances | freight |
 | trade_model | several consecutive years of bilateral flows (un_comtrade starts 2024-01) | cepii_baci |
-| elections_model | House district returns; district presidential lean | mit_election_returns (manual Dataverse download) |
 | influence_model | a unit-period panel with exposure and outcome | lda_lobbying + fec + voteview_rollcalls (panel not built) |
 | sanctions_model | — | non-estimable by declaration (legal-rule determination) |
 
-No FRED series is outstanding. `bls_labor` is no longer required by any attempt that is not
-superseded.
+No FRED series is outstanding. `elections_model` is no longer blocked: `mit_election_returns`
+published 33,805 U.S. House district rows, the district presidential lean is substituted by a
+lagged normalized House lean (declared in the plan), and the family is scored above. `bls_labor`
+is now required by `regional_model.qcew_state_sectors` and by the two `default_hazard` variants
+that use a national unemployment rate.
 
 ## Declared but not run
 
@@ -618,8 +926,15 @@ superseded.
    which is the publisher's own adjustment term, not a pipeline error.
 4. **Three sub-annual EIA series start in 2022 by default**, but the eight priority PET series
    keep their full history, which is what made the energy attempts possible.
-5. **`mit_election_returns` has no House district returns** (president and senate statewide
-   only), so the elections family cannot be scored.
+5. **[FIXED 2026-09-16] `mit_election_returns` had no House district returns.** It now
+   publishes 33,805 U.S. House district rows (1976-2024) and 94,151 county presidential rows
+   (2000-2024). Three wrinkles the loader has to handle and the doc should name: `party_simplified`
+   is populated only for statewide rows, so Democratic and Republican House votes must be matched
+   on the raw `dimensions.party` string; the House file's own `runoff` flag is dropped by the
+   dataset pipeline, so House runoffs are not derivable from the published records; and fusion
+   party lines (New York, Connecticut) are published on their own party rows, so a two-party share
+   built from DEMOCRAT and REPUBLICAN rows alone understates the endorsed major-party candidate
+   there.
 6. **No contiguity/neighbour graph is published** (CShapes), so the conflict Hawkes fit runs
    without neighbour excitation.
 7. **`bls_labor` was being rebuilt on a larger artifact while this ran.** Every attempt that used
@@ -627,6 +942,27 @@ superseded.
    a fred_macro_panel attempt, and both are pinned to `bls_labor@50917b81`, so the rebuild does not
    invalidate anything recorded here. If the rebuild adds the national CPS series, the LAUS
    construction stops being necessary.
+9. **[FIXED 2026-09-16] `bls_labor@50917b81` was an incomplete download** holding 18.2M of
+   60.9M rows and omitting every national CPS series. The completed build `ffd7f43a2761` carries
+   `LNS14000000` (1948-2026) and the QCEW annual singlefiles (1990-2025, state x NAICS sector by
+   ownership). Reruns of the two attempts that used the interim version reproduce their results
+   exactly, so no recorded verdict moved.
+10. **QCEW labels each year with the NAICS revision then in force** (`naics2002` … `naics2022`),
+   so a panel keyed on the published industry string splits every sector into five unrelated
+   industries and zeroes the base-year shares. The regional loader compares two-digit sector codes
+   across revisions and records the namespaces it saw. QCEW monthly rows from the quarterly
+   singlefiles carry the same aggregation level as the annual averages, so `period_type` must be
+   filtered or every year is counted thirteen times.
+11. **`fred_macro_panel` does not publish A229RX0** (real disposable personal income per capita),
+   which the elections family declares. `DSPIC96` (total real disposable personal income, with
+   ALFRED vintages from 1979-12 and per-vintage base periods) is the declared substitute.
+12. **FEC `weball` cycle receipts can be negative** when a candidate's refunds exceed receipts,
+   and a party total in a district-cycle can inherit that (5 of 5,476). Money raised is not
+   negative, so the elections loader clamps and counts them.
+13. **FEC candidate receipts are cycle totals whose coverage ends after election day**, and the
+   candidate master flags more than 435 House incumbents per cycle in recent years (primary losers
+   and redistricting duplicates). The loader treats a district-cycle as open or ambiguous unless
+   exactly one party has an incumbent.
 8. **UCDP monthly counts are floats in the records** (`"value": 7.0`) while the conflict family
    requires integer counts; the loader casts them.
 
@@ -641,5 +977,16 @@ superseded.
 - Acceptance criteria are the component and family defaults from `requirements.json`. No
   attempt weakened a threshold to obtain a pass.
 - A correction that prevented an attempt from producing any result at all (a date format, an
-  integer cast) is recorded in the plan and here. A change made after seeing a test result
-  would have to be a new pre-registered attempt with the failed one kept; none was made.
+  integer cast, a negative receipts total the family refuses) is recorded in the plan and here.
+  A change made after seeing a test result has to be a new pre-registered attempt with the failed
+  one kept; the fifth wave is exactly that, and every superseded attempt is still listed above
+  with its original numbers.
+- The predictive distribution is part of the pre-registration. Each fifth-wave attempt states
+  the diagnosis it rests on and the interval method it declares *before* the holdout is scored,
+  and every method is estimated from information available at the forecast origin. Where a
+  method was chosen among several, the evidence used was the training window (for
+  `inventory_balance`, the in-training coverage of each candidate method) or the publication
+  process (for `credit_growth`, the annual G.19 benchmark), never holdout coverage.
+- Coverage is an average. Where forecasts share a common shock — 51 states in one year, 141
+  months spanning a dozen revision episodes — the effective number of independent observations
+  is far smaller than the count, and the record says so rather than quoting the count.

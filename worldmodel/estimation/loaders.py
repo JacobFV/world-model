@@ -661,8 +661,76 @@ def _is_sector(code):
     return len(parts) <= 2 and all(len(part) == 2 and part.isdigit() for part in parts)
 
 
-def regional_data(store, *, program='cbp', level='state', start_year=None, end_year=None, versions=None):
-    """County Business Patterns employment by state and NAICS sector as the ``regional`` mapping."""
+#: QCEW aggregation level 54 is "state, by NAICS sector", one row per state x sector x ownership.
+QCEW_SECTOR_AGGLVL = '54'
+
+
+def _qcew_regional_data(store, *, level, start_year, end_year, versions, ownership, agglvl_code):
+    """QCEW annual average employment by state and NAICS sector from ``bls_labor``.
+
+    The annual-average rows of the QCEW singlefiles cover 1990 onward, which is the
+    longer panel the CBP attempt named as its fix: three usable growth years there
+    made the between-year component of the predictive spread unestimable. Monthly rows
+    from the quarterly files carry the same aggregation level, so ``period_type`` must be
+    ``annual_average`` or every year is counted thirteen times.
+    """
+    if level != 'state':
+        raise ValueError('The QCEW regional loader is declared at state level only')
+    ref = catalog_ref(store, 'bls_labor', DEFAULT_STAGE, (versions or {}).get('bls_labor'))
+    evidence = Evidence()
+    rows, namespaces = {}, set()
+    for record in stream_records(store, ref, needles=(f'"agglvl_code":"{agglvl_code}"',)):
+        if record.get('kind') != 'observation' or record.get('metric') != 'employment' or record.get('value') is None:
+            continue
+        dimensions = record.get('dimensions') or {}
+        if dimensions.get('survey') != 'QCEW' or dimensions.get('agglvl_code') != agglvl_code:
+            continue
+        if dimensions.get('ownership') != ownership or dimensions.get('period_type') != 'annual_average':
+            continue
+        if dimensions.get('frequency') != 'annual':
+            continue
+        region, published = str(dimensions.get('geography') or ''), str(dimensions.get('industry') or '')
+        if not region.startswith('geo:US:state:') or region.count(':') != 3 or not published.startswith('naics'):
+            continue
+        code = published.split(':')[-1]
+        if not _is_sector(code):
+            continue
+        # QCEW labels each year with the NAICS revision in force (naics2002, 2007, 2012, 2017, 2022).
+        # Two-digit sectors are comparable across those revisions, so the panel uses the bare sector
+        # code; keeping the published namespace would split every sector into five unrelated industries
+        # and make the base-year shares zero for every later year.
+        industry = f'naics_sector:{code}'
+        namespaces.add(published.split(':')[0])
+        year = int(str(record['valid_from'])[:4])
+        if (start_year is not None and year < start_year) or (end_year is not None and year > end_year):
+            continue
+        key = (region, industry, year)
+        if key in rows:      # one annual average per state-sector-year; a duplicate means the filter is wrong
+            raise MissingData(f'QCEW published two annual averages for {key}; refine the declared selection')
+        rows[key] = {'employment': float(record['value']), 'id': record.get('id')}
+    employment = []
+    for (region, industry, year), item in sorted(rows.items(), key=str):
+        employment.append({'region': region, 'industry': industry, 'year': year, 'date': f'{year}-12-31',
+                           'employment': item['employment']})
+        evidence.add(ref, item['id'], 'employment')
+    if len(employment) < 500:
+        raise MissingData(f'Only {len(employment)} QCEW state-sector-year rows matched the declared selection')
+    data = {'employment': employment, 'design': f'shift_share_correlational_qcew_state_naics2_{ownership}',
+            'information_time': 'valid_time', 'revisions': 'minor',
+            'construction': {'rows': len(employment), 'years': sorted({r['year'] for r in employment}),
+                             'regions': len({r['region'] for r in employment}),
+                             'industries': len({r['industry'] for r in employment}),
+                             'ownership': ownership, 'agglvl_code': agglvl_code,
+                             'published_naics_namespaces': sorted(namespaces)}}
+    return data, evidence.reference()
+
+
+def regional_data(store, *, program='cbp', level='state', start_year=None, end_year=None, versions=None,
+                  ownership='private', agglvl_code=QCEW_SECTOR_AGGLVL):
+    """Employment by state and NAICS sector as the ``regional`` mapping (CBP or QCEW)."""
+    if program == 'qcew':
+        return _qcew_regional_data(store, level=level, start_year=start_year, end_year=end_year, versions=versions,
+                                   ownership=ownership, agglvl_code=agglvl_code)
     ref = catalog_ref(store, 'census_business', DEFAULT_STAGE, (versions or {}).get('census_business'))
     evidence = Evidence()
     rows = {}
@@ -733,6 +801,33 @@ def national_unemployment_rate(store, *, start=None, end=None, versions=None):
     return ref, out
 
 
+def national_cps_unemployment_rate(store, *, start=None, end=None, versions=None, series_id='LNS14000000'):
+    """The published national CPS unemployment rate (BLS ``LNS14000000``) from ``bls_labor``.
+
+    The earlier partial ``bls_labor`` build omitted every national CPS series, which is
+    why :func:`national_unemployment_rate` had to aggregate the 51 LAUS state series. The
+    completed build carries ``LNS14000000`` (1948 onward), so the declared series is
+    available directly. It is still a current-vintage download with no ALFRED history, so
+    the attempt using it runs under the retrospective policy.
+    """
+    ref = catalog_ref(store, 'bls_labor', DEFAULT_STAGE, (versions or {}).get('bls_labor'))
+    out = {}
+    for record in stream_records(store, ref, needles=(f'"series_id":"{series_id}"',)):
+        if record.get('kind') != 'observation' or record.get('metric') != 'unemployment_rate' or record.get('value') is None:
+            continue
+        dimensions = record.get('dimensions') or {}
+        if dimensions.get('series_id') != series_id or record.get('subject') != 'geo:US':
+            continue
+        if dimensions.get('seasonal_adjustment') != 'SA' or dimensions.get('frequency') != 'monthly':
+            continue
+        month = str(record['valid_from'])[:7]
+        if (start is not None and month < start) or (end is not None and month > end):
+            continue
+        out[month] = {'value': float(record['value']), 'ids': [record.get('id')],
+                      'digest': digest([record.get('id')]), 'areas': 1, 'series_id': series_id}
+    return ref, out
+
+
 def fdic_noncurrent_loan_rate(store, *, start=None, end=None, versions=None):
     """Aggregate noncurrent-loan rate of FDIC-insured banks: 100 * sum(noncurrent) / sum(net loans)."""
     ref = catalog_ref(store, 'fdic_bank_financials', DEFAULT_STAGE, (versions or {}).get('fdic_bank_financials'))
@@ -773,7 +868,11 @@ def _derived_record(requirement, subject, valid_from, valid_to, value, ref, *, s
             'attributes': attributes, 'dimensions': {}, '_input': dict(ref)}
 
 
-def default_hazard_data(store, *, start='2010-01-01', end=None, versions=None, overrides=None, estimator=None):
+UNEMPLOYMENT_SOURCES = ('laus_state_aggregate', 'cps_national')
+
+
+def default_hazard_data(store, *, start='2010-01-01', end=None, versions=None, overrides=None, estimator=None,
+                        unemployment_source='laus_state_aggregate'):
     """``default_hazard`` on the FDIC aggregate noncurrent-loan rate, a constructed national
     unemployment rate and the effective federal funds rate.
 
@@ -796,14 +895,20 @@ def default_hazard_data(store, *, start='2010-01-01', end=None, versions=None, o
                                        extra={'banks': item['banks']}))
         evidence.add(fdic_ref, records[-1]['id'], 'delinquency_rate')
         evidence.record_ids.extend(i for i in item['ids'] if i)
-    bls_ref, unemployment = national_unemployment_rate(store, start=str(start)[:7], end=None if end is None else str(end)[:7],
-                                                       versions=versions)
+    if unemployment_source not in UNEMPLOYMENT_SOURCES:
+        raise ValueError(f'unemployment_source must be one of {list(UNEMPLOYMENT_SOURCES)}')
+    window = dict(start=str(start)[:7], end=None if end is None else str(end)[:7], versions=versions)
+    if unemployment_source == 'cps_national':
+        bls_ref, unemployment = national_cps_unemployment_rate(store, **window)
+        construction = 'BLS CPS LNS14000000 national unemployment rate as published (no aggregation)'
+    else:
+        bls_ref, unemployment = national_unemployment_rate(store, **window)
+        construction = '100 * sum(unemployed) / sum(labor_force) over LAUS seasonally adjusted states'
     requirement = requirements['unemployment_rate']
     for month, item in sorted(unemployment.items()):
         first = date(int(month[:4]), int(month[5:7]), 1)
         records.append(_derived_record(requirement, 'geo:US', first.isoformat(), period_end_day(first).isoformat(),
-                                       item['value'], bls_ref,
-                                       source='100 * sum(unemployed) / sum(labor_force) over LAUS seasonally adjusted states',
+                                       item['value'], bls_ref, source=construction,
                                        components={'count': len(item['ids']), 'digest': item['digest']},
                                        extra={'areas': item['areas']}))
         evidence.add(bls_ref, records[-1]['id'], 'unemployment_rate')
@@ -838,14 +943,18 @@ def _first_published(records_by_period):
     return {period: sorted(items) for period, items in records_by_period.items()}
 
 
-def _vintage_series(store, dataset, metric, *, subject='geo:US', versions=None, start=None, end=None, with_base=False):
+def _vintage_series(store, dataset, metric, *, subject='geo:US', versions=None, start=None, end=None, with_base=False,
+                    series_id=None):
     """ALFRED-style vintages: ``{period: [(realtime_start, value, record_id[, base_period]), ...]}``."""
     ref = catalog_ref(store, dataset, DEFAULT_STAGE, (versions or {}).get(dataset))
     periods = {}
-    for record in stream_records(store, ref, needles=(f'"metric":"{metric}"',)):
+    needles = (f'"series_id":"{series_id}"',) if series_id else (f'"metric":"{metric}"',)
+    for record in stream_records(store, ref, needles=needles):
         if record.get('kind') != 'observation' or record.get('metric') != metric or record.get('value') is None:
             continue
         if subject is not None and record.get('subject') != subject:
+            continue
+        if series_id is not None and (record.get('dimensions') or {}).get('series_id') != series_id:
             continue
         attributes = record.get('attributes') or {}
         vintage = str(attributes.get('realtime_start') or (record.get('dimensions') or {}).get('vintage') or record.get('observed_at'))[:10]
@@ -1040,8 +1149,240 @@ def monetary_realtime_data(store, *, start='1995-01-01', end='2024-10-01', infla
     return data, evidence.reference()
 
 
+# ----------------------------------------------------------------------------- elections
+
+#: Democratic (+1) or Republican (-1) president in office on each House election day.
+#: A public constitutional fact, not fitted data; kept here so the regressor is auditable.
+PRESIDENT_PARTY = {1976: -1, 1978: 1, 1980: 1, 1982: -1, 1984: -1, 1986: -1, 1988: -1, 1990: -1, 1992: -1,
+                   1994: 1, 1996: 1, 1998: 1, 2000: 1, 2002: -1, 2004: -1, 2006: -1, 2008: -1, 2010: 1,
+                   2012: 1, 2014: 1, 2016: 1, 2018: -1, 2020: -1, 2022: 1, 2024: 1}
+MEDSL_PARTY = {'DEMOCRAT': 'dem', 'REPUBLICAN': 'rep'}
+#: FEC ``CAND_PTY_AFFILIATION`` codes that are the two major parties (DFL is Minnesota's Democrats).
+FEC_PARTY = {'DEM': 'dem', 'DFL': 'dem', 'REP': 'rep', 'Rep': 'rep'}
+
+
+def _house_returns(store, *, start_year, end_year, versions, evidence):
+    """Per district-cycle two-party House votes from MIT MEDSL general-election returns."""
+    ref = catalog_ref(store, 'mit_election_returns', DEFAULT_STAGE, (versions or {}).get('mit_election_returns'))
+    races = {}
+    for record in stream_records(store, ref, needles=('"office":"US HOUSE"',)):
+        dimensions = record.get('dimensions') or {}
+        if record.get('kind') != 'observation' or dimensions.get('office') != 'US HOUSE':
+            continue
+        if dimensions.get('stage') != 'gen' or dimensions.get('special'):
+            continue
+        year = dimensions.get('election_year')
+        district = dimensions.get('district')
+        state = (record.get('attributes') or {}).get('state_po')
+        if year is None or district is None or state is None or record.get('value') is None:
+            continue
+        year = int(year)
+        if not start_year <= year <= end_year:
+            continue
+        key = (f'{state}-{int(district):02d}', year)
+        item = races.setdefault(key, {'dem': 0.0, 'rep': 0.0, 'total': None, 'date': None, 'other': 0.0})
+        item['date'] = item['date'] or str(record['valid_from'])[:10]
+        if record.get('metric') == 'total_votes_cast':
+            item['total'] = float(record['value'])
+        elif record.get('metric') == 'votes_received' and not dimensions.get('writein'):
+            side = MEDSL_PARTY.get(dimensions.get('party'))
+            item[side if side else 'other'] += float(record['value'])
+        else:
+            continue
+        evidence.add(ref, record.get('id'), 'house_returns')
+    return ref, races
+
+
+def _house_fundamentals(store, *, cycles, versions, evidence):
+    """FEC incumbency status and cycle receipts per district-cycle and party."""
+    candidates = catalog_ref(store, 'fec_candidates', DEFAULT_STAGE, (versions or {}).get('fec_candidates'))
+    seats, by_candidate = {}, {}
+    for record in stream_records(store, candidates, needles=('"fec_candidacy"',)):
+        if record.get('predicate') != 'fec_candidacy':
+            continue
+        value = record.get('value') or {}
+        if value.get('office') != 'US House' or value.get('cycle') not in cycles:
+            continue
+        state, district = value.get('office_state'), value.get('district')
+        side = FEC_PARTY.get(value.get('party'))
+        if not state or district is None or side is None:
+            continue
+        try:
+            key = (f'{state}-{int(district):02d}', int(value['cycle']))
+        except (TypeError, ValueError):
+            continue
+        item = seats.setdefault(key, {'incumbent': set(), 'dem': 0.0, 'rep': 0.0, 'candidates': 0})
+        item['candidates'] += 1
+        if value.get('incumbent_challenger') == 'incumbent':
+            item['incumbent'].add(side)
+        by_candidate[(record['subject'], key[1])] = (key, side)
+        evidence.add(candidates, record.get('id'), 'candidacy')
+    finance = catalog_ref(store, 'fec', DEFAULT_STAGE, (versions or {}).get('fec'))
+    coverage = {}
+    for record in stream_records(store, finance, needles=('"metric":"total_receipts"',)):
+        if record.get('kind') != 'observation' or record.get('metric') != 'total_receipts' or record.get('value') is None:
+            continue
+        dimensions = record.get('dimensions') or {}
+        if dimensions.get('report_basis') != 'fec_weball_candidate_summary':
+            continue
+        target = by_candidate.get((record.get('subject'), dimensions.get('cycle')))
+        if target is None:
+            continue
+        key, side = target
+        seats[key][side] += float(record['value'])
+        end = str(dimensions.get('coverage_end_date') or '')[:10]
+        if end:
+            coverage.setdefault(key[1], []).append(end)
+        evidence.add(finance, record.get('id'), 'receipts')
+    return seats, {cycle: max(ends) for cycle, ends in coverage.items()}
+
+
+def _economy_growth(store, *, dates, series, metric, months, versions, evidence):
+    """Point-in-time national real income growth as published on each election day.
+
+    For every election date the latest vintage of each month available *on that date*
+    is taken, and growth is measured over ``months`` inside one base period, so no
+    later revision and no rebasing enters the regressor.
+    """
+    ref, vintages = _vintage_series(store, 'fred_macro_panel', metric, versions=versions, with_base=True,
+                                    series_id=series)
+    out = {}
+    for date_text in sorted(dates):
+        snapshot = {}
+        for period, items in vintages.items():
+            usable = [item for item in items if item[0] <= date_text]
+            if usable:
+                snapshot[period] = usable[-1]
+        if not snapshot:
+            continue
+        latest = max(snapshot)
+        earlier = f'{int(latest[:4]) - months // 12}-{latest[5:]}'
+        current, base = snapshot.get(latest), snapshot.get(earlier)
+        if current is None or base is None or base[1] <= 0 or current[3] != base[3]:
+            continue
+        out[date_text] = {'econ': 100.0 * (current[1] / base[1] - 1.0), 'as_of': date_text,
+                          'latest_month': latest, 'base_month': earlier, 'base_period': current[3],
+                          'vintage': current[0]}
+        evidence.add(ref, current[2], 'economy')
+        evidence.add(ref, base[2], 'economy_base')
+    return ref, out
+
+
+def elections_data(store, *, start_year=2000, end_year=2024, lean_lookback=3, economy_series='DSPIC96',
+                   economy_metric='real_disposable_personal_income', economy_months=12, versions=None):
+    """U.S. House district races as the ``elections`` family mapping.
+
+    One row per district-cycle general election (no specials, no primaries):
+
+    * ``dem_share`` — two-party Democratic share of the DEMOCRAT- and
+      REPUBLICAN-labelled votes. Fusion-party lines (New York, Connecticut) are not
+      credited to the major party they endorse, which is how MEDSL publishes them.
+    * ``uncontested`` — ``'D'``/``'R'`` when only one major party received votes.
+      The family excludes these from estimation and counts them as safe seats.
+    * ``pvi`` — the district's partisan lean: its two-party Democratic share in the
+      most recent *contested* cycle within ``lean_lookback`` cycles, minus the
+      national two-party Democratic House share in that same cycle. This substitutes
+      for the family's declared ``district_presidential_lean`` requirement, which no
+      published dataset in this catalog provides (presidential returns are county and
+      statewide; counties do not nest inside congressional districts).
+    * ``incumbent`` — +1 when the FEC candidate master lists a Democratic incumbent
+      and no Republican incumbent for the seat, -1 in the mirror case, 0 for an open
+      seat or an ambiguous one (both parties flagged, which happens after
+      redistricting).
+    * ``dem_receipts`` / ``rep_receipts`` — FEC cycle-to-date total receipts summed
+      over that party's candidates. These are *cycle* totals whose coverage ends after
+      election day, which is why the family declares receipts a conditional input: the
+      holdout tests the mechanism given realized fundraising, not the ability to
+      forecast fundraising.
+    * ``econ`` — national real disposable personal income growth over
+      ``economy_months`` months, read from the vintage available **on election day**
+      with both endpoints on one base period.
+    * ``president_party``, ``midterm`` — the declared national regressors.
+
+    Only cycles with every input are kept, so the window is bounded by FEC receipts
+    (2000 onward) rather than by the returns (1976 onward).
+    """
+    evidence = Evidence()
+    # Returns are read back far enough to build every row's partisan lean from earlier cycles.
+    returns_ref, races = _house_returns(store, start_year=start_year - 2 * lean_lookback, end_year=end_year,
+                                        versions=versions, evidence=evidence)
+    if not races:
+        raise MissingData('No MEDSL U.S. House general-election district returns matched the declared window')
+    shares, national = {}, {}
+    for (district, year), item in races.items():
+        dem, rep = item['dem'], item['rep']
+        total = national.setdefault(year, {'dem': 0.0, 'rep': 0.0})
+        total['dem'] += dem
+        total['rep'] += rep
+        if dem + rep > 0:
+            shares[(district, year)] = {'share': dem / (dem + rep), 'contested': dem > 0 and rep > 0,
+                                        'date': item['date'], 'votes': dem + rep, 'total': item['total']}
+    national = {year: total['dem'] / (total['dem'] + total['rep']) for year, total in national.items()
+                if total['dem'] + total['rep'] > 0}
+    cycles = sorted({year for _, year in shares if year >= start_year})
+    seats, receipt_coverage = _house_fundamentals(store, cycles=set(cycles), versions=versions, evidence=evidence)
+    dates = {item['date'] for (_, year), item in shares.items() if item['date'] and year >= start_year}
+    economy_ref, economy = _economy_growth(store, dates=dates, series=economy_series, metric=economy_metric,
+                                           months=economy_months, versions=versions, evidence=evidence)
+    rows, skipped = [], {'no_lean': 0, 'no_economy': 0, 'no_fec_cycle': 0}
+    clamped = {'negative_party_receipts': 0}
+    for (district, year), item in sorted(shares.items()):
+        if year < start_year:
+            continue
+        date_text = item['date']
+        if date_text not in economy:
+            skipped['no_economy'] += 1
+            continue
+        lean = None
+        for back in range(1, lean_lookback + 1):
+            earlier = shares.get((district, year - 2 * back))
+            if earlier is not None and earlier['contested'] and (year - 2 * back) in national:
+                lean = earlier['share'] - national[year - 2 * back]
+                break
+        if lean is None:
+            skipped['no_lean'] += 1
+            continue
+        seat = seats.get((district, year))
+        if seat is None:
+            skipped['no_fec_cycle'] += 1
+            continue
+        incumbent = 0
+        if seat['incumbent'] == {'dem'}:
+            incumbent = 1
+        elif seat['incumbent'] == {'rep'}:
+            incumbent = -1
+        # A weball cycle total can be negative when a candidate's refunds and adjustments exceed
+        # receipts, and a party total can inherit that. Money raised is not negative, and the family
+        # requires a nonnegative amount, so such a total is clamped to zero and counted.
+        receipts = {side: max(0.0, seat[side]) for side in ('dem', 'rep')}
+        clamped['negative_party_receipts'] += sum(seat[side] < 0 for side in ('dem', 'rep'))
+        row = {'district': district, 'cycle': year, 'date': date_text, 'pvi': lean, 'incumbent': incumbent,
+               'dem_receipts': receipts['dem'], 'rep_receipts': receipts['rep'], 'econ': economy[date_text]['econ'],
+               'president_party': PRESIDENT_PARTY[year], 'midterm': 0 if year % 4 == 0 else 1,
+               'total_votes': item['total'], 'two_party_votes': item['votes']}
+        if item['contested']:
+            row['dem_share'] = item['share']
+        else:
+            row['uncontested'] = 'D' if item['share'] > 0.5 else 'R'
+            row['dem_share'] = item['share']
+        rows.append(row)
+    if len(rows) < 100:
+        raise MissingData(f'Only {len(rows)} district-cycle rows could be built (skipped {skipped})')
+    data = {'races': rows, 'information_time': 'valid_time', 'revisions': 'none',
+            'design': 'predictive_association_house_district_two_party_share',
+            'national_two_party_share': {str(year): value for year, value in sorted(national.items())},
+            'economy': {'series': economy_series, 'metric': economy_metric, 'months': economy_months,
+                        'as_published_on_election_day': {date: economy[date] for date in sorted(economy)}},
+            'receipt_coverage_end_by_cycle': {str(cycle): end for cycle, end in sorted(receipt_coverage.items())},
+            'construction': {'rows': len(rows), 'skipped': skipped, 'clamped': clamped,
+                             'cycles': sorted({r['cycle'] for r in rows}),
+                             'contested': sum('uncontested' not in r for r in rows),
+                             'lean_lookback_cycles': lean_lookback}}
+    return data, evidence.reference()
+
+
 FAMILY_LOADERS = {'conflict': conflict_data, 'assets': assets_data, 'commodities': commodities_data, 'regional': regional_data,
-                  'monetary': monetary_data}
+                  'monetary': monetary_data, 'elections': elections_data}
 
 BLOCKED_FAMILIES = {
     'trade': Blocked('The next-year bilateral-flow holdout needs several consecutive years of bilateral flows; un_comtrade '
@@ -1049,11 +1390,6 @@ BLOCKED_FAMILIES = {
                      missing=(('annual bilateral flows', 'cepii_baci'),),
                      available=(('monthly flows 2024+', 'un_comtrade'), ('distance, contiguity', 'cepii_gravity'),
                                 ('tariffs', 'wits_trains_tariffs'))),
-    'elections': Blocked('District-level House returns are the holdout target; mit_election_returns currently publishes only '
-                         'statewide president and senate returns (the House file needs a manual Dataverse download).',
-                         missing=(('House district returns 1976-2024', 'mit_election_returns'),
-                                  ('district presidential lean', 'mit_election_returns')),
-                         available=(('candidate receipts', 'fec, fec_candidates'),)),
     'influence': Blocked('No unit-period panel with an exposure measure and an outcome is published: LDA filings and FEC '
                          'flows are normalized, but the client/registrant-to-legislator attribution panel that the family '
                          'fit contract needs is not built, and no published crosswalk links LDA clients to FEC committees.',
@@ -1116,7 +1452,7 @@ LOADER_FUNCTIONS.update({'observation_set': observation_set, 'cash_balance_data'
                          'default_hazard_data': default_hazard_data, 'conflict_data': conflict_data,
                          'assets_data': assets_data, 'commodities_data': commodities_data,
                          'regional_data': regional_data, 'monetary_data': monetary_data,
-                         'monetary_realtime_data': monetary_realtime_data})
+                         'monetary_realtime_data': monetary_realtime_data, 'elections_data': elections_data})
 
 
 def availability():

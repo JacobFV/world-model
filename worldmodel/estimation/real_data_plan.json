@@ -28,7 +28,9 @@
         "refit_every": 1,
         "horizon": 1
       },
-      "rationale": "Weekly crude balance covers 1991-02 onward (exports are the binding start). Train ends 2015, validation 2016-2019, holdout 2020-2024. EIA bulk records carry only an acquisition timestamp, so the retrospective policy with the declared 5-day publication lag is the only admissible one; the component already allows the 'minor' revision class."
+      "rationale": "Weekly crude balance covers 1991-02 onward (exports are the binding start). Train ends 2015, validation 2016-2019, holdout 2020-2024. EIA bulk records carry only an acquisition timestamp, so the retrospective policy with the declared 5-day publication lag is the only admissible one; the component already allows the 'minor' revision class.",
+      "superseded_by": "inventory_balance.eia_weekly_v2",
+      "superseded_reason": "Retained with its verdict. Its inputs and its Gaussian in-sample interval are unchanged and its numbers reproduce exactly; v2 changes only the declared predictive distribution."
     },
     {
       "id": "demand_price_elasticity.eia_monthly",
@@ -226,7 +228,9 @@
         "refit_every": 1,
         "horizon": 1
       },
-      "rationale": "CBP state-by-sector employment is published for 2019-2023 only. Base-year shares are 2019, the validation target is 2022 and the holdout target is 2023 (51 state forecasts). QCEW (bls_labor) would give a longer panel."
+      "rationale": "CBP state-by-sector employment is published for 2019-2023 only. Base-year shares are 2019, the validation target is 2022 and the holdout target is 2023 (51 state forecasts). QCEW (bls_labor) would give a longer panel.",
+      "superseded_by": "regional_model.cbp_state_sectors_v2",
+      "superseded_reason": "Retained with its verdict. v2 changes only the declared predictive spread (per-unit instead of pooled)."
     },
     {
       "id": "default_hazard.fdic_laus_quarterly",
@@ -262,8 +266,8 @@
       },
       "rationale": "The unemployment input was the blocker; LAUS state levels now make a national rate constructible, and the FDIC aggregate noncurrent-loan rate stands in for the unpublished credit-card delinquency series. FDIC call reports and LAUS carry no vintages, so the policy is retrospective with the declared 50-day publication lag; the component already allows the 'minor' revision class. Both substitutions are overrides recorded here and visible in the estimate's data audit. Train 2010Q1-2017Q4, validation 2018-2020, holdout 2021-2025.",
       "expected_limits": "The noncurrent-loan rate of all bank loans is a different object from a credit-card delinquency rate; a pass would say the hazard mechanism tracks aggregate loan distress, not consumer default.",
-      "superseded_by": "default_hazard.fred_primary_realtime",
-      "superseded_reason": "DRCCLACBS and UNRATE are now published with ALFRED vintages, so the primary series can be used under the strict real-time policy. This attempt and its pass are kept as the record of what the substituted series produced."
+      "superseded_by": "default_hazard.fred_primary_realtime; default_hazard.fdic_laus_quarterly_v2",
+      "superseded_reason": "DRCCLACBS and UNRATE are now published with ALFRED vintages, so the primary series can be used under the strict real-time policy. This attempt and its pass are kept as the record of what the substituted series produced. Already superseded by default_hazard.fred_primary_realtime for using substitute series; ALSO superseded on data version, because bls_labor@50917b81 was an incomplete download holding about 30% of the rows."
     },
     {
       "id": "monetary_model.cpi_okun_proxy",
@@ -292,8 +296,8 @@
       },
       "rationale": "fred_cpi now carries full ALFRED vintages, so inflation is read point-in-time: month t uses its first release and the base month t-12 uses the latest vintage available at that release. The policy rate is the monthly mean of first-published DFF. The output gap is the declared blocker: GDPC1 and GDPPOT are unpublished, so the attempt uses an Okun proxy, -2 * (u - u*), with u the constructed LAUS national rate and u* its trailing 120-month mean computed only from earlier months. Train 1990-2007, validation 2008-2014, holdout 2015-2024.",
       "expected_limits": "The gap is a proxy, not the declared GDPC1/GDPPOT gap, and the LAUS unemployment input carries no vintages, so the row set is declared valid_time with major revisions and no_revision_leakage is expected to fail. When fred_macro_panel publishes GDPC1/GDPPOT/UNRATE vintages this attempt should be superseded by a real-time-clean one.",
-      "superseded_by": "monetary_model.fred_realtime_quarterly",
-      "superseded_reason": "GDPC1 and GDPPOT are now published, so the declared output gap replaces the Okun proxy."
+      "superseded_by": "monetary_model.fred_realtime_quarterly; monetary_model.cpi_okun_proxy_v2",
+      "superseded_reason": "GDPC1 and GDPPOT are now published, so the declared output gap replaces the Okun proxy. Already superseded by monetary_model.fred_realtime_quarterly for using an Okun proxy; ALSO superseded on data version (incomplete bls_labor@50917b81)."
     },
     {
       "id": "interest_pass_through.fred_realtime",
@@ -534,7 +538,9 @@
         "cutoff": "2024-12-31"
       },
       "rationale": "Same splits as v1; the only change is the corrected TOTALSL values.",
-      "supersedes": "credit_growth.fred_realtime"
+      "supersedes": "credit_growth.fred_realtime",
+      "superseded_by": "credit_growth.fred_realtime_v3",
+      "superseded_reason": "Retained with its verdict. v3 adds the declared data-revision variance component; nothing else changes."
     },
     {
       "id": "labor_demand.fred_realtime_v2",
@@ -603,6 +609,280 @@
       },
       "rationale": "Same splits as v1. The output gap is now 100*(GDPC1/GDPPOT - 1) with both levels taken from the newest base on which both series had published by the target quarter's first release, and inflation uses one CPI base for both endpoints, so the trailing-mean workaround is gone and the gap is a true level (range -10.8% in 2020Q2 to +4.0%, against -9.7..+9.0 under the workaround and +22.5 before it).",
       "supersedes": "monetary_model.fred_realtime_quarterly"
+    },
+    {
+      "id": "inventory_balance.eia_weekly_v2",
+      "kind": "component",
+      "target": "inventory_balance",
+      "process_id": "resource_inventory",
+      "loader": {
+        "function": "observation_set"
+      },
+      "estimator_options": {
+        "interval_method": "empirical_trailing",
+        "interval_window": 52,
+        "interval_nodes": 40,
+        "interval_parameter_uncertainty": true
+      },
+      "data": "eia_energy@f5cd9308 (PET weekly WCESTUS1, WCRFPUS2, WCRIMUS2, WCREXUS2, WCRRIUS2; subject iso3:USA)",
+      "protocol": {
+        "train_end": "2015-12-31",
+        "validation_end": "2019-12-31",
+        "cutoff": "2024-12-31",
+        "vintage_policy": "retrospective",
+        "window": "expanding",
+        "refit_every": 1,
+        "horizon": 1
+      },
+      "diagnosis": "v1 failed interval_coverage alone (0.640 against 0.80 +/- 0.15) while beating persistence at p = 0.00093. The failure is a static predictive scale against strongly time-varying error volatility, not a too-narrow scale everywhere: over the holdout the mean predictive sd moves only 3,121 -> 3,380 while the realized one-step RMSE moves 4,473 (2020), 3,082 (2021), 6,113 (2022), 5,838 (2023), 3,243 (2024), and yearly coverage is 0.60/0.83/0.42/0.54/0.82. Within the training window the same expanding in-sample Gaussian scale OVER-covers (0.894-0.908 against 0.80) because 1991-1995 residuals (sd 4,563) inflate it relative to 2006-2010 (sd 1,562). Standardized holdout errors also have kurtosis 4.3 and are left-skewed (10% quantile -2.28, 90% +1.09).",
+      "interval_method": "empirical_trailing, window 52 weeks, 40 quantile nodes, plus coefficient uncertainty x'Vx. The scale is the root mean square of the last 52 one-step residuals (one year, the petroleum stock cycle), and the shape is the empirical quantiles of residuals standardized by their own trailing scale, so tails and asymmetry are taken from the data rather than assumed. Chosen on training-window evidence only: over 1991-2019 the trailing Gaussian attains 0.789-0.796 coverage and the trailing empirical 0.797-0.808 at a nominal 0.80, against 0.894-0.908 for the expanding in-sample Gaussian.",
+      "rationale": "Identical data, splits, vintage policy and acceptance criteria to inventory_balance.eia_weekly; the predictive distribution is the only change, so the two attempts are directly comparable.",
+      "supersedes": "inventory_balance.eia_weekly"
+    },
+    {
+      "id": "credit_growth.fred_realtime_v3",
+      "kind": "component",
+      "target": "credit_growth",
+      "process_id": "coupled_economy",
+      "loader": {
+        "function": "observation_set"
+      },
+      "estimator_options": {
+        "interval_revision": {
+          "window": 60,
+          "maturity": 12
+        }
+      },
+      "data": "fred_macro_panel@7dcce89c (TOTALSL), monthly",
+      "protocol": {
+        "vintage_policy": "strict",
+        "window": "expanding",
+        "refit_every": 1,
+        "horizon": 1,
+        "train_end": "2004-12-31",
+        "validation_end": "2012-12-31",
+        "cutoff": "2024-12-31"
+      },
+      "diagnosis": "v2 failed interval_coverage alone (0.596) while beating persistence at p = 0.0022. The scored error is not the error the residuals measure. Under the strict real-time policy the forecast is anchored on the TOTALSL level available at the origin, while the actual is the latest vintage available at the evaluation cutoff, so the scored error contains the anchor level revision. TOTALSL log revisions from first release to latest have sd 0.0177 for 2013+ periods and 0.0348 for 1997-2012 (mean +0.070), against a model residual scale of 0.0057: realized standardized holdout errors have root mean square 3.73, and coverage bunches by year (0.00 in 2016 and 2022, 1.00 in 2014, 2018, 2019 and 2024) rather than scattering, which is the signature of one persistent revision episode per benchmark rather than of model noise. Excess kurtosis is small (3.78), so the tails are not the problem.",
+      "interval_method": "gaussian_in_sample residual scale plus an independent data-revision component: the standard deviation of the log revisions the publisher has ALREADY made by the origin, over the most recent 60 mature periods, where mature means at least 12 months old. Twelve months is the shortest age at which a G.19 period has been through one annual benchmark, and five years keeps the estimate inside the current revision regime instead of averaging over the 2000s benchmark that moved the level about 5%. The mean revision is reported but deliberately NOT used to shift the point forecast, so any systematic revision bias stays visible in the bias statistic instead of being absorbed into the mechanism.",
+      "rationale": "Identical data, splits, vintage policy and acceptance criteria to credit_growth.fred_realtime_v2.",
+      "supersedes": "credit_growth.fred_realtime_v2"
+    },
+    {
+      "id": "regional_model.cbp_state_sectors_v2",
+      "kind": "family",
+      "target": "regional",
+      "process_id": "regional_model",
+      "loader": {
+        "function": "regional_data",
+        "options": {
+          "program": "cbp",
+          "level": "state",
+          "start_year": 2019,
+          "end_year": 2023
+        }
+      },
+      "estimator_options": {
+        "interval_method": "per_unit_year_mean"
+      },
+      "data": "census_business@5b0995c7 (County Business Patterns employment by state and NAICS sector)",
+      "protocol": {
+        "train_end": "2021-12-31",
+        "validation_end": "2022-12-31",
+        "cutoff": "2023-12-31",
+        "vintage_policy": "family_rows",
+        "refit_every": 1,
+        "horizon": 1
+      },
+      "diagnosis": "v1 failed interval_coverage in the opposite direction (1.000 against 0.80 +/- 0.15) while halving the year-effect-only baseline error at p = 4.1e-06. The predictive sd of 0.0540 decomposes into a pooled within-year residual sd of 0.0201 and a between-year term of 0.0502; the between-year term is the variance of THREE year effects (-0.013, +0.071, +0.050) whose dispersion is the 2020 collapse and the 2021 rebound, added at full size as if the next year were a fresh draw. The within-year part is pooled across states whose own residual sds run from 0.0009 to 0.047, a factor of fifty, so one scale is simultaneously far too wide for stable states and too narrow for volatile ones. Realized 2023 cross-state error sd was 0.0115 with a common component of +0.0078.",
+      "interval_method": "per_unit_year_mean: each state gets its own residual mean square shrunk toward the pooled one by a single prior observation (a three-year panel gives each state three residuals), and the common term becomes the sampling variance of the ESTIMATED year level (between-year variance / Y) rather than the variance of a fresh draw. Addresses the pooling defect directly; it cannot repair the common term, which three pandemic-era year effects cannot estimate.",
+      "rationale": "Identical data, splits and acceptance criteria to regional_model.cbp_state_sectors.",
+      "expected_limits": "With one holdout year, all 51 forecasts share one draw of the common component, so interval_coverage here is one Bernoulli trial and not a coverage estimate. regional_model.qcew_state_sectors is registered below to make the criterion evaluable on a longer panel with six holdout years. no_revision_leakage fails as in v1: CBP publishes no vintages.",
+      "supersedes": "regional_model.cbp_state_sectors"
+    },
+    {
+      "id": "regional_model.qcew_state_sectors",
+      "kind": "family",
+      "target": "regional",
+      "process_id": "regional_model",
+      "loader": {
+        "function": "regional_data",
+        "options": {
+          "program": "qcew",
+          "level": "state",
+          "start_year": 2005,
+          "end_year": 2024,
+          "ownership": "private",
+          "versions": {
+            "bls_labor": "ffd7f43a2761e2f4bc85cd9765ba9bce61cf089cd26b8b5d12e428337546e267"
+          }
+        }
+      },
+      "estimator_options": {
+        "interval_method": "per_unit_year_mean"
+      },
+      "data": "bls_labor@ffd7f43a (QCEW annual-average private employment, state x NAICS 2-digit sector, aggregation level 54, 2005-2024)",
+      "protocol": {
+        "train_end": "2014-12-31",
+        "validation_end": "2018-12-31",
+        "cutoff": "2024-12-31",
+        "vintage_policy": "family_rows",
+        "refit_every": 1,
+        "horizon": 1
+      },
+      "entity_rule": "Every state-equivalent QCEW publishes at aggregation level 54 (50 states, DC and Puerto Rico; 53 areas), and every two-digit NAICS private sector. Selection is availability only.",
+      "rationale": "The declared fix for the CBP attempt: the rebuilt bls_labor (60.9M rows) carries QCEW annual averages from 1990, so the panel has twenty years and nineteen growth years instead of four and three. Base-year shares are 2005, the validation targets are 2015-2018 and the holdout is 2019-2024, six years x 53 areas, so the between-year component is estimated from thirteen year effects at the first holdout origin and interval_coverage is evaluated over six independent common draws instead of one. QCEW labels each year with the NAICS revision in force, so two-digit sector codes are compared across revisions and the published namespaces are recorded.",
+      "expected_limits": "no_revision_leakage is expected to fail: QCEW is benchmarked annually and bls_labor publishes one current vintage, so row dates are not information times. The holdout deliberately contains 2020 and 2021, which no interval method can anticipate; that is the point of scoring six years rather than one."
+    },
+    {
+      "id": "elections_model.medsl_house_districts",
+      "kind": "family",
+      "target": "elections",
+      "process_id": "elections_model",
+      "loader": {
+        "function": "elections_data",
+        "options": {
+          "start_year": 2000,
+          "end_year": 2024,
+          "lean_lookback": 3,
+          "economy_series": "DSPIC96",
+          "economy_metric": "real_disposable_personal_income",
+          "economy_months": 12
+        }
+      },
+      "data": "mit_election_returns@017e0d4f (U.S. House district general-election returns 1976-2024) + fec_candidates@a46824fd (candidate master: office, state, district, party, CAND_ICI) + fec@93722c10 (weball candidate cycle receipts) + fred_macro_panel@7dcce89c (DSPIC96 ALFRED vintages)",
+      "protocol": {
+        "train_end": "2016-12-31",
+        "validation_end": "2020-12-31",
+        "cutoff": "2024-12-31",
+        "vintage_policy": "family_rows",
+        "refit_every": 1,
+        "horizon": 1
+      },
+      "entity_rule": "Every U.S. House district-cycle general election (no primaries, no special elections) for which all declared inputs exist: a two-party result, a partisan lean from a contested result within the previous three cycles, an FEC candidate record for the cycle, and a national income growth reading published on election day. Availability only.",
+      "split_rule": "By ELECTION YEAR, so no future election can inform a past prediction: fit through 2016, validate 2018-2020, test 2022-2024. Each holdout origin refits on cycles up to and including the previous one.",
+      "overrides": {
+        "district_presidential_lean": {
+          "source_series": "MEDSL U.S. House district returns, previous contested cycle",
+          "description": "Substitutes for the declared district presidential lean. No published dataset in this catalog provides presidential vote by congressional district: mit_election_returns publishes county and statewide presidential returns, and counties do not nest inside congressional districts. pvi is instead the district two-party Democratic share in its most recent contested cycle within three cycles, minus the national two-party Democratic House share of that same cycle."
+        },
+        "fred_economy": {
+          "source_series": "DSPIC96",
+          "description": "Substitutes for the declared A229RX0 (real disposable personal income per capita), which fred_macro_panel does not publish. econ is the twelve-month growth of real disposable personal income read from the ALFRED vintage available ON election day, with both endpoints on one base period."
+        }
+      },
+      "rationale": "The elections family was blocked on data until mit_election_returns published House district returns. The target is the contested district two-party Democratic share in the next cycle given realized fundamentals; the secondary declared group is the Democratic seat count. Baselines: persistence (the district previous share), historical_mean (its pre-origin mean) and the supplied incumbent_party_holds rule (every seat stays with the party holding it, at that party average holding share; for seats, the current split). Acceptance is the family default plus the declared beats_district_mean_dm.",
+      "expected_limits": "Three timing caveats are declared rather than hidden. (1) FEC weball receipts are cycle-to-date totals whose coverage ends after election day (2000: 2001-06-30 ... 2024: 2025-01-30), so fundraising is a conditional input: the holdout tests the mechanism given realized fundraising, not the ability to forecast it. (2) Receipts are summed over all of a party candidates in the district-cycle, including primary losers. (3) Redistricting changes what a district number means in 2002, 2012 and 2022, so the lagged lean crosses a boundary change in those cycles; the family already declares this. Fusion-party lines (New York, Connecticut) are not credited to the major party they endorse, which is how MEDSL publishes them. Row dates are election days and certified returns are not revised, so revisions are declared none.",
+      "run_note": "CORRECTION (2026-09-16, before any holdout was scored): five district-cycles have a negative party receipts total, because a weball cycle total can be negative when a candidate refunds more than they raise. worldmodel.models.elections requires a nonnegative amount and refused to fit at all, so the loader clamps a negative party total to zero and counts the clamps in construction.clamped. AL-05 2014, FL-19 2012, MD-07 2022, TN-06 2016 and TN-06 2022 are affected. No result existed when this was corrected."
+    },
+    {
+      "id": "default_hazard.fdic_cps_quarterly",
+      "kind": "component",
+      "target": "default_hazard",
+      "process_id": "coupled_economy",
+      "loader": {
+        "function": "default_hazard_data",
+        "options": {
+          "start": "2010-01-01",
+          "unemployment_source": "cps_national",
+          "versions": {
+            "bls_labor": "ffd7f43a2761e2f4bc85cd9765ba9bce61cf089cd26b8b5d12e428337546e267"
+          }
+        }
+      },
+      "overrides": {
+        "delinquency_rate": {
+          "metric": "bank_noncurrent_loan_rate",
+          "source_series": "FDIC NCLNLS/LNLSNET aggregate",
+          "description": "Unchanged from default_hazard.fdic_laus_quarterly: 100 * sum(bank_noncurrent_loans) / sum(bank_net_loans) over all FDIC-insured banks in the quarter, the bank-panel alternative requirements.json names for the unpublished FRED DRCCLACBS credit-card delinquency rate."
+        },
+        "unemployment_rate": {
+          "source_series": "LNS14000000",
+          "description": "No longer a substitution: the rebuilt bls_labor publishes the national CPS unemployment rate (LNS14000000, 943 monthly observations 1948-2026) that the earlier partial build omitted, so the declared series is used directly instead of the constructed LAUS state aggregate."
+        }
+      },
+      "data": "fdic_bank_financials@6283087f + bls_labor@ffd7f43a (LNS14000000) + fred_policy_rate@2a3197b9, quarterly 2010Q1 onward",
+      "protocol": {
+        "train_end": "2017-12-31",
+        "validation_end": "2020-12-31",
+        "cutoff": "2025-12-31",
+        "vintage_policy": "retrospective",
+        "window": "expanding",
+        "refit_every": 1,
+        "horizon": 1
+      },
+      "rationale": "Removes one of the two substitutions behind the only passing default_hazard attempt, with the same splits so the two are directly comparable. The open question this attempt exists to settle: fdic_laus_quarterly passed with unemployment_sensitivity = +2.19 while default_hazard.fred_primary_realtime, on the declared DRCCLACBS and UNRATE series, produced -1.26. If the sign flips with the published national CPS rate, the disagreement was the constructed unemployment series; if it persists, it is the delinquency measure, and the passing attempt cannot be read as validating the declared mechanism."
+    },
+    {
+      "id": "default_hazard.fdic_laus_quarterly_v2",
+      "kind": "component",
+      "target": "default_hazard",
+      "process_id": "coupled_economy",
+      "loader": {
+        "function": "default_hazard_data",
+        "options": {
+          "start": "2010-01-01",
+          "versions": {
+            "bls_labor": "ffd7f43a2761e2f4bc85cd9765ba9bce61cf089cd26b8b5d12e428337546e267"
+          }
+        }
+      },
+      "overrides": {
+        "delinquency_rate": {
+          "metric": "bank_noncurrent_loan_rate",
+          "source_series": "FDIC NCLNLS/LNLSNET aggregate",
+          "description": "Unchanged from v1."
+        },
+        "unemployment_rate": {
+          "source_series": "BLS LAUS LASST state aggregate",
+          "description": "Unchanged from v1: 100 * sum(unemployed) / sum(labor_force) over the 51 seasonally adjusted LAUS state series, now read from the completed bls_labor build."
+        }
+      },
+      "data": "fdic_bank_financials@6283087f + bls_labor@ffd7f43a + fred_policy_rate@2a3197b9, quarterly 2010Q1 onward",
+      "protocol": {
+        "train_end": "2017-12-31",
+        "validation_end": "2020-12-31",
+        "cutoff": "2025-12-31",
+        "vintage_policy": "retrospective",
+        "window": "expanding",
+        "refit_every": 1,
+        "horizon": 1
+      },
+      "rationale": "Version-only rerun. bls_labor@50917b81 came from an incomplete download holding 18.2M of 60.9M rows (about 30%), so the LAUS state aggregate behind the only passing attempt was built on a third of the data. Splits, criteria, overrides and loader options are identical; the dataset version is the only change.",
+      "supersedes": "default_hazard.fdic_laus_quarterly",
+      "run_note": "RUN NOTE (2026-09-16, after the run): the declared data string named fred_policy_rate@2a3197b9, the version v1 used. Only bls_labor was pinned in the loader options, so the unpinned datasets resolved to latest and the run actually read fred_policy_rate@966a0099. Two dataset versions therefore changed, not one. Every parameter and every test metric reproduced v1 to the printed precision, which is itself evidence that neither rebuild changed the values used."
+    },
+    {
+      "id": "monetary_model.cpi_okun_proxy_v2",
+      "kind": "family",
+      "target": "monetary",
+      "process_id": "monetary_model",
+      "loader": {
+        "function": "monetary_data",
+        "options": {
+          "start": "1990-01",
+          "end": "2024-12",
+          "trend_months": 120,
+          "okun": 2.0,
+          "inflation_target": 2.0,
+          "elb": 0.125,
+          "versions": {
+            "bls_labor": "ffd7f43a2761e2f4bc85cd9765ba9bce61cf089cd26b8b5d12e428337546e267"
+          }
+        }
+      },
+      "data": "fred_cpi@c92b26cd (CPIAUCSL ALFRED vintages) + fred_policy_rate@2a3197b9 + bls_labor@ffd7f43a (LAUS states)",
+      "protocol": {
+        "train_end": "2007-12-31",
+        "validation_end": "2014-12-31",
+        "cutoff": "2024-12-31",
+        "vintage_policy": "family_rows",
+        "refit_every": 12,
+        "horizon": 1
+      },
+      "rationale": "Version-only rerun of the second-wave Okun-proxy attempt on the completed bls_labor, for the same reason as default_hazard.fdic_laus_quarterly_v2. The attempt remains superseded by monetary_model.fred_realtime_v2, which uses the declared GDPC1/GDPPOT gap; it is rerun only to record whether the interim build changed its verdict.",
+      "supersedes": "monetary_model.cpi_okun_proxy",
+      "run_note": "RUN NOTE (2026-09-16, after the run): as above, the unpinned inputs resolved to latest, so the run read fred_cpi@34fe03f5 and fred_policy_rate@966a0099 rather than the c92b26cd and 2a3197b9 the declaration named. Results reproduce v1 exactly, which independently confirms that the fourth-wave CPI rebuild changed metadata and not CPIAUCSL values."
     }
   ],
   "not_run": [
@@ -619,9 +899,10 @@
       "note": "Daily closes are available; the grid SMM fit at every window origin exceeds the declared budget."
     }
   ],
-  "blocked_on_data": "See worldmodel.estimation.loaders.availability(): BLOCKED_COMPONENTS and BLOCKED_FAMILIES name the exact missing series and the dataset that must publish them (chiefly fred_macro_panel, bls_labor, cepii_baci, freight, epa_aqs_daily and the MIT House returns file).",
+  "blocked_on_data": "See worldmodel.estimation.loaders.availability(): BLOCKED_COMPONENTS and BLOCKED_FAMILIES name the exact missing series and the dataset that must publish them. As of the fifth wave the elections family is no longer blocked (mit_election_returns published House district returns) and regional has a long panel (bls_labor QCEW). What remains blocked is field_diffusion_transport (epa_aqs_daily), bilateral_flow_gravity (freight FAF5), trade (cepii_baci) and influence (no unit-period exposure panel).",
   "rerun": "python3 -m worldmodel calibrate-all   (add --attempt ID to rerun one attempt, --no-publish to skip artifact publication)",
   "second_wave": "2026-09-15, after fred_cpi (full ALFRED vintages) and bls_labor (current vintage) were published: two further attempts were pre-registered below with their splits before any holdout was scored. fred_macro_panel had acquired but not published a normalized output, so GDPC1, GDPPOT, INDPRO, FEDFUNDS, TOTALSL, RRSFS, DPRIME, SNDR, DPSACBW027SBOG and DRCCLACBS were still unavailable.",
   "third_wave": "2026-09-15, after fred_macro_panel published 7.57M records covering every required FRED series with full ALFRED vintages (realtime_start/realtime_end on every observation). Nine attempts below were pre-registered with their splits before any holdout was scored. Splits start inside each series vintage era, because under the strict policy nothing is visible before a series first entered ALFRED: DFF and DPRIME 2005-06, DPSACBW027SBOG 2012-08, DRCCLACBS 2011-05, RRSFS 2001-06, TOTALSL and FEDFUNDS 1996-12, GDPC1 1992-12, GDPPOT 1994-01, SNDR 2021-04. The two second-wave attempts that used substitute series are superseded but retained with their verdicts so the substitution history stays visible.",
-  "fourth_wave": "2026-09-15, after the chained-dollar base-year bug was fixed and fred_macro_panel and fred_cpi were rebuilt (panel 7dcce89c, cpi 34fe03f5). Every observation now carries attributes.source_units, a per-vintage unit_multiplier and base_period, and the unit token is per vintage. Two input defects were corrected: 189 of 849 panel series changed units across vintages (the old build labelled every vintage with one unit), and TOTALSL was published in billions for some vintages and millions for others, so 11,612 of its 13,537 values changed (e.g. 1998-03 1.3322 -> 1332.2). Five attempts are re-registered below with the SAME splits as their v1 counterparts so the two are comparable; the v1 verdicts are kept and marked contaminated. Verified value-identical between the two builds, so their verdicts stand without a rerun: DPRIME, DFF, SNDR, DRCCLACBS, UNRATE, DPSACBW027SBOG, PAYEMS, FEDFUNDS and RRSFS (RRSFS changed only its unit token)."
+  "fourth_wave": "2026-09-15, after the chained-dollar base-year bug was fixed and fred_macro_panel and fred_cpi were rebuilt (panel 7dcce89c, cpi 34fe03f5). Every observation now carries attributes.source_units, a per-vintage unit_multiplier and base_period, and the unit token is per vintage. Two input defects were corrected: 189 of 849 panel series changed units across vintages (the old build labelled every vintage with one unit), and TOTALSL was published in billions for some vintages and millions for others, so 11,612 of its 13,537 values changed (e.g. 1998-03 1.3322 -> 1332.2). Five attempts are re-registered below with the SAME splits as their v1 counterparts so the two are comparable; the v1 verdicts are kept and marked contaminated. Verified value-identical between the two builds, so their verdicts stand without a rerun: DPRIME, DFF, SNDR, DRCCLACBS, UNRATE, DPSACBW027SBOG, PAYEMS, FEDFUNDS and RRSFS (RRSFS changed only its unit token).",
+  "fifth_wave": "2026-09-16. Three strands. (a) Interval calibration on the three attempts that beat their baselines on point accuracy and failed ONLY interval_coverage: inventory_balance (0.640), credit_growth (0.596) and regional_model (1.000). Each was diagnosed first, and each new attempt records the diagnosis and the interval method it declares; the diagnoses differ, so the methods differ. Predictive distributions are now a declared choice in the estimator (worldmodel/estimation/intervals.py: gaussian_in_sample, gaussian_trailing, student_t_trailing, empirical_trailing, with optional coefficient-uncertainty and data-revision components; regional: pooled_year_draw or per_unit_year_mean), not a tuned multiplier, and the default keeps every earlier run bit-identical. (b) elections_model is no longer blocked: mit_election_returns published 33,805 U.S. House district rows, so the family is scored on real district returns with the split taken by election year. (c) bls_labor was rebuilt from 18.2M to 60.9M rows (the earlier build was an incomplete download), so every attempt that read it is rerun with the version as the only change, the newly available national CPS unemployment rate replaces one of the two substitutions in the passing default_hazard attempt, and QCEW makes the long regional panel possible."
 }

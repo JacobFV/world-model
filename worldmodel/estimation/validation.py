@@ -12,6 +12,7 @@ from realized data and labeled; such forecasts are conditional, not unconditiona
 import math
 from ..model import instant
 from ..util import canonical, digest
+from . import intervals
 from .distributions import norm_cdf, norm_pdf, norm_ppf, t_cdf
 from .data import LeakageError
 from .acceptance import evaluate_criteria
@@ -184,7 +185,10 @@ def baseline_forecast(name, history, horizon=1, season=None):
 
 # ----------------------------------------------------------------------------- scoring
 
-def _interval(mean, sd, level):
+def _interval(mean, sd, level, predictive=None):
+    """Predictive interval: from a declared ``predictive`` spec, else Gaussian with ``sd``."""
+    if predictive:
+        return intervals.interval(predictive, mean, level)
     z = norm_ppf(0.5 + level / 2)
     return [mean - z * sd, mean + z * sd]
 
@@ -199,20 +203,35 @@ def summarize_forecasts(rows, *, mean_key='mean', sd_key='sd', interval_level=0.
     if all(isinstance(s, (int, float)) and math.isfinite(s) and s >= 0 for s in sds):
         covered, widths, crps, logs = 0, [], [], []
         pinball = {str(q): [] for q in quantiles}
+        families = set()
         for r, s in zip(rows, sds):
-            low, high = _interval(r[mean_key], s, interval_level)
+            predictive = r.get('predictive')
+            families.add(predictive['family'] if predictive else 'normal')
+            low, high = _interval(r[mean_key], s, interval_level, predictive)
             covered += low <= r['actual'] <= high
             widths.append(high - low)
-            crps.append(crps_gaussian(r['actual'], r[mean_key], s))
-            if s > 0:
-                logs.append(gaussian_log_score(r['actual'], r[mean_key], s))
+            if predictive:
+                crps.append(intervals.crps(predictive, r[mean_key], r['actual']))
+                score = intervals.log_score(predictive, r[mean_key], r['actual'])
+                if score is not None:
+                    logs.append(score)
+            else:
+                crps.append(crps_gaussian(r['actual'], r[mean_key], s))
+                if s > 0:
+                    logs.append(gaussian_log_score(r['actual'], r[mean_key], s))
             for q in quantiles:
-                value = r[mean_key] + (s * norm_ppf(q) if s > 0 else 0.0)
+                if predictive:
+                    value = intervals.quantile(predictive, r[mean_key], q)
+                else:
+                    value = r[mean_key] + (s * norm_ppf(q) if s > 0 else 0.0)
                 pinball[str(q)].append(pinball_loss(r['actual'], value, q))
         out.update({'interval_nominal': interval_level, 'interval_coverage': covered / len(rows),
                     'mean_interval_width': math.fsum(widths) / len(widths), 'crps': math.fsum(crps) / len(crps),
                     'log_score': math.fsum(logs) / len(logs) if logs else None,
-                    'pinball': {q: math.fsum(v) / len(v) for q, v in pinball.items()}})
+                    'pinball': {q: math.fsum(v) / len(v) for q, v in pinball.items()},
+                    # Only reported when something other than the Gaussian default scored a row, so
+                    # attempts that keep the default stay byte-identical to their earlier reports.
+                    **({'predictive_families': sorted(families)} if families != {'normal'} else {})})
         out['mean_pinball'] = math.fsum(out['pinball'].values()) / len(quantiles)
     return out
 
@@ -327,9 +346,12 @@ def rolling_origin_backtest(estimator, data, *, start, end, evaluation_cutoff, h
             except ValueError as error:
                 skipped.append({'time': truth.times[i], 'target': target, 'reason': 'predict_failed', 'error': str(error)})
                 continue
+            predictive = prediction.get('predictive')
             row = {'time': truth.times[i], 'target': target, 'origin_cutoff': origin_cutoff, 'anchor_time': anchor,
                    'train_rows': len(frame.times), 'actual': truth.columns[target][i], 'mean': prediction['mean'],
-                   'sd': prediction['sd'], 'interval': _interval(prediction['mean'], prediction['sd'], interval_level),
+                   'sd': prediction['sd'],
+                   'interval': _interval(prediction['mean'], prediction['sd'], interval_level, predictive),
+                   **({'predictive': predictive} if predictive else {}),
                    'parameters': estimate.parameters, 'conditional_inputs': sorted(conditional), 'baselines': {}}
             for name in baselines:
                 try:

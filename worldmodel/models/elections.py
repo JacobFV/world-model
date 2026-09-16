@@ -270,6 +270,60 @@ def synthetic(seed=0, cycles=10, districts=120):
 
 # ----------------------------------------------------------------------------- holdout forecaster
 
+INCUMBENT_PARTY_HOLDS = 'incumbent_party_holds'
+
+
+def _mean_sd(values):
+    mean = sum(values) / len(values)
+    if len(values) < 2:
+        return mean, 0.0
+    return mean, math.sqrt(sum((v - mean) ** 2 for v in values) / (len(values) - 1))
+
+
+def _seat_holders(history):
+    """District -> party that won its most recent pre-origin election ('D' or 'R')."""
+    latest = {}
+    for race in history:
+        district, date = race['district'], str(race['date'])
+        if race.get('uncontested'):
+            won = race['uncontested'] == 'D'
+        elif race.get('dem_share') is not None:
+            won = race['dem_share'] > 0.5
+        else:
+            continue
+        if district not in latest or date >= latest[district][0]:
+            latest[district] = (date, 'D' if won else 'R')
+    return {district: party for district, (_, party) in latest.items()}
+
+
+def _incumbent_party_holds(history):
+    """Naive rule: each seat stays with its party, at that party's average holding share.
+
+    For every contested pre-origin race the share is grouped by the party that held the
+    seat going in (the winner of that district's previous election), so the rule predicts
+    two shares — one for Democratic-held seats and one for Republican-held ones — and a
+    seat count equal to the current split. It is the seat-level naive rule that political
+    reporting uses, and it is a much stronger reference than the district mean where
+    incumbency is worth several points.
+    """
+    ordered = {}
+    for race in sorted(history, key=lambda r: (str(r['district']), str(r['date']))):
+        ordered.setdefault(race['district'], []).append(race)
+    groups = {'D': [], 'R': []}
+    for races in ordered.values():
+        for previous, race in zip(races, races[1:]):
+            if race.get('uncontested') or race.get('dem_share') is None:
+                continue
+            if previous.get('uncontested'):
+                holder = 'D' if previous['uncontested'] == 'D' else 'R'
+            elif previous.get('dem_share') is not None:
+                holder = 'D' if previous['dem_share'] > 0.5 else 'R'
+            else:
+                continue
+            groups[holder].append(race['dem_share'])
+    return {party: _mean_sd(values) for party, values in groups.items() if values}
+
+
 def _holdout_forecast(parameters, history, rows, data, nodes=32):
     """Next-cycle district two-party shares from realized fundamentals, plus the Democratic seat count.
 
@@ -279,6 +333,11 @@ def _holdout_forecast(parameters, history, rows, data, nodes=32):
     mean and variance of the seat count integrating the shared swing (inflated by the
     common coefficient uncertainty x_bar'V x_bar) with quantile quadrature, districts
     independent given the swing. Without an identified sigma_national no forecast is made.
+
+    Two reference forecasts are supplied alongside the naive ones: the district's own
+    previous share (``persistence``) and its pre-origin mean (``historical_mean``) come
+    from the history values, and ``incumbent_party_holds`` is the seat-level rule that
+    every seat stays with the party holding it.
     """
     coefficients = parameters['coefficients']
     if parameters.get('sigma_national') is None or parameters.get('sigma_district') is None:
@@ -315,11 +374,14 @@ def _holdout_forecast(parameters, history, rows, data, nodes=32):
             continue
         past.setdefault(race['district'], []).append(race['dem_share'])
         seats_by_cycle[race['date']] = seats_by_cycle.get(race['date'], 0) + (race['dem_share'] > 0.5)
+    holders, holding = _seat_holders(history), _incumbent_party_holds(history)
     out, means, designs, fixed_seats, actual_seats = [], [], [], 0, 0
+    naive_seats, naive_seat_history = 0, [seats_by_cycle[c] for c in sorted(seats_by_cycle, key=str)]
     for race in sorted(rows, key=lambda r: str(r['district'])):
         if race.get('uncontested'):
             fixed_seats += race['uncontested'] == 'D'
             actual_seats += race['uncontested'] == 'D'
+            naive_seats += race['uncontested'] == 'D'
             continue
         if race.get('dem_share') is None:
             continue
@@ -329,8 +391,14 @@ def _holdout_forecast(parameters, history, rows, data, nodes=32):
         designs.append(x)
         actual_seats += race['dem_share'] > 0.5
         sd = math.sqrt(sd_district ** 2 + sd_national ** 2 + coefficient_variance(x))
+        holder = holders.get(race['district'])
+        naive_seats += holder == 'D'
+        supplied = {}
+        if holder in holding:
+            hold_mean, hold_sd = holding[holder]
+            supplied[INCUMBENT_PARTY_HOLDS] = {'mean': hold_mean, 'sd': hold_sd}
         out.append({'target': f'dem_share:{race["district"]}', 'actual': race['dem_share'], 'mean': mean, 'sd': sd,
-                    'history_values': past.get(race['district'], [])})
+                    'history_values': past.get(race['district'], []), 'baselines': supplied})
     if means:
         center = [sum(x[a] for x in designs) / len(designs) for a in range(k)]
         sd_national = math.sqrt(sd_national ** 2 + coefficient_variance(center))
@@ -343,9 +411,12 @@ def _holdout_forecast(parameters, history, rows, data, nodes=32):
             variances.append(sum(p * (1 - p) for p in probs))
         expected = sum(counts) / len(counts)
         variance = sum(variances) / len(variances) + sum((c - expected) ** 2 for c in counts) / len(counts)
-        order = sorted(seats_by_cycle, key=str)
+        changes = [b - a for a, b in zip(naive_seat_history, naive_seat_history[1:])]
         out.append({'target': 'dem_seats', 'group': 'dem_seats', 'actual': actual_seats, 'mean': fixed_seats + expected,
-                    'sd': math.sqrt(variance), 'history_values': [seats_by_cycle[c] for c in order]})
+                    'sd': math.sqrt(variance), 'history_values': list(naive_seat_history),
+                    'baselines': {INCUMBENT_PARTY_HOLDS: {
+                        'mean': float(naive_seats),
+                        'sd': math.sqrt(math.fsum(c * c for c in changes) / len(changes)) if changes else 0.0}}})
     return out
 
 
@@ -353,6 +424,8 @@ holdout_forecaster = {
     'rows_key': 'races', 'time_key': 'date', 'target': 'dem_share', 'forecast': _holdout_forecast,
     'fit_keys': ['races', 'turnout', 'information_time', 'revisions'],
     'conditional_inputs': ['pvi', 'incumbent', 'econ', 'president_party', 'midterm', 'dem_receipts', 'rep_receipts'],
+    'baselines': [INCUMBENT_PARTY_HOLDS],
     'description': 'Next-cycle contested district two-party share given realized fundamentals (secondary group dem_seats: seat count '
-                   'from the swing-integrated seat distribution).',
+                   'from the swing-integrated seat distribution). Reference forecasts: the district\'s previous share, its '
+                   'pre-origin mean, and the incumbent-party-holds seat rule.',
 }

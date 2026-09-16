@@ -155,6 +155,10 @@ class Point:
     vintage: dict
     evidence: list = field(default_factory=list)
     first_available_at: str = None
+    #: Value of this period's *earliest* vintage available by the cutoff. With
+    #: ``value`` (the latest such vintage) it gives the revision the publisher has
+    #: already made by the cutoff, which is information a real-time forecaster has.
+    first_value: float = None
 
 
 class Series:
@@ -282,7 +286,8 @@ class ObservationSet:
                 evidence.append({'record_id': record['id']})
             candidate = (available, record, vintage, evidence)
             current = by_period.get(key)
-            first_seen[key] = min(first_seen.get(key, available), available)
+            if key not in first_seen or available < first_seen[key][0]:
+                first_seen[key] = (available, record.get('value'))
             if current is None or available > current[0]:
                 superseded += current is not None
                 by_period[key] = candidate
@@ -298,8 +303,10 @@ class ObservationSet:
                 missing += 1
                 continue
             value = _finite(record['value'], requirement.name)
+            earliest, first_value = first_seen[key]
             native.append(Point(record['valid_from'], value, available.isoformat(), vintage, evidence,
-                                first_seen[key].isoformat()))
+                                earliest.isoformat(),
+                                _finite(first_value, requirement.name) if first_value is not None else None))
         points = _resample(native, requirement, cut)
         return Series(requirement, points, cutoff=cutoff, vintage_policy=vintage_policy,
                       excluded_missing=missing, superseded_vintages=superseded)
@@ -358,10 +365,14 @@ def _resample(points, requirement, cutoff):
             continue  # Incomplete period: aggregating it would mix partial information.
         if native_single is not None:
             out.append(Point(start.isoformat(), native_single.value, native_single.available_at,
-                             native_single.vintage, native_single.evidence, native_single.first_available_at))
+                             native_single.vintage, native_single.evidence, native_single.first_available_at,
+                             native_single.first_value))
             continue
         values = [m.value for m in members]
-        value = {'mean': math.fsum(values) / len(values), 'last': values[-1], 'sum': math.fsum(values)}[requirement.aggregation]
+        aggregate = {'mean': lambda v: math.fsum(v) / len(v), 'last': lambda v: v[-1], 'sum': math.fsum}[requirement.aggregation]
+        value = aggregate(values)
+        firsts = [m.first_value for m in members]
+        first_value = aggregate(firsts) if all(f is not None for f in firsts) else None
         latest = max(members, key=lambda m: instant(m.available_at))
         modes = sorted({m.vintage['mode'] for m in members})
         vintage = {'mode': modes[0] if len(modes) == 1 else 'mixed:' + ','.join(modes),
@@ -372,5 +383,5 @@ def _resample(points, requirement, cutoff):
         first = max(instant(m.first_available_at) for m in members)
         complete = _utc(period_end(start, frequency))
         out.append(Point(start.isoformat(), value, latest.available_at, vintage,
-                         [e for m in members for e in m.evidence], max(first, complete).isoformat()))
+                         [e for m in members for e in m.evidence], max(first, complete).isoformat(), first_value))
     return out

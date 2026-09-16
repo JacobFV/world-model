@@ -2145,7 +2145,8 @@
     ],
     "baselines": {
      "persistence": "district's previous share",
-     "historical_mean": "district's pre-origin mean share"
+     "historical_mean": "district's pre-origin mean share",
+     "incumbent_party_holds": "every seat stays with the party holding it, at that party's average holding share over pre-origin cycles; for the seat group, the current split"
     },
     "secondary": {
      "dem_seats": "Democratic seat count from the swing-integrated seat distribution (one per cycle; reported, not in acceptance)"
@@ -3730,14 +3731,19 @@
     },
     "not_scored": [
      "Migration responses and population growth: the fit contract has no population components (Census PEP) and IRS flows serve only the gravity fit, so two_region_migration is not linked to this component."
-    ]
+    ],
+    "interval_methods": {
+     "pooled_year_draw": "default: one scale per year, pooled within-year residual variance plus between-year variance x (1+1/Y)",
+     "per_unit_year_mean": "each region's own residual mean square shrunk toward the pooled one by a single prior observation, plus between-year variance / Y, the sampling variance of the estimated year level"
+    }
    }
   }
  },
  "model_family_contract": {
   "data": "Native family data mappings (fit(data, cutoff) contracts in docs/political-market-geopolitical-models.md); loaders from catalog artifacts are not yet written.",
   "information_time": "Set data['information_time']='real_time' only when row dates are publication/information dates (e.g. ALFRED vintages); otherwise revision leakage is assumed and no_revision_leakage fails.",
-  "holdout_forecaster": "A family module may define holdout_forecaster = {rows_key, time_key, target, fit_keys, conditional_inputs, forecast(parameters, history_rows, target_rows, data_visible_at_target) -> [{target, actual, mean, sd, history_values, group?, baselines?}], baselines?, probability?}; supplied baselines are scored and DM-tested like naive ones, rows with a group other than target are scored under secondary and never enter acceptance. A module may instead declare NON_ESTIMABLE = reason; without a forecaster validation raises and the process stays unvalidated.",
-  "sync": "family_requirements and parameters are copied from worldmodel.models.parameter_hooks; tests fail on drift."
+  "holdout_forecaster": "A family module may define holdout_forecaster = {rows_key, time_key, target, fit_keys, conditional_inputs, forecast(parameters, history_rows, target_rows, data_visible_at_target[, options]) -> [{target, actual, mean, sd, history_values, group?, baselines?, predictive?}], baselines?, probability?, options?}; supplied baselines are scored and DM-tested like naive ones, rows with a group other than target are scored under secondary and never enter acceptance. options: True passes the estimator's declared options to the forecast function (for example a pre-registered interval method). A prediction may carry predictive = {family, scale, df?, nodes?} (worldmodel.estimation.intervals) to declare a non-Gaussian predictive distribution; coverage, pinball, CRPS and the log score are then taken from it. A module may instead declare NON_ESTIMABLE = reason; without a forecaster validation raises and the process stays unvalidated.",
+  "sync": "family_requirements and parameters are copied from worldmodel.models.parameter_hooks; tests fail on drift.",
+  "predictive_intervals": "The default predictive distribution everywhere is Gaussian with the estimator's in-sample residual scale. DynamicRegression components accept interval_method (gaussian_in_sample | gaussian_trailing | student_t_trailing | empirical_trailing) with interval_window/interval_nodes, plus interval_parameter_uncertainty and interval_revision={window, maturity}; the regional forecaster accepts interval_method (pooled_year_draw | per_unit_year_mean). Every choice is pre-registered per attempt in real_data_plan.json and estimated only from information available at the forecast origin."
  }
 }

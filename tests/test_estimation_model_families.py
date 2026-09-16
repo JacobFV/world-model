@@ -236,7 +236,7 @@ class FamilyHoldoutCase:
                 inner = self.forecaster['forecast']
                 self.calls = 0
 
-                def audited(parameters, history, rows, data):
+                def audited(parameters, history, rows, data, **extra):
                     times = {r[self.forecaster['time_key']] for r in rows}
                     test.assertEqual(len(times), 1)
                     target = _time(times.pop())
@@ -247,7 +247,7 @@ class FamilyHoldoutCase:
                             if key is not None:
                                 test.assertTrue(all(_time(r[key]) <= target for r in value))
                     self.calls += 1
-                    return inner(parameters, history, rows, data)
+                    return inner(parameters, history, rows, data, **extra)
                 self.forecaster = dict(self.forecaster, forecast=audited)
 
         audited = Audited(self.family)

@@ -71,6 +71,36 @@ def t_sf_two_sided(t, df):
     return min(1.0, 2.0 * (1.0 - t_cdf(abs(t), df)))
 
 
+def t_ppf(p, df):
+    """Student-t quantile by bisection on :func:`t_cdf` (monotone, so this is exact to 1e-12)."""
+    if not 0 < p < 1:
+        raise ValueError('Student-t quantile probability must be in (0,1)')
+    if df <= 0:
+        raise ValueError('Degrees of freedom must be positive')
+    if math.isinf(df):
+        return norm_ppf(p)
+    if p == 0.5:
+        return 0.0
+    low, high = -1.0, 1.0
+    while t_cdf(low, df) > p:
+        low *= 2
+        if low < -1e12:
+            return low
+    while t_cdf(high, df) < p:
+        high *= 2
+        if high > 1e12:
+            return high
+    for _ in range(200):
+        middle = (low + high) / 2
+        if t_cdf(middle, df) < p:
+            low = middle
+        else:
+            high = middle
+        if high - low < 1e-12 * max(1.0, abs(low)):
+            break
+    return (low + high) / 2
+
+
 def gammainc_lower(s, x):
     """Regularized lower incomplete gamma P(s, x)."""
     if x <= 0:

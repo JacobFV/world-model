@@ -74,6 +74,7 @@ and `--refit-every`.
 | `simulation` | Simulated method of moments (common random numbers, sandwich SEs with (1+1/S), J test), rejection ABC, and adapters that treat configuration evaluators (`simulate_coupled_economy`, `materialize_composition`) and `Environment` episodes as black boxes |
 | `bootstrap` | iid, moving-block, circular-block and stationary bootstrap with seeds and failure counts |
 | `validation` | Baselines, MAE/RMSE/MASE, Gaussian and ensemble CRPS, pinball loss, interval coverage, log score, Brier score and skill, calibration curves, Diebold–Mariano (HLN-corrected), rolling-origin backtests, `validate_process`, publication helpers |
+| `intervals` | Declared predictive distributions (normal, Student-t, empirical quantile nodes) with their quantiles, CRPS and log score; trailing scale, kurtosis-matched degrees of freedom, standardized quantile nodes, variance-component combination |
 | `acceptance` | Declared criteria and `evaluate_criteria` |
 | `families` | Estimators for each process component, loaded from `requirements.json` |
 | `registry` | `calibration_record`, `attach_calibration`, `load_calibrations` |
@@ -143,6 +144,59 @@ values of those drivers at the target time. They test the mechanism given its
 inputs, not the ability to forecast those inputs. The gravity component uses a
 cross-sectional next-year holdout (`GravityEstimator.backtest`) with the same
 report schema.
+
+## Predictive intervals are a declared choice
+
+Scoring needs a distribution, not a point. The default everywhere is a Gaussian centred
+on the forecast with the estimator's in-sample residual scale, and that default is an
+assumption: when it is wrong a component fails `interval_coverage` even though its point
+forecasts have skill. `worldmodel/estimation/intervals.py` makes the choice explicit and
+auditable. A forecast may carry a `predictive` description, and `summarize_forecasts`
+takes coverage, pinball loss, CRPS and the log score from it instead of assuming a
+Gaussian:
+
+```
+{'family': 'normal',    'scale': s}
+{'family': 'student_t', 'scale': s, 'df': d}     # sd = s sqrt(d/(d-2))
+{'family': 'empirical', 'scale': s, 'nodes': [u1 .. uN]}
+```
+
+`nodes` are equally spaced quantiles of the standardized forecast error
+`(actual - mean)/s`, so an empirical predictive reproduces the skew and kurtosis the
+residuals showed without a distributional assumption. A normal predictive is fully
+described by `sd`, so only the other two families are stored on a row.
+
+`DynamicRegression` accepts these options; each is pre-registered per attempt in
+`real_data_plan.json`, never changed after a holdout is scored:
+
+| Option | Meaning |
+| --- | --- |
+| `interval_method: gaussian_in_sample` | Default. Gaussian with the in-sample residual scale; every attempt recorded before this existed is bit-identical under it |
+| `interval_method: gaussian_trailing` | Scale from the last `interval_window` one-step residuals. For targets whose error volatility moves between regimes, where a full-sample scale is an average of regimes rather than a forecast of the current one |
+| `interval_method: student_t_trailing` | Trailing scale with Student-t tails, degrees of freedom from the residual kurtosis (`df = 4 + 6/excess`, clipped to [2.5, 100]) |
+| `interval_method: empirical_trailing` | Trailing scale with the empirical quantiles of residuals standardized by their own trailing scale (`interval_nodes`, default 40) |
+| `interval_parameter_uncertainty: true` | Adds `x'Vx` at the forecast row (undefined through a link function) |
+| `interval_revision: {window, maturity}` | Adds the dispersion of the revisions the publisher has **already made** by the origin: for every period at least `maturity` periods old, `value / first_value` (in logs for multiplicative components), over the most recent `window` mature periods. The mean revision is reported and deliberately not used to shift the point forecast |
+
+`interval_revision` exists because of a mismatch the protocol itself creates: a
+real-time forecast is anchored on the vintage available at the origin while the actual is
+the latest vintage available by the evaluation cutoff, so the scored error contains the
+anchor's later revision — which no in-sample residual measures. `Point.first_value`
+(the earliest vintage of a period available by the cutoff) carries the information needed
+to estimate it point-in-time; `maturity` must exceed the publication lag of the final
+vintage, or immature periods with no revision yet deflate the estimate.
+
+Model families declare their own methods. A forecaster with `options: True` receives the
+estimator's declared options; `regional` uses `interval_method` ∈ {`pooled_year_draw`,
+`per_unit_year_mean`}.
+
+Tests (`tests/test_estimation_intervals.py`) build synthetic data whose predictive
+distribution is known and require nominal coverage where the method should hold —
+regime-switching volatility, contaminated tails, per-unit heterogeneity, and a series
+published twice with a benchmark revision. Three cases must still **fail**, and are
+asserted to: an error scale trending upward through the holdout (no backward-looking
+scale can keep up), Student-t tails against a contaminated middle, and a revision
+maturity shorter than the final vintage's lag.
 
 ## Acceptance criteria
 
@@ -345,8 +399,8 @@ wm validate monetary_model --family-data fred_panel.json \
 `COMPONENT_SOURCES` declares, per component series, the dataset, its published metric and
 unit, the requirement it maps to and the availability policy it supports; `BLOCKED_COMPONENTS`
 and `BLOCKED_FAMILIES` name the exact series still missing and the dataset that must publish
-them. Family loaders build the native mappings (`conflict`, `assets`, `commodities`,
-`regional`). Loaders stream `records.jsonl.gz`, discard lines by substring before parsing,
+them. Family loaders build the native mappings (`conflict`, `assets`, `commodities`, `regional`
+from CBP or QCEW, `monetary`, `elections`). Loaders stream `records.jsonl.gz`, discard lines by substring before parsing,
 and keep each record's dataset reference and id so estimates carry lineage.
 
 ```sh
@@ -385,15 +439,22 @@ report = validate_process(estimator_for('interest_pass_through'), ObservationSet
 print(report['validated'], report['final_estimate']['parameters'], ds['truth'])
 ```
 
-Tests: `python3 -m unittest tests.test_estimation_methods tests.test_estimation_validation tests.test_estimation_families tests.test_estimation_model_families`.
+Tests: `python3 -m unittest tests.test_estimation_methods tests.test_estimation_validation tests.test_estimation_families tests.test_estimation_model_families tests.test_estimation_intervals`.
 
 ## Limits
 
 - Estimates are reduced-form and descriptive (`causally_identified: false`).
   Out-of-sample skill does not identify responses to interventions. Instruments
   such as crude prices for gasoline demand are assumptions.
-- Gaussian predictive intervals come from in-sample residual scale. Multi-step
-  intervals for regression components use a √h approximation.
+- The default predictive interval is Gaussian with the in-sample residual scale.
+  Trailing, Student-t, empirical, coefficient-uncertainty and data-revision variants are
+  declared per attempt (see Predictive intervals). Multi-step intervals for regression
+  components use a √h approximation.
+- Unconditional coverage is attainable whenever the error distribution is stationary and
+  estimable at the origin. It says nothing about conditional calibration: pooled coverage
+  averaged over units can look right while being wrong for every unit, and coverage over a
+  panel cross-section at one date is one draw of the common component, not a coverage
+  estimate.
 - ECM t-statistics under unit roots are nonstandard. MA invertibility for q>1 is
   not enforced. Logistic growth is often weakly identified, and the fit flags this.
 - SMM standard errors assume a locally smooth simulator. Integer-valued simulator

@@ -267,8 +267,11 @@ class ModelFamilyEstimator:
             history = sorted((r for r in rows if _time(r[time_key]) <= _time(origin)), key=lambda r: _time(r[time_key]))
             current = [r for r in rows if r[time_key] == target_time]
             parameters = dict(estimate.diagnostics['structured_estimate'], **estimate.parameters)
+            # A forecaster declaring options=True receives the estimator's declared options (for
+            # example the interval method a pre-registered attempt chose).
+            extra = {'options': dict(self.options)} if spec.get('options') else {}
             try:
-                predictions = spec['forecast'](parameters, history, current, self.visible_data(data, target_time))
+                predictions = spec['forecast'](parameters, history, current, self.visible_data(data, target_time), **extra)
             except LeakageError:
                 raise
             except ValueError as error:
@@ -277,9 +280,12 @@ class ModelFamilyEstimator:
             for prediction in predictions:
                 past = prediction.pop('history_values')
                 supplied = prediction.pop('baselines', {})
+                predictive = prediction.get('predictive')
                 row = {'time': _time(target_time).isoformat(), 'target': prediction['target'], 'group': prediction.get('group', primary),
                        'origin_cutoff': origin, 'anchor_time': origin, 'actual': prediction['actual'], 'mean': prediction['mean'],
-                       'sd': prediction['sd'], 'interval': _interval(prediction['mean'], prediction['sd'], interval_level),
+                       'sd': prediction['sd'],
+                       'interval': _interval(prediction['mean'], prediction['sd'], interval_level, predictive),
+                       **({'predictive': predictive} if predictive else {}),
                        'conditional_inputs': list(self.conditional_inputs), 'baselines': {}}
                 for name in naive:
                     try:

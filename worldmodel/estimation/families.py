@@ -4,6 +4,7 @@ import math
 from functools import lru_cache
 from pathlib import Path
 from ..model import instant
+from . import intervals
 from . import linalg as la
 from .data import SeriesRequirement, LeakageError, availability, period_end
 from .spec import ParameterSpec, Estimate
@@ -123,7 +124,32 @@ class ComponentEstimator:
 
 
 class DynamicRegression(ComponentEstimator):
-    """y_t = f(x_t) where ``design`` may use lags and declared conditional inputs at t, never the target at t."""
+    """y_t = f(x_t) where ``design`` may use lags and declared conditional inputs at t, never the target at t.
+
+    Predictive intervals are a *declared* choice, not a by-product. By default the
+    forecast distribution is Gaussian with the in-sample residual scale
+    (``interval_method='gaussian_in_sample'``). Three further options are
+    available and are pre-registered per attempt in ``real_data_plan.json``:
+
+    ``gaussian_trailing``
+        Scale from the most recent ``interval_window`` one-step residuals, for
+        targets whose error volatility moves between regimes so that a
+        full-sample scale is an average of regimes rather than a forecast of the
+        current one.
+    ``student_t_trailing`` / ``empirical_trailing``
+        The same trailing scale with Student-t tails (degrees of freedom from the
+        residual kurtosis) or with the empirical quantiles of residuals
+        standardized by their own trailing scale — for heavy-tailed or skewed
+        forecast errors.
+
+    Two independent variance components can be declared on top of any of them:
+    ``interval_parameter_uncertainty`` adds ``x'Vx`` (coefficient uncertainty at
+    the forecast row), and ``interval_revision`` adds the dispersion of the
+    revisions the publisher has already made by the origin. The second matters
+    whenever a real-time forecast is scored against the *final* vintage: the
+    anchor level the forecast starts from is later revised, and that revision is
+    part of the scored error but not of any in-sample residual.
+    """
     link = None
     endogenous = ()
     multiplicative = False  # True: residual scale is proportional to the predicted level (log models).
@@ -195,12 +221,88 @@ class DynamicRegression(ComponentEstimator):
                        'model_sigma': fit.get('sigma'), 'r2': fit.get('r2'), 'pseudo_r2': fit.get('pseudo_r2'),
                        'cov_type': 'HC0' if self.link else cov_type, 'nobs': len(rows),
                        'first_stage': fit.get('first_stage'), 'overidentification': fit.get('overidentification')}
+        predictive = self.predictive_specification(frame, errors, len(names), options)
+        if predictive is not None:
+            diagnostics['predictive'] = predictive
         return {'parameters': parameters, 'standard_errors': ses, 'nobs': len(rows), 'first_index': rows[0][0],
                 'covariance': {'names': ['coefficient:' + n for n in fit['cov']['names']], 'matrix': fit['cov']['matrix']},
                 'diagnostics': diagnostics}
 
+    def predictive_specification(self, frame, errors, coefficients, options):
+        """Declared predictive distribution of a one-step error, or ``None`` for the default.
+
+        ``None`` means "Gaussian with ``level_sigma``", which is what every
+        attempt recorded before interval methods became declarable; returning it
+        keeps those runs bit-identical.
+        """
+        method = options.get('interval_method', 'gaussian_in_sample')
+        revision = options.get('interval_revision')
+        if method == 'gaussian_in_sample' and not revision:
+            return None
+        extra = {}
+        if revision:
+            scale, diagnostics = self.revision_scale(frame, revision if isinstance(revision, dict) else {})
+            extra['revision'] = scale
+        spec = intervals.from_errors(errors, method=method, window=options.get('interval_window'),
+                                     nodes=int(options.get('interval_nodes', intervals.DEFAULT_NODES)),
+                                     dof=coefficients, extra=extra)
+        if revision:
+            spec['revision_diagnostics'] = diagnostics
+        return spec
+
+    def revision_scale(self, frame, declared):
+        """Dispersion of the revisions the publisher has already made to the target series.
+
+        For every period in the fit frame that is at least ``maturity`` periods
+        old — old enough for most of its revisions to have been published by the
+        origin — the realized revision is ``value / first_value`` (in logs for
+        multiplicative components, in levels otherwise), where ``first_value`` is
+        the earliest vintage available at the origin and ``value`` the latest.
+        The reported scale is the standard deviation of those revisions over the
+        most recent ``window`` mature periods; the mean is reported separately and
+        deliberately *not* used to shift the point forecast, so a systematic
+        revision bias stays visible instead of being absorbed.
+        """
+        window = int(declared.get('window', 120))
+        maturity = int(declared.get('maturity', 12))
+        if window < 8 or maturity < 0:
+            raise ValueError('interval_revision needs window >= 8 and maturity >= 0')
+        points = frame.series[self.target].points
+        revisions = []
+        for index, point in enumerate(points):
+            if point.first_value is None or len(points) - 1 - index < maturity:
+                continue
+            if self.multiplicative:
+                if point.value <= 0 or point.first_value <= 0:
+                    continue
+                revisions.append(math.log(point.value / point.first_value))
+            else:
+                revisions.append(point.value - point.first_value)
+        revisions = revisions[-window:]
+        if len(revisions) < 8:
+            raise ValueError(f'{self.component}: only {len(revisions)} mature revisions for interval_revision')
+        mean = math.fsum(revisions) / len(revisions)
+        variance = math.fsum((r - mean) ** 2 for r in revisions) / (len(revisions) - 1)
+        return math.sqrt(variance), {'observations': len(revisions), 'window': window, 'maturity_periods': maturity,
+                                     'mean_revision': mean, 'relative': self.multiplicative,
+                                     'largest_absolute_revision': max(abs(r) for r in revisions)}
+
     def predict_options(self, estimate):
         return dict(estimate.options)
+
+    def _parameter_scale(self, estimate, row, options):
+        """Standard deviation contributed by coefficient uncertainty at this forecast row."""
+        covariance = estimate.covariance
+        if not covariance:
+            raise ValueError(f'{self.component}: interval_parameter_uncertainty needs a coefficient covariance')
+        if self.link:
+            raise ValueError(f'{self.component}: interval_parameter_uncertainty is undefined through a link function')
+        names = ['coefficient:' + n for n in self.names(options)]
+        index = {name: i for i, name in enumerate(covariance['names'])}
+        matrix = covariance['matrix']
+        variance = math.fsum(row[a] * matrix[index[names[a]]][index[names[b]]] * row[b]
+                             for a in range(len(row)) for b in range(len(row)))
+        return math.sqrt(max(variance, 0.0))
 
     def predict(self, estimate, frame, horizon=1, conditional=None, target=None):
         if target not in (None, self.target):
@@ -215,7 +317,7 @@ class DynamicRegression(ComponentEstimator):
         coef = estimate.diagnostics['coefficients']
         names = self.names(options)
         cols = self._columns(frame)
-        value = None
+        value, design = None, None
         for step in range(horizon):
             last = instant(cols['_time'][-1]).date()
             for name in cols:
@@ -231,8 +333,20 @@ class DynamicRegression(ComponentEstimator):
             except TypeError as error:
                 raise LeakageError(f'{self.component}: forecast design read a value unavailable at the origin') from error
             cols[self.target][-1] = value
+            design = row
         scale = abs(value) if self.multiplicative else 1.0
-        return {'mean': value, 'sd': estimate.diagnostics['level_sigma'] * scale * math.sqrt(horizon)}
+        spec = estimate.diagnostics.get('predictive')
+        if spec is None:
+            return {'mean': value, 'sd': estimate.diagnostics['level_sigma'] * scale * math.sqrt(horizon)}
+        if options.get('interval_parameter_uncertainty'):
+            total, _ = intervals.combine(predictive=intervals.standard_deviation(spec),
+                                         parameters=self._parameter_scale(estimate, design, options))
+            spec = intervals.rescale(spec, total / intervals.standard_deviation(spec))
+        spec = intervals.rescale(spec, scale * math.sqrt(horizon))
+        out = {'mean': value, 'sd': intervals.standard_deviation(spec)}
+        if spec['family'] != 'normal':      # a normal predictive is fully described by ``sd``
+            out['predictive'] = intervals.strip(spec)
+        return out
 
 
 def _ses(values, ses, names):
