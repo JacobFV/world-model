@@ -1,0 +1,301 @@
+{
+ "epistemic_status": "synthetic_illustration",
+ "note": "Two-sector, three-country illustrative baseline; elasticities and budgets are assumptions, not estimates.",
+ "environment": {
+  "family": "trade",
+  "base": {
+   "baseline": {
+    "countries": [
+     "USA",
+     "CHN",
+     "ROW"
+    ],
+    "sectors": [
+     "goods",
+     "services"
+    ],
+    "flows": {
+     "goods": {
+      "USA": {
+       "USA": 270.677,
+       "CHN": 78.947,
+       "ROW": 126.316
+      },
+      "CHN": {
+       "USA": 78.947,
+       "CHN": 187.97,
+       "ROW": 105.263
+      },
+      "ROW": {
+       "USA": 126.316,
+       "CHN": 105.263,
+       "ROW": 481.203
+      }
+     },
+     "services": {
+      "USA": {
+       "USA": 1184.211,
+       "CHN": 78.947,
+       "ROW": 126.316
+      },
+      "CHN": {
+       "USA": 78.947,
+       "CHN": 822.368,
+       "ROW": 105.263
+      },
+      "ROW": {
+       "USA": 126.316,
+       "CHN": 105.263,
+       "ROW": 2105.263
+      }
+     }
+    },
+    "io_coefficients": {
+     "USA": {
+      "goods": {
+       "goods": 0.3,
+       "services": 0.1
+      },
+      "services": {
+       "goods": 0.15,
+       "services": 0.2
+      }
+     },
+     "CHN": {
+      "goods": {
+       "goods": 0.3,
+       "services": 0.1
+      },
+      "services": {
+       "goods": 0.15,
+       "services": 0.2
+      }
+     },
+     "ROW": {
+      "goods": {
+       "goods": 0.3,
+       "services": 0.1
+      },
+      "services": {
+       "goods": 0.15,
+       "services": 0.2
+      }
+     }
+    },
+    "tariffs": {
+     "goods": {
+      "CHN": {
+       "USA": 0.03
+      },
+      "USA": {
+       "CHN": 0.07
+      }
+     }
+    }
+   },
+   "shock": {},
+   "parameters": {
+    "trade_elasticity": {
+     "goods": 4.0,
+     "services": 5.0
+    },
+    "trade_elasticity_se": 0.8
+   },
+   "fidelity": "general_equilibrium",
+   "n_draws": 10
+  },
+  "mode": "deterministic"
+ },
+ "actors": [
+  {
+   "id": "USA",
+   "goals": [
+    {
+     "metric": "usa_real_income",
+     "weight": 1
+    }
+   ],
+   "budget": {
+    "political_capital": 1
+   },
+   "observes": [
+    "elasticity_signal"
+   ],
+   "actions": [
+    {
+     "id": "t0",
+     "append": {
+      "shock.tariffs": [
+       {
+        "importer": "USA",
+        "exporter": "CHN",
+        "sector": "goods",
+        "tariff": 0.0
+       }
+      ]
+     }
+    },
+    {
+     "id": "t25",
+     "append": {
+      "shock.tariffs": [
+       {
+        "importer": "USA",
+        "exporter": "CHN",
+        "sector": "goods",
+        "tariff": 0.25
+       }
+      ]
+     },
+     "cost": {
+      "political_capital": 0.3
+     }
+    },
+    {
+     "id": "t50",
+     "append": {
+      "shock.tariffs": [
+       {
+        "importer": "USA",
+        "exporter": "CHN",
+        "sector": "goods",
+        "tariff": 0.5
+       }
+      ]
+     },
+     "cost": {
+      "political_capital": 0.6
+     }
+    },
+    {
+     "id": "t100",
+     "append": {
+      "shock.tariffs": [
+       {
+        "importer": "USA",
+        "exporter": "CHN",
+        "sector": "goods",
+        "tariff": 1.0
+       }
+      ]
+     },
+     "cost": {
+      "political_capital": 2
+     }
+    }
+   ]
+  },
+  {
+   "id": "CHN",
+   "goals": [
+    {
+     "metric": "chn_real_income",
+     "weight": 1
+    }
+   ],
+   "actions": [
+    {
+     "id": "t0",
+     "append": {
+      "shock.tariffs": [
+       {
+        "importer": "CHN",
+        "exporter": "USA",
+        "sector": "goods",
+        "tariff": 0.0
+       }
+      ]
+     }
+    },
+    {
+     "id": "t25",
+     "append": {
+      "shock.tariffs": [
+       {
+        "importer": "CHN",
+        "exporter": "USA",
+        "sector": "goods",
+        "tariff": 0.25
+       }
+      ]
+     }
+    },
+    {
+     "id": "t50",
+     "append": {
+      "shock.tariffs": [
+       {
+        "importer": "CHN",
+        "exporter": "USA",
+        "sector": "goods",
+        "tariff": 0.5
+       }
+      ]
+     }
+    }
+   ]
+  }
+ ],
+ "scenarios": [
+  {
+   "id": "low_elasticity",
+   "probability": 0.5,
+   "signals": {
+    "elasticity_signal": "low"
+   },
+   "overrides": {
+    "parameters": {
+     "trade_elasticity": {
+      "goods": 2.5,
+      "services": 5.0
+     }
+    }
+   }
+  },
+  {
+   "id": "high_elasticity",
+   "probability": 0.5,
+   "signals": {
+    "elasticity_signal": "high"
+   },
+   "overrides": {
+    "parameters": {
+     "trade_elasticity": {
+      "goods": 6.0,
+      "services": 5.0
+     }
+    }
+   }
+  }
+ ],
+ "metrics": {
+  "usa_real_income": {
+   "path": [
+    "real_income_change",
+    "USA"
+   ]
+  },
+  "chn_real_income": {
+   "path": [
+    "real_income_change",
+    "CHN"
+   ]
+  }
+ },
+ "solver": {
+  "method": "pure_nash"
+ },
+ "max_evaluations": 100,
+ "compare": {
+  "focal_actor": "USA",
+  "response": "best_response",
+  "ranking": "minimax_regret",
+  "constraints": [
+   {
+    "metric": "chn_real_income",
+    "op": ">=",
+    "value": -0.02
+   }
+  ]
+ }
+}

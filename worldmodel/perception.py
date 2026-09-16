@@ -139,3 +139,22 @@ class ObservationWrapper:
         self._ready = False
         if hasattr(self._env, 'close'):
             self._env.close()
+
+
+def split_observations(observation, allowlists):
+    """Per-actor private views: each actor receives copies of only its allowlisted keys.
+
+    ``allowlists`` maps actor ID to a list of observation keys. Unknown keys fail
+    rather than silently yielding None, so private information cannot leak by typo.
+    """
+    if not isinstance(observation, dict) or not isinstance(allowlists, dict) or not allowlists:
+        raise ValueError('Observation and nonempty actor allowlists are required')
+    views = {}
+    for actor, keys in allowlists.items():
+        if not isinstance(actor, str) or not actor or not isinstance(keys, (list, tuple)) or len(set(keys)) != len(keys):
+            raise ValueError('Each actor needs a unique list of observation keys')
+        missing = [k for k in keys if k not in observation]
+        if missing:
+            raise ValueError(f'Actor {actor} allowlists undeclared observations: {missing}')
+        views[actor] = {k: deepcopy(observation[k]) for k in keys}
+    return views

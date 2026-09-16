@@ -1,0 +1,104 @@
+{
+ "family": "influence",
+ "mode": "deterministic",
+ "seed": 7,
+ "epistemic_status": "synthetic_illustration",
+ "note": "Parameters are illustrative or synthetic truths, not estimates from real data; see `wm models requirements influence`.",
+ "config": {
+  "network": {
+   "filings": [
+    {
+     "client": "acme",
+     "registrant": "firm_a",
+     "amount": 90000,
+     "issues": [
+      "TRD",
+      "TAX"
+     ],
+     "agencies": [
+      "USTR",
+      "Treasury",
+      "Senate"
+     ],
+     "date": "2024-04-20"
+    },
+    {
+     "client": "globex",
+     "registrant": "firm_a",
+     "amount": 40000,
+     "issues": [
+      "TRD"
+     ],
+     "agencies": [
+      "USTR"
+     ],
+     "date": "2024-04-20"
+    },
+    {
+     "client": "globex",
+     "registrant": "firm_b",
+     "amount": null,
+     "issues": [
+      "ENG"
+     ],
+     "agencies": [],
+     "date": "2024-07-20"
+    }
+   ],
+   "contributions": [
+    {
+     "donor": "d1",
+     "committee": "pac1",
+     "amount": 5000,
+     "industry": "energy",
+     "date": "2024-02-01"
+    },
+    {
+     "donor": "d2",
+     "committee": "pac1",
+     "amount": 3000,
+     "industry": "finance",
+     "date": "2024-02-02"
+    },
+    {
+     "donor": "d3",
+     "committee": "camp_x",
+     "amount": 2000,
+     "industry": "energy",
+     "date": "2024-02-03"
+    }
+   ],
+   "transfers": [
+    {
+     "committee": "pac1",
+     "candidate": "X",
+     "amount": 4000,
+     "date": "2024-03-01"
+    },
+    {
+     "committee": "pac1",
+     "candidate": "Y",
+     "amount": 2000,
+     "date": "2024-03-01"
+    }
+   ],
+   "linkages": [
+    {
+     "committee": "camp_x",
+     "candidate": "X"
+    }
+   ]
+  },
+  "parameters": {
+   "influence_coefficient": 0.3,
+   "influence_standard_error": 0.05
+  },
+  "counterfactual": {
+   "exposure_change": {
+    "u1": 1.0,
+    "u2": -2.0
+   },
+   "n_draws": 500
+  }
+ }
+}

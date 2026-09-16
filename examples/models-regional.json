@@ -1,0 +1,113 @@
+{
+ "family": "regional",
+ "mode": "deterministic",
+ "seed": 7,
+ "epistemic_status": "synthetic_illustration",
+ "note": "Parameters are illustrative or synthetic truths, not estimates from real data; see `wm models requirements regional`.",
+ "config": {
+  "periods": 3,
+  "regions": [
+   {
+    "id": "R00",
+    "population": 200000,
+    "industry_employment": {
+     "manufacturing": 24362,
+     "energy": 12815,
+     "agriculture": 36341,
+     "finance": 11675,
+     "local_services": 55999
+    }
+   },
+   {
+    "id": "R01",
+    "population": 200000,
+    "industry_employment": {
+     "manufacturing": 10904,
+     "energy": 21170,
+     "agriculture": 9276,
+     "finance": 14725,
+     "local_services": 37093
+    }
+   },
+   {
+    "id": "R02",
+    "population": 200000,
+    "industry_employment": {
+     "manufacturing": 3984,
+     "energy": 4442,
+     "agriculture": 32900,
+     "finance": 29014,
+     "local_services": 46236
+    }
+   },
+   {
+    "id": "R03",
+    "population": 200000,
+    "industry_employment": {
+     "manufacturing": 853,
+     "energy": 31291,
+     "agriculture": 39517,
+     "finance": 33378,
+     "local_services": 70317
+    }
+   },
+   {
+    "id": "R04",
+    "population": 200000,
+    "industry_employment": {
+     "manufacturing": 35056,
+     "energy": 41855,
+     "agriculture": 14830,
+     "finance": 6445,
+     "local_services": 64390
+    }
+   }
+  ],
+  "baseline_migration": {
+   "R00": {
+    "R01": 1500.0,
+    "R02": 1500.0,
+    "R03": 1500.0,
+    "R04": 1500.0
+   },
+   "R01": {
+    "R00": 1500.0,
+    "R02": 1500.0,
+    "R03": 1500.0,
+    "R04": 1500.0
+   },
+   "R02": {
+    "R00": 1500.0,
+    "R01": 1500.0,
+    "R03": 1500.0,
+    "R04": 1500.0
+   },
+   "R03": {
+    "R00": 1500.0,
+    "R01": 1500.0,
+    "R02": 1500.0,
+    "R04": 1500.0
+   },
+   "R04": {
+    "R00": 1500.0,
+    "R01": 1500.0,
+    "R02": 1500.0,
+    "R03": 1500.0
+   }
+  },
+  "national_industry_growth": [
+   {
+    "manufacturing": -0.08,
+    "finance": 0.03,
+    "energy": 0.1,
+    "agriculture": 0.0,
+    "local_services": 0.0
+   }
+  ],
+  "parameters": {
+   "shift_share_elasticity": 1.0,
+   "destination_employment_elasticity": 3.0,
+   "outmigration_employment_rate_elasticity": -1.0
+  }
+ }
+}

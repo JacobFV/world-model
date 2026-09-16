@@ -1,0 +1,117 @@
+{
+ "family": "trade",
+ "mode": "deterministic",
+ "seed": 7,
+ "epistemic_status": "synthetic_illustration",
+ "note": "Parameters are illustrative or synthetic truths, not estimates from real data; see `wm models requirements trade`.",
+ "config": {
+  "baseline": {
+   "countries": [
+    "USA",
+    "CHN",
+    "ROW"
+   ],
+   "sectors": [
+    "goods",
+    "services"
+   ],
+   "flows": {
+    "goods": {
+     "USA": {
+      "USA": 270.677,
+      "CHN": 78.947,
+      "ROW": 126.316
+     },
+     "CHN": {
+      "USA": 78.947,
+      "CHN": 187.97,
+      "ROW": 105.263
+     },
+     "ROW": {
+      "USA": 126.316,
+      "CHN": 105.263,
+      "ROW": 481.203
+     }
+    },
+    "services": {
+     "USA": {
+      "USA": 1184.211,
+      "CHN": 78.947,
+      "ROW": 126.316
+     },
+     "CHN": {
+      "USA": 78.947,
+      "CHN": 822.368,
+      "ROW": 105.263
+     },
+     "ROW": {
+      "USA": 126.316,
+      "CHN": 105.263,
+      "ROW": 2105.263
+     }
+    }
+   },
+   "io_coefficients": {
+    "USA": {
+     "goods": {
+      "goods": 0.3,
+      "services": 0.1
+     },
+     "services": {
+      "goods": 0.15,
+      "services": 0.2
+     }
+    },
+    "CHN": {
+     "goods": {
+      "goods": 0.3,
+      "services": 0.1
+     },
+     "services": {
+      "goods": 0.15,
+      "services": 0.2
+     }
+    },
+    "ROW": {
+     "goods": {
+      "goods": 0.3,
+      "services": 0.1
+     },
+     "services": {
+      "goods": 0.15,
+      "services": 0.2
+     }
+    }
+   },
+   "tariffs": {
+    "goods": {
+     "CHN": {
+      "USA": 0.03
+     },
+     "USA": {
+      "CHN": 0.07
+     }
+    }
+   }
+  },
+  "shock": {
+   "tariffs": [
+    {
+     "importer": "USA",
+     "exporter": "CHN",
+     "sector": "goods",
+     "tariff": 0.25
+    }
+   ]
+  },
+  "parameters": {
+   "trade_elasticity": {
+    "goods": 4.0,
+    "services": 5.0
+   },
+   "trade_elasticity_se": 0.8
+  },
+  "fidelity": "general_equilibrium",
+  "n_draws": 10
+ }
+}

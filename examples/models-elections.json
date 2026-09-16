@@ -1,0 +1,389 @@
+{
+ "family": "elections",
+ "mode": "deterministic",
+ "seed": 7,
+ "epistemic_status": "synthetic_illustration",
+ "note": "Parameters are illustrative or synthetic truths, not estimates from real data; see `wm models requirements elections`.",
+ "config": {
+  "national": {
+   "econ": 1.5,
+   "president_party": 1,
+   "midterm": 1
+  },
+  "districts": [
+   {
+    "id": "d000",
+    "pvi": 0.11300584856167972,
+    "incumbent": 0,
+    "dem_receipts": 1000000.0,
+    "rep_receipts": 1000000.0,
+    "cvap": 550000,
+    "lag_turnout_rate": 0.45
+   },
+   {
+    "id": "d001",
+    "pvi": -0.16758937256413797,
+    "incumbent": 0,
+    "dem_receipts": 1000000.0,
+    "rep_receipts": 1000000.0,
+    "cvap": 550000,
+    "lag_turnout_rate": 0.45
+   },
+   {
+    "id": "d002",
+    "pvi": -0.08156573376941052,
+    "incumbent": 0,
+    "dem_receipts": 1000000.0,
+    "rep_receipts": 1000000.0,
+    "cvap": 550000,
+    "lag_turnout_rate": 0.45
+   },
+   {
+    "id": "d003",
+    "pvi": 0.04446042809527918,
+    "incumbent": 0,
+    "dem_receipts": 1000000.0,
+    "rep_receipts": 1000000.0,
+    "cvap": 550000,
+    "lag_turnout_rate": 0.45
+   },
+   {
+    "id": "d004",
+    "pvi": -0.12196186730256851,
+    "incumbent": 0,
+    "dem_receipts": 1000000.0,
+    "rep_receipts": 1000000.0,
+    "cvap": 550000,
+    "lag_turnout_rate": 0.45
+   },
+   {
+    "id": "d005",
+    "pvi": -0.00865440273420856,
+    "incumbent": 0,
+    "dem_receipts": 1000000.0,
+    "rep_receipts": 1000000.0,
+    "cvap": 550000,
+    "lag_turnout_rate": 0.45
+   },
+   {
+    "id": "d006",
+    "pvi": 0.021503578472982825,
+    "incumbent": 0,
+    "dem_receipts": 1000000.0,
+    "rep_receipts": 1000000.0,
+    "cvap": 550000,
+    "lag_turnout_rate": 0.45
+   },
+   {
+    "id": "d007",
+    "pvi": -0.09973190583251858,
+    "incumbent": 0,
+    "dem_receipts": 1000000.0,
+    "rep_receipts": 1000000.0,
+    "cvap": 550000,
+    "lag_turnout_rate": 0.45
+   },
+   {
+    "id": "d008",
+    "pvi": -0.15708448373512304,
+    "incumbent": 0,
+    "dem_receipts": 1000000.0,
+    "rep_receipts": 1000000.0,
+    "cvap": 550000,
+    "lag_turnout_rate": 0.45
+   },
+   {
+    "id": "d009",
+    "pvi": 0.023266528949892493,
+    "incumbent": 0,
+    "dem_receipts": 1000000.0,
+    "rep_receipts": 1000000.0,
+    "cvap": 550000,
+    "lag_turnout_rate": 0.45
+   },
+   {
+    "id": "d010",
+    "pvi": 0.11918996442422365,
+    "incumbent": 0,
+    "dem_receipts": 1000000.0,
+    "rep_receipts": 1000000.0,
+    "cvap": 550000,
+    "lag_turnout_rate": 0.45
+   },
+   {
+    "id": "d011",
+    "pvi": -0.07763779566570057,
+    "incumbent": 0,
+    "dem_receipts": 1000000.0,
+    "rep_receipts": 1000000.0,
+    "cvap": 550000,
+    "lag_turnout_rate": 0.45
+   },
+   {
+    "id": "d012",
+    "pvi": -0.04004015805548034,
+    "incumbent": 0,
+    "dem_receipts": 1000000.0,
+    "rep_receipts": 1000000.0,
+    "cvap": 550000,
+    "lag_turnout_rate": 0.45
+   },
+   {
+    "id": "d013",
+    "pvi": 0.1974806112699213,
+    "incumbent": 0,
+    "dem_receipts": 1000000.0,
+    "rep_receipts": 1000000.0,
+    "cvap": 550000,
+    "lag_turnout_rate": 0.45
+   },
+   {
+    "id": "d014",
+    "pvi": -0.06706677190179246,
+    "incumbent": 0,
+    "dem_receipts": 1000000.0,
+    "rep_receipts": 1000000.0,
+    "cvap": 550000,
+    "lag_turnout_rate": 0.45
+   },
+   {
+    "id": "d015",
+    "pvi": -0.06169879956632724,
+    "incumbent": 0,
+    "dem_receipts": 1000000.0,
+    "rep_receipts": 1000000.0,
+    "cvap": 550000,
+    "lag_turnout_rate": 0.45
+   },
+   {
+    "id": "d016",
+    "pvi": 0.28849431987582835,
+    "incumbent": 0,
+    "dem_receipts": 1000000.0,
+    "rep_receipts": 1000000.0,
+    "cvap": 550000,
+    "lag_turnout_rate": 0.45
+   },
+   {
+    "id": "d017",
+    "pvi": -0.18372991114483558,
+    "incumbent": 0,
+    "dem_receipts": 1000000.0,
+    "rep_receipts": 1000000.0,
+    "cvap": 550000,
+    "lag_turnout_rate": 0.45
+   },
+   {
+    "id": "d018",
+    "pvi": 0.09557590083522613,
+    "incumbent": 0,
+    "dem_receipts": 1000000.0,
+    "rep_receipts": 1000000.0,
+    "cvap": 550000,
+    "lag_turnout_rate": 0.45
+   },
+   {
+    "id": "d019",
+    "pvi": -0.24043782205816852,
+    "incumbent": 0,
+    "dem_receipts": 1000000.0,
+    "rep_receipts": 1000000.0,
+    "cvap": 550000,
+    "lag_turnout_rate": 0.45
+   },
+   {
+    "id": "d020",
+    "pvi": -0.07163552977028424,
+    "incumbent": 0,
+    "dem_receipts": 1000000.0,
+    "rep_receipts": 1000000.0,
+    "cvap": 550000,
+    "lag_turnout_rate": 0.45
+   },
+   {
+    "id": "d021",
+    "pvi": 0.18044170589783243,
+    "incumbent": 0,
+    "dem_receipts": 1000000.0,
+    "rep_receipts": 1000000.0,
+    "cvap": 550000,
+    "lag_turnout_rate": 0.45
+   },
+   {
+    "id": "d022",
+    "pvi": 0.14657236956920064,
+    "incumbent": 0,
+    "dem_receipts": 1000000.0,
+    "rep_receipts": 1000000.0,
+    "cvap": 550000,
+    "lag_turnout_rate": 0.45
+   },
+   {
+    "id": "d023",
+    "pvi": -0.10813441804744602,
+    "incumbent": 0,
+    "dem_receipts": 1000000.0,
+    "rep_receipts": 1000000.0,
+    "cvap": 550000,
+    "lag_turnout_rate": 0.45
+   },
+   {
+    "id": "d024",
+    "pvi": -0.05444384761495394,
+    "incumbent": 0,
+    "dem_receipts": 1000000.0,
+    "rep_receipts": 1000000.0,
+    "cvap": 550000,
+    "lag_turnout_rate": 0.45
+   },
+   {
+    "id": "d025",
+    "pvi": 0.009627965089273369,
+    "incumbent": 0,
+    "dem_receipts": 1000000.0,
+    "rep_receipts": 1000000.0,
+    "cvap": 550000,
+    "lag_turnout_rate": 0.45
+   },
+   {
+    "id": "d026",
+    "pvi": -0.15097239572693608,
+    "incumbent": 0,
+    "dem_receipts": 1000000.0,
+    "rep_receipts": 1000000.0,
+    "cvap": 550000,
+    "lag_turnout_rate": 0.45
+   },
+   {
+    "id": "d027",
+    "pvi": 0.06626640060731998,
+    "incumbent": 0,
+    "dem_receipts": 1000000.0,
+    "rep_receipts": 1000000.0,
+    "cvap": 550000,
+    "lag_turnout_rate": 0.45
+   },
+   {
+    "id": "d028",
+    "pvi": 0.26730927504842616,
+    "incumbent": 0,
+    "dem_receipts": 1000000.0,
+    "rep_receipts": 1000000.0,
+    "cvap": 550000,
+    "lag_turnout_rate": 0.45
+   },
+   {
+    "id": "d029",
+    "pvi": -0.16262897922615205,
+    "incumbent": 0,
+    "dem_receipts": 1000000.0,
+    "rep_receipts": 1000000.0,
+    "cvap": 550000,
+    "lag_turnout_rate": 0.45
+   },
+   {
+    "id": "d030",
+    "pvi": -0.23778396954639408,
+    "incumbent": 0,
+    "dem_receipts": 1000000.0,
+    "rep_receipts": 1000000.0,
+    "cvap": 550000,
+    "lag_turnout_rate": 0.45
+   },
+   {
+    "id": "d031",
+    "pvi": 0.03458924946972908,
+    "incumbent": 0,
+    "dem_receipts": 1000000.0,
+    "rep_receipts": 1000000.0,
+    "cvap": 550000,
+    "lag_turnout_rate": 0.45
+   },
+   {
+    "id": "d032",
+    "pvi": -0.014294797330148764,
+    "incumbent": 0,
+    "dem_receipts": 1000000.0,
+    "rep_receipts": 1000000.0,
+    "cvap": 550000,
+    "lag_turnout_rate": 0.45
+   },
+   {
+    "id": "d033",
+    "pvi": 0.2165195918303449,
+    "incumbent": 0,
+    "dem_receipts": 1000000.0,
+    "rep_receipts": 1000000.0,
+    "cvap": 550000,
+    "lag_turnout_rate": 0.45
+   },
+   {
+    "id": "d034",
+    "pvi": -0.01924346148684123,
+    "incumbent": 0,
+    "dem_receipts": 1000000.0,
+    "rep_receipts": 1000000.0,
+    "cvap": 550000,
+    "lag_turnout_rate": 0.45
+   },
+   {
+    "id": "d035",
+    "pvi": -0.006079165637846761,
+    "incumbent": 0,
+    "dem_receipts": 1000000.0,
+    "rep_receipts": 1000000.0,
+    "cvap": 550000,
+    "lag_turnout_rate": 0.45
+   },
+   {
+    "id": "d036",
+    "pvi": -0.02290486675215124,
+    "incumbent": 0,
+    "dem_receipts": 1000000.0,
+    "rep_receipts": 1000000.0,
+    "cvap": 550000,
+    "lag_turnout_rate": 0.45
+   },
+   {
+    "id": "d037",
+    "pvi": -0.11887274860179611,
+    "incumbent": 0,
+    "dem_receipts": 1000000.0,
+    "rep_receipts": 1000000.0,
+    "cvap": 550000,
+    "lag_turnout_rate": 0.45
+   },
+   {
+    "id": "d038",
+    "pvi": 0.08076359808304627,
+    "incumbent": 0,
+    "dem_receipts": 1000000.0,
+    "rep_receipts": 1000000.0,
+    "cvap": 550000,
+    "lag_turnout_rate": 0.45
+   },
+   {
+    "id": "d039",
+    "pvi": -0.15888989573664264,
+    "incumbent": 0,
+    "dem_receipts": 1000000.0,
+    "rep_receipts": 1000000.0,
+    "cvap": 550000,
+    "lag_turnout_rate": 0.45
+   }
+  ],
+  "parameters": {
+   "coefficients": {
+    "const": 0.49,
+    "pvi": 0.9,
+    "incumbent": 0.035,
+    "econ_x_president": 0.006,
+    "midterm_x_president": -0.025,
+    "fundraising": 0.012
+   },
+   "sigma_national": 0.03,
+   "sigma_district": 0.035
+  },
+  "n_simulations": 2000
+ }
+}

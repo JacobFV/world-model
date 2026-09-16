@@ -1,0 +1,210 @@
+{
+ "family": "sanctions",
+ "mode": "deterministic",
+ "seed": 7,
+ "epistemic_status": "synthetic_illustration",
+ "note": "Parameters are illustrative or synthetic truths, not estimates from real data; see `wm models requirements sanctions`.",
+ "config": {
+  "designated": [
+   "X"
+  ],
+  "ownership": [
+   {
+    "owner": "X",
+    "owned": "A",
+    "share": 0.5
+   },
+   {
+    "owner": "A",
+    "owned": "C",
+    "share": 0.5
+   },
+   {
+    "owner": "X",
+    "owned": "D",
+    "share": 0.25
+   },
+   {
+    "owner": "Y",
+    "owned": "D",
+    "share": 0.25
+   },
+   {
+    "owner": "X",
+    "owned": "E",
+    "share": 0.4
+   },
+   {
+    "owner": "E",
+    "owned": "F",
+    "share": 1.0
+   },
+   {
+    "owner": "C",
+    "owned": "ShipCo",
+    "share": 0.6
+   }
+  ],
+  "candidates": [
+   {
+    "id": "Y",
+    "probability": 0.3
+   }
+  ],
+  "exposures": [
+   {
+    "holder": "Bank1",
+    "counterparty": "C",
+    "amount": 100.0,
+    "currency": "USD"
+   },
+   {
+    "holder": "Bank1",
+    "counterparty": "F",
+    "amount": 50.0,
+    "currency": "USD"
+   },
+   {
+    "holder": "Bank1",
+    "counterparty": "Z",
+    "amount": 25.0,
+    "currency": "USD"
+   }
+  ],
+  "routes": [
+   {
+    "from": "CHN",
+    "to": "USA",
+    "cost": 1.0,
+    "operator": "ShipCo"
+   },
+   {
+    "from": "CHN",
+    "to": "ROW",
+    "cost": 0.4
+   },
+   {
+    "from": "ROW",
+    "to": "USA",
+    "cost": 0.8
+   },
+   {
+    "from": "USA",
+    "to": "CHN",
+    "cost": 1.0
+   }
+  ],
+  "route_pairs": [
+   {
+    "exporter": "CHN",
+    "importer": "USA"
+   },
+   {
+    "exporter": "USA",
+    "importer": "CHN"
+   }
+  ],
+  "parameters": {
+   "route_cost_semi_elasticity": 0.5
+  },
+  "trade": {
+   "baseline": {
+    "countries": [
+     "USA",
+     "CHN",
+     "ROW"
+    ],
+    "sectors": [
+     "goods",
+     "services"
+    ],
+    "flows": {
+     "goods": {
+      "USA": {
+       "USA": 270.677,
+       "CHN": 78.947,
+       "ROW": 126.316
+      },
+      "CHN": {
+       "USA": 78.947,
+       "CHN": 187.97,
+       "ROW": 105.263
+      },
+      "ROW": {
+       "USA": 126.316,
+       "CHN": 105.263,
+       "ROW": 481.203
+      }
+     },
+     "services": {
+      "USA": {
+       "USA": 1184.211,
+       "CHN": 78.947,
+       "ROW": 126.316
+      },
+      "CHN": {
+       "USA": 78.947,
+       "CHN": 822.368,
+       "ROW": 105.263
+      },
+      "ROW": {
+       "USA": 126.316,
+       "CHN": 105.263,
+       "ROW": 2105.263
+      }
+     }
+    },
+    "io_coefficients": {
+     "USA": {
+      "goods": {
+       "goods": 0.3,
+       "services": 0.1
+      },
+      "services": {
+       "goods": 0.15,
+       "services": 0.2
+      }
+     },
+     "CHN": {
+      "goods": {
+       "goods": 0.3,
+       "services": 0.1
+      },
+      "services": {
+       "goods": 0.15,
+       "services": 0.2
+      }
+     },
+     "ROW": {
+      "goods": {
+       "goods": 0.3,
+       "services": 0.1
+      },
+      "services": {
+       "goods": 0.15,
+       "services": 0.2
+      }
+     }
+    },
+    "tariffs": {
+     "goods": {
+      "CHN": {
+       "USA": 0.03
+      },
+      "USA": {
+       "CHN": 0.07
+      }
+     }
+    }
+   },
+   "parameters": {
+    "trade_elasticity": {
+     "goods": 4.0,
+     "services": 5.0
+    },
+    "trade_elasticity_se": 0.8
+   }
+  },
+  "n_simulations": 400
+ }
+}

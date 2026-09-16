@@ -1,0 +1,69 @@
+{
+ "family": "assets",
+ "mode": "stochastic",
+ "seed": 7,
+ "epistemic_status": "synthetic_illustration",
+ "note": "Parameters are illustrative or synthetic truths, not estimates from real data; see `wm models requirements assets`.",
+ "config": {
+  "horizon_days": 10,
+  "weights": {
+   "A": 0.5,
+   "B": 0.5
+  },
+  "initial_prices": {
+   "A": 100.0,
+   "B": 50.0
+  },
+  "n_simulations": 400,
+  "factor_names": [
+   "MKT",
+   "SMB"
+  ],
+  "factor_mean": {
+   "MKT": 0.0003,
+   "SMB": 0.0
+  },
+  "factor_covariance": [
+   [
+    0.0001,
+    0.0
+   ],
+   [
+    0.0,
+    2.5e-05
+   ]
+  ],
+  "symbols": {
+   "A": {
+    "alpha": 0.0001,
+    "betas": {
+     "MKT": 1.2,
+     "SMB": 0.3
+    },
+    "garch": {
+     "omega": 2.000000000000002e-06,
+     "alpha": 0.08,
+     "beta": 0.9,
+     "unconditional_variance": 0.0001,
+     "next_variance": 0.0002,
+     "last_residual": 0.0
+    }
+   },
+   "B": {
+    "alpha": 0.0,
+    "betas": {
+     "MKT": 0.7,
+     "SMB": -0.2
+    },
+    "garch": {
+     "omega": 1.9999999999999906e-06,
+     "alpha": 0.05,
+     "beta": 0.93,
+     "unconditional_variance": 0.0001,
+     "next_variance": 0.0002,
+     "last_residual": 0.0
+    }
+   }
+  }
+ }
+}

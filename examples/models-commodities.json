@@ -1,0 +1,39 @@
+{
+ "family": "commodities",
+ "mode": "deterministic",
+ "seed": 7,
+ "epistemic_status": "synthetic_illustration",
+ "note": "Parameters are illustrative or synthetic truths, not estimates from real data; see `wm models requirements commodities`.",
+ "config": {
+  "quantity_unit": "million_barrels",
+  "price_unit": "USD/barrel",
+  "periods": 12,
+  "reference": {
+   "price": 75.0,
+   "consumption": 620.0,
+   "production": 400.0
+  },
+  "initial": {
+   "stocks": 93.0,
+   "price": 75.0
+  },
+  "net_imports": 220.0,
+  "supply_shocks": [
+   1.0,
+   1.0,
+   0.9,
+   0.9,
+   0.95,
+   1.0
+  ],
+  "parameters": {
+   "demand_elasticity": -0.08,
+   "supply_elasticity": 0.05,
+   "supply_lag": 2,
+   "storage_elasticity": 1.2,
+   "target_stocks_to_use": 0.15,
+   "demand_growth": 0.0
+  },
+  "n_simulations": 200
+ }
+}

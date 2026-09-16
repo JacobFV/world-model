@@ -1,0 +1,41 @@
+{
+ "family": "market_abm",
+ "mode": "stochastic",
+ "seed": 7,
+ "epistemic_status": "synthetic_illustration",
+ "note": "Parameters are illustrative or synthetic truths, not estimates from real data; see `wm models requirements market_abm`.",
+ "config": {
+  "initial_price_cents": 10000,
+  "fundamental": {
+   "initial_cents": 10000
+  },
+  "steps": 100,
+  "clearing": "walrasian",
+  "agents": [
+   {
+    "type": "fundamentalist",
+    "count": 20,
+    "cash_cents": 5000000,
+    "shares": 500
+   },
+   {
+    "type": "chartist",
+    "count": 20,
+    "cash_cents": 5000000,
+    "shares": 500
+   },
+   {
+    "type": "noise",
+    "count": 20,
+    "cash_cents": 5000000,
+    "shares": 500
+   }
+  ],
+  "parameters": {
+   "fundamentalist_strength": 2.0,
+   "chartist_strength": 20.0,
+   "noise_sd": 0.1,
+   "fundamental_volatility": 0.01
+  }
+ }
+}

@@ -1,0 +1,191 @@
+{
+ "family": "legislative",
+ "mode": "deterministic",
+ "seed": 7,
+ "epistemic_status": "synthetic_illustration",
+ "note": "Parameters are illustrative or synthetic truths, not estimates from real data; see `wm models requirements legislative`.",
+ "config": {
+  "members": [
+   {
+    "id": "m000",
+    "party": "D",
+    "ideal_point": [
+     -0.5291422976596678
+    ]
+   },
+   {
+    "id": "m001",
+    "party": "R",
+    "ideal_point": [
+     0.3017109476494251
+    ]
+   },
+   {
+    "id": "m002",
+    "party": "D",
+    "ideal_point": [
+     -1.3398572240392106
+    ]
+   },
+   {
+    "id": "m003",
+    "party": "R",
+    "ideal_point": [
+     1.18525178373033
+    ]
+   },
+   {
+    "id": "m004",
+    "party": "D",
+    "ideal_point": [
+     -1.5081744470940355
+    ]
+   },
+   {
+    "id": "m005",
+    "party": "R",
+    "ideal_point": [
+     0.9639399886074643
+    ]
+   },
+   {
+    "id": "m006",
+    "party": "D",
+    "ideal_point": [
+     -0.9104017563625716
+    ]
+   },
+   {
+    "id": "m007",
+    "party": "R",
+    "ideal_point": [
+     0.5844503923645059
+    ]
+   },
+   {
+    "id": "m008",
+    "party": "D",
+    "ideal_point": [
+     -1.6545186822296793
+    ]
+   },
+   {
+    "id": "m009",
+    "party": "R",
+    "ideal_point": [
+     1.096943870624552
+    ]
+   },
+   {
+    "id": "m010",
+    "party": "D",
+    "ideal_point": [
+     -0.5033751482324014
+    ]
+   },
+   {
+    "id": "m011",
+    "party": "R",
+    "ideal_point": [
+     0.6765091847262477
+    ]
+   },
+   {
+    "id": "m012",
+    "party": "D",
+    "ideal_point": [
+     -1.1668339918978348
+    ]
+   },
+   {
+    "id": "m013",
+    "party": "R",
+    "ideal_point": [
+     1.822835880291339
+    ]
+   },
+   {
+    "id": "m014",
+    "party": "D",
+    "ideal_point": [
+     -1.2794448829241354
+    ]
+   },
+   {
+    "id": "m015",
+    "party": "R",
+    "ideal_point": [
+     0.7429216684736365
+    ]
+   },
+   {
+    "id": "m016",
+    "party": "D",
+    "ideal_point": [
+     0.20205966614928483
+    ]
+   },
+   {
+    "id": "m017",
+    "party": "R",
+    "ideal_point": [
+     0.234458703563185
+    ]
+   },
+   {
+    "id": "m018",
+    "party": "D",
+    "ideal_point": [
+     -0.6017670798532244
+    ]
+   },
+   {
+    "id": "m019",
+    "party": "R",
+    "ideal_point": [
+     -0.0018242585757022312
+    ]
+   },
+   {
+    "id": "m020",
+    "party": "D",
+    "ideal_point": [
+     -1.2984813740428511
+    ]
+   }
+  ],
+  "bill": {
+   "proposal": [
+    0.3
+   ],
+   "status_quo": [
+    -0.8
+   ]
+  },
+  "chambers": [
+   {
+    "id": "house",
+    "threshold": {
+     "type": "majority"
+    },
+    "committee": {
+     "members": [
+      "m000",
+      "m001",
+      "m002",
+      "m003",
+      "m004",
+      "m005",
+      "m006"
+     ],
+     "chair": "m001"
+    }
+   }
+  ],
+  "parameters": {
+   "salience": 3.0,
+   "discipline": 0.5
+  },
+  "n_simulations": 500
+ }
+}

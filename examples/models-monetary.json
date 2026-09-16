@@ -1,0 +1,47 @@
+{
+ "family": "monetary",
+ "mode": "deterministic",
+ "seed": 7,
+ "epistemic_status": "synthetic_illustration",
+ "note": "Parameters are illustrative or synthetic truths, not estimates from real data; see `wm models requirements monetary`.",
+ "config": {
+  "horizon": 8,
+  "initial": {
+   "policy_rate": 5.25,
+   "factors": [
+    4.5,
+    -0.5,
+    0.2
+   ]
+  },
+  "paths": {
+   "inflation": [
+    3.0,
+    2.8,
+    2.6,
+    2.4,
+    2.2,
+    2.1,
+    2.0,
+    2.0
+   ],
+   "output_gap": [
+    -0.5,
+    -1.0,
+    -1.5,
+    -1.5,
+    -1.0,
+    -0.5,
+    0.0,
+    0.0
+   ]
+  },
+  "maturities": [
+   0.25,
+   2,
+   10,
+   30
+  ],
+  "n_simulations": 300
+ }
+}
