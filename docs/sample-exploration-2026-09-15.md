@@ -1,3 +1,11 @@
+> **Historical record.** This is the bounded-sample exploration run made before full-scale
+> acquisition existed. The catalog now holds 107 published normalized datasets and about
+> 1.31 billion records; the blockers recorded here (BEA, USDA, freight) are resolved. Use
+> `wm catalog` for current status and
+> [strategic-affordances-audit.md](strategic-affordances-audit.md) for the current audit.
+> The per-sample manifest links below no longer resolve: those payloads were pruned to
+> reclaim space, which is also why `wm evidence-audit` currently aborts.
+
 # Sample exploration — 2026-09-15
 
 **11 of 14 real source families sampled; 762 real records retained.**

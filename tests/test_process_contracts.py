@@ -54,8 +54,10 @@ class SchedulerContractTests(unittest.TestCase):
         fixture=MaterializeTests();fixture.setUp();self.addCleanup(fixture.tearDown)
         request={**fixture.request,'end':'2024-01-01T00:33:20Z','max_points':10000,'budget':10000,
                  'lifecycle':{'entities':[],'events':[{}]*10000}}
+        from worldmodel.limits import use_limits
         with patch('worldmodel.lifecycle.materialize_lifecycle') as reconstruct:
-            with self.assertRaisesRegex(ValueError,'Lifecycle.*budget'):
+            # The old hard 10,000,000 lifecycle-work cap is now a raisable limit; a lowered limit still rejects first.
+            with use_limits(materialize_max_lifecycle_work=10_000_000), self.assertRaisesRegex(ValueError,'Lifecycle.*budget'):
                 materialize(fixture.store,fixture.graph,request,fixture.registry)
             reconstruct.assert_not_called()
 

@@ -1,6 +1,9 @@
-> Historical interruption checklist. Current implementation and verification status lives in
-> [handoff-completion.md](handoff-completion.md); current external dependencies live in
-> [remaining-concerns.md](remaining-concerns.md). Status labels below describe the interruption.
+> **Historical record.** An interruption checklist from before full-scale acquisition;
+> its sampling limits, dataset counts and status labels describe that moment, not the
+> current tree. Current state: [strategic-affordances-audit.md](strategic-affordances-audit.md)
+> and [session-2026-09-15-summary.md](session-2026-09-15-summary.md); current limits:
+> [remaining-concerns.md](remaining-concerns.md); the completion ledger
+> [handoff-completion.md](handoff-completion.md) is also historical.
 
 # World model: paused work and detailed remaining specification
 

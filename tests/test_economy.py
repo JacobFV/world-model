@@ -38,8 +38,26 @@ class EconomyTests(unittest.TestCase):
         state = {'config': example_economy(), 'step': 2}
         self.assertEqual(estimate_process_work(state, 3)['firm_days'], 12)
         self.assertEqual(estimate_process_work(state, 3)['cumulative_firm_days'], 15)
-        with self.assertRaises(ValueError):
-            estimate_process_work(state, 1000)
+        from worldmodel.limits import LimitExceeded, use_limits
+        with use_limits(economy_max_replay_firm_days=100000):
+            with self.assertRaisesRegex(LimitExceeded, 'economy_max_replay_firm_days=100000'):
+                estimate_process_work(state, 1000)
+        self.assertEqual(estimate_process_work(state, 1000)['cumulative_firm_days'], 502503)
+
+    def test_history_modes_and_business_day_limits(self):
+        from worldmodel.limits import LimitExceeded
+        config = example_economy(); config['days'] = 12
+        full = simulate_economy(config)
+        for history, kwargs, days in (('summary', {}, [0, 12]), ('every_n', {'history_every': 5}, [0, 5, 10, 12])):
+            result = simulate_economy(config, history=history, **kwargs)
+            self.assertEqual([s['step'] for s in result['snapshots']], days)
+            self.assertEqual(result['snapshots'][-1], full['snapshots'][-1])
+            self.assertEqual((result['journal'], result['metrics'], result['accounting']), (full['journal'], full['metrics'], full['accounting']))
+        with self.assertRaisesRegex(LimitExceeded, 'economy_max_retained_business_days=12'):
+            simulate_economy(config, limits={'economy_max_retained_business_days': 12})
+        self.assertEqual(simulate_economy(config, history='summary', limits={'economy_max_retained_business_days': 12})['snapshots'][-1]['step'], 12)
+        with self.assertRaisesRegex(LimitExceeded, 'economy_max_business_days=11'):
+            simulate_economy(config, limits={'economy_max_business_days': 11})
 
     def test_credit_storage_and_cash_limits(self):
         config = example_economy()

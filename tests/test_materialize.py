@@ -202,5 +202,7 @@ class MaterializeTests(unittest.TestCase):
         request={'start':'2024-01-01','end':'2026-01-01','known_at':'2024-01-01','step_seconds':86400,'budget':1000,
                  'targets':[target],'initial_state':[{**target,'value':{'config':example_economy(),'step':0},'unit':None}],
                  'bindings':[{'id':'economy','process_id':'bank_energy_business','inputs':{'economy_state':target},'outputs':{'economy_state':target}}]}
-        with self.assertRaisesRegex(ValueError,'work|firm-day'):
-            materialize(self.store,self.graph,request)
+        from worldmodel.limits import use_limits
+        with use_limits(economy_max_replay_firm_days=100000):
+            with self.assertRaisesRegex(ValueError,'economy_max_replay_firm_days=100000'):
+                materialize(self.store,self.graph,request)

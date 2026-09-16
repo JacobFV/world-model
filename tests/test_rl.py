@@ -32,7 +32,9 @@ class RLTests(unittest.TestCase):
                       training_seeds=[1], evaluation_seeds=[1])
         with self.assertRaises(ValueError): train_tabular(**kwargs)
         kwargs.update(evaluation_seeds=[2], max_steps=1001)
-        with self.assertRaises(ValueError): train_tabular(**kwargs)
+        from worldmodel.limits import LimitExceeded
+        with self.assertRaisesRegex(LimitExceeded, 'environment_max_steps'): train_tabular(**kwargs, limits={'environment_max_steps': 1000})
+        with self.assertRaisesRegex(LimitExceeded, 'rl_max_transitions'): train_tabular(**kwargs, limits={'rl_max_transitions': 3002})
 
     def test_vector_seeds_and_batch_validation(self):
         batch = VectorEnvironment([ChoiceEnvironment, ChoiceEnvironment])

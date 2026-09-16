@@ -1,10 +1,18 @@
-> Historical pre-kernel audit. The subsequent typed graph, process registry and
-> materializer are described in [the current strategic systems guide](strategic-systems.md),
-> including updated supported capabilities and remaining gaps.
+> **Historical record — superseded.** This is the audit as written before full-scale
+> acquisition, the estimation layer and the model families existed. Its numbers (18
+> dataset declarations, 11 sampled sources, 762 sample records, zero real graph edges,
+> no estimation or calibration) describe a state the repository has left. It is kept
+> unedited so the change is auditable. The current audit is
+> [strategic-affordances-audit.md](strategic-affordances-audit.md); the current
+> per-session record is [session-2026-09-15-summary.md](session-2026-09-15-summary.md).
+>
+> The older header of this file read: "Historical pre-kernel audit. The subsequent typed
+> graph, process registry and materializer are described in [the current strategic systems
+> guide](strategic-systems.md), including updated supported capabilities and remaining gaps."
 
-# Strategic affordances audit
+# Strategic affordances audit (pre-acquisition)
 
-Audited 2026-09-15 against the current Python implementation, dataset declarations,
+Audited 2026-09-15 against the then-current Python implementation, dataset declarations,
 retained sample reports, published dataset pointers, and SQLite graph contents.
 
 ## Finding

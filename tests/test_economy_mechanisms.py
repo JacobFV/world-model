@@ -207,7 +207,7 @@ class MechanismTests(unittest.TestCase):
         cfg['banks'][0]['accounts'] = {f['id']: 0 for f in cfg['firms']}
         with patch('worldmodel.coupled_economy.step_economy', side_effect=AssertionError('transition called')):
             with self.assertRaisesRegex(ValueError, 'work budget'):
-                simulate_coupled_economy({'initial_state': cfg, 'policies': [{}] * 30})
+                simulate_coupled_economy({'initial_state': cfg, 'policies': [{}] * 30}, limits={'coupled_max_retained_postings': 20000})
 
     def test_seedless_replay_and_serialized_incremental_state_agree(self):
         cfg = self.interest(self.config()); cfg['mechanisms']['inventory_valuation'] = True

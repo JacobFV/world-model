@@ -2,6 +2,7 @@ import copy
 import unittest
 from unittest.mock import patch
 from worldmodel.coupled_economy import initialize_economy, step_economy, simulate_coupled_economy
+from worldmodel.limits import LimitExceeded, use_limits
 
 
 class CoupledEconomyTests(unittest.TestCase):
@@ -125,20 +126,15 @@ class CoupledEconomyTests(unittest.TestCase):
 
     def test_purchase_cross_product_rejected_before_any_transfer(self):
         # Fail fast if preflight is missing; never run the pathological workload.
-        from worldmodel.banking import simulate_banking
         config, policy = self.cross_product(100)
         state = initialize_economy(config)
-
-        def no_transactions(request):
-            if request.get('transactions'):
-                raise AssertionError('A transfer ran before the work-budget check')
-            return simulate_banking(request)
-
-        with patch('worldmodel.coupled_economy.simulate_banking', side_effect=no_transactions):
-            with self.assertRaisesRegex(ValueError, 'work budget'):
-                step_economy(state, policy)
+        with patch('worldmodel.coupled_economy.apply_transaction', side_effect=AssertionError('A transfer ran before the work-budget check')):
+            with use_limits(coupled_max_step_transactions=5000):
+                with self.assertRaisesRegex(LimitExceeded, 'work budget.*coupled_max_step_transactions=5000'):
+                    step_economy(state, policy)
         self.assertEqual(state['step'], 0)
         self.assertEqual(state['banks'][0]['accounts']['h0'], 1000)
+        self.assertEqual(step_economy(state, policy)['step'], 1)
 
     def test_cumulative_purchase_slots_cannot_evade_budget_with_empty_journals(self):
         config, policy = self.cross_product(5, units=0)
@@ -149,18 +145,53 @@ class CoupledEconomyTests(unittest.TestCase):
         state['history'] = [{**copy.deepcopy(one['history'][0]), 'step': i + 1} for i in range(400)]
         state['step'] = 400
         with self.assertRaisesRegex(ValueError, 'work budget'):
-            step_economy(state, policy)
+            step_economy(state, policy, limits={'coupled_max_retained_postings': 40000})
         self.assertEqual(state['step'], 400)
+        self.assertEqual(step_economy(state, policy, limits={'coupled_max_retained_postings': 40100})['step'], 401)
 
     def test_runner_preflights_whole_policy_sequence_before_transitions(self):
-        from worldmodel.banking import simulate_banking
         config, policy = self.cross_product(20)
+        with patch('worldmodel.coupled_economy.apply_transaction', side_effect=AssertionError('A transfer ran before sequence preflight')):
+            with use_limits({'coupled_max_retained_postings': 50000}):
+                with self.assertRaisesRegex(ValueError, 'work budget'):
+                    simulate_coupled_economy({'initial_state': config, 'policies': [policy] * 50})
+            # Summary history retains no journals, so only per-step limits apply.
+            with use_limits({'coupled_max_retained_postings': 50000, 'coupled_max_step_transactions': 399}):
+                with self.assertRaisesRegex(ValueError, 'coupled_max_step_transactions'):
+                    simulate_coupled_economy({'initial_state': config, 'policies': [policy] * 50}, history='summary')
 
-        def no_transactions(request):
-            if request.get('transactions'):
-                raise AssertionError('A transfer ran before sequence preflight')
-            return simulate_banking(request)
+    def test_actor_horizon_and_quantity_limits_are_configurable(self):
+        config = self.config()
+        with self.assertRaisesRegex(LimitExceeded, 'capacity.*economy_max_quantity=9'):
+            initialize_economy(config, limits={'economy_max_quantity': 9})
+        state = initialize_economy(config)
+        big = self.config(); big['firms'] = [dict(big['firms'][0], id=f'f{i}') for i in range(150)]
+        big['banks'][0]['accounts'] = {f['id']: 0 for f in big['firms']}
+        self.assertEqual(len(initialize_economy(big)['firms']), 150)
+        with self.assertRaisesRegex(LimitExceeded, 'coupled_max_firms=100'):
+            initialize_economy(big, limits={'coupled_max_firms': 100})
+        with use_limits(coupled_max_steps=1):
+            one = step_economy(state, self.policy())
+            with self.assertRaisesRegex(LimitExceeded, 'coupled_max_steps=1'):
+                step_economy(one, self.policy())
+        with self.assertRaisesRegex(LimitExceeded, 'economy_max_quantity=3'):
+            step_economy(state, self.policy(4, 0), limits={'economy_max_quantity': 3})
+        self.assertEqual(step_economy(state, self.policy(2000000, 0))['history'][-1]['firms']['firm']['produced'], 10)
 
-        with patch('worldmodel.coupled_economy.simulate_banking', side_effect=no_transactions):
-            with self.assertRaisesRegex(ValueError, 'work budget'):
-                simulate_coupled_economy({'initial_state': config, 'policies': [policy] * 50})
+    def test_summary_and_every_n_history_are_exact_projections_of_full_history(self):
+        from worldmodel.coupled_economy import summarize_record
+        policies = [self.policy(4, 3), self.policy(0, 1), self.policy(2, 5), self.policy(0, 0), self.policy(3, 2)]
+        full = simulate_coupled_economy({'initial_state': self.config(), 'policies': policies})
+        summary = simulate_coupled_economy({'initial_state': self.config(), 'policies': policies}, history='summary')
+        sampled = simulate_coupled_economy({'initial_state': self.config(), 'policies': policies}, history={'mode': 'every_n', 'every': 2})
+        for other in (summary, sampled):
+            self.assertEqual({k: v for k, v in other.items() if k not in ('history', 'history_policy')}, {k: v for k, v in full.items() if k != 'history'})
+        strip = lambda records: [{k: v for k, v in r.items() if k != 'work'} for r in records]
+        self.assertEqual(strip(summary['history']), strip(summarize_record(r) for r in full['history']))
+        self.assertEqual(summary['history'][-1]['work']['reserved_postings'], 0)
+        self.assertEqual([r.get('summary', False) for r in sampled['history']], [True, False, True, False, True])
+        self.assertEqual({k: v for k, v in sampled['history'][1].items() if k != 'work'}, {k: v for k, v in full['history'][1].items() if k != 'work'})
+        self.assertEqual(summary['history'][0]['totals'], {'cost': 20.0, 'produced': 4, 'profit': 10.0, 'revenue': 30.0, 'sold': 3})
+        resumed = step_economy(summary, self.policy())
+        self.assertEqual(resumed['step'], 6)
+        with self.assertRaises(ValueError): initialize_economy(self.config(), history={'mode': 'every_n'})

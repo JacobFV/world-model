@@ -36,8 +36,18 @@ def execute(args,catalog,store,project,reference):
         for definition in catalog.list():
             if definition['kind']!='source':continue
             name=definition['id'];pointer=store.sample_latest_path(name)
-            sample=explore(store,name) if pointer.exists() else {'status':'not_acquired'}
+            if pointer.exists():
+                # A pruned sample payload is an ordinary state once full acquisition
+                # supersedes sampling; report it instead of aborting the whole audit.
+                try:sample=explore(store,name)
+                except (OSError,ValueError) as error:sample={'status':'sample_unavailable','reason':str(error)[:300]}
+            else:sample={'status':'not_acquired'}
+            acquisition=store.dataset_dir(name)/'manifests'/'acquisitions'/'latest.json'
+            acquired=read_json(acquisition) if acquisition.exists() else {}
+            published=store.latest_path(name).exists()
             sources.append({'dataset':name,'status':sample['status'],'rows':sample.get('rows'),
+                            'acquisition_status':acquired.get('status'),'acquisition_complete':acquired.get('complete'),
+                            'normalized_published':published,
                             'reason':sample.get('reason',definition.get('sampling',{}).get('reason')),
                             'scope':definition['description'],'source':definition.get('source',{}),
                             'sampling_criteria':definition.get('sampling',{}).get('criteria'),

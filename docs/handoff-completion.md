@@ -1,3 +1,9 @@
+> **Historical record.** This ledger closed before full-scale acquisition. Its counts
+> (501 tests, 52 dataset pipelines, 11 bounded samples, 10,955 graph records) describe a
+> state the repository has left. Current state:
+> [strategic-affordances-audit.md](strategic-affordances-audit.md) and
+> [session-2026-09-15-summary.md](session-2026-09-15-summary.md).
+
 # Handoff completion ledger
 
 Active scope: all software tasks in `RESUME-PLAN.md`, updated to the dataset-local

@@ -1,4 +1,7 @@
 include LICENSE DATA_RIGHTS.md pyproject.toml
+recursive-include worldmodel *.json *.csv *.txt *.md
+include worldmodel/estimation/requirements.json
+recursive-include worldmodel/reference *
 recursive-include data *.json *.py *.md .gitignore
 recursive-exclude data *.pyc
 prune data/*/artifacts
@@ -11,3 +14,9 @@ prune data/*/runs
 prune data/*/samples
 recursive-include tests/fixtures *.json *.jsonl *.csv
 recursive-include examples *.json *.jsonl *.csv *.py
+prune data/.acquisition
+prune data/*/.acquisition
+prune scratch
+prune data/*/work
+global-exclude *.py[cod] .env .env.* *.sqlite *.lock
+global-exclude __pycache__/*

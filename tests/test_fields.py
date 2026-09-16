@@ -65,7 +65,11 @@ class FieldTests(unittest.TestCase):
     def test_cumulative_work_and_claim_evidence(self):
         config = self.config(); config['edges'] = []
         self.assertEqual(estimate_process_work(config, 2)['cell_edge_updates'], 8)
-        with self.assertRaises(ValueError): estimate_process_work(config, 100000)
+        self.assertEqual(estimate_process_work(config, 100000)['cell_edge_updates'], 400000)
+        from worldmodel.limits import LimitExceeded, use_limits
+        with use_limits(field_max_work=100000):
+            with self.assertRaisesRegex(LimitExceeded, 'field_max_work'): estimate_process_work(config, 100000)
+        with self.assertRaises(ValueError): estimate_process_work(config, 10, limits={'field_max_work': 39})
         config['claims'][0]['evidence'] = [{'input': {'dataset': 'claim_source', 'artifact': 'b' * 64}, 'locator': 'claim:1'}]
         records = list(FieldWorld(config).project(self.projection()))
         assertion = next(r for r in records if r.get('subject') == 'claim:one' and r.get('predicate') == 'claims_field_cell')

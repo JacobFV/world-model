@@ -61,7 +61,7 @@ class StructuredSpaceTests(unittest.TestCase):
         schema = {'type': 'array', 'length': 1000, 'items': {
             'type': 'vector', 'length': 1000, 'minimum': 0, 'maximum': 1}}
         with patch('worldmodel.structured_spaces._layout', side_effect=AssertionError('allocated')):
-            with self.assertRaisesRegex(ValueError, '4096'): StructuredSpace(schema)
+            with self.assertRaisesRegex(ValueError, 'spaces_max_channels=4096'): StructuredSpace(schema, limits={'spaces_max_channels': 4096})
         with self.assertRaises(ValueError): StructuredSpace({'type': []})
 
     def test_optional_gym_checker(self):

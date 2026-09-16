@@ -6,13 +6,14 @@ from setuptools.command.build_py import build_py
 from setuptools.command.sdist import sdist
 
 
-EXCLUDED = {'artifacts','scratch','manifests','raw','final','processing','runs','samples','__pycache__'}
+EXCLUDED = {'artifacts','scratch','manifests','raw','final','processing','runs','samples','__pycache__','.acquisition','work'}
 
 
 def catalog_resource(source, dataset):
     relative = source.relative_to(dataset)
     return (not any(part in EXCLUDED for part in relative.parts)
             and source.name not in ('latest.json', 'raw-latest.json')
+            and not source.name.startswith('.env')
             and not any(path.is_symlink() for path in (source, *source.parents) if path != dataset.parent)
             and source.is_file()
             and (source.suffix in ('.py', '.json', '.md') or source.name == '.gitignore'))

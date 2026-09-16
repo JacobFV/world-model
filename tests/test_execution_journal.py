@@ -96,7 +96,10 @@ class JournalTests(unittest.TestCase):
             for n in range(3):j.append('s',{'text':'x'*50})
             with self.assertRaises(ValueError):j.append('s',{'text':'x'*50})
             self.assertEqual(len(j.history('s')['items']),3)
-            with self.assertRaises(ValueError):j.history('s',limit=101)
+            from worldmodel.limits import LimitExceeded, use_limits
+            self.assertEqual(len(j.history('s',limit=101)['items']),3)
+            with use_limits(journal_max_page_items=100):
+                with self.assertRaisesRegex(LimitExceeded,'journal_max_page_items=100'):j.history('s',limit=101)
             with self.assertRaises(ValueError):j.append('s',{1:'changed by JSON'})
 
     def test_atomic_checkpoint_rolls_back_if_history_exhausts_storage(self):

@@ -1,11 +1,18 @@
 # Reference backbone
 
 The reference graph joins public people, dated roles, organizations, market venues,
-listing snapshots and explicit parent relationships to the existing strategic evidence.
-It preserves source records and exact input/code lineage. Names are searchable labels;
-only published identifiers and explicit equivalence claims connect identities.
+listing snapshots and explicit parent relationships. It preserves source records and exact
+input/code lineage. Names are searchable labels; only published identifiers and explicit
+equivalence claims connect identities.
 
-## Acquired on September 15, 2026
+> The row counts in the next two sections are from the **bounded-sample** build and are
+> kept as a record of that build. Those sources are now fully acquired: `iso_mic_venues`
+> 14,334 records, `nasdaq_listings` 39,602, `gleif_parent_relationships` 1,900,927,
+> `sec_gleif` 6,157,843, `congress_people` 314,458, `openalex_people` 191,718. The
+> `reference_evidence` artifact described below was built from samples and has not been
+> rebuilt at that scale. Run `wm catalog` for current status.
+
+## Sample build of September 15, 2026 (historical)
 
 | Source | Retained rows | Retained bytes | Temporary download bytes |
 | --- | ---: | ---: | ---: |

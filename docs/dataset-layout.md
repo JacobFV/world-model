@@ -234,7 +234,14 @@ Dataset code snapshots include `dataset.json`, local Python files and local JSON
 configuration resources, excluding generated directories and runtime pointers.
 Symlinks are not accepted as dataset source files. Local code is executed from the captured source snapshot,
 including relative imports. Publication checks that sources did not change.
-Core implementation, catalog and environment provenance are also recorded.
+Core implementation and environment provenance are also recorded.
+
+A **dataset** build does not snapshot the whole catalog. Its own declaration is already
+captured twice — in `code.dataset_code` and in the manifest's `definition` — so including
+every other `data/*/dataset.json` in `code.files` added nothing except a failure mode:
+editing an unrelated dataset's declaration during a long build made that build abort at
+publish time, because publication checks that captured sources did not change. Builds
+that are not scoped to a dataset still snapshot the full catalog.
 
 `manifests/` contains compact derived indexes and convenience pointers. Code
 source bodies are omitted; computed parameter values are represented by a hash

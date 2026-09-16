@@ -154,8 +154,13 @@ class SpatialStoreTests(unittest.TestCase):
         for bounds in ([2, 0, 1, 0], [0, 0, float('nan'), 1]):
             with self.assertRaises(ValueError):
                 self.store.bbox(bounds)
+        from worldmodel.limits import LimitExceeded, use_limits
+        self.assertEqual(len(self.store.select(limit=1001)['state']['cells']), 3)
+        with use_limits(spatial_max_query_rows=1000):
+            with self.assertRaisesRegex(LimitExceeded, 'spatial_max_query_rows'):
+                self.store.select(limit=1001)
         with self.assertRaises(ValueError):
-            self.store.select(limit=1001)
+            SpatialStore(':memory:', limits={'spatial_max_query_rows': 2}).bbox([0, 0, 1, 1], limit=3)
 
     def test_tiny_support_measure_cannot_double_during_split(self):
         self.store.apply([{'type': 'birth', 'cell': {'id': 'cell:tiny', 'measure': 1e-15},
@@ -199,6 +204,7 @@ class SpatialStoreTests(unittest.TestCase):
             config = world()
             config['claims'] = [{'id': f'claim:{i}', 'claimant': 'actor:x', 'cells': ['cell:a']} for i in range(101)]
             other.initialize(config, coordinate_system=CARTESIAN)
+            other._limit_overrides = {'field_max_claim_memberships': 100000}
             with self.assertRaisesRegex(ValueError, 'budget'):
                 other.apply([{'type': 'split', 'cell': 'cell:a', 'children': [
                     {'id': f'cell:child{i}', 'measure': .002} for i in range(1000)], 'edges': []}])

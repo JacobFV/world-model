@@ -82,8 +82,16 @@ class BankingTests(unittest.TestCase):
     def test_exact_cents_and_budget(self):
         result = simulate_banking(self.config([{'kind': 'originate', 'bank': 'a', 'borrower': 'alice', 'amount': .1}] * 100))
         self.assertEqual(result['banks'][0]['loans']['alice'], 10)
+        from worldmodel.limits import LimitExceeded, use_limits
         cfg = self.config(); cfg['transactions'] = [{}] * 10001
-        with self.assertRaises(ValueError): simulate_banking(cfg)
+        with use_limits(banking_max_transactions=10000):
+            with self.assertRaisesRegex(LimitExceeded, 'banking_max_transactions=10000'): simulate_banking(cfg)
+        many = self.config([{'kind': 'originate', 'bank': 'a', 'borrower': 'alice', 'amount': .01}] * 20000)
+        with self.assertRaisesRegex(LimitExceeded, 'banking_max_audit_cells'):
+            simulate_banking(many, limits={'banking_max_audit_cells': 1000000})
+        summary = simulate_banking(many, limits={'banking_max_audit_cells': 1000000}, audit='summary')
+        self.assertEqual((summary['banks'][0]['loans']['alice'], len(summary['journal']), len(summary['snapshots']), summary['audit']), (200, 20000, 2, []))
+        self.assertEqual(summary['banks'], simulate_banking(self.config([{'kind': 'originate', 'bank': 'a', 'borrower': 'alice', 'amount': 200}]))['banks'])
 
     def test_daily_adapter_clears_executed_transactions(self):
         registry = register_banking_processes(ProcessRegistry())

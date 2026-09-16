@@ -7,6 +7,7 @@ from .util import read_json, now
 
 from .foundation_cli import COMMANDS as FOUNDATION_COMMANDS
 
+LIMITS_HELP='JSON object (or @file.json) raising/lowering named worldmodel.limits for this command'
 COMMANDS=FOUNDATION_COMMANDS | {'sources','strategic-build','route','economy','banking','strategies','calibrate','benchmark-series','report'}
 
 
@@ -24,10 +25,12 @@ def add_commands(sub):
     route.add_argument('--request',type=Path,required=True)
     route.add_argument('--person',help='Scenario traveler ID; does not assert real travel')
     route.add_argument('--dataset',default='journey_scenario')
+    route.add_argument('--limits',help=LIMITS_HELP)
     for name in ('economy','banking','strategies'):
         command=sub.add_parser(name,help='Run and publish an explicit '+name+' scenario')
         command.add_argument('--request',type=Path,required=True)
         command.add_argument('--dataset',default=name+'_scenario')
+        command.add_argument('--limits',help=LIMITS_HELP)
         if name=='economy':
             command.add_argument('--seed-graph',help='Seed rates and WTI price from verified observed graph')
             command.add_argument('--as-of')
@@ -46,8 +49,8 @@ def add_commands(sub):
 
 
 def _local_input(store,dataset,path,label):
-    if path.stat().st_size>1024*1024:
-        raise ValueError('Local scenario input exceeds 1 MiB laptop limit')
+    from .limits import resolve_limits
+    resolve_limits().check('cli_max_input_bytes',path.stat().st_size,'Local scenario input exceeds limit')
     ref=store.import_file(dataset+'_inputs',path,{'publisher':'user-provided','role':label},update_latest=False)
     return ref,read_json(store.artifact_dir(ref)/'payload')
 
@@ -64,6 +67,12 @@ def _sample(store,dataset):
 
 
 def execute(args,catalog,store,project,reference):
+    from .limits import parse_limits,use_limits
+    with use_limits(parse_limits(getattr(args,'limits',None))):
+        return _execute(args,catalog,store,project,reference)
+
+
+def _execute(args,catalog,store,project,reference):
     command=args.command
     if command in FOUNDATION_COMMANDS:
         from .foundation_cli import execute as execute_foundation

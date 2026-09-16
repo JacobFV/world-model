@@ -1,5 +1,8 @@
-> This guide describes the original kernel. See [the current strategic systems
-> guide](strategic-systems.md) for fields, additional kernels, source coverage and lifecycle support.
+> This guide describes the process registry and temporal materializer. Those contracts are
+> current. Its statements about *which evidence exists* are not: see
+> [the unified graph guide](unified-graph.md) for the graph's current contents,
+> `wm catalog` for source status, and [the strategic systems
+> guide](strategic-systems.md) for fields, additional kernels and lifecycle support.
 
 # Typed world graph and process materialization
 
@@ -13,11 +16,13 @@ immutable sampled sources → source-specific typed evidence → world_evidence
 request + process bindings + implementation registry → materialized dataset
 ```
 
-`world_graph` remains the fictional demonstration. `world_evidence` contains the
-11 acquired real samples. `python3 -m worldmodel unify` normalizes and validates
-them, pins their versions, publishes a union and builds its SQLite index. This
-command performs no downloads. All 11 samples must exist; missing data fails
-explicitly. BEA input-output, freight and USDA are recorded as unavailable.
+`world_graph` remains the fictional demonstration. `python3 -m worldmodel unify` reads
+already-published normalized datasets, pins their versions, publishes a union and builds
+its SQLite index; it performs no downloads and fails explicitly on missing inputs. The
+set of datasets it unifies, and the resulting record and edge counts, are being rebuilt
+in this working tree — [the unified graph guide](unified-graph.md) is the authority on
+both. The earlier `world_evidence` union of 11 bounded samples is superseded; it is still
+declared with status `sample_only` and should not be treated as current evidence.
 
 Evidence records have distinct identities from the entities they describe. Stable
 publisher identifiers and explicit crosswalks join datasets; names alone do not.
@@ -139,10 +144,18 @@ python3 -m worldmodel view california_population_scenario
 python3 -m worldmodel verify california_population_scenario
 ```
 
-The population scenario starts from the sampled July 2024 California estimate,
+These examples target the `world_evidence` union, which is being replaced by the unified
+graph rebuild; check [the unified graph guide](unified-graph.md) for the dataset name and
+request files to use. The `materialize`, `view` and `verify` contracts themselves are
+unchanged.
+
+The population scenario starts from a July 2024 California estimate,
 assumes 1% annual growth, updates daily and emits approximately monthly values.
 Its September 2026 information cutoff deliberately makes this a retrospective
-scenario, not a historical backtest or a claim about actual 2025 population.
+scenario, not a historical backtest or a claim about actual 2025 population. The 1%
+growth rate is an assumption written into the request, not a fitted parameter — the
+`population_growth_rate` component that would estimate one fails its holdout
+(see [calibration-status.md](calibration-status.md)).
 
 ## Remaining strategic capabilities
 
@@ -150,16 +163,20 @@ The system supports evidence-backed neighborhood exploration, typed aggregate
 constraints, explicit scenario propagation, competing pressures, entity/group
 views, heterogeneous process substitution, budgets and replayable lineage.
 
-It still lacks calibrated causal models, parameter fitting, uncertainty
-calibration, policy/action search, objectives and utility functions, constrained
-optimization, equilibrium/market clearing, automatic entity resolution beyond
-explicit identifiers, cross-source unit/currency conversion, full source
-coverage, live aircraft/resource/investment feeds, automatic model selection by
-predictive skill, intervention semantics and counterfactual identification.
-Events are returned and audited but do not yet mutate graph topology. Large
-workstation execution also needs partitioned columnar storage, distributed
-scheduling and benchmarked resource limits. The current union/index build loads
-bounded graph records; it is not a demonstrated full-world deployment.
+Since this guide was first written, parameter fitting and holdout validation
+([estimation-and-validation.md](estimation-and-validation.md)), cross-source
+unit/currency conversion and probabilistic entity resolution
+([identity-units-crosswalks.md](identity-units-crosswalks.md)), and measured resource
+limits ([scale-benchmarks.md](scale-benchmarks.md)) have been added. Fitting a parameter
+is not the same as having a calibrated model: one registry process passes its criteria.
+
+It still lacks calibrated causal models, policy/action search over a stated objective,
+constrained optimization, equilibrium/market clearing, automatic model selection by
+predictive skill, intervention semantics and counterfactual identification. Resolution
+quality has not been measured on labelled real data. Events are returned and audited but
+do not yet mutate graph topology. Large workstation execution still needs partitioned
+columnar storage and distributed scheduling; execution remains single-process on one
+machine. No full-world deployment is demonstrated.
 
 ## Inspiration
 

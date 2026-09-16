@@ -74,8 +74,11 @@ class CompositionTests(unittest.TestCase):
             store.assert_not_called()
 
     def test_budget_preflight_and_checkpoint_corruption(self):
+        from worldmodel.limits import LimitExceeded, use_limits
         request=config();request['steps'][0]['demand_kg']=100001
-        with self.assertRaises(ValueError):CompositionEvaluator(request,fidelity='unit')
+        with use_limits(composition_max_transfers=10000):
+            with self.assertRaisesRegex(LimitExceeded,'composition_max_transfers'):CompositionEvaluator(request,fidelity='unit')
+        with self.assertRaisesRegex(LimitExceeded,'composition_max_demand'):CompositionEvaluator(request,fidelity='unit',limits={'composition_max_demand':1000})
         with CompositionEvaluator(config()) as evaluator:
             checkpoint=evaluator.checkpoint();checkpoint['completed_steps']=1
             with self.assertRaises(ValueError):evaluator.restore(checkpoint)

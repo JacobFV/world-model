@@ -105,5 +105,8 @@ class GeometryStoreTests(unittest.TestCase):
             with self.assertRaises(ValueError):
                 store.apply([{'type': 'birth', 'cell': {'id': 'cell:b', 'measure': 1, 'geometry': invalid}, 'values': {'x': 0}}])
             self.assertEqual(store.select(), before)
-            with self.assertRaises(ValueError):
-                store.geometry_bbox([0, 0, 1, 1], crs=CRS, max_candidates=10001)
+            from worldmodel.limits import use_limits
+            self.assertEqual(len(store.geometry_bbox([0, 0, 1, 1], crs=CRS, max_candidates=10001)['cells']), 1)
+            with use_limits(spatial_max_candidates=10000):
+                with self.assertRaisesRegex(ValueError, 'spatial_max_candidates'):
+                    store.geometry_bbox([0, 0, 1, 1], crs=CRS, max_candidates=10001)

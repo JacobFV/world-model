@@ -4,39 +4,60 @@
 
 ```text
 external files → raw snapshots → normalized evidence ─┐
-                                                     ├→ computed datasets → world_graph
+                                                     ├→ computed datasets → unified graph
 other versioned datasets ────────────────────────────┘                         ↓
                                                                   SQLite query index
 ```
 
-This repository implements the data substrate. It keeps source observations,
-entity descriptions, relationship assertions, and events separate. It does not
-choose a single truth when sources disagree. A typed process registry and temporal materializer now consume versioned graph
-snapshots. See [the kernel guide](docs/world-kernel.md) for contracts, examples and
-current limits.
+This repository implements the data substrate, plus an estimation/validation layer and
+a set of simulation kernels over it. It keeps source observations, entity descriptions,
+relationship assertions and events separate, and it does not choose a single truth when
+sources disagree.
+
+**State as of 2026-09-15**, measured on the machine that holds the data (a fresh checkout
+has the declarations and pipeline code but none of the payloads). Read this before
+anything else in the repository:
+
+| | |
+| --- | --- |
+| Dataset declarations | 121 (116 source, 5 derived) |
+| Published normalized datasets | 107 |
+| Normalized records | ~1.31 billion (36.9 GiB gzipped) |
+| Raw acquired data | 87.7 GiB of a 100 GiB fair-share budget |
+| Pre-registered estimation attempts run on that data | 24 |
+| Attempts that met every declared acceptance criterion | 2 |
+| **Registry processes that are validated** | **1 of 22 — `monetary_model`** |
+| Model families declaring themselves validated | 0 of 11 |
+| Tests | 839, 8 skipped, passing |
+
+The validation rows are the ones that matter. This system can acquire, version, join and
+query a great deal of real data, and it can score a model honestly against a frozen
+holdout. When it does, almost everything fails. Those failures are recorded, not hidden
+— see [calibration status](docs/calibration-status.md). A passing test suite says the
+software honours its contracts; it says nothing about the world. Nothing here is a
+calibrated model of anything.
 
 ## Running from a fresh checkout
 
-Use Python 3.11 or later from the repository root:
+Python 3.11 or later, no runtime dependencies, from the repository root:
 
 ```sh
-python3 -m unittest discover -s tests
-python3 -m worldmodel demo
-python3 -m worldmodel catalog
+python3 -m worldmodel catalog          # every declaration and its status
+python3 -m worldmodel budget           # download budget and per-dataset allocation
+python3 -m worldmodel models list      # the 11 model families and their validation state
+python3 -m worldmodel estimation-load  # which estimation components can load real data
+python3 -m unittest discover -s tests  # 839 tests, 8 skipped, ~3 minutes
 ```
 
-The fictional demo and fixture-based checks run offline. Acquired-data integration
-checks may skip when their local samples are absent; offline fixtures do not verify
-current external access or dataset completeness.
+None of those touch the network. Acquired payloads, generated dashboards and runtime
+artifact versions stay local and are excluded from Git, so a fresh checkout has
+declarations, pipeline code and compact manifests but no data. Committed verification
+reports record prior local runs; they do not bundle those datasets. Built wheels include
+the read-only catalog, fictional fixtures and examples; writable runtime data is separate.
 
-Downloaded evidence, generated dashboards and runtime artifact versions stay local
-and are excluded from Git. Real-evidence examples require their documented acquisition
-and build steps first. Committed verification reports record prior local runs;
-they do not bundle those datasets. Standalone wheels now include the read-only catalog,
-fictional fixtures and examples; writable runtime data remains separate.
-
-See [remaining concerns](docs/remaining-concerns.md) for implementation priorities,
-missing evidence, validation limits and licensing status.
+See [remaining concerns](docs/remaining-concerns.md) for what is still wrong, and the
+[strategic affordances audit](docs/strategic-affordances-audit.md) for what the system
+can and cannot be used for.
 
 ## Strategic systems and field foundations
 
@@ -51,9 +72,12 @@ source coverage and the limits of each model.
 
 ## Reference identities and markets
 
-The [reference backbone](docs/reference-backbone.md) adds bounded public-person and
-market sources, dated identifier resolution, independent coverage maps and financial
-obligation stress with explicit evidence inputs.
+The [reference backbone](docs/reference-backbone.md) adds public-person and market
+sources, dated identifier resolution, independent coverage maps and financial obligation
+stress with explicit evidence inputs. Its sampling-era limits (100 rows per source) apply
+to the `sample` path only; those sources are now fully acquired — GLEIF level 1 alone
+publishes 6.16 million records. See [identity, units and
+crosswalks](docs/identity-units-crosswalks.md) for the joins built on top of them.
 
 ## Environments and visual surfaces
 
@@ -73,32 +97,31 @@ selection, filtering, playback, source inspection and panel layout controls.
 ## Typed graph and process views
 
 ```sh
-python3 -m worldmodel unify
 python3 -m worldmodel ontology
 python3 -m worldmodel processes
-python3 -m worldmodel materialize world_evidence --request examples/california-population.json
-python3 -m worldmodel verify california_population_scenario
+python3 -m worldmodel unify
 ```
 
-`unify` uses the existing bounded real samples and performs no downloads.
-Forecasts are explicit scenarios using illustrative, uncalibrated processes.
-[Implementation and remaining capabilities](docs/world-kernel.md).
+`unify` performs no downloads: it streams the already-published normalized outputs of every
+catalog dataset in the selected scope into one disk-backed SQLite graph index, pinning every
+input version in the index metadata and in a published summary artifact. Scope is selectable
+(`--profile`, `--datasets`, `--domain`, `--exclude`, `--all`); `unify-scope` reports what a
+scope selects and skips, and `unify-resolve` attaches asserted identity clusters.
+[The unified graph guide](docs/unified-graph.md) describes the scopes, their measured cost and
+their limits, and is the document to trust over any edge or record count quoted elsewhere. Materialized forecasts are explicit scenarios using
+illustrative, uncalibrated processes — see [the kernel guide](docs/world-kernel.md).
 
-## Run it now, offline
+## The fictional demo
 
-Python 3.11+ on macOS or Linux. No runtime dependencies, services, credentials,
-or data downloads are required for the core fictional demo. Run from this checkout
-or use the installed `wm` command:
+The demo exists to exercise the storage and provenance contract offline. It is not
+evidence about anything:
 
 ```sh
-python3 -m worldmodel catalog
-python3 -m worldmodel plan world_graph
 python3 -m worldmodel --data-root /tmp/worldmodel-demo demo
 python3 -m worldmodel --data-root /tmp/worldmodel-demo neighbors org:acme
 python3 -m worldmodel --data-root /tmp/worldmodel-demo observations rando_joes_happiness_index
 python3 -m worldmodel --data-root /tmp/worldmodel-demo lineage world_graph
 python3 -m worldmodel --data-root /tmp/worldmodel-demo verify world_graph
-python3 -m unittest discover -s tests -v
 ```
 
 `demo` imports two tiny **fictional** fixtures. It produces two country index
@@ -131,21 +154,84 @@ inputs. `wm rights DATASET` reports the inherited inventory. Unknown terms do no
 local computation, but the metadata does not grant redistribution rights or decide
 license compatibility. See [code and data rights](DATA_RIGHTS.md).
 
-## Laptop-sized real samples
+This matters more now that the data is real and large. 75 of the 107 published datasets
+carry `redistribution_review_required` in their manifest rights block. At least 25 carry
+a source term that restricts redistribution or commercial use outright, including
+OpenSanctions (non-commercial only), UN Comtrade (no bulk redistribution), WITS/UNCTAD
+TRAINS (attribution required, no resale), Alpaca and Massive market data
+(personal/internal use), Nasdaq reference lists (reference use only), SSGA fund
+disclosures (informational use) and FRED third-party series, which are flagged per
+observation with `attributes.third_party_copyright`. **Do not republish the acquired
+data.** The rights inventory is metadata, not a legal determination.
 
-All datasets now have individual sampling policies: at most 100 retained rows /
-1 MiB, with a shared 64 MiB temporary disk buffer for whole-file downloads.
+## Acquiring data
+
+Full raw data is acquired with `wm acquire DATASET|all --allow-network`. Datasets declare
+`files`, `url_list` or `paged_api` strategies in `dataset.json`. A global download budget
+(default 100 GiB, `--budget` or `WORLD_MODEL_DOWNLOAD_BUDGET`) is split by weighted max-min
+fairness with a 5% per-dataset ceiling (`wm budget`). Downloads resume, respect rate limits
+and `Retry-After`, and are published as sharded raw artifacts marked `complete` or
+`complete: false` with a stop reason. API keys come from the environment or `.env` and are
+never written. See [full acquisition](docs/full-acquisition.md).
 
 ```sh
-python3 -m worldmodel sample all --allow-network
-python3 -m worldmodel explore census_business
+python3 -m worldmodel budget                            # allocation table, no network
+python3 -m worldmodel acquire fred_cpi --dry-run        # plan and allocation, no network
+python3 -m worldmodel acquire fred_cpi --allow-network  # download and publish
+python3 -m worldmodel run fred_cpi                      # build normalized records from it
+python3 -m worldmodel verify fred_cpi/normalized        # re-read payload bytes and lineage
 ```
 
-Small real samples have been acquired and explored. See
-[results and blockers](docs/sample-exploration-2026-09-15.md) and
-[sampling budgets, archives and provenance](docs/sampling.md).
-Samples remain separate from full pipeline pointers. API subsets, CSV, ZIP/CSV,
-and small XLSX are supported; source-specific limits and credentials still apply.
+87.7 GiB of the 100 GiB pool is already spent, so the next large source displaces an
+existing one. There is no tiering or eviction policy.
+
+A separate bounded `sample` path still exists for schema exploration only — at most 100
+retained rows and 1 MiB per source, sharing a 64 MiB temporary disk buffer. Samples never
+move `raw-latest.json`, and full acquisition never touches samples. See
+[sampling](docs/sampling.md). The historical
+[sample exploration report](docs/sample-exploration-2026-09-15.md) describes the state
+before full acquisition and should not be read as current.
+
+### What is not acquired
+
+| Declaration | Why |
+| --- | --- |
+| `acled`, `global_fishing_watch` | approval-gated accounts |
+| `wto_timeseries` | optional API key not held |
+| `bts_airline_t100`, `usitc_hts_tariffs` | interactive download (HTS is published; T-100 is not) |
+| `mit_election_returns` | statewide president/senate only; House and county returns are behind a guestbook-gated Dataverse download |
+| `epa_aqs_daily`, `market_corporate_actions` | downloads in flight |
+| `contract_candidates`, `reviewed_obligations`, `market_obligations` | require a supplied, authorized file; nothing is inferred from aggregates |
+| `lda_lobbying` | partial acquisition in progress |
+
+## Estimating and validating
+
+`worldmodel.estimation` fits parameters from the normalized datasets and scores them on a
+frozen holdout. Every attempt is pre-registered in
+`worldmodel/estimation/real_data_plan.json` — splits, loader options and acceptance
+criteria are fixed before any holdout is scored.
+
+```sh
+python3 -m worldmodel estimation-requirements   # what each component needs
+python3 -m worldmodel estimation-load           # what can actually be loaded today
+python3 -m worldmodel calibrate-all --help      # rerun attempts (slow; not offline-free)
+python3 -m worldmodel calibration-status calibration_reports@VERSION
+```
+
+`calibration-status` re-reads a published report, recomputes its digest and re-evaluates
+the declared criteria; it does not trust the stored `validated` flag.
+
+Of 24 attempts, two runs pass and one process — `monetary_model` — is validated.
+`coupled_economy` needs nine components: seven fail and two have not been re-run against
+the corrected panel. Four components have no forecast skill against a
+persistence baseline at all. `default_hazard` passes on a substituted series and fails on
+its declared primary series with the opposite sign on unemployment sensitivity, so it must
+be read as not validated. Interval coverage is the most common failing criterion.
+[The full record, attempt by attempt](docs/calibration-status.md).
+
+Eleven political, market and geopolitical model families
+([guide](docs/political-market-geopolitical-models.md)) plus a multi-actor game layer are
+implemented. All eleven declare `validated: false`, and `wm models list` will say so.
 
 ## Dataset-local directory contract
 
@@ -204,7 +290,7 @@ for stage schemas, Context APIs, cache keys, exact references and recovery.
 | Execution | External dataset and internal stage DAGs, verified stage caches, exact pins and per-dataset writer locks |
 | Provenance | Row/record references, recursive lineage and verification, source receipts, code snapshots |
 | Adapters | Dataset-local source mappings and formulas; shared CSV/JSONL readers and bounded JSON inputs |
-| Acquisition | Local import; explicit HTTP(S) fetch with limits, timeouts, retries, optional expected checksum |
+| Acquisition | Local import; bounded fetch/samples; full sharded acquisition with fair-share budget, resume, pagination and rate limits |
 | Ontology | Validated entities, observations, assertions, events; units, dimensions, valid and observed times |
 | Graph | Evidence-preserving union; indexed bounded neighborhoods; observation and temporal queries |
 | Temporal execution | Incremental checkpoint evaluator, replay reference, seeded processes, explicit inputs and rewards |
@@ -212,16 +298,26 @@ for stage schemas, Context APIs, cache keys, exact references and recovery.
 | Spatial state | SQLite selections, persistent supports/topology, atomic lifecycle changes and conservation |
 | RL/perception | Bounded tabular learning/evaluation, local vector adapter, masks/delays/noise, optional Gymnasium |
 | Inspection | Static or interactive standalone HTML, linked selection/playback, provenance and explicit limits |
+| Identity/units | Dated country/county/NAICS codes, total-conserving crosswalk apportionment, unit and currency conversion, deterministic links, Fellegi-Sunter resolution, belief materialization |
+| Estimation | OLS/WLS/2SLS, AR/ARIMA-lite/VAR, error-correction pass-through, hazard/logit, PPML gravity, Kalman local level, SMM/ABC, block bootstrap |
+| Validation | Pre-registered splits, knowledge cutoffs with vintage policy and leakage audits, rolling-origin backtests, proper scoring rules, Diebold-Mariano tests, immutable reports |
+| Models | 11 political/market/geopolitical families and a multi-actor game layer, all `validated: false` |
+| Scale | Named configurable limits (`worldmodel/limits.py`), optional numpy backend, measured benchmarks |
 | Distribution | Bundled catalog/fictional fixtures/examples, separate writable data root, inherited rights metadata |
 | Examples | Offline source pipelines, a computed country index, a derived graph |
 
-The catalog includes source-family declarations and runnable example/derived datasets.
-Declarations marked `requires_configuration` describe intended mappings; a sampling
-policy does not by itself finish a publisher-specific connector. Running a source
-without a configured adapter fails before acquisition. `wm evidence-audit` inventories
-catalog access/readiness and explicit sample limits. Release selection, missing
-bilateral relationships, dated identity crosswalks and licensed feeds remain data
-integration work. No complete global evidence base is claimed.
+The catalog mixes fully acquired sources, configured-but-unacquired declarations and
+fictional examples; `wm catalog` reports each declaration's status and is the only
+authority on which is which. A declaration is not a dataset, and a sampling policy does
+not by itself finish a publisher-specific connector. Running a source without a
+configured adapter fails before acquisition. Release selection, missing bilateral
+relationships, dated identity crosswalks and licensed feeds remain data integration work.
+No complete global evidence base is claimed.
+
+`wm evidence-audit` inventories catalog access, readiness and rights, but in this working
+tree it aborts: it dereferences every dataset's retained sample manifest, and some sample
+payloads have been pruned since acquisition. Use `wm catalog` and `wm rights DATASET`
+until that is fixed.
 
 ## Provenance: “this function, this code, these inputs”
 
@@ -229,8 +325,12 @@ Every version manifest includes:
 
 - `definition`: the exact dataset declaration, including its source metadata.
 - `code.entrypoint`: the local stage function, for example `pipeline.py:run`.
-- `code.files` and `code.sources`: hashes and source snapshots for the core implementation,
-  catalog declarations and dependency/config files.
+- `code.files` and `code.sources`: hashes and source snapshots for the core implementation
+  and dependency/config files. A dataset build captures its own declaration through
+  `code.dataset_code` and the manifest's `definition`, so it deliberately does **not**
+  snapshot every other `data/*/dataset.json`; including them made an unrelated dataset's
+  edit abort a long build at publish time. A non-dataset build still snapshots the whole
+  catalog.
 - `code.dataset_code`: local `dataset.json`, `pipeline.py`, Python helpers and JSON configuration with
   portable relative names, hashes and source snapshots.
 - `code.git_commit`, `code.git_dirty`: Git identity when the checkout is a repository;
@@ -400,9 +500,11 @@ Use the full hashes emitted by import/run. Parameter overrides apply only to the
 target dataset. Pins prevent rebuilding the pinned dependency; unpinned sources
 resolve `manifests/raw-latest.json` once and record that exact reference.
 
-## Move to the GB10
+## Relocating the data root
 
-Copy this checkout or install a built wheel. Set the data root to a local filesystem
+This repository now runs on the GB10 (20-core aarch64, 121 GB RAM), which is where the
+87.7 GiB of acquired data and the benchmarks in [scale-benchmarks.md](docs/scale-benchmarks.md)
+live. Copy this checkout or install a built wheel. Set the data root to a local filesystem
 with adequate space:
 
 ```sh
@@ -427,8 +529,9 @@ architecture-specific dependency. CSV/JSONL processing and validation use bounde
 streams and disk-backed uniqueness checks. JSON arrays are capped at 64 MiB by
 default. Configure regional/release partitions for large data. Hash verification
 reads bytes in full and may reread ancestors at several pipeline boundaries;
-size I/O budgets accordingly. This is a single-machine execution engine, not a
-cluster scheduler. ARM64/GB10 execution has not been tested on this machine.
+size I/O budgets accordingly. This is a single-machine, single-process execution engine,
+not a cluster scheduler: there is no distributed or out-of-core execution, no GPU backend
+and no partitioned SQLite. The acquired data exists in one place and is not in Git.
 
 ## Publication and recovery
 
@@ -471,8 +574,15 @@ limits, code snapshots and the distinction between full and compact manifests.
 
 ### Integrated policy and sensitivity examples
 
-After building `strategic_scenarios`, the coupled example makes daily policy changes
-through the environment action port:
+`strategic_scenarios` is a fictional dataset that is not built in a fresh checkout. Build
+it first, or every command below fails with a missing `manifests/latest.json`:
+
+```sh
+wm import strategic_scenarios examples/scenario-entities.jsonl
+wm run strategic_scenarios
+```
+
+The coupled example then makes daily policy changes through the environment action port:
 
 ```sh
 wm environment strategic_scenarios --request examples/environment-coupled-economy.json --dataset coupled_environment_episode
@@ -481,17 +591,17 @@ python3 examples/train-materialization.py
 wm assess-model series_calibration
 ```
 
-The training script uses a small fictional checkpoint environment, disjoint seeds,
-and an explicit inventory objective. The sensitivity sweep changes opening credit
-limits. Neither establishes real-world policy validity. `assess-model` requires an
-existing calibration report and records failure when its holdout misses the baseline.
+`wm sensitivity` needs no prebuilt dataset. The training script uses a small fictional
+checkpoint environment, disjoint seeds, and an explicit inventory objective. The
+sensitivity sweep changes opening credit limits. Neither establishes real-world policy
+validity. `assess-model` requires an existing calibration report in the same data root
+and records failure when its holdout misses the baseline.
 
-## Handoff expansion
+## Simulation kernels
 
-The latest laptop implementation adds journaled resume, richer banking/production
-mechanisms, signed/vector spatial timelines, structured RL spaces, isolated rollout
-workers, dated financial imports and reviewed contract extraction. Process composition
-and verification status are tracked in [the completion ledger](docs/handoff-completion.md).
+Journaled resume, banking/production mechanisms, signed/vector spatial timelines,
+structured RL spaces, isolated rollout workers, dated financial imports and reviewed
+contract extraction:
 
 ```sh
 python3 -m worldmodel coupled-economy --request examples/economy-policy-feedback.json
@@ -500,7 +610,25 @@ python3 -m worldmodel spatial-timeline --request examples/spatial-timeline.json 
 python3 -m worldmodel surface spatial_timeline --spec examples/spatial-surface.json --output /tmp/spatial.html
 ```
 
-[Bounded source outcomes](docs/source-access-2026-09-15.json) distinguish acquired
-samples from credentials/export gaps. [Chronological benchmarks](docs/benchmarks.md)
-keep final-test outcomes separate from model selection. Full-scale GB10 execution
-remains deferred.
+Every size cap in these kernels is a named field of `worldmodel.limits.Limits`, raisable
+per call, per process (`WORLD_MODEL_LIMITS`) or per command (`--limits`); measured wall
+time and peak RSS are in [scale-benchmarks.md](docs/scale-benchmarks.md). The parameters
+in these examples are assumptions, not estimated responses.
+
+## Where to read next
+
+| Document | What it is |
+| --- | --- |
+| [strategic-affordances-audit.md](docs/strategic-affordances-audit.md) | current audit: what works, where the boundary is, what is missing |
+| [session-2026-09-15-summary.md](docs/session-2026-09-15-summary.md) | what changed in this session, including the bugs found |
+| [calibration-status.md](docs/calibration-status.md) | every estimation attempt and its verdict |
+| [remaining-concerns.md](docs/remaining-concerns.md) | known limits, by area |
+| [full-acquisition.md](docs/full-acquisition.md) | the acquisition contract and budget |
+| [dataset-layout.md](docs/dataset-layout.md) | storage, stages, caching and recovery |
+| [identity-units-crosswalks.md](docs/identity-units-crosswalks.md) | how cross-source joins are made defensible |
+| [unified-graph.md](docs/unified-graph.md) | the unified graph's current contents and limits |
+
+[Chronological benchmarks](docs/benchmarks.md) keep final-test outcomes separate from
+model selection. [Bounded source outcomes](docs/source-access-2026-09-15.json) and
+[the handoff completion ledger](docs/handoff-completion.md) are historical records of the
+pre-acquisition state, kept for audit; they do not describe the catalog as it is now.

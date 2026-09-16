@@ -14,13 +14,21 @@ def add_commands(sub):
     env.add_argument('--journal',type=Path,help='Opt-in durable local SQLite episode journal')
     env.add_argument('--session',help='Stable journal session identifier')
     env.add_argument('--resume',action='store_true',help='Explicitly resume an existing journal session')
+    env.add_argument('--limits',help='JSON object (or @file.json) raising/lowering named worldmodel.limits for this command')
     surface=sub.add_parser('surface',help='Render a verified materialization or graph as a standalone HTML surface')
     surface.add_argument('reference');surface.add_argument('--spec',type=Path,required=True)
     surface.add_argument('--dataset',default='materialization_surface')
     surface.add_argument('--output',type=Path,required=True)
+    surface.add_argument('--limits',help='JSON object (or @file.json) raising/lowering named worldmodel.limits for this command')
 
 
 def execute(args,catalog,store,project,reference):
+    from .limits import parse_limits,use_limits
+    with use_limits(parse_limits(getattr(args,'limits',None))):
+        return _execute(args,catalog,store,project,reference)
+
+
+def _execute(args,catalog,store,project,reference):
     from .strategic_cli import _local_input
     from .materialize import load_view
     graph=reference(args.reference,store)

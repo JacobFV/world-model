@@ -1,9 +1,19 @@
-# Laptop sampling
+# Bounded sampling
 
-Every dataset has a `sampling` section in `data/<dataset>/dataset.json`.
-All 18 existing datasets are configured. New source declarations start with a
+**This is the exploration path, not the main one.** 107 datasets now hold complete
+published data acquired through `wm acquire`; sampling exists to look at a source's
+schema, identifiers, units and quirks cheaply before committing budget to it. Nothing in
+the catalog depends on a sample, and the limits on this page do not bound anything else.
+
+Every dataset has a `sampling` section in `data/<dataset>/dataset.json`; run
+`wm catalog` for the current list. New source declarations start with a
 blocked sampling policy until a URL/format is selected; derived datasets sample
 an already-published version.
+
+To download complete data within the global fair-share budget (default 100 GiB, of which
+87.7 GiB is currently spent), declare an `acquisition` block and use `wm acquire`; see
+[full acquisition](full-acquisition.md). The two paths are independent: sampling limits
+below do not apply to full acquisition, and full acquisition never changes samples.
 
 ```sh
 python3 -m worldmodel sample all --allow-network
@@ -98,20 +108,27 @@ does not overwrite historical evidence or prune old versions automatically.
 
 ## Source selection and keys
 
-Actual results and source-specific observations are in
-[the exploration report](sample-exploration-2026-09-15.md).
+[The exploration report](sample-exploration-2026-09-15.md) is a historical record of the
+pre-acquisition sampling run; its blockers (BEA, USDA, freight) have since been resolved
+by full acquisition, so read `wm catalog` for current status.
+
 Census population and business sampling use official small CSV/ZIP files after
 the API returned a Missing Key page. They are explicitly different extracts from
 the originally considered ACS/CBP API calls. Key requirements are documented on
 [the Census API](https://api.census.gov/data/2023/acs/acs5/examples.html).
 
-BEA and USDA require `BEA_API_KEY` and `USDA_NASS_API_KEY` in the environment.
-Keys are not stored in declarations or URL receipts. EIA and FEC worked with
-public demo keys for these small requests. Rate limits or publisher changes can
-still block later attempts. The freight host failed to connect during this run;
-the smaller historical archive is configured to remain within the disk budget.
+Credentials are read from the environment or `.env` and are never written into
+declarations or URL receipts. Rate limits or publisher changes can still block later
+attempts.
 
-Source-family definitions still need production normalization mappings. Sampling
-readiness and full production pipeline readiness are separate. No random or
-representative selection is claimed: first rows and narrow geographic/time filters
-are meant for examining schemas, identifiers, units and data quality.
+No random or representative selection is claimed: first rows and narrow geographic/time
+filters are meant for examining schemas, identifiers, units and data quality. A sample is
+never evidence about a population.
+
+### Pruned sample artifacts
+
+Sample payloads under `artifacts/samples/` can be deleted to reclaim space while the
+compact `manifests/samples/latest.json` pointer survives. `wm evidence-audit`
+dereferences those pointers and aborts on the first missing one, which is its current
+state in this working tree. `wm catalog` and `wm rights DATASET` do not depend on
+samples.

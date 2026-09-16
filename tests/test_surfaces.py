@@ -33,10 +33,15 @@ class SurfaceTests(unittest.TestCase):
         html = render_surface(self.snapshots(), {'panels': [{'kind': 'table', 'limit': 1}]})
         self.assertIn('Truncated', html)
         for spec in ({'panels': [{'kind': 'table'}] * 17},
-                     {'panels': [{'kind': 'table', 'limit': 501}]},
                      {'panels': [{'kind': 'table', 'limit': True}]}):
             with self.assertRaises(ValueError):
                 render_surface(self.snapshots(), spec)
+        from worldmodel.limits import LimitExceeded
+        self.assertIn('<table>', render_surface(self.snapshots(), {'panels': [{'kind': 'table', 'limit': 501}]}))
+        with self.assertRaisesRegex(LimitExceeded, 'surface_max_panel_rows=500'):
+            render_surface(self.snapshots(), {'panels': [{'kind': 'table', 'limit': 501}]}, limits={'surface_max_panel_rows': 500})
+        with self.assertRaisesRegex(LimitExceeded, 'surface_max_rows'):
+            render_surface(self.snapshots(), {'panels': [{'kind': 'table'}]}, limits={'surface_max_rows': 1})
 
     def test_invalid_path_missing_selection_and_non_numeric_plot(self):
         for panel in ({'kind': 'value', 'path': 'amount'},
@@ -101,8 +106,10 @@ class SurfaceTests(unittest.TestCase):
             render_surface(data, {'panels': [{'kind': 'plot', 'path': ['amount']}]})
 
     def test_oversized_text_is_rejected(self):
-        with self.assertRaises(ValueError):
-            render_surface(self.snapshots(), {'title': 'x' * 20001, 'panels': []})
+        from worldmodel.limits import LimitExceeded
+        self.assertIn('x' * 20001, render_surface(self.snapshots(), {'title': 'x' * 20001, 'panels': []}))
+        with self.assertRaisesRegex(LimitExceeded, 'surface_max_field_chars=20000'):
+            render_surface(self.snapshots(), {'title': 'x' * 20001, 'panels': []}, limits={'surface_max_field_chars': 20000})
 
     def test_equal_coordinate_sources_merge_without_losing_provenance(self):
         data = self.coordinates()

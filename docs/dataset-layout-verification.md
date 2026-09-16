@@ -1,3 +1,8 @@
+> **Historical record.** A dated verification of the storage layout when the catalog held
+> 43 datasets. The layout contract it checks is still current
+> ([dataset-layout.md](dataset-layout.md)); its counts are not — the catalog now has 121
+> declarations. See [strategic-affordances-audit.md](strategic-affordances-audit.md).
+
 # Dataset-local layout verification — 2026-09-15
 
 ## Implemented
