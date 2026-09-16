@@ -1,0 +1,3743 @@
+{
+ "schema": "worldmodel.estimation_requirements/1",
+ "description": "Exact public series each process-family estimator needs, how they must be normalized, estimated parameters, process parameter targets and default acceptance criteria. Data agents: publish evidence observation records with the listed metric, unit and source_series (attributes.source_series) so SeriesRequirement.matches selects them.",
+ "normalization_contract": {
+  "record": "kind=observation with metric, unit, subject, value (null + missing_reason if missing), valid_from (period start, ISO date), valid_to (exclusive period end), observed_at (acquisition time), attributes.source_series, evidence",
+  "real_time_vintages": "For revised series publish one record per vintage with attributes.realtime_start (ALFRED realtime_start, or the publisher release date). Without it, strict vintage policy treats observed_at as availability and historical cutoffs see nothing; retrospective policy assumes period end + publication_lag_days and reports revision leakage.",
+  "alfred": "https://alfred.stlouisfed.org/ (FRED API: fred/series/observations?realtime_start=1776-07-04&realtime_end=9999-12-31 returns every vintage)",
+  "units": "Keep publisher units named below; estimators apply the documented conversions."
+ },
+ "processes": {
+  "population_growth": {
+   "required_components": [
+    "population_growth_rate"
+   ]
+  },
+  "resource_inventory": {
+   "required_components": [
+    "inventory_balance"
+   ]
+  },
+  "investment_cash_flow": {
+   "required_components": [
+    "cash_balance"
+   ]
+  },
+  "coupled_economy": {
+   "required_components": [
+    "interest_pass_through",
+    "default_hazard",
+    "deposit_growth",
+    "credit_growth",
+    "demand_price_elasticity",
+    "price_adjustment",
+    "energy_purchasing",
+    "labor_demand",
+    "policy_rule"
+   ],
+   "optional_components": [
+    "deposit_rate_pass_through"
+   ]
+  },
+  "bank_energy_business": {
+   "required_components": [
+    "interest_pass_through",
+    "energy_purchasing"
+   ]
+  },
+  "field_dynamics": {
+   "required_components": [
+    "field_diffusion_transport"
+   ]
+  },
+  "cross_domain_composition": {
+   "required_components": [
+    "bilateral_flow_gravity"
+   ]
+  },
+  "banking_ledger": {
+   "required_components": [],
+   "note": "Accounting identities only; there are no behavioral parameters to estimate, so this process is never marked validated."
+  },
+  "legislative_model": {
+   "required_components": [
+    "legislative_model_parameters"
+   ]
+  },
+  "elections_model": {
+   "required_components": [
+    "elections_model_parameters"
+   ]
+  },
+  "influence_model": {
+   "required_components": [
+    "influence_model_parameters"
+   ]
+  },
+  "trade_model": {
+   "required_components": [
+    "trade_model_parameters"
+   ]
+  },
+  "sanctions_model": {
+   "required_components": [],
+   "note": "Non-estimable (see components.sanctions_model_parameters.non_estimable): a legal-rule determination with no held-out forecast target, so this process is never marked validated."
+  },
+  "conflict_model": {
+   "required_components": [
+    "conflict_model_parameters"
+   ]
+  },
+  "conflict_event_intensity": {
+   "required_components": [
+    "conflict_model_parameters"
+   ]
+  },
+  "assets_model": {
+   "required_components": [
+    "assets_model_parameters"
+   ]
+  },
+  "market_abm_model": {
+   "required_components": [
+    "market_abm_model_parameters"
+   ]
+  },
+  "commodities_model": {
+   "required_components": [
+    "commodities_model_parameters"
+   ]
+  },
+  "monetary_model": {
+   "required_components": [
+    "monetary_model_parameters"
+   ]
+  },
+  "taylor_rule_policy_rate": {
+   "required_components": [
+    "monetary_model_parameters"
+   ]
+  },
+  "regional_model": {
+   "required_components": [
+    "regional_model_parameters"
+   ]
+  },
+  "two_region_migration": {
+   "required_components": [],
+   "note": "Not validated by the regional holdout, which scores employment growth; migration responses need Census PEP population components and IRS flows scored on out-migration before this process can be calibrated."
+  }
+ },
+ "components": {
+  "population_growth_rate": {
+   "process_id": "population_growth",
+   "estimator": "PopulationGrowthEstimator",
+   "method": "log_difference_drift_ols_hac",
+   "frequency": "annual",
+   "target": "population",
+   "conditional_inputs": [],
+   "min_observations": 8,
+   "default_options": {
+    "window": 15,
+    "cov_type": "HAC",
+    "growth_diagnostics": false
+   },
+   "series": [
+    {
+     "name": "population",
+     "metric": "resident_population",
+     "unit": "people",
+     "frequency": "annual",
+     "native_frequency": "annual",
+     "geography": null,
+     "aggregation": "last",
+     "publication_lag_days": 170,
+     "revisions": "major",
+     "description": "July 1 resident population; one record per vintage (each PEP vintage revises the series back to the last census).",
+     "sources": [
+      {
+       "publisher": "U.S. Census Bureau",
+       "program": "Population Estimates Program (PEP)",
+       "series_id": "NST-EST{vintage}-ALLDATA POPESTIMATE{year}",
+       "url": "https://www2.census.gov/programs-surveys/popest/datasets/",
+       "catalog_dataset": "census_population",
+       "realtime": "vintage files NST-EST2020..NST-EST2024 give real-time vintages"
+      },
+      {
+       "publisher": "Federal Reserve Bank of St. Louis",
+       "series_id": "POPTHM",
+       "url": "https://fred.stlouisfed.org/series/POPTHM",
+       "note": "monthly national population (BEA); aggregate with last to annual"
+      }
+     ]
+    }
+   ],
+   "parameters": [
+    {
+     "name": "growth_rate_per_year",
+     "unit": "1/year",
+     "lower": -0.1,
+     "upper": 0.1,
+     "prior": {
+      "distribution": "normal",
+      "mean": 0.005,
+      "sd": 0.01
+     },
+     "maps_to": "growth_rate_per_year",
+     "description": "Continuous growth rate; process uses growth_rate_per_year / 31557600 per second."
+    },
+    {
+     "name": "annual_growth_fraction",
+     "unit": "1",
+     "lower": -0.1,
+     "upper": 0.11,
+     "description": "exp(rate) - 1"
+    }
+   ],
+   "acceptance": {
+    "inherit_default": true,
+    "override": {
+     "minimum_test_forecasts": {
+      "minimum": 8
+     },
+     "interval_coverage": {
+      "tolerance": 0.2
+     }
+    }
+   },
+   "hooks": []
+  },
+  "inventory_balance": {
+   "process_id": "resource_inventory",
+   "estimator": "InventoryBalanceEstimator",
+   "method": "stock_flow_balance_ols_hac",
+   "frequency": "weekly",
+   "target": "crude_stocks",
+   "conditional_inputs": [
+    "production",
+    "imports",
+    "exports",
+    "refinery_input"
+   ],
+   "min_observations": 52,
+   "default_options": {
+    "cov_type": "HAC"
+   },
+   "series": [
+    {
+     "name": "crude_stocks",
+     "metric": "crude_oil_stocks_excluding_spr",
+     "unit": "thousand_barrels",
+     "frequency": "weekly",
+     "native_frequency": "weekly",
+     "source_series": "WCESTUS1",
+     "aggregation": "last",
+     "publication_lag_days": 5,
+     "revisions": "minor",
+     "sources": [
+      {
+       "publisher": "U.S. Energy Information Administration",
+       "program": "Weekly Petroleum Status Report",
+       "series_id": "PET.WCESTUS1.W",
+       "url": "https://www.eia.gov/dnav/pet/hist/LeafHandler.ashx?n=PET&s=WCESTUS1&f=W",
+       "catalog_dataset": "eia_energy"
+      }
+     ]
+    },
+    {
+     "name": "production",
+     "metric": "crude_oil_field_production",
+     "unit": "thousand_barrels_per_day",
+     "frequency": "weekly",
+     "native_frequency": "weekly",
+     "source_series": "WCRFPUS2",
+     "aggregation": "mean",
+     "publication_lag_days": 5,
+     "revisions": "minor",
+     "sources": [
+      {
+       "publisher": "U.S. Energy Information Administration",
+       "series_id": "PET.WCRFPUS2.W",
+       "url": "https://www.eia.gov/dnav/pet/hist/LeafHandler.ashx?n=PET&s=WCRFPUS2&f=W"
+      }
+     ]
+    },
+    {
+     "name": "imports",
+     "metric": "crude_oil_imports",
+     "unit": "thousand_barrels_per_day",
+     "frequency": "weekly",
+     "native_frequency": "weekly",
+     "source_series": "WCRIMUS2",
+     "aggregation": "mean",
+     "publication_lag_days": 5,
+     "revisions": "minor",
+     "sources": [
+      {
+       "publisher": "U.S. Energy Information Administration",
+       "series_id": "PET.WCRIMUS2.W",
+       "url": "https://www.eia.gov/dnav/pet/hist/LeafHandler.ashx?n=PET&s=WCRIMUS2&f=W"
+      }
+     ]
+    },
+    {
+     "name": "exports",
+     "metric": "crude_oil_exports",
+     "unit": "thousand_barrels_per_day",
+     "frequency": "weekly",
+     "native_frequency": "weekly",
+     "source_series": "WCREXUS2",
+     "aggregation": "mean",
+     "publication_lag_days": 5,
+     "revisions": "minor",
+     "sources": [
+      {
+       "publisher": "U.S. Energy Information Administration",
+       "series_id": "PET.WCREXUS2.W",
+       "url": "https://www.eia.gov/dnav/pet/hist/LeafHandler.ashx?n=PET&s=WCREXUS2&f=W"
+      }
+     ]
+    },
+    {
+     "name": "refinery_input",
+     "metric": "refinery_crude_net_input",
+     "unit": "thousand_barrels_per_day",
+     "frequency": "weekly",
+     "native_frequency": "weekly",
+     "source_series": "WCRRIUS2",
+     "aggregation": "mean",
+     "publication_lag_days": 5,
+     "revisions": "minor",
+     "sources": [
+      {
+       "publisher": "U.S. Energy Information Administration",
+       "series_id": "PET.WCRRIUS2.W",
+       "url": "https://www.eia.gov/dnav/pet/hist/LeafHandler.ashx?n=PET&s=WCRRIUS2&f=W"
+      }
+     ]
+    }
+   ],
+   "parameters": [
+    {
+     "name": "flow_scale",
+     "unit": "1",
+     "lower": 0.5,
+     "upper": 1.5,
+     "prior": {
+      "distribution": "normal",
+      "mean": 1.0,
+      "sd": 0.1
+     },
+     "maps_to": "flow_scale",
+     "description": "Multiplier on measured inflow - outflow."
+    },
+    {
+     "name": "unmeasured_net_flow",
+     "unit": "barrel/second",
+     "lower": -50,
+     "upper": 50,
+     "maps_to": "unmeasured_net_flow",
+     "description": "EIA 'unaccounted for crude' and adjustments as a constant rate."
+    }
+   ],
+   "acceptance": {
+    "inherit_default": true,
+    "override": {
+     "minimum_test_forecasts": {
+      "minimum": 26
+     },
+     "no_revision_leakage": {
+      "allowed_classes": [
+       "minor"
+      ]
+     }
+    }
+   },
+   "hooks": []
+  },
+  "cash_balance": {
+   "process_id": "investment_cash_flow",
+   "estimator": "CashBalanceEstimator",
+   "method": "cash_flow_balance_ols_hac",
+   "frequency": "quarterly",
+   "target": "cash",
+   "conditional_inputs": [
+    "revenue",
+    "operating_costs",
+    "capital_expenditure"
+   ],
+   "min_observations": 16,
+   "default_options": {
+    "cov_type": "HAC"
+   },
+   "series": [
+    {
+     "name": "cash",
+     "metric": "cash_and_cash_equivalents",
+     "unit": "USD",
+     "frequency": "quarterly",
+     "native_frequency": "quarterly",
+     "aggregation": "last",
+     "publication_lag_days": 45,
+     "revisions": "minor",
+     "description": "Set subject to one issuer (e.g. --series cash.subject=sec:cik:0000320193); all four series must share it.",
+     "sources": [
+      {
+       "publisher": "U.S. Securities and Exchange Commission",
+       "program": "XBRL companyfacts",
+       "series_id": "us-gaap:CashAndCashEquivalentsAtCarryingValue",
+       "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK##########.json",
+       "catalog_dataset": "sec_company_assets",
+       "realtime": "use filing 'filed' date as attributes.published_at"
+      }
+     ]
+    },
+    {
+     "name": "revenue",
+     "metric": "revenues",
+     "unit": "USD",
+     "frequency": "quarterly",
+     "native_frequency": "quarterly",
+     "aggregation": "sum",
+     "publication_lag_days": 45,
+     "revisions": "minor",
+     "sources": [
+      {
+       "publisher": "U.S. Securities and Exchange Commission",
+       "series_id": "us-gaap:Revenues",
+       "note": "normalize 10-K annual durations to fourth-quarter durations"
+      }
+     ]
+    },
+    {
+     "name": "operating_costs",
+     "metric": "costs_and_expenses",
+     "unit": "USD",
+     "frequency": "quarterly",
+     "native_frequency": "quarterly",
+     "aggregation": "sum",
+     "publication_lag_days": 45,
+     "revisions": "minor",
+     "sources": [
+      {
+       "publisher": "U.S. Securities and Exchange Commission",
+       "series_id": "us-gaap:CostsAndExpenses"
+      }
+     ]
+    },
+    {
+     "name": "capital_expenditure",
+     "metric": "capital_expenditure",
+     "unit": "USD",
+     "frequency": "quarterly",
+     "native_frequency": "quarterly",
+     "aggregation": "sum",
+     "publication_lag_days": 45,
+     "revisions": "minor",
+     "sources": [
+      {
+       "publisher": "U.S. Securities and Exchange Commission",
+       "series_id": "us-gaap:PaymentsToAcquirePropertyPlantAndEquipment"
+      }
+     ]
+    }
+   ],
+   "parameters": [
+    {
+     "name": "cash_conversion",
+     "unit": "1",
+     "lower": 0.0,
+     "upper": 2.0,
+     "prior": {
+      "distribution": "normal",
+      "mean": 1.0,
+      "sd": 0.3
+     },
+     "maps_to": "cash_conversion",
+     "description": "Multiplier on revenue - expenditure reaching the cash balance."
+    },
+    {
+     "name": "unmeasured_net_cash_flow",
+     "unit": "USD/second",
+     "lower": -10000000.0,
+     "upper": 10000000.0,
+     "maps_to": "unmeasured_net_cash_flow",
+     "description": "Financing, investment and working-capital flows not in the declared inputs."
+    }
+   ],
+   "acceptance": {
+    "inherit_default": true,
+    "override": {
+     "minimum_test_forecasts": {
+      "minimum": 8
+     },
+     "no_revision_leakage": {
+      "allowed_classes": [
+       "minor"
+      ]
+     }
+    }
+   },
+   "hooks": []
+  },
+  "interest_pass_through": {
+   "process_id": "coupled_economy",
+   "estimator": "InterestPassThroughEstimator",
+   "method": "error_correction_ols_hac",
+   "frequency": "monthly",
+   "target": "loan_rate",
+   "conditional_inputs": [
+    "policy_rate"
+   ],
+   "min_observations": 36,
+   "default_options": {
+    "ecm_lags": 1,
+    "cov_type": "HAC"
+   },
+   "series": [
+    {
+     "name": "loan_rate",
+     "metric": "prime_loan_rate",
+     "unit": "percent",
+     "frequency": "monthly",
+     "native_frequency": "daily",
+     "source_series": "DPRIME",
+     "aggregation": "mean",
+     "publication_lag_days": 1,
+     "revisions": "none",
+     "sources": [
+      {
+       "publisher": "Board of Governors of the Federal Reserve System (H.15) via FRED",
+       "series_id": "DPRIME",
+       "url": "https://fred.stlouisfed.org/series/DPRIME"
+      },
+      {
+       "publisher": "FRED",
+       "series_id": "MPRIME",
+       "url": "https://fred.stlouisfed.org/series/MPRIME",
+       "note": "monthly alternative"
+      }
+     ]
+    },
+    {
+     "name": "policy_rate",
+     "metric": "policy_rate",
+     "unit": "percent",
+     "frequency": "monthly",
+     "native_frequency": "daily",
+     "source_series": "DFF",
+     "aggregation": "mean",
+     "publication_lag_days": 1,
+     "revisions": "none",
+     "sources": [
+      {
+       "publisher": "Federal Reserve Bank of New York via FRED",
+       "series_id": "DFF",
+       "url": "https://fred.stlouisfed.org/series/DFF",
+       "catalog_dataset": "fred_policy_rate"
+      }
+     ]
+    }
+   ],
+   "parameters": [
+    {
+     "name": "spread",
+     "unit": "fraction/year",
+     "lower": 0.0,
+     "upper": 0.2,
+     "maps_to": "mechanisms.interest.spread",
+     "description": "Long-run loan rate minus pass_through * policy rate."
+    },
+    {
+     "name": "pass_through",
+     "unit": "1",
+     "lower": 0.0,
+     "upper": 1.5,
+     "prior": {
+      "distribution": "normal",
+      "mean": 1.0,
+      "sd": 0.25
+     },
+     "maps_to": "mechanisms.interest.pass_through",
+     "description": "Long-run loan-rate response to the policy rate."
+    },
+    {
+     "name": "adjustment_speed_per_month",
+     "unit": "1/month",
+     "lower": 0.0,
+     "upper": 1.0,
+     "description": "Fraction of the gap to the long-run rate closed per month."
+    },
+    {
+     "name": "adjustment_speed",
+     "unit": "1/day",
+     "lower": 0.0,
+     "upper": 1.0,
+     "maps_to": "mechanisms.interest.adjustment_speed",
+     "description": "Daily equivalent 1-(1-monthly)^(1/30.4375)."
+    },
+    {
+     "name": "impact_pass_through",
+     "unit": "1",
+     "lower": -0.5,
+     "upper": 1.5,
+     "description": "Same-month response."
+    }
+   ],
+   "acceptance": {
+    "inherit_default": true,
+    "override": {
+     "minimum_test_forecasts": {
+      "minimum": 24
+     }
+    }
+   },
+   "hooks": [
+    "economy_mechanisms.validate: accept interest.pass_through (0..1.5) and interest.adjustment_speed (0..1 per day)",
+    "economy_mechanisms.apply_rate/interest_due: loan_rate_t = loan_rate_{t-1} + adjustment_speed*(spread + pass_through*policy_rate - loan_rate_{t-1}), persisted in state"
+   ],
+   "hook_status": "implemented",
+   "hook_implementation": "economy_mechanisms.validate/apply_rate/annual_loan_rate (interest.pass_through, adjustment_speed, impact_pass_through, persisted loan_rate); coupled_economy_numpy._interest_due; economy.py interest block"
+  },
+  "deposit_rate_pass_through": {
+   "process_id": "coupled_economy",
+   "estimator": "DepositRatePassThroughEstimator",
+   "method": "error_correction_ols_hac",
+   "frequency": "monthly",
+   "target": "deposit_rate",
+   "conditional_inputs": [
+    "policy_rate"
+   ],
+   "min_observations": 36,
+   "default_options": {
+    "ecm_lags": 1,
+    "cov_type": "HAC"
+   },
+   "series": [
+    {
+     "name": "deposit_rate",
+     "metric": "national_savings_deposit_rate",
+     "unit": "percent",
+     "frequency": "monthly",
+     "native_frequency": "monthly",
+     "source_series": "SNDR",
+     "aggregation": "mean",
+     "publication_lag_days": 20,
+     "revisions": "minor",
+     "sources": [
+      {
+       "publisher": "FDIC National Rates and Rate Caps",
+       "series_id": "SNDR (FRED)",
+       "url": "https://www.fdic.gov/national-rates-and-rate-caps",
+       "id_verified": false
+      }
+     ]
+    },
+    {
+     "name": "policy_rate",
+     "metric": "policy_rate",
+     "unit": "percent",
+     "frequency": "monthly",
+     "native_frequency": "daily",
+     "source_series": "DFF",
+     "aggregation": "mean",
+     "publication_lag_days": 1,
+     "revisions": "none",
+     "sources": [
+      {
+       "publisher": "FRED",
+       "series_id": "DFF",
+       "url": "https://fred.stlouisfed.org/series/DFF"
+      }
+     ]
+    }
+   ],
+   "parameters": [
+    {
+     "name": "spread",
+     "unit": "fraction/year",
+     "lower": -0.2,
+     "upper": 0.2,
+     "maps_to": "mechanisms.deposit_interest.spread"
+    },
+    {
+     "name": "pass_through",
+     "unit": "1",
+     "lower": 0.0,
+     "upper": 1.5,
+     "maps_to": "mechanisms.deposit_interest.pass_through"
+    },
+    {
+     "name": "adjustment_speed_per_month",
+     "unit": "1/month",
+     "lower": 0.0,
+     "upper": 1.0
+    },
+    {
+     "name": "adjustment_speed",
+     "unit": "1/day",
+     "lower": 0.0,
+     "upper": 1.0,
+     "maps_to": "mechanisms.deposit_interest.adjustment_speed"
+    },
+    {
+     "name": "impact_pass_through",
+     "unit": "1",
+     "lower": -0.5,
+     "upper": 1.5
+    }
+   ],
+   "acceptance": {
+    "inherit_default": true,
+    "override": {
+     "minimum_test_forecasts": {
+      "minimum": 24
+     },
+     "no_revision_leakage": {
+      "allowed_classes": [
+       "minor"
+      ]
+     }
+    }
+   },
+   "hooks": [
+    "coupled_economy/economy_mechanisms: add a deposit_interest mechanism paying depositors; none exists today"
+   ],
+   "hook_status": "implemented",
+   "hook_implementation": "mechanisms.deposit_interest {spread, pass_through, adjustment_speed, impact_pass_through, day_count} paid from bank equity (banking kind deposit_interest); coupled_economy and coupled_economy_numpy"
+  },
+  "default_hazard": {
+   "process_id": "coupled_economy",
+   "estimator": "DefaultHazardEstimator",
+   "method": "fractional_logit_hazard_hc0",
+   "frequency": "quarterly",
+   "target": "delinquency_rate",
+   "conditional_inputs": [
+    "unemployment_rate"
+   ],
+   "min_observations": 24,
+   "default_options": {},
+   "series": [
+    {
+     "name": "delinquency_rate",
+     "metric": "credit_card_delinquency_rate",
+     "unit": "percent",
+     "frequency": "quarterly",
+     "native_frequency": "quarterly",
+     "source_series": "DRCCLACBS",
+     "aggregation": "mean",
+     "publication_lag_days": 50,
+     "revisions": "minor",
+     "sources": [
+      {
+       "publisher": "Board of Governors of the Federal Reserve System via FRED",
+       "series_id": "DRCCLACBS",
+       "url": "https://fred.stlouisfed.org/series/DRCCLACBS"
+      },
+      {
+       "publisher": "FRED",
+       "series_id": "CORCCACBS",
+       "url": "https://fred.stlouisfed.org/series/CORCCACBS",
+       "note": "charge-off alternative (override metric/source_series)"
+      },
+      {
+       "publisher": "FRED",
+       "series_id": "DRBLACBS",
+       "url": "https://fred.stlouisfed.org/series/DRBLACBS",
+       "note": "business-loan delinquency alternative"
+      },
+      {
+       "publisher": "FDIC",
+       "program": "Call reports (BankFind financials)",
+       "series_id": "NCLNLS/LNLSNET by CERT",
+       "url": "https://api.fdic.gov/banks/financials",
+       "catalog_dataset": "fdic_bank_financials",
+       "note": "bank-level panel for future grouped hazard"
+      }
+     ]
+    },
+    {
+     "name": "unemployment_rate",
+     "metric": "unemployment_rate",
+     "unit": "percent",
+     "frequency": "quarterly",
+     "native_frequency": "monthly",
+     "source_series": "UNRATE",
+     "aggregation": "mean",
+     "publication_lag_days": 5,
+     "revisions": "minor",
+     "sources": [
+      {
+       "publisher": "U.S. Bureau of Labor Statistics (CPS) via FRED",
+       "series_id": "UNRATE / LNS14000000",
+       "url": "https://fred.stlouisfed.org/series/UNRATE",
+       "catalog_dataset": "bls_labor"
+      }
+     ]
+    },
+    {
+     "name": "policy_rate",
+     "metric": "policy_rate",
+     "unit": "percent",
+     "frequency": "quarterly",
+     "native_frequency": "daily",
+     "source_series": "DFF",
+     "aggregation": "mean",
+     "publication_lag_days": 1,
+     "revisions": "none",
+     "sources": [
+      {
+       "publisher": "FRED",
+       "series_id": "DFF",
+       "url": "https://fred.stlouisfed.org/series/DFF"
+      }
+     ]
+    }
+   ],
+   "parameters": [
+    {
+     "name": "hazard_intercept",
+     "unit": "log_odds",
+     "lower": -20,
+     "upper": 20,
+     "maps_to": "mechanisms.default_hazard.intercept"
+    },
+    {
+     "name": "persistence",
+     "unit": "1",
+     "lower": 0.0,
+     "upper": 1.0,
+     "maps_to": "mechanisms.default_hazard.persistence",
+     "description": "Coefficient on lagged log-odds."
+    },
+    {
+     "name": "unemployment_sensitivity",
+     "unit": "log_odds/fraction",
+     "lower": -100,
+     "upper": 100,
+     "maps_to": "mechanisms.default_hazard.unemployment_sensitivity"
+    },
+    {
+     "name": "rate_sensitivity",
+     "unit": "log_odds/fraction",
+     "lower": -100,
+     "upper": 100,
+     "maps_to": "mechanisms.default_hazard.rate_sensitivity"
+    }
+   ],
+   "acceptance": {
+    "inherit_default": true,
+    "override": {
+     "minimum_test_forecasts": {
+      "minimum": 12
+     },
+     "no_revision_leakage": {
+      "allowed_classes": [
+       "minor"
+      ]
+     }
+    }
+   },
+   "hooks": [
+    "coupled_economy.step_economy: add a default_hazard mechanism drawing firm defaults from logit(intercept + persistence*logit(h_{t-1}) + unemployment_sensitivity*u + rate_sensitivity*i_{t-1}) with a seeded RNG, converting quarterly to daily hazard 1-(1-h)^(1/91.3)"
+   ],
+   "hook_status": "implemented",
+   "hook_implementation": "mechanisms.default_hazard {intercept, persistence, unemployment_sensitivity, rate_sensitivity, seed, hazard, unemployment, period_days}; counter-based seeded draws; coupled_economy and coupled_economy_numpy"
+  },
+  "deposit_growth": {
+   "process_id": "coupled_economy",
+   "estimator": "DepositGrowthEstimator",
+   "method": "log_growth_adl_ols_hac",
+   "frequency": "monthly",
+   "target": "deposits",
+   "conditional_inputs": [
+    "policy_rate"
+   ],
+   "min_observations": 36,
+   "default_options": {
+    "cov_type": "HAC"
+   },
+   "series": [
+    {
+     "name": "deposits",
+     "metric": "commercial_bank_deposits",
+     "unit": "billion_USD",
+     "frequency": "monthly",
+     "native_frequency": "weekly",
+     "source_series": "DPSACBW027SBOG",
+     "aggregation": "last",
+     "publication_lag_days": 10,
+     "revisions": "major",
+     "sources": [
+      {
+       "publisher": "Board of Governors of the Federal Reserve System (H.8) via FRED/ALFRED",
+       "series_id": "DPSACBW027SBOG",
+       "url": "https://fred.stlouisfed.org/series/DPSACBW027SBOG"
+      },
+      {
+       "publisher": "FDIC",
+       "program": "Call reports",
+       "series_id": "DEP by CERT",
+       "url": "https://api.fdic.gov/banks/financials",
+       "catalog_dataset": "fdic_bank_financials",
+       "note": "quarterly bank-level alternative"
+      }
+     ]
+    },
+    {
+     "name": "policy_rate",
+     "metric": "policy_rate",
+     "unit": "percent",
+     "frequency": "monthly",
+     "native_frequency": "daily",
+     "source_series": "DFF",
+     "aggregation": "mean",
+     "publication_lag_days": 1,
+     "revisions": "none",
+     "sources": [
+      {
+       "publisher": "FRED",
+       "series_id": "DFF",
+       "url": "https://fred.stlouisfed.org/series/DFF"
+      }
+     ]
+    }
+   ],
+   "parameters": [
+    {
+     "name": "mean_growth_per_month",
+     "unit": "log/month",
+     "lower": -0.05,
+     "upper": 0.05,
+     "maps_to": "mechanisms.deposit_growth.mean_growth_per_month"
+    },
+    {
+     "name": "persistence",
+     "unit": "1",
+     "lower": -1.0,
+     "upper": 1.0,
+     "maps_to": "mechanisms.deposit_growth.persistence"
+    },
+    {
+     "name": "rate_semi_elasticity",
+     "unit": "log/fraction",
+     "lower": -50,
+     "upper": 50,
+     "maps_to": "mechanisms.deposit_growth.rate_semi_elasticity"
+    }
+   ],
+   "acceptance": {
+    "inherit_default": true,
+    "override": {
+     "minimum_test_forecasts": {
+      "minimum": 24
+     }
+    }
+   },
+   "hooks": [
+    "coupled_economy: households have no deposit-demand behavior; add a deposit_growth mechanism or use these as scenario shock generators"
+   ],
+   "hook_status": "implemented",
+   "hook_implementation": "mechanisms.deposit_growth {mean_growth_per_month, persistence, rate_semi_elasticity, period_days}: households retain opening deposits grown at the target rate; coupled_economy and coupled_economy_numpy"
+  },
+  "credit_growth": {
+   "process_id": "coupled_economy",
+   "estimator": "CreditGrowthEstimator",
+   "method": "ar_log_growth_bic_ols_hac",
+   "frequency": "monthly",
+   "target": "consumer_credit",
+   "conditional_inputs": [],
+   "min_observations": 48,
+   "default_options": {
+    "max_order": 6,
+    "criterion": "bic",
+    "cov_type": "HAC"
+   },
+   "series": [
+    {
+     "name": "consumer_credit",
+     "metric": "consumer_credit_outstanding",
+     "unit": "billion_USD",
+     "frequency": "monthly",
+     "native_frequency": "monthly",
+     "source_series": "TOTALSL",
+     "aggregation": "last",
+     "publication_lag_days": 38,
+     "revisions": "major",
+     "sources": [
+      {
+       "publisher": "Board of Governors of the Federal Reserve System (G.19) via FRED/ALFRED",
+       "series_id": "TOTALSL",
+       "url": "https://fred.stlouisfed.org/series/TOTALSL"
+      }
+     ]
+    }
+   ],
+   "parameters": [
+    {
+     "name": "mean_growth_per_month",
+     "unit": "log/month",
+     "lower": -0.05,
+     "upper": 0.05,
+     "maps_to": "mechanisms.credit_growth.mean_growth_per_month"
+    },
+    {
+     "name": "persistence_sum",
+     "unit": "1",
+     "lower": -1.0,
+     "upper": 1.0,
+     "maps_to": "mechanisms.credit_growth.persistence"
+    }
+   ],
+   "acceptance": {
+    "inherit_default": true,
+    "override": {
+     "minimum_test_forecasts": {
+      "minimum": 24
+     }
+    }
+   },
+   "hooks": [
+    "coupled_economy: credit is endogenous per-firm policy credit_limit; aggregate growth is a validation target for simulated moments, or a scenario credit_limit generator"
+   ],
+   "hook_status": "implemented",
+   "hook_implementation": "mechanisms.credit_growth {mean_growth_per_month, persistence, base_credit_limit, period_days}: scenario credit_limit generator for omitted firm credit_limit; coupled_economy and coupled_economy_numpy"
+  },
+  "demand_price_elasticity": {
+   "process_id": "coupled_economy",
+   "estimator": "DemandElasticityEstimator",
+   "method": "log_linear_partial_adjustment_2sls_hac",
+   "frequency": "monthly",
+   "target": "quantity",
+   "conditional_inputs": [
+    "retail_price",
+    "crude_price"
+   ],
+   "min_observations": 60,
+   "default_options": {
+    "cov_type": "HAC"
+   },
+   "series": [
+    {
+     "name": "quantity",
+     "metric": "motor_gasoline_product_supplied",
+     "unit": "thousand_barrels_per_day",
+     "frequency": "monthly",
+     "native_frequency": "monthly",
+     "source_series": "MGFUPUS2",
+     "aggregation": "mean",
+     "publication_lag_days": 60,
+     "revisions": "minor",
+     "sources": [
+      {
+       "publisher": "U.S. Energy Information Administration",
+       "series_id": "PET.MGFUPUS2.M",
+       "url": "https://www.eia.gov/dnav/pet/hist/LeafHandler.ashx?n=PET&s=MGFUPUS2&f=M",
+       "catalog_dataset": "eia_energy",
+       "note": "weekly WGFUPUS2 may be aggregated with mean"
+      }
+     ]
+    },
+    {
+     "name": "retail_price",
+     "metric": "retail_gasoline_price",
+     "unit": "USD/gallon",
+     "frequency": "monthly",
+     "native_frequency": "weekly",
+     "source_series": "GASREGW",
+     "aggregation": "mean",
+     "publication_lag_days": 1,
+     "revisions": "none",
+     "sources": [
+      {
+       "publisher": "U.S. Energy Information Administration via FRED",
+       "series_id": "GASREGW (EMM_EPMR_PTE_NUS_DPG)",
+       "url": "https://fred.stlouisfed.org/series/GASREGW"
+      }
+     ]
+    },
+    {
+     "name": "crude_price",
+     "metric": "oil_price",
+     "unit": "USD/barrel",
+     "frequency": "monthly",
+     "native_frequency": "daily",
+     "source_series": "DCOILWTICO",
+     "aggregation": "mean",
+     "publication_lag_days": 1,
+     "revisions": "none",
+     "description": "Excluded instrument (cost shifter) for the retail price.",
+     "sources": [
+      {
+       "publisher": "U.S. Energy Information Administration via FRED",
+       "series_id": "DCOILWTICO",
+       "url": "https://fred.stlouisfed.org/series/DCOILWTICO",
+       "catalog_dataset": "fred_oil_price"
+      }
+     ]
+    }
+   ],
+   "parameters": [
+    {
+     "name": "elasticity",
+     "unit": "1",
+     "lower": 0.0,
+     "upper": 4.0,
+     "prior": {
+      "distribution": "half_normal",
+      "sd": 0.5
+     },
+     "maps_to": "mechanisms.demand_feedback.elasticity",
+     "description": "Magnitude of the long-run own-price elasticity (mechanism uses (reference/price)^elasticity)."
+    },
+    {
+     "name": "short_run_elasticity",
+     "unit": "1",
+     "lower": -4.0,
+     "upper": 0.0
+    },
+    {
+     "name": "persistence",
+     "unit": "1",
+     "lower": 0.0,
+     "upper": 0.999
+    }
+   ],
+   "acceptance": {
+    "inherit_default": true,
+    "override": {
+     "minimum_test_forecasts": {
+      "minimum": 24
+     },
+     "no_revision_leakage": {
+      "allowed_classes": [
+       "minor"
+      ]
+     }
+    },
+    "add": [
+     {
+      "id": "strong_instrument",
+      "type": "estimate_diagnostic",
+      "path": [
+       "first_stage",
+       0,
+       "partial_f"
+      ],
+      "minimum": 10
+     }
+    ]
+   },
+   "hooks": []
+  },
+  "price_adjustment": {
+   "process_id": "coupled_economy",
+   "estimator": "PriceAdjustmentEstimator",
+   "method": "inventory_gap_price_adjustment_ols_hac",
+   "frequency": "monthly",
+   "target": "retail_price",
+   "conditional_inputs": [
+    "crude_price"
+   ],
+   "min_observations": 60,
+   "default_options": {
+    "cov_type": "HAC",
+    "target_window": 12
+   },
+   "series": [
+    {
+     "name": "retail_price",
+     "metric": "retail_gasoline_price",
+     "unit": "USD/gallon",
+     "frequency": "monthly",
+     "native_frequency": "weekly",
+     "source_series": "GASREGW",
+     "aggregation": "mean",
+     "publication_lag_days": 1,
+     "revisions": "none",
+     "sources": [
+      {
+       "publisher": "EIA via FRED",
+       "series_id": "GASREGW",
+       "url": "https://fred.stlouisfed.org/series/GASREGW"
+      }
+     ]
+    },
+    {
+     "name": "inventory",
+     "metric": "motor_gasoline_stocks",
+     "unit": "thousand_barrels",
+     "frequency": "monthly",
+     "native_frequency": "weekly",
+     "source_series": "WGTSTUS1",
+     "aggregation": "last",
+     "publication_lag_days": 5,
+     "revisions": "minor",
+     "sources": [
+      {
+       "publisher": "U.S. Energy Information Administration",
+       "series_id": "PET.WGTSTUS1.W",
+       "url": "https://www.eia.gov/dnav/pet/hist/LeafHandler.ashx?n=PET&s=WGTSTUS1&f=W"
+      }
+     ]
+    },
+    {
+     "name": "crude_price",
+     "metric": "oil_price",
+     "unit": "USD/barrel",
+     "frequency": "monthly",
+     "native_frequency": "daily",
+     "source_series": "DCOILWTICO",
+     "aggregation": "mean",
+     "publication_lag_days": 1,
+     "revisions": "none",
+     "sources": [
+      {
+       "publisher": "EIA via FRED",
+       "series_id": "DCOILWTICO",
+       "url": "https://fred.stlouisfed.org/series/DCOILWTICO"
+      }
+     ]
+    }
+   ],
+   "parameters": [
+    {
+     "name": "adjustment_per_month",
+     "unit": "1/month",
+     "lower": 0.0,
+     "upper": 5.0
+    },
+    {
+     "name": "adjustment",
+     "unit": "1/day",
+     "lower": 0.0,
+     "upper": 1.0,
+     "maps_to": "mechanisms.price_feedback.adjustment",
+     "description": "Daily fraction per unit relative inventory gap (monthly / 30.4375)."
+    },
+    {
+     "name": "cost_pass_through",
+     "unit": "1",
+     "lower": 0.0,
+     "upper": 1.5,
+     "maps_to": "mechanisms.price_feedback.cost_pass_through"
+    },
+    {
+     "name": "drift_per_month",
+     "unit": "log/month",
+     "lower": -0.1,
+     "upper": 0.1
+    }
+   ],
+   "acceptance": {
+    "inherit_default": true,
+    "override": {
+     "minimum_test_forecasts": {
+      "minimum": 24
+     },
+     "no_revision_leakage": {
+      "allowed_classes": [
+       "minor"
+      ]
+     }
+    }
+   },
+   "hooks": [
+    "economy_mechanisms.validate/price_for: accept optional price_feedback.cost_pass_through multiplying the relative unit_cost change"
+   ],
+   "hook_status": "implemented",
+   "hook_implementation": "price_feedback.cost_pass_through with per-firm last_unit_cost; economy_mechanisms.price_for and coupled_economy_numpy._cost_prices"
+  },
+  "energy_purchasing": {
+   "process_id": "coupled_economy",
+   "estimator": "EnergyPurchasingEstimator",
+   "method": "log_growth_adl_ols_hac",
+   "frequency": "monthly",
+   "target": "real_sales",
+   "conditional_inputs": [
+    "crude_price",
+    "policy_rate"
+   ],
+   "min_observations": 60,
+   "default_options": {
+    "cov_type": "HAC"
+   },
+   "series": [
+    {
+     "name": "real_sales",
+     "metric": "real_retail_sales",
+     "unit": "million_USD_1982_1984",
+     "frequency": "monthly",
+     "native_frequency": "monthly",
+     "source_series": "RRSFS",
+     "aggregation": "mean",
+     "publication_lag_days": 16,
+     "revisions": "major",
+     "sources": [
+      {
+       "publisher": "U.S. Census Bureau (advance retail sales) via FRED/ALFRED",
+       "series_id": "RRSFS",
+       "url": "https://fred.stlouisfed.org/series/RRSFS"
+      },
+      {
+       "publisher": "FRED",
+       "series_id": "RSAFS",
+       "url": "https://fred.stlouisfed.org/series/RSAFS",
+       "note": "nominal alternative; deflate with CPIAUCSL"
+      }
+     ]
+    },
+    {
+     "name": "crude_price",
+     "metric": "oil_price",
+     "unit": "USD/barrel",
+     "frequency": "monthly",
+     "native_frequency": "daily",
+     "source_series": "DCOILWTICO",
+     "aggregation": "mean",
+     "publication_lag_days": 1,
+     "revisions": "none",
+     "sources": [
+      {
+       "publisher": "EIA via FRED",
+       "series_id": "DCOILWTICO",
+       "url": "https://fred.stlouisfed.org/series/DCOILWTICO"
+      }
+     ]
+    },
+    {
+     "name": "policy_rate",
+     "metric": "policy_rate",
+     "unit": "percent",
+     "frequency": "monthly",
+     "native_frequency": "daily",
+     "source_series": "DFF",
+     "aggregation": "mean",
+     "publication_lag_days": 1,
+     "revisions": "none",
+     "sources": [
+      {
+       "publisher": "FRED",
+       "series_id": "DFF",
+       "url": "https://fred.stlouisfed.org/series/DFF"
+      }
+     ]
+    }
+   ],
+   "parameters": [
+    {
+     "name": "energy_response",
+     "unit": "1",
+     "lower": 0.0,
+     "upper": 4.0,
+     "maps_to": "mechanisms.demand_feedback.energy_response",
+     "description": "Negative of the elasticity of real purchases to the energy price change."
+    },
+    {
+     "name": "rate_response",
+     "unit": "1/fraction",
+     "lower": 0.0,
+     "upper": 4.0,
+     "maps_to": "mechanisms.demand_feedback.rate_response",
+     "description": "Negative log response to a policy-rate change in fraction units."
+    },
+    {
+     "name": "persistence",
+     "unit": "1",
+     "lower": -1.0,
+     "upper": 1.0
+    }
+   ],
+   "acceptance": {
+    "inherit_default": true,
+    "override": {
+     "minimum_test_forecasts": {
+      "minimum": 24
+     }
+    }
+   },
+   "hooks": []
+  },
+  "labor_demand": {
+   "process_id": "coupled_economy",
+   "estimator": "LaborDemandEstimator",
+   "method": "log_growth_adl_ols_hac",
+   "frequency": "monthly",
+   "target": "employment",
+   "conditional_inputs": [
+    "output"
+   ],
+   "min_observations": 60,
+   "default_options": {
+    "cov_type": "HAC"
+   },
+   "series": [
+    {
+     "name": "employment",
+     "metric": "nonfarm_payroll_employment",
+     "unit": "thousand_persons",
+     "frequency": "monthly",
+     "native_frequency": "monthly",
+     "source_series": "PAYEMS",
+     "aggregation": "mean",
+     "publication_lag_days": 5,
+     "revisions": "major",
+     "sources": [
+      {
+       "publisher": "U.S. Bureau of Labor Statistics (CES) via FRED/ALFRED",
+       "series_id": "PAYEMS / CES0000000001",
+       "url": "https://fred.stlouisfed.org/series/PAYEMS",
+       "catalog_dataset": "bls_labor"
+      },
+      {
+       "publisher": "U.S. Bureau of Labor Statistics (LAUS)",
+       "series_id": "LASST{state_fips}0000000000005 (employment) / ...0003 (unemployment rate)",
+       "url": "https://www.bls.gov/lau/",
+       "note": "state override via geography"
+      }
+     ]
+    },
+    {
+     "name": "output",
+     "metric": "industrial_production_index",
+     "unit": "index_2017_100",
+     "frequency": "monthly",
+     "native_frequency": "monthly",
+     "source_series": "INDPRO",
+     "aggregation": "mean",
+     "publication_lag_days": 16,
+     "revisions": "major",
+     "sources": [
+      {
+       "publisher": "Board of Governors of the Federal Reserve System (G.17) via FRED/ALFRED",
+       "series_id": "INDPRO",
+       "url": "https://fred.stlouisfed.org/series/INDPRO"
+      }
+     ]
+    }
+   ],
+   "parameters": [
+    {
+     "name": "employment_output_elasticity",
+     "unit": "1",
+     "lower": 0.0,
+     "upper": 2.0,
+     "maps_to": "mechanisms.labor.employment_output_elasticity",
+     "description": "Long-run elasticity beta/(1-persistence)."
+    },
+    {
+     "name": "impact_elasticity",
+     "unit": "1",
+     "lower": -1.0,
+     "upper": 2.0
+    },
+    {
+     "name": "persistence",
+     "unit": "1",
+     "lower": -1.0,
+     "upper": 1.0
+    }
+   ],
+   "acceptance": {
+    "inherit_default": true,
+    "override": {
+     "minimum_test_forecasts": {
+      "minimum": 24
+     }
+    }
+   },
+   "hooks": [
+    "coupled_economy: labor_per_unit is an integer per firm; add mechanisms.labor.employment_output_elasticity to scale hiring/labor_capacity with production"
+   ],
+   "hook_status": "implemented",
+   "hook_implementation": "mechanisms.labor.employment_output_elasticity scales household labor_capacity by (output/previous output)**elasticity; coupled_economy and coupled_economy_numpy"
+  },
+  "policy_rule": {
+   "process_id": "coupled_economy",
+   "estimator": "PolicyRuleEstimator",
+   "method": "smoothed_taylor_rule_ols_hac",
+   "frequency": "quarterly",
+   "target": "policy_rate",
+   "conditional_inputs": [
+    "price_index",
+    "real_gdp",
+    "potential_gdp"
+   ],
+   "min_observations": 40,
+   "default_options": {
+    "cov_type": "HAC",
+    "inflation_target": 0.02
+   },
+   "series": [
+    {
+     "name": "policy_rate",
+     "metric": "federal_funds_rate",
+     "unit": "percent",
+     "frequency": "quarterly",
+     "native_frequency": "monthly",
+     "source_series": "FEDFUNDS",
+     "aggregation": "mean",
+     "publication_lag_days": 1,
+     "revisions": "none",
+     "sources": [
+      {
+       "publisher": "FRED",
+       "series_id": "FEDFUNDS",
+       "url": "https://fred.stlouisfed.org/series/FEDFUNDS"
+      }
+     ]
+    },
+    {
+     "name": "price_index",
+     "metric": "consumer_price_index",
+     "unit": "index_1982_1984_100",
+     "frequency": "quarterly",
+     "native_frequency": "monthly",
+     "source_series": "CPIAUCSL",
+     "aggregation": "mean",
+     "publication_lag_days": 12,
+     "revisions": "minor",
+     "sources": [
+      {
+       "publisher": "U.S. Bureau of Labor Statistics via FRED/ALFRED",
+       "series_id": "CPIAUCSL",
+       "url": "https://fred.stlouisfed.org/series/CPIAUCSL",
+       "catalog_dataset": "fred_cpi"
+      }
+     ]
+    },
+    {
+     "name": "real_gdp",
+     "metric": "real_gdp",
+     "unit": "billion_chained_2017_USD",
+     "frequency": "quarterly",
+     "native_frequency": "quarterly",
+     "source_series": "GDPC1",
+     "aggregation": "mean",
+     "publication_lag_days": 30,
+     "revisions": "major",
+     "sources": [
+      {
+       "publisher": "U.S. Bureau of Economic Analysis via FRED/ALFRED",
+       "series_id": "GDPC1",
+       "url": "https://alfred.stlouisfed.org/series?seid=GDPC1"
+      }
+     ]
+    },
+    {
+     "name": "potential_gdp",
+     "metric": "potential_gdp",
+     "unit": "billion_chained_2017_USD",
+     "frequency": "quarterly",
+     "native_frequency": "quarterly",
+     "source_series": "GDPPOT",
+     "aggregation": "mean",
+     "publication_lag_days": 0,
+     "revisions": "major",
+     "sources": [
+      {
+       "publisher": "Congressional Budget Office via FRED/ALFRED",
+       "series_id": "GDPPOT",
+       "url": "https://alfred.stlouisfed.org/series?seid=GDPPOT"
+      }
+     ]
+    }
+   ],
+   "parameters": [
+    {
+     "name": "smoothing",
+     "unit": "1",
+     "lower": 0.0,
+     "upper": 0.999,
+     "maps_to": "mechanisms.interest.policy_rule.smoothing"
+    },
+    {
+     "name": "inflation_response",
+     "unit": "1",
+     "lower": 0.0,
+     "upper": 10.0,
+     "maps_to": "mechanisms.interest.policy_rule.inflation_response"
+    },
+    {
+     "name": "output_response",
+     "unit": "1",
+     "lower": 0.0,
+     "upper": 10.0,
+     "maps_to": "mechanisms.interest.policy_rule.output_response"
+    },
+    {
+     "name": "reference_rate",
+     "unit": "fraction/year",
+     "lower": 0.0,
+     "upper": 0.2,
+     "maps_to": "mechanisms.interest.policy_rule.reference_rate",
+     "description": "Identified only jointly with the declared inflation_target option."
+    },
+    {
+     "name": "inflation_target",
+     "unit": "fraction/year",
+     "lower": 0.0,
+     "upper": 0.1,
+     "maps_to": "mechanisms.interest.policy_rule.inflation_target",
+     "description": "Declared assumption (option), not estimated."
+    }
+   ],
+   "acceptance": {
+    "inherit_default": true,
+    "override": {
+     "minimum_test_forecasts": {
+      "minimum": 16
+     }
+    }
+   },
+   "hooks": [
+    "economy_mechanisms.validate/apply_rate: accept policy_rule.smoothing and apply rate = smoothing*previous + (1-smoothing)*rule (converted to the step cadence)"
+   ],
+   "hook_status": "implemented",
+   "hook_implementation": "interest.policy_rule.smoothing (and period_days) in economy_mechanisms.apply_rate, shared by both backends"
+  },
+  "field_diffusion_transport": {
+   "process_id": "field_dynamics",
+   "estimator": "FieldDiffusionEstimator",
+   "method": "pooled_euler_discretization_ols_hc1",
+   "frequency": "daily",
+   "target": "{first_cell}",
+   "conditional_inputs": [],
+   "min_observations": 30,
+   "default_options": {
+    "kind": "intensive",
+    "include_decay": true,
+    "include_source": true,
+    "cov_type": "HC1"
+   },
+   "series_template": {
+    "metric": "field_value",
+    "unit": "field_value",
+    "frequency": "daily",
+    "native_frequency": "daily",
+    "subject": "{cell}",
+    "aggregation": "mean",
+    "publication_lag_days": 1,
+    "revisions": "unknown",
+    "description": "One series per topology cell (options.topology.cells[].id); metric/unit override per field.",
+    "sources": [
+     {
+      "publisher": "U.S. Environmental Protection Agency",
+      "program": "AQS daily summary (parameter 88101 PM2.5)",
+      "series_id": "daily_88101_{year}.zip county means",
+      "url": "https://aqs.epa.gov/aqsweb/airdata/download_files.html"
+     },
+     {
+      "publisher": "U.S. Census Bureau",
+      "program": "County adjacency file (topology)",
+      "url": "https://www.census.gov/geographies/reference-files/time-series/geo/county-adjacency.html"
+     }
+    ]
+   },
+   "series": [],
+   "parameters": [
+    {
+     "name": "conductance",
+     "unit": "measure/second",
+     "lower": 0.0,
+     "upper": 1000000000000.0,
+     "maps_to": "edges[*].conductance"
+    },
+    {
+     "name": "transport_rate",
+     "unit": "1/second",
+     "lower": 0.0,
+     "upper": 1.0,
+     "maps_to": "edges[*].transport_rate"
+    },
+    {
+     "name": "decay_rate",
+     "unit": "1/second",
+     "lower": -1.0,
+     "upper": 1.0,
+     "description": "First-order loss; fields.py has no sink term."
+    },
+    {
+     "name": "source_rate",
+     "unit": "amount/(measure*second)",
+     "lower": -1000000000000.0,
+     "upper": 1000000000000.0,
+     "description": "Uniform source per unit measure; fields.py has no source term."
+    }
+   ],
+   "acceptance": {
+    "inherit_default": true,
+    "override": {
+     "minimum_test_forecasts": {
+      "minimum": 30
+     },
+     "no_revision_leakage": {
+      "allowed_classes": [
+       "unknown",
+       "minor"
+      ]
+     }
+    }
+   },
+   "hooks": [
+    "fields.FieldWorld.evolve: optional per-field decay_rate and source_rate terms (open system) so estimated sinks/sources can be simulated; with include_decay=false and include_source=false the estimator matches today's closed solver"
+   ],
+   "hook_status": "implemented",
+   "hook_implementation": "fields[name].decay_rate/source_rate in field_arrays.FieldArrays (python and numpy), FieldWorld, evolve_fields and evolve_field_arrays; estimation.binding maps decay_rate/source_rate to fields.*"
+  },
+  "bilateral_flow_gravity": {
+   "process_id": "cross_domain_composition",
+   "estimator": "GravityEstimator",
+   "method": "ppml_origin_destination_fixed_effects",
+   "frequency": "annual",
+   "target": "flow",
+   "conditional_inputs": [
+    "distance"
+   ],
+   "min_observations": 30,
+   "default_options": {
+    "fixed_effects": true
+   },
+   "series": [
+    {
+     "name": "flow",
+     "metric": "freight_flow",
+     "unit": "thousand_short_tons",
+     "frequency": "annual",
+     "native_frequency": "annual",
+     "aggregation": "sum",
+     "publication_lag_days": 540,
+     "revisions": "major",
+     "description": "dimensions.origin and dimensions.destination region codes required.",
+     "sources": [
+      {
+       "publisher": "Bureau of Transportation Statistics / FHWA",
+       "program": "Freight Analysis Framework (FAF5) regional OD",
+       "series_id": "FAF5.x tons_{year}",
+       "url": "https://www.bts.gov/faf",
+       "catalog_dataset": "freight"
+      }
+     ]
+    },
+    {
+     "name": "distance",
+     "metric": "od_distance",
+     "unit": "km",
+     "frequency": "annual",
+     "native_frequency": "irregular",
+     "aggregation": "last",
+     "publication_lag_days": 0,
+     "revisions": "none",
+     "description": "Great-circle or network distance between origin and destination centroids (dimensions.origin/destination).",
+     "sources": [
+      {
+       "publisher": "Derived from Census TIGER / FAF zone centroids",
+       "url": "https://www.census.gov/geographies/mapping-files/time-series/geo/tiger-line-file.html"
+      }
+     ]
+    }
+   ],
+   "parameters": [
+    {
+     "name": "distance_elasticity",
+     "unit": "1",
+     "lower": -5.0,
+     "upper": 0.0,
+     "maps_to": "routes.distance_elasticity",
+     "description": "PPML coefficient on log distance."
+    }
+   ],
+   "acceptance": {
+    "inherit_default": true,
+    "override": {
+     "minimum_test_forecasts": {
+      "minimum": 20
+     }
+    }
+   },
+   "hooks": [
+    "composition: routes and demand are explicit literals; add a gravity demand allocator using distance_elasticity and fitted origin/destination effects"
+   ],
+   "hook_status": "implemented",
+   "hook_implementation": "composition gravity_demand {distance_elasticity, routes, origin_effects, destination_effects}; composition.gravity_allocation"
+  },
+  "legislative_model_parameters": {
+   "process_id": "legislative_model",
+   "linked_processes": [],
+   "estimator": "ModelFamilyEstimator",
+   "family": "legislative",
+   "method": "worldmodel.models.legislative.fit",
+   "identification": "descriptive_measurement",
+   "frequency": null,
+   "target": "rollcall_vote",
+   "conditional_inputs": [
+    "revealed_member_votes_on_target_rollcall"
+   ],
+   "holdout_forecaster": true,
+   "series": [],
+   "family_requirements": [
+    {
+     "id": "voteview_votes",
+     "publisher": "Voteview (UCLA)",
+     "dataset": "HSall_votes.csv",
+     "series": [
+      "congress",
+      "chamber",
+      "rollnumber",
+      "icpsr",
+      "cast_code"
+     ],
+     "url": "https://voteview.com/static/data/out/votes/HSall_votes.csv",
+     "frequency": "per roll call",
+     "role": "estimation",
+     "parameters": [
+      "ideal_points",
+      "bill_parameters",
+      "discipline"
+     ],
+     "access": "public"
+    },
+    {
+     "id": "voteview_members",
+     "publisher": "Voteview (UCLA)",
+     "dataset": "HSall_members.csv",
+     "series": [
+      "congress",
+      "chamber",
+      "icpsr",
+      "party_code",
+      "bioname"
+     ],
+     "url": "https://voteview.com/static/data/out/members/HSall_members.csv",
+     "frequency": "per congress",
+     "role": "estimation",
+     "parameters": [
+      "ideal_points",
+      "discipline"
+     ],
+     "access": "public"
+    },
+    {
+     "id": "voteview_rollcalls",
+     "publisher": "Voteview (UCLA)",
+     "dataset": "HSall_rollcalls.csv",
+     "series": [
+      "congress",
+      "chamber",
+      "rollnumber",
+      "date",
+      "bill_number"
+     ],
+     "url": "https://voteview.com/static/data/out/rollcalls/HSall_rollcalls.csv",
+     "frequency": "per roll call",
+     "role": "estimation",
+     "parameters": [
+      "bill_parameters"
+     ],
+     "access": "public"
+    },
+    {
+     "id": "congress_committees",
+     "publisher": "Library of Congress",
+     "dataset": "Congress.gov API committees and bill actions",
+     "series": [
+      "committee.systemCode",
+      "committee.members",
+      "bill.actions"
+     ],
+     "url": "https://api.congress.gov/",
+     "frequency": "daily",
+     "role": "simulation_structure",
+     "parameters": [],
+     "access": "public_api_key"
+    }
+   ],
+   "parameters": [
+    {
+     "name": "dimensions",
+     "unit": "count",
+     "maps_to": "parameters.dimensions",
+     "source": "assumed",
+     "lower": 1,
+     "upper": 2,
+     "description": "Latent policy dimensions (1 or 2)."
+    },
+    {
+     "name": "discipline",
+     "unit": "logit",
+     "maps_to": "parameters.discipline",
+     "source": "fit",
+     "lower": -10,
+     "upper": 10,
+     "description": "Additive log-odds toward the leave-one-out party majority position."
+    },
+    {
+     "name": "salience",
+     "unit": "logit_per_squared_sd",
+     "maps_to": "parameters.salience",
+     "source": "assumed",
+     "lower": 0,
+     "upper": 100,
+     "description": "Scale mapping quadratic spatial utility to log-odds for new bills."
+    },
+    {
+     "name": "prior_sd",
+     "unit": "latent_ideology_sd",
+     "maps_to": "parameters.prior_sd",
+     "source": "assumed",
+     "description": "Prior standard deviation of ideal points."
+    },
+    {
+     "name": "lopsided_threshold",
+     "unit": "fraction",
+     "maps_to": "parameters.lopsided_threshold",
+     "source": "assumed",
+     "description": "Roll calls with a smaller minority share are excluded."
+    },
+    {
+     "name": "min_votes",
+     "unit": "count",
+     "maps_to": "parameters.min_votes",
+     "source": "assumed",
+     "description": "Legislators with fewer scaled votes are excluded."
+    }
+   ],
+   "structured_parameters": [
+    "ideal_points",
+    "bill_parameters"
+   ],
+   "acceptance": {
+    "inherit_default": false,
+    "add": [
+     {
+      "id": "minimum_test_forecasts",
+      "type": "min_forecasts",
+      "minimum": 200
+     },
+     {
+      "id": "beats_persistence_dm",
+      "type": "diebold_mariano",
+      "baseline": "persistence",
+      "loss": "squared",
+      "max_pvalue": 0.1,
+      "require_lower_loss": true
+     },
+     {
+      "id": "brier_skill_vs_member_base_rate",
+      "type": "brier_skill",
+      "minimum": 0.05
+     },
+     {
+      "id": "beats_revealed_share_dm",
+      "type": "diebold_mariano",
+      "baseline": "rollcall_revealed_share",
+      "loss": "squared",
+      "max_pvalue": 0.1,
+      "require_lower_loss": true
+     },
+     {
+      "id": "calibration",
+      "type": "calibration_error",
+      "maximum": 0.15
+     },
+     {
+      "id": "parameters_within_declared_bounds",
+      "type": "parameter_bounds"
+     },
+     {
+      "id": "no_timing_leakage",
+      "type": "leakage_audit"
+     },
+     {
+      "id": "no_revision_leakage",
+      "type": "revision_leakage"
+     }
+    ]
+   },
+   "hooks": [],
+   "holdout": {
+    "target": "Yea (1) / nay (0) of each unrevealed member on each held-out roll call",
+    "method": "Ideal points and discipline fit at the origin; the new roll call (a, b) is a MAP logistic fit to revealed members (default every third member by id, or options.holdout_revealed_members); probabilities integrate the Laplace posterior of (a, b).",
+    "metrics": [
+     "brier",
+     "brier_skill (vs member historical yea rate)",
+     "calibration",
+     "log_score",
+     "crps"
+    ],
+    "baselines": {
+     "persistence": "member's last vote",
+     "historical_mean": "member's pre-origin yea rate",
+     "rollcall_revealed_share": "smoothed yea share of revealed members on the same roll call"
+    },
+    "not_scored": [
+     "Passage probabilities (one outcome per bill; too few for acceptance)",
+     "Gaussian interval coverage (binary target)"
+    ]
+   }
+  },
+  "elections_model_parameters": {
+   "process_id": "elections_model",
+   "linked_processes": [],
+   "estimator": "ModelFamilyEstimator",
+   "family": "elections",
+   "method": "worldmodel.models.elections.fit",
+   "identification": "predictive_association",
+   "frequency": null,
+   "target": "dem_share",
+   "conditional_inputs": [
+    "pvi",
+    "incumbent",
+    "econ",
+    "president_party",
+    "midterm",
+    "dem_receipts",
+    "rep_receipts"
+   ],
+   "holdout_forecaster": true,
+   "series": [],
+   "family_requirements": [
+    {
+     "id": "medsl_house",
+     "publisher": "MIT Election Data and Science Lab",
+     "dataset": "U.S. House 1976-2022 returns (Harvard Dataverse doi:10.7910/DVN/IG0UN2)",
+     "series": [
+      "year",
+      "state_po",
+      "district",
+      "party",
+      "candidatevotes",
+      "totalvotes"
+     ],
+     "url": "https://electionlab.mit.edu/data",
+     "frequency": "biennial",
+     "role": "estimation",
+     "parameters": [
+      "coefficients",
+      "sigma_national",
+      "sigma_district"
+     ],
+     "access": "public"
+    },
+    {
+     "id": "district_presidential_lean",
+     "publisher": "MIT Election Data and Science Lab / Redistricting Data Hub",
+     "dataset": "Presidential vote by congressional district",
+     "series": [
+      "year",
+      "district",
+      "dem_votes",
+      "rep_votes"
+     ],
+     "url": "https://electionlab.mit.edu/data",
+     "frequency": "quadrennial",
+     "role": "estimation",
+     "parameters": [
+      "coefficients"
+     ],
+     "access": "public"
+    },
+    {
+     "id": "fec_candidate_summary",
+     "publisher": "Federal Election Commission",
+     "dataset": "All candidates summary (weball) bulk file",
+     "series": [
+      "CAND_ID",
+      "CAND_PTY_AFFILIATION",
+      "TTL_RECEIPTS",
+      "CAND_ICI",
+      "CAND_OFFICE_DISTRICT"
+     ],
+     "url": "https://www.fec.gov/data/browse-data/?tab=bulk-data",
+     "frequency": "per cycle",
+     "role": "estimation",
+     "parameters": [
+      "coefficients"
+     ],
+     "access": "public"
+    },
+    {
+     "id": "fred_economy",
+     "publisher": "Federal Reserve Bank of St. Louis",
+     "dataset": "FRED",
+     "series": [
+      "A229RX0 (real disposable personal income)",
+      "GDPC1",
+      "UNRATE"
+     ],
+     "url": "https://fred.stlouisfed.org/",
+     "frequency": "monthly/quarterly",
+     "role": "estimation",
+     "parameters": [
+      "coefficients"
+     ],
+     "access": "public"
+    },
+    {
+     "id": "turnout_vep",
+     "publisher": "U.S. Elections Project / Census Bureau",
+     "dataset": "VEP turnout and ACS CVAP special tabulation",
+     "series": [
+      "state",
+      "year",
+      "total_ballots",
+      "vep",
+      "cvap"
+     ],
+     "url": "https://election.lab.ufl.edu/",
+     "frequency": "biennial",
+     "role": "estimation",
+     "parameters": [
+      "turnout_coefficients"
+     ],
+     "access": "public"
+    }
+   ],
+   "parameters": [
+    {
+     "name": "sigma_national",
+     "unit": "two_party_share",
+     "maps_to": "parameters.sigma_national",
+     "source": "fit",
+     "lower": 0,
+     "upper": 0.5,
+     "description": "Standard deviation of shared national swing."
+    },
+    {
+     "name": "sigma_district",
+     "unit": "two_party_share",
+     "maps_to": "parameters.sigma_district",
+     "source": "fit",
+     "lower": 0,
+     "upper": 0.5,
+     "description": "Standard deviation of district-specific error."
+    }
+   ],
+   "structured_parameters": [
+    "coefficients",
+    "student_t_df",
+    "turnout_coefficients"
+   ],
+   "acceptance": {
+    "inherit_default": true,
+    "add": [
+     {
+      "id": "beats_district_mean_dm",
+      "type": "diebold_mariano",
+      "baseline": "historical_mean",
+      "loss": "squared",
+      "max_pvalue": 0.1,
+      "require_lower_loss": true
+     }
+    ]
+   },
+   "hooks": [],
+   "holdout": {
+    "target": "Contested district two-party Democratic share in the next cycle",
+    "method": "Pooled OLS coefficients at the origin applied to realized fundamentals; variance sigma_national^2 + sigma_district^2 + x'Vx (cycle random-effects coefficient covariance); no forecast until sigma_national is identified.",
+    "metrics": [
+     "mae",
+     "rmse",
+     "crps",
+     "pinball",
+     "interval_coverage",
+     "log_score"
+    ],
+    "baselines": {
+     "persistence": "district's previous share",
+     "historical_mean": "district's pre-origin mean share"
+    },
+    "secondary": {
+     "dem_seats": "Democratic seat count from the swing-integrated seat distribution (one per cycle; reported, not in acceptance)"
+    }
+   }
+  },
+  "influence_model_parameters": {
+   "process_id": "influence_model",
+   "linked_processes": [],
+   "estimator": "ModelFamilyEstimator",
+   "family": "influence",
+   "method": "worldmodel.models.influence.fit",
+   "identification": "correlational",
+   "frequency": null,
+   "target": "panel_outcome",
+   "conditional_inputs": [
+    "exposure_at_target_period",
+    "controls_at_target_period"
+   ],
+   "holdout_forecaster": true,
+   "series": [],
+   "family_requirements": [
+    {
+     "id": "lda_filings",
+     "publisher": "U.S. Senate Office of Public Records",
+     "dataset": "Lobbying Disclosure Act REST API filings",
+     "series": [
+      "filing_uuid",
+      "client.id",
+      "registrant.id",
+      "income",
+      "expenses",
+      "lobbying_activities.general_issue_code",
+      "lobbying_activities.government_entities",
+      "dt_posted"
+     ],
+     "url": "https://lda.senate.gov/api/",
+     "frequency": "quarterly",
+     "role": "estimation",
+     "parameters": [
+      "lda_allocation"
+     ],
+     "access": "public"
+    },
+    {
+     "id": "fec_individual_contributions",
+     "publisher": "Federal Election Commission",
+     "dataset": "itcont bulk (contributions by individuals)",
+     "series": [
+      "CMTE_ID",
+      "NAME",
+      "ZIP_CODE",
+      "EMPLOYER",
+      "OCCUPATION",
+      "TRANSACTION_DT",
+      "TRANSACTION_AMT"
+     ],
+     "url": "https://www.fec.gov/data/browse-data/?tab=bulk-data",
+     "frequency": "per cycle",
+     "role": "estimation",
+     "parameters": [
+      "pass_through"
+     ],
+     "access": "public"
+    },
+    {
+     "id": "fec_committee_to_candidate",
+     "publisher": "Federal Election Commission",
+     "dataset": "itpas2 bulk (committee contributions to candidates)",
+     "series": [
+      "CMTE_ID",
+      "CAND_ID",
+      "TRANSACTION_DT",
+      "TRANSACTION_AMT"
+     ],
+     "url": "https://www.fec.gov/data/browse-data/?tab=bulk-data",
+     "frequency": "per cycle",
+     "role": "estimation",
+     "parameters": [
+      "pass_through"
+     ],
+     "access": "public"
+    },
+    {
+     "id": "fec_linkages",
+     "publisher": "Federal Election Commission",
+     "dataset": "ccl candidate-committee linkage",
+     "series": [
+      "CAND_ID",
+      "CMTE_ID",
+      "CMTE_DSGN"
+     ],
+     "url": "https://www.fec.gov/data/browse-data/?tab=bulk-data",
+     "frequency": "per cycle",
+     "role": "estimation",
+     "parameters": [
+      "pass_through"
+     ],
+     "access": "public"
+    },
+    {
+     "id": "voteview_outcomes",
+     "publisher": "Voteview (UCLA)",
+     "dataset": "HSall_votes.csv (outcomes for influence panels)",
+     "series": [
+      "icpsr",
+      "rollnumber",
+      "cast_code"
+     ],
+     "url": "https://voteview.com/data",
+     "frequency": "per roll call",
+     "role": "outcome",
+     "parameters": [
+      "influence_coefficient"
+     ],
+     "access": "public"
+    }
+   ],
+   "parameters": [
+    {
+     "name": "influence_coefficient",
+     "unit": "outcome_units_per_exposure_unit",
+     "maps_to": "parameters.influence_coefficient",
+     "source": "fit",
+     "description": "Within-unit association of outcome with exposure."
+    }
+   ],
+   "structured_parameters": [
+    "influence_standard_error",
+    "lda_allocation",
+    "pass_through"
+   ],
+   "acceptance": {
+    "inherit_default": true,
+    "add": [
+     {
+      "id": "beats_fixed_effects_only_dm",
+      "type": "diebold_mariano",
+      "baseline": "fixed_effects_only",
+      "loss": "squared",
+      "max_pvalue": 0.1,
+      "require_lower_loss": true
+     }
+    ]
+   },
+   "hooks": [],
+   "holdout": {
+    "target": "Next-period panel outcome per unit given realized exposure and controls",
+    "method": "beta x + unit effect + period effect extrapolated by random walk with drift; effects from pre-origin residuals.",
+    "metrics": [
+     "mae",
+     "rmse",
+     "crps",
+     "pinball",
+     "interval_coverage",
+     "log_score"
+    ],
+    "baselines": {
+     "persistence": "unit's previous outcome",
+     "historical_mean": "unit's pre-origin mean",
+     "fixed_effects_only": "same two-way effects forecast with the influence coefficient and controls set to zero"
+    },
+    "note": "Skill against fixed_effects_only is predictive association, not a causal influence effect."
+   }
+  },
+  "trade_model_parameters": {
+   "process_id": "trade_model",
+   "linked_processes": [],
+   "estimator": "ModelFamilyEstimator",
+   "family": "trade",
+   "method": "worldmodel.models.trade.fit",
+   "identification": "structural_gravity_conditional_on_exogenous_trade_costs",
+   "frequency": null,
+   "target": "bilateral_flow",
+   "conditional_inputs": [
+    "exporter_total_shipments_at_target_year",
+    "importer_total_purchases_at_target_year",
+    "trade_cost_regressors_at_target_year"
+   ],
+   "holdout_forecaster": true,
+   "series": [],
+   "family_requirements": [
+    {
+     "id": "baci",
+     "publisher": "CEPII",
+     "dataset": "BACI HS92/HS17 bilateral trade flows",
+     "series": [
+      "t",
+      "i",
+      "j",
+      "k",
+      "v",
+      "q"
+     ],
+     "url": "https://www.cepii.fr/CEPII/en/bdd_modele/bdd_modele_item.asp?id=37",
+     "frequency": "annual",
+     "role": "estimation",
+     "parameters": [
+      "trade_elasticity",
+      "distance_elasticity",
+      "sanction_coefficient"
+     ],
+     "access": "public"
+    },
+    {
+     "id": "comtrade",
+     "publisher": "United Nations",
+     "dataset": "UN Comtrade bilateral merchandise trade",
+     "series": [
+      "period",
+      "reporterCode",
+      "partnerCode",
+      "cmdCode",
+      "primaryValue"
+     ],
+     "url": "https://comtradeplus.un.org/",
+     "frequency": "annual/monthly",
+     "role": "estimation",
+     "parameters": [
+      "trade_elasticity"
+     ],
+     "access": "public_api_key"
+    },
+    {
+     "id": "cepii_gravity",
+     "publisher": "CEPII",
+     "dataset": "Gravity database",
+     "series": [
+      "iso3_o",
+      "iso3_d",
+      "dist",
+      "contig",
+      "comlang_off",
+      "fta_wto"
+     ],
+     "url": "https://www.cepii.fr/CEPII/en/bdd_modele/bdd_modele_item.asp?id=8",
+     "frequency": "annual",
+     "role": "estimation",
+     "parameters": [
+      "distance_elasticity"
+     ],
+     "access": "public"
+    },
+    {
+     "id": "wits_tariffs",
+     "publisher": "World Bank / UNCTAD TRAINS",
+     "dataset": "WITS applied and MFN tariffs",
+     "series": [
+      "reporter",
+      "partner",
+      "product",
+      "year",
+      "simple_average"
+     ],
+     "url": "https://wits.worldbank.org/",
+     "frequency": "annual",
+     "role": "estimation",
+     "parameters": [
+      "trade_elasticity"
+     ],
+     "access": "public"
+    },
+    {
+     "id": "io_tables",
+     "publisher": "EXIOBASE / BEA / OECD ICIO",
+     "dataset": "Multi-regional input-output tables",
+     "series": [
+      "Z (intermediate)",
+      "Y (final demand)",
+      "value added"
+     ],
+     "url": "https://www.exiobase.eu/ ; https://www.bea.gov/industry/input-output-accounts-data",
+     "frequency": "annual",
+     "role": "baseline_calibration",
+     "parameters": [
+      "io_coefficients",
+      "value_added_share"
+     ],
+     "access": "public"
+    },
+    {
+     "id": "global_sanctions_db",
+     "publisher": "Drexel / Kiel Global Sanctions Data Base",
+     "dataset": "GSDB sanction cases",
+     "series": [
+      "sanctioning_state",
+      "sanctioned_state",
+      "begin",
+      "end",
+      "trade"
+     ],
+     "url": "https://www.globalsanctionsdatabase.com/",
+     "frequency": "annual",
+     "role": "estimation",
+     "parameters": [
+      "sanction_coefficient"
+     ],
+     "access": "registration"
+    }
+   ],
+   "parameters": [
+    {
+     "name": "trade_elasticity",
+     "unit": "dimensionless",
+     "maps_to": "parameters.trade_elasticity",
+     "source": "fit",
+     "lower": 0.1,
+     "upper": 50,
+     "description": "Trade elasticity theta (per sector or common)."
+    },
+    {
+     "name": "trade_elasticity_se",
+     "unit": "dimensionless",
+     "maps_to": "parameters.trade_elasticity_se",
+     "source": "fit",
+     "lower": 0,
+     "upper": 50,
+     "description": "Standard error used for stochastic elasticity draws."
+    },
+    {
+     "name": "distance_elasticity",
+     "unit": "dimensionless",
+     "maps_to": "parameters.distance_elasticity",
+     "source": "fit",
+     "description": "PPML coefficient on log distance."
+    },
+    {
+     "name": "sanction_coefficient",
+     "unit": "log_points",
+     "maps_to": "parameters.sanction_coefficient",
+     "source": "fit",
+     "description": "PPML coefficient on a sanction indicator."
+    }
+   ],
+   "structured_parameters": [
+    "io_coefficients",
+    "value_added_share"
+   ],
+   "acceptance": {
+    "inherit_default": true,
+    "add": [
+     {
+      "id": "beats_frictionless_dm",
+      "type": "diebold_mariano",
+      "baseline": "frictionless_marginals",
+      "loss": "squared",
+      "max_pvalue": 0.1,
+      "require_lower_loss": true
+     }
+    ]
+   },
+   "hooks": [],
+   "holdout": {
+    "target": "Next-year international bilateral flow (value)",
+    "method": "PPML slopes at the origin; exporter-year and importer-year terms balanced to realized target-year exporter and importer totals; sd = cv * mean with cv from pre-origin years.",
+    "metrics": [
+     "mae",
+     "rmse",
+     "crps",
+     "pinball",
+     "interval_coverage",
+     "log_score"
+    ],
+    "baselines": {
+     "persistence": "pair's previous flow",
+     "historical_mean": "pair's pre-origin mean flow",
+     "frictionless_marginals": "flows with the same totals and no trade costs"
+    },
+    "not_scored": [
+     "General-equilibrium counterfactuals (no observed counterfactual outcomes)"
+    ]
+   }
+  },
+  "sanctions_model_parameters": {
+   "process_id": "sanctions_model",
+   "linked_processes": [],
+   "estimator": "ModelFamilyEstimator",
+   "family": "sanctions",
+   "method": "worldmodel.models.sanctions.fit",
+   "identification": "rule_based_propagation_plus_structural_gravity",
+   "frequency": null,
+   "target": null,
+   "conditional_inputs": [],
+   "holdout_forecaster": false,
+   "series": [],
+   "family_requirements": [
+    {
+     "id": "ofac_sdn",
+     "publisher": "U.S. Treasury OFAC",
+     "dataset": "SDN and Consolidated Sanctions lists (XML/CSV)",
+     "series": [
+      "uid",
+      "sdnType",
+      "programList",
+      "akaList",
+      "idList"
+     ],
+     "url": "https://sanctionslist.ofac.treas.gov/Home/SdnList",
+     "frequency": "as published",
+     "role": "designations",
+     "parameters": [
+      "ownership_threshold"
+     ],
+     "access": "public"
+    },
+    {
+     "id": "opensanctions",
+     "publisher": "OpenSanctions",
+     "dataset": "Default dataset incl. Ownership and Directorship (FollowTheMoney)",
+     "series": [
+      "Ownership.owner",
+      "Ownership.asset",
+      "Ownership.percentage",
+      "Sanction.program"
+     ],
+     "url": "https://www.opensanctions.org/datasets/default/",
+     "frequency": "daily",
+     "role": "ownership_graph",
+     "parameters": [
+      "ownership_threshold"
+     ],
+     "access": "non_commercial_license"
+    },
+    {
+     "id": "gleif_level2",
+     "publisher": "GLEIF",
+     "dataset": "Level 2 relationship records (direct/ultimate parents)",
+     "series": [
+      "StartNode.LEI",
+      "EndNode.LEI",
+      "RelationshipType",
+      "RelationshipPeriods"
+     ],
+     "url": "https://www.gleif.org/en/lei-data/gleif-golden-copy",
+     "frequency": "daily",
+     "role": "ownership_graph",
+     "parameters": [
+      "apply_control"
+     ],
+     "access": "public"
+    },
+    {
+     "id": "eu_consolidated",
+     "publisher": "European Commission",
+     "dataset": "EU consolidated financial sanctions list",
+     "series": [
+      "logicalId",
+      "nameAlias",
+      "regulation"
+     ],
+     "url": "https://data.europa.eu/data/datasets/consolidated-list-of-persons-groups-and-entities-subject-to-eu-financial-sanctions",
+     "frequency": "as published",
+     "role": "designations",
+     "parameters": [],
+     "access": "public"
+    },
+    {
+     "id": "baci_with_sanctions",
+     "publisher": "CEPII + GSDB",
+     "dataset": "BACI flows joined to sanction episodes",
+     "series": [
+      "t",
+      "i",
+      "j",
+      "v",
+      "sanction"
+     ],
+     "url": "https://www.cepii.fr/",
+     "frequency": "annual",
+     "role": "estimation",
+     "parameters": [
+      "sanction_coefficient",
+      "route_cost_semi_elasticity"
+     ],
+     "access": "public"
+    }
+   ],
+   "parameters": [
+    {
+     "name": "ownership_threshold",
+     "unit": "share",
+     "maps_to": "parameters.ownership_threshold",
+     "source": "external",
+     "lower": 0,
+     "upper": 1,
+     "description": "Aggregate blocked ownership at or above which an entity is blocked."
+    },
+    {
+     "name": "route_cost_semi_elasticity",
+     "unit": "log_trade_cost_per_route_cost_unit",
+     "maps_to": "parameters.route_cost_semi_elasticity",
+     "source": "fit",
+     "description": "d ln(trade cost) per unit of route cost increase."
+    },
+    {
+     "name": "prohibitive_multiplier",
+     "unit": "multiplier",
+     "maps_to": "parameters.prohibitive_multiplier",
+     "source": "assumed",
+     "description": "Trade-cost multiplier when no permitted route exists."
+    },
+    {
+     "name": "sanction_coefficient",
+     "unit": "log_points",
+     "maps_to": "parameters.sanction_coefficient",
+     "source": "fit",
+     "description": "Gravity coefficient on sanction indicator (from trade.fit)."
+    }
+   ],
+   "structured_parameters": [
+    "apply_control"
+   ],
+   "acceptance": {
+    "inherit_default": true
+   },
+   "hooks": [],
+   "non_estimable": "The family output is a legal-rule determination (OFAC 50 Percent Rule least fixed point, look-through exposure, route closure), not a forecast: given designations and ownership records it is exact, so no held-out observable scores it statistically and correctness is checked by rule tests. Its one estimated coefficient (sanction_coefficient) is a trade-gravity regressor that is scored through the trade family holdout when flows carry a sanction regressor."
+  },
+  "conflict_model_parameters": {
+   "process_id": "conflict_model",
+   "linked_processes": [
+    "conflict_event_intensity"
+   ],
+   "estimator": "ModelFamilyEstimator",
+   "family": "conflict",
+   "method": "worldmodel.models.conflict.fit",
+   "identification": "predictive_association",
+   "frequency": null,
+   "target": "event_count",
+   "conditional_inputs": [
+    "covariates_at_target_month"
+   ],
+   "holdout_forecaster": true,
+   "series": [],
+   "family_requirements": [
+    {
+     "id": "ucdp_ged",
+     "publisher": "Uppsala Conflict Data Program",
+     "dataset": "UCDP Georeferenced Event Dataset (GED)",
+     "series": [
+      "id",
+      "country_id",
+      "date_start",
+      "type_of_violence",
+      "best"
+     ],
+     "url": "https://ucdp.uu.se/downloads/",
+     "frequency": "annual release + monthly candidate",
+     "role": "estimation",
+     "parameters": [
+      "background_coefficients",
+      "self_excitation",
+      "neighbor_excitation",
+      "decay"
+     ],
+     "access": "public"
+    },
+    {
+     "id": "gdelt_events",
+     "publisher": "GDELT Project",
+     "dataset": "GDELT 2.0 Events",
+     "series": [
+      "SQLDATE",
+      "ActionGeo_CountryCode",
+      "EventRootCode",
+      "QuadClass",
+      "NumMentions"
+     ],
+     "url": "https://www.gdeltproject.org/data.html",
+     "frequency": "15 minutes",
+     "role": "estimation",
+     "parameters": [
+      "self_excitation"
+     ],
+     "access": "public",
+     "notes": "Media-coded; heavy duplication and coverage drift require deduplication and normalization."
+    },
+    {
+     "id": "vdem",
+     "publisher": "V-Dem Institute",
+     "dataset": "V-Dem Country-Year Core",
+     "series": [
+      "country_text_id",
+      "year",
+      "v2x_polyarchy",
+      "v2x_libdem"
+     ],
+     "url": "https://www.v-dem.net/data/the-v-dem-dataset/",
+     "frequency": "annual",
+     "role": "estimation",
+     "parameters": [
+      "background_coefficients"
+     ],
+     "access": "public"
+    },
+    {
+     "id": "wdi_growth",
+     "publisher": "World Bank",
+     "dataset": "World Development Indicators",
+     "series": [
+      "NY.GDP.MKTP.KD.ZG",
+      "SP.POP.TOTL"
+     ],
+     "url": "https://data.worldbank.org/",
+     "frequency": "annual",
+     "role": "estimation",
+     "parameters": [
+      "background_coefficients"
+     ],
+     "access": "public"
+    },
+    {
+     "id": "cshapes_contiguity",
+     "publisher": "ETH Zurich ICR",
+     "dataset": "CShapes 2.0 (distance/contiguity)",
+     "series": [
+      "gwcode",
+      "start",
+      "end",
+      "geometry"
+     ],
+     "url": "https://icr.ethz.ch/data/cshapes/",
+     "frequency": "as borders change",
+     "role": "neighbor_graph",
+     "parameters": [
+      "neighbor_excitation"
+     ],
+     "access": "public"
+    }
+   ],
+   "parameters": [
+    {
+     "name": "self_excitation",
+     "unit": "events_per_event",
+     "maps_to": "parameters.self_excitation",
+     "source": "fit",
+     "lower": 0,
+     "upper": 1,
+     "description": "Expected own-country offspring per event."
+    },
+    {
+     "name": "neighbor_excitation",
+     "unit": "events_per_event",
+     "maps_to": "parameters.neighbor_excitation",
+     "source": "fit",
+     "lower": 0,
+     "upper": 1,
+     "description": "Expected offspring in neighbors per event (row-normalized)."
+    },
+    {
+     "name": "decay",
+     "unit": "monthly_retention",
+     "maps_to": "parameters.decay",
+     "source": "fit",
+     "lower": 0,
+     "upper": 0.999,
+     "description": "Geometric kernel retention beta (mean lag 1/(1-beta) months)."
+    },
+    {
+     "name": "dispersion",
+     "unit": "nb2_alpha",
+     "maps_to": "parameters.dispersion",
+     "source": "fit",
+     "lower": 0,
+     "upper": 50,
+     "description": "Negative-binomial overdispersion for stochastic draws (0 = Poisson)."
+    }
+   ],
+   "structured_parameters": [
+    "background_coefficients"
+   ],
+   "acceptance": {
+    "inherit_default": true
+   },
+   "hooks": []
+  },
+  "assets_model_parameters": {
+   "process_id": "assets_model",
+   "linked_processes": [],
+   "estimator": "ModelFamilyEstimator",
+   "family": "assets",
+   "method": "worldmodel.models.assets.fit",
+   "identification": "descriptive_time_series",
+   "frequency": null,
+   "target": "log_return",
+   "conditional_inputs": [
+    "factor_returns_at_target_day",
+    "risk_free_rate_at_target_day"
+   ],
+   "holdout_forecaster": true,
+   "series": [],
+   "family_requirements": [
+    {
+     "id": "daily_bars",
+     "publisher": "Exchange-licensed vendor (e.g. Nasdaq Data Link, Polygon, Tiingo) or SEC-registered source",
+     "dataset": "Daily OHLCV adjusted bars",
+     "series": [
+      "symbol",
+      "date",
+      "adj_close",
+      "volume"
+     ],
+     "url": "https://data.nasdaq.com/",
+     "frequency": "daily",
+     "role": "estimation",
+     "parameters": [
+      "symbols"
+     ],
+     "access": "licensed_or_api_key"
+    },
+    {
+     "id": "french_factors",
+     "publisher": "Kenneth R. French Data Library",
+     "dataset": "Fama/French 3 or 5 Factors (Daily)",
+     "series": [
+      "Mkt-RF",
+      "SMB",
+      "HML",
+      "RMW",
+      "CMA",
+      "RF"
+     ],
+     "url": "https://mba.tuck.dartmouth.edu/pages/faculty/ken.french/data_library.html",
+     "frequency": "daily",
+     "role": "estimation",
+     "parameters": [
+      "factor_names",
+      "factor_mean",
+      "factor_covariance",
+      "symbols"
+     ],
+     "access": "public"
+    },
+    {
+     "id": "fred_tbill",
+     "publisher": "Federal Reserve Bank of St. Louis",
+     "dataset": "FRED",
+     "series": [
+      "DTB3"
+     ],
+     "url": "https://fred.stlouisfed.org/series/DTB3",
+     "frequency": "daily",
+     "role": "risk_free_rate",
+     "parameters": [
+      "symbols"
+     ],
+     "access": "public"
+    }
+   ],
+   "parameters": [
+    {
+     "name": "trading_days_per_year",
+     "unit": "days",
+     "maps_to": "parameters.trading_days_per_year",
+     "source": "assumed",
+     "description": "Annualization convention."
+    }
+   ],
+   "structured_parameters": [
+    "symbols",
+    "factor_names",
+    "factor_mean",
+    "factor_covariance"
+   ],
+   "acceptance": {
+    "inherit_default": false,
+    "add": [
+     {
+      "id": "minimum_test_forecasts",
+      "type": "min_forecasts",
+      "minimum": 100
+     },
+     {
+      "id": "beats_persistence_dm",
+      "type": "diebold_mariano",
+      "baseline": "persistence",
+      "loss": "squared",
+      "max_pvalue": 0.1,
+      "require_lower_loss": true
+     },
+     {
+      "id": "interval_coverage",
+      "type": "interval_coverage",
+      "tolerance": 0.15
+     },
+     {
+      "id": "beats_historical_mean_dm",
+      "type": "diebold_mariano",
+      "baseline": "historical_mean",
+      "loss": "squared",
+      "max_pvalue": 0.1,
+      "require_lower_loss": true
+     },
+     {
+      "id": "volatility_crps_skill",
+      "type": "relative_metric",
+      "metric": "crps",
+      "baseline": "constant_volatility",
+      "max_ratio": 0.99
+     },
+     {
+      "id": "no_timing_leakage",
+      "type": "leakage_audit"
+     },
+     {
+      "id": "no_revision_leakage",
+      "type": "revision_leakage"
+     }
+    ],
+    "note": "parameter_bounds is omitted: assets has no scalar parameters (symbols, factor moments are structured) and GARCH stationarity (alpha, beta >= 0, alpha + beta < 1) is enforced by the fit reparameterization."
+   },
+   "hooks": [],
+   "holdout": {
+    "target": "Next-day log return per symbol given realized factor returns and risk-free rate",
+    "method": "Mean rf + alpha + beta . f; variance from the fitted GARCH(1,1) recursion run over pre-origin residuals.",
+    "metrics": [
+     "crps",
+     "pinball (10/50/90)",
+     "interval_coverage",
+     "log_score",
+     "mae",
+     "rmse"
+    ],
+    "baselines": {
+     "persistence": "previous return",
+     "historical_mean": "pre-origin mean return",
+     "constant_volatility": "same mean with the unconditional idiosyncratic variance"
+    },
+    "secondary": {
+     "unconditional_log_return": "Return distribution without target-day inputs (factor mean, beta' Sigma beta + h); reported, not in acceptance"
+    },
+    "requires": "Supplied factor series; the constructed equal-weight market contains the target returns."
+   }
+  },
+  "market_abm_model_parameters": {
+   "process_id": "market_abm_model",
+   "linked_processes": [],
+   "estimator": "ModelFamilyEstimator",
+   "family": "market_abm",
+   "method": "worldmodel.models.market_abm.fit",
+   "identification": "simulated_method_of_moments",
+   "frequency": null,
+   "target": "window_return_sd",
+   "conditional_inputs": [],
+   "holdout_forecaster": true,
+   "series": [],
+   "family_requirements": [
+    {
+     "id": "daily_bars_moments",
+     "publisher": "Exchange-licensed vendor or Nasdaq Data Link",
+     "dataset": "Daily adjusted closes for target moments",
+     "series": [
+      "date",
+      "adj_close"
+     ],
+     "url": "https://data.nasdaq.com/",
+     "frequency": "daily",
+     "role": "estimation",
+     "parameters": [
+      "fundamentalist_strength",
+      "chartist_strength",
+      "noise_sd",
+      "fundamental_volatility"
+     ],
+     "access": "licensed_or_api_key"
+    },
+    {
+     "id": "lobster_or_taq",
+     "publisher": "LOBSTER / NYSE TAQ",
+     "dataset": "Limit order book messages (optional microstructure moments)",
+     "series": [
+      "time",
+      "type",
+      "order_id",
+      "size",
+      "price",
+      "direction"
+     ],
+     "url": "https://lobsterdata.com/",
+     "frequency": "event",
+     "role": "estimation",
+     "parameters": [
+      "aggressiveness"
+     ],
+     "access": "licensed"
+    }
+   ],
+   "parameters": [
+    {
+     "name": "fundamentalist_strength",
+     "unit": "wealth_share_per_log_mispricing",
+     "maps_to": "parameters.fundamentalist_strength",
+     "source": "fit",
+     "lower": 0,
+     "upper": 100,
+     "description": "Sensitivity of fundamentalist allocation to ln(F/p)."
+    },
+    {
+     "name": "chartist_strength",
+     "unit": "wealth_share_per_log_return",
+     "maps_to": "parameters.chartist_strength",
+     "source": "fit",
+     "lower": 0,
+     "upper": 1000,
+     "description": "Sensitivity of chartist allocation to recent mean return."
+    },
+    {
+     "name": "chartist_window",
+     "unit": "steps",
+     "maps_to": "parameters.chartist_window",
+     "source": "fit",
+     "lower": 1,
+     "upper": 250,
+     "description": "Trend lookback."
+    },
+    {
+     "name": "noise_sd",
+     "unit": "wealth_share",
+     "maps_to": "parameters.noise_sd",
+     "source": "fit",
+     "lower": 0,
+     "upper": 1,
+     "description": "Standard deviation of noise-trader allocation shocks."
+    },
+    {
+     "name": "fundamental_volatility",
+     "unit": "log_value_per_step",
+     "maps_to": "parameters.fundamental_volatility",
+     "source": "fit",
+     "lower": 0,
+     "upper": 1,
+     "description": "Random-walk volatility of fundamental value."
+    },
+    {
+     "name": "aggressiveness",
+     "unit": "fraction_of_price",
+     "maps_to": "parameters.aggressiveness",
+     "source": "fit",
+     "lower": 0,
+     "upper": 0.5,
+     "description": "Order-book limit price offset from last price."
+    }
+   ],
+   "structured_parameters": [],
+   "acceptance": {
+    "inherit_default": true,
+    "override": {
+     "minimum_test_forecasts": {
+      "minimum": 10
+     },
+     "interval_coverage": {
+      "tolerance": 0.2
+     }
+    },
+    "add": [
+     {
+      "id": "beats_historical_mean_dm",
+      "type": "diebold_mariano",
+      "baseline": "historical_mean",
+      "loss": "squared",
+      "max_pvalue": 0.1,
+      "require_lower_loss": true
+     }
+    ]
+   },
+   "hooks": [],
+   "holdout": {
+    "target": "Log-return standard deviation of the next non-overlapping window",
+    "method": "Grid SMM at the origin; predictive mean/sd of the window moment across seeded simulation runs at the same elapsed steps (the sample starts burn_in steps after the declared initial state, as in the fit).",
+    "metrics": [
+     "mae",
+     "rmse",
+     "crps",
+     "interval_coverage",
+     "log_score"
+    ],
+    "baselines": {
+     "persistence": "previous window's moment",
+     "historical_mean": "mean over pre-origin windows"
+    },
+    "secondary": {
+     "window_abs_autocorr_1": "absolute-return autocorrelation",
+     "window_excess_kurtosis": "excess kurtosis"
+    },
+    "note": "Few windows fit in laptop-scale samples, so 10 windows are required and the coverage tolerance is 0.20."
+   }
+  },
+  "commodities_model_parameters": {
+   "process_id": "commodities_model",
+   "linked_processes": [],
+   "estimator": "ModelFamilyEstimator",
+   "family": "commodities",
+   "method": "worldmodel.models.commodities.fit",
+   "identification": "correlational_unless_instrumented",
+   "frequency": null,
+   "target": "price",
+   "conditional_inputs": [
+    "production",
+    "net_imports"
+   ],
+   "holdout_forecaster": true,
+   "series": [],
+   "family_requirements": [
+    {
+     "id": "eia_weekly_petroleum",
+     "publisher": "U.S. Energy Information Administration",
+     "dataset": "Weekly Petroleum Status Report (API v2)",
+     "series": [
+      "PET.WCESTUS1.W",
+      "PET.WCRFPUS2.W",
+      "PET.WCRIMUS2.W",
+      "PET.WCREXUS2.W",
+      "PET.WCRRIUS2.W"
+     ],
+     "url": "https://api.eia.gov/v2/petroleum/",
+     "frequency": "weekly",
+     "role": "estimation",
+     "parameters": [
+      "storage_elasticity",
+      "target_stocks_to_use",
+      "supply_elasticity"
+     ],
+     "access": "public_api_key"
+    },
+    {
+     "id": "eia_spot_prices",
+     "publisher": "U.S. Energy Information Administration",
+     "dataset": "Spot prices",
+     "series": [
+      "PET.RWTC.D",
+      "PET.RBRTE.D"
+     ],
+     "url": "https://www.eia.gov/dnav/pet/pet_pri_spt_s1_d.htm",
+     "frequency": "daily",
+     "role": "estimation",
+     "parameters": [
+      "demand_elasticity",
+      "storage_elasticity"
+     ],
+     "access": "public"
+    },
+    {
+     "id": "usda_psd",
+     "publisher": "USDA Foreign Agricultural Service",
+     "dataset": "Production, Supply and Distribution (PSD) / WASDE",
+     "series": [
+      "commodity",
+      "market_year",
+      "production",
+      "imports",
+      "exports",
+      "domestic_consumption",
+      "ending_stocks"
+     ],
+     "url": "https://apps.fas.usda.gov/psdonline/",
+     "frequency": "monthly",
+     "role": "estimation",
+     "parameters": [
+      "demand_elasticity",
+      "supply_elasticity",
+      "target_stocks_to_use"
+     ],
+     "access": "public"
+    },
+    {
+     "id": "nass_quickstats",
+     "publisher": "USDA National Agricultural Statistics Service",
+     "dataset": "Quick Stats prices received and acreage",
+     "series": [
+      "commodity_desc",
+      "statisticcat_desc=PRICE RECEIVED",
+      "year",
+      "Value"
+     ],
+     "url": "https://quickstats.nass.usda.gov/api",
+     "frequency": "monthly",
+     "role": "estimation",
+     "parameters": [
+      "supply_elasticity"
+     ],
+     "access": "public_api_key"
+    },
+    {
+     "id": "fred_wti",
+     "publisher": "Federal Reserve Bank of St. Louis",
+     "dataset": "FRED",
+     "series": [
+      "DCOILWTICO"
+     ],
+     "url": "https://fred.stlouisfed.org/series/DCOILWTICO",
+     "frequency": "daily",
+     "role": "price_cross_check",
+     "parameters": [
+      "demand_elasticity"
+     ],
+     "access": "public"
+    }
+   ],
+   "parameters": [
+    {
+     "name": "demand_elasticity",
+     "unit": "dimensionless",
+     "maps_to": "parameters.demand_elasticity",
+     "source": "fit",
+     "lower": -5,
+     "upper": 0,
+     "description": "Price elasticity of consumption."
+    },
+    {
+     "name": "supply_elasticity",
+     "unit": "dimensionless",
+     "maps_to": "parameters.supply_elasticity",
+     "source": "fit",
+     "lower": 0,
+     "upper": 5,
+     "description": "Elasticity of production to lagged price."
+    },
+    {
+     "name": "supply_lag",
+     "unit": "periods",
+     "maps_to": "parameters.supply_lag",
+     "source": "assumed",
+     "lower": 0,
+     "upper": 24,
+     "description": "Periods between price signal and production response."
+    },
+    {
+     "name": "storage_elasticity",
+     "unit": "dimensionless",
+     "maps_to": "parameters.storage_elasticity",
+     "source": "fit",
+     "lower": 0,
+     "upper": 20,
+     "description": "Elasticity of desired stocks-to-use to price (eta)."
+    },
+    {
+     "name": "target_stocks_to_use",
+     "unit": "ratio",
+     "maps_to": "parameters.target_stocks_to_use",
+     "source": "fit",
+     "lower": 0,
+     "upper": 10,
+     "description": "Desired stocks-to-use at the reference price (s_bar)."
+    },
+    {
+     "name": "demand_growth",
+     "unit": "fraction_per_period",
+     "maps_to": "parameters.demand_growth",
+     "source": "fit",
+     "lower": -0.5,
+     "upper": 0.5,
+     "description": "Trend growth of consumption."
+    }
+   ],
+   "structured_parameters": [
+    "shock_sd"
+   ],
+   "acceptance": {
+    "inherit_default": true
+   },
+   "hooks": [],
+   "holdout": {
+    "target": "Next-period market-clearing price given realized production and net imports",
+    "method": "Fitted demand, storage and trend clear beginning stocks + production + net imports; sd = RMSE of the same one-step clearing over the last 36 pre-origin periods.",
+    "metrics": [
+     "mae",
+     "rmse",
+     "crps",
+     "pinball",
+     "interval_coverage",
+     "log_score"
+    ],
+    "baselines": {
+     "persistence": "previous price",
+     "historical_mean": "pre-origin mean price"
+    },
+    "secondary": {
+     "ending_stocks": "Ending stocks implied by the balance identity; reported, not in acceptance"
+    }
+   }
+  },
+  "monetary_model_parameters": {
+   "process_id": "monetary_model",
+   "linked_processes": [
+    "taylor_rule_policy_rate"
+   ],
+   "estimator": "ModelFamilyEstimator",
+   "family": "monetary",
+   "method": "worldmodel.models.monetary.fit",
+   "identification": "descriptive_reaction_function",
+   "frequency": null,
+   "target": "policy_rate",
+   "conditional_inputs": [
+    "inflation",
+    "output_gap"
+   ],
+   "holdout_forecaster": true,
+   "series": [],
+   "family_requirements": [
+    {
+     "id": "fred_policy",
+     "publisher": "Federal Reserve Bank of St. Louis",
+     "dataset": "FRED policy rate",
+     "series": [
+      "FEDFUNDS",
+      "DFF",
+      "DFEDTARU"
+     ],
+     "url": "https://fred.stlouisfed.org/",
+     "frequency": "monthly/daily",
+     "role": "estimation",
+     "parameters": [
+      "rho",
+      "phi_pi",
+      "phi_y",
+      "r_star",
+      "policy_shock_sd"
+     ],
+     "access": "public"
+    },
+    {
+     "id": "fred_inflation",
+     "publisher": "Federal Reserve Bank of St. Louis",
+     "dataset": "FRED inflation",
+     "series": [
+      "PCEPILFE",
+      "CPIAUCSL"
+     ],
+     "url": "https://fred.stlouisfed.org/",
+     "frequency": "monthly",
+     "role": "estimation",
+     "parameters": [
+      "phi_pi",
+      "r_star"
+     ],
+     "access": "public"
+    },
+    {
+     "id": "fred_output_gap",
+     "publisher": "Federal Reserve Bank of St. Louis / CBO",
+     "dataset": "FRED output and potential",
+     "series": [
+      "GDPC1",
+      "GDPPOT",
+      "UNRATE",
+      "NROU"
+     ],
+     "url": "https://fred.stlouisfed.org/",
+     "frequency": "quarterly",
+     "role": "estimation",
+     "parameters": [
+      "phi_y"
+     ],
+     "access": "public"
+    },
+    {
+     "id": "fred_treasury_curve",
+     "publisher": "Federal Reserve Bank of St. Louis (H.15)",
+     "dataset": "Constant-maturity Treasury yields",
+     "series": [
+      "DGS1MO",
+      "DGS3MO",
+      "DGS6MO",
+      "DGS1",
+      "DGS2",
+      "DGS3",
+      "DGS5",
+      "DGS7",
+      "DGS10",
+      "DGS20",
+      "DGS30"
+     ],
+     "url": "https://fred.stlouisfed.org/",
+     "frequency": "daily",
+     "role": "estimation",
+     "parameters": [
+      "ns_lambda",
+      "factor_intercept",
+      "factor_transition",
+      "policy_loading",
+      "factor_residual_covariance"
+     ],
+     "access": "public"
+    }
+   ],
+   "parameters": [
+    {
+     "name": "rho",
+     "unit": "per_period",
+     "maps_to": "parameters.rho",
+     "source": "fit",
+     "lower": 0,
+     "upper": 0.999,
+     "description": "Interest-rate smoothing."
+    },
+    {
+     "name": "phi_pi",
+     "unit": "dimensionless",
+     "maps_to": "parameters.phi_pi",
+     "source": "fit",
+     "lower": -5,
+     "upper": 10,
+     "description": "Response to inflation gap beyond one-for-one."
+    },
+    {
+     "name": "phi_y",
+     "unit": "dimensionless",
+     "maps_to": "parameters.phi_y",
+     "source": "fit",
+     "lower": -5,
+     "upper": 10,
+     "description": "Response to output gap."
+    },
+    {
+     "name": "r_star",
+     "unit": "percent",
+     "maps_to": "parameters.r_star",
+     "source": "fit",
+     "lower": -5,
+     "upper": 10,
+     "description": "Neutral real rate."
+    },
+    {
+     "name": "inflation_target",
+     "unit": "percent",
+     "maps_to": "parameters.inflation_target",
+     "source": "external",
+     "description": "Inflation objective."
+    },
+    {
+     "name": "elb",
+     "unit": "percent",
+     "maps_to": "parameters.elb",
+     "source": "external",
+     "description": "Effective lower bound on the policy rate."
+    },
+    {
+     "name": "policy_shock_sd",
+     "unit": "percent",
+     "maps_to": "parameters.policy_shock_sd",
+     "source": "fit",
+     "lower": 0,
+     "upper": 10,
+     "description": "Residual standard deviation of the policy rule."
+    },
+    {
+     "name": "ns_lambda",
+     "unit": "per_year",
+     "maps_to": "parameters.ns_lambda",
+     "source": "fit",
+     "lower": 0.01,
+     "upper": 10,
+     "description": "Nelson-Siegel decay (Diebold-Li 0.0609/month)."
+    }
+   ],
+   "structured_parameters": [
+    "factor_intercept",
+    "factor_transition",
+    "policy_loading",
+    "factor_residual_covariance"
+   ],
+   "acceptance": {
+    "inherit_default": true
+   },
+   "hooks": []
+  },
+  "regional_model_parameters": {
+   "process_id": "regional_model",
+   "linked_processes": [
+    "two_region_migration"
+   ],
+   "estimator": "ModelFamilyEstimator",
+   "family": "regional",
+   "method": "worldmodel.models.regional.fit",
+   "identification": "correlational_unless_shift_share_design_defended",
+   "frequency": null,
+   "target": "employment_growth",
+   "conditional_inputs": [
+    "other_region_industry_employment_at_target_year"
+   ],
+   "holdout_forecaster": true,
+   "series": [],
+   "family_requirements": [
+    {
+     "id": "bls_qcew",
+     "publisher": "U.S. Bureau of Labor Statistics",
+     "dataset": "Quarterly Census of Employment and Wages (county x NAICS)",
+     "series": [
+      "area_fips",
+      "industry_code",
+      "own_code",
+      "year",
+      "annual_avg_emplvl"
+     ],
+     "url": "https://www.bls.gov/cew/downloadable-data-files.htm",
+     "frequency": "quarterly/annual",
+     "role": "estimation",
+     "parameters": [
+      "shift_share_elasticity"
+     ],
+     "access": "public"
+    },
+    {
+     "id": "census_cbp",
+     "publisher": "U.S. Census Bureau",
+     "dataset": "County Business Patterns",
+     "series": [
+      "fipstate",
+      "fipscty",
+      "naics",
+      "emp"
+     ],
+     "url": "https://www.census.gov/programs-surveys/cbp.html",
+     "frequency": "annual",
+     "role": "industry_shares",
+     "parameters": [
+      "shift_share_elasticity"
+     ],
+     "access": "public"
+    },
+    {
+     "id": "irs_soi_migration",
+     "publisher": "Internal Revenue Service Statistics of Income",
+     "dataset": "County-to-county migration data (returns/exemptions)",
+     "series": [
+      "y1_statefips",
+      "y1_countyfips",
+      "y2_statefips",
+      "y2_countyfips",
+      "n1",
+      "n2",
+      "agi"
+     ],
+     "url": "https://www.irs.gov/statistics/soi-tax-stats-migration-data",
+     "frequency": "annual",
+     "role": "estimation",
+     "parameters": [
+      "destination_employment_elasticity",
+      "outmigration_employment_rate_elasticity",
+      "distance_elasticity"
+     ],
+     "access": "public"
+    },
+    {
+     "id": "census_pep",
+     "publisher": "U.S. Census Bureau",
+     "dataset": "Population Estimates Program county components of change",
+     "series": [
+      "STATE",
+      "COUNTY",
+      "POPESTIMATE",
+      "BIRTHS",
+      "DEATHS",
+      "NETMIG",
+      "INTERNATIONALMIG"
+     ],
+     "url": "https://www.census.gov/programs-surveys/popest.html",
+     "frequency": "annual",
+     "role": "estimation",
+     "parameters": [
+      "birth_rate",
+      "death_rate",
+      "outmigration_employment_rate_elasticity"
+     ],
+     "access": "public"
+    },
+    {
+     "id": "bls_laus",
+     "publisher": "U.S. Bureau of Labor Statistics",
+     "dataset": "Local Area Unemployment Statistics",
+     "series": [
+      "area_code",
+      "year",
+      "labor_force",
+      "employment",
+      "unemployment"
+     ],
+     "url": "https://www.bls.gov/lau/",
+     "frequency": "monthly",
+     "role": "validation",
+     "parameters": [],
+     "access": "public"
+    },
+    {
+     "id": "census_gazetteer_distances",
+     "publisher": "U.S. Census Bureau / NBER",
+     "dataset": "County centroids or county distance database",
+     "series": [
+      "county1",
+      "county2",
+      "mi_to_county"
+     ],
+     "url": "https://www.nber.org/research/data/county-distance-database",
+     "frequency": "decennial",
+     "role": "estimation",
+     "parameters": [
+      "distance_elasticity"
+     ],
+     "access": "public"
+    }
+   ],
+   "parameters": [
+    {
+     "name": "shift_share_elasticity",
+     "unit": "log_employment_per_log_national_growth",
+     "maps_to": "parameters.shift_share_elasticity",
+     "source": "fit",
+     "lower": -5,
+     "upper": 5,
+     "description": "Local employment response to Bartik shock."
+    },
+    {
+     "name": "destination_employment_elasticity",
+     "unit": "log_flow_per_log_employment_growth",
+     "maps_to": "parameters.destination_employment_elasticity",
+     "source": "fit",
+     "lower": -50,
+     "upper": 50,
+     "description": "Migration destination choice response."
+    },
+    {
+     "name": "outmigration_employment_rate_elasticity",
+     "unit": "log_rate_per_employment_rate",
+     "maps_to": "parameters.outmigration_employment_rate_elasticity",
+     "source": "fit",
+     "lower": -50,
+     "upper": 50,
+     "description": "Out-migration response to local employment rate."
+    },
+    {
+     "name": "distance_elasticity",
+     "unit": "dimensionless",
+     "maps_to": "parameters.distance_elasticity",
+     "source": "fit",
+     "description": "Migration gravity distance coefficient."
+    },
+    {
+     "name": "birth_rate",
+     "unit": "per_person_per_period",
+     "maps_to": "parameters.birth_rate",
+     "source": "external",
+     "description": "Default crude birth rate."
+    },
+    {
+     "name": "death_rate",
+     "unit": "per_person_per_period",
+     "maps_to": "parameters.death_rate",
+     "source": "external",
+     "description": "Default crude death rate."
+    }
+   ],
+   "structured_parameters": [],
+   "acceptance": {
+    "inherit_default": true,
+    "add": [
+     {
+      "id": "beats_year_effect_only_dm",
+      "type": "diebold_mariano",
+      "baseline": "year_effect_only",
+      "loss": "squared",
+      "max_pvalue": 0.1,
+      "require_lower_loss": true
+     }
+    ]
+   },
+   "hooks": [],
+   "holdout": {
+    "target": "Next-year log employment growth per region",
+    "method": "Leave-one-out shift-share shock from base-year shares and realized other-region industry employment; year effect by pre-origin mean.",
+    "metrics": [
+     "mae",
+     "rmse",
+     "crps",
+     "pinball",
+     "interval_coverage",
+     "log_score"
+    ],
+    "baselines": {
+     "persistence": "region's previous growth",
+     "historical_mean": "region's pre-origin mean growth",
+     "year_effect_only": "pre-origin mean year effect without the shift-share term"
+    },
+    "not_scored": [
+     "Migration responses and population growth: the fit contract has no population components (Census PEP) and IRS flows serve only the gravity fit, so two_region_migration is not linked to this component."
+    ]
+   }
+  }
+ },
+ "model_family_contract": {
+  "data": "Native family data mappings (fit(data, cutoff) contracts in docs/political-market-geopolitical-models.md); loaders from catalog artifacts are not yet written.",
+  "information_time": "Set data['information_time']='real_time' only when row dates are publication/information dates (e.g. ALFRED vintages); otherwise revision leakage is assumed and no_revision_leakage fails.",
+  "holdout_forecaster": "A family module may define holdout_forecaster = {rows_key, time_key, target, fit_keys, conditional_inputs, forecast(parameters, history_rows, target_rows, data_visible_at_target) -> [{target, actual, mean, sd, history_values, group?, baselines?}], baselines?, probability?}; supplied baselines are scored and DM-tested like naive ones, rows with a group other than target are scored under secondary and never enter acceptance. A module may instead declare NON_ESTIMABLE = reason; without a forecaster validation raises and the process stays unvalidated.",
+  "sync": "family_requirements and parameters are copied from worldmodel.models.parameter_hooks; tests fail on drift."
+ }
+}

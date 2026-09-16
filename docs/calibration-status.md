@@ -1,0 +1,645 @@
+# Calibration status on real data
+
+What the estimation layer produced when it was run on the normalized datasets published
+in this catalog on 2026-09-15. Every attempt was pre-registered in
+[`worldmodel/estimation/real_data_plan.json`](../worldmodel/estimation/real_data_plan.json)
+— splits, loader options, entity-selection rules and acceptance criteria were frozen
+before any holdout was scored. Nothing below was re-specified after seeing a test result.
+
+**Two attempt runs pass, and one process is validated.**
+`monetary_model.fred_realtime_v2` (fourth wave) meets every declared criterion on
+real-time FRED vintages with base-consistent ratios, and it is the only required component of `monetary_model`, so that
+process is now **validated**. `default_hazard.fdic_laus_quarterly` (second wave) also passes,
+but on *substituted* series; re-run on its declared primary series it fails, so
+`default_hazard` must be read as not validated on the series `requirements.json` names.
+`coupled_economy` needs nine components and has seven failing and two not yet re-run against
+the panel. Every other attempt fails at least one criterion, and those failures are results
+too, recorded here with their reasons.
+
+```sh
+python3 -m worldmodel calibrate-all                        # rerun every attempt
+python3 -m worldmodel calibrate-all --attempt inventory_balance.eia_weekly
+python3 -m worldmodel estimation-load inventory_balance    # inspect what a loader selects
+python3 -m worldmodel estimation-load                      # catalog availability per component/family
+python3 -m worldmodel calibration-status calibration_reports@<version>   # re-verify a published report
+```
+
+`calibration-status` reads a published report back, recomputes its digest, re-evaluates the
+declared criteria and reports the resulting process state — it does not trust the stored
+`validated` flag.
+
+Reports and estimates are immutable artifacts in
+[`data/calibration_reports/`](../data/calibration_reports/README.md); each pins its input
+dataset versions, the loader's evidence digest, the code snapshot and the rights inherited
+from the sources.
+
+## Summary
+
+| Attempt | Process / component | Data (dataset@version, window) | n test | Verdict | Failing criteria |
+| --- | --- | --- | --- | --- | --- |
+| `inventory_balance.eia_weekly` | resource_inventory / inventory_balance | eia_energy@f5cd9308, weekly 1991-02..2024-12 (1,767 obs) | 258 | **fail** | interval_coverage |
+| `demand_price_elasticity.eia_monthly` | coupled_economy / demand_price_elasticity | eia_energy@f5cd9308 + fred_oil_price@847b0f93, monthly 1990-09..2024-10 (409) | 106 | **fail** | parameters_within_declared_bounds |
+| `price_adjustment.eia_monthly` | coupled_economy / price_adjustment | eia_energy@f5cd9308 + fred_oil_price@847b0f93, monthly 1991-10..2024-11 (398) | 106 | **fail** | parameters_within_declared_bounds |
+| `cash_balance.sec_companyfacts` (5 issuers) | investment_cash_flow / cash_balance | sec_company_assets@68335122, quarterly 2008-2025 | 14–23 each | **fail** (5/5) | beats_persistence_dm (all), interval_coverage (3), bounds (2) |
+| `population_growth_rate.census_pep` | population_growth / population_growth_rate | census_population@d621c962, annual 2010-2024 (14) | 4 | **fail** | minimum_test_forecasts, interval_coverage |
+| `conflict_model.ucdp_monthly` | conflict_model | ucdp_conflicts@65486acc + vdem@9ca2ac85, 20 countries × 300 months (6,000 rows) | 1,200 | **fail** | beats_persistence_dm, interval_coverage, no_revision_leakage |
+| `assets_model.alpaca_daily` | assets_model | alpaca_daily_bars@a825e6f0 + fred_policy_rate@2a3197b9, 5 symbols, daily 2016-2024 | 1,890 | **fail** | volatility_crps_skill, no_revision_leakage |
+| `commodities_model.eia_weekly_balance` | commodities_model | eia_energy@f5cd9308 + fred_oil_price@847b0f93, weekly 2010-2024 (782) | 20 | **fail** | beats_persistence_dm, bounds, no_revision_leakage |
+| `regional_model.cbp_state_sectors` | regional_model | census_business@5b0995c7, 51 states × NAICS sectors, 2019-2023 | 51 | **fail** | interval_coverage, no_revision_leakage |
+| `default_hazard.fdic_laus_quarterly` | coupled_economy / default_hazard | fdic_bank_financials@6283087f + bls_labor@50917b81 + fred_policy_rate@2a3197b9, quarterly 2010-2025 (62 obs) | 19 | **pass** | none |
+| `monetary_model.cpi_okun_proxy` | monetary_model | fred_cpi@c92b26cd + fred_policy_rate@2a3197b9 + bls_labor@50917b81, monthly 1990-2024 (420) | 120 | **fail** (superseded) | beats_persistence_dm, no_revision_leakage |
+| `interest_pass_through.fred_realtime` | coupled_economy / interest_pass_through | fred_macro_panel@b395bda0 (DPRIME) + fred_policy_rate@2a3197b9, monthly 1955-2024 (830) | 83 | **fail** | interval_coverage |
+| `deposit_rate_pass_through.fred_realtime` | coupled_economy / deposit_rate_pass_through (optional) | fred_macro_panel@b395bda0 (SNDR) + DFF, monthly 2021-2026 (62) | 16 | **fail** | minimum_test_forecasts, beats_persistence_dm, interval_coverage |
+| `default_hazard.fred_primary_realtime` | coupled_economy / default_hazard | fred_macro_panel@b395bda0 (DRCCLACBS, UNRATE) + DFF, quarterly 1991-2025 (138) | 23 | **fail** | parameters_within_declared_bounds |
+| `deposit_growth.fred_realtime` | coupled_economy / deposit_growth | fred_macro_panel@b395bda0 (DPSACBW027SBOG) + DFF, monthly 1973-2024 (622) | 59 | **fail** | beats_persistence_dm |
+| `credit_growth.fred_realtime` | coupled_economy / credit_growth | fred_macro_panel@b395bda0 (TOTALSL), monthly 1943-2024 (975) | 141 | **fail** | interval_coverage |
+| `energy_purchasing.fred_realtime` | coupled_economy / energy_purchasing | fred_macro_panel@b395bda0 (RRSFS) + fred_oil_price + DFF, monthly 1992-2024 (393) | 83 | **fail** | beats_persistence_dm, interval_coverage, bounds |
+| `labor_demand.fred_realtime` | coupled_economy / labor_demand | fred_macro_panel@b395bda0 (PAYEMS, INDPRO), monthly 1939-2024 (1,029) | 143 | **fail** | beats_persistence_dm, interval_coverage |
+| `policy_rule.fred_realtime` | coupled_economy / policy_rule | fred_macro_panel@b395bda0 (FEDFUNDS, CPIAUCSL, GDPC1, GDPPOT), quarterly 1955-2024 (277) | 47 | **fail** | beats_persistence_dm, interval_coverage |
+| `monetary_model.fred_realtime_quarterly` | monetary_model | fred_macro_panel@b395bda0 (FEDFUNDS, GDPC1, GDPPOT) + fred_cpi@c92b26cd, quarterly 1995-2024 (120) | 40 | **pass** (superseded) | none |
+| `policy_rule.fred_realtime_v2` | coupled_economy / policy_rule | fred_macro_panel@7dcce89c, quarterly 1955-2024 (277) | 47 | **fail** | beats_persistence_dm, interval_coverage |
+| `credit_growth.fred_realtime_v2` | coupled_economy / credit_growth | fred_macro_panel@7dcce89c (TOTALSL corrected), monthly 1943-2024 (975) | 141 | **fail** | interval_coverage |
+| `labor_demand.fred_realtime_v2` | coupled_economy / labor_demand | fred_macro_panel@7dcce89c (INDPRO all bases), monthly 1939-2024 (1,029) | 143 | **fail** | beats_persistence_dm, interval_coverage |
+| `monetary_model.fred_realtime_v2` | monetary_model | fred_macro_panel@7dcce89c + fred_cpi@34fe03f5, quarterly first releases, base-paired (106) | 36 | **pass** | none |
+
+Baseline names below: *persistence* = last value, *drift* = linear extrapolation,
+*mean* = historical mean, plus each family's supplied mechanism-off baseline. All
+Diebold-Mariano (DM) p-values are one-sided squared-loss tests with the HLN correction:
+small p means the model has lower loss.
+
+## Components
+
+### resource_inventory / inventory_balance — fail (interval coverage)
+
+Weekly U.S. crude balance, `retrospective` vintage policy (EIA bulk records carry only an
+acquisition timestamp; the requirement's 5-day publication lag is applied, and the
+component allows the `minor` revision class).
+
+| Parameter | Estimate | SE | Maps to |
+| --- | --- | --- | --- |
+| `flow_scale` | 0.5612 | 0.0280 | `flow_scale` |
+| `unmeasured_net_flow` | 1.7499 barrels/s | 0.1800 | `unmeasured_net_flow` |
+
+| Metric | Model | Persistence | Drift | Mean |
+| --- | --- | --- | --- | --- |
+| MAE (thousand barrels) | 3,755.4 | 4,399.0 | 4,406.7 | 107,443 |
+| RMSE | 4,731.4 | 5,787.6 | 5,790.3 | 113,406 |
+| CRPS | 2,730.2 | 3,194.6 | 3,200.0 | 74,176 |
+| DM p vs model | — | 0.00093 | 0.00088 | 1.2e-62 |
+
+80% interval coverage 0.640 (nominal 0.80, tolerance ±0.15), mean width 8,285, bias −1,832,
+0 skipped origins, 258 holdout forecasts (2020-2024).
+
+**Verdict: fail.** The only failing criterion is `interval_coverage`: the Gaussian interval
+from the in-sample residual scale is too narrow for weekly stock changes, which are
+fat-tailed (hurricanes, SPR transfers, the 2020 demand collapse). The mechanism itself has
+real skill — it beats persistence and drift at p < 0.001 — and `flow_scale` 0.56 says the
+published weekly flows explain only about half of the reported stock change, the rest being
+the balancing item EIA itself reports as "adjustment".
+
+### coupled_economy / demand_price_elasticity — fail (declared parameter bounds)
+
+Monthly gasoline demand, 2SLS with the crude price as the excluded cost shifter,
+`retrospective` policy (the two EIA series have no vintages; DCOILWTICO has real ALFRED
+vintages).
+
+| Parameter | Estimate | SE | Declared bounds | Inside? |
+| --- | --- | --- | --- | --- |
+| `elasticity` (long run) | −0.1242 | 0.0210 | [0, 4] | no |
+| `short_run_elasticity` | +0.0232 | 0.0090 | [−4, 0] | no |
+| `persistence` | 0.8134 | 0.0534 | [0, 0.999] | yes |
+
+| Metric | Model | Persistence | Drift | Mean |
+| --- | --- | --- | --- | --- |
+| MAE (thousand b/d) | 253.9 | 290.3 | 290.7 | 594.2 |
+| RMSE | 375.7 | 407.6 | 408.2 | 710.9 |
+| CRPS | 188.5 | 211.9 | 212.1 | 402.4 |
+| DM p vs model | — | 0.063 | 0.061 | 3.9e-11 |
+
+Coverage 0.802, first-stage partial F 5,232 (the declared `strong_instrument` criterion
+passes easily), 106 holdout forecasts (2016-2024).
+
+**Verdict: fail.** The sign convention is the problem, not the fit: the estimated
+short-run price response is *positive* (+0.023) and the derived long-run `elasticity`,
+which the process expects as a positive magnitude, comes out negative. In plain terms,
+higher retail prices in the same month are associated with slightly *higher* gasoline
+volumes once last month's volume and seasonality are controlled — a simultaneity result
+that the crude-price instrument does not remove, because crude shocks move retail prices and
+refinery runs together. Forecast skill against persistence is marginal (p = 0.063).
+
+### coupled_economy / price_adjustment — fail (declared parameter bounds)
+
+Monthly retail gasoline price adjustment toward an inventory-gap target.
+
+| Parameter | Estimate | SE | Declared bounds | Inside? |
+| --- | --- | --- | --- | --- |
+| `adjustment` (per day) | −0.0035 | 0.0016 | [0, 1] | no |
+| `adjustment_per_month` | −0.1072 | 0.0474 | [0, 5] | no |
+| `cost_pass_through` | 0.4336 | 0.0644 | [0, 1.5] | yes |
+| `drift_per_month` | 0.0012 | 0.0019 | [−0.1, 0.1] | yes |
+
+| Metric | Model | Persistence | Drift | Mean |
+| --- | --- | --- | --- | --- |
+| MAE (USD/gal) | 0.085 | 0.125 | 0.125 | 0.799 |
+| RMSE | 0.121 | 0.176 | 0.176 | 0.984 |
+| CRPS | 0.063 | 0.094 | 0.094 | 0.558 |
+| DM p vs model | — | 0.00024 | 0.00025 | 7.4e-12 |
+
+Coverage 0.840, 1 skipped origin, 106 holdout forecasts.
+
+**Verdict: fail.** Cost pass-through is sensible and precisely estimated (0.43 of a crude
+move within the month), and the forecasts clearly beat persistence, but the inventory-gap
+coefficient has the wrong sign for the declared mechanism: prices rise when gasoline stocks
+are *above* their trailing mean. Monthly stocks are strongly seasonal (builds in winter
+coincide with weak prices), so the trailing-12-month gap is picking up seasonality rather
+than scarcity. Fixing this needs a seasonally adjusted gap, which is a re-specification and
+would have to be filed as a new pre-registered attempt.
+
+### investment_cash_flow / cash_balance — fail on all five issuers
+
+Quarterly SEC companyfacts, `strict` policy: `observed_at` is the filing date, so
+availability is genuinely real-time, and restatements enter as later observations. Quarterly
+flows are recovered by differencing as-filed cumulative durations (which is how capital
+expenditure is reported) and by annual-minus-three-quarters for the fourth quarter.
+
+| Issuer (CIK) | Quarters fit | n test | `cash_conversion` (SE) | `unmeasured_net_cash_flow` (SE) | MAE (model / persistence) | DM p | Coverage | Failing |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| CNX Resources (0001070412) | 68 | 23 | 0.0094 (0.0235) | 0.157 (2.73) | 2.46e7 / 2.14e7 | 0.93 | 1.00 | DM, coverage |
+| Stanley Black & Decker (0000093556) | 31 | 14 | 0.0628 (0.1148) | −1.730 (5.58) | 7.21e7 / 7.30e7 | 0.70 | 1.00 | DM, coverage |
+| Valaris (0000314808) | 32 | 16 | 0.0090 (0.0345) | 1.840 (4.31) | 1.42e8 / 1.37e8 | 0.81 | 0.94 | DM |
+| Enterprise Products (0001061219) | 58 | 20 | −0.0132 (0.0531) | 2.106 (5.82) | 4.52e8 / 4.50e8 | 0.38 | 0.80 | DM, bounds |
+| Pitney Bowes (0000078814) | 68 | 16 | −0.1220 (0.2610) | 0.245 (2.05) | 8.33e7 / 7.86e7 | 0.60 | 1.00 | DM, coverage, bounds |
+
+**Verdict: fail (5/5).** `cash_conversion` — the share of (revenue − costs − capex) that
+lands in the cash account within the quarter — is statistically indistinguishable from zero
+everywhere, and negative for two issuers (outside the declared [0, 2] bounds). The
+identity the component assumes is too coarse for real filers: financing flows, acquisitions,
+working capital and short-term investment reclassifications dominate the quarterly change in
+cash. The random-walk baseline is never beaten. Coverage of 1.00 on three issuers shows the
+predictive intervals are far too wide for the same reason (the level-sigma is estimated on
+noisy differences). 5–7 origins per issuer were skipped because a required series was not yet
+filed at the origin.
+
+### population_growth / population_growth_rate — fail (too few forecasts)
+
+Census PEP national July-1 population, vintages 2020 and 2021-2024, `strict` policy:
+`attributes.released_at` gives real publication dates, so the audit reports `real_time`
+vintages and no revision leakage.
+
+| Parameter | Estimate | SE |
+| --- | --- | --- |
+| `growth_rate_per_year` | 0.006777 | 0.000472 |
+| `annual_growth_fraction` | 0.006800 | 0.000476 |
+
+Holdout (2019-2024): 4 forecasts, MAE 1.28e6 people vs persistence 3.36e6 and drift 1.36e6,
+CRPS 1.07e6 vs 3.02e6, DM vs persistence p = 0.020, coverage 0.50, 2 skipped origins.
+
+**Verdict: fail.** `minimum_test_forecasts` (4 < 8) and `interval_coverage` (0.50). This was
+expected and declared in advance: the published PEP vintages only cover 2010-2024, and the
+component needs 8 observations before it can fit at all, leaving at most 7 possible origins.
+The drift estimate itself is reasonable (0.68%/yr). A longer real-time series (POPTHM ALFRED
+vintages from `fred_macro_panel`, or older PEP vintage files) would make this testable.
+
+## Model families
+
+### assets_model — fail (volatility skill, revision leakage)
+
+Five pre-declared mega-caps (AAPL, MSFT, JNJ, XOM, KO) with SPY's excess return as the
+supplied market factor and DFF/252 as the daily risk-free rate; GARCH(1,1) variance filtered
+to each origin; refit every 21 origins; holdout 2023-07..2024-12.
+
+| Metric | Model | `constant_volatility` | Persistence | Mean |
+| --- | --- | --- | --- | --- |
+| MAE (log return) | 0.0079699 | 0.0079699 | 0.0122854 | 0.0086118 |
+| RMSE | 0.010948 | 0.010948 | 0.016393 | 0.011707 |
+| CRPS | 0.0058384 | 0.0058620 | 0.0092784 | 0.0065267 |
+| DM p vs model | — | degenerate (identical means) | 3.6e-47 | 4.2e-05 |
+
+1,890 forecasts, coverage 0.841, bias 0.0006.
+
+**Verdict: fail.** Conditional on realized factor returns the factor model beats persistence
+and the historical mean decisively, and its 80% intervals are well calibrated. It fails the
+two criteria that matter for this family: `volatility_crps_skill` requires CRPS ≤ 0.99× the
+same means with constant volatility, and the GARCH filter delivers only 0.996× — on this
+sample the conditional-variance path adds almost nothing over the unconditional variance; and
+`no_revision_leakage`, because total-return adjusted closes are restated by later corporate
+actions, so the row dates are not information times. An unadjusted or point-in-time price
+feed would make the second criterion evaluable.
+
+### commodities_model — fail (no skill, bounds, revision leakage)
+
+Weekly U.S. crude balance sheet (production, refiner net input as consumption, net imports,
+ending stocks) with the WTI weekly mean price; holdout 2021-2024, refit every 4 origins.
+
+| Parameter | Estimate | SE | Bounds | Inside? |
+| --- | --- | --- | --- | --- |
+| `demand_elasticity` | +0.0013 | 0.0115 | [−5, 0] | no |
+| `supply_elasticity` | −0.1031 | 0.0107 | [0, 5] | no |
+| `storage_elasticity` | 0.2556 | 0.0212 | [0, 20] | yes |
+| `target_stocks_to_use` | 3.3253 | — | [0, 10] | yes |
+
+20 scored forecasts out of 208 possible origins: **189 origins were skipped** because the
+market-clearing step refuses to run when the fitted demand elasticity is non-negative or the
+storage elasticity is negative. Where it did clear, MAE was 50.3 USD/bbl against 1.47 for
+persistence (DM p = 1.0) and the bias was −50.3.
+
+**Verdict: fail.** The weekly petroleum balance does not identify a downward-sloping demand
+curve: weekly refinery runs and prices move together with demand, so the OLS demand slope is
+essentially zero with the wrong sign, and the lagged-price supply slope is negative. The
+model is not usable as a price mechanism at this frequency; a monthly or annual balance with
+a genuine supply shifter (USDA PSD or EIA monthly with an instrument) is the declared next
+step.
+
+### regional_model — fail (interval coverage, revision leakage)
+
+County Business Patterns employment by state and NAICS sector, 2019-2023 (base-year shares
+2019, validation target 2022, holdout target 2023 = 51 state forecasts).
+
+`shift_share_elasticity` 2.387 (cluster-robust SE 0.840, n = 204 state-years, year fixed
+effects, leave-one-out shocks).
+
+| Metric | Model | `year_effect_only` | Persistence | Mean |
+| --- | --- | --- | --- | --- |
+| MAE (log growth) | 0.011558 | 0.023979 | 0.023150 | 0.024309 |
+| RMSE | 0.013899 | 0.026587 | 0.028199 | 0.027560 |
+| CRPS | 0.014032 | 0.018272 | 0.026610 | 0.017953 |
+| DM p vs model | — | 4.1e-06 | 6.2e-06 | 3.7e-06 |
+
+**Verdict: fail.** The shift-share mechanism genuinely adds skill: it halves the MAE of the
+year-effect-only baseline that switches the mechanism off, at p = 4e-06. It fails
+`interval_coverage` (1.00 against a nominal 0.80 — the predictive spread built from
+between-year effect variance is far too wide with only three usable growth years) and
+`no_revision_leakage` (CBP is published once a year with no vintages in this dataset, so row
+dates are not information times). A longer panel (QCEW from `bls_labor`, 2014-2025) is the
+declared fix.
+
+### conflict_model — fail (no skill against persistence, coverage, revision leakage)
+
+UCDP GED state-based monthly event counts (release 26.1) for the 20 countries with the most
+events in the *training* window 2000-01..2015-12, with the previous year's V-Dem polyarchy
+as the background covariate; Hawkes fit refit every 12 origins; holdout 2020-01..2024-12
+(60 months × 20 countries = 1,200 forecasts). Neighbours are omitted: no contiguity dataset
+is published.
+
+| Parameter | Estimate | Note |
+| --- | --- | --- |
+| `self_excitation` | 0.988 | at the stability boundary (branching ratio ≈ 1) |
+| `neighbor_excitation` | 0 | no neighbour graph supplied |
+| `decay` | 0.2108 | monthly retention of the excitation kernel |
+
+| Metric | Model | Persistence | Drift | Mean |
+| --- | --- | --- | --- | --- |
+| MAE (events/country-month) | 12.944 | 13.071 | 13.111 | 54.387 |
+| RMSE | 51.223 | 50.919 | 51.009 | 159.78 |
+| CRPS | 11.185 | 12.269 | 12.295 | 43.174 |
+| DM p vs model | — | 0.58 | 0.56 | 8.0e-09 |
+
+Coverage 0.596, mean width 11.2, bias −0.53, 0 skipped origins.
+
+**Verdict: fail.** The Hawkes intensity is slightly better than persistence on MAE and CRPS
+but not significantly (DM p = 0.58), its Poisson intervals are far too narrow for
+over-dispersed conflict counts (coverage 0.60), and `no_revision_leakage` fails because UCDP
+annual releases revise earlier months and the row dates are event months, not publication
+dates. Self-excitation pinned at 0.988 says the fit is absorbing near-random-walk persistence
+into the excitation term. The negative-binomial alternative (`model: negative_binomial`) and a
+published contiguity graph are the declared next steps.
+
+Two mechanical corrections were needed before this attempt could run at all, both made before
+any result existed and both recorded in the plan: the split boundaries were written as
+`YYYY-MM` (rejected by `validate_process`), and the loader emitted event counts as floats
+while the Hawkes fit requires integers.
+
+## Second wave (fred_cpi and bls_labor landed)
+
+`fred_cpi` published with **full ALFRED vintages** (CPIAUCSL 1947-2026, 3,362 vintage records,
+`realtime_start`/`realtime_end` on every observation) and `bls_labor` published with payrolls
+and LAUS, both current-vintage only. `fred_macro_panel` had acquired but not published, so
+GDPC1, GDPPOT, INDPRO, FEDFUNDS, TOTALSL, RRSFS, DPRIME, SNDR, DPSACBW027SBOG and DRCCLACBS
+were still unavailable. Two further attempts were pre-registered with their splits and then
+run; the nine earlier attempts were not rerun because every dataset version behind them was
+unchanged.
+
+### coupled_economy / default_hazard — **pass** (all six criteria)
+
+Quarterly fractional-logit hazard, `retrospective` policy (FDIC and LAUS carry no vintages;
+the component allows the `minor` revision class; DFF resolves `real_time`). Two substitutions
+were declared as overrides in the plan *before* the run, and both appear in the estimate's
+data audit:
+
+- `delinquency_rate` → **aggregate noncurrent-loan rate** of FDIC-insured banks,
+  `100 × Σ bank_noncurrent_loans / Σ bank_net_loans` per report date. The declared primary
+  series (FRED DRCCLACBS credit-card delinquency) is unpublished; `requirements.json` names
+  FDIC call reports as the bank-panel alternative.
+- `unemployment_rate` → **constructed national rate**,
+  `100 × Σ unemployed / Σ labor_force` over the 51 seasonally adjusted LAUS state series.
+  `bls_labor` publishes no national CPS series (LNS14000000 is absent from this build).
+
+| Parameter | Estimate | SE |
+| --- | --- | --- |
+| `hazard_intercept` | −0.4301 | 0.0466 |
+| `persistence` | 0.9382 | 0.0094 |
+| `unemployment_sensitivity` | 2.1853 | 0.2263 |
+| `rate_sensitivity` | 1.6492 | 0.2848 |
+
+| Metric | Model | Persistence | Drift | Mean |
+| --- | --- | --- | --- | --- |
+| MAE (percentage points) | 0.0289 | 0.0419 | 0.0821 | 1.2684 |
+| RMSE | 0.0394 | 0.0531 | 0.0919 | 1.2807 |
+| CRPS | 0.0233 | 0.0345 | 0.0538 | 0.7597 |
+| DM p vs model | — | 0.020 | 0.0017 | 3.0e-12 |
+
+19 holdout forecasts (2021-2025), 0 skipped origins, 80% coverage 0.947, bias +0.0233.
+Sample 2010Q2-2025Q3 (62 quarters). Report `65dc57bb…`, artifact `1d166627…`.
+
+**Verdict: pass — with three caveats that belong next to it.** (1) The criteria are the
+component's declared defaults, unmodified, and the holdout was untouched until scored, so the
+pass is real; `coupled_economy` still has eight components missing, so the *process* remains
+unvalidated. (2) Coverage passes by 0.003 (0.947 against 0.80 ± 0.15) — it would fail on a
+slightly different sample. (3) The fitted object is aggregate bank loan distress, not consumer
+credit-card default: the parameters bind to `mechanisms.default_hazard.*`, so anyone using
+them should read them as "noncurrent loans of all FDIC-insured banks respond to unemployment
+and the policy rate", not as a card-delinquency model. Re-running against DRCCLACBS when
+`fred_macro_panel` publishes is the declared next step, and would be a new attempt.
+
+### monetary_model — fail (no skill against persistence, revision leakage)
+
+Monthly Taylor rule, holdout 2015-2024 (120 forecasts, refit every 12 origins). Inflation is
+read **point-in-time** from the new CPI vintages: month *t* uses its first ALFRED release and
+the base month *t−12* uses the latest vintage available at that same release date, so no later
+revision enters a row. The policy rate is the monthly mean of first-published DFF. The output
+gap is the blocker: with GDPC1/GDPPOT unpublished it is an Okun proxy, `−2 × (u − u*)`, where
+u is the constructed LAUS national rate and u* its trailing 120-month mean computed only from
+earlier months.
+
+| Parameter | Estimate | SE |
+| --- | --- | --- |
+| `rho` (smoothing) | 0.9774 | 0.0051 |
+| `phi_pi` | 0.7517 | — |
+| `phi_y` | 0.9327 | — |
+| `r_star` | −1.9899 | — |
+| `policy_shock_sd` | 0.1982 | — |
+
+| Metric | Model | Persistence | Drift | Mean |
+| --- | --- | --- | --- | --- |
+| MAE (percent) | 0.1818 | 0.0929 | 0.1068 | 2.0992 |
+| RMSE | 0.2634 | 0.1861 | 0.1905 | 2.2505 |
+| CRPS | 0.1436 | 0.0904 | 0.0935 | 1.3292 |
+| DM p vs model | — | 1.00 | 1.00 | 6.6e-37 |
+
+Coverage 0.692, bias +0.086, 0 skipped origins.
+
+**Verdict: fail.** The rule is roughly twice as bad as a random walk on the monthly policy
+rate (DM p ≈ 1.0), which is what a smoothed quarterly rule should look like at monthly
+frequency, and `phi_pi` = 0.75 is below 1, so the fitted rule does not satisfy the Taylor
+principle over 1990-2014 — a finding about the proxy-gap specification, not a bug.
+`no_revision_leakage` also fails because the unemployment input carries no vintages. When
+`fred_macro_panel` publishes GDPC1/GDPPOT/UNRATE vintages this attempt should be superseded by
+a real-time-clean one with the declared gap.
+
+
+## Third wave (fred_macro_panel landed: every required FRED series with ALFRED vintages)
+
+`fred_macro_panel` published 7.57M records covering DPRIME, MPRIME, SNDR, DRCCLACBS, UNRATE,
+DPSACBW027SBOG, TOTALSL, RRSFS, PAYEMS, INDPRO, FEDFUNDS, CPIAUCSL, GDPC1, GDPPOT and DFF —
+**every observation carries `realtime_start`/`realtime_end`**, so all nine attempts below ran
+under the **strict real-time policy** and `no_revision_leakage` passed in every one of them.
+Splits were pre-registered inside each series' vintage era (nothing is visible under the
+strict policy before a series entered ALFRED: DFF/DPRIME 2005-06, DRCCLACBS 2011-05,
+DPSACBW027SBOG 2012-08, RRSFS 2001-06, TOTALSL/FEDFUNDS 1996-12, GDPC1 1992-12, GDPPOT 1994-01,
+SNDR 2021-04).
+
+### monetary_model — **pass** (all six criteria; the process is validated)
+
+Quarterly Taylor rule from first-release vintages only (the rule's own frequency: `rho` is a
+quarterly smoothing parameter). Holdout 2015-2024, 40 quarters, refit every 4 origins.
+
+| Parameter | Estimate | SE |
+| --- | --- | --- |
+| `rho` (quarterly smoothing) | 0.9107 | 0.0213 |
+| `phi_pi` | 1.0089 | — |
+| `phi_y` | 1.0981 | — |
+| `r_star` | −1.3625 | — |
+| `policy_shock_sd` | 0.4250 | — |
+
+| Metric | Model | Persistence | Drift | Mean |
+| --- | --- | --- | --- | --- |
+| MAE (percent) | 0.2331 | 0.2666 | 0.3002 | 1.8706 |
+| RMSE | 0.3293 | 0.4597 | 0.4727 | 2.0661 |
+| CRPS | 0.1870 | 0.2331 | 0.2419 | 1.2159 |
+| DM p vs model | — | 0.036 | 0.026 | 2.0e-11 |
+
+Coverage 0.925, bias +0.092, 0 skipped origins. Artifact `4347efe4…`.
+
+**Verdict: pass — but superseded, and its parameter reading was wrong.** This run was made on
+the build where every chained-dollar vintage carried one unit label, and its gap needed a
+trailing-mean workaround. On the rebuilt data (fourth wave) the same attempt still passes but
+`phi_pi` falls from 1.009 to **0.384**, so the claim that the fitted rule "just satisfies the
+Taylor principle" was an artifact of the contaminated gap. Read
+`monetary_model.fred_realtime_v2` instead.
+
+### The eight component attempts — all fail, but mostly on intervals, not on mechanism
+
+| Component | n | Key estimates (SE) | Model vs persistence MAE | DM p | Coverage | Failing |
+| --- | --- | --- | --- | --- | --- | --- |
+| interest_pass_through | 83 | pass_through 0.9266 (0.0535), impact 0.5291 (0.0402), spread 0.0256 (0.0023), speed/mo 0.045 (0.012) | 0.0628 vs 0.1126 | **0.0011** | 0.988 | interval_coverage |
+| credit_growth | 141 | persistence_sum 0.8226 (0.042), mean growth 0.0072/mo (0.001) | 0.0525 vs 0.0570 | **0.0022** | 0.596 | interval_coverage |
+| default_hazard (primary) | 23 | persistence 1.0038 (0.0219), unemployment_sensitivity −1.2593 (0.2866), rate_sensitivity 0.2393 (0.3116) | 0.1244 vs 0.1448 | **0.033** | 0.870 | bounds (persistence > 1) |
+| deposit_growth | 59 | persistence −0.1949 (0.105), rate_semi_elasticity 0.045 (0.091) | 147.1 vs 120.9 | 0.946 | 0.831 | beats_persistence_dm |
+| labor_demand | 143 | employment_output_elasticity 0.3018 (0.0772), impact 0.2899 (0.0958) | 1,328 vs 593 | 0.704 | 0.245 | DM, coverage |
+| energy_purchasing | 83 | energy_response −0.083 (0.043), rate_response −0.525 (0.529) | 3,919 vs 3,504 | 0.756 | 0.627 | DM, coverage, bounds |
+| policy_rule | 47 | inflation_response 1.1233 (0.359), output_response 1.5987 (0.460), smoothing 0.9219 (0.022) | 0.3262 vs 0.2165 | 0.673 | 1.000 | DM, coverage |
+| deposit_rate_pass_through | 16 | pass_through 0.0782 (0.0018), speed/mo 0.2393 (0.083) | 0.0131 vs 0.0056 | 0.871 | 0.438 | min_forecasts (16<24), DM, coverage |
+
+Reading these honestly:
+
+- **Three beat their naive baselines with sensible parameters.** `interest_pass_through` is the
+  clearest: prime-rate pass-through of 0.93 with a 0.53 within-month impact and a 4.5%/month
+  adjustment speed is textbook, and it halves persistence's error (p = 0.001). It fails only
+  because its 80% intervals cover 98.8% of outcomes — the in-sample residual scale is far too
+  wide for a rate that moves in discrete steps. `credit_growth` (p = 0.002) fails the mirror
+  problem: intervals too narrow (0.596).
+- **`default_hazard` on its declared primary series fails where the substitute passed.** It beats
+  persistence (p = 0.033) with good coverage, but `persistence` = 1.0038 breaches the declared
+  [0, 1] bound (a unit root in the delinquency logit), and `unemployment_sensitivity` is
+  **negative** (−1.26) — the opposite sign to the +2.19 the FDIC/LAUS substitute produced. The two
+  attempts disagree about the mechanism's sign, which is a reason to trust neither until the
+  specification is revisited; the substitute's pass should not be read as validating the
+  declared component.
+- **Four have no forecast skill at all** (`deposit_growth`, `labor_demand`, `energy_purchasing`,
+  `policy_rule`): monthly deposit and payroll levels are near-random walks that an ADL in growth
+  rates cannot beat, and the smoothed Taylor rule loses to persistence on the quarterly rate for
+  the same reason it did at monthly frequency. `energy_purchasing` also has both response
+  parameters the wrong sign for the declared mechanism.
+- **`deposit_rate_pass_through` is data-starved as predicted**: SNDR starts 2021-04, giving 16
+  origins against a declared 24.
+
+
+## Fourth wave (base-year bug fixed; what it did and did not change)
+
+`fred_macro_panel` (7dcce89c) and `fred_cpi` (34fe03f5) were rebuilt so every observation
+carries `attributes.source_units` as published in that vintage, a per-vintage
+`unit_multiplier`, and `base_period` in both attributes and dimensions. The `unit` token is now
+per vintage: GDPC1 carries eight chained-dollar tokens, INDPRO thirteen index tokens, CPIAUCSL
+two. Two input defects were corrected — 189 of 849 panel series change units across vintages,
+and TOTALSL had been published in billions for some vintages and millions for others, so
+**11,612 of its 13,537 values changed** (1998-03: 1.3322 → 1332.2).
+
+Because the unit token is now per vintage, selecting on the requirement's unit would keep only
+vintages on that base (GDPC1: 382 records from 2023-09). The loaders therefore accept whatever
+unit a vintage published (`SeriesSource.unit = None`), apply the requirement's unit as a label,
+and keep `published_unit` and `base_period` in the record's attributes.
+
+### The important correction: the component estimates were *not* contaminated
+
+I flagged in the third wave that `policy_rule` "reads the levels directly, so its estimate
+carries the same contamination". **That was wrong, and the rerun proves it.** A point-in-time
+frame takes, for every period, the latest vintage available at its cutoff, and a vintage
+publishes its whole history on one base — so each frame is internally base-consistent, and the
+estimators only read within-frame ratios and growth rates. Rerunning with identical splits:
+
+| Attempt | v1 → v2 parameters | v1 → v2 test | Verdict |
+| --- | --- | --- | --- |
+| `policy_rule` | identical (inflation_response 1.1233, output_response 1.5987, smoothing 0.9219) | identical (n=47, MAE 0.3262, coverage 1.000, DM 0.673) | fail, unchanged |
+| `credit_growth` | identical (persistence_sum 0.8226, mean growth 0.0072/mo) | MAE 0.0525 → **52.507** (the same numbers in billions rather than the buggy mixed scale), coverage 0.596, DM 0.0022 | fail, unchanged |
+| `labor_demand` | identical (elasticity 0.3018, impact 0.2899) | identical (n=143, MAE 1,328, coverage 0.245, DM 0.704) | fail, unchanged |
+
+So the TOTALSL 1000× error changed only the *level* in which `credit_growth`'s error is
+reported, not its parameters or its verdict, because log growth is scale-invariant within a
+single-vintage frame. The four attempts whose series were verified **value-identical** between
+the two builds — `interest_pass_through`, `deposit_rate_pass_through`,
+`default_hazard.fred_primary_realtime`, `deposit_growth` (DPRIME, DFF, SNDR, DRCCLACBS, UNRATE,
+DPSACBW027SBOG, PAYEMS, FEDFUNDS all unchanged) — keep their third-wave verdicts without a
+rerun.
+
+### monetary_model — pass on clean data, and the parameters move a lot
+
+This is where base mixing genuinely mattered, because the loader picks each period's *first
+release* from a different vintage rather than reading one snapshot. The gap is now
+`100 × (GDPC1 / GDPPOT − 1)` with both levels taken from the newest base on which **both**
+series had published by the target quarter's first release (CBO lags BEA at a rebasing, so it is
+often the previous base), and inflation takes both CPI endpoints from one base. The trailing-mean
+workaround is gone and the gap is a true level: −10.8% (2020Q2) to +4.0%, against −9.7…+9.0
+under the workaround and +22.5 before it.
+
+| Parameter | v1 (contaminated) | v2 (clean) |
+| --- | --- | --- |
+| `phi_pi` | 1.0089 | **0.3839** |
+| `phi_y` | 1.0981 | 1.0405 |
+| `rho` | 0.9107 (0.0213) | 0.8547 (0.0337) |
+| `r_star` | −1.3625 | +0.2463 |
+| `policy_shock_sd` | 0.4250 | 0.4572 |
+
+| Metric | Model | Persistence | Drift | Mean |
+| --- | --- | --- | --- | --- |
+| MAE (percent) | 0.2573 | 0.2962 | 0.3358 | 1.9770 |
+| RMSE | 0.3673 | 0.4967 | 0.5121 | 2.1452 |
+| CRPS | 0.2115 | 0.2577 | 0.2678 | 1.2661 |
+| DM p vs model | — | 0.0585 | 0.043 | 1.5e-11 |
+
+36 holdout quarters (106 rows survive the base-pairing requirement; 14 quarters are dropped where
+no common base existed at the first release), coverage 0.861, bias −0.0008, 0 skipped origins.
+All six criteria pass, so `monetary_model` remains the one validated process. Artifact
+`4b7e1066…`.
+
+**What changed substantively:** `phi_pi` = 0.38 means the fitted rule does **not** satisfy the
+Taylor principle over 1995-2007 — the opposite of what the contaminated run suggested — and
+`r_star` is now a plausible +0.25 instead of −1.36. The pass rests on forecast skill against
+persistence (p = 0.059, close to the 0.10 threshold) and on well-calibrated intervals, not on
+the structural coefficients being credible.
+
+
+## Blocked on data
+
+`python3 -m worldmodel estimation-load` prints this machine-readably. After
+`fred_macro_panel`, thirteen of fifteen components and five of eleven families are loadable;
+what remains blocked is:
+
+| Component / family | Missing input | Dataset that must publish it |
+| --- | --- | --- |
+| field_diffusion_transport | per-cell concentrations with a topology (county PM2.5) | epa_aqs_daily |
+| bilateral_flow_gravity | FAF5 OD tonnage and OD distances | freight |
+| trade_model | several consecutive years of bilateral flows (un_comtrade starts 2024-01) | cepii_baci |
+| elections_model | House district returns; district presidential lean | mit_election_returns (manual Dataverse download) |
+| influence_model | a unit-period panel with exposure and outcome | lda_lobbying + fec + voteview_rollcalls (panel not built) |
+| sanctions_model | — | non-estimable by declaration (legal-rule determination) |
+
+No FRED series is outstanding. `bls_labor` is no longer required by any attempt that is not
+superseded.
+
+## Declared but not run
+
+| Attempt | Reason |
+| --- | --- |
+| `legislative_model.voteview` | compute budget. The data exist: `voteview_rollcalls` publishes `roll_call_member_positions` for Congresses 110-119 (Senate 117 alone has 949 roll calls). The ideal-point MAP refit at every holdout origin exceeds the declared 30-minute per-attempt budget. |
+| `market_abm_model.alpaca` | compute budget. Daily closes are available; the grid SMM fit at every window origin exceeds the budget. |
+
+## Data-quality findings
+
+0. **[FIXED 2026-09-15] Chained-dollar ALFRED vintages carried no base-year metadata.** Each GDPC1/GDPPOT vintage is
+   published in the base year current at that vintage (1992, 1996, 2009, 2017 dollars), but every
+   normalized record is labelled with the single current unit `billion_chained_2017_USD` and has
+   no per-vintage `source_units`. A real-time level ratio of the two series therefore mixes base
+   years across the 1999, 2013 and 2023 benchmark revisions: it produced output gaps of +22.5%
+   (1995Q4) and +16.1% (1999Q3) before the monetary loader was changed to measure the gap relative
+   to its own trailing mean, which cancels a constant log offset. `policy_rule` reads the levels
+   directly. The rebuild added per-vintage `source_units`, `unit_multiplier` and `base_period`, and
+   the rerun showed the scope was narrower than I first claimed: point-in-time component frames are
+   single-vintage and therefore single-base, so `policy_rule`, `credit_growth` and `labor_demand`
+   reproduced identical parameters. Only constructions that combine different vintages across
+   periods — the monetary family's first-release rows — were actually contaminated, and there the
+   effect was large (`phi_pi` 1.01 → 0.38).
+0aa. **TOTALSL was published in billions for some vintages and millions for others** (fixed in the
+   same rebuild): 11,612 of 13,537 values changed by 1000×. It moved the level in which
+   `credit_growth`'s forecast error is reported but not its scale-invariant parameters.
+0ab. **Unit tokens are not stable across rebuilds.** `fred_oil_price` went from `USD/barrel` to
+   `USD_per_barrel` and RRSFS from `million_USD_1982_1984` to `million_USD_1982_1984_cpi_adjusted`,
+   both with identical values. A loader pinned to a unit string silently selects nothing, which is
+   how `energy_purchasing` first failed to load; the affected sources now leave the unit open.
+0a. **`fred_cpi` now carries full ALFRED vintages** (`vintage_tier: vintages`, `realtime_start`/
+   `realtime_end`, `dimensions.vintage`), contrary to the older note in
+   docs/data/macro-labor-io-international.md that calls it current-vintage only. CPI can now be
+   read point-in-time.
+0c. **`bls_labor` omits the national CPS series.** `CES0000000001` payrolls are present
+   (1939-2026, current vintage), but `LNS14000000` national unemployment is not, and neither are
+   the other headline CPS series the README describes; only LAUS state, county and area series
+   exist. A national rate has to be constructed from the 51 seasonally adjusted state series.
+1. **Published metric names and units do not match `requirements.json`.** EIA publishes
+   `crude_oil_commercial_stocks_excl_spr` / `Thousand Barrels` where the requirement declares
+   `crude_oil_stocks_excluding_spr` / `thousand_barrels`; SEC publishes `cash_and_equivalents`,
+   `revenue`, `capital_expenditures` against `cash_and_cash_equivalents`, `revenues`,
+   `capital_expenditure`; Census PEP publishes `population` against `resident_population`.
+   `worldmodel/estimation/loaders.py` holds the declared translation; nothing was changed in the
+   datasets.
+2. **Capital expenditure is filed year-to-date only.** Selecting three-month durations alone
+   gives roughly a quarter of the quarters (18 of 72 for CNX). Discrete quarters must be
+   recovered by differencing cumulative durations.
+3. **EIA weekly flows do not close the stock identity.** The fitted `flow_scale` is 0.56 and
+   the commodities balance discrepancy averages +2,481 thousand barrels a week (max 20,556),
+   which is the publisher's own adjustment term, not a pipeline error.
+4. **Three sub-annual EIA series start in 2022 by default**, but the eight priority PET series
+   keep their full history, which is what made the energy attempts possible.
+5. **`mit_election_returns` has no House district returns** (president and senate statewide
+   only), so the elections family cannot be scored.
+6. **No contiguity/neighbour graph is published** (CShapes), so the conflict Hawkes fit runs
+   without neighbour excitation.
+7. **`bls_labor` was being rebuilt on a larger artifact while this ran.** Every attempt that used
+   it (`default_hazard.fdic_laus_quarterly`, `monetary_model.cpi_okun_proxy`) is now superseded by
+   a fred_macro_panel attempt, and both are pinned to `bls_labor@50917b81`, so the rebuild does not
+   invalidate anything recorded here. If the rebuild adds the national CPS series, the LAUS
+   construction stops being necessary.
+8. **UCDP monthly counts are floats in the records** (`"value": 7.0`) while the conflict family
+   requires integer counts; the loader casts them.
+
+## Method notes
+
+- Vintage policy per attempt: `strict` where records carry real publication dates
+  (companyfacts filing dates, PEP `released_at`, ALFRED `realtime_start`), `retrospective`
+  otherwise (EIA bulk), which controls timing leakage through the declared publication lag but
+  not revision leakage — and the reports say so.
+- `no_timing_leakage` passed in every attempt that ran: zero selection and holdout violations
+  with origins checked.
+- Acceptance criteria are the component and family defaults from `requirements.json`. No
+  attempt weakened a threshold to obtain a pass.
+- A correction that prevented an attempt from producing any result at all (a date format, an
+  integer cast) is recorded in the plan and here. A change made after seeing a test result
+  would have to be a new pre-registered attempt with the failed one kept; none was made.

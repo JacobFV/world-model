@@ -124,9 +124,76 @@ class ProcessRegistry:
         for key in ('topology', 'description'):
             if key not in spec:
                 raise ValueError(f'Process requires {key}')
+        if spec.get('validated', False) is not False or 'calibration' in spec:
+            raise ValueError('validated is derived from attached calibration records; register processes with validated false')
         from .process_contracts import validate_conserved_outputs
         validate_conserved_outputs(spec)
         self._processes[spec['id']] = deepcopy(spec)
+
+    def attach_calibration(self, record, *, process_id=None, required_components=None):
+        """Attach a calibration record (see ``worldmodel.estimation.registry.calibration_record``).
+
+        ``validated`` becomes true only when every required component has a record
+        whose explicit, nonempty acceptance criteria all passed. An empty
+        requirement list can never validate a process.
+        """
+        _json(record)
+        from .util import digest
+        if not isinstance(record, dict) or record.get('schema') != 'worldmodel.calibration/1':
+            raise ValueError('Unsupported calibration record')
+        if record.get('record_id') != digest({k: v for k, v in record.items() if k != 'record_id'}):
+            raise ValueError('Calibration record content does not match record_id')
+        process_id = process_id or record.get('process_id')
+        if process_id not in self._processes:
+            raise ValueError(f'Unknown process: {process_id}')
+        component = record.get('component')
+        if not isinstance(component, str) or not component:
+            raise ValueError('Calibration record requires a component')
+        acceptance = record.get('acceptance') or {}
+        results = acceptance.get('results')
+        passed = (isinstance(results, list) and bool(results) and all(r.get('passed') is True for r in results)
+                  and acceptance.get('passed') is True and bool(record.get('criteria')))
+        if record.get('validated') is not passed:
+            raise ValueError('validated must equal the outcome of explicit acceptance criteria')
+        if required_components is None:
+            from .estimation.registry import required_components as lookup
+            required_components = lookup(process_id)
+        required = sorted(set(required_components))
+        if component not in required and required:
+            from .estimation.families import components_for
+            if component not in components_for(process_id, include_optional=True):
+                raise ValueError(f'Component {component} is not declared for process {process_id}')
+        descriptor = self._processes[process_id]
+        calibration = descriptor.setdefault('calibration', {'components': {}})
+        calibration['components'][component] = deepcopy(record)
+        calibration['required_components'] = required
+        components = calibration['components']
+        calibration['missing_components'] = [c for c in required if c not in components]
+        calibration['failing_components'] = [c for c in required if c in components and components[c].get('validated') is not True]
+        descriptor['validated'] = bool(required) and not calibration['missing_components'] and not calibration['failing_components']
+        return deepcopy(calibration)
+
+    def calibration(self, process_id):
+        if process_id not in self._processes:
+            raise ValueError(f'Unknown process: {process_id}')
+        return deepcopy(self._processes[process_id].get('calibration'))
+
+    def calibrated_parameters(self, process_id, *, require_validated=True):
+        """Merged process-parameter paths from attached component estimates."""
+        if process_id not in self._processes:
+            raise ValueError(f'Unknown process: {process_id}')
+        descriptor = self._processes[process_id]
+        if require_validated and descriptor.get('validated') is not True:
+            raise ValueError(f'Process {process_id} is not validated; pass require_validated=False to inspect estimates')
+        merged = {}
+        for component, record in sorted(descriptor.get('calibration', {}).get('components', {}).items()):
+            if require_validated and record.get('validated') is not True:
+                continue
+            for path, value in record.get('process_parameters', {}).items():
+                if path in merged and merged[path]['value'] != value:
+                    raise ValueError(f'Conflicting calibrated values for {path}')
+                merged[path] = {'value': value, 'component': component, 'estimate_id': record['estimate_id']}
+        return merged
 
     def register_implementation(self, spec, handler):
         _json(spec)
@@ -232,6 +299,12 @@ class ProcessRegistry:
         if not isinstance(result, dict):
             raise ValueError('Prediction must return a dictionary')
         result = deepcopy(result)
+        if 'calibration' in process and isinstance(result.get('diagnostics', {}), dict):
+            diagnostics = result.setdefault('diagnostics', {})
+            diagnostics['validated'] = process.get('validated') is True
+            diagnostics['calibration'] = {'validated': process.get('validated') is True,
+                'components': {c: {k: r.get(k) for k in ('validated', 'estimate_id', 'report_id', 'cutoff')}
+                               for c, r in sorted(process['calibration']['components'].items())}}
         if any(p.get('temporal') for p in process['inputs'].values()):
             result['input_receipts']={name:deepcopy(inputs.get(name)) for name,p in process['inputs'].items() if p.get('temporal')}
         for key, default in [('pressures', []), ('events', []), ('memory', {}), ('diagnostics', {})]:

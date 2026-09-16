@@ -1,0 +1,627 @@
+{
+  "schema": "worldmodel.estimation.real_data_plan/1",
+  "declared_at": "2026-09-15",
+  "description": "Pre-registered attempts to fit and validate process components and model families on the normalized datasets published in this catalog. Splits, loader options, vintage policies and acceptance criteria are frozen here BEFORE any holdout result is read. A failing attempt is a result: it is kept, not re-specified. A change after seeing test outcomes must be added as a new attempt with a new id, a reason, and the superseded attempt left in place.",
+  "rules": [
+    "Splits are chosen from data coverage only (first and last available period), never from outcomes.",
+    "Acceptance criteria are the component or family defaults declared in requirements.json; no attempt weakens them.",
+    "Entity selection rules (issuers, countries, symbols, regions) are declared here and use availability or pre-training-window counts only.",
+    "vintage_policy is the weakest policy the loaded sources support. 'retrospective' means timing leakage is controlled by the requirement's publication lag but revision leakage is possible, and the report says so.",
+    "Compute budget per attempt: 30 minutes wall clock. An attempt that exceeds it is recorded as not_run with reason compute_budget, not silently dropped."
+  ],
+  "attempts": [
+    {
+      "id": "inventory_balance.eia_weekly",
+      "kind": "component",
+      "target": "inventory_balance",
+      "process_id": "resource_inventory",
+      "loader": {
+        "function": "observation_set"
+      },
+      "data": "eia_energy@normalized (PET weekly WCESTUS1, WCRFPUS2, WCRIMUS2, WCREXUS2, WCRRIUS2; subject iso3:USA)",
+      "protocol": {
+        "train_end": "2015-12-31",
+        "validation_end": "2019-12-31",
+        "cutoff": "2024-12-31",
+        "vintage_policy": "retrospective",
+        "window": "expanding",
+        "refit_every": 1,
+        "horizon": 1
+      },
+      "rationale": "Weekly crude balance covers 1991-02 onward (exports are the binding start). Train ends 2015, validation 2016-2019, holdout 2020-2024. EIA bulk records carry only an acquisition timestamp, so the retrospective policy with the declared 5-day publication lag is the only admissible one; the component already allows the 'minor' revision class."
+    },
+    {
+      "id": "demand_price_elasticity.eia_monthly",
+      "kind": "component",
+      "target": "demand_price_elasticity",
+      "process_id": "coupled_economy",
+      "loader": {
+        "function": "observation_set"
+      },
+      "data": "eia_energy@normalized (MGFUPUS2 monthly, EMM_EPMR_PTE_NUS_DPG weekly) + fred_oil_price@normalized (DCOILWTICO ALFRED vintages)",
+      "protocol": {
+        "train_end": "2009-12-31",
+        "validation_end": "2015-12-31",
+        "cutoff": "2024-12-31",
+        "vintage_policy": "retrospective",
+        "window": "expanding",
+        "refit_every": 1,
+        "horizon": 1
+      },
+      "rationale": "The retail gasoline price starts 1990-08, so the aligned monthly sample starts 1990-09. Train 1990-2009, validation 2010-2015, holdout 2016-2024. The crude price carries real ALFRED vintages; the two EIA series do not, so the frame is retrospective."
+    },
+    {
+      "id": "price_adjustment.eia_monthly",
+      "kind": "component",
+      "target": "price_adjustment",
+      "process_id": "coupled_economy",
+      "loader": {
+        "function": "observation_set"
+      },
+      "data": "eia_energy@normalized (EMM_EPMR_PTE_NUS_DPG, WGTSTUS1 weekly) + fred_oil_price@normalized (DCOILWTICO)",
+      "protocol": {
+        "train_end": "2009-12-31",
+        "validation_end": "2015-12-31",
+        "cutoff": "2024-12-31",
+        "vintage_policy": "retrospective",
+        "window": "expanding",
+        "refit_every": 1,
+        "horizon": 1
+      },
+      "rationale": "Same sample and splits as demand_price_elasticity: the two components share the retail price series and must not be split differently."
+    },
+    {
+      "id": "cash_balance.sec_companyfacts",
+      "kind": "component",
+      "target": "cash_balance",
+      "process_id": "investment_cash_flow",
+      "loader": {
+        "function": "cash_balance_data",
+        "per_entity": "issuer"
+      },
+      "entities": [
+        "sec:cik:0001070412",
+        "sec:cik:0000093556",
+        "sec:cik:0000314808",
+        "sec:cik:0001061219",
+        "sec:cik:0000078814"
+      ],
+      "entity_rule": "The five issuers with the most published companyfacts records across all four required concepts (CashAndCashEquivalentsAtCarryingValue, Revenues, CostsAndExpenses, PaymentsToAcquirePropertyPlantAndEquipment), ranked by the smallest per-concept record count and then by CIK. Availability only: no fit or forecast was run before this list was frozen.",
+      "data": "sec_company_assets@normalized (companyfacts; observed_at is the filing date)",
+      "protocol": {
+        "train_end": "2016-12-31",
+        "validation_end": "2019-12-31",
+        "cutoff": "2025-12-31",
+        "vintage_policy": "strict",
+        "window": "expanding",
+        "refit_every": 1,
+        "horizon": 1
+      },
+      "rationale": "companyfacts carries filing dates as knowledge time, so the strict policy is admissible. Quarters are labeled by the calendar quarter containing the fiscal period end; fourth-quarter flows are derived as the annual duration minus the three reported quarters."
+    },
+    {
+      "id": "population_growth_rate.census_pep",
+      "kind": "component",
+      "target": "population_growth_rate",
+      "process_id": "population_growth",
+      "loader": {
+        "function": "observation_set"
+      },
+      "data": "census_population@normalized (PEP vintages 2020-2024, subject geo:US, July 1 estimates)",
+      "protocol": {
+        "train_end": "2016-12-31",
+        "validation_end": "2018-12-31",
+        "cutoff": "2025-12-31",
+        "vintage_policy": "strict",
+        "window": "expanding",
+        "refit_every": 1,
+        "horizon": 1
+      },
+      "rationale": "PEP vintages carry release dates, so availability is real-time. Coverage is 2010-2024 (15 annual points), which is short: the component needs 8 observations to fit and 8 holdout forecasts, so at most 7 origins can exist. The attempt is run anyway to record the outcome honestly; a longer real-time series (POPTHM vintages) would be needed to pass."
+    },
+    {
+      "id": "conflict_model.ucdp_monthly",
+      "kind": "family",
+      "target": "conflict",
+      "process_id": "conflict_model",
+      "loader": {
+        "function": "conflict_data",
+        "options": {
+          "start": "2000-01",
+          "end": "2024-12",
+          "rank_end": "2015-12",
+          "country_count": 20,
+          "release": "26.1",
+          "violence": "state_based"
+        }
+      },
+      "data": "ucdp_conflicts@normalized (GED monthly country counts, release 26.1, state-based) + vdem@normalized (v2x_polyarchy, previous year)",
+      "protocol": {
+        "train_end": "2015-12-31",
+        "validation_end": "2019-12-31",
+        "cutoff": "2024-12-31",
+        "vintage_policy": "family_rows",
+        "refit_every": 12,
+        "horizon": 1
+      },
+      "entity_rule": "The 20 countries with the most state-based GED events in 2000-01..2015-12 (the training window only).",
+      "rationale": "Hawkes self- and neighbour-excitation on country-month counts. No contiguity dataset (CShapes) is published, so neighbours are omitted and the neighbour term is identified only from the panel. UCDP annual releases revise earlier months, and the row dates are event months rather than publication dates, so no_revision_leakage is expected to fail; that is recorded rather than excused.",
+      "correction": "2026-09-15: the split boundaries were first written as YYYY-MM (2015-12, 2019-12, 2024-12), which validate_process rejects (\"Invalid time\"). They are rewritten as the identical end-of-month dates. The windows are unchanged and no result had been produced when this was corrected."
+    },
+    {
+      "id": "assets_model.alpaca_daily",
+      "kind": "family",
+      "target": "assets",
+      "process_id": "assets_model",
+      "loader": {
+        "function": "assets_data",
+        "options": {
+          "symbols": [
+            "AAPL",
+            "MSFT",
+            "JNJ",
+            "XOM",
+            "KO"
+          ],
+          "factor_symbol": "SPY",
+          "start": "2016-01-04",
+          "end": "2024-12-31"
+        }
+      },
+      "data": "alpaca_daily_bars@normalized (adjusted daily closes) + fred_policy_rate@normalized (DFF as the daily risk-free rate)",
+      "protocol": {
+        "train_end": "2021-12-31",
+        "validation_end": "2023-06-30",
+        "cutoff": "2024-12-31",
+        "vintage_policy": "family_rows",
+        "refit_every": 21,
+        "horizon": 1
+      },
+      "entity_rule": "Five mega-cap issuers from distinct sectors declared in advance (AAPL, MSFT, JNJ, XOM, KO); SPY is the market factor and is never scored.",
+      "rationale": "The holdout needs supplied factors, so the market factor is SPY's excess return over DFF/252; the scored symbols are not in the factor. Total-return adjusted closes are restated by later corporate actions, so revisions are declared 'minor' and no_revision_leakage is expected to fail; the skill criteria (CRPS against constant volatility, DM against the historical mean) are still informative."
+    },
+    {
+      "id": "commodities_model.eia_weekly_balance",
+      "kind": "family",
+      "target": "commodities",
+      "process_id": "commodities_model",
+      "loader": {
+        "function": "commodities_data",
+        "options": {
+          "start": "2010-01-01",
+          "end": "2024-12-31"
+        }
+      },
+      "data": "eia_energy@normalized (weekly crude stocks, production, imports, exports, refiner net input) + fred_oil_price@normalized (DCOILWTICO weekly mean)",
+      "protocol": {
+        "train_end": "2016-12-31",
+        "validation_end": "2020-12-31",
+        "cutoff": "2024-12-31",
+        "vintage_policy": "family_rows",
+        "refit_every": 4,
+        "horizon": 1
+      },
+      "rationale": "The weekly U.S. crude balance is the family's own declared data source. Flows in thousand barrels per day are converted to thousand barrels per week; refiner net input stands in for consumption and net imports are imports minus exports, so the published balance discrepancy is reported rather than hidden."
+    },
+    {
+      "id": "regional_model.cbp_state_sectors",
+      "kind": "family",
+      "target": "regional",
+      "process_id": "regional_model",
+      "loader": {
+        "function": "regional_data",
+        "options": {
+          "program": "cbp",
+          "level": "state",
+          "start_year": 2019,
+          "end_year": 2023
+        }
+      },
+      "data": "census_business@normalized (County Business Patterns employment by state and NAICS sector)",
+      "protocol": {
+        "train_end": "2021-12-31",
+        "validation_end": "2022-12-31",
+        "cutoff": "2023-12-31",
+        "vintage_policy": "family_rows",
+        "refit_every": 1,
+        "horizon": 1
+      },
+      "rationale": "CBP state-by-sector employment is published for 2019-2023 only. Base-year shares are 2019, the validation target is 2022 and the holdout target is 2023 (51 state forecasts). QCEW (bls_labor) would give a longer panel."
+    },
+    {
+      "id": "default_hazard.fdic_laus_quarterly",
+      "kind": "component",
+      "target": "default_hazard",
+      "process_id": "coupled_economy",
+      "loader": {
+        "function": "default_hazard_data",
+        "options": {
+          "start": "2010-01-01"
+        }
+      },
+      "overrides": {
+        "delinquency_rate": {
+          "metric": "bank_noncurrent_loan_rate",
+          "source_series": "FDIC NCLNLS/LNLSNET aggregate",
+          "description": "Constructed: 100 * sum(bank_noncurrent_loans) / sum(bank_net_loans) over all FDIC-insured banks in the quarter. Substitutes for the declared FRED DRCCLACBS credit-card delinquency rate, which is not published locally; requirements.json names FDIC call reports as the bank-panel alternative."
+        },
+        "unemployment_rate": {
+          "source_series": "BLS LAUS LASST state aggregate",
+          "description": "Constructed: 100 * sum(unemployed) / sum(labor_force) over the 51 seasonally adjusted LAUS state series. bls_labor publishes no national CPS rate (LNS14000000 is absent from this build)."
+        }
+      },
+      "data": "fdic_bank_financials@normalized + bls_labor@normalized + fred_policy_rate@normalized, quarterly 2010Q1 onward",
+      "protocol": {
+        "train_end": "2017-12-31",
+        "validation_end": "2020-12-31",
+        "cutoff": "2025-12-31",
+        "vintage_policy": "retrospective",
+        "window": "expanding",
+        "refit_every": 1,
+        "horizon": 1
+      },
+      "rationale": "The unemployment input was the blocker; LAUS state levels now make a national rate constructible, and the FDIC aggregate noncurrent-loan rate stands in for the unpublished credit-card delinquency series. FDIC call reports and LAUS carry no vintages, so the policy is retrospective with the declared 50-day publication lag; the component already allows the 'minor' revision class. Both substitutions are overrides recorded here and visible in the estimate's data audit. Train 2010Q1-2017Q4, validation 2018-2020, holdout 2021-2025.",
+      "expected_limits": "The noncurrent-loan rate of all bank loans is a different object from a credit-card delinquency rate; a pass would say the hazard mechanism tracks aggregate loan distress, not consumer default.",
+      "superseded_by": "default_hazard.fred_primary_realtime",
+      "superseded_reason": "DRCCLACBS and UNRATE are now published with ALFRED vintages, so the primary series can be used under the strict real-time policy. This attempt and its pass are kept as the record of what the substituted series produced."
+    },
+    {
+      "id": "monetary_model.cpi_okun_proxy",
+      "kind": "family",
+      "target": "monetary",
+      "process_id": "monetary_model",
+      "loader": {
+        "function": "monetary_data",
+        "options": {
+          "start": "1990-01",
+          "end": "2024-12",
+          "trend_months": 120,
+          "okun": 2.0,
+          "inflation_target": 2.0,
+          "elb": 0.125
+        }
+      },
+      "data": "fred_cpi@normalized (CPIAUCSL ALFRED vintages) + fred_policy_rate@normalized (DFF vintages) + bls_labor@normalized (LAUS states)",
+      "protocol": {
+        "train_end": "2007-12-31",
+        "validation_end": "2014-12-31",
+        "cutoff": "2024-12-31",
+        "vintage_policy": "family_rows",
+        "refit_every": 12,
+        "horizon": 1
+      },
+      "rationale": "fred_cpi now carries full ALFRED vintages, so inflation is read point-in-time: month t uses its first release and the base month t-12 uses the latest vintage available at that release. The policy rate is the monthly mean of first-published DFF. The output gap is the declared blocker: GDPC1 and GDPPOT are unpublished, so the attempt uses an Okun proxy, -2 * (u - u*), with u the constructed LAUS national rate and u* its trailing 120-month mean computed only from earlier months. Train 1990-2007, validation 2008-2014, holdout 2015-2024.",
+      "expected_limits": "The gap is a proxy, not the declared GDPC1/GDPPOT gap, and the LAUS unemployment input carries no vintages, so the row set is declared valid_time with major revisions and no_revision_leakage is expected to fail. When fred_macro_panel publishes GDPC1/GDPPOT/UNRATE vintages this attempt should be superseded by a real-time-clean one.",
+      "superseded_by": "monetary_model.fred_realtime_quarterly",
+      "superseded_reason": "GDPC1 and GDPPOT are now published, so the declared output gap replaces the Okun proxy."
+    },
+    {
+      "id": "interest_pass_through.fred_realtime",
+      "kind": "component",
+      "target": "interest_pass_through",
+      "process_id": "coupled_economy",
+      "loader": {
+        "function": "observation_set"
+      },
+      "data": "fred_macro_panel@normalized (DPRIME) + fred_policy_rate@normalized (DFF), monthly means of daily vintages",
+      "protocol": {
+        "vintage_policy": "strict",
+        "window": "expanding",
+        "refit_every": 1,
+        "horizon": 1,
+        "train_end": "2012-12-31",
+        "validation_end": "2017-12-31",
+        "cutoff": "2024-12-31"
+      },
+      "rationale": "Both series carry ALFRED vintages, so the strict real-time policy applies and no_revision_leakage is evaluable. DPRIME and DFF entered ALFRED in 2005-06, so the holdout starts well inside the vintage era: train to 2012, validation 2013-2017, holdout 2018-2024 (84 monthly origins)."
+    },
+    {
+      "id": "deposit_rate_pass_through.fred_realtime",
+      "kind": "component",
+      "target": "deposit_rate_pass_through",
+      "process_id": "coupled_economy",
+      "loader": {
+        "function": "observation_set"
+      },
+      "data": "fred_macro_panel@normalized (SNDR) + fred_policy_rate@normalized (DFF), monthly",
+      "protocol": {
+        "vintage_policy": "strict",
+        "window": "expanding",
+        "refit_every": 1,
+        "horizon": 1,
+        "train_end": "2024-03-31",
+        "validation_end": "2025-03-31",
+        "cutoff": "2026-08-31"
+      },
+      "rationale": "SNDR starts 2021-04 (74 vintage records, 65 months). The component needs 36 observations to fit and 24 holdout forecasts, so the series cannot satisfy both; the attempt is run to record that honestly rather than leaving it unattempted. Train 2021-04..2024-03, validation 2024-04..2025-03, holdout 2025-04..2026-08.",
+      "expected_limits": "minimum_test_forecasts is expected to fail (at most 17 origins against a declared 24)."
+    },
+    {
+      "id": "default_hazard.fred_primary_realtime",
+      "kind": "component",
+      "target": "default_hazard",
+      "process_id": "coupled_economy",
+      "loader": {
+        "function": "observation_set"
+      },
+      "data": "fred_macro_panel@normalized (DRCCLACBS, UNRATE) + fred_policy_rate@normalized (DFF), quarterly",
+      "protocol": {
+        "vintage_policy": "strict",
+        "window": "expanding",
+        "refit_every": 1,
+        "horizon": 1,
+        "train_end": "2016-12-31",
+        "validation_end": "2019-12-31",
+        "cutoff": "2025-12-31"
+      },
+      "rationale": "The declared primary series with ALFRED vintages, replacing the FDIC/LAUS substitutions of the second wave. DRCCLACBS entered ALFRED in 2011-05, so the holdout sits inside the vintage era: train to 2016, validation 2017-2019, holdout 2020-2025. Same split boundaries as the superseded attempt so the two are comparable."
+    },
+    {
+      "id": "deposit_growth.fred_realtime",
+      "kind": "component",
+      "target": "deposit_growth",
+      "process_id": "coupled_economy",
+      "loader": {
+        "function": "observation_set"
+      },
+      "data": "fred_macro_panel@normalized (DPSACBW027SBOG weekly, month-end) + fred_policy_rate@normalized (DFF)",
+      "protocol": {
+        "vintage_policy": "strict",
+        "window": "expanding",
+        "refit_every": 1,
+        "horizon": 1,
+        "train_end": "2016-12-31",
+        "validation_end": "2019-12-31",
+        "cutoff": "2024-12-31"
+      },
+      "rationale": "H.8 deposits entered ALFRED in 2012-08, so the strict policy leaves 2013 onward usable: train to 2016, validation 2017-2019, holdout 2020-2024 (60 monthly origins) \u2014 which includes the 2020 deposit surge."
+    },
+    {
+      "id": "credit_growth.fred_realtime",
+      "kind": "component",
+      "target": "credit_growth",
+      "process_id": "coupled_economy",
+      "loader": {
+        "function": "observation_set"
+      },
+      "data": "fred_macro_panel@normalized (TOTALSL), monthly",
+      "protocol": {
+        "vintage_policy": "strict",
+        "window": "expanding",
+        "refit_every": 1,
+        "horizon": 1,
+        "train_end": "2004-12-31",
+        "validation_end": "2012-12-31",
+        "cutoff": "2024-12-31"
+      },
+      "rationale": "TOTALSL entered ALFRED in 1996-12. Train to 2004, validation 2005-2012, holdout 2013-2024 (144 monthly origins). AR order is selected by BIC inside each fit, so selection stays inside the training information set.",
+      "superseded_by": "credit_growth.fred_realtime_v2",
+      "contaminated": "Read TOTALSL from the build with the billions/millions bug: 11,612 of 13,537 values were wrong by 1000x, which corrupts log growth at every affected vintage boundary. Contaminated."
+    },
+    {
+      "id": "energy_purchasing.fred_realtime",
+      "kind": "component",
+      "target": "energy_purchasing",
+      "process_id": "coupled_economy",
+      "loader": {
+        "function": "observation_set"
+      },
+      "data": "fred_macro_panel@normalized (RRSFS) + fred_oil_price@normalized (DCOILWTICO) + fred_policy_rate@normalized (DFF)",
+      "protocol": {
+        "vintage_policy": "strict",
+        "window": "expanding",
+        "refit_every": 1,
+        "horizon": 1,
+        "train_end": "2012-12-31",
+        "validation_end": "2017-12-31",
+        "cutoff": "2024-12-31"
+      },
+      "rationale": "RRSFS entered ALFRED in 2001-06 and DFF in 2005-06, so the binding start is 2005: train to 2012, validation 2013-2017, holdout 2018-2024.",
+      "superseded_by": "energy_purchasing.fred_realtime_v2",
+      "contaminated": "RRSFS values are unchanged, but its unit token became million_USD_1982_1984_cpi_adjusted, so the attempt is re-run to pin the rebuilt inputs. The v1 verdict is expected to stand."
+    },
+    {
+      "id": "labor_demand.fred_realtime",
+      "kind": "component",
+      "target": "labor_demand",
+      "process_id": "coupled_economy",
+      "loader": {
+        "function": "observation_set"
+      },
+      "data": "fred_macro_panel@normalized (PAYEMS, INDPRO), monthly",
+      "protocol": {
+        "vintage_policy": "strict",
+        "window": "expanding",
+        "refit_every": 1,
+        "horizon": 1,
+        "train_end": "2004-12-31",
+        "validation_end": "2012-12-31",
+        "cutoff": "2024-12-31"
+      },
+      "rationale": "Both series have deep ALFRED histories (PAYEMS 1961, INDPRO 1927). Train to 2004, validation 2005-2012, holdout 2013-2024 (144 monthly origins).",
+      "superseded_by": "labor_demand.fred_realtime_v2",
+      "contaminated": "INDPRO was rebased 13 times since 1927; in the old build every vintage carried the index_2017_100 label, so growth rates spanning a rebasing were wrong. Contaminated."
+    },
+    {
+      "id": "policy_rule.fred_realtime",
+      "kind": "component",
+      "target": "policy_rule",
+      "process_id": "coupled_economy",
+      "loader": {
+        "function": "observation_set"
+      },
+      "data": "fred_macro_panel@normalized (FEDFUNDS, CPIAUCSL, GDPC1, GDPPOT), quarterly",
+      "protocol": {
+        "vintage_policy": "strict",
+        "window": "expanding",
+        "refit_every": 1,
+        "horizon": 1,
+        "train_end": "2004-12-31",
+        "validation_end": "2012-12-31",
+        "cutoff": "2024-12-31"
+      },
+      "rationale": "All four declared series now carry ALFRED vintages. FEDFUNDS entered ALFRED in 1996-12 and GDPPOT in 1994-01, so the usable real-time span starts 1997: train to 2004, validation 2005-2012, holdout 2013-2024 (48 quarterly origins).",
+      "expected_limits": "The component reads GDPC1 and GDPPOT levels directly. ALFRED vintages of chained-dollar series are in the base year current at each vintage while the records carry only the current unit label, so the level gap mixes base years across the 1999, 2013 and 2023 benchmark revisions. The estimate is reported with that caveat; the monetary attempt below measures the gap base-invariantly instead.",
+      "superseded_by": "policy_rule.fred_realtime_v2",
+      "contaminated": "Read GDPC1, GDPPOT and CPIAUCSL levels from a build where every vintage carried one unit label, so the within-row output gap and the four-quarter inflation ratio mixed base years across the 1988 CPI rebasing and the 1999/2013/2023 NIPA benchmark revisions. The estimate is contaminated and is retained only as the record of that run."
+    },
+    {
+      "id": "monetary_model.fred_realtime_quarterly",
+      "kind": "family",
+      "target": "monetary",
+      "process_id": "monetary_model",
+      "loader": {
+        "function": "monetary_realtime_data",
+        "options": {
+          "start": "1995-01-01",
+          "end": "2024-10-01",
+          "gap_window_quarters": 40,
+          "inflation_target": 2.0,
+          "elb": 0.125
+        }
+      },
+      "data": "fred_macro_panel@normalized (FEDFUNDS, GDPC1, GDPPOT) + fred_cpi@normalized (CPIAUCSL), quarterly first releases",
+      "protocol": {
+        "train_end": "2007-12-31",
+        "validation_end": "2014-12-31",
+        "cutoff": "2024-12-31",
+        "vintage_policy": "family_rows",
+        "refit_every": 4,
+        "horizon": 1
+      },
+      "rationale": "Supersedes the Okun-proxy attempt: the declared GDPC1/GDPPOT gap replaces it, at the rule's own quarterly frequency (rho is a quarterly smoothing parameter). Every input is its initial release, so no row contains a later revision and revisions are declared 'none'. Rows run 1995Q1-2024Q4 (120 quarters): train to 2007, validation 2008-2014, holdout 2015-2024 (40 quarters).",
+      "expected_limits": "The gap is measured relative to its trailing 40-quarter mean inside one point-in-time snapshot, because ALFRED chained-dollar vintages carry no base-year metadata and a raw real-time level ratio produced gaps of +22% at benchmark revisions. A constant base offset cancels in logs; what remains is the gap relative to its recent average, which r_star absorbs. Inflation uses the quarter's first CPI month, the earliest print a real-time observer has.",
+      "superseded_by": "monetary_model.fred_realtime_v2",
+      "contaminated": "Built the output gap and inflation from per-period first releases across mixed bases, which forced a trailing-mean demeaning workaround. With per-vintage base_period the ratios are formed inside one base and the gap is a true level, so this pass was obtained on contaminated inputs and is superseded."
+    },
+    {
+      "id": "policy_rule.fred_realtime_v2",
+      "kind": "component",
+      "target": "policy_rule",
+      "process_id": "coupled_economy",
+      "loader": {
+        "function": "observation_set"
+      },
+      "data": "fred_macro_panel@7dcce89c (FEDFUNDS, CPIAUCSL, GDPC1, GDPPOT), quarterly",
+      "protocol": {
+        "vintage_policy": "strict",
+        "window": "expanding",
+        "refit_every": 1,
+        "horizon": 1,
+        "train_end": "2004-12-31",
+        "validation_end": "2012-12-31",
+        "cutoff": "2024-12-31"
+      },
+      "rationale": "Same splits as the contaminated v1 attempt so the two are directly comparable. Base-agnostic selection: the source accepts whatever unit each vintage published and the requirement unit is applied as a label, with the published unit and base kept in attributes.published_unit/base_period. A point-in-time frame takes the latest vintage available at its cutoff for every period, and a vintage publishes its whole history on one base, so each frame is internally base-consistent and the estimator only reads within-frame ratios and growth rates.",
+      "supersedes": "policy_rule.fred_realtime"
+    },
+    {
+      "id": "credit_growth.fred_realtime_v2",
+      "kind": "component",
+      "target": "credit_growth",
+      "process_id": "coupled_economy",
+      "loader": {
+        "function": "observation_set"
+      },
+      "data": "fred_macro_panel@7dcce89c (TOTALSL, now billions in every vintage), monthly",
+      "protocol": {
+        "vintage_policy": "strict",
+        "window": "expanding",
+        "refit_every": 1,
+        "horizon": 1,
+        "train_end": "2004-12-31",
+        "validation_end": "2012-12-31",
+        "cutoff": "2024-12-31"
+      },
+      "rationale": "Same splits as v1; the only change is the corrected TOTALSL values.",
+      "supersedes": "credit_growth.fred_realtime"
+    },
+    {
+      "id": "labor_demand.fred_realtime_v2",
+      "kind": "component",
+      "target": "labor_demand",
+      "process_id": "coupled_economy",
+      "loader": {
+        "function": "observation_set"
+      },
+      "data": "fred_macro_panel@7dcce89c (PAYEMS, INDPRO across all index bases), monthly",
+      "protocol": {
+        "vintage_policy": "strict",
+        "window": "expanding",
+        "refit_every": 1,
+        "horizon": 1,
+        "train_end": "2004-12-31",
+        "validation_end": "2012-12-31",
+        "cutoff": "2024-12-31"
+      },
+      "rationale": "Same splits as v1. Base-agnostic selection: the source accepts whatever unit each vintage published and the requirement unit is applied as a label, with the published unit and base kept in attributes.published_unit/base_period. A point-in-time frame takes the latest vintage available at its cutoff for every period, and a vintage publishes its whole history on one base, so each frame is internally base-consistent and the estimator only reads within-frame ratios and growth rates.",
+      "supersedes": "labor_demand.fred_realtime"
+    },
+    {
+      "id": "energy_purchasing.fred_realtime_v2",
+      "kind": "component",
+      "target": "energy_purchasing",
+      "process_id": "coupled_economy",
+      "loader": {
+        "function": "observation_set"
+      },
+      "data": "fred_macro_panel@7dcce89c (RRSFS) + fred_oil_price@847b0f93 + fred_policy_rate@2a3197b9, monthly",
+      "protocol": {
+        "vintage_policy": "strict",
+        "window": "expanding",
+        "refit_every": 1,
+        "horizon": 1,
+        "train_end": "2012-12-31",
+        "validation_end": "2017-12-31",
+        "cutoff": "2024-12-31"
+      },
+      "rationale": "Same splits as v1; re-run only because RRSFS's unit token changed. Values are identical, so the verdict is expected to repeat.",
+      "supersedes": "energy_purchasing.fred_realtime"
+    },
+    {
+      "id": "monetary_model.fred_realtime_v2",
+      "kind": "family",
+      "target": "monetary",
+      "process_id": "monetary_model",
+      "loader": {
+        "function": "monetary_realtime_data",
+        "options": {
+          "start": "1995-01-01",
+          "end": "2024-10-01",
+          "inflation_target": 2.0,
+          "elb": 0.125
+        }
+      },
+      "data": "fred_macro_panel@7dcce89c (FEDFUNDS, GDPC1, GDPPOT) + fred_cpi@34fe03f5 (CPIAUCSL), quarterly first releases",
+      "protocol": {
+        "train_end": "2007-12-31",
+        "validation_end": "2014-12-31",
+        "cutoff": "2024-12-31",
+        "vintage_policy": "family_rows",
+        "refit_every": 4,
+        "horizon": 1
+      },
+      "rationale": "Same splits as v1. The output gap is now 100*(GDPC1/GDPPOT - 1) with both levels taken from the newest base on which both series had published by the target quarter's first release, and inflation uses one CPI base for both endpoints, so the trailing-mean workaround is gone and the gap is a true level (range -10.8% in 2020Q2 to +4.0%, against -9.7..+9.0 under the workaround and +22.5 before it).",
+      "supersedes": "monetary_model.fred_realtime_quarterly"
+    }
+  ],
+  "not_run": [
+    {
+      "id": "legislative_model.voteview",
+      "target": "legislative",
+      "reason": "compute_budget",
+      "note": "voteview_rollcalls publishes roll_call_member_positions for Congresses 110-119 (e.g. Senate 117: 949 roll calls), so the data exist. The ideal-point MAP refit at every holdout origin exceeds the declared 30-minute budget per attempt."
+    },
+    {
+      "id": "market_abm_model.alpaca",
+      "target": "market_abm",
+      "reason": "compute_budget",
+      "note": "Daily closes are available; the grid SMM fit at every window origin exceeds the declared budget."
+    }
+  ],
+  "blocked_on_data": "See worldmodel.estimation.loaders.availability(): BLOCKED_COMPONENTS and BLOCKED_FAMILIES name the exact missing series and the dataset that must publish them (chiefly fred_macro_panel, bls_labor, cepii_baci, freight, epa_aqs_daily and the MIT House returns file).",
+  "rerun": "python3 -m worldmodel calibrate-all   (add --attempt ID to rerun one attempt, --no-publish to skip artifact publication)",
+  "second_wave": "2026-09-15, after fred_cpi (full ALFRED vintages) and bls_labor (current vintage) were published: two further attempts were pre-registered below with their splits before any holdout was scored. fred_macro_panel had acquired but not published a normalized output, so GDPC1, GDPPOT, INDPRO, FEDFUNDS, TOTALSL, RRSFS, DPRIME, SNDR, DPSACBW027SBOG and DRCCLACBS were still unavailable.",
+  "third_wave": "2026-09-15, after fred_macro_panel published 7.57M records covering every required FRED series with full ALFRED vintages (realtime_start/realtime_end on every observation). Nine attempts below were pre-registered with their splits before any holdout was scored. Splits start inside each series vintage era, because under the strict policy nothing is visible before a series first entered ALFRED: DFF and DPRIME 2005-06, DPSACBW027SBOG 2012-08, DRCCLACBS 2011-05, RRSFS 2001-06, TOTALSL and FEDFUNDS 1996-12, GDPC1 1992-12, GDPPOT 1994-01, SNDR 2021-04. The two second-wave attempts that used substitute series are superseded but retained with their verdicts so the substitution history stays visible.",
+  "fourth_wave": "2026-09-15, after the chained-dollar base-year bug was fixed and fred_macro_panel and fred_cpi were rebuilt (panel 7dcce89c, cpi 34fe03f5). Every observation now carries attributes.source_units, a per-vintage unit_multiplier and base_period, and the unit token is per vintage. Two input defects were corrected: 189 of 849 panel series changed units across vintages (the old build labelled every vintage with one unit), and TOTALSL was published in billions for some vintages and millions for others, so 11,612 of its 13,537 values changed (e.g. 1998-03 1.3322 -> 1332.2). Five attempts are re-registered below with the SAME splits as their v1 counterparts so the two are comparable; the v1 verdicts are kept and marked contaminated. Verified value-identical between the two builds, so their verdicts stand without a rerun: DPRIME, DFF, SNDR, DRCCLACBS, UNRATE, DPSACBW027SBOG, PAYEMS, FEDFUNDS and RRSFS (RRSFS changed only its unit token)."
+}

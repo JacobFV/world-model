@@ -9,6 +9,10 @@ from copy import deepcopy
 from .processes import ProcessRegistry, _number
 
 ANNUAL_TIME_SECONDS = 31557600
+# Parameters (with defaults) reported as estimated or assumed in diagnostics['parameter_provenance'].
+PROCESS_PARAMETERS = {'resource_inventory': {'flow_scale': 1, 'unmeasured_net_flow': 0},
+                      'investment_cash_flow': {'cash_conversion': 1, 'unmeasured_net_cash_flow': 0},
+                      'population_growth': {'growth_rate_per_year': .01}}
 
 
 def _port(kind, unit=None):
@@ -20,6 +24,20 @@ def _handler(process_id, output_port, unit, fidelity, outputs):
         values = {name: item['value'] for name, item in inputs.items()}
         diagnostics = {'illustrative': True, 'validated': False,
                        'limitations': 'Uncalibrated illustrative mechanism; not an empirical forecast.'}
+        declared = dict(PROCESS_PARAMETERS.get(process_id, {}))
+        if fidelity == 'stochastic':
+            declared['noise_fraction'] = .1
+        if process_id == 'population_growth' and 'growth_rate' in parameters:
+            declared = {'growth_rate': None, **{k: v for k, v in declared.items() if k != 'growth_rate_per_year'}}
+        calibration = None
+        if parameters.get('calibration') is not None:
+            # Estimation hook: bind process parameters (maps_to names) from estimates or calibration records.
+            from .estimation.binding import apply_bindings, parameter_bindings
+            parameters, calibration = apply_bindings({k: v for k, v in parameters.items() if k != 'calibration'},
+                                                     parameter_bindings(parameters['calibration']), only=lambda path: path in declared)
+            diagnostics['calibration'] = calibration
+        from .estimation.binding import parameter_provenance
+        diagnostics['parameter_provenance'] = parameter_provenance({k: parameters.get(k, v) for k, v in declared.items()}, calibration)
         if fidelity == 'agent':
             request = {'process_id': process_id, 'entity_id': context.get('entity_id'),
                        'inputs': inputs, 'parameters': parameters, 'outputs': outputs,
@@ -46,10 +64,18 @@ def _handler(process_id, output_port, unit, fidelity, outputs):
             factor = max(0, rng.gauss(1, noise))
             diagnostics['stochastic_cadence_dependent'] = True
         mode = 'rate'
+        if parameters.get('estimate_id') is not None:
+            diagnostics['estimate_id'] = parameters['estimate_id']
         if process_id == 'resource_inventory':
-            value = (values['inflow'] - values['outflow']) * factor
+            # Estimation hooks (worldmodel.estimation inventory_balance): defaults reproduce the plain balance.
+            scale = _number(parameters.get('flow_scale', 1), 'flow_scale')
+            unmeasured = _number(parameters.get('unmeasured_net_flow', 0), 'unmeasured_net_flow')
+            value = (scale * (values['inflow'] - values['outflow']) + unmeasured) * factor
         elif process_id == 'investment_cash_flow':
-            value = (values['revenue'] - values['expenditure']) * factor
+            # Estimation hooks (worldmodel.estimation cash_balance).
+            conversion = _number(parameters.get('cash_conversion', 1), 'cash_conversion')
+            unmeasured = _number(parameters.get('unmeasured_net_cash_flow', 0), 'unmeasured_net_cash_flow')
+            value = (conversion * (values['revenue'] - values['expenditure']) + unmeasured) * factor
         elif process_id == 'population_growth':
             year = _number(parameters.get('annual_time_seconds', ANNUAL_TIME_SECONDS), 'annual_time_seconds', True)
             if year == 0:
@@ -118,4 +144,5 @@ def default_registry():
     register_coupled_economy_processes(registry)
     from .composition import register_composition_process
     register_composition_process(registry)
+    from .models import register_model_processes; register_model_processes(registry)
     return registry
