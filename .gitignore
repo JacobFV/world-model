@@ -27,3 +27,6 @@ docs/generated/
 # Defense in depth for newly created runtime datasets.
 data/*/artifacts/
 data/*/scratch/
+
+# Global acquisition budget ledger and locks
+data/.acquisition/

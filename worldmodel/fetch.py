@@ -9,14 +9,34 @@ from urllib.request import Request, urlopen
 from .util import hash_id
 
 
-def public_url(url):
+PRIVATE_QUERY_KEYS = frozenset({
+    'key', 'api_key', 'apikey', 'api-key', 'token', 'access_token', 'auth_token', 'signature', 'sig',
+    'userid', 'subscription-key', 'subscription_key', 'registrationkey', 'registration_key',
+    'x-api-key', 'client_secret', 'password', 'passwd', 'secret', 'session', 'authorization'})
+
+
+def public_url(url, extra_private=()):
     parts = urlsplit(url)
     if parts.username or parts.password:
         raise ValueError('Use request headers instead of credentials in URLs')
-    private = {'key', 'api_key', 'apikey', 'token', 'access_token', 'signature', 'userid'}
+    private = PRIVATE_QUERY_KEYS | {name.lower() for name in extra_private}
     query = [(key, '[REDACTED]' if key.lower() in private else value)
              for key, value in parse_qsl(parts.query, keep_blank_values=True)]
     return urlunsplit((parts.scheme, parts.netloc, parts.path, urlencode(query), ''))
+
+
+def public_body(value, extra_private=()):
+    """Recursively redact private keys (e.g. registrationkey, UserID, key) in a JSON request body."""
+    private = PRIVATE_QUERY_KEYS | {name.lower() for name in extra_private}
+
+    def walk(item):
+        if isinstance(item, dict):
+            return {key: '[REDACTED]' if isinstance(key, str) and key.lower() in private else walk(child)
+                    for key, child in item.items()}
+        if isinstance(item, list):
+            return [walk(child) for child in item]
+        return item
+    return walk(value)
 
 
 def fetch(store, dataset, url, source, *, allow_network=False, expected_sha256=None,

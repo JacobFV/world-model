@@ -16,7 +16,11 @@ def capture_code(project, entrypoint, dataset_root=None):
     if (project / 'worldmodel').resolve() != _PACKAGE_ROOT:
         raise ValueError('Project does not match loaded implementation')
     paths = list((project / 'worldmodel').rglob('*.py'))
-    paths += list((project / 'data').glob('*/dataset.json'))
+    # A dataset build already captures its own declaration through dataset_code (and the
+    # manifest's 'definition'), so the catalog-wide snapshot is redundant there. Including
+    # it made an unrelated dataset's edit abort a long build at publish time.
+    if dataset_root is None:
+        paths += list((project / 'data').glob('*/dataset.json'))
     paths += [p for p in (_PACKAGE_ROOT / '_resources').rglob('*') if p.is_file() and '__pycache__' not in p.parts and p.suffix not in ('.pyc', '.pyo')]
     paths += [project / name for name in ('pyproject.toml', 'uv.lock', 'requirements.txt', 'LICENSE', 'DATA_RIGHTS.md')
               if (project / name).is_file()]

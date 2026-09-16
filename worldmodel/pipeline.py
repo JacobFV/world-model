@@ -1,7 +1,8 @@
 """Audited external dataset DAGs and immutable, named local pipeline stages."""
-from contextlib import contextmanager
+from contextlib import ExitStack, contextmanager
 from dataclasses import dataclass, field
 from copy import deepcopy
+import gzip
 import importlib
 import importlib.abc
 import importlib.util
@@ -13,6 +14,7 @@ import sys
 import traceback
 import uuid
 import warnings
+from .catalog import DEFAULT_MAX_ROWS
 from .model import validate_record
 from .provenance import capture_code, verify_code_snapshot
 from .util import atomic_json, canonical, digest, file_hash, now, read_json
@@ -45,7 +47,42 @@ class Context:
         return self.store.records(self.stage_ref(stage))
 
     def raw_path(self, index=0):
-        return self.store.artifact_dir(self.raw_inputs[index]) / 'payload'
+        path = self.store.artifact_dir(self.raw_inputs[index]) / 'payload'
+        if not path.exists() and (path.parent / 'shards').is_dir():
+            raise ValueError('Raw input is a sharded acquisition; use raw_shards() or raw_rows()')
+        return path
+
+    def raw_receipt(self, index=0):
+        """Receipt of a raw input (content address checked; payloads were verified by the runner)."""
+        return self.store.receipt(self.raw_inputs[index])
+
+    def raw_coverage(self, index=0):
+        receipt = self.raw_receipt(index)
+        sampled = 'sampling' in (receipt.get('source') or {})
+        return {'layout': receipt.get('layout', 'payload'), 'sampled': sampled,
+                'complete': receipt.get('complete', not sampled), 'stop_reason': receipt.get('stop_reason'),
+                'shards': receipt.get('shard_count', 1), 'bytes': receipt['bytes']}
+
+    def raw_shards(self, index=0, role='data'):
+        """Yield shard descriptors: index, path, sha256, bytes, role, complete, request/url metadata."""
+        yield from self.store.raw_shards(self.raw_inputs[index], role=role)
+
+    def raw_rows(self, index=0, **reader):
+        """Stream ``(locator, row)`` over full raw data; see worldmodel.raw_readers.
+
+        Reader options default to the acquisition block's ``reader`` recorded in the receipt;
+        keyword arguments override them (e.g. ``format='csv'``, ``members=['*.txt']``).
+        """
+        from .raw_readers import iter_rows
+        receipt = self.raw_receipt(index)
+        source = receipt.get('source') or {}
+        config = dict((source.get('acquisition') or {}).get('reader') or {})
+        if 'sampling' in source and not config:
+            config = {'format': 'jsonl'}
+        config.update(reader)
+        if not config.get('format'):
+            raise ValueError('raw_rows needs a reader format: declare acquisition.reader or pass format=...')
+        yield from iter_rows(self.store.raw_shards(self.raw_inputs[index]), config)
 
     def raw_evidence(self, locator, index=0):
         return [{'input': deepcopy(self.raw_inputs[index]), 'locator': locator}]
@@ -216,7 +253,9 @@ class Runner:
                         atomic_json(run_path, attempt)
                         return ref
                 audit = sqlite3.connect(staging / 'validation.sqlite')
-                audit.executescript('CREATE TABLE ids (id TEXT PRIMARY KEY); CREATE TABLE inputs (ref TEXT,id TEXT,PRIMARY KEY(ref,id));')
+                # Disk-backed ID audit keeps memory bounded for very large stages.
+                audit.executescript('PRAGMA journal_mode=OFF; PRAGMA synchronous=OFF; PRAGMA cache_size=-65536;'
+                                    'CREATE TABLE ids (id TEXT PRIMARY KEY); CREATE TABLE inputs (ref TEXT,id TEXT,PRIMARY KEY(ref,id));')
                 if schema['format'] == 'evidence_jsonl':
                     for ref in all_inputs:
                         for record in self.store.records(ref):
@@ -226,11 +265,18 @@ class Runner:
                                   deepcopy(raw_inputs), deepcopy(stage_inputs))
                 allowed = {canonical(ref) for ref in all_inputs + raw_inputs}
                 count = 0
+                output_name = 'records.jsonl.gz' if schema.get('compression') == 'gzip' else 'records.jsonl'
+                row_limit = validation.get('max_rows', DEFAULT_MAX_ROWS)
                 loader = _local_transform(root, entrypoint, code['dataset_code']) if named else _legacy_transform(self.project, entrypoint)
-                with loader as transform, (staging / 'records.jsonl').open('wb') as stream:
+                with loader as transform, ExitStack() as streams:
+                    raw_stream = streams.enter_context((staging / output_name).open('wb'))
+                    stream = raw_stream
+                    if output_name.endswith('.gz'):
+                        # mtime=0 and no filename keep compressed bytes deterministic.
+                        stream = streams.enter_context(gzip.GzipFile(filename='', mode='wb', fileobj=raw_stream, mtime=0, compresslevel=6))
                     for record in transform(context):
                         count += 1
-                        if named and count > validation.get('max_rows', 100000): raise ValueError('Stage row limit exceeded')
+                        if named and count > row_limit: raise ValueError('Stage row limit exceeded')
                         _schema_row(record, schema)
                         if schema['format'] == 'evidence_jsonl':
                             try: audit.execute('INSERT INTO ids VALUES (?)', (record['id'],))
@@ -241,19 +287,20 @@ class Runner:
                                 if 'version' in ref and not audit.execute('SELECT 1 FROM inputs WHERE ref=? AND id=?', (digest(ref), evidence['record_id'])).fetchone():
                                     raise ValueError('Evidence references missing input record')
                         stream.write(canonical(record) + b'\n')
-                    stream.flush(); os.fsync(stream.fileno())
+                    if stream is not raw_stream: stream.close()
+                    raw_stream.flush(); os.fsync(raw_stream.fileno())
                 audit.close(); audit = None
                 (staging / 'validation.sqlite').unlink()
                 if not count and not validation.get('allow_empty', False): raise ValueError('Empty output; set allow_empty explicitly if intentional')
                 for ref in all_inputs: self.store.verify(ref)
                 for ref in raw_inputs: self.store.artifact(ref)
                 verify_code_snapshot(self.project, code, root)
-                output = staging / 'records.jsonl'
+                output = staging / output_name
                 from .rights import inherited_rights
                 identity = {'rights': inherited_rights(self.store, all_inputs, raw_inputs),
                             'schema_version': 2 if named else 1, 'dataset': dataset, 'definition': definition,
                             'code': code, 'parameters': parameters, 'inputs': all_inputs, 'raw_inputs': raw_inputs,
-                            'outputs': {'records.jsonl': {'sha256': file_hash(output), 'bytes': output.stat().st_size, 'rows': count}}}
+                            'outputs': {output_name: {'sha256': file_hash(output), 'bytes': output.stat().st_size, 'rows': count}}}
                 if named:
                     identity.update(stage=name, stage_definition=stage, operation_key=operation,
                                     retention=stage.get('retention', 'retain'))

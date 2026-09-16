@@ -14,6 +14,19 @@ def sampled_rows(context):
                 if line.strip():yield index,line_number,json.loads(line),receipt
 
 
+def full_rows(context, **reader):
+    """Yield (raw index, locator, row, receipt) over every raw input, sharded or not.
+
+    Streams CSV/TSV/pipe (plain, gzip, ZIP members), JSONL, JSON pages and XLSX
+    via worldmodel.raw_readers. Locators look like ``shard:3/member:a.csv/line:12``
+    and belong in ``context.raw_evidence(locator, index)``.
+    """
+    for index, _ in enumerate(context.raw_inputs):
+        receipt = context.raw_receipt(index)
+        for locator, row in context.raw_rows(index, **reader):
+            yield index, locator, row, receipt
+
+
 def number(value):
     result=float(str(value).replace(',',''))
     if not math.isfinite(result):raise ValueError('Nonfinite source quantity')

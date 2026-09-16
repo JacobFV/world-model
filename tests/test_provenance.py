@@ -22,3 +22,20 @@ class ProvenancePortabilityTests(unittest.TestCase):
             with patch('worldmodel.provenance._PACKAGE_ROOT',package), patch('worldmodel.provenance._LOADED_SOURCE_HASHES',{}):
                 code=capture_code(root,'worldmodel.example:run')
             self.assertEqual(list(code['sources']),['worldmodel/_resources/config.json'])
+
+
+class TargetDeclarationOnly(unittest.TestCase):
+    """A build snapshots its own declaration, not every other dataset's."""
+
+    def test_unrelated_declaration_edit_does_not_invalidate_a_build(self):
+        import json, tempfile
+        from pathlib import Path
+        from worldmodel.provenance import capture_code, verify_code_snapshot
+        project = Path(__file__).resolve().parents[1]
+        target = project / 'data' / 'demo_countries'
+        code = capture_code(project, 'pipeline.py:run', dataset_root=target)
+        # No catalog-wide declarations: the target's own dataset.json is in dataset_code,
+        # so an unrelated dataset's edit cannot abort this build at publish time.
+        self.assertEqual([n for n in code['files'] if n.startswith('data/')], [])
+        self.assertIn('dataset.json', code['dataset_code']['files'])
+        verify_code_snapshot(project, code, target)

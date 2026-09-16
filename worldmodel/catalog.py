@@ -5,6 +5,8 @@ from .util import read_json, slug
 
 
 _FIELD_TYPES = {'number', 'integer', 'string', 'boolean', 'object', 'array', 'null'}
+DEFAULT_MAX_ROWS = 100000
+MAX_ROWS_CEILING = 2_000_000_000
 
 
 def validate_stages(definition):
@@ -26,8 +28,10 @@ def validate_stages(definition):
             raise ValueError('Stage depends_on must contain distinct stage IDs')
         for parent in parents: slug(parent)
         schema = stage.get('schema')
-        if not isinstance(schema, dict) or set(schema) - {'format', 'required'} or schema.get('format') not in ('evidence_jsonl', 'jsonl'):
+        if not isinstance(schema, dict) or set(schema) - {'format', 'required', 'compression'} or schema.get('format') not in ('evidence_jsonl', 'jsonl'):
             raise ValueError('Stage schema requires evidence_jsonl or jsonl format')
+        if schema.get('compression', 'none') not in ('none', 'gzip'):
+            raise ValueError('Stage schema compression must be none or gzip')
         required = schema.get('required', {})
         if not isinstance(required, dict) or len(required) > 100 or any(not isinstance(k, str) or not k or not isinstance(v, str) or v not in _FIELD_TYPES for k, v in required.items()):
             raise ValueError('Invalid stage required field types')
@@ -36,9 +40,9 @@ def validate_stages(definition):
             raise ValueError('Unknown stage validation fields')
         if type(validation.get('allow_empty', False)) is not bool:
             raise ValueError('Stage allow_empty must be boolean')
-        limit = validation.get('max_rows', 100000)
-        if type(limit) is not int or not 1 <= limit <= 1000000:
-            raise ValueError('Stage max_rows must be in 1..1000000')
+        limit = validation.get('max_rows', DEFAULT_MAX_ROWS)
+        if type(limit) is not int or not 1 <= limit <= MAX_ROWS_CEILING:
+            raise ValueError(f'Stage max_rows must be in 1..{MAX_ROWS_CEILING}')
         if stage.get('cache', 'content') not in ('content', 'off'):
             raise ValueError('Invalid stage cache policy')
         if stage.get('retention', 'retain') not in ('retain', 'rebuildable'):
