@@ -11,6 +11,7 @@ from pathlib import Path
 
 from .checkpoints import CheckpointEvaluator, _json_native
 from .execution_journal import ExecutionJournal, EffectUnresolved, _name, _integer
+from .limits import resolve_limits
 from .util import canonical, digest, read_json
 
 
@@ -78,7 +79,7 @@ class JournaledEnvironment:
         if len(session)>100 or type(seed) is not int:raise ValueError('Bounded session ID and integer seed required')
         self.env=env;self.evaluate=env.evaluate;self.journal=journal;self.session=session;self.seed=seed
         self.spec=env.spec;self.stream='episode:'+session;self.quota_name=self.stream;self._capability=object();self._usable=True
-        self.limit=self.evaluate.max_total_calls if max_process_calls is None else _integer(max_process_calls,100000,zero=True)
+        self.limit=self.evaluate.max_total_calls if max_process_calls is None else _integer(max_process_calls,resolve_limits().materialize_max_calls,zero=True)
         self.binding={'evaluator_identity':self.evaluate.identity,'graph':self.evaluate.graph_ref,
                       'request':self.evaluate.request,'environment':self.spec,'seed':seed,'quota':self.limit}
         _json_native(self.binding);self.identity=digest(self.binding)
@@ -224,7 +225,7 @@ class JournaledEnvironment:
 
     def step(self,actions,*,action_id):
         _name(action_id);_json_native(actions)
-        if len(canonical(actions))>65536:raise ValueError('Action exceeds 64 KiB')
+        resolve_limits().check('environment_max_action_bytes',len(canonical(actions)),'Action exceeds limit')
         if not self._usable:raise ValueError('Session unusable; explicit resume/reconciliation required')
         row,prior=self._action(action_id)
         if prior and prior['status']=='completed':

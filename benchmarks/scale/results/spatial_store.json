@@ -1,0 +1,87 @@
+{
+  "machine": {
+    "platform": "Linux-6.17.0-1026-nvidia-aarch64-with-glibc2.39",
+    "machine": "aarch64",
+    "python": "3.12.3",
+    "cpus": 20,
+    "memory_bytes": 130596077568,
+    "numpy": "2.5.3"
+  },
+  "results": [
+    {
+      "kernel": "spatial_store",
+      "size": "small",
+      "backend": "numpy",
+      "params": {
+        "cells": 100000
+      },
+      "wall_seconds": 5.0,
+      "kernel_seconds": 4.137,
+      "setup_seconds": 0.298,
+      "peak_rss_bytes": 245596160,
+      "units": 100000,
+      "unit": "cells (import+load+write)",
+      "throughput_per_second": 24170.636111347427,
+      "details": {
+        "initialize_seconds": 2.234,
+        "load_arrays_seconds": 0.955,
+        "put_value_arrays_seconds": 0.948,
+        "select_10k_seconds": 0.219,
+        "select_boundary_edges": 317,
+        "database_bytes": 77611008,
+        "edges": 199367
+      },
+      "status": "ok"
+    },
+    {
+      "kernel": "spatial_store",
+      "size": "medium",
+      "backend": "numpy",
+      "params": {
+        "cells": 1000000
+      },
+      "wall_seconds": 55.769,
+      "kernel_seconds": 51.53,
+      "setup_seconds": 2.762,
+      "peak_rss_bytes": 1684709376,
+      "units": 1000000,
+      "unit": "cells (import+load+write)",
+      "throughput_per_second": 19406.14511345492,
+      "details": {
+        "initialize_seconds": 33.115,
+        "load_arrays_seconds": 6.47,
+        "put_value_arrays_seconds": 11.945,
+        "select_10k_seconds": 0.579,
+        "select_boundary_edges": 1000,
+        "database_bytes": 789819392,
+        "edges": 1998000
+      },
+      "status": "ok"
+    },
+    {
+      "kernel": "spatial_store",
+      "size": "large",
+      "backend": "numpy",
+      "params": {
+        "cells": 5000000
+      },
+      "wall_seconds": 380.53,
+      "kernel_seconds": 359.752,
+      "setup_seconds": 15.473,
+      "peak_rss_bytes": 8252309504,
+      "units": 5000000,
+      "unit": "cells (import+load+write)",
+      "throughput_per_second": 13898.469691141492,
+      "details": {
+        "initialize_seconds": 237.083,
+        "load_arrays_seconds": 48.824,
+        "put_value_arrays_seconds": 73.844,
+        "select_10k_seconds": 1.448,
+        "select_boundary_edges": 2237,
+        "database_bytes": 4039532544,
+        "edges": 9995527
+      },
+      "status": "ok"
+    }
+  ]
+}

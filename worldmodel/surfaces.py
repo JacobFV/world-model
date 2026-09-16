@@ -5,21 +5,24 @@ render_surface(data, spec) returns HTML; it never writes files. ``data`` has
 ``panels``. Panels have kind=value/table/plot/map/graph and optional title.
 Value/table/plot selectors: entity, variable, path (list of object keys/list
 indices). Selection preserves input order; value displays the last selected row.
-Table/plot limit defaults to 100 (1..500); omitted rows are counted explicitly.
+Table/plot limit defaults to 100 (1..surface_max_panel_rows); omitted rows are counted explicitly.
 Plots require one entity/variable/unit series and numeric or ISO date times.
 Observation records use metric, valid_from/observed_at, and entity/subject or
 ``dimensions[entity_dimension]`` (default geo); metadata includes their record id.
 Maps select latitude/longitude variables (defaults literal latitude/longitude),
 optional entity, and pair coordinates at identical entity/time; degree units
 are mandatory; identical coordinate sources merge with their provenance intact,
-and conflicting coordinates fail. Map limit is 1..500. Graph coalesces compatible
-entity descriptions and uses object-valued assertions; limit is 1..200 nodes,
-with at most 500 edge reference rows (visible edges first). Optional ``seeds``
+and conflicting coordinates fail. Map limit is 1..surface_max_panel_rows. Graph coalesces
+compatible entity descriptions and uses object-valued assertions; limit is
+1..surface_max_graph_nodes nodes, with ``edge_limit`` (default 500, at most
+surface_max_graph_edges) edge reference rows (visible edges first). Optional ``seeds``
 is a nonempty list of existing entity IDs for deterministic undirected BFS;
 only reachable nodes are selected. Without seeds, IDs are sorted. Missing
 and excluded endpoints are explicitly reported; positions are abstract.
-Hard bounds: 100,000 input rows, 20,000 characters per displayed field, and
-8 MB final HTML. Oversized fields/documents are rejected, never silently clipped.
+Hard bounds are named limits: surface_max_rows input rows, surface_max_field_chars
+characters per displayed field and surface_max_html_bytes of final HTML (see
+worldmodel.limits; pass ``limits={...}``). Oversized fields/documents are
+rejected with LimitExceeded, never silently clipped.
 All labels, values and provenance are escaped. Static mode has no scripts;
 interactive=True adds local DOM controls with no remote assets.
 """
@@ -30,8 +33,7 @@ from html import escape
 import json
 import math
 
-
-_MAX_ROWS = 100_000
+from .limits import current_limits, resolve_limits, use_limits
 
 
 def _text(value):
@@ -39,8 +41,7 @@ def _text(value):
         result = value
     else:
         result = json.dumps(value, ensure_ascii=False, sort_keys=True, allow_nan=False)
-    if len(result) > 20_000:
-        raise ValueError('surface field exceeds 20000 characters')
+    current_limits().check('surface_max_field_chars', len(result), 'surface field exceeds displayed character bound')
     return escape(result, quote=True)
 
 
@@ -64,11 +65,22 @@ def _time(value):
         raise ValueError('plot time must be numeric or ISO date') from error
 
 
-def _limit(panel, maximum=500):
+def _limit(panel, graph=False):
+    limits = current_limits()
+    name = 'surface_max_graph_nodes' if graph else 'surface_max_panel_rows'
+    maximum = getattr(limits, name)
     limit = panel.get('limit', min(100, maximum))
-    if type(limit) is not int or not 1 <= limit <= maximum:
+    if type(limit) is not int or limit < 1:
         raise ValueError(f'panel limit must be an integer from 1 to {maximum}')
-    return limit
+    return limits.check(name, limit, 'panel limit')
+
+
+def _edge_limit(panel):
+    limits = current_limits()
+    value = panel.get('edge_limit', min(500, limits.surface_max_graph_edges))
+    if type(value) is not int or value < 0:
+        raise ValueError('graph edge_limit must be a nonnegative integer')
+    return limits.check('surface_max_graph_edges', value, 'graph edge_limit')
 
 
 def _notice(count, noun='rows'):
@@ -271,8 +283,9 @@ def _graph(records, limit, panel):
                        210 + 150 * math.sin(2 * math.pi * i / max(1, len(keys))))
                  for i, key in enumerate(keys)}
     edges.sort(key=lambda edge: not (edge['subject'] in positions and edge['object'] in positions))
+    edge_limit = _edge_limit(panel)
     body, references = '', []
-    for edge in edges[:500]:
+    for edge in edges[:edge_limit]:
         source, target = edge.get('subject'), edge.get('object')
         if not isinstance(source, str) or not isinstance(target, str):
             raise ValueError('graph edge endpoints must be identifiers')
@@ -291,19 +304,25 @@ def _graph(records, limit, panel):
         x, y = positions[key]
         body += f'<circle cx="{x:.3f}" cy="{y:.3f}" r="6" fill="#2563eb"/>'
         body += f'<text x="{x + 9:.3f}" y="{y:.3f}">{_text(nodes[key]["labels"])}</text>'
-    return '<p>Abstract topology layout; not geographic. Node omissions include selection and node limits.</p>' + _svg(body) + _notice(len(nodes) - len(keys), 'nodes') + _notice(max(0, len(edges) - 500), 'edge references') + _details('Node provenance', '<ul>' + ''.join('<li>' + _text(nodes[k]) + '</li>' for k in keys) + '</ul>') + _details('Edge references', '<ul>' + ''.join(references) + '</ul>')
+    return '<p>Abstract topology layout; not geographic. Node omissions include selection and node limits.</p>' + _svg(body) + _notice(len(nodes) - len(keys), 'nodes') + _notice(max(0, len(edges) - edge_limit), 'edge references') + _details('Node provenance', '<ul>' + ''.join('<li>' + _text(nodes[k]) + '</li>' for k in keys) + '</ul>') + _details('Edge references', '<ul>' + ''.join(references) + '</ul>')
 
 
-def render_surface(data, spec):
+def render_surface(data, spec, *, limits=None):
     """Render a validated, bounded declarative surface as a standalone HTML string."""
+    with use_limits(resolve_limits(limits)):
+        return _render(data, spec)
+
+
+def _render(data, spec):
+    limits = current_limits()
     if not isinstance(data, dict) or not isinstance(spec, dict):
         raise ValueError('surface data and specification must be objects')
     for field in ('snapshots', 'records'):
         rows = data.get(field, [])
-        if not isinstance(rows, list) or len(rows) > _MAX_ROWS or any(not isinstance(r, dict) for r in rows):
-            raise ValueError(f'{field} must be a list of at most {_MAX_ROWS} objects')
-    if sum(len(data.get(f, [])) for f in ('snapshots', 'records')) > _MAX_ROWS:
-        raise ValueError('surface input exceeds row bound')
+        if not isinstance(rows, list) or any(not isinstance(r, dict) for r in rows):
+            raise ValueError(f'{field} must be a list of at most {limits.surface_max_rows} objects')
+        limits.check('surface_max_rows', len(rows), f'{field} must be a list of at most {limits.surface_max_rows} objects')
+    limits.check('surface_max_rows', sum(len(data.get(f, [])) for f in ('snapshots', 'records')), 'surface input exceeds row bound')
     if 'interactive' in spec and type(spec['interactive']) is not bool:
         raise ValueError('interactive must be boolean')
     panels = spec.get('panels')
@@ -315,7 +334,7 @@ def render_surface(data, spec):
         if not isinstance(panel, dict):
             raise ValueError('panel must be an object')
         kind = panel.get('kind')
-        limit = _limit(panel, 200 if kind == 'graph' else 500)
+        limit = _limit(panel, kind == 'graph')
         if kind == 'spatial' or (kind == 'graph' and panel.get('source') == 'spatial'):
             if not spec.get('interactive') or not data.get('spatial_frames'):
                 raise ValueError('Spatial panels require interactive explicit frames')
@@ -338,6 +357,5 @@ def render_surface(data, spec):
     if spec.get('interactive'):
         from .interactive_surfaces import enhance
         html = enhance(html, data, spec)
-    if len(html.encode('utf-8')) > 8_000_000:
-        raise ValueError('surface output exceeds 8 MB bound')
+    limits.check('surface_max_html_bytes', len(html.encode('utf-8')), 'surface output exceeds HTML byte bound')
     return html

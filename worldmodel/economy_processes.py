@@ -1,21 +1,24 @@
 """Daily economy adapter. Replay makes state transparent and reproducible."""
 from copy import deepcopy
-from .economy import simulate_economy
+from .economy import simulate_economy, parameter_provenance
+from .limits import resolve_limits
 
 
-def estimate_process_work(state, calls):
+def estimate_process_work(state, calls, *, limits=None):
     """Preflight replay effort, including all days recomputed by every call."""
+    limits = resolve_limits(limits)
     step = state.get('step', 0)
     if any(isinstance(v, bool) or not isinstance(v, int) or v < 0 for v in (step, calls)):
         raise ValueError('Replay step and calls must be nonnegative integers')
     firms = state['config']['businesses']
-    if not isinstance(firms, list) or not 1 <= len(firms) <= 1000:
-        raise ValueError('Replay requires 1..1000 businesses')
+    if not isinstance(firms, list) or not firms:
+        raise ValueError('Replay requires at least one business')
+    limits.check('economy_max_businesses', len(firms), 'Replay requires a bounded number of businesses')
     work = len(firms) * (calls * step + calls * (calls + 1) // 2)
     cumulative = len(firms) * (step + calls) * (step + calls + 1) // 2
-    if step + calls > 10000 or cumulative > 100000:
-        raise ValueError('Economy cumulative replay work exceeds 100000 firm-days or 10000 days')
-    return {'firm_days': work, 'cumulative_firm_days': cumulative, 'max_firm_days': 100000}
+    limits.check('economy_max_days', step + calls, 'Economy cumulative replay days')
+    limits.check('economy_max_replay_firm_days', cumulative, 'Economy cumulative replay work exceeds firm-days')
+    return {'firm_days': work, 'cumulative_firm_days': cumulative, 'max_firm_days': limits.economy_max_replay_firm_days}
 
 
 def _predict(inputs, parameters, context):
@@ -28,13 +31,15 @@ def _predict(inputs, parameters, context):
         raise ValueError('economy_state.step must be a nonnegative integer')
     config = deepcopy(state['config'])
     config['days'] = step + 1
-    result = simulate_economy(config)
+    result = simulate_economy(config, calibration=parameters.get('calibration'))
     value = {'config': state['config'], 'step': step + 1, 'snapshot': result['snapshots'][-1]}
+    provenance = result.get('parameter_provenance') or parameter_provenance(config)
     return {'pressures': [{'port': 'economy_state', 'mode': 'set', 'value': value,
                           'strength': 1, 'confidence': 1, 'unit': None}],
             'events': [event for event in result['events'] if event['step'] == step + 1],
             'diagnostics': {'illustrative': True, 'validated': False, 'accounting': result['accounting'],
-                            'replay_days': step + 1, 'work': work,
+                            'replay_days': step + 1, 'work': work, 'parameter_provenance': provenance,
+                            **({'calibration': result['calibration']} if 'calibration' in result else {}),
                             'limitation': 'Replays explicit initial config; snapshot is derived, not an editable state override.'}}
 
 
@@ -48,6 +53,6 @@ def register_economy_processes(registry):
         'fidelity': 'deterministic', 'min_step_seconds': 86400, 'max_step_seconds': 86400,
         'cost_per_call': 1, 'output_timing': 'end_of_step',
         'work_estimator': 'worldmodel.economy_processes:estimate_process_work', 'work_input': 'economy_state',
-        'max_work': 100000, 'work_unit': 'firm_days',
-        'description': 'One daily transition replayed from initial scenario; cumulative replay bounded to 100000 firm-days.'}, _predict)
+        'max_work': resolve_limits().economy_max_replay_firm_days, 'work_unit': 'firm_days',
+        'description': 'One daily transition replayed from initial scenario; cumulative replay bounded by limit economy_max_replay_firm_days.'}, _predict)
     return registry

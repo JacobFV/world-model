@@ -5,6 +5,7 @@ than resolved by record order. Mergers end predecessors and create a declared su
 """
 from copy import deepcopy
 import math
+from .limits import resolve_limits
 from .model import identifier, instant
 from .ontology import is_a
 from .util import canonical, digest
@@ -15,11 +16,14 @@ def _number(value,name):
     if type(value) not in (float,int) or not math.isfinite(value):raise ValueError(name+' must be finite numeric')
     return value
 
-def materialize_lifecycle(config, at, known_at):
+def materialize_lifecycle(config, at, known_at, *, limits=None):
+    """Reconstruct actor states; sizes bounded by lifecycle_max_entities/lifecycle_max_events."""
+    limits=resolve_limits(limits)
     canonical(config)
     if set(config)-{'entities','events','conserve_size','description'}:raise ValueError('Unknown lifecycle config field')
     if not isinstance(config.get('entities'),list) or not isinstance(config.get('events'),list):raise ValueError('entities/events must be lists')
-    if len(config['entities'])>10000 or len(config['events'])>100000:raise ValueError('Lifecycle budget exceeded')
+    limits.check('lifecycle_max_entities',len(config['entities']),'Lifecycle budget exceeded: entities')
+    limits.check('lifecycle_max_events',len(config['events']),'Lifecycle budget exceeded: events')
     if type(config.get('conserve_size',True)) is not bool:raise ValueError('conserve_size must be boolean')
     at_time,known_time=instant(at),instant(known_at)
     states={}

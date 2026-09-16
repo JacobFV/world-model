@@ -1,6 +1,13 @@
-"""Declared, bounded structured spaces; stdlib core and optional Gymnasium mapping."""
+"""Declared, bounded structured spaces; stdlib core and optional Gymnasium mapping.
+
+Size ceilings are named limits (spaces_max_choices, spaces_max_length,
+spaces_max_channels, spaces_max_properties, spaces_max_schema_bytes); raise them
+with ``StructuredSpace(schema, limits={...})``. Nesting depth 12 is a structural
+rule, not a scale limit.
+"""
 from copy import deepcopy
 import math
+from .limits import resolve_limits
 from .util import canonical, digest
 
 
@@ -9,7 +16,8 @@ def _finite(value):
     return value
 
 
-def _normalize(schema, depth=0):
+def _normalize(schema, depth=0, limits=None):
+    limits = resolve_limits(limits)
     if not isinstance(schema, dict) or depth > 12: raise ValueError('Schema must be an object with depth at most 12')
     kind = schema.get('type')
     if not isinstance(kind, str): raise ValueError('Schema type must be a string')
@@ -30,46 +38,49 @@ def _normalize(schema, depth=0):
         if kind != 'vector': node.update(minimum=low, maximum=high)
     if kind == 'categorical':
         choices = schema.get('choices')
-        if not isinstance(choices, list) or not 1 <= len(choices) <= 1000 or any(type(c) not in (str, int, float, bool) for c in choices):
-            raise ValueError('Categorical choices require 1..1000 explicit scalar values')
+        if not isinstance(choices, list) or not choices or any(type(c) not in (str, int, float, bool) for c in choices):
+            raise ValueError(f'Categorical choices require 1..{limits.spaces_max_choices} explicit scalar values')
+        limits.check('spaces_max_choices', len(choices), 'Categorical choices')
         encoded = [canonical(c) for c in choices]
         if len(set(encoded)) != len(encoded): raise ValueError('Duplicate categorical choices')
         node['choices'] = deepcopy(choices)
     if kind == 'object':
         props = schema.get('properties')
-        if not isinstance(props, dict) or not 1 <= len(props) <= 100 or any(not isinstance(k, str) or not k for k in props):
+        if not isinstance(props, dict) or not props or any(not isinstance(k, str) or not k for k in props):
             raise ValueError('Object schema requires explicit nonempty properties')
-        node['properties'] = {k: _normalize(props[k], depth + 1) for k in sorted(props)}
+        limits.check('spaces_max_properties', len(props), 'Object schema properties')
+        node['properties'] = {k: _normalize(props[k], depth + 1, limits) for k in sorted(props)}
     if kind in ('array', 'vector'):
         length = schema.get('length')
-        if type(length) is not int or not 1 <= length <= 1000: raise ValueError('Array/vector requires length in 1..1000')
+        if type(length) is not int or length < 1: raise ValueError(f'Array/vector requires length in 1..{limits.spaces_max_length}')
+        limits.check('spaces_max_length', length, 'Array/vector length')
         node.update(length=length, items=_normalize(schema.get('items') if kind == 'array' else
-                    {'type': 'number', 'minimum': low, 'maximum': high, 'unit': schema.get('unit')}, depth + 1))
+                    {'type': 'number', 'minimum': low, 'maximum': high, 'unit': schema.get('unit')}, depth + 1, limits))
     return node
 
 
-def _size(node):
+def _size(node, limits=None):
     kind = node['type']
-    if kind == 'object': count = sum(_size(child) for child in node['properties'].values())
-    elif kind in ('array', 'vector'): count = node['length'] * _size(node['items'])
+    if kind == 'object': count = sum(_size(child, limits) for child in node['properties'].values())
+    elif kind in ('array', 'vector'): count = node['length'] * _size(node['items'], limits)
     else: count = 1
     count += int(node['nullable'])
-    if count > 4096: raise ValueError('Structured space exceeds 4096 flattened channels')
+    if limits is not None: limits.check('spaces_max_channels', count, 'Structured space exceeds flattened channels')
     return count
 
 
-def _layout(node, path=()):
+def _layout(node, path=(), limits=None):
     rows = []
     if node['nullable']: rows.append({'path': list(path), 'kind': 'mask', 'unit': None, 'minimum': 0, 'maximum': 1})
     kind = node['type']
     if kind == 'object':
-        for key, child in node['properties'].items(): rows += _layout(child, path + (key,))
+        for key, child in node['properties'].items(): rows += _layout(child, path + (key,), limits)
     elif kind in ('array', 'vector'):
-        for i in range(node['length']): rows += _layout(node['items'], path + (i,))
+        for i in range(node['length']): rows += _layout(node['items'], path + (i,), limits)
     else:
         bounds = (node['minimum'], node['maximum']) if kind in ('number', 'integer') else (0, 1 if kind == 'boolean' else len(node['choices']) - 1)
         rows.append({'path': list(path), 'kind': kind, 'unit': node['unit'], 'minimum': bounds[0], 'maximum': bounds[1]})
-    if len(rows) > 4096: raise ValueError('Structured space exceeds 4096 flattened channels')
+    if limits is not None: limits.check('spaces_max_channels', len(rows), 'Structured space exceeds flattened channels')
     return rows
 
 
@@ -93,7 +104,7 @@ def _validate(node, value):
 
 def _flatten(node, value):
     if node['nullable']:
-        if value is None: return [0] * len(_layout(node))
+        if value is None: return [0] * _size(node)
         return [1] + _flatten({**node, 'nullable': False}, value)
     kind = node['type']
     if kind == 'object': return [x for k, child in node['properties'].items() for x in _flatten(child, value[k])]
@@ -108,7 +119,7 @@ def _unflatten(node, values, offset):
         mask = values[offset]
         if mask not in (0, 1): raise ValueError('Mask must be zero or one')
         if mask == 0:
-            end = offset + len(_layout(node))
+            end = offset + _size(node)
             if any(value != 0 for value in values[offset + 1:end]): raise ValueError('Masked payload must be canonical zeros')
             return None, end
         return _unflatten({**node, 'nullable': False}, values, offset + 1)
@@ -185,11 +196,12 @@ def _gym_value(node, value, np, encode):
 
 
 class StructuredSpace:
-    def __init__(self, schema):
-        if len(canonical(schema)) > 1048576: raise ValueError('Schema exceeds 1 MiB')
-        self._schema = _normalize(schema)
-        _size(self._schema)
-        self._layout = _layout(self._schema)
+    def __init__(self, schema, *, limits=None):
+        limits = resolve_limits(limits)
+        limits.check('spaces_max_schema_bytes', len(canonical(schema)), 'Schema exceeds byte bound')
+        self._schema = _normalize(schema, 0, limits)
+        _size(self._schema, limits)
+        self._layout = _layout(self._schema, (), limits)
         self.schema_hash = digest(self._schema)
 
     def declaration(self):
@@ -219,9 +231,9 @@ class StructuredSpace:
         return self.validate(_gym_value(self._schema, value, np, False))
 
 
-def structured_gymnasium_adapter(env, action_schema, observation_schema):
+def structured_gymnasium_adapter(env, action_schema, observation_schema, *, limits=None):
     """Optional adapter for explicit schemas, including categorical/masked values."""
-    actions, observations = StructuredSpace(action_schema), StructuredSpace(observation_schema)
+    actions, observations = StructuredSpace(action_schema, limits=limits), StructuredSpace(observation_schema, limits=limits)
     gym, _ = _deps()
     class Adapter(gym.Env):
         metadata = {'render_modes': []}

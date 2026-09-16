@@ -1,4 +1,13 @@
-"""Bounded multimodal itinerary planning; plans never establish actual travel."""
+"""Bounded multimodal itinerary planning; plans never establish actual travel.
+
+Scale: ``compile_network(network)`` validates a network once (edge ids, endpoints,
+durations, parsed departures/windows/validity, and an index of transfer rules by
+node and mode pair) into per-source adjacency lists. ``route`` accepts either the
+compiled network or the original dict (compiled on the fly), with identical
+search order and results. Size ceilings are the named limits transport_max_nodes,
+transport_max_edges, transport_max_search_labels, transport_max_transfers,
+transport_max_windows and transport_max_departures (worldmodel.limits).
+"""
 from __future__ import annotations
 
 import bisect
@@ -6,6 +15,8 @@ import copy
 import heapq
 import math
 from datetime import datetime, timezone, timedelta
+
+from .limits import LimitExceeded, resolve_limits
 
 MODES = {'road', 'walk', 'air', 'sea', 'rail', 'transfer'}
 
@@ -103,20 +114,126 @@ def network_from_osm(elements, speed_kph=30):
                             'OSM IDs identify source features; retain the raw artifact separately for immutable provenance.']}
 
 
-def route(network, request):
+class _Edge:
+    """Validated scalar view of one source edge; the source dict supplies evidence."""
+    __slots__ = ('edge', 'id', 'source', 'target', 'mode', 'cost', 'nominal', 'upper', 'interval',
+                 'departures', 'closures', 'capacity_windows', 'valid_from', 'valid_to', 'capacity', 'closed')
+
+
+class CompiledNetwork:
+    """Validated network reusable across route requests; do not mutate the source afterwards.
+
+    Scalars are captured at compile time; evidence and vehicle IDs are deep-copied
+    from the source edges only when a route result is produced.
+    """
+    def __init__(self, nodes, adjacency, edge_ids, transfers, geographic_bounds, edge_count):
+        self.nodes = nodes
+        self.adjacency = adjacency
+        self.edge_ids = edge_ids
+        self.transfers = transfers
+        self.geographic_bounds = geographic_bounds
+        self.node_count = len(nodes)
+        self.edge_count = edge_count
+
+
+def compile_network(network, *, limits=None):
+    """Validate a network dict once into per-source adjacency lists and a transfer index."""
+    limits = resolve_limits(limits)
+    if len(network['nodes']) > limits.transport_max_nodes:
+        raise LimitExceeded('transport_max_nodes', len(network['nodes']), limits.transport_max_nodes, 'Network size budget exceeded: nodes')
+    if len(network['edges']) > limits.transport_max_edges:
+        raise LimitExceeded('transport_max_edges', len(network['edges']), limits.transport_max_edges, 'Network size budget exceeded: edges')
+    node_ids = [n['id'] for n in network['nodes']]
+    if any(not isinstance(x, str) or not x for x in node_ids) or len(set(node_ids)) != len(node_ids):
+        raise ValueError('Network node IDs must be unique nonempty strings')
+    nodes = set(node_ids)
+    if 'geographic_bounds' in network:
+        bounds = network['geographic_bounds']
+        if not isinstance(bounds, list) or len(bounds) != 4 or any(type(v) not in (int, float) or not math.isfinite(v) for v in bounds): raise ValueError('Invalid geographic bounds')
+        west, south, east, north = bounds
+        if not -180 <= west < east <= 180 or not -90 <= south < north <= 90: raise ValueError('Invalid geographic bounds')
+        for node in network['nodes']:
+            if not all(type(node.get(k)) in (int, float) and math.isfinite(node[k]) for k in ('lat', 'lon')) or not (south <= node['lat'] <= north and west <= node['lon'] <= east): raise ValueError('Node outside explicit geographic bounds or missing coordinates')
+    transfers = network.get('transfers')
+    index = None
+    if transfers is not None:
+        if not isinstance(transfers, list): raise ValueError('Transfer budget exceeded')
+        limits.check('transport_max_transfers', len(transfers), 'Transfer budget exceeded')
+        index = {}
+        for rule in transfers:
+            if set(rule) != {'node', 'from_mode', 'to_mode', 'minimum_seconds', 'valid_from', 'valid_to'} or rule['node'] not in nodes or rule['from_mode'] not in MODES or rule['to_mode'] not in MODES: raise ValueError('Invalid dated transfer')
+            _number(rule['minimum_seconds'], 'minimum_seconds')
+            valid_from, valid_to = _time(rule['valid_from']), _time(rule['valid_to'])
+            if valid_from >= valid_to: raise ValueError('Invalid transfer interval')
+            index.setdefault((rule['node'], rule['from_mode'], rule['to_mode']), []).append(
+                (valid_from, valid_to, timedelta(seconds=rule['minimum_seconds'])))
+    adjacency = {}
+    edge_ids = set()
+    for edge in network['edges']:
+        if not isinstance(edge['id'], str) or not edge['id'] or edge['id'] in edge_ids:
+            raise ValueError('Edge IDs must be unique nonempty strings')
+        edge_ids.add(edge['id'])
+        if edge['source'] not in nodes or edge['target'] not in nodes or edge['mode'] not in MODES:
+            raise ValueError('Invalid edge endpoint or mode')
+        _number(edge['duration_seconds'], 'duration_seconds')
+        _number(edge['cost'], 'cost')
+        interval = copy.deepcopy(edge['duration_range_seconds']) if 'duration_range_seconds' in edge else [edge['duration_seconds'], edge['duration_seconds']]
+        if not isinstance(interval, list) or len(interval) != 2: raise ValueError('Duration range requires two bounds')
+        for x in interval: _number(x, 'duration range')
+        if not interval[0] <= edge['duration_seconds'] <= interval[1]: raise ValueError('Nominal duration must lie within uncertainty bounds')
+        record = _Edge()
+        record.edge, record.id, record.source, record.target, record.mode = edge, edge['id'], edge['source'], edge['target'], edge['mode']
+        record.cost, record.nominal, record.upper, record.interval = edge['cost'], edge['duration_seconds'], interval[1], interval
+        if ('valid_from' in edge) != ('valid_to' in edge): raise ValueError('Edge validity requires both bounds')
+        record.valid_from = record.valid_to = None
+        if 'valid_from' in edge:
+            record.valid_from, record.valid_to = _time(edge['valid_from']), _time(edge['valid_to'])
+            if record.valid_from >= record.valid_to: raise ValueError('Invalid edge interval')
+        parsed = {}
+        for kind in ('closures', 'capacity_windows'):
+            windows = edge.get(kind, [])
+            if not isinstance(windows, list): raise ValueError('Window budget exceeded')
+            limits.check('transport_max_windows', len(windows), 'Window budget exceeded')
+            parsed[kind] = []
+            for window in windows:
+                if set(window) != ({'valid_from', 'valid_to', 'capacity'} if kind == 'capacity_windows' else {'valid_from', 'valid_to'}): raise ValueError('Invalid edge window')
+                start, finish = _time(window['valid_from']), _time(window['valid_to'])
+                if start >= finish: raise ValueError('Invalid edge window interval')
+                if kind == 'capacity_windows':
+                    _number(window['capacity'], 'capacity')
+                    parsed[kind].append((start, finish, window['capacity']))
+                else:
+                    parsed[kind].append((start, finish))
+        record.closures, record.capacity_windows = parsed['closures'], parsed['capacity_windows']
+        record.capacity = None
+        if 'capacity' in edge:
+            record.capacity = _number(edge['capacity'], 'capacity')
+        record.departures = None
+        if 'departures' in edge:
+            limits.check('transport_max_departures', len(edge['departures']), 'Departure budget exceeded')
+            record.departures = sorted(_time(x) for x in edge['departures'])
+        record.closed = bool(edge.get('closed', False))
+        adjacency.setdefault(edge['source'], []).append(record)
+    return CompiledNetwork(nodes, adjacency, edge_ids, index, network.get('geographic_bounds'), len(network['edges']))
+
+
+def route(network, request, *, limits=None):
     """Earliest-arrival / least-cost Pareto label search with a hard label budget.
 
     Free waiting is allowed. Edges have constant nonnegative duration and cost;
     departures, when present, enumerate finite scheduled service opportunities.
     Capacity is a per-edge scenario check, not a reservation or congestion model.
     max_expansions bounds popped labels; max_labels bounds generated labels.
+    ``network`` may be a dict or a CompiledNetwork from compile_network.
     """
+    limits = resolve_limits(limits)
     allowed = {'origin', 'destination', 'departure_time', 'objective', 'permitted_modes', 'closed_edges', 'demand', 'max_expansions', 'max_labels', 'duration_policy'}
     if set(request) - allowed:
         raise ValueError(f'Unknown route request fields: {sorted(set(request) - allowed)}')
-    if len(network['nodes'])>100000 or len(network['edges'])>200000:raise ValueError('Network size budget exceeded')
-    duration_policy=request.get('duration_policy','upper_bound')
-    if duration_policy not in ('nominal','upper_bound'):raise ValueError('Unknown duration policy')
+    compiled = network if isinstance(network, CompiledNetwork) else compile_network(network, limits=limits)
+    duration_policy = request.get('duration_policy', 'upper_bound')
+    if duration_policy not in ('nominal', 'upper_bound'): raise ValueError('Unknown duration policy')
+    upper = duration_policy == 'upper_bound'
     start = _time(request['departure_time'])
     objective = request.get('objective', 'earliest_arrival')
     if objective not in ('earliest_arrival', 'least_cost'):
@@ -128,139 +245,112 @@ def route(network, request):
     demand = _number(request.get('demand', 1), 'demand', True)
     max_expansions = request.get('max_expansions', 10000)
     max_labels = request.get('max_labels', 100000)
+    ceiling = limits.transport_max_search_labels
     for name, value in [('max_expansions', max_expansions), ('max_labels', max_labels)]:
-        if type(value) is not int or not 1 <= value <= 1000000:
-            raise ValueError(f'{name} must be an integer between 1 and 1000000')
-    node_ids = [n['id'] for n in network['nodes']]
-    if any(not isinstance(x, str) or not x for x in node_ids) or len(set(node_ids)) != len(node_ids):
-        raise ValueError('Network node IDs must be unique nonempty strings')
-    nodes = set(node_ids)
-    if 'geographic_bounds' in network:
-        bounds=network['geographic_bounds']
-        if not isinstance(bounds,list) or len(bounds)!=4 or any(type(v) not in (int,float) or not math.isfinite(v) for v in bounds):raise ValueError('Invalid geographic bounds')
-        west,south,east,north=bounds
-        if not -180<=west<east<=180 or not -90<=south<north<=90:raise ValueError('Invalid geographic bounds')
-        for node in network['nodes']:
-            if not all(type(node.get(k)) in (int,float) and math.isfinite(node[k]) for k in ('lat','lon')) or not (south<=node['lat']<=north and west<=node['lon']<=east):raise ValueError('Node outside explicit geographic bounds or missing coordinates')
-    transfers=network.get('transfers')
-    if transfers is not None:
-        if not isinstance(transfers,list) or len(transfers)>10000:raise ValueError('Transfer budget exceeded')
-        for rule in transfers:
-            if set(rule)!={'node','from_mode','to_mode','minimum_seconds','valid_from','valid_to'} or rule['node'] not in nodes or rule['from_mode'] not in MODES or rule['to_mode'] not in MODES:raise ValueError('Invalid dated transfer')
-            _number(rule['minimum_seconds'],'minimum_seconds')
-            if _time(rule['valid_from'])>=_time(rule['valid_to']):raise ValueError('Invalid transfer interval')
+        if type(value) is not int or value < 1:
+            raise ValueError(f'{name} must be an integer between 1 and {ceiling}')
+        if value > ceiling:
+            raise LimitExceeded('transport_max_search_labels', value, ceiling, name)
     origin, destination = request['origin'], request['destination']
-    if origin not in nodes or destination not in nodes:
+    if origin not in compiled.nodes or destination not in compiled.nodes:
         raise ValueError('Origin and destination must exist in network')
-    adjacency = {n: [] for n in nodes}
-    edge_ids = set()
-    for original in network['edges']:
-        edge = copy.deepcopy(original)
-        if not isinstance(edge['id'], str) or not edge['id'] or edge['id'] in edge_ids:
-            raise ValueError('Edge IDs must be unique nonempty strings')
-        edge_ids.add(edge['id'])
-        if edge['source'] not in nodes or edge['target'] not in nodes or edge['mode'] not in MODES:
-            raise ValueError('Invalid edge endpoint or mode')
-        _number(edge['duration_seconds'], 'duration_seconds')
-        _number(edge['cost'], 'cost')
-        interval=edge.get('duration_range_seconds',[edge['duration_seconds'],edge['duration_seconds']])
-        if not isinstance(interval,list) or len(interval)!=2:raise ValueError('Duration range requires two bounds')
-        for x in interval:_number(x,'duration range')
-        if not interval[0]<=edge['duration_seconds']<=interval[1]:raise ValueError('Nominal duration must lie within uncertainty bounds')
-        edge['_duration']=interval[1] if duration_policy=='upper_bound' else edge['duration_seconds']
-        edge['_range']=interval
-        if ('valid_from' in edge)!=('valid_to' in edge):raise ValueError('Edge validity requires both bounds')
-        if 'valid_from' in edge and _time(edge['valid_from'])>=_time(edge['valid_to']):raise ValueError('Invalid edge interval')
-        for kind in ('closures','capacity_windows'):
-            windows=edge.get(kind,[])
-            if not isinstance(windows,list) or len(windows)>1000:raise ValueError('Window budget exceeded')
-            for window in windows:
-                if set(window)!=({'valid_from','valid_to','capacity'} if kind=='capacity_windows' else {'valid_from','valid_to'}):raise ValueError('Invalid edge window')
-                if _time(window['valid_from'])>=_time(window['valid_to']):raise ValueError('Invalid edge window interval')
-                if kind=='capacity_windows':_number(window['capacity'],'capacity')
-        if 'capacity' in edge:
-            _number(edge['capacity'], 'capacity')
-        if 'departures' in edge:
-            if len(edge['departures'])>10000:raise ValueError('Departure budget exceeded')
-            edge['_departures'] = sorted(_time(x) for x in edge['departures'])
-        if edge['mode'] in modes and edge['id'] not in closed and not edge.get('closed', False) and edge.get('capacity', demand) >= demand:
-            adjacency[edge['source']].append(edge)
-    if closed - edge_ids:
+    if closed - compiled.edge_ids:
         raise ValueError('Closed edge does not exist')
-    labels = [{'node': origin, 'at': start, 'cost': 0, 'parent': None, 'leg': None, 'active': True}]
-    frontiers = {(n,m): [] for n in nodes for m in [None,*MODES]}; frontiers[(origin,None)] = [0]
+    transfers = compiled.transfers
+    adjacency = compiled.adjacency
+    # Parallel label arrays: node, arrival, cost, parent, edge record, departure, active.
+    label_node, label_at, label_cost = [origin], [start], [0]
+    label_parent, label_edge, label_departure, label_active = [None], [None], [None], [True]
+    # Each (node, mode) frontier is a Pareto staircase: arrival strictly increasing,
+    # cost strictly decreasing (mutually nondominated). Dominance checks and removals
+    # are bisections; outcomes equal an unordered scan because order is irrelevant.
+    frontiers = {(origin, None): ([start], [0], [0])}
     queue = [(0, 0, 0)]
     expansions = 0
     base = {'request': copy.deepcopy(request), 'epistemic_status': 'planned_scenario',
-            'geographic_bounds':network.get('geographic_bounds'), 'duration_policy':duration_policy,
+            'geographic_bounds': compiled.geographic_bounds, 'duration_policy': duration_policy,
             'assumptions': ['Chosen nominal or upper-bound duration; free waiting; uncertainty is a bound, not a probability.', 'Transfers require dated rules when network.transfers is supplied; otherwise interchange time is assumed zero.', 'Capacity checks do not reserve capacity.', 'A planned route does not establish a person traveled.']}
 
     def result(status, final=None):
-        value = dict(base, status=status, optimal=status == 'ok', search={'expansions': expansions, 'labels_generated': len(labels), 'max_expansions': max_expansions, 'max_labels': max_labels})
+        value = dict(base, status=status, optimal=status == 'ok', search={'expansions': expansions, 'labels_generated': len(label_node), 'max_expansions': max_expansions, 'max_labels': max_labels})
         if final is not None:
             legs = []; cursor = final
-            while labels[cursor]['parent'] is not None:
-                legs.append(labels[cursor]['leg']); cursor = labels[cursor]['parent']
+            while label_parent[cursor] is not None:
+                record, parent = label_edge[cursor], label_parent[cursor]
+                departure, arrival = label_departure[cursor], label_at[cursor]
+                leg = {'edge_id': record.id, 'source': record.source, 'target': record.target, 'mode': record.mode,
+                       'departure_time': _iso(departure), 'arrival_time': _iso(arrival), 'wait_seconds': (departure - label_at[parent]).total_seconds(),
+                       'duration_seconds': record.upper if upper else record.nominal, 'duration_range_seconds': copy.deepcopy(record.interval),
+                       'cost': record.cost, 'evidence': copy.deepcopy(record.edge.get('evidence', []))}
+                if 'vehicle_id' in record.edge:
+                    leg['vehicle_id'] = copy.deepcopy(record.edge['vehicle_id'])
+                legs.append(leg); cursor = parent
             legs.reverse()
-            value.update(legs=legs, edge_ids=[x['edge_id'] for x in legs], arrival_time=_iso(labels[final]['at']),
-                         departure_time=_iso(start), duration_seconds=(labels[final]['at'] - start).total_seconds(), total_cost=labels[final]['cost'])
+            value.update(legs=legs, edge_ids=[x['edge_id'] for x in legs], arrival_time=_iso(label_at[final]),
+                         departure_time=_iso(start), duration_seconds=(label_at[final] - start).total_seconds(), total_cost=label_cost[final])
         return value
 
     while queue:
         if expansions >= max_expansions:
             return result('budget_exhausted')
         _, _, index = heapq.heappop(queue)
-        current = labels[index]
-        if not current['active']:
+        if not label_active[index]:
             continue
         expansions += 1
-        if current['node'] == destination:
+        node = label_node[index]
+        if node == destination:
             return result('ok', index)
-        for edge in adjacency[current['node']]:
-            departure = current['at']
-            previous=current['leg']['mode'] if current['leg'] else None
-            if transfers is not None and previous is not None and (previous!=edge['mode'] or any((r['node'],r['from_mode'],r['to_mode'])==(current['node'],previous,edge['mode']) for r in transfers)):
-                ready=[]
-                for rule in transfers:
-                    if (rule['node'],rule['from_mode'],rule['to_mode'])!=(current['node'],previous,edge['mode']):continue
-                    candidate=max(departure,_time(rule['valid_from']))+timedelta(seconds=rule['minimum_seconds'])
-                    if candidate<=_time(rule['valid_to']):ready.append(candidate)
-                if not ready:continue
-                departure=min(ready)
-            if 'valid_from' in edge:departure=max(departure,_time(edge['valid_from']))
-            blocked=edge.get('closures',[])+[w for w in edge.get('capacity_windows',[]) if w['capacity']<demand]
-            feasible=False
-            for attempt in range(len(blocked)+2):
-                if '_departures' in edge:
-                    i=bisect.bisect_left(edge['_departures'],departure)
-                    if i==len(edge['_departures']):break
-                    departure=edge['_departures'][i]
-                arrival=departure+timedelta(seconds=edge['_duration'])
-                if 'valid_to' in edge and (departure>=_time(edge['valid_to']) or arrival>_time(edge['valid_to'])):break
-                overlaps=[_time(w['valid_to']) for w in blocked if departure<_time(w['valid_to']) and (arrival>_time(w['valid_from']) or departure==arrival and departure>=_time(w['valid_from']))]
-                if overlaps:departure=max(overlaps);continue
-                feasible=True;break
-            if not feasible:continue
-            cost = current['cost'] + edge['cost']
-            frontier = frontiers[(edge['target'],edge['mode'])]
-            if any(labels[j]['at'] <= arrival and labels[j]['cost'] <= cost for j in frontier):
+        current_at, current_cost = label_at[index], label_cost[index]
+        previous = label_edge[index].mode if label_edge[index] is not None else None
+        for record in adjacency.get(node, ()):
+            if record.mode not in modes or record.id in closed or record.closed or (record.capacity if record.capacity is not None else demand) < demand:
                 continue
-            if len(labels) >= max_labels:
+            departure = current_at
+            mode = record.mode
+            if transfers is not None and previous is not None:
+                rules = transfers.get((node, previous, mode))
+                if previous != mode or rules:
+                    ready = []
+                    for valid_from, valid_to, minimum in rules or ():
+                        candidate = max(departure, valid_from) + minimum
+                        if candidate <= valid_to: ready.append(candidate)
+                    if not ready: continue
+                    departure = min(ready)
+            if record.valid_from is not None: departure = max(departure, record.valid_from)
+            blocked = record.closures + [(a, b) for a, b, capacity in record.capacity_windows if capacity < demand] if record.capacity_windows else record.closures
+            duration = timedelta(seconds=record.upper if upper else record.nominal)
+            feasible = False
+            for attempt in range(len(blocked) + 2):
+                if record.departures is not None:
+                    i = bisect.bisect_left(record.departures, departure)
+                    if i == len(record.departures): break
+                    departure = record.departures[i]
+                arrival = departure + duration
+                if record.valid_to is not None and (departure >= record.valid_to or arrival > record.valid_to): break
+                overlaps = [b for a, b in blocked if departure < b and (arrival > a or departure == arrival and departure >= a)]
+                if overlaps: departure = max(overlaps); continue
+                feasible = True; break
+            if not feasible: continue
+            cost = current_cost + record.cost
+            key = (record.target, mode)
+            frontier = frontiers.get(key)
+            if frontier is not None:
+                times, costs, members = frontier
+                position = bisect.bisect_right(times, arrival)
+                if position and costs[position - 1] <= cost:
+                    continue
+            if len(label_node) >= max_labels:
                 return result('budget_exhausted')
-            retained = []
-            for j in frontier:
-                if arrival <= labels[j]['at'] and cost <= labels[j]['cost']:
-                    labels[j]['active'] = False
-                else:
-                    retained.append(j)
-            leg = {'edge_id': edge['id'], 'source': edge['source'], 'target': edge['target'], 'mode': edge['mode'],
-                   'departure_time': _iso(departure), 'arrival_time': _iso(arrival), 'wait_seconds': (departure - current['at']).total_seconds(),
-                   'duration_seconds': edge['_duration'], 'duration_range_seconds': edge['_range'], 'cost': edge['cost'], 'evidence': edge.get('evidence', [])}
-            if 'vehicle_id' in edge:
-                leg['vehicle_id'] = edge['vehicle_id']
-            new = len(labels)
-            labels.append({'node': edge['target'], 'at': arrival, 'cost': cost, 'parent': index, 'leg': leg, 'active': True})
-            frontiers[(edge['target'],edge['mode'])] = retained + [new]
+            new = len(label_node)
+            label_node.append(record.target); label_at.append(arrival); label_cost.append(cost)
+            label_parent.append(index); label_edge.append(record); label_departure.append(departure); label_active.append(True)
+            if frontier is None:
+                frontiers[key] = ([arrival], [cost], [new])
+            else:
+                first = bisect.bisect_left(times, arrival); last = first
+                while last < len(times) and costs[last] >= cost:
+                    label_active[members[last]] = False; last += 1
+                times[first:last] = [arrival]; costs[first:last] = [cost]; members[first:last] = [new]
             elapsed = (arrival - start).total_seconds()
             primary, secondary = (elapsed, cost) if objective == 'earliest_arrival' else (cost, elapsed)
             heapq.heappush(queue, (primary, secondary, new))

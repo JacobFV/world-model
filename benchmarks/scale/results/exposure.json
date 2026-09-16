@@ -1,0 +1,156 @@
+{
+  "machine": {
+    "platform": "Linux-6.17.0-1026-nvidia-aarch64-with-glibc2.39",
+    "machine": "aarch64",
+    "python": "3.12.3",
+    "cpus": 20,
+    "memory_bytes": 130596077568,
+    "numpy": "2.5.3"
+  },
+  "results": [
+    {
+      "kernel": "exposure",
+      "size": "small",
+      "backend": "python",
+      "params": {
+        "entities": 10000,
+        "obligations": 100000
+      },
+      "wall_seconds": 0.297,
+      "kernel_seconds": 0.231,
+      "setup_seconds": 0.044,
+      "peak_rss_bytes": 93929472,
+      "units": 2640000,
+      "unit": "clearing-updates",
+      "throughput_per_second": 11415149.485899122,
+      "details": {
+        "baseline_iterations": 12,
+        "stressed_iterations": 12,
+        "baseline_shortfall": 1254650.2657132489,
+        "incremental_shortfall": 13930.411974764662,
+        "entities_with_shortfall": 1163
+      },
+      "status": "ok"
+    },
+    {
+      "kernel": "exposure",
+      "size": "small",
+      "backend": "numpy",
+      "params": {
+        "entities": 10000,
+        "obligations": 100000
+      },
+      "wall_seconds": 0.102,
+      "kernel_seconds": 0.034,
+      "setup_seconds": 0.052,
+      "peak_rss_bytes": 54435840,
+      "units": 2640000,
+      "unit": "clearing-updates",
+      "throughput_per_second": 78018922.24742658,
+      "details": {
+        "baseline_iterations": 12,
+        "stressed_iterations": 12,
+        "baseline_shortfall": 1254650.2657132489,
+        "incremental_shortfall": 13930.411974764662,
+        "entities_with_shortfall": 1163
+      },
+      "status": "ok"
+    },
+    {
+      "kernel": "exposure",
+      "size": "medium",
+      "backend": "python",
+      "params": {
+        "entities": 100000,
+        "obligations": 1000000
+      },
+      "wall_seconds": 3.818,
+      "kernel_seconds": 3.54,
+      "setup_seconds": 0.18,
+      "peak_rss_bytes": 612974592,
+      "units": 33000000,
+      "unit": "clearing-updates",
+      "throughput_per_second": 9321125.188656287,
+      "details": {
+        "baseline_iterations": 15,
+        "stressed_iterations": 15,
+        "baseline_shortfall": 12599795.757805454,
+        "incremental_shortfall": 177880.2838144619,
+        "entities_with_shortfall": 11636
+      },
+      "status": "ok"
+    },
+    {
+      "kernel": "exposure",
+      "size": "medium",
+      "backend": "numpy",
+      "params": {
+        "entities": 100000,
+        "obligations": 1000000
+      },
+      "wall_seconds": 0.403,
+      "kernel_seconds": 0.29,
+      "setup_seconds": 0.096,
+      "peak_rss_bytes": 208531456,
+      "units": 33000000,
+      "unit": "clearing-updates",
+      "throughput_per_second": 113603121.81333241,
+      "details": {
+        "baseline_iterations": 15,
+        "stressed_iterations": 15,
+        "baseline_shortfall": 12599795.757805454,
+        "incremental_shortfall": 177880.2838144619,
+        "entities_with_shortfall": 11636
+      },
+      "status": "ok"
+    },
+    {
+      "kernel": "exposure",
+      "size": "large",
+      "backend": "python",
+      "params": {
+        "entities": 1000000,
+        "obligations": 10000000
+      },
+      "wall_seconds": 131.295,
+      "kernel_seconds": 129.247,
+      "setup_seconds": 1.248,
+      "peak_rss_bytes": 5797113856,
+      "units": 352000000,
+      "unit": "clearing-updates",
+      "throughput_per_second": 2723466.472842259,
+      "details": {
+        "baseline_iterations": 16,
+        "stressed_iterations": 16,
+        "baseline_shortfall": 124446776.48282482,
+        "incremental_shortfall": 1757262.3950136453,
+        "entities_with_shortfall": 114766
+      },
+      "status": "ok"
+    },
+    {
+      "kernel": "exposure",
+      "size": "large",
+      "backend": "numpy",
+      "params": {
+        "entities": 1000000,
+        "obligations": 10000000
+      },
+      "wall_seconds": 6.16,
+      "kernel_seconds": 5.708,
+      "setup_seconds": 0.421,
+      "peak_rss_bytes": 1744490496,
+      "units": 352000000,
+      "unit": "clearing-updates",
+      "throughput_per_second": 61667018.23231399,
+      "details": {
+        "baseline_iterations": 16,
+        "stressed_iterations": 16,
+        "baseline_shortfall": 124446776.48282482,
+        "incremental_shortfall": 1757262.3950136453,
+        "entities_with_shortfall": 114766
+      },
+      "status": "ok"
+    }
+  ]
+}

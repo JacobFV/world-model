@@ -1,4 +1,9 @@
-"""Bounded spawned numerical episodes; deterministic ordering and no retries."""
+"""Bounded spawned numerical episodes; deterministic ordering and no retries.
+
+Ceilings are named limits (rollout_max_episodes, rollout_max_workers,
+rollout_max_transitions, rollout_max_result_bytes, rollout_max_total_result_bytes,
+rollout_max_request_bytes, rollout_max_timeout_seconds, environment_max_steps).
+"""
 from copy import deepcopy
 import importlib
 import json
@@ -6,11 +11,13 @@ import math
 import multiprocessing
 import re
 import time
+from .limits import LimitExceeded, resolve_limits
 from .util import canonical, digest
 
 
-def _integer(value, name, low, high):
-    if type(value) is not int or not low <= value <= high: raise ValueError(f'{name} must be integer in {low}..{high}')
+def _integer(value, name, low, high, limit=None):
+    if type(value) is not int or value < low or (limit is None and value > high): raise ValueError(f'{name} must be integer in {low}..{high}')
+    if value > high: raise LimitExceeded(limit, value, high, name)
 
 
 def _error(episode, status, message, transitions=0):
@@ -38,7 +45,9 @@ def _worker(connection, factory, episode, max_bytes):
         if _live(env): raise ValueError('Numerical rollout workers reject live external backends')
         observation, info = env.reset(seed=episode['seed'])
         frames = [{'observation': observation, 'info': info}]
-        if len(canonical(frames)) > max_bytes: raise OverflowError('Episode result exceeds byte budget')
+        # len(canonical(frames)) maintained incrementally: '[' + ','.join(frames) + ']'.
+        size = 2 + len(canonical(frames[0]))
+        if size > max_bytes: raise OverflowError('Episode result exceeds byte budget')
         rewards = []
         if not (info.get('terminated') or info.get('truncated')):
             for action in episode['actions']:
@@ -46,9 +55,11 @@ def _worker(connection, factory, episode, max_bytes):
                 count += 1
                 if type(reward) not in (int, float) or not math.isfinite(reward): raise ValueError('Reward must be finite')
                 rewards.append(reward)
-                frames.append({'observation': observation, 'reward': reward, 'terminated': bool(terminated),
-                               'truncated': bool(truncated), 'info': info})
-                if len(canonical(frames)) > max_bytes: raise OverflowError('Episode result exceeds byte budget')
+                frame = {'observation': observation, 'reward': reward, 'terminated': bool(terminated),
+                         'truncated': bool(truncated), 'info': info}
+                frames.append(frame)
+                size += 1 + len(canonical(frame))
+                if size > max_bytes: raise OverflowError('Episode result exceeds byte budget')
                 if terminated or truncated: break
         try: total = math.fsum(rewards)
         except OverflowError as exc: raise ValueError('Episode return is not finite') from exc
@@ -76,7 +87,8 @@ def _stop(process):
 
 
 def run_episodes(episodes, *, factory, mode='spawn', workers=2, max_transitions=100,
-                 timeout_seconds=5, max_result_bytes=1048576, journal=None, quota='rollouts', reservation_key=None):
+                 timeout_seconds=5, max_result_bytes=1048576, journal=None, quota='rollouts', reservation_key=None,
+                 limits=None):
     """Run trusted serializable factories, with one fresh spawned process per episode.
 
     Factory is module:function accepting a JSON config and returning reset/step/close
@@ -91,14 +103,18 @@ def run_episodes(episodes, *, factory, mode='spawn', workers=2, max_transitions=
     Factories are trusted Python, not memory/security sandboxes. Live agents are
     prohibited; forced termination cannot undo arbitrary external side effects.
     """
+    limits = resolve_limits(limits)
     if not isinstance(factory, str) or not re.fullmatch(r'[A-Za-z_]\w*(?:\.[A-Za-z_]\w*)*:[A-Za-z_]\w*', factory):
         raise ValueError('Factory must be an importable module:function')
     if mode not in ('spawn', 'sequential'): raise ValueError('Unknown rollout mode')
-    _integer(workers, 'workers', 1, 8); _integer(max_transitions, 'max_transitions', 1, 100000)
-    _integer(max_result_bytes, 'max_result_bytes', 1024, 1048576)
-    if type(timeout_seconds) not in (int, float) or not math.isfinite(timeout_seconds) or not 0 < timeout_seconds <= 60:
-        raise ValueError('timeout_seconds must be finite in (0,60]')
-    if not isinstance(episodes, list) or not 1 <= len(episodes) <= 100: raise ValueError('Provide 1..100 episodes')
+    _integer(workers, 'workers', 1, limits.rollout_max_workers, 'rollout_max_workers')
+    _integer(max_transitions, 'max_transitions', 1, limits.rollout_max_transitions, 'rollout_max_transitions')
+    _integer(max_result_bytes, 'max_result_bytes', 1024, limits.rollout_max_result_bytes, 'rollout_max_result_bytes')
+    if type(timeout_seconds) not in (int, float) or not math.isfinite(timeout_seconds) or not 0 < timeout_seconds:
+        raise ValueError(f'timeout_seconds must be finite in (0,{limits.rollout_max_timeout_seconds}]')
+    limits.check('rollout_max_timeout_seconds', timeout_seconds, 'timeout_seconds')
+    if not isinstance(episodes, list) or not episodes: raise ValueError(f'Provide 1..{limits.rollout_max_episodes} episodes')
+    limits.check('rollout_max_episodes', len(episodes), 'Rollout episodes')
     ids, seeds = set(), set(); requested = 0
     for episode in episodes:
         if not isinstance(episode, dict) or set(episode) - {'id', 'seed', 'config', 'actions', 'live_backend'} or not {'id', 'seed', 'config', 'actions'} <= set(episode):
@@ -108,13 +124,14 @@ def run_episodes(episodes, *, factory, mode='spawn', workers=2, max_transitions=
         _integer(episode['seed'], 'seed', 0, 2**63 - 1)
         if episode['seed'] in seeds: raise ValueError('Episode seeds must be explicitly distinct')
         if episode.get('live_backend', False) is not False: raise ValueError('Workers cannot run live external backends')
-        if not isinstance(episode['config'], dict) or not isinstance(episode['actions'], list) or not 1 <= len(episode['actions']) <= 1000:
+        if not isinstance(episode['config'], dict) or not isinstance(episode['actions'], list) or not episode['actions']:
             raise ValueError('Episode config/actions must be bounded JSON objects/list')
+        limits.check('environment_max_steps', len(episode['actions']), 'Episode actions')
         if any(not isinstance(a, dict) for a in episode['actions']): raise ValueError('Actions must be objects')
         ids.add(eid); seeds.add(episode['seed']); requested += len(episode['actions'])
     if requested > max_transitions: raise ValueError('Rollout transition budget exceeded before dispatch')
-    if len(canonical(episodes)) > 1048576 or len(episodes) * max_result_bytes > 32 * 1048576:
-        raise ValueError('Rollout request/results exceed bounded payload budget')
+    limits.check('rollout_max_request_bytes', len(canonical(episodes)), 'Rollout request/results exceed bounded payload budget: request bytes')
+    limits.check('rollout_max_total_result_bytes', len(episodes) * max_result_bytes, 'Rollout request/results exceed bounded payload budget: result bytes')
     episodes = sorted(deepcopy(episodes), key=lambda e: e['id'])
     request = {'episodes_digest': digest(episodes), 'factory': factory, 'requested_transitions': requested,
                'timeout_seconds': timeout_seconds, 'max_result_bytes': max_result_bytes}

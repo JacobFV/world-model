@@ -8,6 +8,7 @@ from copy import deepcopy
 from contextlib import nullcontext
 from datetime import timedelta
 import math
+from .limits import resolve_limits
 from .util import canonical
 
 
@@ -46,10 +47,12 @@ class Environment:
             if field not in spec:raise ValueError('Missing environment specification: '+field)
         if not isinstance(spec['actions'],dict) or not isinstance(spec['observations'],dict) or not spec['observations']:
             raise ValueError('Named actions and nonempty observations required')
-        if len(spec['actions'])>100 or len(spec['observations'])>100:raise ValueError('Environment port budget exceeded')
-        if type(spec['max_steps']) is not int or not 1<=spec['max_steps']<=1000:raise ValueError('max_steps must be in 1..1000')
+        limits=self.limits=resolve_limits()
+        limits.check('environment_max_ports',max(len(spec['actions']),len(spec['observations'])),'Environment port budget exceeded')
+        limits.integer('environment_max_steps',spec['max_steps'],'max_steps must be in 1..'+str(limits.environment_max_steps))
         self.spec.setdefault('max_evaluations',spec['max_steps']+1)
-        if type(self.spec['max_evaluations']) is not int or not 1<=self.spec['max_evaluations']<=1001:raise ValueError('Invalid evaluation budget')
+        if type(self.spec['max_evaluations']) is not int or self.spec['max_evaluations']<1:raise ValueError('Invalid evaluation budget')
+        limits.check('environment_max_steps',self.spec['max_evaluations']-1,'Invalid evaluation budget')
         destinations=set()
         for descriptor in spec['actions'].values():
             if not {'binding','port','type','unit'}<=set(descriptor):raise ValueError('Action requires binding, port, type and unit')
@@ -60,7 +63,8 @@ class Environment:
                 if _finite(descriptor['minimum'])>_finite(descriptor['maximum']):raise ValueError('Invalid action bounds')
             elif descriptor['type'] not in ('string','boolean','object','array','vector'):raise ValueError('Unsupported action type')
         terms=spec['reward'].get('terms')
-        if not isinstance(terms,list) or len(terms)>100:raise ValueError('Explicit bounded reward terms required')
+        if not isinstance(terms,list):raise ValueError('Explicit bounded reward terms required')
+        limits.check('environment_max_ports',len(terms),'Explicit bounded reward terms required')
         for term in terms:
             if term['mode'] not in ('value','delta'):raise ValueError('Unsupported reward mode')
             if _finite(term['scale'])<=0:raise ValueError('Reward normalization scale must be positive')
@@ -98,7 +102,10 @@ class Environment:
         if self._evaluations>=self.spec['max_evaluations']:raise BudgetExceeded('Evaluation budget exhausted')
         self._evaluations+=1 # Failed evaluations also consume work budget.
         result=self.evaluate(deepcopy(history),seed)
-        if len(canonical(result))>32*1024*1024:raise ValueError('Materialization output exceeds 32 MiB environment limit')
+        # Evaluators that bound and JSON-validate their own incremental output (CheckpointEvaluator)
+        # skip re-encoding the whole growing result on every step (quadratic work over an episode).
+        if not getattr(self.evaluate,'bounded_output',False):
+            self.limits.check('environment_max_output_bytes',len(canonical(result)),'Materialization output exceeds environment limit')
         return result
 
     def reset(self,seed=0):
@@ -114,7 +121,7 @@ class Environment:
     def step(self,actions):
         if self._result is None or self._done:raise ValueError('Reset required before stepping or after episode end')
         if not isinstance(actions,dict) or set(actions)!=set(self.spec['actions']):raise ValueError('Action names must exactly match declared inputs')
-        if len(canonical(actions))>65536:raise ValueError('Action payload exceeds 64 KiB')
+        self.limits.check('environment_max_action_bytes',len(canonical(actions)),'Action payload exceeds limit')
         inputs=[]
         for name,descriptor in self.spec['actions'].items():
             value=deepcopy(actions[name]);kind=descriptor['type']
@@ -152,7 +159,7 @@ backends are unsupported because replay would repeat their side effects/costs.
         self.store=store;self.graph_ref=deepcopy(graph_ref);self.request=deepcopy(request)
         self.step_seconds=seconds(step_seconds,'environment step_seconds');self.start=instant(request['start'])
         self.end=instant(request['end']);self.registry=registry
-        if type(max_total_calls) is not int or not 1<=max_total_calls<=100000:raise ValueError('Invalid replay call budget')
+        resolve_limits().integer('materialize_max_calls',max_total_calls,'Invalid replay call budget')
         if request.get('interventions'):raise ValueError('Environment history owns intervention schedule')
         self.max_total_calls=max_total_calls;self.total_calls=0
         # Pin implementation/cadence once; cost-based selection must not change with prefix length.

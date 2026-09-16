@@ -3,9 +3,25 @@
 Nonnegative scalar quantities only. Cell measure defines integration. Conductance
 has measure/second units; directed transport_rate is a fraction/second. Neither
 geometry nor political sovereignty is inferred from an adjacency or a claim.
+
+Size and work ceilings are named limits (worldmodel.limits: field_max_cells,
+field_max_fields, field_max_values, field_max_edges, field_max_claims,
+field_max_claim_memberships, field_max_substeps, field_max_work,
+field_max_projection_records, field_max_input_bytes). Numerics run on the shared
+array core (worldmodel.field_arrays); backend='python'|'numpy'|'auto' results are
+bit-identical.
+
+Estimation hook (field_diffusion_transport): a field may declare ``decay_rate``
+(1/second, first-order loss) and ``source_rate`` (amount per measure per second).
+Such open fields report ``external_input`` and check final = initial + external.
+``calibration=`` binds ``edges[*].conductance``/``transport_rate`` and the fitted
+decay/source terms (see :func:`calibrate_field_config`).
 """
 from copy import deepcopy
 import math
+from .field_arrays import FieldArrays
+from .backends import resolve_backend
+from .limits import resolve_limits
 from .util import canonical, digest
 
 
@@ -13,12 +29,6 @@ def _finite(x, label, positive=False):
     if type(x) not in (int, float) or not math.isfinite(x) or x < 0 or (positive and not x):
         raise ValueError(f'{label} must be finite and {"positive" if positive else "nonnegative"}')
     return float(x)
-
-
-def _bound(x, label, maximum):
-    if type(x) is not int or not 1 <= x <= maximum:
-        raise ValueError(f'{label} must be an integer in 1..{maximum}')
-    return x
 
 
 def _integral(values):
@@ -39,15 +49,60 @@ def schema():
             'variables': {'field_value': {'type': 'object', 'unit': 'field_value', 'domain': 'field_cell'}}}
 
 
+def calibrate_field_config(config, calibration, *, field=None):
+    """Bind estimated edge coefficients and one field's decay/source terms; returns (config, bindings record).
+
+    ``field`` names the field that receives ``fields.*.decay_rate``/``source_rate``;
+    it defaults to the only field of a single-field world.
+    """
+    from .estimation.binding import apply_bindings, parameter_bindings
+    names = list(config.get('fields', {})) if isinstance(config.get('fields'), dict) else []
+    target = field if field is not None else (names[0] if len(names) == 1 else None)
+    if target is not None and target not in names:
+        raise ValueError('Calibration field must name an existing field')
+    rename = {'fields.*.': f'fields.{target}.'} if target is not None else {}
+    return apply_bindings(config, parameter_bindings(calibration), rename=rename,
+                          only=lambda path: path.startswith('edges[*].') or (target is not None and path.startswith(f'fields.{target}.')))
+
+
+def field_parameter_provenance(config, calibration=None):
+    """Edge coefficients and field decay/source terms as estimated (with record ids) or assumed."""
+    from .estimation.binding import parameter_provenance
+    leaves = {}
+    for edge in config.get('edges', []):
+        for key in ('conductance', 'transport_rate'):
+            leaves[f'edges[{edge["id"]}].{key}'] = edge.get(key, 0)
+    for name, field in config.get('fields', {}).items():
+        for key in ('decay_rate', 'source_rate'):
+            leaves[f'fields.{name}.{key}'] = field.get(key, 0)
+    return parameter_provenance(leaves, calibration)
+
+
 class FieldWorld:
-    def __init__(self, config):
+    def __init__(self, config, *, limits=None, backend=None, calibration=None, calibration_field=None):
         from .model import identifier
-        canonical(config)
+        limits = resolve_limits(limits)
+        self.calibration = None
+        if calibration is not None:
+            config, self.calibration = calibrate_field_config(config, calibration, field=calibration_field)
+        self.limits, self.backend = limits, backend
+        payload = canonical(config)
         if not isinstance(config, dict) or set(config) - {'cells', 'edges', 'fields', 'claims', 'measure_unit', 'description'}:
             raise ValueError('Unknown field world config fields')
+        limits.check('field_max_input_bytes', len(payload), 'Field world input bytes')
+        if not isinstance(config.get('cells'), list) or not config['cells']:
+            raise ValueError('World must contain at least one explicit cell')
+        limits.check('field_max_cells', len(config['cells']), 'World explicit cells')
+        edges_in = config.get('edges', [])
+        fields_in = config.get('fields')
+        if isinstance(edges_in, list):
+            limits.check('field_max_edges', len(edges_in), 'Field/topology storage budget exceeded: edges')
+        if isinstance(fields_in, dict):
+            limits.check('field_max_fields', len(fields_in), 'Field/topology storage budget exceeded: fields')
+            limits.check('field_max_values', len(config['cells']) * len(fields_in), 'Field/topology storage budget exceeded: cell values')
         self.config = deepcopy(config)
         self.cells = {}
-        for cell in config['cells']:
+        for cell in self.config['cells']:
             identifier(cell['id'])
             if cell['id'] in self.cells:
                 raise ValueError('Duplicate field cell')
@@ -58,60 +113,81 @@ class FieldWorld:
                     raise ValueError('coordinates require two finite values in a caller-declared coordinate system')
             if not isinstance(cell.get('tags', []), list) or any(not isinstance(x, str) for x in cell.get('tags', [])):
                 raise ValueError('Cell tags must be a string list')
-            self.cells[cell['id']] = deepcopy(cell)
-        if not 1 <= len(self.cells) <= 100000:
-            raise ValueError('World must contain 1..100000 explicit cells')
-        self.edges = []
+            self.cells[cell['id']] = cell
+        self.ids = list(self.cells)
+        index = {key: i for i, key in enumerate(self.ids)}
+        self.edges, sources, targets = [], [], []
         seen = set()
-        for edge in config.get('edges', []):
+        for edge in self.config.get('edges', []):
             if edge['id'] in seen or not isinstance(edge['id'], str) or not edge['id']:
                 raise ValueError('Duplicate or invalid edge ID')
             seen.add(edge['id'])
             if edge['source'] not in self.cells or edge['target'] not in self.cells or edge['source'] == edge['target']:
                 raise ValueError('Edges need two distinct existing cells')
-            item = deepcopy(edge)
+            item = dict(edge)
             item['conductance'] = _finite(edge.get('conductance', 0), 'conductance')
             item['transport_rate'] = _finite(edge.get('transport_rate', 0), 'transport_rate')
             self.edges.append(item)
-        self.fields = deepcopy(config['fields'])
-        if not isinstance(self.fields, dict) or not 1 <= len(self.fields) <= 1000 or len(self.cells) * len(self.fields) > 1000000 or len(self.edges) > 100000:
-            raise ValueError('Field/topology storage budget exceeded')
+            sources.append(index[edge['source']]); targets.append(index[edge['target']])
+        self._sources, self._targets = sources, targets
+        self.fields = self.config['fields']
+        if not isinstance(self.fields, dict) or not self.fields:
+            raise ValueError('Field/topology storage budget exceeded: at least one field is required')
         for name, field in self.fields.items():
             if not isinstance(name, str) or not name or field['kind'] not in ('extensive', 'intensive') or not isinstance(field['unit'], str) or not field['unit']:
                 raise ValueError('Fields require a name, extensive/intensive kind and explicit unit')
-            if not isinstance(field['values'], dict) or set(field['values']) != set(self.cells):
+            if not isinstance(field['values'], dict) or field['values'].keys() != self.cells.keys():
                 raise ValueError('Each field must explicitly cover every cell; no implicit zero imputation')
             for value in field['values'].values():
                 _finite(value, 'field value')
-        claims = config.get('claims', [])
-        seen = set()
-        if not isinstance(claims, list) or len(claims) > 100000:
+            for key in ('decay_rate', 'source_rate'):
+                if key in field and (type(field[key]) not in (int, float) or not math.isfinite(field[key])):
+                    raise ValueError(f'{key} must be finite')
+        claims = self.config.get('claims', [])
+        if not isinstance(claims, list):
             raise ValueError('Claim budget exceeded')
+        limits.check('field_max_claims', len(claims), 'Claim budget exceeded')
+        seen = set()
         for claim in claims:
             identifier(claim['id']); identifier(claim['claimant'])
             if claim['id'] in seen or claim['id'] in self.cells or claim['claimant'] in self.cells:
                 raise ValueError('Duplicate claim or conflicting entity ID')
             seen.add(claim['id'])
-            if not isinstance(claim['cells'], list) or len(set(claim['cells'])) != len(claim['cells']) or not set(claim['cells']) <= set(self.cells):
+            if not isinstance(claim['cells'], list) or len(set(claim['cells'])) != len(claim['cells']) or any(c not in self.cells for c in claim['cells']):
                 raise ValueError('Claim cells must be distinct existing cells')
         if set(c['claimant'] for c in claims) & seen:
             raise ValueError('Claimant and claim IDs must be distinct')
-        if sum(len(c['cells']) for c in claims) > 1000000:
-            raise ValueError('Territory membership budget exceeded')
+        limits.check('field_max_claim_memberships', sum(len(c['cells']) for c in claims), 'Territory membership budget exceeded')
+        self._cores = {}
 
-    def evolve(self, request):
+    def _core(self, backend=None):
+        chosen = resolve_backend(backend if backend is not None else self.backend, size=len(self.cells) + len(self.edges))
+        if chosen not in self._cores:
+            self._cores[chosen] = FieldArrays([self.cells[k]['measure'] for k in self.ids], self._sources, self._targets,
+                                              [e['conductance'] for e in self.edges], [e['transport_rate'] for e in self.edges],
+                                              backend=chosen, validate=False)
+        return self._cores[chosen]
+
+    def peak_outgoing_rate(self, backend=None):
+        return self._core(backend).peak()
+
+    def evolve(self, request, *, backend=None):
         """Return a new state; never mutate source fields or create missing detail."""
         if set(request) - {'duration_seconds', 'step_seconds', 'max_substeps', 'max_work'}:
             raise ValueError('Unknown evolution request field')
+        limits = self.limits
         duration = _finite(request['duration_seconds'], 'duration_seconds')
         requested_step = _finite(request.get('step_seconds', duration or 1), 'step_seconds', True)
-        maximum = _bound(request.get('max_substeps', 10000), 'max_substeps', 100000)
-        budget = _bound(request.get('max_work', 1000000), 'max_work', 10000000)
-        outgoing = {key: 0. for key in self.cells}
-        for e in self.edges:
-            outgoing[e['source']] += e['conductance'] / self.cells[e['source']]['measure'] + e['transport_rate']
-            outgoing[e['target']] += e['conductance'] / self.cells[e['target']]['measure']
-        peak = max(outgoing.values())
+        maximum = limits.integer('field_max_substeps', request.get('max_substeps', 10000), 'max_substeps')
+        budget = limits.integer('field_max_work', request.get('max_work', 1000000), 'max_work')
+        template = self._core(backend)
+        core = FieldArrays.__new__(FieldArrays)
+        core.__dict__.update({k: v for k, v in template.__dict__.items() if k not in ('fields', '_buffers')})
+        core.fields, core._buffers = {}, None
+        peak = core.peak()
+        decay = max([f.get('decay_rate', 0) for f in self.fields.values() if f.get('decay_rate', 0) > 0] or [0])
+        if decay:
+            peak = peak + float(decay)
         stable_step = min(requested_step, .9 / peak) if peak else requested_step
         if not math.isfinite(peak) or stable_step <= 0 or not math.isfinite(duration / stable_step):
             raise ValueError('Dynamics are outside finite stability range')
@@ -119,40 +195,45 @@ class FieldWorld:
         work = steps * (len(self.cells) + len(self.edges)) * len(self.fields)
         if steps > maximum or work > budget:
             raise ValueError(f'Field evolution budget exceeded: {steps} substeps, {work} work units')
-        amounts = {name: {key: value * (self.cells[key]['measure'] if field['kind'] == 'intensive' else 1)
-                         for key, value in field['values'].items()} for name, field in self.fields.items()}
-        if any(not math.isfinite(v) for values in amounts.values() for v in values.values()):
-            raise ValueError('Field integral outside finite range')
-        initial = {name: _integral(values.values()) for name, values in amounts.items()}
+        for name, field in self.fields.items():
+            values = field['values']
+            try:
+                core.add_field(name, field['kind'], [values[k] for k in self.ids], decay_rate=field.get('decay_rate', 0.0), source_rate=field.get('source_rate', 0.0))
+            except ValueError as exc:
+                raise ValueError('Field integral outside finite range') from exc
+        initial = {name: _integral(core.fields[name]['amounts'][0].tolist() if core.backend == 'numpy' else core.fields[name]['amounts'][0])
+                   for name in self.fields}
         dt = duration / steps if steps else 0
-        for _ in range(steps):
-            for name, values in amounts.items():
-                changes = {key: 0. for key in self.cells}
-                for e in self.edges:
-                    a, b = e['source'], e['target']
-                    transfer = dt * (e['conductance'] * (values[a] / self.cells[a]['measure'] - values[b] / self.cells[b]['measure']) + e['transport_rate'] * values[a])
-                    changes[a] -= transfer
-                    changes[b] += transfer
-                for key, change in changes.items():
-                    value = values[key] + change
-                    if not math.isfinite(value) or value < -1e-10 * max(1, initial[name]):
-                        raise ValueError('Positivity or finite-value condition violated')
-                    values[key] = max(0., value)
-        state = deepcopy(self.config)
+        core.advance(dt, steps, nonnegative=True, thresholds={name: -1e-10 * max(1, initial[name]) for name in self.fields})
+        state = {key: deepcopy(value) for key, value in self.config.items() if key != 'fields'}
+        state['fields'] = {}
         conservation = {}
-        for name, values in amounts.items():
-            final = _integral(values.values())
-            if not math.isclose(initial[name], final, abs_tol=1e-9, rel_tol=1e-10):
+        for name, field in self.fields.items():
+            amounts = core.fields[name]['amounts'][0]
+            final = _integral(amounts.tolist() if core.backend == 'numpy' else amounts)
+            external = core.fields[name]['external'][0] if core.is_open(name) else None
+            if external is None and not math.isclose(initial[name], final, abs_tol=1e-9, rel_tol=1e-10):
                 raise ValueError('Field integral conservation violated')
-            state['fields'][name]['values'] = {key: value / (self.cells[key]['measure'] if self.fields[name]['kind'] == 'intensive' else 1) for key, value in values.items()}
+            if external is not None and not math.isclose(initial[name] + external, final, abs_tol=1e-9, rel_tol=1e-9):
+                raise ValueError('Open field balance violated (final != initial + external input)')
+            reported = core.reported(name)
+            state['fields'][name] = {**{k: deepcopy(v) for k, v in field.items() if k != 'values'},
+                                     'values': dict(zip(self.ids, reported.tolist() if core.backend == 'numpy' else reported))}
             conservation[name] = {'initial_integral': initial[name], 'final_integral': final, 'difference': final - initial[name]}
+            if external is not None:
+                conservation[name].update(external_input=external, difference=final - initial[name] - external)
         result = {'state': state, 'execution': {'substeps': steps, 'step_seconds': dt, 'work': work},
                   'conservation': conservation, 'epistemic_status': 'synthetic_scenario', 'causally_calibrated': False,
                   'assumptions': ['Explicit topology; no spatial refinement or inferred geometry.',
                                   'Closed conservative nonnegative scalar fields; constant coefficients.',
                                   'Intensive integrals weight each value by its cell measure.',
                                   'Territory memberships are retained claims; overlap is not resolved into sovereignty.']}
-        canonical(result)
+        if any(core.is_open(name) for name in self.fields):
+            result['assumptions'][1] = ('Nonnegative scalar fields with conservative edge fluxes; fields declaring decay_rate/source_rate '
+                                        'are open (first-order loss, uniform source per measure); constant coefficients.')
+        if self.calibration is not None:
+            result['calibration'] = deepcopy(self.calibration)
+            result['parameter_provenance'] = field_parameter_provenance(self.config, self.calibration)
         return result
 
     def project(self, request):
@@ -166,7 +247,7 @@ class FieldWorld:
         from .model import instant, validate_record
         if set(request) - {'cells', 'bounds', 'fields', 'include_topology', 'include_claims', 'limit', 'evidence', 'observed_at', 'valid_from'}:
             raise ValueError('Unknown projection field; refinement is not supported')
-        limit = _bound(request.get('limit', 1000), 'limit', 100000)
+        limit = self.limits.integer('field_max_projection_records', request.get('limit', 1000), 'limit')
         evidence = request.get('evidence')
         if not isinstance(evidence, list) or not evidence or any(not isinstance(x, dict) for x in evidence):
             raise ValueError('Projection requires explicit immutable source evidence')
@@ -179,8 +260,8 @@ class FieldWorld:
                                  'observed_at': observed, 'occurred_at': observed, 'participants': [], 'evidence': claim['evidence']})
         if 'valid_from' in request:
             instant(request['valid_from'])
-        keys = request.get('cells', list(self.cells))
-        if not isinstance(keys, list) or len(keys) != len(set(keys)) or not set(keys) <= set(self.cells):
+        keys = request.get('cells', self.ids)
+        if not isinstance(keys, list) or len(keys) != len(set(keys)) or any(k not in self.cells for k in keys):
             raise ValueError('Projection cells must be unique existing IDs')
         if 'bounds' in request:
             bounds = request['bounds']
@@ -227,41 +308,55 @@ class FieldWorld:
                 yield record('assertion', ['membership', claim['id'], key], subject=claim['id'], predicate='claims_field_cell', object=key, attributes={'sovereignty_established': False}, claim_evidence=claim.get('evidence', []))
 
 
-def simulate_fields(config):
+def simulate_fields(config, *, limits=None, backend=None, calibration=None, calibration_field=None):
     if set(config) != {'world', 'evolution'}:
         raise ValueError('simulate_fields requires world and evolution')
-    return FieldWorld(config['world']).evolve(config['evolution'])
+    return FieldWorld(config['world'], limits=limits, backend=backend, calibration=calibration,
+                      calibration_field=calibration_field).evolve(config['evolution'])
 
 
-def estimate_process_work(state, calls):
-    """Bound cumulative daily cell/edge updates without executing dynamics."""
+def estimate_process_work(state, calls, *, limits=None, parameters=None):
+    """Bound cumulative daily cell/edge updates without executing dynamics.
+
+    Each daily call must also fit the adapter's per-call ``max_substeps`` (default
+    10000) and ``max_work`` (default 1000000) parameters, so unfit work fails in
+    preflight before any handler runs; pass the binding parameters when raised.
+    """
     if type(calls) is not int or calls < 0:
         raise ValueError('calls must be a nonnegative integer')
-    world = FieldWorld(state)
-    outgoing = {key: 0. for key in world.cells}
-    for edge in world.edges:
-        outgoing[edge['source']] += edge['conductance'] / world.cells[edge['source']]['measure'] + edge['transport_rate']
-        outgoing[edge['target']] += edge['conductance'] / world.cells[edge['target']]['measure']
-    peak = max(outgoing.values())
+    parameters = parameters or {}
+    world = FieldWorld(state, limits=limits, calibration=parameters.get('calibration'), calibration_field=parameters.get('calibration_field'))
+    peak = world.peak_outgoing_rate() + max([f.get('decay_rate', 0) for f in world.fields.values() if f.get('decay_rate', 0) > 0] or [0])
     if not math.isfinite(peak) or not math.isfinite(86400 * peak / .9):
         raise ValueError('Field stability requirement outside finite work range')
     substeps = max(1, math.ceil(86400 * peak / .9))
-    work = calls * substeps * (len(world.cells) + len(world.edges)) * len(world.fields)
-    if work > 100000 or substeps > 10000:
-        raise ValueError('Field cumulative work exceeds 100000 cell/edge updates or 10000 daily substeps')
-    return {'cell_edge_updates': work, 'daily_substeps': substeps, 'max_cell_edge_updates': 100000}
+    per_call = substeps * (len(world.cells) + len(world.edges)) * len(world.fields)
+    work = calls * per_call
+    call_substeps = world.limits.integer('field_max_substeps', parameters.get('max_substeps', 10000), 'max_substeps')
+    call_work = world.limits.integer('field_max_work', parameters.get('max_work', 1000000), 'max_work')
+    if substeps > call_substeps or per_call > call_work:
+        raise ValueError(f'Field daily work exceeds per-call budget: {substeps} substeps, {per_call} work units '
+                         f'(max_substeps={call_substeps}, max_work={call_work} parameters)')
+    world.limits.check('field_max_substeps', substeps, 'Field daily substeps')
+    world.limits.check('field_max_work', work, 'Field cumulative work (cell/edge updates)')
+    return {'cell_edge_updates': work, 'daily_substeps': substeps, 'max_cell_edge_updates': world.limits.field_max_work}
 
 
 def _predict(inputs, parameters, context):
     if context['dt_seconds'] != 86400:
         raise ValueError('Field adapter requires exact daily cadence')
-    if set(parameters) - {'max_substeps', 'max_work'}:
-        raise ValueError('Field adapter accepts only max_substeps and max_work; daily stable timestep is automatic')
-    estimate_process_work(inputs['fields_state']['value'], 1)
-    result = FieldWorld(inputs['fields_state']['value']).evolve({'duration_seconds': context['dt_seconds'],
+    if set(parameters) - {'max_substeps', 'max_work', 'calibration', 'calibration_field'}:
+        raise ValueError('Field adapter accepts only max_substeps, max_work, calibration and calibration_field; daily stable timestep is automatic')
+    estimate_process_work(inputs['fields_state']['value'], 1, parameters=parameters)
+    world = FieldWorld(inputs['fields_state']['value'], calibration=parameters.get('calibration'), calibration_field=parameters.get('calibration_field'))
+    result = world.evolve({'duration_seconds': context['dt_seconds'],
         'step_seconds': context['dt_seconds'], 'max_substeps': parameters.get('max_substeps', 10000), 'max_work': parameters.get('max_work', 1000000)})
+    diagnostics = {'execution': result['execution'], 'conservation': result['conservation'], 'causally_calibrated': False,
+                   'parameter_provenance': field_parameter_provenance(world.config, world.calibration)}
+    if world.calibration is not None:
+        diagnostics['calibration'] = world.calibration
     return {'pressures': [{'port': 'fields_state', 'mode': 'set', 'value': result['state'], 'unit': None, 'strength': 1, 'confidence': 1}],
-            'diagnostics': {'execution': result['execution'], 'conservation': result['conservation'], 'causally_calibrated': False}}
+            'diagnostics': diagnostics}
 
 
 def register_field_processes(registry):

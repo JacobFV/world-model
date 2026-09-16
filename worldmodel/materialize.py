@@ -11,6 +11,7 @@ import uuid
 
 from .model import instant, identifier, validate_record
 from .provenance import capture_code
+from .limits import resolve_limits
 from .util import atomic_json, canonical, digest, file_hash, now, read_json, slug
 from .view_state import EvidenceState, variable_ref, value_type, collect_evidence
 
@@ -56,10 +57,10 @@ def _request(request):
         raise ValueError('Observed views cannot contain process bindings or scenario overrides')
     request.setdefault('budget', 10000)
     positive(request['budget'], 'budget', zero=True)
-    for key, default in [('max_points', 10000), ('max_calls', 10000)]:
+    limits = resolve_limits()
+    for key, default, name in [('max_points', 10000, 'materialize_max_points'), ('max_calls', 10000, 'materialize_max_calls')]:
         request.setdefault(key, default)
-        if type(request[key]) is not int or not 1 <= request[key] <= 100000:
-            raise ValueError(f'{key} must be an integer in 1..100000')
+        limits.integer(name, request[key], f'{key} must be an integer in 1..{getattr(limits, name)}')
     request.setdefault('seed', 0)
     if type(request['seed']) is not int:
         raise ValueError('seed must be an integer')
@@ -164,8 +165,7 @@ def _plan(registry, request, targets, duration, backend):
         raise ValueError(f'Materialization budget exceeded: {total_calls} calls, cost {total_cost}')
     lifecycle=request.get('lifecycle',{})
     lifecycle_work=2*(total_calls+1)*(len(lifecycle.get('events',[]))+len(lifecycle.get('entities',[])))
-    if lifecycle_work>10000000:
-        raise ValueError('Lifecycle reconstruction work budget exceeded before execution')
+    resolve_limits().check('materialize_max_lifecycle_work', lifecycle_work, 'Lifecycle reconstruction work budget exceeded before execution')
     if agents and (not isinstance(getattr(backend, 'identity', None), dict) or not backend.identity):
         raise ValueError('Agent backend requires an explicit identity dictionary for provenance')
     return selected, sorted(keys), {'bindings': [
@@ -192,8 +192,9 @@ def _interventions(request, start, end, bindings, specs):
     """Preflight literal changes without invoking any process handlers."""
     from .processes import _typed
     items = request.get('interventions', [])
-    if not isinstance(items, list) or len(items) > 100000:
-        raise ValueError('interventions must be a list of at most 100000 changes')
+    if not isinstance(items, list):
+        raise ValueError('interventions must be a list of changes')
+    resolve_limits().check('materialize_max_interventions', len(items), 'interventions must be a bounded list of changes')
     selected = {binding['id']: binding for binding in bindings}
     scheduled, seen = {}, set()
     for item in items:
@@ -299,7 +300,10 @@ def materialize(store, graph_ref, request, registry=None, agent_backend=None):
             if impl['work_estimator'] == 'worldmodel.economy_processes:estimate_process_work':
                 from .economy_processes import estimate_process_work
             elif impl['work_estimator'] == 'worldmodel.fields:estimate_process_work':
-                from .fields import estimate_process_work
+                from functools import partial
+                from .fields import estimate_process_work as field_work
+                # Per-call field budgets come from the binding's adapter parameters.
+                estimate_process_work = partial(field_work, parameters=binding.get('parameters', {}))
             else:
                 raise ValueError('Unsupported process work estimator')
             item = binding['inputs_resolved'][impl['work_input']]

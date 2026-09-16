@@ -4,10 +4,10 @@ from collections import deque
 
 
 def enhance(html, data, spec):
-    from .surfaces import _rows, _select, _time, _limit, _number, _text
+    from .surfaces import _rows, _select, _time, _limit, _edge_limit, _number, _text
     panels=[];times={};numeric=set()
     for panel in spec['panels']:
-        kind=panel['kind'];item={'spec':panel,'limit':_limit(panel,200 if kind=='graph' else 500)}
+        kind=panel['kind'];item={'spec':panel,'limit':_limit(panel,kind=='graph')}
         if kind=='spatial' or (kind=='graph' and panel.get('source')=='spatial'):
             item['frames']=data['spatial_frames']
             item['coordinate_system']=data['coordinate_system']
@@ -37,7 +37,8 @@ def enhance(html, data, spec):
                         if neighbor not in seen:queue.append(neighbor);seen.add(neighbor)
             else:keys=sorted(nodes)[:item['limit']]
             edges.sort(key=lambda e:not(e['subject'] in keys and e['object'] in keys))
-            item.update(nodes=[nodes[k] for k in keys],edges=edges[:500],omitted_nodes=len(nodes)-len(keys),omitted_edges=max(0,len(edges)-500))
+            edge_limit=_edge_limit(panel)
+            item.update(nodes=[nodes[k] for k in keys],edges=edges[:edge_limit],omitted_nodes=len(nodes)-len(keys),omitted_edges=max(0,len(edges)-edge_limit))
         else:
             rows=_rows(data,panel)
             if kind=='map':

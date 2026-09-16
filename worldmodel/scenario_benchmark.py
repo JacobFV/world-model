@@ -2,6 +2,7 @@
 from copy import deepcopy
 import math
 from .coupled_economy import initialize_economy, step_economy
+from .limits import resolve_limits
 from .util import canonical, digest
 
 
@@ -45,7 +46,7 @@ def _pareto(scores, objectives):
 
 
 def benchmark_scenarios(scenarios, policies, objectives, *, selection_objective, baseline_ids,
-                        constraints=None, shortlist_size=2, max_transitions=100):
+                        constraints=None, shortlist_size=2, max_transitions=100, limits=None):
     """Finite policy search: train shortlist, validation selection, frozen test report.
 
     Scenario config has initial_state and a shocks list defining the horizon. Policy
@@ -53,9 +54,12 @@ def benchmark_scenarios(scenarios, policies, objectives, *, selection_objective,
     compared on final test scenarios only after selection. Test Pareto results are
     descriptive comparisons, never used to retune the selected policy.
     """
-    if type(max_transitions) is not int or not 1 <= max_transitions <= 100000: raise ValueError('Invalid transition budget')
-    if not isinstance(scenarios, list) or not 3 <= len(scenarios) <= 100 or not isinstance(policies, list) or not 2 <= len(policies) <= 20:
-        raise ValueError('Require 3..100 scenarios and 2..20 policies')
+    limits = resolve_limits(limits)
+    limits.integer('scenario_max_transitions', max_transitions, 'Invalid transition budget')
+    if not isinstance(scenarios, list) or len(scenarios) < 3 or not isinstance(policies, list) or len(policies) < 2:
+        raise ValueError('Require at least 3 scenarios and 2 policies')
+    limits.check('scenario_max_scenarios', len(scenarios), 'Scenario count')
+    limits.check('scenario_max_policies', len(policies), 'Policy count')
     if not isinstance(objectives, dict) or not 1 <= len(objectives) <= 20 or selection_objective not in objectives:
         raise ValueError('Explicit named objectives and selection objective required')
     constraints = {} if constraints is None else constraints
@@ -79,8 +83,9 @@ def benchmark_scenarios(scenarios, policies, objectives, *, selection_objective,
         if not isinstance(sid, str) or not sid or sid in ids or scenario['split'] not in split: raise ValueError('Scenario identity/split invalid')
         if _number(scenario['weight']) <= 0: raise ValueError('Scenario weight must be positive')
         config = scenario['config']
-        if not isinstance(config, dict) or set(config) != {'initial_state', 'shocks'} or not isinstance(config['shocks'], list) or not 1 <= len(config['shocks']) <= 1000:
+        if not isinstance(config, dict) or set(config) != {'initial_state', 'shocks'} or not isinstance(config['shocks'], list) or not config['shocks']:
             raise ValueError('Scenario config requires initial_state and bounded daily shocks')
+        limits.check('coupled_max_steps', len(config['shocks']), 'Scenario config requires initial_state and bounded daily shocks')
         fingerprint = digest(config)
         if fingerprint in identities: raise ValueError('Scenario configurations must be disjoint before fitting')
         identities.add(fingerprint); ids.add(sid); split[scenario['split']].append(scenario)
@@ -105,8 +110,8 @@ def benchmark_scenarios(scenarios, policies, objectives, *, selection_objective,
         for pid in sorted(by_policy):
             values = []; feasible = True
             for scenario in group:
-                state = initialize_economy(scenario['config']['initial_state'])
-                for action, shock in zip(by_policy[pid]['actions'], scenario['config']['shocks']): state = step_economy(state, action, shock)
+                state = initialize_economy(scenario['config']['initial_state'], limits=limits)
+                for action, shock in zip(by_policy[pid]['actions'], scenario['config']['shocks']): state = step_economy(state, action, shock, limits=limits)
                 scores = {name: _number(_path(state, spec['path'])) for name, spec in objectives.items()}
                 violations = [name for name, bound in constraints.items() if not bound.get('minimum', -math.inf) <= scores[name] <= bound.get('maximum', math.inf)]
                 feasible = feasible and not violations; values.append(scores)
@@ -137,18 +142,22 @@ def benchmark_scenarios(scenarios, policies, objectives, *, selection_objective,
                            'Objectives use explicit final-state paths; weights and constraints are declared assumptions.']}
 
 
-def parameter_ensemble(evaluate, parameter_sets, observations, *, probes, outputs, baseline_id, tolerance=0, max_evaluations=100):
+def parameter_ensemble(evaluate, parameter_sets, observations, *, probes, outputs, baseline_id, tolerance=0, max_evaluations=100, limits=None):
     """Finite-grid synthetic fit ambiguity and withheld response disagreement.
 
     evaluate(parameters,input) returns named numerical outputs. Observations must
     explicitly identify synthetic status, unit and output path. Supplied parameter
     ranges are a grid, not a posterior or an identified empirical causal model.
     """
-    if not callable(evaluate) or not isinstance(parameter_sets, list) or not 2 <= len(parameter_sets) <= 100: raise ValueError('Bounded parameter candidates required')
-    if not isinstance(observations, list) or not 1 <= len(observations) <= 100 or not isinstance(probes, list) or len(probes) > 100:
+    limits = resolve_limits(limits)
+    if not callable(evaluate) or not isinstance(parameter_sets, list) or len(parameter_sets) < 2: raise ValueError('Bounded parameter candidates required')
+    limits.check('scenario_max_parameter_sets', len(parameter_sets), 'Bounded parameter candidates required')
+    if not isinstance(observations, list) or not observations or not isinstance(probes, list):
         raise ValueError('Bounded observations/probes required')
+    limits.check('scenario_max_observations', max(len(observations), len(probes)), 'Bounded observations/probes required')
     if not isinstance(outputs, dict) or not 1 <= len(outputs) <= 20: raise ValueError('Explicit probe outputs required')
-    if type(max_evaluations) is not int or not 1 <= max_evaluations <= 10000 or len(parameter_sets) * (len(observations) + len(probes)) > max_evaluations:
+    limits.integer('scenario_max_evaluations', max_evaluations, 'Parameter evaluation budget exceeded')
+    if len(parameter_sets) * (len(observations) + len(probes)) > max_evaluations:
         raise ValueError('Parameter evaluation budget exceeded')
     if _number(tolerance) < 0: raise ValueError('Tolerance must be nonnegative')
     canonical([parameter_sets, observations, probes, outputs])

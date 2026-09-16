@@ -1,0 +1,97 @@
+{
+  "machine": {
+    "platform": "Linux-6.17.0-1026-nvidia-aarch64-with-glibc2.39",
+    "machine": "aarch64",
+    "python": "3.12.3",
+    "cpus": 20,
+    "memory_bytes": 130596077568,
+    "numpy": "2.5.3"
+  },
+  "results": [
+    {
+      "kernel": "transport",
+      "size": "small",
+      "backend": "python",
+      "params": {
+        "side": 160,
+        "queries": 4
+      },
+      "wall_seconds": 4.888,
+      "kernel_seconds": 4.474,
+      "setup_seconds": 0.361,
+      "peak_rss_bytes": 175603712,
+      "units": 837562,
+      "unit": "label-expansions",
+      "throughput_per_second": 187199.1874193038,
+      "details": {
+        "nodes": 25600,
+        "edges": 101760,
+        "generate_seconds": 0.083,
+        "compile_seconds": 0.277,
+        "statuses": [
+          "ok",
+          "ok",
+          "ok",
+          "ok"
+        ],
+        "compiled_edges_per_second": 367555
+      },
+      "status": "ok"
+    },
+    {
+      "kernel": "transport",
+      "size": "medium",
+      "backend": "python",
+      "params": {
+        "side": 500,
+        "queries": 2
+      },
+      "wall_seconds": 30.645,
+      "kernel_seconds": 25.996,
+      "setup_seconds": 4.34,
+      "peak_rss_bytes": 1482321920,
+      "units": 4179071,
+      "unit": "label-expansions",
+      "throughput_per_second": 160759.35980008388,
+      "details": {
+        "nodes": 250000,
+        "edges": 998000,
+        "generate_seconds": 0.848,
+        "compile_seconds": 3.477,
+        "statuses": [
+          "ok",
+          "ok"
+        ],
+        "compiled_edges_per_second": 287011
+      },
+      "status": "ok"
+    },
+    {
+      "kernel": "transport",
+      "size": "large",
+      "backend": "python",
+      "params": {
+        "side": 1120,
+        "queries": 1
+      },
+      "wall_seconds": 146.032,
+      "kernel_seconds": 122.145,
+      "setup_seconds": 22.352,
+      "peak_rss_bytes": 7741546496,
+      "units": 14056093,
+      "unit": "label-expansions",
+      "throughput_per_second": 115077.1140934359,
+      "details": {
+        "nodes": 1254400,
+        "edges": 5013120,
+        "generate_seconds": 3.29,
+        "compile_seconds": 18.969,
+        "statuses": [
+          "ok"
+        ],
+        "compiled_edges_per_second": 264274
+      },
+      "status": "ok"
+    }
+  ]
+}

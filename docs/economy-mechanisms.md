@@ -128,6 +128,78 @@ duration and source. This is an assumed policy reaction rule, not an estimated
 central-bank decision process. It neither creates reserves nor models a central-bank
 balance sheet, liquidity facilities or regulatory capital.
 
+## Estimation hooks
+
+These keys let estimates from `worldmodel.estimation` drive the simulation. The
+parameter names match the `maps_to` paths in `requirements.json`. Every key is
+optional, and leaving it out keeps behavior bit-identical. Bind estimates with
+`initialize_economy(config, calibration=...)`, `calibrate_state(state, calibration)`,
+`simulate_coupled_economy(..., calibration=...)` or the process parameter
+`{"calibration": record}`. `state['calibration']` records each bound path with its
+component, `estimate_id`, `record_id` and `validated` flag.
+`parameter_provenance(state)` labels every mechanism parameter as estimated or
+assumed. Both backends share these functions, and the numpy backend reproduces them
+exactly.
+
+- **Interest pass-through.** Set `interest.pass_through` (0..1.5, default 1),
+  `adjustment_speed` (0..1 per day, default 1) and `impact_pass_through` (-0.5..1.5,
+  default 0). The annual loan rate then persists as `interest.loan_rate`. Each day:
+  - `pre = loan_rate + impact_pass_through * (policy_rate - previous policy_rate)`
+  - `loan_rate = pre + adjustment_speed * (spread + pass_through*policy_rate - pre)`
+
+  Rates are clamped to [0,3] and computed in exact rationals. Interest due uses this
+  rate. The first day starts at the long-run rate. `monetary_policy` records
+  `long_run_loan_rate` and the coefficients.
+- **Deposit interest.** Configure `deposit_interest` with `spread` (-1..1),
+  `pass_through`, optional `adjustment_speed`, `impact_pass_through` and
+  `day_count`. It requires `interest`. The deposit rate follows the same
+  error-correction rule and is floored at 0. After repayments, each account earns
+  `round_half_up(opening_deposit * deposit_rate / day_count)`, households first
+  then firms, each in ID order. The payment is a `banking` `deposit_interest`
+  transaction: deposits rise and bank equity falls. Deposits then change by
+  `created - repaid - interest_paid + deposit_interest_paid`, and equity by
+  `interest_paid - defaulted - deposit_interest_paid`.
+- **Default hazard.** Configure `default_hazard` with `intercept`, `persistence`,
+  `unemployment_sensitivity`, `rate_sensitivity`, a `seed` (uint64), the initial
+  period `hazard` in (0,1), `unemployment` (updated by shock `unemployment`) and
+  `period_days` (default 91.3125). At the first step of each new period:
+  - `hazard = logistic(intercept + persistence*logit(hazard) + unemployment_sensitivity*unemployment + rate_sensitivity*i)`,
+    where `i` is the policy rate that closed the previous day.
+  - The daily probability is `1-(1-hazard)^(1/period_days)`.
+
+  Before production, each active firm in ID order defaults when a counter-based
+  splitmix64 draw of (seed, step, SHA-256 of the firm ID) falls below the
+  probability. A default writes off principal like a declared bankruptcy (cause
+  `default_hazard`). Draws are independent of order and backend. `history[].default_hazard`
+  records the hazard, the probability and the default count.
+- **Deposit growth.** Configure `deposit_growth` with `mean_growth_per_month`,
+  `persistence`, `rate_semi_elasticity` and `period_days` (30.4375). The monthly
+  target is `g = mean*(1-persistence) + persistence*g_prev +
+  semi_elasticity*(policy rate change)`. Households keep
+  `round_half_up(opening_deposit * exp(g/period_days))` (ppb-quantized) out of
+  purchases. Deposits cannot grow without credit in this closed economy, so this
+  is a retention rule, not money creation.
+- **Credit growth.** Configure `credit_growth` with `mean_growth_per_month`,
+  `persistence` and `base_credit_limit`. It generates
+  `credit_limit = base * exp(log_index)` for firm actions that omit
+  `credit_limit`, then adds `g/period_days` to `log_index` each day. Explicit
+  limits still win.
+- **Price cost pass-through.** `price_feedback.cost_pass_through` (0..1.5) adds
+  `cost_pass_through*(unit_cost - last_unit_cost)/last_unit_cost` to the quote
+  fraction. `firm.last_unit_cost` stores the opening unit cost of the previous quote,
+  so a `unit_cost` shock moves the next day's quote.
+- **Labor.** `labor.employment_output_elasticity` (0..2) is used after each step.
+  Every household with `labor_capacity` has its capacity scaled by
+  `(output/previous_output)^elasticity`, rounded half up. `household.labor_output`
+  tracks that previous output. Capacity is unchanged when either output is zero.
+- **Policy-rule smoothing.** `policy_rule.smoothing` (0..0.999, estimated per
+  `period_days`, default 91.3125) gives
+  `rate = rho*previous + (1-rho)*rule` with `rho = smoothing^(1/period_days)`,
+  before the bounds are applied (source `smoothed_bounded_rule`).
+
+The work budget reserves one slot per firm for hazard write-offs and one per account
+for deposit interest.
+
 ## Inventory costs and financial metrics
 
 Enable `mechanisms.inventory_valuation:true`. Quantity remains integer goods;
@@ -215,14 +287,62 @@ bankruptcy has no automatic collateral buyer and performs no implicit sale.
 
 ## Work bounds and checked identities
 
-Existing limits remain: 1..100 firms/households each, at most 1,000 days and 100,000
-actor-days; 10,000 reserved transactions, 40,000 postings and 1,000,000 transaction ×
-ledger-balance cells over retained history. Every purchase entry reserves work, even
-zero/rationed orders. Each production request reserves origination and wage-payment
-slots. Interest reserves payment and potential default slots for every firm/day,
-including omitted firm actions. A collateral declaration reserves sale, repayment
-and write-off slots. All loops use existing actors/orders, not a new cross-product.
+All size and work caps are named limits in `worldmodel/limits.py` (see
+`describe_limits()`). Defaults are sized for national-scale synthetic runs and can
+be lowered or raised per call (`limits={...}`), per block (`use_limits(...)`), via
+the `WORLD_MODEL_LIMITS` JSON environment variable, or with CLI `--limits`. A
+rejected request raises `LimitExceeded` (a `ValueError`) naming the limit.
+
+| Limit | Default | Replaces |
+|---|---:|---|
+| `coupled_max_firms` / `coupled_max_households` | 250,000 / 2,500,000 | 1..100 each |
+| `coupled_max_steps` | 36,500 | 1,000 days / policies |
+| `coupled_max_step_transactions` | 50,000,000 reserved slots per step | 10,000 cumulative transactions |
+| `coupled_max_ledger_cells` | 20,000,000 balance cells | transactions × cells ≤ 1,000,000 |
+| `coupled_max_retained_postings` | 20,000,000 (full-history journals) | 40,000 postings |
+| `coupled_max_history_actor_steps` | 50,000,000 (full-history rows) | 100,000 actor-days |
+| `economy_max_quantity` | 1,000,000,000 goods/labor units | 1,000,000 (also the demand and unmet-demand clamps and the no-labor-limit sentinel) |
+| `banking_max_banks` / `banking_max_transactions` | 10,000 / 50,000,000 | 100 / 10,000 |
+| `banking_max_audit_cells` | 50,000,000 (only with `audit='full'`) | 1,000,000 |
+| `economy_max_days`, `economy_max_businesses`, `economy_max_business_days` | 36,500 / 1,000,000 / 1e9 | 10,000 / 1,000 / 100,000 |
+| `economy_max_retained_business_days` | 5,000,000 snapshot rows (`history='full'`) | — |
+| `economy_max_replay_firm_days` | 1e9 cumulative replay firm-days | 100,000 |
+
+Every purchase entry still reserves work, even zero/rationed orders. Each
+production request reserves origination and wage-payment slots. Interest reserves
+payment and potential default slots for every firm/day, including omitted firm
+actions. A collateral declaration reserves sale, repayment and write-off slots.
 The bounded runner preflights the whole policy sequence before any transition.
+
+The quadratic work the old bounds protected against is gone: transactions update
+one integer-cent ledger in place (`banking.apply_transaction`, touched-bank checks
+only) instead of re-parsing and exporting the whole ledger per transaction, actor
+lookups are dictionaries, and step outputs share retained history records rather
+than deep-copying history. Work per step is linear in actors plus purchase entries.
+
+History retention is explicit (`initialize_economy(config, history=...)`,
+`simulate_coupled_economy(..., history=...)` or `history_policy` in the initial
+config/state): `'full'` (default, identical records to earlier releases),
+`'summary'` (one exact summary per step: accounting, cents-exact totals, event
+counts, labor totals, monetary policy, work) or `{'mode': 'every_n', 'every': N}`
+(full records every N steps, summaries otherwise). `step == len(history)` in all
+modes; summaries of a full run equal `summarize_record` of its records.
+
+### Vectorized backend
+
+`simulate_coupled_economy(..., backend='numpy'|'auto')` and
+`worldmodel.coupled_economy_numpy.ArrayEconomy` (optional `fast` extra) keep int64
+cent columns and reproduce the reference exactly (final state, summary records and
+errors are tested equal on randomized and deliberately rationed scenarios).
+Order-dependent couplings (shared worker labor, interbank reserves, household
+deposits across purchases, firm inventory across buyers) are solved as the unique
+fixed point of the sequential recurrence; weighted-average cost allocation runs in
+exact buyer-rank rounds. Full audit records, declared bankruptcies/collateral sales
+on active firms and out-of-range balances fall back to the reference step
+(`diagnostics` counts them). `ColumnarPolicy.from_arrays` avoids building
+per-household dictionaries; `ArrayEconomy.checkpoint(dir)`/`restore(dir)` use
+verified binary array checkpoints. Measured throughput is in
+[scale-benchmarks.md](scale-benchmarks.md).
 
 Every step checks:
 

@@ -1,35 +1,44 @@
 """Bounded, explicit spatial timeline adapter for standalone surfaces."""
 from copy import deepcopy
 import math
+from .limits import resolve_limits
 from .util import canonical, digest
 from .surfaces import _time
 from .spatial_geometry import validate_polygon
 
 
-def _bound(value, maximum):
-    if type(value) is not int or not 1 <= value <= maximum:
-        raise ValueError(f'Spatial view bound must be in 1..{maximum}')
+def _bound(value, maximum, name='Spatial view bound', limits=None, limit=None):
+    if type(value) is not int or value < 1:
+        raise ValueError(f'{name} must be in 1..{maximum}')
+    if limits is not None:
+        return limits.check(limit, value, name)
+    if value > maximum:
+        raise ValueError(f'{name} must be in 1..{maximum}')
     return value
 
 
-def adapt_spatial_result(result, selection, *, max_cells=200, max_edges=500, max_frames=100, materialization_ref=None):
+def adapt_spatial_result(result, selection, *, max_cells=200, max_edges=500, max_frames=100, max_events=1000, materialization_ref=None, limits=None):
     """Select one scalar/vector transformation; preserve explicit active frame sets.
 
     Selection is {field} for scalar, {field,component:index} or
     {field,magnitude:true} for vectors. Missing geometry never creates locations.
     Store selections without timeline frames require an explicit `time` field.
     """
-    _bound(max_cells,500);_bound(max_edges,1000);_bound(max_frames,200)
-    if not isinstance(result,dict) or len(canonical(result))>32_000_000:
-        raise ValueError('Spatial input exceeds 32 MB bound')
+    limits=resolve_limits(limits)
+    _bound(max_cells,limits.surface_max_cells,'max_cells',limits,'surface_max_cells');_bound(max_edges,limits.surface_max_cells,'max_edges',limits,'surface_max_cells')
+    _bound(max_frames,limits.surface_max_frames,'max_frames',limits,'surface_max_frames');_bound(max_events,limits.surface_max_frames,'max_events',limits,'surface_max_frames')
+    if not isinstance(result,dict):
+        raise ValueError('Spatial input must be an object')
+    limits.check('surface_max_input_bytes',len(canonical(result)),'Spatial input exceeds bound')
     if not isinstance(selection,dict) or set(selection)-{'field','component','magnitude'} or not isinstance(selection.get('field'),str):
         raise ValueError('Explicit field selection required')
     raw=result.get('frames')
     if raw is None:
         if 'time' not in result:raise ValueError('Store selection requires explicit time')
         raw=[result]
-    if not isinstance(raw,list) or not raw or len(raw)>1000:
-        raise ValueError('Expected 1..1000 explicit frames')
+    if not isinstance(raw,list) or not raw:
+        raise ValueError('Expected explicit frames')
+    limits.check('surface_max_frames',len(raw),'Explicit frames')
     frames=[];previous=None
     coords=result.get('coordinate_system',{})
     components=result.get('component_frames',{})
@@ -37,7 +46,9 @@ def adapt_spatial_result(result, selection, *, max_cells=200, max_edges=500, max
         time=_time(frame['time'])
         if previous is not None and time<=previous:raise ValueError('Frames must have strictly increasing times')
         previous=time
-        state=frame['state'];field=state['fields'].get(selection['field'])
+        state=frame['state']
+        if state is None:raise ValueError('Summary timeline frames carry no state; render a full or every_n history')
+        field=state['fields'].get(selection['field'])
         if field is None:raise ValueError('Selected field missing from frame')
         vector=field.get('value_type','scalar')=='vector'
         if vector:
@@ -78,11 +89,11 @@ def adapt_spatial_result(result, selection, *, max_cells=200, max_edges=500, max
                        'selection':deepcopy(frame.get('selection',{})),'phase':frame.get('phase','selected'),
                        'nodes':[{'entity':c['entity'],'labels':[c['entity']],'sources':[deepcopy(c)]} for c in cells]})
     events=deepcopy(result.get('events',[]))
-    snapshots=[{'time':e['time'],'entity':'spatial:lifecycle','variable':'lifecycle','value':e,'unit':'event','origin':'synthetic_scenario','evidence':[],'sources':[e]} for e in events[:1000]]
+    snapshots=[{'time':e['time'],'entity':'spatial:lifecycle','variable':'lifecycle','value':e,'unit':'event','origin':'synthetic_scenario','evidence':[],'sources':[e]} for e in events[:max_events]]
     return {'spatial_frames':frames,'snapshots':snapshots,'coordinate_system':deepcopy(coords),'component_frames':deepcopy(components),
-            'spatial_selection':deepcopy(selection),'omitted_frames':len(raw)-len(frames),'omitted_events':max(0,len(events)-1000),
+            'spatial_selection':deepcopy(selection),'omitted_frames':len(raw)-len(frames),'omitted_events':max(0,len(events)-max_events),
             'materialization_ref':deepcopy(materialization_ref if materialization_ref is not None else {'result_hash':digest(result),'source':result.get('final_source',result.get('source',{}))}),
-            'lifecycle':events[:1000]}
+            'lifecycle':events[:max_events]}
 
 
 def render_spatial_surface(result, selection, *, spec=None, materialization_ref=None, **bounds):

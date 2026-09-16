@@ -15,6 +15,7 @@ from pathlib import Path
 import tempfile
 
 from .checkpoints import _json_native
+from .limits import resolve_limits
 from .util import canonical, digest, atomic_json, file_hash, read_json
 
 
@@ -28,6 +29,14 @@ class EffectUnresolved(ValueError):
 
 _DEFAULTS={'max_payload_bytes':1024*1024,'max_checkpoint_bytes':32*1024*1024,
            'max_storage_bytes':64*1024*1024,'max_records':100000}
+# Persisted per-journal defaults stay small; their configurable ceilings are named limits.
+_CEILINGS={'max_payload_bytes':'journal_max_payload_bytes','max_checkpoint_bytes':'journal_max_checkpoint_bytes',
+           'max_storage_bytes':'journal_max_storage_bytes','max_records':'journal_max_records'}
+
+
+def _ceiling(key,value,limits):
+    _integer(value)
+    return limits.check(_CEILINGS[key],value,'Journal limit '+key)
 
 
 def _name(value):
@@ -49,14 +58,15 @@ class ExecutionJournal:
     explicit different limits are rejected. Logical storage limits exclude SQLite
     indexes, pages and WAL overhead; this is not a physical disk quota.
     """
-    def __init__(self,path,*,limits=None,signing_key=None):
+    def __init__(self,path,*,limits=None,signing_key=None,work_limits=None):
         if signing_key is not None and (type(signing_key) is not bytes or len(signing_key)<32):
             raise ValueError("Journal signing key requires at least 32 bytes")
         self.path=Path(path).resolve();self._signing_key=signing_key
         if limits is not None and (not isinstance(limits,dict) or set(limits)-set(_DEFAULTS)):
             raise ValueError('Unknown journal limits')
         requested={**_DEFAULTS,**(limits or {})}
-        for key,value in requested.items():_integer(value,_DEFAULTS[key])
+        self._work_limits=work_limits;ceilings=resolve_limits(work_limits)
+        for key,value in requested.items():_ceiling(key,value,ceilings)
         self.db=sqlite3.connect(str(path),timeout=10,isolation_level=None)
         self.db.row_factory=sqlite3.Row
         try:
@@ -83,7 +93,7 @@ class ExecutionJournal:
                 if row:
                     self.limits=json.loads(row['payload'])
                     if set(self.limits)!=set(_DEFAULTS):raise ValueError('Invalid stored journal limits')
-                    for key,value in self.limits.items():_integer(value,_DEFAULTS[key])
+                    for key,value in self.limits.items():_ceiling(key,value,ceilings)
                     if limits is not None and requested!=self.limits:raise ValueError('Journal limits are immutable')
                 else:
                     self.limits=requested
@@ -141,6 +151,12 @@ class ExecutionJournal:
             raise ValueError('Journal logical storage/record budget exhausted')
         self.db.execute('UPDATE usage SET bytes=bytes+?,records=records+? WHERE id=1',(byte_count,records))
 
+    def _page(self,limit,max_bytes=None):
+        limits=resolve_limits(self._work_limits)
+        _integer(limit);limits.check('journal_max_page_items',limit,'Journal page limit')
+        if max_bytes is not None:
+            _integer(max_bytes);limits.check('journal_max_page_bytes',max_bytes,'Journal page bytes')
+
     def usage(self):return dict(self.db.execute('SELECT bytes,records FROM usage WHERE id=1').fetchone())
 
     def _append(self,stream,value,key=None):
@@ -162,7 +178,7 @@ class ExecutionJournal:
         with self._transaction():return self._append(stream,value,key)
 
     def history(self,stream,*,after=0,limit=100,max_bytes=8*1024*1024):
-        _name(stream);_integer(after,zero=True);_integer(limit,100);_integer(max_bytes,32*1024*1024)
+        _name(stream);_integer(after,zero=True);self._page(limit,max_bytes)
         rows=self.db.execute('SELECT * FROM entries WHERE stream=? AND sequence>? ORDER BY sequence LIMIT ?',
                              (stream,after,limit+1))
         items=[];size=0;more=False
@@ -206,7 +222,7 @@ class ExecutionJournal:
         with self._transaction():return self._reserve(name,units,key)
 
     def reservations(self,name,*,after=0,limit=100):
-        _name(name);_integer(after,zero=True);_integer(limit,100)
+        _name(name);_integer(after,zero=True);self._page(limit)
         rows=self.db.execute('SELECT sequence,key,units FROM reservations WHERE quota=? AND sequence>? ORDER BY sequence LIMIT ?',
                              (name,after,limit+1)).fetchall()
         items=[dict(row) for row in rows[:limit]]
@@ -316,7 +332,7 @@ class ExecutionJournal:
         return value
 
     def effects(self,*,after=0,limit=100,max_bytes=8*1024*1024):
-        _integer(after,zero=True);_integer(limit,100);_integer(max_bytes,32*1024*1024)
+        _integer(after,zero=True);self._page(limit,max_bytes)
         rows=self.db.execute('SELECT * FROM effects WHERE sequence>? ORDER BY sequence LIMIT ?',(after,limit+1))
         items=[];size=0;more=False
         for row in rows:
@@ -352,7 +368,7 @@ class ExecutionJournal:
 
     def prune(self,stream,*,kind='history',keep_last=1,limit=100):
         """Prune only unkeyed user history or superseded checkpoints; keep authority."""
-        _name(stream);_integer(keep_last,100000);_integer(limit,1000)
+        _name(stream);_integer(keep_last);resolve_limits(self._work_limits).check('journal_max_records',keep_last,'Prune keep_last');self._page(limit)
         if stream.startswith(('effect:','episode:')):raise ValueError('Authority/audit streams cannot be pruned')
         if kind not in ('history','checkpoints'):raise ValueError('Unknown retention kind')
         table,column=('entries','stream') if kind=='history' else ('checkpoints','session')

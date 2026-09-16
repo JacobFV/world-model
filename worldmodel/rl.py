@@ -1,8 +1,14 @@
-"""Bounded offline RL helpers. Toy learning success is not causal validation."""
+"""Bounded offline RL helpers. Toy learning success is not causal validation.
+
+Ceilings are named limits: rl_max_seeds, environment_max_steps, rl_max_transitions,
+rl_max_actions (count, and total serialized KiB), rl_max_observation_bytes,
+rl_max_states and rl_max_vector_environments (worldmodel.limits).
+"""
 from copy import deepcopy
 import json
 import math
 import random
+from .limits import LimitExceeded, resolve_limits
 
 
 def _integer(value, name, low, high):
@@ -17,14 +23,15 @@ def _finite(value, name):
     return value
 
 
-def _seeds(values, name):
-    if not isinstance(values, (list, tuple)) or not 1 <= len(values) <= 10000 or any(type(v) is not int for v in values) or len(set(values)) != len(values):
-        raise ValueError(f'{name} must contain 1..10000 unique integer seeds')
+def _seeds(values, name, limits):
+    if not isinstance(values, (list, tuple)) or not values or any(type(v) is not int for v in values) or len(set(values)) != len(values):
+        raise ValueError(f'{name} must contain 1..{limits.rl_max_seeds} unique integer seeds')
+    limits.check('rl_max_seeds', len(values), name)
     return list(values)
 
 
 def train_tabular(env_factory, actions, observation_encoder, *, training_seeds, evaluation_seeds,
-                  max_steps=100, alpha=.2, gamma=.95, epsilon=.2, seed=0, baseline_action=0):
+                  max_steps=100, alpha=.2, gamma=.95, epsilon=.2, seed=0, baseline_action=0, limits=None):
     """Train tabular Q-learning then evaluate a frozen policy on held-out seeds.
 
     actions is an explicit finite list of action dictionaries. The encoder maps
@@ -34,20 +41,25 @@ def train_tabular(env_factory, actions, observation_encoder, *, training_seeds, 
     max_steps cap treats its boundary as terminal (finite-horizon objective).
     No live model fitting, parallel workers, or implicit external dependencies.
     """
-    train_seeds, eval_seeds = _seeds(training_seeds, 'training_seeds'), _seeds(evaluation_seeds, 'evaluation_seeds')
+    limits = resolve_limits(limits)
+    train_seeds, eval_seeds = _seeds(training_seeds, 'training_seeds', limits), _seeds(evaluation_seeds, 'evaluation_seeds', limits)
     if set(train_seeds) & set(eval_seeds): raise ValueError('Training and evaluation seeds must be disjoint')
-    _integer(max_steps, 'max_steps', 1, 1000)
+    if type(max_steps) is not int or max_steps < 1: raise ValueError(f'max_steps must be an integer in 1..{limits.environment_max_steps}')
+    limits.check('environment_max_steps', max_steps, 'max_steps')
     _integer(seed, 'seed', -2**63, 2**63 - 1)
-    if (len(train_seeds) + 2 * len(eval_seeds)) * max_steps > 1000000:
-        raise ValueError('Training/evaluation transition budget exceeds 1000000')
-    if not isinstance(actions, list) or not 1 <= len(actions) <= 100 or any(not isinstance(a, dict) for a in actions):
-        raise ValueError('actions must contain 1..100 action dictionaries')
+    limits.check('rl_max_transitions', (len(train_seeds) + 2 * len(eval_seeds)) * max_steps, 'Training/evaluation transition budget exceeded')
+    if not isinstance(actions, list) or not actions or any(not isinstance(a, dict) for a in actions):
+        raise ValueError(f'actions must contain 1..{limits.rl_max_actions} action dictionaries')
+    limits.check('rl_max_actions', len(actions), 'actions')
     try:
         encoded_actions = [json.dumps(a, sort_keys=True, allow_nan=False) for a in actions]
     except (ValueError, TypeError) as exc:
         raise ValueError('Actions must be finite JSON data') from exc
-    if len(set(encoded_actions)) != len(actions) or sum(map(len, encoded_actions)) > 65536:
-        raise ValueError('Actions must be unique and total at most 64 KiB')
+    if len(set(encoded_actions)) != len(actions):
+        raise ValueError('Actions must be unique and total at most rl_max_actions KiB')
+    size = sum(map(len, encoded_actions))
+    if size > limits.rl_max_actions * 1024:
+        raise LimitExceeded('rl_max_actions', size, limits.rl_max_actions * 1024, 'Serialized action bytes (limit value is KiB)')
     _integer(baseline_action, 'baseline_action', 0, len(actions) - 1)
     for name, value in [('alpha', alpha), ('gamma', gamma), ('epsilon', epsilon)]:
         if not 0 <= _finite(value, name) <= 1 or (name == 'alpha' and value == 0):
@@ -63,12 +75,12 @@ def train_tabular(env_factory, actions, observation_encoder, *, training_seeds, 
             value = json.dumps(observation_encoder(deepcopy(observation)), sort_keys=True, allow_nan=False, separators=(',', ':'))
         except (ValueError, TypeError) as exc:
             raise ValueError('Observation encoder must return finite JSON data') from exc
-        if len(value) > 4096: raise ValueError('Encoded observation exceeds 4 KiB')
+        limits.check('rl_max_observation_bytes', len(value), 'Encoded observation exceeds byte bound')
         return value
 
     def row(state):
         if state not in q:
-            if len(q) >= 10000: raise ValueError('Q table exceeds 10000 states')
+            limits.check('rl_max_states', len(q) + 1, 'Q table exceeds state bound')
             q[state] = [0.0] * len(actions)
         return q[state]
 
@@ -137,9 +149,11 @@ class VectorEnvironment:
     Each member's step is independent. A member failure may follow successful
     earlier members; the batch then requires reset (no cross-environment atomicity).
     """
-    def __init__(self, factories):
-        if not isinstance(factories, (list, tuple)) or not 1 <= len(factories) <= 100 or any(not callable(f) for f in factories):
-            raise ValueError('Provide 1..100 environment factories')
+    def __init__(self, factories, *, limits=None):
+        limits = resolve_limits(limits)
+        if not isinstance(factories, (list, tuple)) or not factories or any(not callable(f) for f in factories):
+            raise ValueError(f'Provide 1..{limits.rl_max_vector_environments} environment factories')
+        limits.check('rl_max_vector_environments', len(factories), 'Vector environment factories')
         self._envs = [f() for f in factories]
         if len({id(env) for env in self._envs}) != len(self._envs): raise ValueError('Factories must create distinct environments')
         self._ready = False

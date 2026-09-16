@@ -12,9 +12,27 @@ license = {file = "LICENSE"}
 
 [project.optional-dependencies]
 rl = ["gymnasium>=1.0,<2"]
+fast = ["numpy>=1.26"]
 
 [project.scripts]
 wm = "worldmodel.cli:main"
 
 [tool.setuptools.packages.find]
 include = ["worldmodel*"]
+
+[tool.setuptools.package-data]
+# Non-Python package data shipped in wheels and sdists (estimation declarations, reference backbone).
+worldmodel = [
+    "estimation/requirements.json",
+    "reference/*.json",
+    "reference/*.csv",
+    "reference/*.md",
+    "reference/**/*.json",
+    "reference/**/*.csv",
+    "**/*.json",
+    "**/*.csv",
+    "**/*.txt",
+]
+
+[tool.setuptools.exclude-package-data]
+worldmodel = ["**/__pycache__/*", "**/*.pyc"]

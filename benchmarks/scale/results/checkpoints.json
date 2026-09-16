@@ -1,0 +1,150 @@
+{
+  "machine": {
+    "platform": "Linux-6.17.0-1026-nvidia-aarch64-with-glibc2.39",
+    "machine": "aarch64",
+    "python": "3.12.3",
+    "cpus": 20,
+    "memory_bytes": 130596077568,
+    "numpy": "2.5.3"
+  },
+  "results": [
+    {
+      "kernel": "checkpoints",
+      "size": "small",
+      "backend": "chunked_json",
+      "params": {
+        "json_mb": 10,
+        "array_mb": 100
+      },
+      "wall_seconds": 0.628,
+      "kernel_seconds": 0.544,
+      "setup_seconds": 0.027,
+      "peak_rss_bytes": 91987968,
+      "units": 19701310,
+      "unit": "bytes",
+      "throughput_per_second": 36183532.69205479,
+      "details": {
+        "document_bytes": 9850655,
+        "compressed_bytes": 4704422,
+        "chunks": 1,
+        "write_seconds": 0.4372976729991933,
+        "read_seconds": 0.10718509400066978
+      },
+      "status": "ok"
+    },
+    {
+      "kernel": "checkpoints",
+      "size": "small",
+      "backend": "array",
+      "params": {
+        "json_mb": 10,
+        "array_mb": 100
+      },
+      "wall_seconds": 0.293,
+      "kernel_seconds": 0.184,
+      "setup_seconds": 0.052,
+      "peak_rss_bytes": 299614208,
+      "units": 209715200,
+      "unit": "bytes",
+      "throughput_per_second": 1140383987.0397341,
+      "details": {
+        "bytes": 104857600,
+        "write_seconds": 0.08241455300048983,
+        "read_seconds": 0.10148420599944075
+      },
+      "status": "ok"
+    },
+    {
+      "kernel": "checkpoints",
+      "size": "medium",
+      "backend": "chunked_json",
+      "params": {
+        "json_mb": 100,
+        "array_mb": 1000
+      },
+      "wall_seconds": 6.309,
+      "kernel_seconds": 5.769,
+      "setup_seconds": 0.317,
+      "peak_rss_bytes": 765714432,
+      "units": 197043526,
+      "unit": "bytes",
+      "throughput_per_second": 34153174.66819806,
+      "details": {
+        "document_bytes": 98521763,
+        "compressed_bytes": 47039226,
+        "chunks": 2,
+        "write_seconds": 4.530749232000744,
+        "read_seconds": 1.2386566259992833
+      },
+      "status": "ok"
+    },
+    {
+      "kernel": "checkpoints",
+      "size": "medium",
+      "backend": "array",
+      "params": {
+        "json_mb": 100,
+        "array_mb": 1000
+      },
+      "wall_seconds": 2.504,
+      "kernel_seconds": 2.143,
+      "setup_seconds": 0.206,
+      "peak_rss_bytes": 2658902016,
+      "units": 2097152000,
+      "unit": "bytes",
+      "throughput_per_second": 978387260.579216,
+      "details": {
+        "bytes": 1048576000,
+        "write_seconds": 1.0160116199986078,
+        "read_seconds": 1.1274668210007803
+      },
+      "status": "ok"
+    },
+    {
+      "kernel": "checkpoints",
+      "size": "large",
+      "backend": "chunked_json",
+      "params": {
+        "json_mb": 1000,
+        "array_mb": 4000
+      },
+      "wall_seconds": 75.234,
+      "kernel_seconds": 67.938,
+      "setup_seconds": 4.983,
+      "peak_rss_bytes": 7430320128,
+      "units": 1970419366,
+      "unit": "bytes",
+      "throughput_per_second": 29003300.7198739,
+      "details": {
+        "document_bytes": 985209683,
+        "compressed_bytes": 470364660,
+        "chunks": 15,
+        "write_seconds": 43.73216172699904,
+        "read_seconds": 24.205601117000697
+      },
+      "status": "ok"
+    },
+    {
+      "kernel": "checkpoints",
+      "size": "large",
+      "backend": "array",
+      "params": {
+        "json_mb": 1000,
+        "array_mb": 4000
+      },
+      "wall_seconds": 12.018,
+      "kernel_seconds": 10.651,
+      "setup_seconds": 0.96,
+      "peak_rss_bytes": 10523230208,
+      "units": 8388608000,
+      "unit": "bytes",
+      "throughput_per_second": 787592221.9642682,
+      "details": {
+        "bytes": 4194304000,
+        "write_seconds": 6.382931414998893,
+        "read_seconds": 4.268021916001089
+      },
+      "status": "ok"
+    }
+  ]
+}

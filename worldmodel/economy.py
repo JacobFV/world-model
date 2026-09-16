@@ -3,9 +3,17 @@
 USD cash moves between a bank, firms, supplier and explicit customer sector.
 This is a cash-funded lender, not a commercial-bank deposit creation model.
 Inventory uses weighted-average acquisition cost; loans are floating rate.
+
+Estimation hook (interest_pass_through): optional ``interest`` {policy_rate, spread,
+pass_through, adjustment_speed} makes the annual loan rate adjust daily toward
+spread + pass_through * policy_rate; shocks may set ``policy_rate``. A shock's
+explicit ``annual_rate`` still overrides that day. ``calibration=`` binds
+``mechanisms.interest.*`` estimates onto ``interest.*``.
 """
 from copy import deepcopy
 import math
+
+from .limits import resolve_limits
 
 
 def _number(value, name, minimum=0):
@@ -24,11 +32,12 @@ def example_economy():
             'shocks': [{'step': 10, 'energy_price': 14, 'annual_rate': .08}]}
 
 
-def _prepare(config):
+def _prepare(config, limits):
     config = deepcopy(config)
     days = config.get('days', 30)
-    if isinstance(days, bool) or not isinstance(days, int) or not 0 <= days <= 10000:
-        raise ValueError('days must be an integer in 0..10000')
+    if isinstance(days, bool) or not isinstance(days, int) or days < 0:
+        raise ValueError(f'days must be an integer in 0..{limits.economy_max_days}')
+    limits.check('economy_max_days', days, 'days must be a bounded integer')
     price = _number(config['energy_price'], 'energy_price')
     if price == 0:
         raise ValueError('energy_price must be positive')
@@ -36,8 +45,10 @@ def _prepare(config):
     supplier = {'cash': _number(config['supplier']['cash'], 'supplier.cash')}
     customers = {'cash': _number(config.get('customers', {'cash': 100000})['cash'], 'customers.cash')}
     businesses = config['businesses']
-    if not isinstance(businesses, list) or not 1 <= len(businesses) <= 1000 or days * len(businesses) > 100000:
-        raise ValueError('businesses and days exceed bounded simulation work budget')
+    if not isinstance(businesses, list) or not businesses:
+        raise ValueError('businesses must be a nonempty list')
+    limits.check('economy_max_businesses', len(businesses), 'businesses exceed bounded simulation work budget')
+    limits.check('economy_max_business_days', days * len(businesses), 'businesses and days exceed bounded simulation work budget')
     ids = set()
     for firm in businesses:
         ident = firm['id']
@@ -62,10 +73,10 @@ def _prepare(config):
         step = shock['step']
         if isinstance(step, bool) or not isinstance(step, int) or step < 1 or step in seen:
             raise ValueError('Shock steps must be unique positive integers')
-        if set(shock) - {'step', 'energy_price', 'annual_rate'}:
+        if set(shock) - {'step', 'energy_price', 'annual_rate', 'policy_rate'}:
             raise ValueError('Unknown shock field')
         seen.add(step)
-        for field in ('energy_price', 'annual_rate'):
+        for field in ('energy_price', 'annual_rate', 'policy_rate'):
             if field in shock:
                 _number(shock[field], field)
                 if field == 'energy_price' and shock[field] == 0:
@@ -73,15 +84,64 @@ def _prepare(config):
     return days, price, bank, supplier, customers, businesses, {s['step']: s for s in shocks}
 
 
-def simulate_economy(config):
+def _interest(config):
+    interest = config.get('interest')
+    if interest is None:
+        return None
+    if not isinstance(interest, dict) or set(interest) - {'policy_rate', 'spread', 'pass_through', 'adjustment_speed', 'impact_pass_through'}:
+        raise ValueError('Unknown interest fields')
+    out = {'policy_rate': _number(interest.get('policy_rate', 0), 'interest.policy_rate'), 'spread': _number(interest.get('spread', 0), 'interest.spread', -1),
+           'pass_through': _number(interest.get('pass_through', 1), 'interest.pass_through'), 'adjustment_speed': _number(interest.get('adjustment_speed', 1), 'interest.adjustment_speed'),
+           'impact_pass_through': _number(interest.get('impact_pass_through', 0), 'interest.impact_pass_through', -0.5)}
+    if out['pass_through'] > 1.5 or out['adjustment_speed'] > 1:
+        raise ValueError('interest pass_through must be in 0..1.5 and adjustment_speed in 0..1')
+    return out
+
+
+def calibrate_economy_config(config, calibration):
+    """Bind ``mechanisms.interest.*`` estimates onto a configured ``interest`` block; returns (config, bindings record)."""
+    from .estimation.binding import apply_bindings, parameter_bindings
+    return apply_bindings(config, parameter_bindings(calibration), rename={'mechanisms.interest.': 'interest.'},
+                          only=lambda path: path.startswith('interest.'))
+
+
+def parameter_provenance(config, calibration=None):
+    """Behavioral coefficients (bank rate, interest block, business policies) as estimated or assumed."""
+    from .estimation.binding import numeric_leaves, parameter_provenance as provenance
+    leaves = {'bank.annual_rate': config['bank']['annual_rate']}
+    leaves.update(numeric_leaves(config.get('interest', {}), 'interest'))
+    for firm in config.get('businesses', []):
+        leaves.update(numeric_leaves(firm.get('policy', {}), f'businesses[{firm["id"]}].policy'))
+    return provenance(leaves, calibration)
+
+
+def simulate_economy(config, *, limits=None, history='full', history_every=1, calibration=None):
     """Return daily snapshots, balanced debit/credit journal, events and metrics.
 
     Each day: apply shocks, pay interest/default, fund and purchase inventories,
     consume energy and sell output. Firm order is explicit credit priority.
     No future shock is observed by purchasing policy: expectations are inputs.
+
+    history='full' retains every daily snapshot (bounded by
+    economy_max_retained_business_days); 'every_n' keeps day 0, every
+    history_every-th day and the final day; 'summary' keeps day 0 and the final
+    day. The journal and all accounting checks are unchanged.
     """
-    days, price, bank, supplier, customers, firms, shocks = _prepare(config)
+    limits = resolve_limits(limits)
+    if history not in ('full', 'every_n', 'summary') or type(history_every) is not int or history_every < 1:
+        raise ValueError("history must be 'full', 'every_n' or 'summary' with a positive history_every")
+    applied = None
+    if calibration is not None:
+        config, applied = calibrate_economy_config(config, calibration)
+    interest = _interest(config)
+    days, price, bank, supplier, customers, firms, shocks = _prepare(config, limits)
+    if interest is None and any('policy_rate' in shock for shock in shocks.values()):
+        raise ValueError('policy_rate shocks require an interest block')
+    retained_days = days + 1 if history == 'full' else 2 + (days // history_every if history == 'every_n' else 0)
+    limits.check('economy_max_retained_business_days', retained_days * len(firms),
+                 'Retained business-day snapshots exceed budget; use history="every_n" or "summary"')
     journal, events, snapshots, ledger = [], [], [], {}
+    insolvent_recognized = set()
 
     def post(step, kind, *entries):
         postings = [{'account': account, 'debit': max(amount, 0.), 'credit': max(-amount, 0.)}
@@ -104,19 +164,23 @@ def simulate_economy(config):
         bank['equity'] = bank['cash'] + bank['loans']
         for firm in firms:
             firm['equity'] = firm['cash'] + firm['inventory_value'] - firm['loan']
-            if firm['equity'] < -1e-9 and not any(e['kind'] == 'insolvency' and e['business'] == firm['id'] for e in events):
+            if firm['equity'] < -1e-9 and firm['id'] not in insolvent_recognized:
+                insolvent_recognized.add(firm['id'])
                 events.append({'step': step, 'kind': 'insolvency', 'business': firm['id'], 'equity': firm['equity'],
                                'recognition': 'Negative book equity; continues operating while daily interest can be paid.'})
+        if not (history == 'full' or step in (0, days) or (history == 'every_n' and step % history_every == 0)):
+            return
         metrics = {'total_cash': bank['cash'] + supplier['cash'] + customers['cash'] + sum(f['cash'] for f in firms),
             'total_loans': bank['loans'], 'total_inventory': sum(f['inventory'] for f in firms),
             'total_output': sum(f['output'] for f in firms), 'total_profit': sum(f['profit'] for f in firms),
             'total_interest': sum(f['interest'] for f in firms), 'total_energy_spend': sum(f['energy_spend'] for f in firms),
-            'defaults': sum(f['defaulted'] for f in firms), 'stockouts': sum(e['kind'] == 'stockout' for e in events),
+            'defaults': sum(f['defaulted'] for f in firms), 'stockouts': stockouts,
             'bank_equity': bank['equity'], 'business_cash': sum(f['cash'] for f in firms),
             'insolvent_businesses': sum(f['equity'] < -1e-9 for f in firms)}
         snapshots.append(deepcopy({'step': step, 'energy_price': price, 'annual_rate': bank['annual_rate'],
             'metrics': metrics, 'businesses': firms, 'bank': bank, 'supplier': supplier, 'customers': customers}))
 
+    stockouts = 0
     snapshot(0)
     for step in range(1, days + 1):
         if step in shocks:
@@ -124,6 +188,15 @@ def simulate_economy(config):
             price = shock.get('energy_price', price)
             bank['annual_rate'] = shock.get('annual_rate', bank['annual_rate'])
             events.append(dict(shock, kind='shock'))
+        if interest is not None:
+            change = 0.
+            if step in shocks and 'policy_rate' in shocks[step]:
+                change = shocks[step]['policy_rate'] - interest['policy_rate']
+                interest['policy_rate'] = shocks[step]['policy_rate']
+            if not (step in shocks and 'annual_rate' in shocks[step]):
+                target = interest['spread'] + interest['pass_through'] * interest['policy_rate']
+                pre = bank['annual_rate'] + interest['impact_pass_through'] * change
+                bank['annual_rate'] = max(0., pre + interest['adjustment_speed'] * (target - pre))
         for firm in firms:
             if firm['defaulted']:
                 continue
@@ -175,6 +248,7 @@ def simulate_economy(config):
                 post(step, 'energy_purchase', (ident + ':inventory', spent), (ident + ':cash', -spent),
                      ('supplier:cash', spent), ('supplier:revenue', -spent))
             if firm['inventory'] + 1e-9 < firm['daily_energy_need']:
+                stockouts += 1
                 events.append({'step': step, 'kind': 'stockout', 'business': ident,
                                'unmet_energy': firm['daily_energy_need'] - firm['inventory']})
             output = min(firm['daily_energy_need'], firm['inventory'])
@@ -193,7 +267,7 @@ def simulate_economy(config):
                      (ident + ':cash', revenue), (ident + ':sales_revenue', -revenue),
                      ('customers:consumption_expense', revenue), ('customers:cash', -revenue))
         snapshot(step)
-    result = {'snapshots': snapshots, 'journal': journal, 'ledger': ledger, 'events': events,
+    result = {'snapshots': snapshots, 'journal': journal, 'ledger': ledger, 'events': events, 'history': history,
               'metrics': deepcopy(snapshots[-1]['metrics']), 'status': {'synthetic': True, 'calibrated': False},
               'assumptions': ['USD amounts; energy quantity is a consistent user-chosen unit; one output per energy unit.',
                   'Cash-funded lender; no deposit creation, reserves, interbank market or central bank balance sheet.',
@@ -203,6 +277,11 @@ def simulate_economy(config):
                   'Business list order is priority for scarce bank cash and customer cash.',
                   'Inventory target = daily need * target days * (1 + anticipation * max(expected price change - annual rate * target days / 365, 0)), capped by storage.',
                   'Behavioral coefficients are illustrative inputs, not calibrated responses; future shocks are not read by firms.']}
+    if interest is not None:
+        result['assumptions'].append('Loan rate adjusts daily: pre = rate + impact_pass_through * policy change; rate = pre + adjustment_speed * (spread + pass_through * policy_rate - pre); explicit annual_rate shocks override.')
+    if applied is not None:
+        result['calibration'] = applied
+        result['parameter_provenance'] = parameter_provenance(config, applied)
     result['accounting'] = validate_accounting(result)
     return result
 
@@ -279,8 +358,9 @@ def value_bond(face_value, coupon_rate, annual_yield, years, payments_per_year=2
         raise ValueError('Positive face, maturity and integer frequency required')
     y = _number(annual_yield, 'annual_yield', -payments_per_year)
     count = years * payments_per_year
-    if y <= -payments_per_year or not count.is_integer() or count > 100000:
+    if y <= -payments_per_year or not count.is_integer():
         raise ValueError('Maturity must have finite whole coupon periods and valid yield')
+    resolve_limits().check('bond_max_periods', int(count), 'Maturity must have finite whole coupon periods and valid yield')
     try:
         flows = [(period / payments_per_year,
                   (face * coupon / payments_per_year + (face if period == int(count) else 0)) /

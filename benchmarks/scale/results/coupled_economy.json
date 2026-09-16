@@ -1,0 +1,219 @@
+{
+  "machine": {
+    "platform": "Linux-6.17.0-1026-nvidia-aarch64-with-glibc2.39",
+    "machine": "aarch64",
+    "python": "3.12.3",
+    "cpus": 20,
+    "memory_bytes": 130596077568,
+    "numpy": "2.5.3"
+  },
+  "results": [
+    {
+      "kernel": "coupled_economy",
+      "size": "small",
+      "backend": "numpy",
+      "params": {
+        "firms": 1000,
+        "households": 10000,
+        "steps": 30
+      },
+      "wall_seconds": 0.242,
+      "kernel_seconds": 0.091,
+      "setup_seconds": 0.054,
+      "peak_rss_bytes": 53534720,
+      "units": 330000,
+      "unit": "actor-steps",
+      "throughput_per_second": 3608455.7797468826,
+      "details": {
+        "vectorized_steps": 30,
+        "reference_steps": 0,
+        "fallback_reasons": {},
+        "max_iterations": 2,
+        "seconds_per_step": 0.003048395399976774,
+        "purchases_per_step": 29977,
+        "projected_3650_step_hours": 0.003090734224976452,
+        "final_event_counts": {
+          "purchase_rationed": 4447
+        },
+        "final_totals": {
+          "cash_surplus_after_interest": 145860.0,
+          "cost": 240000.0,
+          "cost_of_goods_sold": 231516.0,
+          "interest_due": 0.0,
+          "interest_paid": 0.0,
+          "inventory_write_down": 0.0,
+          "operating_profit": 154344.0,
+          "produced": 40000,
+          "profit": 145860.0,
+          "revenue": 385860.0,
+          "sold": 38586
+        }
+      },
+      "status": "ok"
+    },
+    {
+      "kernel": "coupled_economy",
+      "size": "small",
+      "backend": "python",
+      "params": {
+        "firms": 1000,
+        "households": 10000,
+        "steps": 30
+      },
+      "wall_seconds": 4.181,
+      "kernel_seconds": 4.068,
+      "setup_seconds": 0.038,
+      "peak_rss_bytes": 59916288,
+      "units": 330000,
+      "unit": "actor-steps",
+      "throughput_per_second": 81130.75844116899,
+      "details": {
+        "seconds_per_step": 0.1355835962999966,
+        "purchases_per_step": 29977,
+        "projected_3650_step_hours": 0.13746670180416323,
+        "final_event_counts": {
+          "purchase_rationed": 4447
+        },
+        "final_totals": {
+          "cash_surplus_after_interest": 145860.0,
+          "cost": 240000.0,
+          "cost_of_goods_sold": 231516.0,
+          "interest_due": 0.0,
+          "interest_paid": 0.0,
+          "inventory_write_down": 0.0,
+          "operating_profit": 154344.0,
+          "produced": 40000,
+          "profit": 145860.0,
+          "revenue": 385860.0,
+          "sold": 38586
+        }
+      },
+      "status": "ok"
+    },
+    {
+      "kernel": "coupled_economy",
+      "size": "medium",
+      "backend": "numpy",
+      "params": {
+        "firms": 10000,
+        "households": 100000,
+        "steps": 30
+      },
+      "wall_seconds": 1.95,
+      "kernel_seconds": 1.109,
+      "setup_seconds": 0.729,
+      "peak_rss_bytes": 206282752,
+      "units": 3300000,
+      "unit": "actor-steps",
+      "throughput_per_second": 2976355.013216969,
+      "details": {
+        "vectorized_steps": 30,
+        "reference_steps": 0,
+        "fallback_reasons": {},
+        "max_iterations": 2,
+        "seconds_per_step": 0.036957956800021445,
+        "purchases_per_step": 299963,
+        "projected_3650_step_hours": 0.0374712617555773,
+        "final_event_counts": {
+          "purchase_rationed": 43941
+        },
+        "final_totals": {
+          "cash_surplus_after_interest": 1451840.0,
+          "cost": 2400000.0,
+          "cost_of_goods_sold": 2311104.0,
+          "interest_due": 0.0,
+          "interest_paid": 0.0,
+          "inventory_write_down": 0.0,
+          "operating_profit": 1540736.0,
+          "produced": 400000,
+          "profit": 1451840.0,
+          "revenue": 3851840.0,
+          "sold": 385184
+        }
+      },
+      "status": "ok"
+    },
+    {
+      "kernel": "coupled_economy",
+      "size": "medium",
+      "backend": "python",
+      "params": {
+        "firms": 10000,
+        "households": 100000,
+        "steps": 30
+      },
+      "wall_seconds": 68.736,
+      "kernel_seconds": 68.122,
+      "setup_seconds": 0.496,
+      "peak_rss_bytes": 263421952,
+      "units": 3300000,
+      "unit": "actor-steps",
+      "throughput_per_second": 48442.18655771146,
+      "details": {
+        "seconds_per_step": 2.270748036299968,
+        "purchases_per_step": 299963,
+        "projected_3650_step_hours": 2.302286203470801,
+        "final_event_counts": {
+          "purchase_rationed": 43941
+        },
+        "final_totals": {
+          "cash_surplus_after_interest": 1451840.0,
+          "cost": 2400000.0,
+          "cost_of_goods_sold": 2311104.0,
+          "interest_due": 0.0,
+          "interest_paid": 0.0,
+          "inventory_write_down": 0.0,
+          "operating_profit": 1540736.0,
+          "produced": 400000,
+          "profit": 1451840.0,
+          "revenue": 3851840.0,
+          "sold": 385184
+        }
+      },
+      "status": "ok"
+    },
+    {
+      "kernel": "coupled_economy",
+      "size": "large",
+      "backend": "numpy",
+      "params": {
+        "firms": 100000,
+        "households": 1000000,
+        "steps": 60
+      },
+      "wall_seconds": 32.167,
+      "kernel_seconds": 22.601,
+      "setup_seconds": 9.18,
+      "peak_rss_bytes": 1690013696,
+      "units": 66000000,
+      "unit": "actor-steps",
+      "throughput_per_second": 2920164.0919117853,
+      "details": {
+        "vectorized_steps": 60,
+        "reference_steps": 0,
+        "fallback_reasons": {},
+        "max_iterations": 2,
+        "seconds_per_step": 0.37669116028334126,
+        "purchases_per_step": 2999972,
+        "projected_3650_step_hours": 0.3819229819539432,
+        "final_event_counts": {
+          "purchase_rationed": 438057
+        },
+        "final_totals": {
+          "cash_surplus_after_interest": 14550020.0,
+          "cost": 24000000.0,
+          "cost_of_goods_sold": 23130012.0,
+          "interest_due": 0.0,
+          "interest_paid": 0.0,
+          "inventory_write_down": 0.0,
+          "operating_profit": 15420008.0,
+          "produced": 4000000,
+          "profit": 14550020.0,
+          "revenue": 38550020.0,
+          "sold": 3855002
+        }
+      },
+      "status": "ok"
+    }
+  ]
+}

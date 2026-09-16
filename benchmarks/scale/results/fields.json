@@ -1,0 +1,122 @@
+{
+  "machine": {
+    "platform": "Linux-6.17.0-1026-nvidia-aarch64-with-glibc2.39",
+    "machine": "aarch64",
+    "python": "3.12.3",
+    "cpus": 20,
+    "memory_bytes": 130596077568,
+    "numpy": "2.5.3"
+  },
+  "results": [
+    {
+      "kernel": "fields",
+      "size": "small",
+      "backend": "numpy",
+      "params": {
+        "cells": 100000,
+        "edges": 400000
+      },
+      "wall_seconds": 0.226,
+      "kernel_seconds": 0.119,
+      "setup_seconds": 0.087,
+      "peak_rss_bytes": 97705984,
+      "units": 8000000,
+      "unit": "component updates",
+      "throughput_per_second": 67233870.6494157,
+      "details": {
+        "substeps": 4,
+        "components": 4,
+        "max_abs_integral_difference": 5.684341886080802e-14
+      },
+      "status": "ok"
+    },
+    {
+      "kernel": "fields",
+      "size": "small",
+      "backend": "python",
+      "params": {
+        "cells": 100000,
+        "edges": 400000
+      },
+      "wall_seconds": 2.304,
+      "kernel_seconds": 2.101,
+      "setup_seconds": 0.139,
+      "peak_rss_bytes": 186630144,
+      "units": 8000000,
+      "unit": "component updates",
+      "throughput_per_second": 3807741.934983843,
+      "details": {
+        "substeps": 4,
+        "components": 4,
+        "max_abs_integral_difference": 5.684341886080802e-14
+      },
+      "status": "ok"
+    },
+    {
+      "kernel": "fields",
+      "size": "medium",
+      "backend": "numpy",
+      "params": {
+        "cells": 1000000,
+        "edges": 4000000
+      },
+      "wall_seconds": 2.259,
+      "kernel_seconds": 1.936,
+      "setup_seconds": 0.284,
+      "peak_rss_bytes": 640913408,
+      "units": 80000000,
+      "unit": "component updates",
+      "throughput_per_second": 41315059.90613467,
+      "details": {
+        "substeps": 4,
+        "components": 4,
+        "max_abs_integral_difference": 1.1368683772161603e-13
+      },
+      "status": "ok"
+    },
+    {
+      "kernel": "fields",
+      "size": "medium",
+      "backend": "python",
+      "params": {
+        "cells": 1000000,
+        "edges": 4000000
+      },
+      "wall_seconds": 64.36,
+      "kernel_seconds": 63.074,
+      "setup_seconds": 0.832,
+      "peak_rss_bytes": 1543004160,
+      "units": 80000000,
+      "unit": "component updates",
+      "throughput_per_second": 1268356.7660368234,
+      "details": {
+        "substeps": 4,
+        "components": 4,
+        "max_abs_integral_difference": 1.1368683772161603e-13
+      },
+      "status": "ok"
+    },
+    {
+      "kernel": "fields",
+      "size": "large",
+      "backend": "numpy",
+      "params": {
+        "cells": 10000000,
+        "edges": 40000000
+      },
+      "wall_seconds": 35.944,
+      "kernel_seconds": 34.387,
+      "setup_seconds": 1.537,
+      "peak_rss_bytes": 5888245760,
+      "units": 800000000,
+      "unit": "component updates",
+      "throughput_per_second": 23264518.06926842,
+      "details": {
+        "substeps": 4,
+        "components": 4,
+        "max_abs_integral_difference": 4.547473508864641e-13
+      },
+      "status": "ok"
+    }
+  ]
+}

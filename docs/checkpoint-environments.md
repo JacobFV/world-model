@@ -60,3 +60,46 @@ traces, and transaction state are copied in memory and remain subject to configu
 horizon/output budgets. Predictions remain illustrative and uncalibrated. Existing
 `materialize` and `TemporalEvaluator` remain the replay reference; materialize's
 short final discrete update now commits at the actual horizon.
+
+## Limits and chunked checkpoints
+
+Runtime bounds are named limits in `worldmodel/limits.py` (override per call,
+with `use_limits`, `WORLD_MODEL_LIMITS` or CLI `--limits` on `environment`,
+`surface`, `route`, `economy`, `banking` and `strategies`):
+
+| Limit | Default | Replaces |
+|---|---:|---|
+| `materialize_max_points` / `materialize_max_calls` | 100,000,000 | 100,000 ceilings (request defaults stay 10,000) |
+| `materialize_max_interventions` / `materialize_max_lifecycle_work` | 10,000,000 / 1e11 | 100,000 / 10,000,000 |
+| `environment_max_ports`, `environment_max_steps` | 100,000 / 10,000,000 | 100 ports, 1..1,000 steps |
+| `environment_max_output_bytes`, `environment_max_action_bytes` | 16 GiB / 64 MiB | 32 MiB / 64 KiB |
+| `checkpoint_max_json_bytes`, `checkpoint_max_items` | 4 GiB / 1e9 values | 32 MiB / 2,000,000 |
+| `journal_max_payload_bytes`, `journal_max_checkpoint_bytes`, `journal_max_storage_bytes`, `journal_max_records` | 1 GiB / 64 GiB / 4 TiB / 1e10 | ceilings equal to the persisted defaults |
+| `journal_max_page_items` / `journal_max_page_bytes` | 1,000,000 / 16 GiB | 100 items / 32 MiB |
+| `cli_max_input_bytes` | 4 GiB | 1 MiB local request files |
+
+Execution-journal defaults (1 MiB payload, 32 MiB checkpoint, 64 MiB storage,
+100,000 records) are unchanged and remain persisted and immutable per journal; only
+the ceilings a journal may be created with are configurable.
+
+`CheckpointEvaluator` transitions are copy-on-write: accumulated trace, snapshot and
+history entries are shared with the committed state instead of deep-copied every
+step, and `transaction()` keeps a reference rather than a deep copy. Environments
+skip re-encoding the whole growing materialization for evaluators that declare
+`bounded_output` (checkpoint evaluators validate each new prediction).
+
+`evaluator.checkpoint(format='chunked', directory=path)` writes the same checkpoint
+(identical identity and checksum) as streamed canonical JSON in zlib chunks with a
+sha256 per chunk, the sha256 of the whole canonical document and the envelope
+checksum in `manifest.json`. The directory is written and fsynced under a temporary
+name and renamed into place, so a failed writer never replaces a previous
+checkpoint. `evaluator.restore(path)` verifies every chunk and hash before parsing
+and then applies the usual identity, checksum and trace validation; any mismatch
+raises without changing evaluator state. `worldmodel.checkpoints` also provides
+`write_checkpoint`/`read_checkpoint` for any JSON-native envelope and
+`write_array_checkpoint(arrays, metadata, directory, *, overwrite=False)` /
+`read_array_checkpoint(directory) -> (arrays, metadata)` for raw little-endian
+int64/float64/bool/int32/uint8 buffers with per-array sha256 (numpy optional; flat
+Python lists fall back to the `array` module). The numpy coupled economy uses the
+array form (`ArrayEconomy.checkpoint`/`restore`), re-validating the restored state.
+Measured throughput is in [scale-benchmarks.md](scale-benchmarks.md).

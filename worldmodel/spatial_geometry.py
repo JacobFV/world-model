@@ -5,6 +5,7 @@ Predicates use exact comparisons of binary floating-point arithmetic.
 """
 from copy import deepcopy
 import math
+from .limits import resolve_limits
 from .util import digest
 
 
@@ -35,7 +36,19 @@ def _intersect(a, b, c, d, strict=False):
     return not strict and (_on(c,a,b) or _on(d,a,b) or _on(a,c,d) or _on(b,c,d))
 
 
-def validate_polygon(geometry):
+def _sweep_pairs(boxes, touching=True):
+    """Yield candidate index pairs (i<j) whose x-ranges overlap (inclusive when touching)."""
+    order = sorted(range(len(boxes)), key=lambda i: boxes[i][0])
+    active = []
+    for k in order:
+        x0 = boxes[k][0]
+        active = [i for i in active if (boxes[i][1] >= x0 if touching else boxes[i][1] > x0)]
+        for i in active:
+            yield (i, k) if i < k else (k, i)
+        active.append(k)
+
+
+def validate_polygon(geometry, *, limits=None):
     if not isinstance(geometry, dict) or geometry.get('type') != 'Polygon':
         raise ValueError('Expected explicit Polygon geometry')
     validate_crs(geometry.get('crs'))
@@ -49,19 +62,21 @@ def validate_polygon(geometry):
     if not isinstance(rings, list) or len(rings) != 1:
         raise ValueError('Only one polygon ring supported; holes require a separate implementation')
     ring = rings[0]
-    if not isinstance(ring, list) or not 4 <= len(ring) <= 129:
-        raise ValueError('Polygon requires 3..128 vertices and a closing point')
+    limits = resolve_limits(limits)
+    if not isinstance(ring, list) or len(ring) < 4:
+        raise ValueError(f'Polygon requires 3..{limits.geometry_max_vertices} vertices and a closing point')
+    limits.check('geometry_max_vertices', len(ring) - 1, 'Polygon vertices')
     for p in ring:
         _point(p)
     if ring[0] != ring[-1] or len({tuple(p) for p in ring[:-1]}) != len(ring)-1:
         raise ValueError('Polygon must be closed with distinct vertices')
     n = len(ring)-1
-    for i in range(n):
-        for j in range(i+1,n):
-            if j == i+1 or (i == 0 and j == n-1):
-                continue
-            if _intersect(ring[i],ring[i+1],ring[j],ring[j+1]):
-                raise ValueError('Polygon self intersection')
+    boxes = [(min(ring[i][0], ring[i+1][0]), max(ring[i][0], ring[i+1][0])) for i in range(n)]
+    for i, j in _sweep_pairs(boxes):
+        if j == i+1 or (i == 0 and j == n-1):
+            continue
+        if _intersect(ring[i],ring[i+1],ring[j],ring[j+1]):
+            raise ValueError('Polygon self intersection')
     if math.fsum(_cross(ring[0], ring[i], ring[i+1]) for i in range(1,n-1)) == 0:
         raise ValueError('Polygon has zero area')
     return deepcopy(geometry)
@@ -151,10 +166,13 @@ def _rect(bounds, original):
     return result
 
 
-def rectangle_refinement(cell, *, axis, parts, child_ids, edges):
+def rectangle_refinement(cell, *, axis, parts, child_ids, edges, limits=None):
+    limits = resolve_limits(limits)
     bounds, geometry = _rectangle(cell)
-    if axis not in ('x','y') or type(parts) is not int or not 2 <= parts <= 100 or not isinstance(child_ids,list) or len(child_ids) != parts or len(set(child_ids)) != parts or cell['id'] in child_ids or not isinstance(edges,list) or len(edges)>10000:
-        raise ValueError('Refinement requires axis, 2..100 unique children and explicit bounded edges')
+    if axis not in ('x','y') or type(parts) is not int or parts < 2 or not isinstance(child_ids,list) or len(child_ids) != parts or len(set(child_ids)) != parts or cell['id'] in child_ids or not isinstance(edges,list):
+        raise ValueError(f'Refinement requires axis, 2..{limits.spatial_max_refinement_parts} unique children and explicit bounded edges')
+    limits.check('spatial_max_refinement_parts', parts, 'Refinement children')
+    limits.check('spatial_max_edge_rows', len(edges), 'Refinement replacement edges')
     from .model import identifier
     for key in child_ids:
         identifier(key)
@@ -171,19 +189,21 @@ def rectangle_refinement(cell, *, axis, parts, child_ids, edges):
     return {'event':{'type':'split','cell':cell['id'],'children':children,'edges':deepcopy(edges)}, 'assumptions':['Uniform integral allocation by declared support measure; explicit replacement topology.'], 'source_geometry_hash':digest(geometry), 'crs':deepcopy(geometry['crs'])}
 
 
-def rectangle_coarsening(cells, *, target_id):
-    if not isinstance(cells,list) or not 2 <= len(cells) <= 100 or len({c['id'] for c in cells}) != len(cells):
-        raise ValueError('Coarsening requires 2..100 distinct rectangles')
+def rectangle_coarsening(cells, *, target_id, limits=None):
+    limits = resolve_limits(limits)
+    if not isinstance(cells,list) or len(cells) < 2 or len({c['id'] for c in cells}) != len(cells):
+        raise ValueError(f'Coarsening requires 2..{limits.spatial_max_refinement_parts} distinct rectangles')
+    limits.check('spatial_max_refinement_parts', len(cells), 'Coarsening source rectangles')
     from .model import identifier
     identifier(target_id)
     shapes = [_rectangle(c) for c in cells]
     if any(g['crs'] != shapes[0][1]['crs'] for _,g in shapes):
         raise ValueError('CRS mismatch')
     bounds = [min(b[0] for b,_ in shapes),min(b[1] for b,_ in shapes),max(b[2] for b,_ in shapes),max(b[3] for b,_ in shapes)]
-    for i,(a,_) in enumerate(shapes):
-        for b,_ in shapes[i+1:]:
-            if min(a[2],b[2])>max(a[0],b[0]) and min(a[3],b[3])>max(a[1],b[1]):
-                raise ValueError('Rectangles overlap')
+    for i, j in _sweep_pairs([(b[0], b[2]) for b,_ in shapes], touching=False):
+        a, b = shapes[i][0], shapes[j][0]
+        if min(a[2],b[2])>max(a[0],b[0]) and min(a[3],b[3])>max(a[1],b[1]):
+            raise ValueError('Rectangles overlap')
     area = math.fsum((b[2]-b[0])*(b[3]-b[1]) for b,_ in shapes)
     if area != (bounds[2]-bounds[0])*(bounds[3]-bounds[1]):
         raise ValueError('Rectangles must tile the complete target rectangle')
@@ -191,9 +211,10 @@ def rectangle_coarsening(cells, *, target_id):
     return {'event':{'type':'merge','cells':sorted(c['id'] for c in cells),'cell':cell},'assumptions':['Complete rectangular tiling; conservative store merge.'],'crs':deepcopy(shapes[0][1]['crs'])}
 
 
-def refinement_candidates(world, criterion, *, limit=1000):
-    if type(limit) is not int or not 1<=limit<=1000 or len(world['cells'])>100000:
-        raise ValueError('Candidate work/selection bound exceeded')
+def refinement_candidates(world, criterion, *, limit=1000, limits=None):
+    limits = resolve_limits(limits)
+    limits.integer('spatial_max_candidates', limit, 'Candidate selection limit')
+    limits.check('field_max_cells', len(world['cells']), 'Candidate work bound exceeded: cells')
     field = world['fields'].get(criterion.get('field'))
     value = criterion.get('value')
     if not field or field['unit'] != criterion.get('unit') or criterion.get('operator') not in ('gte','lte') or type(value) not in (int,float) or not math.isfinite(value):
