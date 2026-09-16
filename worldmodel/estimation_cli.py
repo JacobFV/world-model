@@ -156,11 +156,15 @@ def _run_attempt(attempt, store, *, publish=True, dataset=None):
         run = {'id': label, 'attempt': attempt['id'], 'target': attempt['target'], 'entity': entity}
         try:
             options = _attempt_options(attempt, entity)
+            # Declared estimator options (for example a pre-registered interval method) reach both
+            # the fits inside the backtest and the final refit, because ComponentEstimator and
+            # ModelFamilyEstimator merge self.options into every fit.
+            declared_options = attempt.get('estimator_options') or None
             if attempt['kind'] == 'component':
-                estimator = estimator_for(attempt['target'], overrides=attempt.get('overrides'))
+                estimator = estimator_for(attempt['target'], overrides=attempt.get('overrides'), options=declared_options)
                 options['estimator'] = estimator          # the loader must translate onto the overridden requirements
             else:
-                estimator = estimator_for(f"{attempt['target']}_model_parameters")
+                estimator = estimator_for(f"{attempt['target']}_model_parameters", options=declared_options)
             data, evidence, policy = load_for(attempt['target'], store, options,
                                               function=(attempt.get('loader') or {}).get('function'))
             declared = protocol.get('vintage_policy')

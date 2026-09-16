@@ -118,7 +118,7 @@ into one consistent state, or that any model over them has been validated.
 | Environmental / physical-risk exposure | FEMA NRI (5.8M), NOAA storm events (5.7M) and nClimDiv (6.8M), GHCN daily (13.1M) and monthly (48.9M), IBTrACS (2.5M), USGS earthquakes (4.4M), OpenFEMA (2.8M) | EPA AQS is still downloading, so `field_diffusion_transport` cannot be estimated; hazard-to-asset vulnerability functions are absent |
 | Technology / innovation strategy | Crossref DoD-funded works (282k), OpenAlex institutions (192k), NASA feed (601) | No patents, assignments or adoption data |
 | Infrastructure / housing investment | ACS tables, Census geography, TIGER transport, OSM | No building or land inventory, condition, or project economics |
-| Macro consistency / calibration | FRED/ALFRED panel (7.6M, full real-time vintages), BEA NIPA (13.7M), BEA IO, Treasury debt (1.3M), WDI, IMF | `monetary_model` is the only validated process, and its pass rests on forecast skill and interval calibration, not on credible structural coefficients (`phi_pi` = 0.38 does not satisfy the Taylor principle) |
+| Macro consistency / calibration | FRED/ALFRED panel (7.6M, full real-time vintages), BEA NIPA (13.7M), BEA IO, Treasury debt (1.3M), WDI, IMF | `monetary_model` was the first validated process, joined on 2026-09-16 by `resource_inventory` and `elections_model`; its pass rests on forecast skill and interval calibration, not on credible structural coefficients (`phi_pi` = 0.38 does not satisfy the Taylor principle) |
 
 ## What is still missing
 

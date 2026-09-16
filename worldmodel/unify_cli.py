@@ -44,7 +44,8 @@ def add_commands(sub):
     view.add_argument('--exclude', type=_names, default=[])
     view.add_argument('--inventory', action='store_true', help='List every catalog dataset and its published output')
     resolve = sub.add_parser('unify-resolve', help='Attach the asserted identity resolution (published same_as '
-                                                   'links plus shared unique identifiers) to a unified index')
+                                                   'links, shared unique identifiers and published crosswalk '
+                                                   'fields) to a unified index')
     resolve.add_argument('--workdir', type=Path, required=True)
     resolve.add_argument('--profile', choices=sorted(PROFILES), default=DEFAULT_PROFILE)
     resolve.add_argument('--all', action='store_true')
@@ -55,6 +56,9 @@ def add_commands(sub):
     resolve.add_argument('--output-dataset', default='world_evidence')
     resolve.add_argument('--no-attach', action='store_true', help='Compute clusters without writing them to the index')
     resolve.add_argument('--max-cluster-size', type=int, default=5000)
+    resolve.add_argument('--no-bridges', action='store_true',
+                        help='Read only identifier assertions and namespaced entity IDs, ignoring the published '
+                             'crosswalk fields in worldmodel.resolution.bridges (diagnostic baseline)')
     resolve.add_argument('--progress', type=int, default=20_000_000)
     republish = sub.add_parser('unify-publish', help='Publish the pinned summary for an index that already '
                                                      'exists, recomputing per-dataset counts from it')
@@ -87,7 +91,7 @@ def execute(args, catalog, store, project, reference):
         return resolve_identities(catalog, store, workdir=args.workdir, index=args.index,
                                   output_dataset=args.output_dataset, attach=not args.no_attach,
                                   max_cluster_size=args.max_cluster_size, progress=args.progress or None,
-                                  **selection)
+                                  bridges=not args.no_bridges, **selection)
     result = unify(catalog, store, project, index=args.index, output_dataset=args.output_dataset,
                    batch_size=args.batch_size, cache_mb=args.cache_mb, progress=args.progress or None,
                    publish=not args.no_publish, validate=args.validate, limit=args.limit,

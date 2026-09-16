@@ -2,8 +2,8 @@
  "query": "q6_bank_filings_to_identity_to_group",
  "answer": {
   "sec_filer": {
-   "entity_id": "sec:cik:0000769218",
-   "label": "AEGON LTD.",
+   "entity_id": "sec:cik:0000036104",
+   "label": "US BANCORP \\DE\\",
    "entity_type": "business",
    "label_from": "sec_company_assets",
    "also_described_by": [
@@ -12,8 +12,8 @@
    ]
   },
   "gleif_legal_entity": {
-   "entity_id": "lei:O4QK7KMMK83ITNTHUG69",
-   "label": "Aegon Ltd.",
+   "entity_id": "lei:N1GZ7BBF3NP8GI976H15",
+   "label": "U.S. BANCORP",
    "entity_type": "organization",
    "label_from": "sec_gleif",
    "also_described_by": [
@@ -21,138 +21,876 @@
    ]
   },
   "asserted_identity_cluster": [
-   "lei:O4QK7KMMK83ITNTHUG69",
-   "sec:cik:0000769218"
+   "lei:N1GZ7BBF3NP8GI976H15",
+   "sec:cik:0000036104"
+  ],
+  "identity_basis": {
+   "registration_authority": "RA000602",
+   "registration_authority_entity_id": "256405"
+  },
+  "sic_classification": [
+   "sic:6021"
   ],
   "filer_edges": [
    {
-    "subject": "sec:cik:0000769218",
+    "subject": "sec:cik:0000036104",
     "predicate": "classified_as",
-    "object": "sic:6311",
+    "object": "sic:6021",
     "weight": 1.0,
     "valid_from": null,
     "valid_to": null,
     "observed_at": "2026-09-15T20:11:01.445966+00:00",
     "from_dataset": "sec_issuer_reference",
-    "record_id": "secsub:0000769218:sic"
+    "record_id": "secsub:0000036104:sic"
    },
    {
-    "subject": "sec:cik:0000769218",
-    "predicate": "issuer_listing",
-    "object": "ticker:XNYS:AEG",
+    "subject": "sec:cik:0000036104",
+    "predicate": "registered_in",
+    "object": "geo:US:state:10",
     "weight": 1.0,
     "valid_from": null,
     "valid_to": null,
     "observed_at": "2026-09-15T20:11:01.445966+00:00",
     "from_dataset": "sec_issuer_reference",
-    "record_id": "secsub:0000769218:listing:0"
+    "record_id": "secsub:0000036104:incorporated"
    },
    {
-    "subject": "sec:cik:0000769218",
+    "subject": "sec:cik:0000036104",
     "predicate": "issuer_listing",
-    "object": "ticker:OTC:AEGOF",
+    "object": "ticker:XNYS:USB",
     "weight": 1.0,
     "valid_from": null,
     "valid_to": null,
     "observed_at": "2026-09-15T20:11:01.445966+00:00",
     "from_dataset": "sec_issuer_reference",
-    "record_id": "secsub:0000769218:listing:1"
+    "record_id": "secsub:0000036104:listing:0"
+   },
+   {
+    "subject": "sec:cik:0000036104",
+    "predicate": "issuer_listing",
+    "object": "ticker:XNYS:USB-PA",
+    "weight": 1.0,
+    "valid_from": null,
+    "valid_to": null,
+    "observed_at": "2026-09-15T20:11:01.445966+00:00",
+    "from_dataset": "sec_issuer_reference",
+    "record_id": "secsub:0000036104:listing:1"
+   },
+   {
+    "subject": "sec:cik:0000036104",
+    "predicate": "issuer_listing",
+    "object": "ticker:XNYS:USB-PH",
+    "weight": 1.0,
+    "valid_from": null,
+    "valid_to": null,
+    "observed_at": "2026-09-15T20:11:01.445966+00:00",
+    "from_dataset": "sec_issuer_reference",
+    "record_id": "secsub:0000036104:listing:2"
+   },
+   {
+    "subject": "sec:cik:0000036104",
+    "predicate": "issuer_listing",
+    "object": "ticker:XNYS:USB-PP",
+    "weight": 1.0,
+    "valid_from": null,
+    "valid_to": null,
+    "observed_at": "2026-09-15T20:11:01.445966+00:00",
+    "from_dataset": "sec_issuer_reference",
+    "record_id": "secsub:0000036104:listing:3"
+   },
+   {
+    "subject": "sec:cik:0000036104",
+    "predicate": "issuer_listing",
+    "object": "ticker:XNYS:USB-PQ",
+    "weight": 1.0,
+    "valid_from": null,
+    "valid_to": null,
+    "observed_at": "2026-09-15T20:11:01.445966+00:00",
+    "from_dataset": "sec_issuer_reference",
+    "record_id": "secsub:0000036104:listing:4"
+   },
+   {
+    "subject": "sec:cik:0000036104",
+    "predicate": "issuer_listing",
+    "object": "ticker:XNYS:USB-PR",
+    "weight": 1.0,
+    "valid_from": null,
+    "valid_to": null,
+    "observed_at": "2026-09-15T20:11:01.445966+00:00",
+    "from_dataset": "sec_issuer_reference",
+    "record_id": "secsub:0000036104:listing:5"
+   },
+   {
+    "subject": "sec:cik:0000036104",
+    "predicate": "issuer_listing",
+    "object": "ticker:XNYS:USB-PS",
+    "weight": 1.0,
+    "valid_from": null,
+    "valid_to": null,
+    "observed_at": "2026-09-15T20:11:01.445966+00:00",
+    "from_dataset": "sec_issuer_reference",
+    "record_id": "secsub:0000036104:listing:6"
+   },
+   {
+    "subject": "sec:cik:0000036104",
+    "predicate": "reported_holding",
+    "object": "cusip:G3730V105",
+    "weight": 1.0,
+    "valid_from": "2026-06-30T00:00:00+00:00",
+    "valid_to": "2026-07-01T00:00:00+00:00",
+    "observed_at": "2026-08-12T00:00:00+00:00",
+    "from_dataset": "sec_ownership_datasets",
+    "record_id": "sec13f:0000036104-26-000049:G3730V105:-:SH"
+   },
+   {
+    "subject": "sec:cik:0000036104",
+    "predicate": "reported_holding",
+    "object": "cusip:G38327105",
+    "weight": 1.0,
+    "valid_from": "2026-06-30T00:00:00+00:00",
+    "valid_to": "2026-07-01T00:00:00+00:00",
+    "observed_at": "2026-08-12T00:00:00+00:00",
+    "from_dataset": "sec_ownership_datasets",
+    "record_id": "sec13f:0000036104-26-000049:G38327105:-:SH"
+   },
+   {
+    "subject": "sec:cik:0000036104",
+    "predicate": "reported_holding",
+    "object": "cusip:G38644103",
+    "weight": 1.0,
+    "valid_from": "2026-06-30T00:00:00+00:00",
+    "valid_to": "2026-07-01T00:00:00+00:00",
+    "observed_at": "2026-08-12T00:00:00+00:00",
+    "from_dataset": "sec_ownership_datasets",
+    "record_id": "sec13f:0000036104-26-000049:G38644103:-:SH"
+   },
+   {
+    "subject": "sec:cik:0000036104",
+    "predicate": "reported_holding",
+    "object": "cusip:G39108108",
+    "weight": 1.0,
+    "valid_from": "2026-06-30T00:00:00+00:00",
+    "valid_to": "2026-07-01T00:00:00+00:00",
+    "observed_at": "2026-08-12T00:00:00+00:00",
+    "from_dataset": "sec_ownership_datasets",
+    "record_id": "sec13f:0000036104-26-000049:G39108108:-:SH"
+   },
+   {
+    "subject": "sec:cik:0000036104",
+    "predicate": "reported_holding",
+    "object": "cusip:G3922B107",
+    "weight": 1.0,
+    "valid_from": "2026-06-30T00:00:00+00:00",
+    "valid_to": "2026-07-01T00:00:00+00:00",
+    "observed_at": "2026-08-12T00:00:00+00:00",
+    "from_dataset": "sec_ownership_datasets",
+    "record_id": "sec13f:0000036104-26-000049:G3922B107:-:SH"
+   },
+   {
+    "subject": "sec:cik:0000036104",
+    "predicate": "reported_holding",
+    "object": "cusip:G3934V109",
+    "weight": 1.0,
+    "valid_from": "2026-06-30T00:00:00+00:00",
+    "valid_to": "2026-07-01T00:00:00+00:00",
+    "observed_at": "2026-08-12T00:00:00+00:00",
+    "from_dataset": "sec_ownership_datasets",
+    "record_id": "sec13f:0000036104-26-000049:G3934V109:-:SH"
+   },
+   {
+    "subject": "sec:cik:0000036104",
+    "predicate": "reported_holding",
+    "object": "cusip:G39387108",
+    "weight": 1.0,
+    "valid_from": "2026-06-30T00:00:00+00:00",
+    "valid_to": "2026-07-01T00:00:00+00:00",
+    "observed_at": "2026-08-12T00:00:00+00:00",
+    "from_dataset": "sec_ownership_datasets",
+    "record_id": "sec13f:0000036104-26-000049:G39387108:-:SH"
+   },
+   {
+    "subject": "sec:cik:0000036104",
+    "predicate": "reported_holding",
+    "object": "cusip:G40705108",
+    "weight": 1.0,
+    "valid_from": "2026-06-30T00:00:00+00:00",
+    "valid_to": "2026-07-01T00:00:00+00:00",
+    "observed_at": "2026-08-12T00:00:00+00:00",
+    "from_dataset": "sec_ownership_datasets",
+    "record_id": "sec13f:0000036104-26-000049:G40705108:-:SH"
+   },
+   {
+    "subject": "sec:cik:0000036104",
+    "predicate": "reported_holding",
+    "object": "cusip:G4095J109",
+    "weight": 1.0,
+    "valid_from": "2026-06-30T00:00:00+00:00",
+    "valid_to": "2026-07-01T00:00:00+00:00",
+    "observed_at": "2026-08-12T00:00:00+00:00",
+    "from_dataset": "sec_ownership_datasets",
+    "record_id": "sec13f:0000036104-26-000049:G4095J109:-:SH"
+   },
+   {
+    "subject": "sec:cik:0000036104",
+    "predicate": "reported_holding",
+    "object": "cusip:G4124C109",
+    "weight": 1.0,
+    "valid_from": "2026-06-30T00:00:00+00:00",
+    "valid_to": "2026-07-01T00:00:00+00:00",
+    "observed_at": "2026-08-12T00:00:00+00:00",
+    "from_dataset": "sec_ownership_datasets",
+    "record_id": "sec13f:0000036104-26-000049:G4124C109:-:SH"
+   },
+   {
+    "subject": "sec:cik:0000036104",
+    "predicate": "reported_holding",
+    "object": "cusip:G4253H101",
+    "weight": 1.0,
+    "valid_from": "2026-06-30T00:00:00+00:00",
+    "valid_to": "2026-07-01T00:00:00+00:00",
+    "observed_at": "2026-08-12T00:00:00+00:00",
+    "from_dataset": "sec_ownership_datasets",
+    "record_id": "sec13f:0000036104-26-000049:G4253H101:-:SH"
+   },
+   {
+    "subject": "sec:cik:0000036104",
+    "predicate": "reported_holding",
+    "object": "cusip:G42706104",
+    "weight": 1.0,
+    "valid_from": "2026-06-30T00:00:00+00:00",
+    "valid_to": "2026-07-01T00:00:00+00:00",
+    "observed_at": "2026-08-12T00:00:00+00:00",
+    "from_dataset": "sec_ownership_datasets",
+    "record_id": "sec13f:0000036104-26-000049:G42706104:-:SH"
+   },
+   {
+    "subject": "sec:cik:0000036104",
+    "predicate": "reported_holding",
+    "object": "cusip:G4388N106",
+    "weight": 1.0,
+    "valid_from": "2026-06-30T00:00:00+00:00",
+    "valid_to": "2026-07-01T00:00:00+00:00",
+    "observed_at": "2026-08-12T00:00:00+00:00",
+    "from_dataset": "sec_ownership_datasets",
+    "record_id": "sec13f:0000036104-26-000049:G4388N106:-:SH"
+   },
+   {
+    "subject": "sec:cik:0000036104",
+    "predicate": "reported_holding",
+    "object": "cusip:G4412G101",
+    "weight": 1.0,
+    "valid_from": "2026-06-30T00:00:00+00:00",
+    "valid_to": "2026-07-01T00:00:00+00:00",
+    "observed_at": "2026-08-12T00:00:00+00:00",
+    "from_dataset": "sec_ownership_datasets",
+    "record_id": "sec13f:0000036104-26-000049:G4412G101:-:SH"
+   },
+   {
+    "subject": "sec:cik:0000036104",
+    "predicate": "reported_holding",
+    "object": "cusip:G4474Y214",
+    "weight": 1.0,
+    "valid_from": "2026-06-30T00:00:00+00:00",
+    "valid_to": "2026-07-01T00:00:00+00:00",
+    "observed_at": "2026-08-12T00:00:00+00:00",
+    "from_dataset": "sec_ownership_datasets",
+    "record_id": "sec13f:0000036104-26-000049:G4474Y214:-:SH"
+   },
+   {
+    "subject": "sec:cik:0000036104",
+    "predicate": "reported_holding",
+    "object": "cusip:G4705A100",
+    "weight": 1.0,
+    "valid_from": "2026-06-30T00:00:00+00:00",
+    "valid_to": "2026-07-01T00:00:00+00:00",
+    "observed_at": "2026-08-12T00:00:00+00:00",
+    "from_dataset": "sec_ownership_datasets",
+    "record_id": "sec13f:0000036104-26-000049:G4705A100:-:SH"
    }
   ],
   "legal_entity_edges": [
    {
-    "subject": "lei:213800115BSUHPDI8695",
+    "subject": "lei:2549001MMCKZGZS2I202",
     "predicate": "ultimately_consolidated_by",
-    "object": "lei:O4QK7KMMK83ITNTHUG69",
+    "object": "lei:N1GZ7BBF3NP8GI976H15",
     "weight": 1.0,
-    "valid_from": "2021-01-08T00:00:00+00:00",
+    "valid_from": "2017-03-29T00:00:00+00:00",
     "valid_to": null,
     "observed_at": "2026-09-15T18:44:50.661036+00:00",
     "from_dataset": "gleif_parent_relationships",
-    "record_id": "gleif_rr:lei:213800115BSUHPDI8695:ultimately_consolidated_by:lei:O4QK7KMMK83ITNTHUG69"
+    "record_id": "gleif_rr:lei:2549001MMCKZGZS2I202:ultimately_consolidated_by:lei:N1GZ7BBF3NP8GI976H15"
    },
    {
-    "subject": "lei:2138003M3NTP1HB19R27",
+    "subject": "lei:2549001OCNPP846T2437",
     "predicate": "ultimately_consolidated_by",
-    "object": "lei:O4QK7KMMK83ITNTHUG69",
+    "object": "lei:N1GZ7BBF3NP8GI976H15",
     "weight": 1.0,
-    "valid_from": "2015-11-27T00:00:00+00:00",
+    "valid_from": "2006-04-11T00:00:00+00:00",
     "valid_to": null,
     "observed_at": "2026-09-15T18:44:50.661036+00:00",
     "from_dataset": "gleif_parent_relationships",
-    "record_id": "gleif_rr:lei:2138003M3NTP1HB19R27:ultimately_consolidated_by:lei:O4QK7KMMK83ITNTHUG69"
+    "record_id": "gleif_rr:lei:2549001OCNPP846T2437:ultimately_consolidated_by:lei:N1GZ7BBF3NP8GI976H15"
    },
    {
-    "subject": "lei:2138004URG54I4AY7C42",
-    "predicate": "ultimately_consolidated_by",
-    "object": "lei:O4QK7KMMK83ITNTHUG69",
+    "subject": "lei:2549001ODHN3T5QH4U46",
+    "predicate": "directly_consolidated_by",
+    "object": "lei:N1GZ7BBF3NP8GI976H15",
     "weight": 1.0,
-    "valid_from": "2015-07-15T00:00:00+00:00",
+    "valid_from": "2001-02-21T00:00:00+00:00",
     "valid_to": null,
     "observed_at": "2026-09-15T18:44:50.661036+00:00",
     "from_dataset": "gleif_parent_relationships",
-    "record_id": "gleif_rr:lei:2138004URG54I4AY7C42:ultimately_consolidated_by:lei:O4QK7KMMK83ITNTHUG69"
+    "record_id": "gleif_rr:lei:2549001ODHN3T5QH4U46:directly_consolidated_by:lei:N1GZ7BBF3NP8GI976H15"
+   },
+   {
+    "subject": "lei:2549001ODHN3T5QH4U46",
+    "predicate": "ultimately_consolidated_by",
+    "object": "lei:N1GZ7BBF3NP8GI976H15",
+    "weight": 1.0,
+    "valid_from": "2001-02-21T00:00:00+00:00",
+    "valid_to": null,
+    "observed_at": "2026-09-15T18:44:50.661036+00:00",
+    "from_dataset": "gleif_parent_relationships",
+    "record_id": "gleif_rr:lei:2549001ODHN3T5QH4U46:ultimately_consolidated_by:lei:N1GZ7BBF3NP8GI976H15"
+   },
+   {
+    "subject": "lei:2549002PJBESIX865264",
+    "predicate": "ultimately_consolidated_by",
+    "object": "lei:N1GZ7BBF3NP8GI976H15",
+    "weight": 1.0,
+    "valid_from": "2019-10-11T00:00:00+00:00",
+    "valid_to": null,
+    "observed_at": "2026-09-15T18:44:50.661036+00:00",
+    "from_dataset": "gleif_parent_relationships",
+    "record_id": "gleif_rr:lei:2549002PJBESIX865264:ultimately_consolidated_by:lei:N1GZ7BBF3NP8GI976H15"
+   },
+   {
+    "subject": "lei:2549003LLG8NYS6MZS09",
+    "predicate": "ultimately_consolidated_by",
+    "object": "lei:N1GZ7BBF3NP8GI976H15",
+    "weight": 1.0,
+    "valid_from": "2006-12-01T00:00:00+00:00",
+    "valid_to": null,
+    "observed_at": "2026-09-15T18:44:50.661036+00:00",
+    "from_dataset": "gleif_parent_relationships",
+    "record_id": "gleif_rr:lei:2549003LLG8NYS6MZS09:ultimately_consolidated_by:lei:N1GZ7BBF3NP8GI976H15"
+   },
+   {
+    "subject": "lei:25490041IV48Y4OX3117",
+    "predicate": "ultimately_consolidated_by",
+    "object": "lei:N1GZ7BBF3NP8GI976H15",
+    "weight": 1.0,
+    "valid_from": "2005-07-28T00:00:00+00:00",
+    "valid_to": null,
+    "observed_at": "2026-09-15T18:44:50.661036+00:00",
+    "from_dataset": "gleif_parent_relationships",
+    "record_id": "gleif_rr:lei:25490041IV48Y4OX3117:ultimately_consolidated_by:lei:N1GZ7BBF3NP8GI976H15"
+   },
+   {
+    "subject": "lei:254900688Q6D4FJXZN10",
+    "predicate": "ultimately_consolidated_by",
+    "object": "lei:N1GZ7BBF3NP8GI976H15",
+    "weight": 1.0,
+    "valid_from": "2011-01-07T00:00:00+00:00",
+    "valid_to": null,
+    "observed_at": "2026-09-15T18:44:50.661036+00:00",
+    "from_dataset": "gleif_parent_relationships",
+    "record_id": "gleif_rr:lei:254900688Q6D4FJXZN10:ultimately_consolidated_by:lei:N1GZ7BBF3NP8GI976H15"
+   },
+   {
+    "subject": "lei:254900CZLZSUEHAPO314",
+    "predicate": "ultimately_consolidated_by",
+    "object": "lei:N1GZ7BBF3NP8GI976H15",
+    "weight": 1.0,
+    "valid_from": "2010-06-29T00:00:00+00:00",
+    "valid_to": null,
+    "observed_at": "2026-09-15T18:44:50.661036+00:00",
+    "from_dataset": "gleif_parent_relationships",
+    "record_id": "gleif_rr:lei:254900CZLZSUEHAPO314:ultimately_consolidated_by:lei:N1GZ7BBF3NP8GI976H15"
+   },
+   {
+    "subject": "lei:254900D6EU6LB1JGAM82",
+    "predicate": "ultimately_consolidated_by",
+    "object": "lei:N1GZ7BBF3NP8GI976H15",
+    "weight": 1.0,
+    "valid_from": "1989-05-04T00:00:00+00:00",
+    "valid_to": null,
+    "observed_at": "2026-09-15T18:44:50.661036+00:00",
+    "from_dataset": "gleif_parent_relationships",
+    "record_id": "gleif_rr:lei:254900D6EU6LB1JGAM82:ultimately_consolidated_by:lei:N1GZ7BBF3NP8GI976H15"
+   },
+   {
+    "subject": "lei:254900DOYINRSC9QUM85",
+    "predicate": "ultimately_consolidated_by",
+    "object": "lei:N1GZ7BBF3NP8GI976H15",
+    "weight": 1.0,
+    "valid_from": "2012-05-18T00:00:00+00:00",
+    "valid_to": null,
+    "observed_at": "2026-09-15T18:44:50.661036+00:00",
+    "from_dataset": "gleif_parent_relationships",
+    "record_id": "gleif_rr:lei:254900DOYINRSC9QUM85:ultimately_consolidated_by:lei:N1GZ7BBF3NP8GI976H15"
+   },
+   {
+    "subject": "lei:254900DRL7LSDG7O0771",
+    "predicate": "ultimately_consolidated_by",
+    "object": "lei:N1GZ7BBF3NP8GI976H15",
+    "weight": 1.0,
+    "valid_from": "2006-04-11T00:00:00+00:00",
+    "valid_to": null,
+    "observed_at": "2026-09-15T18:44:50.661036+00:00",
+    "from_dataset": "gleif_parent_relationships",
+    "record_id": "gleif_rr:lei:254900DRL7LSDG7O0771:ultimately_consolidated_by:lei:N1GZ7BBF3NP8GI976H15"
+   },
+   {
+    "subject": "lei:254900EYC8MBG3PLKJ61",
+    "predicate": "ultimately_consolidated_by",
+    "object": "lei:N1GZ7BBF3NP8GI976H15",
+    "weight": 1.0,
+    "valid_from": "1987-07-09T00:00:00+00:00",
+    "valid_to": null,
+    "observed_at": "2026-09-15T18:44:50.661036+00:00",
+    "from_dataset": "gleif_parent_relationships",
+    "record_id": "gleif_rr:lei:254900EYC8MBG3PLKJ61:ultimately_consolidated_by:lei:N1GZ7BBF3NP8GI976H15"
+   },
+   {
+    "subject": "lei:254900FT0XYFJUD1EU47",
+    "predicate": "ultimately_consolidated_by",
+    "object": "lei:N1GZ7BBF3NP8GI976H15",
+    "weight": 1.0,
+    "valid_from": "2012-05-14T00:00:00+00:00",
+    "valid_to": null,
+    "observed_at": "2026-09-15T18:44:50.661036+00:00",
+    "from_dataset": "gleif_parent_relationships",
+    "record_id": "gleif_rr:lei:254900FT0XYFJUD1EU47:ultimately_consolidated_by:lei:N1GZ7BBF3NP8GI976H15"
+   },
+   {
+    "subject": "lei:254900GGWYNEVZIDL173",
+    "predicate": "ultimately_consolidated_by",
+    "object": "lei:N1GZ7BBF3NP8GI976H15",
+    "weight": 1.0,
+    "valid_from": "2019-10-10T00:00:00+00:00",
+    "valid_to": null,
+    "observed_at": "2026-09-15T18:44:50.661036+00:00",
+    "from_dataset": "gleif_parent_relationships",
+    "record_id": "gleif_rr:lei:254900GGWYNEVZIDL173:ultimately_consolidated_by:lei:N1GZ7BBF3NP8GI976H15"
+   },
+   {
+    "subject": "lei:254900GUUDIZ09Z1QS07",
+    "predicate": "ultimately_consolidated_by",
+    "object": "lei:N1GZ7BBF3NP8GI976H15",
+    "weight": 1.0,
+    "valid_from": "2019-08-23T00:00:00+00:00",
+    "valid_to": null,
+    "observed_at": "2026-09-15T18:44:50.661036+00:00",
+    "from_dataset": "gleif_parent_relationships",
+    "record_id": "gleif_rr:lei:254900GUUDIZ09Z1QS07:ultimately_consolidated_by:lei:N1GZ7BBF3NP8GI976H15"
+   },
+   {
+    "subject": "lei:254900MC837AOX90X802",
+    "predicate": "ultimately_consolidated_by",
+    "object": "lei:N1GZ7BBF3NP8GI976H15",
+    "weight": 1.0,
+    "valid_from": "2018-07-25T00:00:00+00:00",
+    "valid_to": null,
+    "observed_at": "2026-09-15T18:44:50.661036+00:00",
+    "from_dataset": "gleif_parent_relationships",
+    "record_id": "gleif_rr:lei:254900MC837AOX90X802:ultimately_consolidated_by:lei:N1GZ7BBF3NP8GI976H15"
+   },
+   {
+    "subject": "lei:254900MQW54T2CTDAE74",
+    "predicate": "ultimately_consolidated_by",
+    "object": "lei:N1GZ7BBF3NP8GI976H15",
+    "weight": 1.0,
+    "valid_from": "2014-09-11T00:00:00+00:00",
+    "valid_to": null,
+    "observed_at": "2026-09-15T18:44:50.661036+00:00",
+    "from_dataset": "gleif_parent_relationships",
+    "record_id": "gleif_rr:lei:254900MQW54T2CTDAE74:ultimately_consolidated_by:lei:N1GZ7BBF3NP8GI976H15"
+   },
+   {
+    "subject": "lei:254900NM18UKKF62SQ14",
+    "predicate": "ultimately_consolidated_by",
+    "object": "lei:N1GZ7BBF3NP8GI976H15",
+    "weight": 1.0,
+    "valid_from": "2006-05-05T00:00:00+00:00",
+    "valid_to": null,
+    "observed_at": "2026-09-15T18:44:50.661036+00:00",
+    "from_dataset": "gleif_parent_relationships",
+    "record_id": "gleif_rr:lei:254900NM18UKKF62SQ14:ultimately_consolidated_by:lei:N1GZ7BBF3NP8GI976H15"
+   },
+   {
+    "subject": "lei:254900OU32T65K3SEE72",
+    "predicate": "ultimately_consolidated_by",
+    "object": "lei:N1GZ7BBF3NP8GI976H15",
+    "weight": 1.0,
+    "valid_from": "2008-09-03T00:00:00+00:00",
+    "valid_to": null,
+    "observed_at": "2026-09-15T18:44:50.661036+00:00",
+    "from_dataset": "gleif_parent_relationships",
+    "record_id": "gleif_rr:lei:254900OU32T65K3SEE72:ultimately_consolidated_by:lei:N1GZ7BBF3NP8GI976H15"
+   },
+   {
+    "subject": "lei:254900P8XQ2KY5IN9780",
+    "predicate": "directly_consolidated_by",
+    "object": "lei:N1GZ7BBF3NP8GI976H15",
+    "weight": 1.0,
+    "valid_from": "1991-02-15T00:00:00+00:00",
+    "valid_to": null,
+    "observed_at": "2026-09-15T18:44:50.661036+00:00",
+    "from_dataset": "gleif_parent_relationships",
+    "record_id": "gleif_rr:lei:254900P8XQ2KY5IN9780:directly_consolidated_by:lei:N1GZ7BBF3NP8GI976H15"
+   },
+   {
+    "subject": "lei:254900P8XQ2KY5IN9780",
+    "predicate": "ultimately_consolidated_by",
+    "object": "lei:N1GZ7BBF3NP8GI976H15",
+    "weight": 1.0,
+    "valid_from": "1991-02-15T00:00:00+00:00",
+    "valid_to": null,
+    "observed_at": "2026-09-15T18:44:50.661036+00:00",
+    "from_dataset": "gleif_parent_relationships",
+    "record_id": "gleif_rr:lei:254900P8XQ2KY5IN9780:ultimately_consolidated_by:lei:N1GZ7BBF3NP8GI976H15"
+   },
+   {
+    "subject": "lei:254900PAXH4C78G3P190",
+    "predicate": "ultimately_consolidated_by",
+    "object": "lei:N1GZ7BBF3NP8GI976H15",
+    "weight": 1.0,
+    "valid_from": "2007-12-12T00:00:00+00:00",
+    "valid_to": null,
+    "observed_at": "2026-09-15T18:44:50.661036+00:00",
+    "from_dataset": "gleif_parent_relationships",
+    "record_id": "gleif_rr:lei:254900PAXH4C78G3P190:ultimately_consolidated_by:lei:N1GZ7BBF3NP8GI976H15"
+   },
+   {
+    "subject": "lei:254900RQ7N6MWHML8002",
+    "predicate": "ultimately_consolidated_by",
+    "object": "lei:N1GZ7BBF3NP8GI976H15",
+    "weight": 1.0,
+    "valid_from": "2012-09-06T00:00:00+00:00",
+    "valid_to": null,
+    "observed_at": "2026-09-15T18:44:50.661036+00:00",
+    "from_dataset": "gleif_parent_relationships",
+    "record_id": "gleif_rr:lei:254900RQ7N6MWHML8002:ultimately_consolidated_by:lei:N1GZ7BBF3NP8GI976H15"
+   },
+   {
+    "subject": "lei:254900SY282H6HK8YM34",
+    "predicate": "ultimately_consolidated_by",
+    "object": "lei:N1GZ7BBF3NP8GI976H15",
+    "weight": 1.0,
+    "valid_from": "2018-06-12T00:00:00+00:00",
+    "valid_to": null,
+    "observed_at": "2026-09-15T18:44:50.661036+00:00",
+    "from_dataset": "gleif_parent_relationships",
+    "record_id": "gleif_rr:lei:254900SY282H6HK8YM34:ultimately_consolidated_by:lei:N1GZ7BBF3NP8GI976H15"
    }
   ],
   "corporate_group_edges": [
    {
-    "subject": "lei:213800115BSUHPDI8695",
+    "subject": "lei:2549001MMCKZGZS2I202",
     "predicate": "ultimately_consolidated_by",
-    "object": "lei:O4QK7KMMK83ITNTHUG69",
+    "object": "lei:N1GZ7BBF3NP8GI976H15",
     "weight": 1.0,
-    "valid_from": "2021-01-08T00:00:00+00:00",
+    "valid_from": "2017-03-29T00:00:00+00:00",
     "valid_to": null,
     "observed_at": "2026-09-15T18:44:50.661036+00:00",
     "from_dataset": "gleif_parent_relationships",
-    "record_id": "gleif_rr:lei:213800115BSUHPDI8695:ultimately_consolidated_by:lei:O4QK7KMMK83ITNTHUG69"
+    "record_id": "gleif_rr:lei:2549001MMCKZGZS2I202:ultimately_consolidated_by:lei:N1GZ7BBF3NP8GI976H15"
    },
    {
-    "subject": "lei:2138003M3NTP1HB19R27",
+    "subject": "lei:2549001OCNPP846T2437",
     "predicate": "ultimately_consolidated_by",
-    "object": "lei:O4QK7KMMK83ITNTHUG69",
+    "object": "lei:N1GZ7BBF3NP8GI976H15",
     "weight": 1.0,
-    "valid_from": "2015-11-27T00:00:00+00:00",
+    "valid_from": "2006-04-11T00:00:00+00:00",
     "valid_to": null,
     "observed_at": "2026-09-15T18:44:50.661036+00:00",
     "from_dataset": "gleif_parent_relationships",
-    "record_id": "gleif_rr:lei:2138003M3NTP1HB19R27:ultimately_consolidated_by:lei:O4QK7KMMK83ITNTHUG69"
+    "record_id": "gleif_rr:lei:2549001OCNPP846T2437:ultimately_consolidated_by:lei:N1GZ7BBF3NP8GI976H15"
    },
    {
-    "subject": "lei:2138004URG54I4AY7C42",
-    "predicate": "ultimately_consolidated_by",
-    "object": "lei:O4QK7KMMK83ITNTHUG69",
+    "subject": "lei:2549001ODHN3T5QH4U46",
+    "predicate": "directly_consolidated_by",
+    "object": "lei:N1GZ7BBF3NP8GI976H15",
     "weight": 1.0,
-    "valid_from": "2015-07-15T00:00:00+00:00",
+    "valid_from": "2001-02-21T00:00:00+00:00",
     "valid_to": null,
     "observed_at": "2026-09-15T18:44:50.661036+00:00",
     "from_dataset": "gleif_parent_relationships",
-    "record_id": "gleif_rr:lei:2138004URG54I4AY7C42:ultimately_consolidated_by:lei:O4QK7KMMK83ITNTHUG69"
+    "record_id": "gleif_rr:lei:2549001ODHN3T5QH4U46:directly_consolidated_by:lei:N1GZ7BBF3NP8GI976H15"
+   },
+   {
+    "subject": "lei:2549001ODHN3T5QH4U46",
+    "predicate": "ultimately_consolidated_by",
+    "object": "lei:N1GZ7BBF3NP8GI976H15",
+    "weight": 1.0,
+    "valid_from": "2001-02-21T00:00:00+00:00",
+    "valid_to": null,
+    "observed_at": "2026-09-15T18:44:50.661036+00:00",
+    "from_dataset": "gleif_parent_relationships",
+    "record_id": "gleif_rr:lei:2549001ODHN3T5QH4U46:ultimately_consolidated_by:lei:N1GZ7BBF3NP8GI976H15"
+   },
+   {
+    "subject": "lei:2549002PJBESIX865264",
+    "predicate": "ultimately_consolidated_by",
+    "object": "lei:N1GZ7BBF3NP8GI976H15",
+    "weight": 1.0,
+    "valid_from": "2019-10-11T00:00:00+00:00",
+    "valid_to": null,
+    "observed_at": "2026-09-15T18:44:50.661036+00:00",
+    "from_dataset": "gleif_parent_relationships",
+    "record_id": "gleif_rr:lei:2549002PJBESIX865264:ultimately_consolidated_by:lei:N1GZ7BBF3NP8GI976H15"
+   },
+   {
+    "subject": "lei:2549003LLG8NYS6MZS09",
+    "predicate": "ultimately_consolidated_by",
+    "object": "lei:N1GZ7BBF3NP8GI976H15",
+    "weight": 1.0,
+    "valid_from": "2006-12-01T00:00:00+00:00",
+    "valid_to": null,
+    "observed_at": "2026-09-15T18:44:50.661036+00:00",
+    "from_dataset": "gleif_parent_relationships",
+    "record_id": "gleif_rr:lei:2549003LLG8NYS6MZS09:ultimately_consolidated_by:lei:N1GZ7BBF3NP8GI976H15"
+   },
+   {
+    "subject": "lei:25490041IV48Y4OX3117",
+    "predicate": "ultimately_consolidated_by",
+    "object": "lei:N1GZ7BBF3NP8GI976H15",
+    "weight": 1.0,
+    "valid_from": "2005-07-28T00:00:00+00:00",
+    "valid_to": null,
+    "observed_at": "2026-09-15T18:44:50.661036+00:00",
+    "from_dataset": "gleif_parent_relationships",
+    "record_id": "gleif_rr:lei:25490041IV48Y4OX3117:ultimately_consolidated_by:lei:N1GZ7BBF3NP8GI976H15"
+   },
+   {
+    "subject": "lei:254900688Q6D4FJXZN10",
+    "predicate": "ultimately_consolidated_by",
+    "object": "lei:N1GZ7BBF3NP8GI976H15",
+    "weight": 1.0,
+    "valid_from": "2011-01-07T00:00:00+00:00",
+    "valid_to": null,
+    "observed_at": "2026-09-15T18:44:50.661036+00:00",
+    "from_dataset": "gleif_parent_relationships",
+    "record_id": "gleif_rr:lei:254900688Q6D4FJXZN10:ultimately_consolidated_by:lei:N1GZ7BBF3NP8GI976H15"
+   },
+   {
+    "subject": "lei:254900CZLZSUEHAPO314",
+    "predicate": "ultimately_consolidated_by",
+    "object": "lei:N1GZ7BBF3NP8GI976H15",
+    "weight": 1.0,
+    "valid_from": "2010-06-29T00:00:00+00:00",
+    "valid_to": null,
+    "observed_at": "2026-09-15T18:44:50.661036+00:00",
+    "from_dataset": "gleif_parent_relationships",
+    "record_id": "gleif_rr:lei:254900CZLZSUEHAPO314:ultimately_consolidated_by:lei:N1GZ7BBF3NP8GI976H15"
+   },
+   {
+    "subject": "lei:254900D6EU6LB1JGAM82",
+    "predicate": "ultimately_consolidated_by",
+    "object": "lei:N1GZ7BBF3NP8GI976H15",
+    "weight": 1.0,
+    "valid_from": "1989-05-04T00:00:00+00:00",
+    "valid_to": null,
+    "observed_at": "2026-09-15T18:44:50.661036+00:00",
+    "from_dataset": "gleif_parent_relationships",
+    "record_id": "gleif_rr:lei:254900D6EU6LB1JGAM82:ultimately_consolidated_by:lei:N1GZ7BBF3NP8GI976H15"
+   },
+   {
+    "subject": "lei:254900DOYINRSC9QUM85",
+    "predicate": "ultimately_consolidated_by",
+    "object": "lei:N1GZ7BBF3NP8GI976H15",
+    "weight": 1.0,
+    "valid_from": "2012-05-18T00:00:00+00:00",
+    "valid_to": null,
+    "observed_at": "2026-09-15T18:44:50.661036+00:00",
+    "from_dataset": "gleif_parent_relationships",
+    "record_id": "gleif_rr:lei:254900DOYINRSC9QUM85:ultimately_consolidated_by:lei:N1GZ7BBF3NP8GI976H15"
+   },
+   {
+    "subject": "lei:254900DRL7LSDG7O0771",
+    "predicate": "ultimately_consolidated_by",
+    "object": "lei:N1GZ7BBF3NP8GI976H15",
+    "weight": 1.0,
+    "valid_from": "2006-04-11T00:00:00+00:00",
+    "valid_to": null,
+    "observed_at": "2026-09-15T18:44:50.661036+00:00",
+    "from_dataset": "gleif_parent_relationships",
+    "record_id": "gleif_rr:lei:254900DRL7LSDG7O0771:ultimately_consolidated_by:lei:N1GZ7BBF3NP8GI976H15"
+   },
+   {
+    "subject": "lei:254900EYC8MBG3PLKJ61",
+    "predicate": "ultimately_consolidated_by",
+    "object": "lei:N1GZ7BBF3NP8GI976H15",
+    "weight": 1.0,
+    "valid_from": "1987-07-09T00:00:00+00:00",
+    "valid_to": null,
+    "observed_at": "2026-09-15T18:44:50.661036+00:00",
+    "from_dataset": "gleif_parent_relationships",
+    "record_id": "gleif_rr:lei:254900EYC8MBG3PLKJ61:ultimately_consolidated_by:lei:N1GZ7BBF3NP8GI976H15"
+   },
+   {
+    "subject": "lei:254900FT0XYFJUD1EU47",
+    "predicate": "ultimately_consolidated_by",
+    "object": "lei:N1GZ7BBF3NP8GI976H15",
+    "weight": 1.0,
+    "valid_from": "2012-05-14T00:00:00+00:00",
+    "valid_to": null,
+    "observed_at": "2026-09-15T18:44:50.661036+00:00",
+    "from_dataset": "gleif_parent_relationships",
+    "record_id": "gleif_rr:lei:254900FT0XYFJUD1EU47:ultimately_consolidated_by:lei:N1GZ7BBF3NP8GI976H15"
+   },
+   {
+    "subject": "lei:254900GGWYNEVZIDL173",
+    "predicate": "ultimately_consolidated_by",
+    "object": "lei:N1GZ7BBF3NP8GI976H15",
+    "weight": 1.0,
+    "valid_from": "2019-10-10T00:00:00+00:00",
+    "valid_to": null,
+    "observed_at": "2026-09-15T18:44:50.661036+00:00",
+    "from_dataset": "gleif_parent_relationships",
+    "record_id": "gleif_rr:lei:254900GGWYNEVZIDL173:ultimately_consolidated_by:lei:N1GZ7BBF3NP8GI976H15"
+   },
+   {
+    "subject": "lei:254900GUUDIZ09Z1QS07",
+    "predicate": "ultimately_consolidated_by",
+    "object": "lei:N1GZ7BBF3NP8GI976H15",
+    "weight": 1.0,
+    "valid_from": "2019-08-23T00:00:00+00:00",
+    "valid_to": null,
+    "observed_at": "2026-09-15T18:44:50.661036+00:00",
+    "from_dataset": "gleif_parent_relationships",
+    "record_id": "gleif_rr:lei:254900GUUDIZ09Z1QS07:ultimately_consolidated_by:lei:N1GZ7BBF3NP8GI976H15"
+   },
+   {
+    "subject": "lei:254900MC837AOX90X802",
+    "predicate": "ultimately_consolidated_by",
+    "object": "lei:N1GZ7BBF3NP8GI976H15",
+    "weight": 1.0,
+    "valid_from": "2018-07-25T00:00:00+00:00",
+    "valid_to": null,
+    "observed_at": "2026-09-15T18:44:50.661036+00:00",
+    "from_dataset": "gleif_parent_relationships",
+    "record_id": "gleif_rr:lei:254900MC837AOX90X802:ultimately_consolidated_by:lei:N1GZ7BBF3NP8GI976H15"
+   },
+   {
+    "subject": "lei:254900MQW54T2CTDAE74",
+    "predicate": "ultimately_consolidated_by",
+    "object": "lei:N1GZ7BBF3NP8GI976H15",
+    "weight": 1.0,
+    "valid_from": "2014-09-11T00:00:00+00:00",
+    "valid_to": null,
+    "observed_at": "2026-09-15T18:44:50.661036+00:00",
+    "from_dataset": "gleif_parent_relationships",
+    "record_id": "gleif_rr:lei:254900MQW54T2CTDAE74:ultimately_consolidated_by:lei:N1GZ7BBF3NP8GI976H15"
+   },
+   {
+    "subject": "lei:254900NM18UKKF62SQ14",
+    "predicate": "ultimately_consolidated_by",
+    "object": "lei:N1GZ7BBF3NP8GI976H15",
+    "weight": 1.0,
+    "valid_from": "2006-05-05T00:00:00+00:00",
+    "valid_to": null,
+    "observed_at": "2026-09-15T18:44:50.661036+00:00",
+    "from_dataset": "gleif_parent_relationships",
+    "record_id": "gleif_rr:lei:254900NM18UKKF62SQ14:ultimately_consolidated_by:lei:N1GZ7BBF3NP8GI976H15"
+   },
+   {
+    "subject": "lei:254900OU32T65K3SEE72",
+    "predicate": "ultimately_consolidated_by",
+    "object": "lei:N1GZ7BBF3NP8GI976H15",
+    "weight": 1.0,
+    "valid_from": "2008-09-03T00:00:00+00:00",
+    "valid_to": null,
+    "observed_at": "2026-09-15T18:44:50.661036+00:00",
+    "from_dataset": "gleif_parent_relationships",
+    "record_id": "gleif_rr:lei:254900OU32T65K3SEE72:ultimately_consolidated_by:lei:N1GZ7BBF3NP8GI976H15"
+   },
+   {
+    "subject": "lei:254900P8XQ2KY5IN9780",
+    "predicate": "directly_consolidated_by",
+    "object": "lei:N1GZ7BBF3NP8GI976H15",
+    "weight": 1.0,
+    "valid_from": "1991-02-15T00:00:00+00:00",
+    "valid_to": null,
+    "observed_at": "2026-09-15T18:44:50.661036+00:00",
+    "from_dataset": "gleif_parent_relationships",
+    "record_id": "gleif_rr:lei:254900P8XQ2KY5IN9780:directly_consolidated_by:lei:N1GZ7BBF3NP8GI976H15"
+   },
+   {
+    "subject": "lei:254900P8XQ2KY5IN9780",
+    "predicate": "ultimately_consolidated_by",
+    "object": "lei:N1GZ7BBF3NP8GI976H15",
+    "weight": 1.0,
+    "valid_from": "1991-02-15T00:00:00+00:00",
+    "valid_to": null,
+    "observed_at": "2026-09-15T18:44:50.661036+00:00",
+    "from_dataset": "gleif_parent_relationships",
+    "record_id": "gleif_rr:lei:254900P8XQ2KY5IN9780:ultimately_consolidated_by:lei:N1GZ7BBF3NP8GI976H15"
+   },
+   {
+    "subject": "lei:254900PAXH4C78G3P190",
+    "predicate": "ultimately_consolidated_by",
+    "object": "lei:N1GZ7BBF3NP8GI976H15",
+    "weight": 1.0,
+    "valid_from": "2007-12-12T00:00:00+00:00",
+    "valid_to": null,
+    "observed_at": "2026-09-15T18:44:50.661036+00:00",
+    "from_dataset": "gleif_parent_relationships",
+    "record_id": "gleif_rr:lei:254900PAXH4C78G3P190:ultimately_consolidated_by:lei:N1GZ7BBF3NP8GI976H15"
+   },
+   {
+    "subject": "lei:254900RQ7N6MWHML8002",
+    "predicate": "ultimately_consolidated_by",
+    "object": "lei:N1GZ7BBF3NP8GI976H15",
+    "weight": 1.0,
+    "valid_from": "2012-09-06T00:00:00+00:00",
+    "valid_to": null,
+    "observed_at": "2026-09-15T18:44:50.661036+00:00",
+    "from_dataset": "gleif_parent_relationships",
+    "record_id": "gleif_rr:lei:254900RQ7N6MWHML8002:ultimately_consolidated_by:lei:N1GZ7BBF3NP8GI976H15"
+   },
+   {
+    "subject": "lei:254900SY282H6HK8YM34",
+    "predicate": "ultimately_consolidated_by",
+    "object": "lei:N1GZ7BBF3NP8GI976H15",
+    "weight": 1.0,
+    "valid_from": "2018-06-12T00:00:00+00:00",
+    "valid_to": null,
+    "observed_at": "2026-09-15T18:44:50.661036+00:00",
+    "from_dataset": "gleif_parent_relationships",
+    "record_id": "gleif_rr:lei:254900SY282H6HK8YM34:ultimately_consolidated_by:lei:N1GZ7BBF3NP8GI976H15"
    }
   ],
   "candidate_fdic_institutions": []
  },
  "counts": {
-  "asserted_cik_lei_clusters": 25,
-  "group_edges": 200,
+  "asserted_cik_lei_clusters": 617,
+  "clusters_whose_filer_carries_a_depository_or_bank_holding_sic": 5,
+  "group_edges": 116,
   "fdic_entities_scanned": 27833,
+  "clusters_with_any_fdic_name_match": 0,
   "name_matched_fdic_candidates": 0
  },
  "which_dataset_supplied_which_edge": {
   "CIK, SIC classification, venue listing, published LEI": "sec_issuer_reference",
-  "CIK <-> LEI identity": "asserted: sec_issuer_reference publishes the LEI that is the GLEIF entity ID",
+  "CIK <-> LEI identity": "asserted: sec_issuer_reference publishes the LEI that is the GLEIF entity ID, or GLEIF publishes the SEC (RA000665) as the registering authority and the CIK as its entity ID (worldmodel.resolution.bridges.gleif_sec_cik)",
   "legal name, legal form, jurisdiction, ISIN links": "sec_gleif",
   "consolidation parents and fund managers": "gleif_parent_relationships",
   "FDIC certificate, FED_RSSD, county, call-report financials": "fdic_bank_financials",
-  "FDIC <-> SEC/GLEIF link": "NOT published. The name match shown is inferred and unreviewed."
+  "FDIC <-> SEC/GLEIF link": "NOT published. The name match shown, if any, is inferred and unreviewed."
  },
  "what_this_does_not_establish": [
-  "The FDIC leg is the honest failure in this chain: no published crosswalk links an FDIC certificate to a CIK or an LEI, so the candidate institutions are name-string matches, explicitly inferred and unreviewed. They must not be treated as identity.",
+  "The FDIC leg is the honest failure in this chain, and it is a genuine absence rather than an extraction gap. fdic_bank_financials publishes an FDIC certificate, a FED_RSSD and a regulatory_high_holder edge to rssd:<RSSDHCR>; nothing in this catalog publishes an RSSD or an FDIC certificate for a CIK or an LEI. GLEIF does not close it either: no registration authority in the golden copy is the Federal Reserve, and the best numeric overlap between any authority's entity IDs and the 26,574 published FED_RSSDs is 646 of 31,564 under RA000484 (2.0%), which is what coincidence between two dense numeric ID spaces looks like.",
+  "Candidate institutions shown here are name-string matches, explicitly inferred and unreviewed. They must not be treated as identity. On this catalog a held-out measurement of name matching gave precision 0.0226 and recall 0.0044 (docs/unified-graph.md).",
   "fdic_cert <-> rssd is declared 1:1 by the repo mapping specs but 943 certificate pairs in the published directory share a FED_RSSD, so unify-resolve deliberately does not cluster on rssd.",
+  "GLEIF records the register the entity was incorporated in, not the SEC. A Delaware-incorporated bank holding company carries its Delaware file number, so the RA000665 bridge reaches SEC-registered funds and advisers far more often than operating banks.",
   "GLEIF Level 2 records accounting consolidation, not control or beneficial ownership.",
   "sec_financial_statements contributes structure only under the default profile: its 50.5M XBRL facts need \"--datasets sec_financial_statements\" (or --profile all) to be queryable here."
  ],
  "datasets_used": [
   "gleif_parent_relationships",
-  "sec_issuer_reference"
+  "sec_issuer_reference",
+  "sec_ownership_datasets"
  ]
 }

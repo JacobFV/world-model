@@ -24,7 +24,7 @@ which is why the measured build below pins 96 inputs and 1,312,082,952 catalog r
                        51,517,125 observations
                        16,653,240 events
  26,409,127 edges       (entity-to-entity assertions, weighted, bitemporal)
-     43,055 resolved entity IDs in 18,128 asserted-identity clusters
+     62,815 resolved entity IDs in 28,008 asserted-identity clusters
 ```
 
 The ten largest edge predicates: `reported_holding` 10,416,598, `issuer_security` 2,291,868,
@@ -180,7 +180,7 @@ python3 -m worldmodel unify-resolve --workdir /tmp/resolve
 python3 -m worldmodel graph-neighborhood ofac:party:20314 --hops 2 --resolved
 ```
 
-`unify-resolve` attaches **only asserted identity**, from two sources:
+`unify-resolve` attaches **only asserted identity**, from three sources:
 
 1. **Published `same_as` assertions** - for example `congress_people` publishing the
    congress-legislators ID lists that link a `bioguide:` person to `icpsr:` and `fec:candidate:`.
@@ -191,6 +191,23 @@ python3 -m worldmodel graph-neighborhood ofac:party:20314 --hops 2 --resolved
    sanctions datasets) and `identified_by` (a `ns:value` literal, the transport datasets). A
    namespaced entity ID is itself treated as a published identifier claim, which is what lets an
    OpenSanctions record that publishes an LEI meet the GLEIF entity whose ID *is* that LEI.
+3. **Published crosswalk fields** (`worldmodel.resolution.bridges`) - an identifier a source prints
+   in a field that is not an identifier assertion. Three, each naming the published field it reads
+   and the `MAPPING_SPECS` entry that says what a row means:
+
+   | Bridge | Published field | Rows on this catalog |
+   | --- | --- | ---: |
+   | `gleif_sec_cik` | GLEIF LEI-CDF `Entity.RegistrationAuthority` where the authority is `RA000665` (the US SEC) and its entity ID is decimal, i.e. an EDGAR CIK | 4,971 |
+   | `gleif_companies_house` | the same fields where the authority is `RA000585` (Companies House) | 112,177 |
+   | `gleif_isin_cusip` | `issuer_security` edges to `isin:<US ISIN>`: by ISO 6166 the nine-character NSIN is the CUSIP, so the GLEIF mapping and a 13F information table name one security | 2,291,868 |
+
+   Two rules stop a bridge manufacturing identity. **The authority code decides the namespace, never
+   the value shape**: a numeric registration-authority entity ID under a *state* registry is not a
+   CIK, and 2,851 of RA000063's 30,074 numeric IDs collide with real CIKs by coincidence. And a
+   bridge row is held to **the cardinality its specification declares**: 15 CIKs and 169 UK company
+   numbers are each printed by more than one LEI, and those 184 values are refused and reported in
+   `bridge_conflicts` rather than merging two legal entities. `unify-resolve --no-bridges` turns the
+   whole layer off.
 
 Values are normalized before grouping (`sec_cik` `1750` and `0000001750` are one filer), identifier
 rows spill to a SQLite work file so peak memory does not scale with the catalog, and only values
@@ -205,30 +222,82 @@ name-based matcher would add, against held-out published LEIs.
 
 | | |
 | --- | ---: |
-| wall time | 1,309.8 s (21.8 min) |
-| peak RSS | 596 MiB |
-| identifier claims read | 7,250,628 |
+| wall time | 1,666.9 s (27.8 min) |
+| peak RSS | 595 MiB |
+| identifier claims read | 9,826,983 |
+| of those, read by a published-crosswalk bridge | 2,409,016 |
 | published `same_as` assertions read | 26,793 |
-| identifier values colliding across distinct entity IDs | 21,227 |
-| `same_as` links from shared identifiers | 24,589 |
+| identifier values colliding across distinct entity IDs | 31,107 |
+| `same_as` links from shared identifiers | 34,469 |
 | entities holding two concurrent values in one unique namespace (reported, not linked) | 324 |
-| clusters | 18,128 |
-| entity IDs resolved | 43,055 |
+| bridge rows refused for breaking their declared cardinality | 184 |
+| clusters | 28,008 |
+| entity IDs resolved | 62,815 |
 | largest cluster | 22 |
 | oversized components dropped | 0 |
+
+The claim count is up 2,576,355 on the pre-bridge run: 2,409,016 bridge rows plus 130,745 `cusip:`
+entity IDs, which are now read as the identifier claims they are. Peak memory is **unchanged** at
+595 MiB, because the rows spill to the same work file; wall time is 357 s longer, on a catalog that
+also gained `mit_election_returns` returns and rebuilt `bls_labor` since that run. Of the bridge
+claims, 9,288 `gleif_isin_cusip` rows and 592 `gleif_sec_cik` rows met another publisher's entity.
+`gleif_companies_house` contributed **0** here, because `companies_house_uk` is a bulk dataset
+outside the default scope - add `--datasets companies_house_uk,sec_gleif` and 95,562 of its numbers
+are a company in the published register.
 
 What those clusters actually join (top shapes):
 
 | Clusters | Joins | Example |
 | ---: | --- | --- |
 | 10,696 | `bioguide` ↔ `icpsr` | `bioguide:A000001` ↔ `icpsr:1` |
+| 9,288 | `cusip` ↔ `isin` | `cusip:00032Q104` ↔ `isin:US00032Q1040` - **new**, the ISO 6166 bridge |
+| 1,828 | `ofac:party` ↔ `opensanctions` ↔ `us_csl` | one designated party on three lists |
 | 1,634 | `lei` ↔ `opensanctions` | `lei:06ZODLC132CY1O2Y7D77` ↔ `opensanctions:NK-SgXwijobPzasWcTxShpXGL` |
 | 1,475 | `bioguide` ↔ `fec:candidate` ↔ `icpsr` ↔ `opensanctions` | a legislator and their OpenSanctions PEP record |
+| **617** | `lei` ↔ `sec:cik` | `lei:07Q4EPZRU8XATVYVY545` ↔ `sec:cik:0001472215` - **was 25** before the GLEIF registration-authority bridge |
 | 350 | `opensanctions` ↔ `uk:sanctions` | the same party on the OpenSanctions and UK lists |
 | 315 | `mmsi` ↔ `mmsi` | two radio identities for one hull, joined by a shared IMO number |
+| 244 | `lei` ↔ `ofac:party` ↔ `opensanctions` ↔ `us_csl` | a designated legal entity and its LEI |
 | 51 | `geo:US:state` ↔ `iso3166-2` | `geo:US:state:01` ↔ `iso3166-2:US-AL` |
 | 50 | `mmsi` ↔ `opensanctions` | a sanctioned vessel and its AIS identity |
-| 25 | `lei` ↔ `sec:cik` | `lei:213800J4SKZAMUEPGW34` ↔ `sec:cik:0002039972` |
+
+### The sanctions-to-SEC join: what was missing, and what is genuinely absent
+
+Queries 1 and 6 both used to stop at the same place, so it is worth stating exactly which part of
+that was our extraction and which part is the published data. Every figure below is measured on the
+pinned artifacts of this catalog.
+
+**What was missing, and is now read.** `sec_issuer_reference` publishes an LEI for **25 of its 8,022
+CIK entities** (0.3%), which is where the old 25 `lei`↔`sec:cik` clusters came from, and all 25 are
+foreign private issuers. Meanwhile GLEIF's golden copy prints, for **every one of 3,431,064 LEIs**,
+the register that registered the entity and that register's own identifier for it, and **3,138,388
+(91.5%) carry an identifier**. Nothing read that field, because it is an entity attribute rather
+than an `identifier_assignment` row. `RA000665` is the US SEC: **27,931 LEIs** name it, of which
+**4,971 print a decimal CIK** (the other 22,948 print an `S…` registered-fund series ID and 12 print
+an `805-…` investment-adviser file number, both published SEC identifiers but neither a CIK).
+Likewise `RA000585` is Companies House: **112,177 LEIs** print a UK company number over **112,006**
+distinct numbers, and **95,562 of the 111,837** that survive the 1:1 check are a company in the
+published UK register of 5,689,367.
+
+Validating the CIK bridge against the SEC's own names: **596** of those CIKs exist as `sec:cik:`
+entities in this index (592 after the 1:1 refusal, which is exactly the 617 - 25 increase in
+`lei`↔`sec:cik` clusters), and of the 596, **548 have exactly the same normalised legal name** on
+both sides, 9 have a containment match, and the 39 that differ are visibly renames (`Cinedigm Corp`
+→ `Cineverse Corp.`, `& ` → ` and `). The GLEIF ISIN mapping bridges similarly cleanly: all
+**2,291,868** of its US ISIN rows recompute their ISO 6166 check digit, no ISIN carries two LEIs,
+and **9,288** of them are a CUSIP that the 13F information tables also name - giving 6,085 LEIs a
+security whose institutional holders are in the index.
+
+**What is genuinely absent, and must not be engineered around.**
+
+| Gap | Measured | Verdict |
+| --- | --- | --- |
+| a sanctioned legal entity that is also an SEC filer | sanctions datasets publish **1,928** distinct LEI values (1,927 present in GLEIF). **Zero** carry an SEC registration authority. By jurisdiction: RU 546, US-DE 145, CN 137, CY 92, DE 73, GB 63 …; the 241 US ones carry Delaware and other state file numbers (`RA000602` 139), not CIKs | **different populations.** A US entity on a sanctions or ownership list is a state-registered company, not an SEC registrant. No bridge can create this |
+| an actually *designated* party whose corporate group reaches an SEC filer | OFAC SDN and the other designation lists publish **183** distinct LEIs. Zero are SEC registrants, their whole published ownership neighbourhood within two GLEIF/OpenSanctions hops is **122** further LEIs, and **zero of those** are SEC registrants either | **genuinely absent.** The wider `opensanctions_graph` population *does* reach SEC filers - 87 at one ownership hop and 436 within two - but those anchors are ownership and politically-exposed-person records, not designations, and the query says so |
+| an FDIC certificate or FED_RSSD for a CIK or an LEI | `fdic_bank_financials` publishes 27,833 certificates, 27,566 `rssd` claims (26,574 distinct) and `regulatory_high_holder` edges to `rssd:<RSSDHCR>`. **No** GLEIF registration authority is the Federal Reserve: the best numeric overlap between any authority's entity IDs and those RSSDs is **646 of 31,564 (2.0%)** under `RA000484`, and `RA000665` gives 26 - coincidence between two dense numeric ID spaces | **not published.** Nothing in the catalog crosses FDIC to SEC or GLEIF |
+| OpenSanctions `registrationNumber` as a company-register key | **29,128** claims, published with `scheme: registrationNumber` and **no register named**, so the pipeline assigns them no namespace | **not attached.** Typing a bare number by guessing its register is inference, not a published identifier |
+| a sanctioned party's ISIN back to the GLEIF issuer | sanctions lists publish **167** distinct ISINs (CN 134, XS 11, US 6, HK 6 …). **3** are in GLEIF's US ISIN map, and all 3 issuers (China Mobile, CNOOC, China Communications Construction) **already publish their LEI** on the sanctions side | **zero marginal links.** Also the wrong assertion: OFAC may list a bond issued by a financing subsidiary under its parent |
+| `market_corporate_actions` ticker↔CIK↔FIGI | the dataset republished **after** this index was built, so its 30,727 `issuer_listing` and 16,659 `listing_security` edges are not in the index at all. Separately, `ticker:US:<T>` (market_prices 15,983, alpaca 11,594) shares **0** entity IDs with `ticker:<MIC>:<T>` (sec_issuer_reference 9,859, nasdaq_listings 13,199), which its own `primary_listing` edges are what would join | **an index rebuild, not a resolution change.** A ticker is a listing, never issuer identity, so this belongs in the graph as edges and `MAPPING_SPECS` keeps `sec_cik_ticker` as `listed_as` |
 
 ### What inferred, name-based matching would add: measured, and it is bad
 
@@ -268,9 +337,9 @@ never compared); precision is measured only where a published LEI exists on the 
 it is a proxy; and the 251,908-entity GLEIF pool is a bounded pool taken in LEI order, not a uniform
 sample of all 3,431,064, which if anything flatters precision.
 
-### Two namespaces the published data shows are not one-to-one
+### Identifiers the published data shows are not one-to-one
 
-Measured on this catalog, and therefore excluded from clustering
+Two namespaces are excluded from clustering entirely
 (`worldmodel.unify.NON_UNIQUE_IN_PRACTICE`) while the identifier assertions themselves stay in the
 graph as evidence:
 
@@ -282,6 +351,13 @@ graph as evidence:
   example `fdic:cert:10005` ("Valley Bank, Green Bay", closed 1988) and `fdic:cert:21710` ("M&I
   Bank Northeast", closed 2001), both carrying `rssd` 736943. The specification and the data
   disagree, so we do not merge on it.
+
+Individual **values** are refused the same way, per bridge, against the cardinality its mapping
+specification declares. On this catalog `unify-resolve` refuses **184**: 15 CIKs printed as the SEC
+registration-authority entity ID by two different LEIs, and 169 UK company numbers printed by two
+(for example `gb_company_number` `00032743` under both `lei:213800XQNGMW2ST7FQ03` and
+`lei:549300WUNTT0B3TVIT69`). Each appears in the report's `bridge_conflicts` with the identifiers it
+collided with, so a refused link is attributable rather than silent.
 
 ## Six questions no single dataset can answer
 
@@ -298,28 +374,43 @@ what the catalog actually supports today, including where it stops.
 
 ### 1. A sanctions listing to a legal entity, its corporate group, and securities holders
 
-`q1_sanctioned_to_listed_holders.py` - datasets: opensanctions_graph, sec_gleif,
-gleif_parent_relationships.
+`q1_sanctioned_to_listed_holders.py` - datasets: ofac_sanctions, other_sanctions_lists,
+opensanctions(_graph), sec_gleif, gleif_parent_relationships, sec_ownership_datasets.
 
-OpenSanctions' Global Energy Monitor ownership record `opensanctions:gem-own-e100000002326`
-("SunCoke Energy") and GLEIF's `lei:1KF1J2NXQE2PI0QOB943` ("SUNCOKE ENERGY, INC.") are **one
-asserted-identity cluster**, because both publishers print the same LEI. From there:
+**This chain now completes.** `ofac:party:17248`, `us_csl:17248` and
+`opensanctions:NK-T3oRNWY3XhL72vfsVMcXzX` - all three labelled "LUKOIL OAO" - and GLEIF's
+`lei:549300LCJ1UJXHYBWI24` (`Публичное акционерное общество "Нефтяная компания "ЛУКОЙЛ"`) are **one
+asserted-identity cluster**, because all four publishers print the same LEI. From there:
 
 | Edge | Dataset |
 | --- | --- |
-| `lei:5493002789CX3L0CJP65` **owns** `lei:1KF1J2NXQE2PI0QOB943` | opensanctions_graph |
-| 199 funds **fund_managed_by** `lei:5493002789CX3L0CJP65` | gleif_parent_relationships |
-| 3 ISINs (`isin:US86722A1034`, `isin:US86722AAD54`, `isin:USU86651AB92`) **issuer_security** of the entity | sec_gleif |
+| 200 subsidiaries **directly_consolidated_by** / **ultimately_consolidated_by** the LEI, dated from 2016-12-08 | gleif_parent_relationships |
+| 7 ISINs **issuer_security** of the LEI, including `isin:US69343P1057` | sec_gleif (GLEIF/ANNA ISIN-LEI mapping) |
+| `isin:US69343P1057` ≡ `cusip:69343P105` | **asserted by ISO 6166** (`resolution.bridges.gleif_isin_cusip`) |
+| **24 13F filers reported holding `cusip:69343P105`** as of 2026-06-30, filed 2026-08-06 to 2026-08-14 (e.g. `sec:cik:0001481986`, `sec:cik:0001992110`, `sec:cik:0001050470`) | sec_ownership_datasets |
 
-**Where the evidence runs out, quantified.** 1,880 clusters join a sanctions listing to a GLEIF LEI
-and 25 join an LEI to an SEC CIK, but **0 join all three**, so the 13F holder leg does not fire for
-any sanctioned entity in this index. That is a gap in the published identifiers, not a finding that
-no such holding exists.
+An OFAC-designated issuer to the institutional managers reporting a position in its security, with
+every hop a published identifier. That was the hop that used to be missing.
+
+**Where the evidence still runs out, quantified.** The holder leg fires through the *security*, not
+through the filer. 1,880 clusters join a sanctions listing to a GLEIF LEI, and **175** of those LEIs
+issue a security the 13F tables also name; 246 of the clusters carry a listing from an actual
+designation list and **2** of those reach such a security (LUKOIL is one). The **filer** leg still
+does not fire: 617 clusters join an LEI to an SEC CIK - up from 25 - but **0 join all three**, and
+that is a true finding rather than an extraction gap. Zero of the 1,928 sanctions-published LEIs
+carry an SEC EDGAR registration-authority entity ID, and for the 183 LEIs on the designation lists
+proper, neither they nor the 122 LEIs in their published two-hop ownership neighbourhood are SEC
+registrants. See the diagnosis table above.
 
 **Does not establish:** not a sanctions determination (a listing applies to the named party, and
-group membership does not transfer it); GLEIF Level 2 records accounting consolidation, not control
-or beneficial ownership; the default profile excludes `sec_13f_history` and `companies_house_uk`, so
-holdings and UK PSC ownership are only as complete as `sec_ownership_datasets`.
+group membership does not transfer it; `opensanctions_graph` also carries ownership and
+politically-exposed-person records that are not designations); the ISIN-to-CUSIP bridge is *security*
+identity only and says nothing about who the issuer is; a 13F manager reports what it had discretion
+over at a past quarter end, which is neither a current position nor beneficial ownership of the
+issuer; GLEIF Level 2 records accounting consolidation, not control; GLEIF's published ISIN mapping
+here covers US ISINs only, so an issuer with only European ISINs has no reachable security; the
+default profile excludes `sec_13f_history` and `companies_house_uk`, so holdings are only as complete
+as `sec_ownership_datasets` and UK PSC ownership is out of scope.
 
 ### 2. One US county across employment, jobs, population, demographics, agriculture, hazard and climate
 
@@ -422,27 +513,29 @@ graphs and the 31.1M FAF freight rows are outside the default profile.
 `q6_bank_filings_to_identity_to_group.py` - datasets: sec_issuer_reference, sec_gleif,
 sec_ownership_datasets, gleif_parent_relationships, fdic_bank_financials.
 
-`sec:cik:0000769218` ("AEGON LTD.") and `lei:O4QK7KMMK83ITNTHUG69` ("Aegon Ltd.") are one
-asserted-identity cluster, because sec_issuer_reference publishes the LEI that *is* the GLEIF entity
-ID. From there:
+With 617 CIK↔LEI clusters instead of 25, the query can pick an anchor that is actually a bank: 5 of
+them carry a depository or bank-holding SIC code, and the deepest is `sec:cik:0000036104`
+("US BANCORP \DE\") ≡ `lei:N1GZ7BBF3NP8GI976H15` ("U.S. BANCORP"), **classified_as** `sic:6021`
+(national commercial bank), with **116** GLEIF Level 2 consolidation edges. The result reports the
+`identity_basis` for the hop - here GLEIF's registering authority is `RA000602` (Delaware), so this
+particular link came from the LEI `sec_issuer_reference` publishes, not from the RA000665 bridge.
 
-| Edge | Dataset |
-| --- | --- |
-| **classified_as** `sic:6311` (life insurance) | sec_issuer_reference |
-| **issuer_listing** `ticker:XNYS:AEG`, `ticker:OTC:AEGOF`, `ticker:XNYS:AEFC` | sec_issuer_reference |
-| **insider_of** filings by directors and officers | sec_ownership_datasets |
-| 200 subsidiaries **ultimately_consolidated_by** the LEI | gleif_parent_relationships |
-
-**The FDIC leg is the honest failure.** No published crosswalk links an FDIC certificate to a CIK or
-an LEI, so the only thing to try is a name string. Across all 27,833 FDIC-insured institutions in
-the index and all 25 CIK↔LEI clusters, **0 name matches** were found - correctly, since none of
-those filers is a US insured depository. The output labels any such candidate
-`name string equality only - INFERRED, not asserted`.
+**The FDIC leg is still the honest failure, and now it is diagnosed rather than just observed.** No
+published crosswalk links an FDIC certificate to a CIK or an LEI, so the only thing to try is a name
+string; across all 27,833 FDIC-insured institutions and all 617 CIK↔LEI clusters, **0 name matches**
+were found. That is correct: U.S. Bancorp's insured subsidiary is on the register as "U.S. Bank
+National Association", and a holding company and its charter do not share a name. GLEIF does not
+close the gap either - **no registration authority in the golden copy is the Federal Reserve**, and
+the best numeric overlap between any authority's entity IDs and the 26,574 published FED_RSSDs is
+646 of 31,564 (2.0%) under `RA000484`, which is coincidence rather than a crosswalk. The output
+labels any name candidate `name string equality only - INFERRED, not asserted`.
 
 **Does not establish:** `fdic_cert` ↔ `rssd` is declared 1:1 by `MAPPING_SPECS` but 943 certificate
 pairs share a FED_RSSD in the published directory, so `unify-resolve` does not cluster on it; GLEIF
-Level 2 is accounting consolidation, not control; `sec_financial_statements` contributes structure
-only under the default profile, so its 50.5M XBRL facts need `--datasets sec_financial_statements`.
+records the register of *incorporation*, so the RA000665 bridge reaches SEC-registered funds and
+advisers far more often than operating banks; GLEIF Level 2 is accounting consolidation, not control;
+`sec_financial_statements` contributes structure only under the default profile, so its 50.5M XBRL
+facts need `--datasets sec_financial_statements`.
 
 ## Limitations of the whole construction
 
@@ -452,9 +545,15 @@ only under the default profile, so its 50.5M XBRL facts need `--datasets sec_fin
 - **Scope is not coverage.** A scope narrower than `--all` indexes a documented subset. The build
   summary's `skipped` list names every dataset left out and why, so "no edge" is never silently
   confused with "no evidence".
-- **Identity is asserted, not inferred.** Clusters come from published links and published unique
-  identifiers. Where only a name matches - the FDIC-to-SEC leg of query 6 - the result says
-  `INFERRED, not asserted`.
+- **Identity is asserted, not inferred.** Clusters come from published links, published unique
+  identifiers and published crosswalk fields, and a bridge fires only where the publisher names the
+  register the value belongs to. Where only a name matches - the FDIC-to-SEC leg of query 6 - the
+  result says `INFERRED, not asserted`.
+- **A missing edge is either a scope gap or a real absence, and the two are distinguished by
+  measurement.** The diagnosis table above states, for each join that does not exist, which of the
+  two it is and the counts behind that verdict. Where it is a real absence - a sanctioned party that
+  is also an SEC filer, an FDIC certificate for a CIK - no amount of matching will supply it, and
+  attempting it is what the held-out name-matching measurement rules out.
 - **Joining on a code is joining on a vintage.** GEOIDs, NAICS revisions, HS revisions and ticker
   symbols are all reused or redefined over time. `worldmodel.crosswalks` exists for this;
   string equality in a graph query does not do it.

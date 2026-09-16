@@ -46,7 +46,7 @@ python3 -m worldmodel catalog          # every declaration and its status
 python3 -m worldmodel budget           # download budget and per-dataset allocation
 python3 -m worldmodel models list      # the 11 model families and their validation state
 python3 -m worldmodel estimation-load  # which estimation components can load real data
-python3 -m unittest discover -s tests  # 839 tests, 8 skipped, ~3 minutes
+python3 -m unittest discover -s tests  # 904 tests, 8 skipped, ~4 minutes
 ```
 
 None of those touch the network. Acquired payloads, generated dashboards and runtime

@@ -293,7 +293,10 @@ def _variance(values):
     return sum((v - mean) ** 2 for v in values) / (len(values) - 1)
 
 
-def _holdout_forecast(parameters, history, rows, data):
+INTERVAL_METHODS = ('pooled_year_draw', 'per_unit_year_mean')
+
+
+def _holdout_forecast(parameters, history, rows, data, options=None):
     """Next-year regional employment growth from the leave-one-out shift-share shock.
 
     Shares are fixed at the first pre-origin year (as in the fit); national industry
@@ -301,7 +304,24 @@ def _holdout_forecast(parameters, history, rows, data):
     target year (declared conditional input). The year effect is forecast by its
     pre-origin mean. ``year_effect_only`` drops the shift-share term. Population growth
     is not scored: the fit contract carries no population components.
+
+    ``options['interval_method']`` declares the predictive spread:
+
+    ``pooled_year_draw`` (default)
+        ``sqrt(pooled within-year residual variance + between-year variance x (1+1/Y))``:
+        one scale for every region, treating next year's effect as a fresh draw from
+        the distribution of the Y observed year effects.
+    ``per_unit_year_mean``
+        A per-region residual variance (each region's own residual mean square shrunk
+        toward the pooled one by a single prior observation, because a short panel gives
+        each region only Y residuals) plus ``between-year variance / Y``, the sampling
+        variance of the estimated year level. Declared where regions differ in scale by
+        an order of magnitude, which makes one pooled scale simultaneously far too wide
+        for stable regions and too narrow for volatile ones.
     """
+    method = (options or {}).get('interval_method', 'pooled_year_draw')
+    if method not in INTERVAL_METHODS:
+        raise ValueError(f'Unknown regional interval method {method!r}; declared: {list(INTERVAL_METHODS)}')
     b = finite(parameters['shift_share_elasticity'], 'shift_share_elasticity')
     shocks, meta = shift_share_shocks(history, data.get('shock_industries'))
     if not shocks:
@@ -317,17 +337,28 @@ def _holdout_forecast(parameters, history, rows, data):
         by_year.setdefault(s['year'], []).append(s)
     effects = {name: {} for name in ('model', 'null')}
     residuals = {name: [] for name in effects}
+    by_region = {name: {} for name in effects}
     for y, members in by_year.items():
         effects['model'][y] = sum(s['dlnE'] - b * s['shock'] for s in members) / len(members)
         effects['null'][y] = sum(s['dlnE'] for s in members) / len(members)
-        residuals['model'] += [s['dlnE'] - b * s['shock'] - effects['model'][y] for s in members]
-        residuals['null'] += [s['dlnE'] - effects['null'][y] for s in members]
-    scale = {}
+        for s in members:
+            for name, value in (('model', s['dlnE'] - b * s['shock'] - effects['model'][y]),
+                                ('null', s['dlnE'] - effects['null'][y])):
+                residuals[name].append(value)
+                by_region[name].setdefault(s['region'], []).append(value)
+    scale, region_scale = {}, {name: {} for name in effects}
     for name in effects:
         values = list(effects[name].values())
         dof = max(len(residuals[name]) - len(values), 1)
-        scale[name] = (sum(values) / len(values),
-                       math.sqrt(sum(e * e for e in residuals[name]) / dof + _variance(values) * (1 + 1 / len(values))))
+        within = sum(e * e for e in residuals[name]) / dof
+        between = _variance(values)
+        scale[name] = (sum(values) / len(values), math.sqrt(within + between * (1 + 1 / len(values))))
+        if method == 'per_unit_year_mean':
+            pooled = sum(e * e for e in residuals[name]) / max(len(residuals[name]), 1)
+            common = between / len(values)
+            for region, errors in by_region[name].items():
+                shrunk = (sum(e * e for e in errors) + pooled) / (len(errors) + 1)
+                region_scale[name][region] = math.sqrt(shrunk + common)
     selected = data.get('shock_industries')
     industries = sorted({k[1] for k in before} | {k[1] for k in after})
     if selected is not None:
@@ -350,9 +381,11 @@ def _holdout_forecast(parameters, history, rows, data):
             others_after = sum(after.get((o, k, year), 0.0) for o in regions if o != r)
             if share and others_before > 0 and others_after > 0:
                 shock += share * math.log(others_after / others_before)
+        spread = {name: region_scale[name].get(r, scale[name][1]) if method == 'per_unit_year_mean' else scale[name][1]
+                  for name in ('model', 'null')}
         out.append({'target': f'employment_growth:{r}', 'actual': math.log(target_total / previous_total),
-                    'mean': scale['model'][0] + b * shock, 'sd': scale['model'][1], 'history_values': past.get(r, []),
-                    'baselines': {YEAR_EFFECT_ONLY: {'mean': scale['null'][0], 'sd': scale['null'][1]}}})
+                    'mean': scale['model'][0] + b * shock, 'sd': spread['model'], 'history_values': past.get(r, []),
+                    'baselines': {YEAR_EFFECT_ONLY: {'mean': scale['null'][0], 'sd': spread['null']}}})
     return out
 
 
@@ -360,6 +393,7 @@ holdout_forecaster = {
     'rows_key': 'employment', 'time_key': 'date', 'target': 'employment_growth', 'forecast': _holdout_forecast,
     'fit_keys': ['employment', 'shock_industries', 'design', 'information_time', 'revisions'],
     'conditional_inputs': ['other_region_industry_employment_at_target_year'], 'baselines': [YEAR_EFFECT_ONLY],
+    'options': True,
     'description': 'Next-year log employment growth per region from the leave-one-out shift-share shock versus the year-effect-only '
                    'forecast; migration and population growth are not scored.',
 }

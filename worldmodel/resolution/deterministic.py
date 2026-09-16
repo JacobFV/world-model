@@ -17,8 +17,20 @@ UNIQUE_NAMESPACES = {'lei', 'sec_cik', 'bioguide', 'icpsr', 'fec_candidate', 'fe
 
 MAPPING_SPECS = {
     'gleif_sec_cik': {'left': 'lei', 'right': 'sec_cik', 'relation': 'same_as', 'cardinality': '1:1',
-                      'source': 'GLEIF golden copy registration-authority entity IDs where the authority is SEC EDGAR',
-                      'note': 'a CIK may belong to a filer without an LEI; absence is not evidence of non-identity'},
+                      'source': 'GLEIF golden copy registration-authority entity IDs where the authority is SEC EDGAR '
+                                '(LEI-CDF 3.1 Entity.RegistrationAuthority, RegistrationAuthorityID RA000665)',
+                      'note': 'a CIK may belong to a filer without an LEI; absence is not evidence of non-identity. '
+                              'GLEIF records the register of incorporation, so a Delaware-incorporated SEC filer '
+                              'carries its Delaware file number here and no CIK'},
+    'gleif_companies_house': {'left': 'lei', 'right': 'gb_company_number', 'relation': 'same_as', 'cardinality': '1:1',
+                              'source': 'GLEIF golden copy registration-authority entity IDs where the authority is '
+                                        'Companies House (LEI-CDF 3.1 RegistrationAuthorityID RA000585)',
+                              'note': 'company numbers are eight characters (eight digits, or a two-letter register '
+                                      'prefix and six digits); GLEIF publishes them padded and unpadded'},
+    'isin_cusip': {'left': 'isin', 'right': 'cusip', 'relation': 'same_as', 'cardinality': '1:1',
+                   'source': 'ISO 6166: the nine-character NSIN inside a US or CA ISIN is the CUSIP',
+                   'note': 'security identity only, never issuer identity; the ISIN check digit is recomputed before '
+                           'the CUSIP is read, and a non-US/CA NSIN is a SEDOL or WKN and is refused'},
     'sec_cik_ticker': {'left': 'sec_cik', 'right': 'ticker', 'relation': 'listed_as', 'cardinality': '1:n', 'right_scope': 'mic',
                        'dated': True, 'source': 'SEC company_tickers_exchange.json snapshots (undated; snapshot date = validity evidence)',
                        'note': 'tickers are reused; require MIC scope and snapshot dates'},
@@ -71,9 +83,9 @@ def link_mapping(spec_name, rows, *, observed_at, evidence, entity_ids=None):
             left = str(int(left))
         if spec['right'] == 'sec_cik':
             right = str(int(right))
-        if spec['left'] in ('lei', 'bioguide', 'figi', 'isin'):
+        if spec['left'] in ('lei', 'bioguide', 'figi', 'isin', 'cusip', 'gb_company_number'):
             left = left.upper()
-        if spec['right'] in ('lei', 'bioguide', 'figi', 'isin', 'ticker'):
+        if spec['right'] in ('lei', 'bioguide', 'figi', 'isin', 'ticker', 'cusip', 'gb_company_number'):
             right = right.upper()
         if spec.get('right_scope') and not raw.get('scope'):
             raise ValueError(f'{spec_name} rows require a {spec["right_scope"]} scope')

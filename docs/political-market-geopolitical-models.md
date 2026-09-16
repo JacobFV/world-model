@@ -56,7 +56,7 @@ time plus declared conditional inputs of the target rows.
 | Family | Target | Metrics | Baselines |
 |---|---|---|---|
 | `legislative` | Held-out roll-call votes of unrevealed members, given revealed members' votes on the same roll call (`options.holdout_revealed_members`, default every third member) | Brier, Brier skill, calibration, log score | member last vote and yea rate; revealed yea share |
-| `elections` | District two-party share next cycle; seat count (secondary group `dem_seats`) | MAE/RMSE, CRPS, pinball, 80% coverage | district last and mean share |
+| `elections` | District two-party share next cycle; seat count (secondary group `dem_seats`) | MAE/RMSE, CRPS, pinball, 80% coverage | district last and mean share; `incumbent_party_holds` (every seat stays with the party holding it, at that party's average holding share; for seats, the current split) |
 | `influence` | Next-period panel outcome given realized exposure | MAE/RMSE, CRPS, coverage | unit last/mean; fixed effects without the influence coefficient |
 | `trade` | Next-year international bilateral flows, balanced to realized exporter/importer totals (GE counterfactual not scored) | MAE/RMSE, CRPS, coverage | pair last/mean; frictionless flows with the same totals |
 | `sanctions` | None: `NON_ESTIMABLE` (legal-rule determination; see below) | — | — |
@@ -66,6 +66,8 @@ time plus declared conditional inputs of the target rows.
 | `commodities` | Next-period price given realized production and net imports; ending stocks as secondary | MAE/RMSE, CRPS, coverage | last/mean price |
 | `monetary` | Policy rate given realized inflation and output gap | MAE/RMSE, CRPS, coverage | persistence, drift, mean |
 | `regional` | Next-year log employment growth from the leave-one-out shift-share shock | MAE/RMSE, CRPS, coverage | region last/mean growth; year effect only |
+
+`regional` declares `options: True`, so the estimator's declared options reach its forecaster. `options['interval_method']` selects the predictive spread: `pooled_year_draw` (default: one scale for every region, the pooled within-year residual variance plus the between-year variance of a fresh year draw) or `per_unit_year_mean` (each region's own residual mean square shrunk toward the pooled one by a single prior observation, plus the sampling variance of the estimated year level). The second exists because a pooled scale across regions whose residual volatility differs by an order of magnitude is simultaneously too wide for the stable ones and too narrow for the volatile ones, and pooled coverage averaged over regions can look acceptable while being wrong for every region.
 
 Notes on family contracts that the holdouts rely on:
 

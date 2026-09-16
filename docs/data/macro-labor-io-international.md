@@ -175,16 +175,9 @@ All carry `attributes.source_series` (= BLS series id) and `dimensions.geography
 | LASST{fips}0000000000003 | `bls_labor` (`unemployment_rate`) | `geo:US:state:<fips>` | `percent` | M, SA | 50 states + DC + PR |
 | LASST{fips}0000000000005 | `bls_labor` (`employment`) | `geo:US:state:<fips>` | `persons` | M, SA | household (LAUS) employment, a different concept from payrolls |
 
-Interim `bls_labor` build (normalized version `50917b81…`, 18,183,421 rows, 1,035,722,110 bytes) was built from the
-superseded 1.06 GB raw artifact `17e1b829…` and covers only SM, LAUS, JOLTS, CES national, OEWS May 2025 and QCEW
-annual 2023–2025: **LNS14000000, QCEW 1990–2022, QCEW quarterly and OEWS state/MSA are absent from it**.
-The replacement 4.79 GB raw artifact `d4726093…` (90 shards) finished downloading on
-2026-09-15 but has not been normalized, so `bls_labor` is still `full_acquisition_configured` in `wm catalog`. Use
-`fred_macro_panel` `unemployment_rate` (UNRATE, with vintages) until the full rebuild lands.
+Published `bls_labor` (version `ffd7f43a…`, 60,872,022 rows, 3.50 GB gzip from 4.79 GB raw, verified): QCEW
+32.7M observations (annual 1990–2025, quarterly and monthly-within-quarter 2023–2025), OEWS 13.8M (2025
+all-data plus state/MSA/nonmetro 2015–2024), CES-SM 6.0M, LAUS 6.4M, CES 1.0M, JOLTS 0.6M, CPS 17,317.
+5,904,445 QCEW values are null with disclosure code N.
 
-Regional model inputs from `bls_labor` (full build: QCEW annual 2014–2025 and quarterly 2023–2025; the published
-interim build `50917b81…` has QCEW annual 2023–2025 only and no quarterly rows) keep `area_fips`, `industry_code`,
-`own_code` and `source_field` (e.g. `annual_avg_emplvl`) in attributes; NAICS ids follow the file year's vintage
-(`naics2022:` 2022+, `naics2017:` 2017–2021, `naics2012:` 2014–2016), so cross-vintage industry panels need a
-concordance. LAUS county `labor_force` / `employment` / `unemployed` are included. `lehd_lodes` tract-to-tract commuting
-flows keep pairs with at least 5 jobs plus a per-workplace-tract residual; county pairs keep every job.
+

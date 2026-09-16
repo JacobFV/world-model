@@ -72,6 +72,21 @@ BLS flat files carry only the current vintage. Every observation records
 (kept in `dimensions.series_id`). Revision-aware payrolls and unemployment rate histories come
 from `fred_macro_panel` (`PAYEMS`, `UNRATE` with ALFRED `realtime_start`/`realtime_end`).
 
+### Units across time
+
+Units are taken from the publisher's own definitions per series, not assumed: CES/SM data-type
+codes ("in thousands", "in dollars"), CPI base periods for real-earnings metrics
+(`USD_1982_1984_per_hour`), and index bases (`index_2007_100`, `index_2002_100`). These are stable
+within the files used here, but three things do change over time and are recorded per record
+rather than globally: the NAICS vintage in QCEW industry ids (`naics2002` ... `naics2022`), the SOC
+vintage in OEWS occupation ids (`soc2010` for 2015-2018, `soc2018` for 2019+), and OEWS top-coding
+thresholds (`#` becomes `value: null` with `missing_reason:
+top_coded_at_or_above_published_maximum`, whose dollar threshold differs by year). CES national
+series are published in thousands and scaled to persons here, except `CES0000000001`, which keeps
+publisher scale (`thousand_persons`) for the estimation contract; `dimensions.survey` separates
+CES, CPS and LAUS employment concepts. Because flat files carry only the current vintage, values
+are as-revised at `attributes.realtime_start`; use `fred_macro_panel` for revision-aware history.
+
 ### Estimation-layer series
 
 `worldmodel/estimation/requirements.json` selects observations by exact metric and unit, in
@@ -90,6 +105,26 @@ CES and LAUS employment.
 
 The legacy one-series API sample (LNS14000000) is still normalized when `raw-latest` points at
 a sample artifact.
+
+## Built output (2026-09-16)
+
+| | Value |
+| --- | --- |
+| raw artifact | `d47260935780…` , 90 files, 4,787,690,696 bytes, complete |
+| normalized version | `ffd7f43a2761…` , 60,872,022 rows, 3,498,722,448 gzip bytes (0.73x raw) |
+| verification | full re-hash of stage output and raw shards passes (`wm verify bls_labor`) |
+
+Observations by survey: QCEW 32,739,958 (annual 1990-2025; quarterly plus monthly-within-quarter
+2023-2025), OEWS 13,842,550 (2025 all-data; state/MSA/nonmetro 2015-2024), CES-SM 6,013,244,
+LAUS 6,364,334, CES 960,549, JOLTS 626,683, CPS 17,317. 5,904,445 QCEW values are null with
+`disclosure_code: N`.
+
+An earlier interim version `50917b81afef…` (18,183,421 rows) was built from the superseded
+33-file raw artifact `17e1b8297f88…` so that downstream calibration could start before the 4.8 GB
+download finished. Both are retained: `calibration_reports` and `world_evidence` versions still
+cite them, so the superseded-artifact deletion rule does not permit removing either yet.
+`acquisition.desired_bytes` stays at 5.9 GB while both raw artifacts exist and should drop to
+about 5.0 GB once the interim version and old artifact are retired.
 
 ## Licence and access
 

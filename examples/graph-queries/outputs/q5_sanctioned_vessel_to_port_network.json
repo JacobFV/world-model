@@ -159,6 +159,16 @@
     "predicate": "subject_to_sanctions_program",
     "value": null,
     "object": "ofac:program:IRAN-EO13902"
+   },
+   {
+    "from_dataset": "other_sanctions_lists",
+    "predicate": "identifier",
+    "value": {
+     "id": "imo:9506693",
+     "scheme": "Vessel Registration Identification",
+     "value": "IMO 9506693"
+    },
+    "object": null
    }
   ],
   "port_reference": {

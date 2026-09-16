@@ -103,12 +103,30 @@ Sources that could not be located are listed there as well.
 ## Entity resolution
 
 **Deterministic links** come from published mappings (`MAPPING_SPECS`): LEI↔CIK,
-CIK→ticker@MIC, FEC candidate→committee, bioguide↔FEC and bioguide↔ICPSR, UEI↔LEI,
-OFAC↔OpenSanctions, FDIC cert↔RSSD, and FIGI→ticker. Each spec declares its relation
-(`same_as`, `listed_as` or `authorized_committee`), cardinality and whether it is dated.
-Rows that violate cardinality within overlapping periods become conflicts, not links.
-`shared_identifier_links` connects source entities that carry the same unique identifier,
-and reports any entity holding two concurrent values.
+LEI↔UK company number, ISIN↔CUSIP, CIK→ticker@MIC, FEC candidate→committee, bioguide↔FEC
+and bioguide↔ICPSR, UEI↔LEI, OFAC↔OpenSanctions, FDIC cert↔RSSD, and FIGI→ticker. Each spec
+declares its relation (`same_as`, `listed_as` or `authorized_committee`), cardinality and
+whether it is dated. Rows that violate cardinality within overlapping periods become
+conflicts, not links. `shared_identifier_links` connects source entities that carry the same
+unique identifier, and reports any entity holding two concurrent values.
+
+**Published-identifier bridges** (`worldmodel/resolution/bridges.py`) read the same kind of
+published crosswalk out of fields that are not identifier assertions, because several sources
+print another registry's identifier in an attribute rather than as a claim:
+
+| Bridge | Published field it reads | Mapping spec |
+| --- | --- | --- |
+| `gleif_sec_cik` | GLEIF LEI-CDF `Entity.RegistrationAuthority`, authority `RA000665` (US SEC), decimal entity ID | `gleif_sec_cik` |
+| `gleif_companies_house` | the same fields with authority `RA000585` (Companies House) | `gleif_companies_house` |
+| `gleif_isin_cusip` | `issuer_security` edges to `isin:<US or CA ISIN>`; the nine-character NSIN is the CUSIP (ISO 6166), with the check digit recomputed | `isin_cusip` |
+
+Two rules keep a bridge from manufacturing identity. The **authority code decides the
+namespace**, never the value shape: a numeric GLEIF registration-authority entity ID under a
+state registry is not a CIK, and on the published golden copy 2,851 such values collide with
+real CIKs by coincidence. And a bridge row is held to the **cardinality its spec declares**:
+where two LEIs print one CIK, or two print one UK company number, the rows are refused and
+reported (`bridge_conflicts`) rather than merged. `unify-resolve --no-bridges` turns them off,
+which is the baseline the "nothing inferred by default" regression test compares against.
 
 **Probabilistic matching** (`ResolutionEngine`, SQLite work file) runs these stages:
 

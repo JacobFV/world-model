@@ -6,9 +6,11 @@ from pathlib import Path
 from worldmodel.coverage import coverage_report
 from worldmodel.identity import IdentityIndex
 from worldmodel.model import validate_record
-from worldmodel.resolution import (FellegiSunter, ResolutionEngine, TfIdf, inputs_from_records, jaro_winkler, link_mapping,
-                                   normalize_organization, normalize_person, shared_identifier_links, soundex, transliterate)
+from worldmodel.resolution import (MAPPING_SPECS, FellegiSunter, ResolutionEngine, TfIdf, inputs_from_records,
+                                   jaro_winkler, link_mapping, normalize_organization, normalize_person,
+                                   shared_identifier_links, soundex, transliterate)
 from worldmodel.resolution.synthetic import organizations, true_pairs
+from worldmodel.unify import NON_UNIQUE_IN_PRACTICE
 
 EVIDENCE = [{'input': {'dataset': 'fixture', 'version': 'a' * 64}, 'record_id': 'fixture:1'}]
 
@@ -87,6 +89,29 @@ class DeterministicLinkTests(unittest.TestCase):
                               observed_at='2026-09-15', evidence=EVIDENCE)
         self.assertEqual(ticker['assertions'][0]['object'], 'ticker:XNAS:AAPL')
         self.assertEqual(ticker['assertions'][0]['attributes']['temporal_validity'], 'unknown')
+
+    def test_new_mapping_specifications_link_and_refuse_by_declared_cardinality(self):
+        # ISO 6166: the NSIN inside a US ISIN is the CUSIP. Security identity, not issuer identity.
+        result = link_mapping('isin_cusip', [{'left': 'us0378331005', 'right': '037833100'}],
+                              observed_at='2026-09-15', evidence=EVIDENCE)
+        self.assertEqual((result['assertions'][0]['subject'], result['assertions'][0]['object']),
+                         ('isin:US0378331005', 'cusip:037833100'))
+        self.assertIn('never issuer identity', result['assertions'][0]['attributes']['note'])
+        for assertion in result['assertions']:
+            validate_record(assertion)
+        # GLEIF prints a UK company number for RA000585; two LEIs on one number break the declared 1:1.
+        uk = link_mapping('gleif_companies_house',
+                          [{'left': '213800J4SKZAMUEPGW34', 'right': '13351178'},
+                           {'left': '213800XQNGMW2ST7FQ03', 'right': '00032743'},
+                           {'left': '549300WUNTT0B3TVIT69', 'right': '00032743'}],
+                          observed_at='2026-09-15', evidence=EVIDENCE)
+        self.assertEqual(uk['linked'], 1)
+        self.assertEqual(uk['assertions'][0]['object'], 'gb_company_number:13351178')
+        self.assertEqual([c['value'] for c in uk['conflicts']], ['00032743'])
+        # rssd is declared 1:1 here but is not 1:1 in the published FDIC directory, so unify keeps
+        # it out of clustering entirely; the specification staying 1:1 is what makes that visible.
+        self.assertEqual(MAPPING_SPECS['fdic_cert_rssd']['cardinality'], '1:1')
+        self.assertEqual(sorted(NON_UNIQUE_IN_PRACTICE), ['ein', 'rssd'])
 
     def test_shared_identifier_links_and_conflicts(self):
         def assign(key, subject, value, **extra):

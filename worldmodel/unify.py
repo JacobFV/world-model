@@ -32,6 +32,8 @@ import time
 import uuid
 
 from .graph import Graph
+from .resolution.bridges import BRIDGE_TAGS, BRIDGES, cardinality as bridge_cardinality, record_claims
+from .resolution.deterministic import MAPPING_SPECS
 from .util import atomic_json, canonical, digest, file_hash, now, read_json, slug
 
 KINDS = ('entity', 'assertion', 'observation', 'event')
@@ -468,8 +470,10 @@ def _totals(stats):
 #   identifier             {'id': 'lei:5493...', 'value': 'raw string'}    sanctions datasets
 #   identified_by          'iata:UTK' (a namespaced literal)               transport datasets
 IDENTITY_PREDICATES = ('identifier_assignment', 'identifier', 'identified_by')
+# ``resolution.bridges`` adds the tags for published identifiers that live in other fields
+# (GLEIF registration-authority attributes, issuer_security edges to an ISIN).
 IDENTITY_TAGS = (tuple(('"predicate":"%s"' % p).encode() for p in IDENTITY_PREDICATES)
-                 + (b'"predicate":"same_as"', b'"kind":"entity"'))
+                 + (b'"predicate":"same_as"', b'"kind":"entity"') + BRIDGE_TAGS)
 
 # A namespaced entity ID is itself a published identifier claim: the source chose to call this
 # thing ``lei:5493...`` or ``sec:cik:0000320193``. Mapping the prefixes lets an OpenSanctions
@@ -478,7 +482,7 @@ ENTITY_ID_NAMESPACES = {
     'lei:': 'lei', 'sec:cik:': 'sec_cik', 'bioguide:': 'bioguide', 'icpsr:': 'icpsr',
     'fec:candidate:': 'fec_candidate', 'fec:committee:': 'fec_committee', 'uei:': 'uei',
     'duns:': 'duns', 'fdic:cert:': 'fdic_cert', 'rssd:': 'rssd', 'isin:': 'isin', 'figi:': 'figi',
-    'mmsi:': 'mmsi', 'imo:': 'imo', 'mic:': 'mic', 'wikidata:': 'wikidata',
+    'cusip:': 'cusip', 'mmsi:': 'mmsi', 'imo:': 'imo', 'mic:': 'mic', 'wikidata:': 'wikidata',
     'opensanctions:': 'opensanctions', 'gb:companies_house:': 'gb_company_number',
 }
 # Namespaces added to resolution.UNIQUE_NAMESPACES because each value names one thing at a time.
@@ -529,8 +533,11 @@ def _identifier_value(record):
 def identity_records(store, items, *, progress=None):
     """Stream the identifier and ``same_as`` assertions of the selected datasets.
 
-    Yields ``(record, namespace, value, scope)`` for identifier assertions and
-    ``(record, None, None, None)`` for published ``same_as`` assertions.
+    Yields ``(record, namespace, value, scope, bridge)`` for identifier claims and
+    ``(record, None, None, None, None)`` for published ``same_as`` assertions. ``bridge`` is
+    ``None`` for a claim the source published as an identifier, and the
+    :data:`worldmodel.resolution.bridges.BRIDGES` key for one read out of another published
+    field (a GLEIF registration-authority entity ID, the CUSIP inside a US ISIN).
     """
     for item in items:
         ref = item['ref']
@@ -543,24 +550,29 @@ def identity_records(store, items, *, progress=None):
                 continue
             record = json.loads(line)
             kind = record.get('kind')
+            for subject, namespace, value, scope, bridge in record_claims(record):
+                kept += 1
+                yield ({'id': record['id'] + ':' + bridge, 'subject': subject,
+                        'predicate': 'identifier_assignment', 'evidence': record['evidence']},
+                       namespace, value, scope, bridge)
             if kind == 'entity':
                 parsed = _entity_identifier(record.get('entity_id', record['id']))
                 if parsed is not None:
                     kept += 1
-                    yield {'id': record['id'], 'subject': record.get('entity_id', record['id']),
-                           'predicate': 'identifier_assignment', 'evidence': record['evidence']}, *parsed
+                    yield ({'id': record['id'], 'subject': record.get('entity_id', record['id']),
+                            'predicate': 'identifier_assignment', 'evidence': record['evidence']}, *parsed, None)
                 continue
             if kind != 'assertion':
                 continue
             if record.get('predicate') == 'same_as' and record.get('object'):
                 kept += 1
-                yield record, None, None, None
+                yield record, None, None, None, None
                 continue
             parsed = _identifier_value(record)
             if parsed is None:
                 continue
             kept += 1
-            yield record, *parsed
+            yield record, *parsed, None
         if progress is not None:
             progress.advance(read, kept, item['dataset'])
             progress.line(item['dataset'] + ' (identifiers)')
@@ -574,13 +586,14 @@ class _Links:
         self.connection = sqlite3.connect(path)
         self.connection.executescript(
             'PRAGMA journal_mode=OFF; PRAGMA synchronous=OFF; PRAGMA cache_size=-262144;'
-            'CREATE TABLE ids (namespace TEXT, value TEXT, scope TEXT, subject TEXT, record TEXT, dataset TEXT);'
+            'CREATE TABLE ids (namespace TEXT, value TEXT, scope TEXT, subject TEXT, record TEXT, dataset TEXT,'
+            ' bridge TEXT);'
             'CREATE TABLE edges (subject TEXT, object TEXT, method TEXT, record TEXT, dataset TEXT);')
         self.rows, self.edges = [], []
 
-    def add_identifier(self, namespace, value, scope, record):
+    def add_identifier(self, namespace, value, scope, record, bridge=None):
         self.rows.append((namespace, value, scope or '', record['subject'], record['id'],
-                          (record['evidence'][0]['input'] or {}).get('dataset')))
+                          (record['evidence'][0]['input'] or {}).get('dataset'), bridge))
         if len(self.rows) >= 50000:
             self.flush()
 
@@ -592,7 +605,7 @@ class _Links:
 
     def flush(self):
         if self.rows:
-            self.connection.executemany('INSERT INTO ids VALUES (?,?,?,?,?,?)', self.rows)
+            self.connection.executemany('INSERT INTO ids VALUES (?,?,?,?,?,?,?)', self.rows)
             self.rows = []
         if self.edges:
             self.connection.executemany('INSERT INTO edges VALUES (?,?,?,?,?)', self.edges)
@@ -602,16 +615,56 @@ class _Links:
         self.connection.close()
 
 
-def identity_links(store, items, *, workdir, namespaces=None, progress=None):
+def refuse_bridge_cardinality_violations(connection):
+    """Delete bridge claim rows that break the cardinality their mapping specification declares.
+
+    A bridge reads a published crosswalk field, so its rows carry a declared cardinality. Where
+    the published data breaks it - two LEIs printing one CIK as their SEC registration-authority
+    entity ID - clustering would merge two distinct legal entities. Those rows are removed and
+    reported, exactly as ``link_mapping`` refuses a 1:1 row that maps to several values, and the
+    same rule that keeps ``ein`` and ``rssd`` out of clustering.
+    """
+    refused = []
+    for bridge in sorted(BRIDGES):
+        declared = bridge_cardinality(bridge)
+        left, right = declared.split(':')
+        # ``left`` constrains how many entities may publish one value; ``right`` how many values
+        # one entity may publish. A bridge stores the right-hand namespace against the left-hand
+        # entity, so the two checks are the two groupings of the same table.
+        for column, other, limit, shape in (('value', 'subject', left, 'one %s value is published by %d entities'),
+                                            ('subject', 'value', right, 'one entity publishes %d %s values')):
+            if limit != '1':
+                continue
+            for row in connection.execute(
+                    'SELECT namespace, scope, %s AS key, COUNT(DISTINCT %s) AS n FROM ids WHERE bridge=? '
+                    'GROUP BY namespace, scope, %s HAVING n > 1' % (column, other, column), (bridge,)).fetchall():
+                detail = shape % ((row[0], row[3]) if column == 'value' else (row[3], row[0]))
+                refused.append({'bridge': bridge, 'cardinality': declared,
+                                'reason': '%s, which the mapping specification forbids' % detail,
+                                'namespace': row[0], column: row[2],
+                                'collided_with': sorted(v[0] for v in connection.execute(
+                                    'SELECT DISTINCT %s FROM ids WHERE bridge=? AND namespace=? AND scope=? '
+                                    'AND %s=?' % (other, column), (bridge, row[0], row[1], row[2])))[:8]})
+                connection.execute('DELETE FROM ids WHERE bridge=? AND namespace=? AND scope=? AND %s=?' % column,
+                                   (bridge, row[0], row[1], row[2]))
+    return refused
+
+
+def identity_links(store, items, *, workdir, namespaces=None, progress=None, bridges=True):
     """Deterministic, source-asserted identity links across the real catalog.
 
-    Two sources, both asserted rather than inferred:
+    Three sources, all asserted rather than inferred:
 
     * published ``same_as`` assertions (e.g. congress_people -> fec_candidates / Voteview);
     * entities from different sources carrying the same value in a namespace that identifies
       exactly one thing at a time (``resolution.UNIQUE_NAMESPACES``), via
       :func:`worldmodel.resolution.shared_identifier_links`, which also reports the case of
-      one entity holding two concurrent values in such a namespace.
+      one entity holding two concurrent values in such a namespace;
+    * published identifiers that a source prints in a field other than an identifier assertion
+      (:mod:`worldmodel.resolution.bridges`): a GLEIF registration-authority entity ID, the CUSIP
+      inside a US ISIN. Bridge rows are held to the cardinality their mapping specification
+      declares and are refused where the published data breaks it. ``bridges=False`` turns them
+      off, which is what the regression test for "nothing inferred by default" compares against.
 
     Identifier rows spill to a SQLite work file; only the values that actually collide across
     distinct entity IDs are materialized, so peak memory does not scale with the catalog.
@@ -627,13 +680,17 @@ def identity_links(store, items, *, workdir, namespaces=None, progress=None):
     links = _Links(work)
     counts = Counter()
     try:
-        for record, namespace, value, scope in identity_records(store, items, progress=progress):
+        for record, namespace, value, scope, bridge in identity_records(store, items, progress=progress):
             if namespace is None:
                 counts['same_as'] += 1
                 links.add_same_as(record)
                 continue
+            if bridge is not None and not bridges:
+                continue
             counts['identifiers'] += 1
             counts['identifiers_' + namespace] += 1
+            if bridge is not None:
+                counts['bridge_claims_' + bridge] += 1
             if namespace not in namespaces:
                 continue
             try:  # Normalize before grouping: sec_cik 1750 and 0000001750 are the same filer.
@@ -642,14 +699,23 @@ def identity_links(store, items, *, workdir, namespaces=None, progress=None):
             except ValueError:
                 counts['unnormalizable_identifiers'] += 1
                 continue
-            links.add_identifier(namespace, value, scope, record)
+            links.add_identifier(namespace, value, scope, record, bridge)
         links.flush()
         connection = links.connection
+        connection.execute('CREATE INDEX ids_bridge ON ids(bridge, namespace, scope, value)')
+        bridge_conflicts = refuse_bridge_cardinality_violations(connection)
+        counts['bridge_cardinality_refusals'] = len(bridge_conflicts)
         connection.execute('CREATE INDEX ids_value ON ids(namespace, value, scope)')
         colliding = connection.execute(
             'SELECT namespace, value, scope FROM ids GROUP BY namespace, value, scope '
             'HAVING COUNT(DISTINCT subject) > 1').fetchall()
         counts['colliding_identifier_values'] = len(colliding)
+        # Attribution: how many surviving bridge claims actually met another publisher's entity.
+        for bridge, joined in connection.execute(
+                'SELECT i.bridge, COUNT(*) FROM (SELECT namespace, value, scope FROM ids GROUP BY namespace, value, '
+                'scope HAVING COUNT(DISTINCT subject) > 1) c JOIN ids i ON i.namespace=c.namespace AND i.value=c.value '
+                'AND i.scope=c.scope WHERE i.bridge IS NOT NULL GROUP BY i.bridge'):
+            counts['bridge_joined_' + bridge] = joined
         shared, batch = [], []
         for namespace, value, scope in colliding:
             for row in connection.execute(
@@ -671,6 +737,7 @@ def identity_links(store, items, *, workdir, namespaces=None, progress=None):
         counts['identifier_conflicts'] = len(result['conflicts'])
         edges = connection.execute('SELECT subject, object, method, record, dataset FROM edges').fetchall()
         return {'edges': edges, 'counts': dict(counts), 'conflicts': result['conflicts'][:200],
+                'bridge_conflicts': bridge_conflicts[:200], 'bridges': sorted(BRIDGES) if bridges else [],
                 'namespaces': sorted(namespaces), 'workdir': str(workdir)}
     finally:
         links.close()
@@ -713,12 +780,13 @@ def identity_clusters(edges, *, max_cluster_size=5000):
 
 def resolve_identities(catalog, store, *, workdir, index=None, profile=DEFAULT_PROFILE, datasets=None,
                        domains=None, exclude=None, output_dataset='world_evidence', attach=True,
-                       progress=2_000_000, max_cluster_size=5000):
+                       progress=2_000_000, max_cluster_size=5000, bridges=True):
     """Run the deterministic identity layer over the real catalog and attach it to the index.
 
-    Everything here is *asserted*: published ``same_as`` rows and published unique identifiers.
-    Name-similarity matches are inferred, belong to :mod:`worldmodel.resolution.engine`, and are
-    deliberately not attached by this command; see ``examples/graph-queries/resolution_evaluation.py``.
+    Everything here is *asserted*: published ``same_as`` rows, published unique identifiers and
+    published crosswalk fields (:mod:`worldmodel.resolution.bridges`). Name-similarity matches are
+    inferred, belong to :mod:`worldmodel.resolution.engine`, and are deliberately not attached by
+    this command; see ``examples/graph-queries/resolution_evaluation.py``.
     """
     plan = scope(catalog, store, profile=profile, datasets=datasets, domains=domains, exclude=exclude)
     if not plan['selected']:
@@ -726,18 +794,22 @@ def resolve_identities(catalog, store, *, workdir, index=None, profile=DEFAULT_P
     index_path = Path(index) if index else store.root / output_dataset / 'index.sqlite'
     monitor = Progress(every=progress, total=plan['selected_rows']) if progress else None
     started = time.time()
-    result = identity_links(store, plan['selected'], workdir=workdir, progress=monitor)
+    result = identity_links(store, plan['selected'], workdir=workdir, progress=monitor, bridges=bridges)
     clusters, oversized = identity_clusters(result['edges'], max_cluster_size=max_cluster_size)
     inputs = [dict(item['ref']) for item in plan['selected']]
-    policy = {'links': 'published same_as assertions and shared unique identifiers only',
+    policy = {'links': 'published same_as assertions, shared unique identifiers and published '
+                       'crosswalk fields (resolution.bridges) only',
               'inferred_matches_attached': False, 'max_cluster_size': max_cluster_size,
-              'namespaces': result['namespaces']}
+              'bridges': result['bridges'], 'namespaces': result['namespaces']}
     view = {'policy': policy, 'input_digest': digest(inputs), 'model_digest': digest(policy),
             'view_digest': digest([inputs, policy, [c['canonical_id'] for c in clusters], len(clusters)])}
     report = {'scope': _scope_report(plan), 'counts': result['counts'], 'clusters': len(clusters),
               'resolved_entities': sum(len(c['members']) for c in clusters),
               'largest_cluster': max((len(c['members']) for c in clusters), default=0),
               'oversized_components': oversized, 'identifier_conflicts': result['conflicts'],
+              'bridges': {name: dict(BRIDGES[name], spec=MAPPING_SPECS[BRIDGES[name]['spec']])
+                          for name in result['bridges']},
+              'bridge_conflicts': result['bridge_conflicts'],
               'view': view, 'inputs': inputs, 'seconds': round(time.time() - started, 1),
               'peak_rss_bytes': peak_rss(),
               'interpretation': ('Clusters join entity IDs that published sources assert are the same thing. '

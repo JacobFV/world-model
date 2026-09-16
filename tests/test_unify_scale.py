@@ -401,6 +401,159 @@ class ResolutionTests(unittest.TestCase):
         self.assertEqual(oversized, [])
 
 
+def gleif_entity(lei, label, authority=None, authority_id=None):
+    """A sec_gleif entity record, with the registration-authority attributes GLEIF publishes."""
+    attributes = {'jurisdiction': 'US'}
+    if authority:
+        attributes['registration_authority'] = authority
+    if authority_id:
+        attributes['registration_authority_entity_id'] = authority_id
+    return {'kind': 'entity', 'id': 'gleif_lei:' + lei, 'entity_id': 'lei:' + lei, 'entity_type': 'organization',
+            'label': label, 'observed_at': '2026-01-01', 'evidence': EVIDENCE, 'attributes': attributes}
+
+
+def gleif_isin(lei, isin):
+    """A sec_gleif ISIN-to-LEI mapping row, published as an issuer_security edge."""
+    return {'kind': 'assertion', 'id': 'gleif_isin:%s:%s' % (isin, lei), 'subject': 'lei:' + lei,
+            'predicate': 'issuer_security', 'object': 'isin:' + isin, 'observed_at': '2026-01-01',
+            'evidence': EVIDENCE}
+
+
+class BridgeTests(unittest.TestCase):
+    """Published identifiers that live in fields other than an identifier assertion.
+
+    Each case is a field a publisher documents: the GLEIF registration authority and its entity ID,
+    and the CUSIP inside a US ISIN. Nothing here may fire on a name, on a bare number whose register
+    is unnamed, or on a value shape alone.
+    """
+
+    # 0000320193 is Apple's CIK; 5468637 is a Delaware file number that happens to look like one.
+    def setUp(self):
+        self.tmp = tempfile.TemporaryDirectory()
+        self.fixture = Fixture(self.tmp.name)
+        self.index = Path(self.tmp.name) / 'index.sqlite'
+        self.fixture.publish('sec_gleif', [
+            # the SEC is the registering authority and prints the CIK
+            gleif_entity('HWUPKR0MPOU8FGXBT394', 'Apple Inc.', 'RA000665', '0000320193'),
+            # same authority, but the entity ID is a registered-fund series ID, not a CIK
+            gleif_entity('001GPB6A9XPE8XJICC14', 'A Fund', 'RA000665', 'S000005113'),
+            # Delaware, whose file numbers are numeric but are not CIKs
+            gleif_entity('5493002789CX3L0CJP65', 'Delaware Co', 'RA000602', '1750'),
+            # two LEIs printing one CIK: the declared 1:1 is broken, so neither may link
+            gleif_entity('AAAAAAAAAAAAAAAAAA01', 'Twin A', 'RA000665', '1000045'),
+            gleif_entity('AAAAAAAAAAAAAAAAAA02', 'Twin B', 'RA000665', '0001000045'),
+            gleif_entity('BBBBBBBBBBBBBBBBBB03', 'UK Co', 'RA000585', '3909510'),
+            gleif_entity('CCCCCCCCCCCCCCCCCC04', 'No authority', None, None),
+            gleif_isin('HWUPKR0MPOU8FGXBT394', 'US0378331005'),       # Apple common stock
+            gleif_isin('HWUPKR0MPOU8FGXBT394', 'GB0002634946'),       # a UK ISIN: the NSIN is a SEDOL
+            gleif_isin('5493002789CX3L0CJP65', 'US0378331006')])      # check digit does not recompute
+        self.fixture.publish('sec_issuer_reference', [entity('sec:cik:0000320193', 'Apple Inc.'),
+                                                     entity('sec:cik:0000001750', 'AAR CORP'),
+                                                     entity('sec:cik:0001000045', 'NICHOLAS FINANCIAL INC')])
+        self.fixture.publish('sec_ownership_datasets', [entity('cusip:037833100', 'APPLE INC COM', 'security')])
+        self.fixture.publish('companies_house_uk', [
+            entity('gb:companies_house:03909510', 'A UK COMPANY LTD'),
+            {'kind': 'assertion', 'id': 'ch:03909510:number', 'subject': 'gb:companies_house:03909510',
+             'predicate': 'identifier_assignment', 'value': {'namespace': 'gb_company_number', 'value': '03909510'},
+             'observed_at': '2026-01-01', 'evidence': EVIDENCE}])
+        self.datasets = ['sec_gleif', 'sec_issuer_reference', 'sec_ownership_datasets', 'companies_house_uk']
+
+    def tearDown(self):
+        self.tmp.cleanup()
+
+    def resolve(self, **kwargs):
+        U.unify(self.fixture.catalog, self.fixture.store, index=self.index, datasets=self.datasets,
+                publish=False, progress=None)
+        report = U.resolve_identities(self.fixture.catalog, self.fixture.store, index=self.index,
+                                      workdir=Path(self.tmp.name) / 'resolve', datasets=self.datasets,
+                                      progress=None, **kwargs)
+        graph = Graph(self.index)
+        return report, graph, lambda entity_id: graph.resolved_entity(entity_id)['members']
+
+    def test_gleif_registration_authority_publishes_the_cik_and_the_uk_company_number(self):
+        report, _, members = self.resolve()
+        self.assertEqual(members('lei:HWUPKR0MPOU8FGXBT394'), ['lei:HWUPKR0MPOU8FGXBT394', 'sec:cik:0000320193'])
+        self.assertEqual(members('lei:BBBBBBBBBBBBBBBBBB03'),
+                         ['gb:companies_house:03909510', 'lei:BBBBBBBBBBBBBBBBBB03'])
+        self.assertEqual(report['counts']['bridge_claims_gleif_sec_cik'], 3)
+        self.assertEqual(report['counts']['bridge_claims_gleif_companies_house'], 1)
+        self.assertEqual(report['bridges']['gleif_sec_cik']['spec']['cardinality'], '1:1')
+
+    def test_the_authority_code_decides_the_namespace_not_the_value_shape(self):
+        # A Delaware file number is numeric, and 1750 is a real CIK. The authority is not the SEC,
+        # so nothing is claimed: a coincidence of shape must never become identity.
+        _, _, members = self.resolve()
+        self.assertEqual(members('lei:5493002789CX3L0CJP65'), ['lei:5493002789CX3L0CJP65'])
+        self.assertEqual(members('sec:cik:0000001750'), ['sec:cik:0000001750'])
+        # An SEC series ID is a published SEC identifier, but it is not a CIK.
+        self.assertEqual(members('lei:001GPB6A9XPE8XJICC14'), ['lei:001GPB6A9XPE8XJICC14'])
+        self.assertEqual(members('lei:CCCCCCCCCCCCCCCCCC04'), ['lei:CCCCCCCCCCCCCCCCCC04'])
+
+    def test_a_bridge_value_that_is_not_unique_is_refused_for_clustering(self):
+        report, _, members = self.resolve()
+        # Two LEIs print CIK 1000045. The spec declares 1:1, so the rows are refused and reported
+        # instead of merging two legal entities and a filer into one cluster.
+        for lei in ('lei:AAAAAAAAAAAAAAAAAA01', 'lei:AAAAAAAAAAAAAAAAAA02'):
+            self.assertEqual(members(lei), [lei])
+        self.assertEqual(members('sec:cik:0001000045'), ['sec:cik:0001000045'])
+        refusals = [row for row in report['bridge_conflicts'] if row['bridge'] == 'gleif_sec_cik']
+        self.assertEqual([row['value'] for row in refusals], ['1000045'])
+        self.assertEqual(refusals[0]['collided_with'], ['lei:AAAAAAAAAAAAAAAAAA01', 'lei:AAAAAAAAAAAAAAAAAA02'])
+        self.assertEqual(report['counts']['bridge_cardinality_refusals'], 1)
+
+    def test_the_cusip_inside_a_us_isin_joins_a_security_and_never_its_issuer(self):
+        _, _, members = self.resolve()
+        self.assertEqual(members('cusip:037833100'), ['cusip:037833100', 'isin:US0378331005'])
+        # The issuer is a different thing from the security it issued.
+        self.assertNotIn('cusip:037833100', members('lei:HWUPKR0MPOU8FGXBT394'))
+        # A UK ISIN's NSIN is a SEDOL, and a bad check digit is a malformed row.
+        self.assertEqual(members('isin:GB0002634946'), ['isin:GB0002634946'])
+        self.assertEqual(members('isin:US0378331006'), ['isin:US0378331006'])
+
+    def test_bridges_can_be_turned_off_and_then_nothing_joins(self):
+        report, _, members = self.resolve(bridges=False)
+        self.assertEqual(members('lei:HWUPKR0MPOU8FGXBT394'), ['lei:HWUPKR0MPOU8FGXBT394'])
+        self.assertEqual(report['bridges'], {})
+        self.assertEqual(report['view']['policy']['bridges'], [])
+        self.assertFalse([k for k in report['counts'] if k.startswith('bridge_claims')])
+
+    def test_the_default_resolution_attaches_no_inferred_link(self):
+        report, graph, _ = self.resolve()
+        self.assertFalse(report['view']['policy']['inferred_matches_attached'])
+        self.assertFalse(graph.resolution()['view']['policy']['inferred_matches_attached'])
+        # Every edge that built a cluster carries a deterministic or source-asserted method.
+        import sqlite3
+        work = sqlite3.connect(str(Path(self.tmp.name) / 'resolve' / 'identity.sqlite'))
+        methods = {row[0] for row in work.execute('SELECT DISTINCT method FROM edges')}
+        work.close()
+        self.assertTrue(methods)
+        self.assertFalse([m for m in methods if not m.startswith(('deterministic:', 'source_asserted:'))])
+
+    def test_bridge_units_in_isolation(self):
+        from worldmodel.resolution import bridges
+        self.assertEqual(bridges.cusip_from_isin('US0378331005'), '037833100')
+        self.assertIsNone(bridges.cusip_from_isin('US0378331006'))   # check digit
+        self.assertIsNone(bridges.cusip_from_isin('GB0002634946'))   # NSIN is a SEDOL
+        self.assertIsNone(bridges.cusip_from_isin('US03783310'))     # not an ISIN
+        self.assertEqual(bridges.gleif_registration_authority_claim(
+            {'registration_authority': 'RA000665', 'registration_authority_entity_id': '0000320193'}),
+            ('sec_cik', '320193', 'gleif_sec_cik'))
+        self.assertEqual(bridges.gleif_registration_authority_claim(
+            {'registration_authority': 'RA000585', 'registration_authority_entity_id': 'SC84330'}),
+            ('gb_company_number', 'SC084330', 'gleif_companies_house'))
+        self.assertEqual(bridges.gleif_registration_authority_claim(
+            {'registration_authority': 'RA000585', 'registration_authority_entity_id': '8230688'}),
+            ('gb_company_number', '08230688', 'gleif_companies_house'))
+        for attributes in ({'registration_authority': 'RA000665', 'registration_authority_entity_id': 'S000005113'},
+                           {'registration_authority': 'RA000665', 'registration_authority_entity_id': '805-6204242689'},
+                           {'registration_authority': 'RA000602', 'registration_authority_entity_id': '1750'},
+                           {'registration_authority': 'RA000665'}, {}):
+            self.assertIsNone(bridges.gleif_registration_authority_claim(attributes))
+        self.assertEqual(bridges.record_claims({'kind': 'assertion', 'predicate': 'owns', 'object': 'isin:US0378331005'}), [])
+        self.assertEqual(bridges.record_claims({'kind': 'entity', 'entity_id': 'sec:cik:0000320193', 'attributes': {
+            'registration_authority': 'RA000665', 'registration_authority_entity_id': '1'}}), [])
+
+
 class CommandLineTests(unittest.TestCase):
     """`wm unify`, `wm unify-scope` and `wm unify-resolve` must stay wired into the CLI."""
 

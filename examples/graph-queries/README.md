@@ -38,9 +38,11 @@ python3 examples/graph-queries/resolution_evaluation.py --workdir /tmp/resolve-e
 
 - **Every edge names its dataset.** Results carry `from_dataset` on each edge and observation, and
   a `which_dataset_supplied_which_edge` map. `datasets_used` is derived, not hand-written.
-- **Asserted and inferred are never mixed.** Identity links come from published `same_as` rows and
-  shared unique identifiers. Where a script has to fall back on a name string (the FDIC leg of
-  `q6`), the result labels that field `INFERRED, not asserted` and the limitations say so.
+- **Asserted and inferred are never mixed.** Identity links come from published `same_as` rows,
+  shared unique identifiers, and published crosswalk fields (`worldmodel.resolution.bridges`: the
+  GLEIF registration-authority entity ID, the CUSIP inside a US ISIN). Where a script has to fall
+  back on a name string (the FDIC leg of `q6`), the result labels that field `INFERRED, not
+  asserted` and the limitations say so.
 - **Every result carries `what_this_does_not_establish`.** Vintage mismatches, reported-versus-
   measured distinctions, out-of-scope datasets and missing crosswalks are stated, not implied.
 - **Anchors are discovered, not hardcoded.** Each script searches the index for the best-supported
