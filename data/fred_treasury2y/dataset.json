@@ -3,14 +3,45 @@
   "schema_version": 2,
   "dependencies": [],
   "kind": "source",
-  "status": "sample_adapter_ready",
-  "description": "DGS2: 2025-01-01 through 2025-03-31; dated historical sample, current vintage, not real-time historical availability",
+  "status": "full_acquired",
+  "description": "DGS2 (Market Yield on U.S. Treasury Securities at 2-Year Constant Maturity): full history with every ALFRED real-time vintage from the FRED API; the 2025 Q1 fredgraph sample remains for schema exploration",
   "source": {
-    "publisher": "Federal Reserve Bank of St. Louis",
-    "license_status": "see_publisher_terms"
+    "publisher": "Federal Reserve Bank of St. Louis (FRED/ALFRED)",
+    "originating_source": "Board of Governors of the Federal Reserve System (H.15) / U.S. Treasury",
+    "documentation": "https://fred.stlouisfed.org/series/DGS2",
+    "license_status": "publisher_terms",
+    "license_notes": "FRED API Terms of Use (https://fred.stlouisfed.org/docs/api/terms_of_use.html); the series data are produced by US government agencies (public domain) but FRED terms apply to API use. Internal use; cite FRED and the originating agency."
   },
   "entrypoint": "pipeline.py:run",
-  "parameters": {},
+  "parameters": {
+    "series": {
+      "DGS2": {
+        "metric": "treasury_yield_2y",
+        "unit": "percent",
+        "multiplier": 1,
+        "frequency": "D",
+        "frequency_long": "Daily",
+        "seasonal_adjustment": "NSA",
+        "geography": "geo:US",
+        "title": "Market Yield on U.S. Treasury Securities at 2-Year Constant Maturity",
+        "tier": "vintages",
+        "category": "rates",
+        "source_units": "Percent",
+        "units_history": [
+          {
+            "realtime_start": "2005-06-28",
+            "realtime_end": "9999-12-31",
+            "source_units": "Percent",
+            "unit": "percent",
+            "multiplier": 1.0,
+            "base_period": null,
+            "unit_normalized": true
+          }
+        ],
+        "units_change_across_vintages": false
+      }
+    }
+  },
   "sampling": {
     "strategy": "download",
     "max_rows": 100,
@@ -29,17 +60,63 @@
       "observation_date": "2025-0[123]-\\d\\d"
     }
   },
+  "acquisition": {
+    "strategy": "url_list",
+    "description": "FRED API series/observations for DGS2, all ALFRED vintages; real-time history split into windows of <=1900 vintage dates (FRED allows 2000 per JSON request)",
+    "documentation": "https://fred.stlouisfed.org/docs/api/fred/series_observations.html",
+    "desired_bytes": 7000000,
+    "min_bytes": 0,
+    "priority": 3.0,
+    "url_template": "https://api.stlouisfed.org/fred/series/observations?series_id={series_id}&realtime_start={realtime_start}&realtime_end={realtime_end}&file_type=json&limit=100000&sort_order=asc",
+    "combinations": [
+      {
+        "series_id": "DGS2",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "2013-09-04"
+      },
+      {
+        "series_id": "DGS2",
+        "realtime_start": "2013-09-05",
+        "realtime_end": "2021-06-02"
+      },
+      {
+        "series_id": "DGS2",
+        "realtime_start": "2021-06-03",
+        "realtime_end": "9999-12-31"
+      }
+    ],
+    "credentials": [
+      {
+        "env": "FRED_API_KEY",
+        "query": "api_key"
+      }
+    ],
+    "rate_limit": {
+      "requests_per_second": 1.5,
+      "requests_per_day": null,
+      "key": "api.stlouisfed.org"
+    },
+    "timeout_seconds": 120,
+    "retries": 5,
+    "reader": {
+      "format": "json",
+      "records_path": [
+        "observations"
+      ]
+    }
+  },
   "stages": [
     {
       "id": "normalized",
       "entrypoint": "pipeline.py:run",
       "depends_on": [],
       "schema": {
-        "format": "evidence_jsonl"
+        "format": "evidence_jsonl",
+        "compression": "gzip"
       },
       "validation": {
         "allow_empty": false,
-        "max_rows": 100000
+        "max_rows": 500000
       },
       "cache": "content",
       "retention": "retain"

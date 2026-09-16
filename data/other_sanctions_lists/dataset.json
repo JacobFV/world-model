@@ -1,0 +1,76 @@
+{
+  "id": "other_sanctions_lists",
+  "schema_version": 2,
+  "kind": "source",
+  "status": "complete_snapshot_normalized",
+  "description": "UN Security Council Consolidated List (XML), UK Sanctions List (FCDO CSV) and U.S. Consolidated Screening List (ITA CSV): designated persons, entities and ships with aliases, identifiers, addresses, regimes/programs and designation dates. Current snapshots only.",
+  "dependencies": [],
+  "parameters": {},
+  "entrypoint": "pipeline.py:run",
+  "output_stage": "normalized",
+  "source": {
+    "publisher": "UN Security Council; UK Foreign, Commonwealth & Development Office; U.S. International Trade Administration",
+    "documentation": "https://main.un.org/securitycouncil/en/content/un-sc-consolidated-list ; https://www.gov.uk/government/publications/the-uk-sanctions-list ; https://developer.trade.gov/consolidated-screening-list.html",
+    "license": "UN: public UN document (UN terms of use); UK: Open Government Licence v3.0; CSL: U.S. federal government work (public domain)",
+    "license_id": "mixed: UN-terms / OGL-UK-3.0 / US-Government-Public-Domain",
+    "license_status": "public_or_open_licence_with_attribution",
+    "terms_url": "https://www.un.org/en/about-us/terms-of-use ; https://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/",
+    "attribution": "Contains public sector information licensed under the Open Government Licence v3.0 (UK Sanctions List, FCDO); United Nations Security Council Consolidated List; U.S. Consolidated Screening List (trade.gov)",
+    "redistribution": true,
+    "non_commercial": false
+  },
+  "sampling": {
+    "strategy": "blocked",
+    "format": "jsonl",
+    "max_rows": 100,
+    "max_sample_bytes": 1048576,
+    "max_download_bytes": 1048576,
+    "max_uncompressed_bytes": 1048576,
+    "disk_budget_bytes": 67108864,
+    "criteria": "Not sampled; complete current lists are small enough for full acquisition",
+    "reason": "Use wm acquire other_sanctions_lists; three small complete files"
+  },
+  "acquisition": {
+    "strategy": "files",
+    "description": "Current UN consolidated XML, UK Sanctions List CSV and U.S. Consolidated Screening List CSV. Re-acquire periodically to accumulate listing history.",
+    "documentation": "https://scsanctions.un.org/ ; https://sanctionslist.fcdo.gov.uk/ ; https://data.trade.gov/",
+    "desired_bytes": 80000000,
+    "priority": 3.0,
+    "files": [
+      {
+        "url": "https://scsanctions.un.org/resources/xml/en/consolidated.xml",
+        "name": "un_consolidated.xml"
+      },
+      {
+        "url": "https://sanctionslist.fcdo.gov.uk/docs/UK-Sanctions-List.csv",
+        "name": "UK-Sanctions-List.csv"
+      },
+      {
+        "url": "https://data.trade.gov/downloadable_consolidated_screening_list/v1/consolidated.csv",
+        "name": "us_csl_consolidated.csv"
+      }
+    ],
+    "rate_limit": {
+      "requests_per_second": 0.5
+    },
+    "timeout_seconds": 300,
+    "retries": 5
+  },
+  "stages": [
+    {
+      "id": "normalized",
+      "entrypoint": "pipeline.py:run",
+      "depends_on": [],
+      "schema": {
+        "format": "evidence_jsonl",
+        "compression": "gzip"
+      },
+      "validation": {
+        "allow_empty": false,
+        "max_rows": 5000000
+      },
+      "cache": "content",
+      "retention": "retain"
+    }
+  ]
+}

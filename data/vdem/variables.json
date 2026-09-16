@@ -1,0 +1,607 @@
+{
+ "min_year": 1946,
+ "variables": [
+  {
+   "column": "v2x_polyarchy",
+   "metric": "vdem_v2x_polyarchy",
+   "unit": "index_0_1",
+   "bounds": true,
+   "description": "Electoral democracy index"
+  },
+  {
+   "column": "v2x_libdem",
+   "metric": "vdem_v2x_libdem",
+   "unit": "index_0_1",
+   "bounds": true,
+   "description": "Liberal democracy index"
+  },
+  {
+   "column": "v2x_partipdem",
+   "metric": "vdem_v2x_partipdem",
+   "unit": "index_0_1",
+   "bounds": true,
+   "description": "Participatory democracy index"
+  },
+  {
+   "column": "v2x_delibdem",
+   "metric": "vdem_v2x_delibdem",
+   "unit": "index_0_1",
+   "bounds": true,
+   "description": "Deliberative democracy index"
+  },
+  {
+   "column": "v2x_egaldem",
+   "metric": "vdem_v2x_egaldem",
+   "unit": "index_0_1",
+   "bounds": true,
+   "description": "Egalitarian democracy index"
+  },
+  {
+   "column": "v2x_liberal",
+   "metric": "vdem_v2x_liberal",
+   "unit": "index_0_1",
+   "bounds": true,
+   "description": "Liberal component index"
+  },
+  {
+   "column": "v2x_partip",
+   "metric": "vdem_v2x_partip",
+   "unit": "index_0_1",
+   "bounds": true,
+   "description": "Participatory component index"
+  },
+  {
+   "column": "v2xdl_delib",
+   "metric": "vdem_v2xdl_delib",
+   "unit": "index_0_1",
+   "bounds": true,
+   "description": "Deliberative component index"
+  },
+  {
+   "column": "v2x_egal",
+   "metric": "vdem_v2x_egal",
+   "unit": "index_0_1",
+   "bounds": true,
+   "description": "Egalitarian component index"
+  },
+  {
+   "column": "v2x_freexp_altinf",
+   "metric": "vdem_v2x_freexp_altinf",
+   "unit": "index_0_1",
+   "bounds": true,
+   "description": "Freedom of expression and alternative sources of information"
+  },
+  {
+   "column": "v2x_frassoc_thick",
+   "metric": "vdem_v2x_frassoc_thick",
+   "unit": "index_0_1",
+   "bounds": true,
+   "description": "Freedom of association (thick)"
+  },
+  {
+   "column": "v2x_suffr",
+   "metric": "vdem_v2x_suffr",
+   "unit": "index_0_1",
+   "bounds": true,
+   "description": "Share of population with suffrage"
+  },
+  {
+   "column": "v2xel_frefair",
+   "metric": "vdem_v2xel_frefair",
+   "unit": "index_0_1",
+   "bounds": true,
+   "description": "Clean elections index"
+  },
+  {
+   "column": "v2x_elecoff",
+   "metric": "vdem_v2x_elecoff",
+   "unit": "index_0_1",
+   "bounds": true,
+   "description": "Elected officials index"
+  },
+  {
+   "column": "v2x_jucon",
+   "metric": "vdem_v2x_jucon",
+   "unit": "index_0_1",
+   "bounds": true,
+   "description": "Judicial constraints on the executive"
+  },
+  {
+   "column": "v2xlg_legcon",
+   "metric": "vdem_v2xlg_legcon",
+   "unit": "index_0_1",
+   "bounds": true,
+   "description": "Legislative constraints on the executive"
+  },
+  {
+   "column": "v2x_rule",
+   "metric": "vdem_v2x_rule",
+   "unit": "index_0_1",
+   "bounds": true,
+   "description": "Rule of law index"
+  },
+  {
+   "column": "v2xcl_rol",
+   "metric": "vdem_v2xcl_rol",
+   "unit": "index_0_1",
+   "bounds": true,
+   "description": "Equality before the law and individual liberty"
+  },
+  {
+   "column": "v2x_corr",
+   "metric": "vdem_v2x_corr",
+   "unit": "index_0_1",
+   "bounds": true,
+   "description": "Political corruption index"
+  },
+  {
+   "column": "v2x_execorr",
+   "metric": "vdem_v2x_execorr",
+   "unit": "index_0_1",
+   "bounds": true,
+   "description": "Executive corruption index"
+  },
+  {
+   "column": "v2x_pubcorr",
+   "metric": "vdem_v2x_pubcorr",
+   "unit": "index_0_1",
+   "bounds": true,
+   "description": "Public sector corruption index"
+  },
+  {
+   "column": "v2x_neopat",
+   "metric": "vdem_v2x_neopat",
+   "unit": "index_0_1",
+   "bounds": true,
+   "description": "Neopatrimonial rule index"
+  },
+  {
+   "column": "v2xnp_regcorr",
+   "metric": "vdem_v2xnp_regcorr",
+   "unit": "index_0_1",
+   "bounds": true,
+   "description": "Regime corruption"
+  },
+  {
+   "column": "v2x_civlib",
+   "metric": "vdem_v2x_civlib",
+   "unit": "index_0_1",
+   "bounds": true,
+   "description": "Civil liberties index"
+  },
+  {
+   "column": "v2x_clphy",
+   "metric": "vdem_v2x_clphy",
+   "unit": "index_0_1",
+   "bounds": true,
+   "description": "Physical violence index"
+  },
+  {
+   "column": "v2x_clpol",
+   "metric": "vdem_v2x_clpol",
+   "unit": "index_0_1",
+   "bounds": true,
+   "description": "Political civil liberties index"
+  },
+  {
+   "column": "v2x_clpriv",
+   "metric": "vdem_v2x_clpriv",
+   "unit": "index_0_1",
+   "bounds": true,
+   "description": "Private civil liberties index"
+  },
+  {
+   "column": "v2xcs_ccsi",
+   "metric": "vdem_v2xcs_ccsi",
+   "unit": "index_0_1",
+   "bounds": true,
+   "description": "Core civil society index"
+  },
+  {
+   "column": "v2x_cspart",
+   "metric": "vdem_v2x_cspart",
+   "unit": "index_0_1",
+   "bounds": true,
+   "description": "Civil society participation index"
+  },
+  {
+   "column": "v2xme_altinf",
+   "metric": "vdem_v2xme_altinf",
+   "unit": "index_0_1",
+   "bounds": true,
+   "description": "Alternative sources of information index"
+  },
+  {
+   "column": "v2x_gender",
+   "metric": "vdem_v2x_gender",
+   "unit": "index_0_1",
+   "bounds": true,
+   "description": "Women political empowerment index"
+  },
+  {
+   "column": "v2x_EDcomp_thick",
+   "metric": "vdem_v2x_edcomp_thick",
+   "unit": "index_0_1",
+   "bounds": true,
+   "description": "Electoral component index"
+  },
+  {
+   "column": "v2xca_academ",
+   "metric": "vdem_v2xca_academ",
+   "unit": "index_0_1",
+   "bounds": true,
+   "description": "Academic freedom index"
+  },
+  {
+   "column": "v2x_mpi",
+   "metric": "vdem_v2x_mpi",
+   "unit": "index_0_1",
+   "bounds": true,
+   "description": "Presidentialism index"
+  },
+  {
+   "column": "v2x_feduni",
+   "metric": "vdem_v2x_feduni",
+   "unit": "index_0_1",
+   "bounds": true,
+   "description": "Division of power index"
+  },
+  {
+   "column": "v2x_accountability",
+   "metric": "vdem_v2x_accountability",
+   "unit": "latent_scale",
+   "bounds": true,
+   "description": "Accountability index (latent, unbounded)"
+  },
+  {
+   "column": "v2x_horacc",
+   "metric": "vdem_v2x_horacc",
+   "unit": "latent_scale",
+   "bounds": true,
+   "description": "Horizontal accountability index"
+  },
+  {
+   "column": "v2x_diagacc",
+   "metric": "vdem_v2x_diagacc",
+   "unit": "latent_scale",
+   "bounds": true,
+   "description": "Diagonal accountability index"
+  },
+  {
+   "column": "v2x_veracc",
+   "metric": "vdem_v2x_veracc",
+   "unit": "latent_scale",
+   "bounds": true,
+   "description": "Vertical accountability index"
+  },
+  {
+   "column": "v2csreprss",
+   "metric": "vdem_v2csreprss",
+   "unit": "latent_scale",
+   "bounds": true,
+   "description": "CSO repression (higher = less repression)"
+  },
+  {
+   "column": "v2mecenefm",
+   "metric": "vdem_v2mecenefm",
+   "unit": "latent_scale",
+   "bounds": true,
+   "description": "Government censorship effort - media (higher = less censorship)"
+  },
+  {
+   "column": "v2clkill",
+   "metric": "vdem_v2clkill",
+   "unit": "latent_scale",
+   "bounds": true,
+   "description": "Freedom from political killings"
+  },
+  {
+   "column": "v2cltort",
+   "metric": "vdem_v2cltort",
+   "unit": "latent_scale",
+   "bounds": true,
+   "description": "Freedom from torture"
+  },
+  {
+   "column": "v2exrescon",
+   "metric": "vdem_v2exrescon",
+   "unit": "latent_scale",
+   "bounds": true,
+   "description": "Executive respects constitution"
+  },
+  {
+   "column": "v2elintim",
+   "metric": "vdem_v2elintim",
+   "unit": "latent_scale",
+   "bounds": true,
+   "description": "Election government intimidation (higher = less)"
+  },
+  {
+   "column": "v2cacamps",
+   "metric": "vdem_v2cacamps",
+   "unit": "latent_scale",
+   "bounds": true,
+   "description": "Political polarization"
+  },
+  {
+   "column": "v2smgovdom",
+   "metric": "vdem_v2smgovdom",
+   "unit": "latent_scale",
+   "bounds": true,
+   "description": "Government dissemination of false information domestic"
+  },
+  {
+   "column": "v2x_regime",
+   "metric": "vdem_v2x_regime",
+   "unit": "category_code",
+   "bounds": false,
+   "description": "Regimes of the World: 0 closed autocracy, 1 electoral autocracy, 2 electoral democracy, 3 liberal democracy"
+  },
+  {
+   "column": "v2x_regime_amb",
+   "metric": "vdem_v2x_regime_amb",
+   "unit": "category_code",
+   "bounds": false,
+   "description": "Regimes of the World with ambiguous categories (0-9)"
+  },
+  {
+   "column": "e_polity2",
+   "metric": "vdem_e_polity2",
+   "unit": "polity_score_-10_10",
+   "bounds": false,
+   "description": "Polity2 (Polity5 via V-Dem)"
+  },
+  {
+   "column": "e_p_polity",
+   "metric": "vdem_e_p_polity",
+   "unit": "polity_score_-10_10_with_special_codes",
+   "bounds": false,
+   "description": "Polity score incl. -66/-77/-88"
+  },
+  {
+   "column": "e_democ",
+   "metric": "vdem_e_democ",
+   "unit": "polity_score_0_10",
+   "bounds": false,
+   "description": "Polity institutionalized democracy"
+  },
+  {
+   "column": "e_autoc",
+   "metric": "vdem_e_autoc",
+   "unit": "polity_score_0_10",
+   "bounds": false,
+   "description": "Polity institutionalized autocracy"
+  },
+  {
+   "column": "e_fh_status",
+   "metric": "vdem_e_fh_status",
+   "unit": "category_code",
+   "bounds": false,
+   "description": "Freedom House status 1 free, 2 partly free, 3 not free"
+  },
+  {
+   "column": "e_fh_pr",
+   "metric": "vdem_e_fh_pr",
+   "unit": "fh_scale_1_7",
+   "bounds": false,
+   "description": "Freedom House political rights"
+  },
+  {
+   "column": "e_fh_cl",
+   "metric": "vdem_e_fh_cl",
+   "unit": "fh_scale_1_7",
+   "bounds": false,
+   "description": "Freedom House civil liberties"
+  },
+  {
+   "column": "e_wbgi_cce",
+   "metric": "vdem_e_wbgi_cce",
+   "unit": "wgi_estimate",
+   "bounds": false,
+   "description": "WGI control of corruption"
+  },
+  {
+   "column": "e_wbgi_gee",
+   "metric": "vdem_e_wbgi_gee",
+   "unit": "wgi_estimate",
+   "bounds": false,
+   "description": "WGI government effectiveness"
+  },
+  {
+   "column": "e_wbgi_pve",
+   "metric": "vdem_e_wbgi_pve",
+   "unit": "wgi_estimate",
+   "bounds": false,
+   "description": "WGI political stability and absence of violence"
+  },
+  {
+   "column": "e_wbgi_rle",
+   "metric": "vdem_e_wbgi_rle",
+   "unit": "wgi_estimate",
+   "bounds": false,
+   "description": "WGI rule of law"
+  },
+  {
+   "column": "e_wbgi_rqe",
+   "metric": "vdem_e_wbgi_rqe",
+   "unit": "wgi_estimate",
+   "bounds": false,
+   "description": "WGI regulatory quality"
+  },
+  {
+   "column": "e_wbgi_vae",
+   "metric": "vdem_e_wbgi_vae",
+   "unit": "wgi_estimate",
+   "bounds": false,
+   "description": "WGI voice and accountability"
+  },
+  {
+   "column": "e_ti_cpi",
+   "metric": "vdem_e_ti_cpi",
+   "unit": "ti_cpi_score",
+   "bounds": false,
+   "description": "Transparency International CPI"
+  },
+  {
+   "column": "e_boix_regime",
+   "metric": "vdem_e_boix_regime",
+   "unit": "binary",
+   "bounds": false,
+   "description": "Boix-Miller-Rosato democracy"
+  },
+  {
+   "column": "e_lexical_index",
+   "metric": "vdem_e_lexical_index",
+   "unit": "category_code",
+   "bounds": false,
+   "description": "Lexical index of electoral democracy (0-6)"
+  },
+  {
+   "column": "e_uds_mean",
+   "metric": "vdem_e_uds_mean",
+   "unit": "latent_scale",
+   "bounds": false,
+   "description": "Unified democracy score mean"
+  },
+  {
+   "column": "e_civil_war",
+   "metric": "vdem_e_civil_war",
+   "unit": "binary",
+   "bounds": false,
+   "description": "Civil war (>=1000 battle deaths)"
+  },
+  {
+   "column": "e_miinteco",
+   "metric": "vdem_e_miinteco",
+   "unit": "binary",
+   "bounds": false,
+   "description": "International armed conflict participation"
+  },
+  {
+   "column": "e_miinterc",
+   "metric": "vdem_e_miinterc",
+   "unit": "binary",
+   "bounds": false,
+   "description": "Internal armed conflict"
+  },
+  {
+   "column": "e_pt_coup",
+   "metric": "vdem_e_pt_coup",
+   "unit": "count",
+   "bounds": false,
+   "description": "Successful coups (Powell & Thyne)"
+  },
+  {
+   "column": "e_pt_coup_attempts",
+   "metric": "vdem_e_pt_coup_attempts",
+   "unit": "count",
+   "bounds": false,
+   "description": "Coup attempts (Powell & Thyne)"
+  },
+  {
+   "column": "e_gdp",
+   "metric": "vdem_e_gdp",
+   "unit": "fariss_latent_gdp",
+   "bounds": false,
+   "description": "GDP latent estimate (Fariss et al. 2021; see codebook for scale)"
+  },
+  {
+   "column": "e_gdppc",
+   "metric": "vdem_e_gdppc",
+   "unit": "fariss_latent_gdppc",
+   "bounds": false,
+   "description": "GDP per capita latent estimate (Fariss et al. 2021; see codebook for scale)"
+  },
+  {
+   "column": "e_pop",
+   "metric": "vdem_e_pop",
+   "unit": "fariss_latent_population",
+   "bounds": false,
+   "description": "Population latent estimate (Fariss et al. 2021; see codebook for scale)"
+  },
+  {
+   "column": "e_total_oil_income_pc",
+   "metric": "vdem_e_total_oil_income_pc",
+   "unit": "real_usd_per_capita",
+   "bounds": false,
+   "description": "Petroleum production value per capita (Haber & Menaldo)"
+  },
+  {
+   "column": "e_total_fuel_income_pc",
+   "metric": "vdem_e_total_fuel_income_pc",
+   "unit": "real_usd_per_capita",
+   "bounds": false,
+   "description": "Fuel production value per capita"
+  },
+  {
+   "column": "e_total_resources_income_pc",
+   "metric": "vdem_e_total_resources_income_pc",
+   "unit": "real_usd_per_capita",
+   "bounds": false,
+   "description": "Petroleum, coal, gas and metals production value per capita"
+  },
+  {
+   "column": "e_cow_exports",
+   "metric": "vdem_e_cow_exports",
+   "unit": "million_usd_2014",
+   "bounds": false,
+   "description": "Total exports (COW)"
+  },
+  {
+   "column": "e_cow_imports",
+   "metric": "vdem_e_cow_imports",
+   "unit": "million_usd_2014",
+   "bounds": false,
+   "description": "Total imports (COW)"
+  },
+  {
+   "column": "e_area",
+   "metric": "vdem_e_area",
+   "unit": "km2",
+   "bounds": false,
+   "description": "Land area"
+  },
+  {
+   "column": "e_pelifeex",
+   "metric": "vdem_e_pelifeex",
+   "unit": "years",
+   "bounds": false,
+   "description": "Life expectancy at birth"
+  },
+  {
+   "column": "e_peaveduc",
+   "metric": "vdem_e_peaveduc",
+   "unit": "years",
+   "bounds": false,
+   "description": "Average years of education, population 15+"
+  },
+  {
+   "column": "e_miurbani",
+   "metric": "vdem_e_miurbani",
+   "unit": "ratio",
+   "bounds": false,
+   "description": "Urbanization rate"
+  },
+  {
+   "column": "e_mipopula",
+   "metric": "vdem_e_mipopula",
+   "unit": "thousand_people",
+   "bounds": false,
+   "description": "Population total (Clio-Infra; see codebook)"
+  },
+  {
+   "column": "e_miinflat",
+   "metric": "vdem_e_miinflat",
+   "unit": "percent",
+   "bounds": false,
+   "description": "Annual inflation rate"
+  },
+  {
+   "column": "e_pechmor",
+   "metric": "vdem_e_pechmor",
+   "unit": "deaths_per_1000_live_births",
+   "bounds": false,
+   "description": "Child mortality"
+  }
+ ]
+}

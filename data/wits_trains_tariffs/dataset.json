@@ -1,0 +1,1401 @@
+{
+ "id": "wits_trains_tariffs",
+ "schema_version": 2,
+ "kind": "source",
+ "status": "full_acquisition_complete",
+ "description": "WITS/UNCTAD TRAINS MFN applied tariffs (HS6 simple averages of national tariff lines, partner 000 = all MFN partners) for 59 large economies (EU as one customs union), every reported year 2018-2023",
+ "dependencies": [],
+ "parameters": {},
+ "entrypoint": "pipeline.py:run",
+ "output_stage": "normalized",
+ "source": {
+  "publisher": "World Bank WITS / UNCTAD TRAINS",
+  "documentation": "https://wits.worldbank.org/witsapiintro.aspx",
+  "terms_url": "https://wits.worldbank.org/about_wits.html",
+  "license": "WITS/TRAINS terms: free use with attribution; no resale",
+  "license_id": "wits-trains-terms",
+  "license_status": "attribution_required_no_resale",
+  "attribution": "UNCTAD TRAINS via World Bank WITS",
+  "redistribution": "restricted",
+  "reporter_selection": "G20 + large/regional trading economies; latest available year probed 2026-09-15 per reporter (see acquisition.combinations)"
+ },
+ "acquisition": {
+  "strategy": "url_list",
+  "description": "One SDMX GenericData request per reporter-year: all HS6 products, partner 000 (MFN), DATATYPE=reported, for every year 2018..latest that each reporter actually reports (332 reporter-years, ~5.2 MB each). Reported-year availability was probed 2026-09-15 per reporter; re-probe before refreshing. desired_bytes covers the ~1.7 GB new grid plus the retained ~0.3 GB latest-year-only artifact. Requires an Accept header (WITS returns 500 without it); endperiod=2026 returns 500; multi-year all-product queries are refused as too large.",
+  "documentation": "https://wits.worldbank.org/data/public/WITSAPI_UserGuide.pdf",
+  "desired_bytes": 2200000000,
+  "min_bytes": 0,
+  "priority": 3.0,
+  "url_template": "https://wits.worldbank.org/API/V1/SDMX/V21/rest/data/DF_WITS_Tariff_TRAINS/A.{reporter}.000..reported/?startperiod={year}&endperiod={year}",
+  "combinations": [
+   {
+    "reporter": "012",
+    "year": 2018
+   },
+   {
+    "reporter": "012",
+    "year": 2019
+   },
+   {
+    "reporter": "012",
+    "year": 2020
+   },
+   {
+    "reporter": "012",
+    "year": 2021
+   },
+   {
+    "reporter": "012",
+    "year": 2022
+   },
+   {
+    "reporter": "012",
+    "year": 2023
+   },
+   {
+    "reporter": "024",
+    "year": 2018
+   },
+   {
+    "reporter": "024",
+    "year": 2019
+   },
+   {
+    "reporter": "024",
+    "year": 2020
+   },
+   {
+    "reporter": "024",
+    "year": 2021
+   },
+   {
+    "reporter": "024",
+    "year": 2022
+   },
+   {
+    "reporter": "024",
+    "year": 2023
+   },
+   {
+    "reporter": "032",
+    "year": 2018
+   },
+   {
+    "reporter": "032",
+    "year": 2019
+   },
+   {
+    "reporter": "032",
+    "year": 2020
+   },
+   {
+    "reporter": "032",
+    "year": 2021
+   },
+   {
+    "reporter": "032",
+    "year": 2022
+   },
+   {
+    "reporter": "032",
+    "year": 2023
+   },
+   {
+    "reporter": "036",
+    "year": 2018
+   },
+   {
+    "reporter": "036",
+    "year": 2019
+   },
+   {
+    "reporter": "036",
+    "year": 2020
+   },
+   {
+    "reporter": "036",
+    "year": 2021
+   },
+   {
+    "reporter": "036",
+    "year": 2022
+   },
+   {
+    "reporter": "036",
+    "year": 2023
+   },
+   {
+    "reporter": "048",
+    "year": 2018
+   },
+   {
+    "reporter": "048",
+    "year": 2019
+   },
+   {
+    "reporter": "048",
+    "year": 2020
+   },
+   {
+    "reporter": "048",
+    "year": 2021
+   },
+   {
+    "reporter": "048",
+    "year": 2022
+   },
+   {
+    "reporter": "048",
+    "year": 2023
+   },
+   {
+    "reporter": "050",
+    "year": 2018
+   },
+   {
+    "reporter": "050",
+    "year": 2019
+   },
+   {
+    "reporter": "050",
+    "year": 2020
+   },
+   {
+    "reporter": "050",
+    "year": 2021
+   },
+   {
+    "reporter": "050",
+    "year": 2022
+   },
+   {
+    "reporter": "050",
+    "year": 2023
+   },
+   {
+    "reporter": "076",
+    "year": 2018
+   },
+   {
+    "reporter": "076",
+    "year": 2019
+   },
+   {
+    "reporter": "076",
+    "year": 2020
+   },
+   {
+    "reporter": "076",
+    "year": 2021
+   },
+   {
+    "reporter": "076",
+    "year": 2022
+   },
+   {
+    "reporter": "076",
+    "year": 2023
+   },
+   {
+    "reporter": "104",
+    "year": 2018
+   },
+   {
+    "reporter": "104",
+    "year": 2019
+   },
+   {
+    "reporter": "104",
+    "year": 2020
+   },
+   {
+    "reporter": "104",
+    "year": 2021
+   },
+   {
+    "reporter": "104",
+    "year": 2022
+   },
+   {
+    "reporter": "104",
+    "year": 2023
+   },
+   {
+    "reporter": "116",
+    "year": 2019
+   },
+   {
+    "reporter": "116",
+    "year": 2020
+   },
+   {
+    "reporter": "116",
+    "year": 2021
+   },
+   {
+    "reporter": "116",
+    "year": 2022
+   },
+   {
+    "reporter": "116",
+    "year": 2023
+   },
+   {
+    "reporter": "124",
+    "year": 2018
+   },
+   {
+    "reporter": "124",
+    "year": 2019
+   },
+   {
+    "reporter": "124",
+    "year": 2020
+   },
+   {
+    "reporter": "124",
+    "year": 2021
+   },
+   {
+    "reporter": "124",
+    "year": 2022
+   },
+   {
+    "reporter": "124",
+    "year": 2023
+   },
+   {
+    "reporter": "144",
+    "year": 2018
+   },
+   {
+    "reporter": "144",
+    "year": 2019
+   },
+   {
+    "reporter": "144",
+    "year": 2020
+   },
+   {
+    "reporter": "144",
+    "year": 2021
+   },
+   {
+    "reporter": "144",
+    "year": 2023
+   },
+   {
+    "reporter": "152",
+    "year": 2018
+   },
+   {
+    "reporter": "152",
+    "year": 2019
+   },
+   {
+    "reporter": "152",
+    "year": 2020
+   },
+   {
+    "reporter": "152",
+    "year": 2021
+   },
+   {
+    "reporter": "152",
+    "year": 2022
+   },
+   {
+    "reporter": "152",
+    "year": 2023
+   },
+   {
+    "reporter": "156",
+    "year": 2018
+   },
+   {
+    "reporter": "156",
+    "year": 2019
+   },
+   {
+    "reporter": "156",
+    "year": 2020
+   },
+   {
+    "reporter": "156",
+    "year": 2021
+   },
+   {
+    "reporter": "156",
+    "year": 2022
+   },
+   {
+    "reporter": "156",
+    "year": 2023
+   },
+   {
+    "reporter": "158",
+    "year": 2018
+   },
+   {
+    "reporter": "158",
+    "year": 2019
+   },
+   {
+    "reporter": "158",
+    "year": 2020
+   },
+   {
+    "reporter": "158",
+    "year": 2021
+   },
+   {
+    "reporter": "158",
+    "year": 2022
+   },
+   {
+    "reporter": "158",
+    "year": 2023
+   },
+   {
+    "reporter": "170",
+    "year": 2018
+   },
+   {
+    "reporter": "170",
+    "year": 2019
+   },
+   {
+    "reporter": "170",
+    "year": 2020
+   },
+   {
+    "reporter": "170",
+    "year": 2021
+   },
+   {
+    "reporter": "170",
+    "year": 2022
+   },
+   {
+    "reporter": "170",
+    "year": 2023
+   },
+   {
+    "reporter": "188",
+    "year": 2018
+   },
+   {
+    "reporter": "188",
+    "year": 2019
+   },
+   {
+    "reporter": "188",
+    "year": 2020
+   },
+   {
+    "reporter": "188",
+    "year": 2021
+   },
+   {
+    "reporter": "188",
+    "year": 2022
+   },
+   {
+    "reporter": "188",
+    "year": 2023
+   },
+   {
+    "reporter": "218",
+    "year": 2018
+   },
+   {
+    "reporter": "218",
+    "year": 2019
+   },
+   {
+    "reporter": "218",
+    "year": 2020
+   },
+   {
+    "reporter": "218",
+    "year": 2021
+   },
+   {
+    "reporter": "218",
+    "year": 2022
+   },
+   {
+    "reporter": "218",
+    "year": 2023
+   },
+   {
+    "reporter": "231",
+    "year": 2018
+   },
+   {
+    "reporter": "231",
+    "year": 2021
+   },
+   {
+    "reporter": "288",
+    "year": 2018
+   },
+   {
+    "reporter": "288",
+    "year": 2019
+   },
+   {
+    "reporter": "288",
+    "year": 2020
+   },
+   {
+    "reporter": "288",
+    "year": 2021
+   },
+   {
+    "reporter": "288",
+    "year": 2022
+   },
+   {
+    "reporter": "288",
+    "year": 2023
+   },
+   {
+    "reporter": "320",
+    "year": 2020
+   },
+   {
+    "reporter": "320",
+    "year": 2021
+   },
+   {
+    "reporter": "320",
+    "year": 2022
+   },
+   {
+    "reporter": "320",
+    "year": 2023
+   },
+   {
+    "reporter": "344",
+    "year": 2018
+   },
+   {
+    "reporter": "344",
+    "year": 2019
+   },
+   {
+    "reporter": "344",
+    "year": 2020
+   },
+   {
+    "reporter": "344",
+    "year": 2021
+   },
+   {
+    "reporter": "344",
+    "year": 2022
+   },
+   {
+    "reporter": "344",
+    "year": 2023
+   },
+   {
+    "reporter": "356",
+    "year": 2018
+   },
+   {
+    "reporter": "356",
+    "year": 2019
+   },
+   {
+    "reporter": "356",
+    "year": 2020
+   },
+   {
+    "reporter": "356",
+    "year": 2021
+   },
+   {
+    "reporter": "356",
+    "year": 2022
+   },
+   {
+    "reporter": "356",
+    "year": 2023
+   },
+   {
+    "reporter": "360",
+    "year": 2018
+   },
+   {
+    "reporter": "360",
+    "year": 2019
+   },
+   {
+    "reporter": "360",
+    "year": 2020
+   },
+   {
+    "reporter": "360",
+    "year": 2021
+   },
+   {
+    "reporter": "360",
+    "year": 2022
+   },
+   {
+    "reporter": "360",
+    "year": 2023
+   },
+   {
+    "reporter": "364",
+    "year": 2019
+   },
+   {
+    "reporter": "364",
+    "year": 2020
+   },
+   {
+    "reporter": "376",
+    "year": 2018
+   },
+   {
+    "reporter": "376",
+    "year": 2019
+   },
+   {
+    "reporter": "376",
+    "year": 2020
+   },
+   {
+    "reporter": "376",
+    "year": 2021
+   },
+   {
+    "reporter": "376",
+    "year": 2022
+   },
+   {
+    "reporter": "384",
+    "year": 2018
+   },
+   {
+    "reporter": "384",
+    "year": 2019
+   },
+   {
+    "reporter": "384",
+    "year": 2020
+   },
+   {
+    "reporter": "384",
+    "year": 2021
+   },
+   {
+    "reporter": "384",
+    "year": 2022
+   },
+   {
+    "reporter": "384",
+    "year": 2023
+   },
+   {
+    "reporter": "392",
+    "year": 2018
+   },
+   {
+    "reporter": "392",
+    "year": 2019
+   },
+   {
+    "reporter": "392",
+    "year": 2020
+   },
+   {
+    "reporter": "392",
+    "year": 2021
+   },
+   {
+    "reporter": "392",
+    "year": 2022
+   },
+   {
+    "reporter": "392",
+    "year": 2023
+   },
+   {
+    "reporter": "398",
+    "year": 2018
+   },
+   {
+    "reporter": "398",
+    "year": 2019
+   },
+   {
+    "reporter": "398",
+    "year": 2020
+   },
+   {
+    "reporter": "398",
+    "year": 2021
+   },
+   {
+    "reporter": "398",
+    "year": 2022
+   },
+   {
+    "reporter": "398",
+    "year": 2023
+   },
+   {
+    "reporter": "400",
+    "year": 2018
+   },
+   {
+    "reporter": "400",
+    "year": 2019
+   },
+   {
+    "reporter": "400",
+    "year": 2020
+   },
+   {
+    "reporter": "400",
+    "year": 2022
+   },
+   {
+    "reporter": "400",
+    "year": 2023
+   },
+   {
+    "reporter": "404",
+    "year": 2018
+   },
+   {
+    "reporter": "404",
+    "year": 2019
+   },
+   {
+    "reporter": "404",
+    "year": 2020
+   },
+   {
+    "reporter": "404",
+    "year": 2021
+   },
+   {
+    "reporter": "404",
+    "year": 2022
+   },
+   {
+    "reporter": "404",
+    "year": 2023
+   },
+   {
+    "reporter": "410",
+    "year": 2018
+   },
+   {
+    "reporter": "410",
+    "year": 2019
+   },
+   {
+    "reporter": "410",
+    "year": 2020
+   },
+   {
+    "reporter": "410",
+    "year": 2021
+   },
+   {
+    "reporter": "410",
+    "year": 2022
+   },
+   {
+    "reporter": "410",
+    "year": 2023
+   },
+   {
+    "reporter": "414",
+    "year": 2018
+   },
+   {
+    "reporter": "414",
+    "year": 2019
+   },
+   {
+    "reporter": "414",
+    "year": 2020
+   },
+   {
+    "reporter": "414",
+    "year": 2021
+   },
+   {
+    "reporter": "414",
+    "year": 2022
+   },
+   {
+    "reporter": "414",
+    "year": 2023
+   },
+   {
+    "reporter": "458",
+    "year": 2018
+   },
+   {
+    "reporter": "458",
+    "year": 2019
+   },
+   {
+    "reporter": "458",
+    "year": 2020
+   },
+   {
+    "reporter": "458",
+    "year": 2021
+   },
+   {
+    "reporter": "458",
+    "year": 2022
+   },
+   {
+    "reporter": "458",
+    "year": 2023
+   },
+   {
+    "reporter": "484",
+    "year": 2018
+   },
+   {
+    "reporter": "484",
+    "year": 2019
+   },
+   {
+    "reporter": "484",
+    "year": 2020
+   },
+   {
+    "reporter": "484",
+    "year": 2022
+   },
+   {
+    "reporter": "484",
+    "year": 2023
+   },
+   {
+    "reporter": "504",
+    "year": 2018
+   },
+   {
+    "reporter": "504",
+    "year": 2019
+   },
+   {
+    "reporter": "504",
+    "year": 2020
+   },
+   {
+    "reporter": "504",
+    "year": 2021
+   },
+   {
+    "reporter": "504",
+    "year": 2022
+   },
+   {
+    "reporter": "504",
+    "year": 2023
+   },
+   {
+    "reporter": "512",
+    "year": 2018
+   },
+   {
+    "reporter": "512",
+    "year": 2019
+   },
+   {
+    "reporter": "512",
+    "year": 2020
+   },
+   {
+    "reporter": "512",
+    "year": 2021
+   },
+   {
+    "reporter": "512",
+    "year": 2022
+   },
+   {
+    "reporter": "512",
+    "year": 2023
+   },
+   {
+    "reporter": "554",
+    "year": 2018
+   },
+   {
+    "reporter": "554",
+    "year": 2019
+   },
+   {
+    "reporter": "554",
+    "year": 2020
+   },
+   {
+    "reporter": "554",
+    "year": 2021
+   },
+   {
+    "reporter": "554",
+    "year": 2022
+   },
+   {
+    "reporter": "554",
+    "year": 2023
+   },
+   {
+    "reporter": "566",
+    "year": 2018
+   },
+   {
+    "reporter": "566",
+    "year": 2019
+   },
+   {
+    "reporter": "566",
+    "year": 2020
+   },
+   {
+    "reporter": "566",
+    "year": 2021
+   },
+   {
+    "reporter": "566",
+    "year": 2022
+   },
+   {
+    "reporter": "566",
+    "year": 2023
+   },
+   {
+    "reporter": "578",
+    "year": 2018
+   },
+   {
+    "reporter": "578",
+    "year": 2019
+   },
+   {
+    "reporter": "578",
+    "year": 2020
+   },
+   {
+    "reporter": "578",
+    "year": 2021
+   },
+   {
+    "reporter": "578",
+    "year": 2022
+   },
+   {
+    "reporter": "578",
+    "year": 2023
+   },
+   {
+    "reporter": "586",
+    "year": 2018
+   },
+   {
+    "reporter": "586",
+    "year": 2019
+   },
+   {
+    "reporter": "586",
+    "year": 2020
+   },
+   {
+    "reporter": "586",
+    "year": 2021
+   },
+   {
+    "reporter": "586",
+    "year": 2022
+   },
+   {
+    "reporter": "586",
+    "year": 2023
+   },
+   {
+    "reporter": "591",
+    "year": 2018
+   },
+   {
+    "reporter": "591",
+    "year": 2019
+   },
+   {
+    "reporter": "591",
+    "year": 2020
+   },
+   {
+    "reporter": "591",
+    "year": 2021
+   },
+   {
+    "reporter": "591",
+    "year": 2022
+   },
+   {
+    "reporter": "591",
+    "year": 2023
+   },
+   {
+    "reporter": "604",
+    "year": 2018
+   },
+   {
+    "reporter": "604",
+    "year": 2019
+   },
+   {
+    "reporter": "604",
+    "year": 2020
+   },
+   {
+    "reporter": "604",
+    "year": 2021
+   },
+   {
+    "reporter": "604",
+    "year": 2022
+   },
+   {
+    "reporter": "604",
+    "year": 2023
+   },
+   {
+    "reporter": "608",
+    "year": 2018
+   },
+   {
+    "reporter": "608",
+    "year": 2019
+   },
+   {
+    "reporter": "608",
+    "year": 2020
+   },
+   {
+    "reporter": "608",
+    "year": 2021
+   },
+   {
+    "reporter": "608",
+    "year": 2022
+   },
+   {
+    "reporter": "608",
+    "year": 2023
+   },
+   {
+    "reporter": "634",
+    "year": 2018
+   },
+   {
+    "reporter": "634",
+    "year": 2019
+   },
+   {
+    "reporter": "634",
+    "year": 2020
+   },
+   {
+    "reporter": "634",
+    "year": 2021
+   },
+   {
+    "reporter": "634",
+    "year": 2022
+   },
+   {
+    "reporter": "634",
+    "year": 2023
+   },
+   {
+    "reporter": "643",
+    "year": 2018
+   },
+   {
+    "reporter": "643",
+    "year": 2019
+   },
+   {
+    "reporter": "643",
+    "year": 2020
+   },
+   {
+    "reporter": "643",
+    "year": 2021
+   },
+   {
+    "reporter": "682",
+    "year": 2018
+   },
+   {
+    "reporter": "682",
+    "year": 2019
+   },
+   {
+    "reporter": "682",
+    "year": 2020
+   },
+   {
+    "reporter": "682",
+    "year": 2022
+   },
+   {
+    "reporter": "682",
+    "year": 2023
+   },
+   {
+    "reporter": "702",
+    "year": 2018
+   },
+   {
+    "reporter": "702",
+    "year": 2019
+   },
+   {
+    "reporter": "702",
+    "year": 2020
+   },
+   {
+    "reporter": "702",
+    "year": 2021
+   },
+   {
+    "reporter": "702",
+    "year": 2022
+   },
+   {
+    "reporter": "702",
+    "year": 2023
+   },
+   {
+    "reporter": "704",
+    "year": 2018
+   },
+   {
+    "reporter": "704",
+    "year": 2019
+   },
+   {
+    "reporter": "704",
+    "year": 2020
+   },
+   {
+    "reporter": "704",
+    "year": 2021
+   },
+   {
+    "reporter": "704",
+    "year": 2022
+   },
+   {
+    "reporter": "704",
+    "year": 2023
+   },
+   {
+    "reporter": "710",
+    "year": 2018
+   },
+   {
+    "reporter": "710",
+    "year": 2019
+   },
+   {
+    "reporter": "710",
+    "year": 2020
+   },
+   {
+    "reporter": "710",
+    "year": 2021
+   },
+   {
+    "reporter": "710",
+    "year": 2022
+   },
+   {
+    "reporter": "710",
+    "year": 2023
+   },
+   {
+    "reporter": "756",
+    "year": 2018
+   },
+   {
+    "reporter": "756",
+    "year": 2019
+   },
+   {
+    "reporter": "756",
+    "year": 2020
+   },
+   {
+    "reporter": "756",
+    "year": 2021
+   },
+   {
+    "reporter": "756",
+    "year": 2022
+   },
+   {
+    "reporter": "756",
+    "year": 2023
+   },
+   {
+    "reporter": "764",
+    "year": 2018
+   },
+   {
+    "reporter": "764",
+    "year": 2019
+   },
+   {
+    "reporter": "764",
+    "year": 2020
+   },
+   {
+    "reporter": "764",
+    "year": 2021
+   },
+   {
+    "reporter": "764",
+    "year": 2022
+   },
+   {
+    "reporter": "764",
+    "year": 2023
+   },
+   {
+    "reporter": "784",
+    "year": 2018
+   },
+   {
+    "reporter": "784",
+    "year": 2019
+   },
+   {
+    "reporter": "784",
+    "year": 2020
+   },
+   {
+    "reporter": "784",
+    "year": 2021
+   },
+   {
+    "reporter": "784",
+    "year": 2022
+   },
+   {
+    "reporter": "784",
+    "year": 2023
+   },
+   {
+    "reporter": "792",
+    "year": 2018
+   },
+   {
+    "reporter": "792",
+    "year": 2019
+   },
+   {
+    "reporter": "792",
+    "year": 2020
+   },
+   {
+    "reporter": "792",
+    "year": 2021
+   },
+   {
+    "reporter": "792",
+    "year": 2022
+   },
+   {
+    "reporter": "792",
+    "year": 2023
+   },
+   {
+    "reporter": "804",
+    "year": 2018
+   },
+   {
+    "reporter": "804",
+    "year": 2019
+   },
+   {
+    "reporter": "804",
+    "year": 2020
+   },
+   {
+    "reporter": "804",
+    "year": 2021
+   },
+   {
+    "reporter": "804",
+    "year": 2022
+   },
+   {
+    "reporter": "804",
+    "year": 2023
+   },
+   {
+    "reporter": "818",
+    "year": 2018
+   },
+   {
+    "reporter": "818",
+    "year": 2019
+   },
+   {
+    "reporter": "826",
+    "year": 2018
+   },
+   {
+    "reporter": "826",
+    "year": 2019
+   },
+   {
+    "reporter": "826",
+    "year": 2020
+   },
+   {
+    "reporter": "826",
+    "year": 2021
+   },
+   {
+    "reporter": "826",
+    "year": 2022
+   },
+   {
+    "reporter": "826",
+    "year": 2023
+   },
+   {
+    "reporter": "840",
+    "year": 2018
+   },
+   {
+    "reporter": "840",
+    "year": 2019
+   },
+   {
+    "reporter": "840",
+    "year": 2020
+   },
+   {
+    "reporter": "840",
+    "year": 2021
+   },
+   {
+    "reporter": "840",
+    "year": 2022
+   },
+   {
+    "reporter": "840",
+    "year": 2023
+   },
+   {
+    "reporter": "862",
+    "year": 2018
+   },
+   {
+    "reporter": "862",
+    "year": 2019
+   },
+   {
+    "reporter": "862",
+    "year": 2020
+   },
+   {
+    "reporter": "862",
+    "year": 2021
+   },
+   {
+    "reporter": "862",
+    "year": 2022
+   },
+   {
+    "reporter": "862",
+    "year": 2023
+   },
+   {
+    "reporter": "918",
+    "year": 2018
+   },
+   {
+    "reporter": "918",
+    "year": 2019
+   },
+   {
+    "reporter": "918",
+    "year": 2020
+   },
+   {
+    "reporter": "918",
+    "year": 2021
+   },
+   {
+    "reporter": "918",
+    "year": 2022
+   },
+   {
+    "reporter": "918",
+    "year": 2023
+   }
+  ],
+  "headers": {
+   "Accept": "application/xml"
+  },
+  "skip_statuses": [
+   404
+  ],
+  "rate_limit": {
+   "requests_per_second": 0.5
+  },
+  "accept_encoding": "gzip",
+  "timeout_seconds": 300,
+  "retries": 5
+ },
+ "sampling": {
+  "strategy": "blocked",
+  "format": "jsonl",
+  "max_rows": 100,
+  "max_sample_bytes": 1048576,
+  "max_download_bytes": 1048576,
+  "max_uncompressed_bytes": 1048576,
+  "disk_budget_bytes": 67108864,
+  "criteria": "No bounded sample",
+  "reason": "SDMX-ML responses are consumed by the dataset-local streaming reader from full acquisition"
+ },
+ "stages": [
+  {
+   "id": "normalized",
+   "entrypoint": "pipeline.py:run",
+   "depends_on": [],
+   "schema": {
+    "format": "evidence_jsonl",
+    "compression": "gzip"
+   },
+   "validation": {
+    "allow_empty": false,
+    "max_rows": 20000000
+   },
+   "cache": "content",
+   "retention": "retain"
+  }
+ ]
+}

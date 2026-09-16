@@ -1,0 +1,76 @@
+{
+  "id": "cepii_gravity",
+  "schema_version": 2,
+  "kind": "source",
+  "status": "complete",
+  "description": "CEPII Gravity V202211: country-pair frictions (distance, contiguity, language, colonial ties, RTAs, diplomatic disagreement) and country-year macro/membership variables (GDP, population, WTO/GATT/EU), 1948-2021",
+  "dependencies": [],
+  "parameters": {},
+  "source": {
+    "publisher": "CEPII (Centre d'Etudes Prospectives et d'Informations Internationales)",
+    "documentation": "https://www.cepii.fr/CEPII/en/bdd_modele/bdd_modele_item.asp?id=8",
+    "url": "https://www.cepii.fr/DATA_DOWNLOAD/gravity/data/Gravity_csv_V202211.zip",
+    "release": "V202211",
+    "license": "Etalab Open Licence 2.0",
+    "license_id": "etalab-2.0",
+    "license_status": "open_with_attribution",
+    "terms_url": "https://www.etalab.gouv.fr/licence-ouverte-open-licence/",
+    "attribution": "Conte, M., P. Cotterlaz and T. Mayer (2022), The CEPII Gravity database. CEPII Working Paper N 2022-05",
+    "redistribution": "permitted_with_attribution"
+  },
+  "entrypoint": "pipeline.py:run",
+  "sampling": {
+    "strategy": "blocked",
+    "format": "jsonl",
+    "max_rows": 100,
+    "max_sample_bytes": 1048576,
+    "max_download_bytes": 1048576,
+    "max_uncompressed_bytes": 1048576,
+    "disk_budget_bytes": 67108864,
+    "criteria": "No bounded sample: single 207 MB ZIP",
+    "reason": "Use full acquisition (wm acquire cepii_gravity)"
+  },
+  "acquisition": {
+    "strategy": "files",
+    "description": "Gravity V202211 CSV bundle: Gravity_V202211.csv (country pair x year, 87 columns), Countries_V202211.csv and label tables",
+    "documentation": "https://www.cepii.fr/DATA_DOWNLOAD/gravity/doc/Gravity_documentation.pdf",
+    "desired_bytes": 206707748,
+    "min_bytes": 0,
+    "priority": 2.0,
+    "files": [
+      {
+        "url": "https://www.cepii.fr/DATA_DOWNLOAD/gravity/data/Gravity_csv_V202211.zip",
+        "name": "Gravity_csv_V202211.zip"
+      }
+    ],
+    "rate_limit": {
+      "requests_per_second": 0.5
+    },
+    "timeout_seconds": 120,
+    "retries": 6,
+    "reader": {
+      "format": "csv",
+      "members": [
+        "Gravity_V*.csv"
+      ]
+    }
+  },
+  "stages": [
+    {
+      "id": "normalized",
+      "entrypoint": "pipeline.py:run",
+      "depends_on": [],
+      "schema": {
+        "format": "evidence_jsonl",
+        "compression": "gzip"
+      },
+      "validation": {
+        "allow_empty": false,
+        "max_rows": 30000000
+      },
+      "cache": "content",
+      "retention": "retain"
+    }
+  ],
+  "output_stage": "normalized"
+}

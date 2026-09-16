@@ -4,6 +4,16 @@ from worldmodel.util import digest
 from worldmodel.source_helpers import STATE_FIPS
 
 def run(context):
+    """Full sharded artifacts -> full.py (bulk series + EIA-860); JSONL samples -> original adapter."""
+    coverage = getattr(context, 'raw_coverage', None)
+    if coverage is not None and (coverage()['layout'] == 'shards' or not coverage()['sampled']):
+        from .full import run_full
+        yield from run_full(context)
+        return
+    yield from _sample(context)
+
+
+def _sample(context):
     dataset = 'eia_energy'
     if not context.raw_inputs:
         raise ValueError(f'{dataset}: no sample artifact supplied')

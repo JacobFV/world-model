@@ -1,0 +1,283 @@
+{
+  "id": "govinfo_billstatus",
+  "schema_version": 2,
+  "kind": "source",
+  "status": "full_acquisition_complete",
+  "description": "GovInfo BILLSTATUS XML for Congresses 113-119, all eight bill/resolution types: sponsors, cosponsors, actions, committees, subjects, related bills, laws",
+  "source": {
+    "publisher": "U.S. Government Publishing Office (GovInfo), data from the Library of Congress",
+    "documentation": "https://github.com/usgpo/bill-status/blob/main/BILLSTATUS-XML_User_User-Guide.md",
+    "license_status": "public_domain_us_government_work",
+    "license_notes": "US federal government work; no redistribution restriction."
+  },
+  "dependencies": [],
+  "entrypoint": "pipeline.py:run",
+  "output_stage": "normalized",
+  "parameters": {},
+  "sampling": {
+    "criteria": "First 100 records, at most 1 MiB",
+    "disk_budget_bytes": 67108864,
+    "format": "jsonl",
+    "max_download_bytes": 1048576,
+    "max_rows": 100,
+    "max_sample_bytes": 1048576,
+    "max_uncompressed_bytes": 1048576,
+    "reason": "Configure a documented source URL and format before acquisition",
+    "strategy": "blocked"
+  },
+  "stages": [
+    {
+      "id": "normalized",
+      "entrypoint": "pipeline.py:run",
+      "depends_on": [],
+      "schema": {
+        "format": "evidence_jsonl",
+        "compression": "gzip"
+      },
+      "validation": {
+        "allow_empty": false,
+        "max_rows": 15000000
+      },
+      "cache": "content",
+      "retention": "retain"
+    }
+  ],
+  "acquisition": {
+    "strategy": "files",
+    "description": "BILLSTATUS-{congress}-{type}.zip, one XML document per measure",
+    "documentation": "https://www.govinfo.gov/bulkdata/BILLSTATUS",
+    "desired_bytes": 540000000,
+    "priority": 3.0,
+    "files": [
+      {
+        "url": "https://www.govinfo.gov/bulkdata/BILLSTATUS/113/hr/BILLSTATUS-113-hr.zip",
+        "name": "BILLSTATUS-113-hr.zip"
+      },
+      {
+        "url": "https://www.govinfo.gov/bulkdata/BILLSTATUS/113/s/BILLSTATUS-113-s.zip",
+        "name": "BILLSTATUS-113-s.zip"
+      },
+      {
+        "url": "https://www.govinfo.gov/bulkdata/BILLSTATUS/113/hjres/BILLSTATUS-113-hjres.zip",
+        "name": "BILLSTATUS-113-hjres.zip"
+      },
+      {
+        "url": "https://www.govinfo.gov/bulkdata/BILLSTATUS/113/sjres/BILLSTATUS-113-sjres.zip",
+        "name": "BILLSTATUS-113-sjres.zip"
+      },
+      {
+        "url": "https://www.govinfo.gov/bulkdata/BILLSTATUS/113/hconres/BILLSTATUS-113-hconres.zip",
+        "name": "BILLSTATUS-113-hconres.zip"
+      },
+      {
+        "url": "https://www.govinfo.gov/bulkdata/BILLSTATUS/113/sconres/BILLSTATUS-113-sconres.zip",
+        "name": "BILLSTATUS-113-sconres.zip"
+      },
+      {
+        "url": "https://www.govinfo.gov/bulkdata/BILLSTATUS/113/hres/BILLSTATUS-113-hres.zip",
+        "name": "BILLSTATUS-113-hres.zip"
+      },
+      {
+        "url": "https://www.govinfo.gov/bulkdata/BILLSTATUS/113/sres/BILLSTATUS-113-sres.zip",
+        "name": "BILLSTATUS-113-sres.zip"
+      },
+      {
+        "url": "https://www.govinfo.gov/bulkdata/BILLSTATUS/114/hr/BILLSTATUS-114-hr.zip",
+        "name": "BILLSTATUS-114-hr.zip"
+      },
+      {
+        "url": "https://www.govinfo.gov/bulkdata/BILLSTATUS/114/s/BILLSTATUS-114-s.zip",
+        "name": "BILLSTATUS-114-s.zip"
+      },
+      {
+        "url": "https://www.govinfo.gov/bulkdata/BILLSTATUS/114/hjres/BILLSTATUS-114-hjres.zip",
+        "name": "BILLSTATUS-114-hjres.zip"
+      },
+      {
+        "url": "https://www.govinfo.gov/bulkdata/BILLSTATUS/114/sjres/BILLSTATUS-114-sjres.zip",
+        "name": "BILLSTATUS-114-sjres.zip"
+      },
+      {
+        "url": "https://www.govinfo.gov/bulkdata/BILLSTATUS/114/hconres/BILLSTATUS-114-hconres.zip",
+        "name": "BILLSTATUS-114-hconres.zip"
+      },
+      {
+        "url": "https://www.govinfo.gov/bulkdata/BILLSTATUS/114/sconres/BILLSTATUS-114-sconres.zip",
+        "name": "BILLSTATUS-114-sconres.zip"
+      },
+      {
+        "url": "https://www.govinfo.gov/bulkdata/BILLSTATUS/114/hres/BILLSTATUS-114-hres.zip",
+        "name": "BILLSTATUS-114-hres.zip"
+      },
+      {
+        "url": "https://www.govinfo.gov/bulkdata/BILLSTATUS/114/sres/BILLSTATUS-114-sres.zip",
+        "name": "BILLSTATUS-114-sres.zip"
+      },
+      {
+        "url": "https://www.govinfo.gov/bulkdata/BILLSTATUS/115/hr/BILLSTATUS-115-hr.zip",
+        "name": "BILLSTATUS-115-hr.zip"
+      },
+      {
+        "url": "https://www.govinfo.gov/bulkdata/BILLSTATUS/115/s/BILLSTATUS-115-s.zip",
+        "name": "BILLSTATUS-115-s.zip"
+      },
+      {
+        "url": "https://www.govinfo.gov/bulkdata/BILLSTATUS/115/hjres/BILLSTATUS-115-hjres.zip",
+        "name": "BILLSTATUS-115-hjres.zip"
+      },
+      {
+        "url": "https://www.govinfo.gov/bulkdata/BILLSTATUS/115/sjres/BILLSTATUS-115-sjres.zip",
+        "name": "BILLSTATUS-115-sjres.zip"
+      },
+      {
+        "url": "https://www.govinfo.gov/bulkdata/BILLSTATUS/115/hconres/BILLSTATUS-115-hconres.zip",
+        "name": "BILLSTATUS-115-hconres.zip"
+      },
+      {
+        "url": "https://www.govinfo.gov/bulkdata/BILLSTATUS/115/sconres/BILLSTATUS-115-sconres.zip",
+        "name": "BILLSTATUS-115-sconres.zip"
+      },
+      {
+        "url": "https://www.govinfo.gov/bulkdata/BILLSTATUS/115/hres/BILLSTATUS-115-hres.zip",
+        "name": "BILLSTATUS-115-hres.zip"
+      },
+      {
+        "url": "https://www.govinfo.gov/bulkdata/BILLSTATUS/115/sres/BILLSTATUS-115-sres.zip",
+        "name": "BILLSTATUS-115-sres.zip"
+      },
+      {
+        "url": "https://www.govinfo.gov/bulkdata/BILLSTATUS/116/hr/BILLSTATUS-116-hr.zip",
+        "name": "BILLSTATUS-116-hr.zip"
+      },
+      {
+        "url": "https://www.govinfo.gov/bulkdata/BILLSTATUS/116/s/BILLSTATUS-116-s.zip",
+        "name": "BILLSTATUS-116-s.zip"
+      },
+      {
+        "url": "https://www.govinfo.gov/bulkdata/BILLSTATUS/116/hjres/BILLSTATUS-116-hjres.zip",
+        "name": "BILLSTATUS-116-hjres.zip"
+      },
+      {
+        "url": "https://www.govinfo.gov/bulkdata/BILLSTATUS/116/sjres/BILLSTATUS-116-sjres.zip",
+        "name": "BILLSTATUS-116-sjres.zip"
+      },
+      {
+        "url": "https://www.govinfo.gov/bulkdata/BILLSTATUS/116/hconres/BILLSTATUS-116-hconres.zip",
+        "name": "BILLSTATUS-116-hconres.zip"
+      },
+      {
+        "url": "https://www.govinfo.gov/bulkdata/BILLSTATUS/116/sconres/BILLSTATUS-116-sconres.zip",
+        "name": "BILLSTATUS-116-sconres.zip"
+      },
+      {
+        "url": "https://www.govinfo.gov/bulkdata/BILLSTATUS/116/hres/BILLSTATUS-116-hres.zip",
+        "name": "BILLSTATUS-116-hres.zip"
+      },
+      {
+        "url": "https://www.govinfo.gov/bulkdata/BILLSTATUS/116/sres/BILLSTATUS-116-sres.zip",
+        "name": "BILLSTATUS-116-sres.zip"
+      },
+      {
+        "url": "https://www.govinfo.gov/bulkdata/BILLSTATUS/117/hr/BILLSTATUS-117-hr.zip",
+        "name": "BILLSTATUS-117-hr.zip"
+      },
+      {
+        "url": "https://www.govinfo.gov/bulkdata/BILLSTATUS/117/s/BILLSTATUS-117-s.zip",
+        "name": "BILLSTATUS-117-s.zip"
+      },
+      {
+        "url": "https://www.govinfo.gov/bulkdata/BILLSTATUS/117/hjres/BILLSTATUS-117-hjres.zip",
+        "name": "BILLSTATUS-117-hjres.zip"
+      },
+      {
+        "url": "https://www.govinfo.gov/bulkdata/BILLSTATUS/117/sjres/BILLSTATUS-117-sjres.zip",
+        "name": "BILLSTATUS-117-sjres.zip"
+      },
+      {
+        "url": "https://www.govinfo.gov/bulkdata/BILLSTATUS/117/hconres/BILLSTATUS-117-hconres.zip",
+        "name": "BILLSTATUS-117-hconres.zip"
+      },
+      {
+        "url": "https://www.govinfo.gov/bulkdata/BILLSTATUS/117/sconres/BILLSTATUS-117-sconres.zip",
+        "name": "BILLSTATUS-117-sconres.zip"
+      },
+      {
+        "url": "https://www.govinfo.gov/bulkdata/BILLSTATUS/117/hres/BILLSTATUS-117-hres.zip",
+        "name": "BILLSTATUS-117-hres.zip"
+      },
+      {
+        "url": "https://www.govinfo.gov/bulkdata/BILLSTATUS/117/sres/BILLSTATUS-117-sres.zip",
+        "name": "BILLSTATUS-117-sres.zip"
+      },
+      {
+        "url": "https://www.govinfo.gov/bulkdata/BILLSTATUS/118/hr/BILLSTATUS-118-hr.zip",
+        "name": "BILLSTATUS-118-hr.zip"
+      },
+      {
+        "url": "https://www.govinfo.gov/bulkdata/BILLSTATUS/118/s/BILLSTATUS-118-s.zip",
+        "name": "BILLSTATUS-118-s.zip"
+      },
+      {
+        "url": "https://www.govinfo.gov/bulkdata/BILLSTATUS/118/hjres/BILLSTATUS-118-hjres.zip",
+        "name": "BILLSTATUS-118-hjres.zip"
+      },
+      {
+        "url": "https://www.govinfo.gov/bulkdata/BILLSTATUS/118/sjres/BILLSTATUS-118-sjres.zip",
+        "name": "BILLSTATUS-118-sjres.zip"
+      },
+      {
+        "url": "https://www.govinfo.gov/bulkdata/BILLSTATUS/118/hconres/BILLSTATUS-118-hconres.zip",
+        "name": "BILLSTATUS-118-hconres.zip"
+      },
+      {
+        "url": "https://www.govinfo.gov/bulkdata/BILLSTATUS/118/sconres/BILLSTATUS-118-sconres.zip",
+        "name": "BILLSTATUS-118-sconres.zip"
+      },
+      {
+        "url": "https://www.govinfo.gov/bulkdata/BILLSTATUS/118/hres/BILLSTATUS-118-hres.zip",
+        "name": "BILLSTATUS-118-hres.zip"
+      },
+      {
+        "url": "https://www.govinfo.gov/bulkdata/BILLSTATUS/118/sres/BILLSTATUS-118-sres.zip",
+        "name": "BILLSTATUS-118-sres.zip"
+      },
+      {
+        "url": "https://www.govinfo.gov/bulkdata/BILLSTATUS/119/hr/BILLSTATUS-119-hr.zip",
+        "name": "BILLSTATUS-119-hr.zip"
+      },
+      {
+        "url": "https://www.govinfo.gov/bulkdata/BILLSTATUS/119/s/BILLSTATUS-119-s.zip",
+        "name": "BILLSTATUS-119-s.zip"
+      },
+      {
+        "url": "https://www.govinfo.gov/bulkdata/BILLSTATUS/119/hjres/BILLSTATUS-119-hjres.zip",
+        "name": "BILLSTATUS-119-hjres.zip"
+      },
+      {
+        "url": "https://www.govinfo.gov/bulkdata/BILLSTATUS/119/sjres/BILLSTATUS-119-sjres.zip",
+        "name": "BILLSTATUS-119-sjres.zip"
+      },
+      {
+        "url": "https://www.govinfo.gov/bulkdata/BILLSTATUS/119/hconres/BILLSTATUS-119-hconres.zip",
+        "name": "BILLSTATUS-119-hconres.zip"
+      },
+      {
+        "url": "https://www.govinfo.gov/bulkdata/BILLSTATUS/119/sconres/BILLSTATUS-119-sconres.zip",
+        "name": "BILLSTATUS-119-sconres.zip"
+      },
+      {
+        "url": "https://www.govinfo.gov/bulkdata/BILLSTATUS/119/hres/BILLSTATUS-119-hres.zip",
+        "name": "BILLSTATUS-119-hres.zip"
+      },
+      {
+        "url": "https://www.govinfo.gov/bulkdata/BILLSTATUS/119/sres/BILLSTATUS-119-sres.zip",
+        "name": "BILLSTATUS-119-sres.zip"
+      }
+    ],
+    "rate_limit": {
+      "requests_per_second": 1.0
+    },
+    "timeout_seconds": 120,
+    "retries": 6
+  }
+}

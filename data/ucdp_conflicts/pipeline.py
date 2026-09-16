@@ -3,6 +3,12 @@ from worldmodel.source_records import Emitter,sampled_rows,number
 
 
 def run(context):
+    coverage=getattr(context,'raw_coverage',None)
+    if coverage is not None and coverage()['layout']=='shards':
+        # Full bulk release (sharded acquisition); helper imported lazily so sample tests load this file standalone.
+        from .full import run_full
+        yield from run_full(context)
+        return
     emit=Emitter(context)
     for index,line,row,receipt in sampled_rows(context):
         emit.at(index,line,row,receipt)

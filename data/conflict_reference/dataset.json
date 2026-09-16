@@ -1,0 +1,103 @@
+{
+  "dependencies": [],
+  "description": "International system reference data: COW state system membership 2024, National Material Capabilities v7, Direct Contiguity 3.2, Formal Alliances 4.1, MID 5.0 disputes, Inter-State Wars 4.0 and ATOP 5.1 alliances. Polity5 is covered by vdem (e_polity2/e_democ/e_autoc); SIPRI arms transfers require a manual web-form export (not integrated).",
+  "entrypoint": "pipeline.py:run",
+  "id": "conflict_reference",
+  "kind": "source",
+  "output_stage": "normalized",
+  "parameters": {},
+  "sampling": {
+    "strategy": "blocked",
+    "format": "jsonl",
+    "max_rows": 100,
+    "max_sample_bytes": 1048576,
+    "max_download_bytes": 1048576,
+    "max_uncompressed_bytes": 1048576,
+    "disk_budget_bytes": 67108864,
+    "criteria": "Not sampled",
+    "reason": "Small bulk files acquired in full"
+  },
+  "schema_version": 2,
+  "stages": [
+    {
+      "id": "normalized",
+      "entrypoint": "pipeline.py:run",
+      "depends_on": [],
+      "schema": {
+        "format": "evidence_jsonl",
+        "compression": "gzip"
+      },
+      "validation": {
+        "allow_empty": false,
+        "max_rows": 1000000
+      },
+      "cache": "content",
+      "retention": "retain"
+    }
+  ],
+  "status": "complete_partial_scope",
+  "source": {
+    "publisher": "Correlates of War Project; Alliance Treaty Obligations and Provisions (ATOP) Project",
+    "documentation": "https://correlatesofwar.org/data-sets/",
+    "license": "Academic free use with citation (COW data are freely available; ATOP free for research with citation); no explicit open licence",
+    "license_id": "academic-citation-required",
+    "license_status": "free_use_with_citation_terms_unspecified",
+    "terms_url": "https://correlatesofwar.org/data-sets/",
+    "attribution": "Correlates of War Project (State System Membership v2024; Singer, Bremer & Stuckey 1972 NMC v7; Stinnett et al. 2002 Direct Contiguity v3.2; Gibler 2009 Formal Alliances v4.1; Palmer et al. 2022 MID 5.0; Sarkees & Wayman 2010 Inter-State War v4.0); Leeds et al. 2002 ATOP v5.1",
+    "redistribution": "restricted"
+  },
+  "expected_outputs": [
+    "state",
+    "alliance",
+    "capability",
+    "contiguity",
+    "dispute",
+    "war"
+  ],
+  "acquisition": {
+    "strategy": "files",
+    "description": "COW and ATOP bulk CSV/ZIP files (NMC v7 contains nested ZIPs, read by the local pipeline); one shard per file",
+    "documentation": "https://correlatesofwar.org/data-sets/",
+    "desired_bytes": 12293620,
+    "min_bytes": 0,
+    "priority": 1.0,
+    "files": [
+      {
+        "url": "https://correlatesofwar.org/wp-content/uploads/States2024.zip",
+        "name": "States2024.zip"
+      },
+      {
+        "url": "https://correlatesofwar.org/wp-content/uploads/NMCv7.zip",
+        "name": "NMCv7.zip"
+      },
+      {
+        "url": "https://correlatesofwar.org/wp-content/uploads/DirectContiguity320.zip",
+        "name": "DirectContiguity320.zip"
+      },
+      {
+        "url": "https://correlatesofwar.org/wp-content/uploads/version4.1_csv.zip",
+        "name": "version4.1_csv.zip"
+      },
+      {
+        "url": "https://correlatesofwar.org/wp-content/uploads/MID-5-Data-and-Supporting-Materials.zip",
+        "name": "MID-5-Data-and-Supporting-Materials.zip"
+      },
+      {
+        "url": "https://correlatesofwar.org/wp-content/uploads/Inter-StateWarData_v4.0.csv",
+        "name": "Inter-StateWarData_v4.0.csv"
+      },
+      {
+        "url": "https://www.atopdata.org/uploads/6/9/1/3/69134503/atop_5.1__.csv_.zip",
+        "name": "atop_5.1_csv.zip"
+      }
+    ],
+    "rate_limit": {
+      "requests_per_second": 0.5
+    },
+    "timeout_seconds": 120,
+    "user_agent": "Mozilla/5.0 (compatible; worldmodel-substrate/0.3 full-acquisition)",
+    "reader": {
+      "format": "csv"
+    }
+  }
+}

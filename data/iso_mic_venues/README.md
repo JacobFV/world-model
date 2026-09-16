@@ -1,17 +1,21 @@
 # iso_mic_venues
 
-Bounded selected US MIC reference records, including published Texas venue names; registration does not prove operation.
+ISO 10383 Market Identifier Codes.
 
-## Pipeline
+**Source**: `ISO10383_MIC.csv` (2,883 MICs). **Credential**: none. **Licence**: free public reference list.
 
-Local implementation: [pipeline.py](pipeline.py). Stages: **normalized**; default output: `normalized`. The [dataset.json](dataset.json) declaration pins source configuration, parameters, dependencies and validation.
+**Evidence**: `mic:<MIC>` trading venues, `published_mic_status` with creation/update/expiry dates, `mic_operating_venue` from segment to operating MIC, `venue_operator` to `lei:<LEI>` when published. Registration does not prove operation.
 
-Dependencies: None (source input).
+Implementation: [pipeline.py](pipeline.py); declaration: [dataset.json](dataset.json).
 
-## Scope and evidence
+## Rebuild
 
-Source statements retain their provenance, units and available dates. A bounded sample does not establish complete or representative coverage.
+```sh
+wm acquire iso_mic_venues --dry-run
+wm acquire iso_mic_venues --allow-network        # --resume after interruptions
+WORLD_MODEL_RAW_VERIFY=size wm run iso_mic_venues
+wm verify iso_mic_venues
+```
 
-## Local files
-
-`artifacts/` contains generated immutable stage products; `scratch/` is temporary local work. Both are ignored by Git. Legacy generated paths are also ignored. Source terms and access requirements remain in `dataset.json`; repository code licensing does not grant dataset redistribution rights.
+Tests: `python3 -m unittest tests.test_companies_markets_research_datasets`.
+`artifacts/` and `scratch/` are ignored by Git. Cross-dataset identity notes: [docs/data/companies-markets-research.md](../../docs/data/companies-markets-research.md).

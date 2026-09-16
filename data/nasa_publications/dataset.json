@@ -3,12 +3,13 @@
   "schema_version": 2,
   "dependencies": [],
   "kind": "source",
-  "status": "configured_bounded_source",
-  "description": "NASA public publication metadata; articles are reported claims, not modeled world truth.",
+  "status": "complete",
+  "description": "NASA.gov main RSS feed, pages 1-20 (~200 most recent posts): publication metadata as publisher claims",
   "source": {
     "publisher": "NASA",
     "documentation": "https://www.nasa.gov/rss-feeds/",
-    "license_status": "retain publisher/source terms; metadata does not grant content redistribution"
+    "license_status": "public_domain_most_content",
+    "license_notes": "NASA content is generally not copyrighted (US government work); some third-party images/text excepted. Only feed metadata is normalized."
   },
   "entrypoint": "pipeline.py:run",
   "sampling": {
@@ -33,15 +34,43 @@
       "entrypoint": "pipeline.py:run",
       "depends_on": [],
       "schema": {
-        "format": "evidence_jsonl"
+        "format": "evidence_jsonl",
+        "compression": "gzip"
       },
       "validation": {
         "allow_empty": false,
-        "max_rows": 100000
+        "max_rows": 10000
       },
       "cache": "content",
       "retention": "retain"
     }
   ],
-  "output_stage": "normalized"
+  "output_stage": "normalized",
+  "acquisition": {
+    "strategy": "url_list",
+    "description": "WordPress paged RSS: https://www.nasa.gov/feed/?paged={page} for pages 1..20 (10 items per page, ~280 KB per page measured 2026-09-15)",
+    "documentation": "https://www.nasa.gov/rss-feeds/",
+    "desired_bytes": 6500000,
+    "priority": 1.0,
+    "url_template": "https://www.nasa.gov/feed/?paged={page}",
+    "parameters": {
+      "page": {
+        "range": [
+          1,
+          20
+        ]
+      }
+    },
+    "skip_statuses": [
+      404
+    ],
+    "rate_limit": {
+      "requests_per_second": 0.5
+    }
+  },
+  "coverage": {
+    "representative": false,
+    "completeness": "complete_for_declared_scope",
+    "scope": "NASA.gov main feed pages 1-20 (200 posts) at acquisition time"
+  }
 }

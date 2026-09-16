@@ -1,0 +1,293 @@
+{
+  "dependencies": [],
+  "description": "SEC Financial Statement Data Sets 2012Q4-2026Q2 (55 quarterly sub/num/tag/pre ZIPs): as-filed statement values with presentation, comparatives and dimensional segments for the companyfacts concept set",
+  "entrypoint": "pipeline.py:run",
+  "id": "sec_financial_statements",
+  "kind": "source",
+  "output_stage": "normalized",
+  "parameters": {},
+  "sampling": {
+    "strategy": "blocked",
+    "format": "jsonl",
+    "max_rows": 100,
+    "max_sample_bytes": 1048576,
+    "max_download_bytes": 1048576,
+    "max_uncompressed_bytes": 1048576,
+    "disk_budget_bytes": 67108864,
+    "criteria": "Full acquisition only",
+    "reason": "Bulk quarterly ZIP data sets are acquired with wm acquire; no bounded sample endpoint"
+  },
+  "schema_version": 2,
+  "stages": [
+    {
+      "id": "normalized",
+      "entrypoint": "pipeline.py:run",
+      "depends_on": [],
+      "schema": {
+        "format": "evidence_jsonl",
+        "compression": "gzip"
+      },
+      "validation": {
+        "allow_empty": false,
+        "max_rows": 400000000
+      },
+      "cache": "content",
+      "retention": "retain"
+    }
+  ],
+  "status": "complete",
+  "source": {
+    "publisher": "U.S. Securities and Exchange Commission (Division of Economic and Risk Analysis)",
+    "documentation": "https://www.sec.gov/data-research/sec-markets-data/financial-statement-data-sets",
+    "license_status": "public_domain_us_government_work",
+    "license_notes": "US federal government work; SEC notes these data sets are extracted as filed and not verified. Fair access: declared User-Agent, <=10 requests/second."
+  },
+  "acquisition": {
+    "strategy": "files",
+    "description": "55 quarterly ZIPs 2012q4..2026q2 from https://www.sec.gov/files/dera/data/financial-statement-data-sets/ (sizes verified 2026-09-15 by HEAD, 5,186,899,071 bytes). 2009q1-2012q3 (452 MB) are excluded to stay under the 5 GiB per-dataset cap; companyfacts covers those years.",
+    "documentation": "https://www.sec.gov/files/aqfs.pdf",
+    "desired_bytes": 5250000000,
+    "priority": 2.0,
+    "files": [
+      {
+        "url": "https://www.sec.gov/files/dera/data/financial-statement-data-sets/2012q4.zip",
+        "name": "2012q4.zip"
+      },
+      {
+        "url": "https://www.sec.gov/files/dera/data/financial-statement-data-sets/2013q1.zip",
+        "name": "2013q1.zip"
+      },
+      {
+        "url": "https://www.sec.gov/files/dera/data/financial-statement-data-sets/2013q2.zip",
+        "name": "2013q2.zip"
+      },
+      {
+        "url": "https://www.sec.gov/files/dera/data/financial-statement-data-sets/2013q3.zip",
+        "name": "2013q3.zip"
+      },
+      {
+        "url": "https://www.sec.gov/files/dera/data/financial-statement-data-sets/2013q4.zip",
+        "name": "2013q4.zip"
+      },
+      {
+        "url": "https://www.sec.gov/files/dera/data/financial-statement-data-sets/2014q1.zip",
+        "name": "2014q1.zip"
+      },
+      {
+        "url": "https://www.sec.gov/files/dera/data/financial-statement-data-sets/2014q2.zip",
+        "name": "2014q2.zip"
+      },
+      {
+        "url": "https://www.sec.gov/files/dera/data/financial-statement-data-sets/2014q3.zip",
+        "name": "2014q3.zip"
+      },
+      {
+        "url": "https://www.sec.gov/files/dera/data/financial-statement-data-sets/2014q4.zip",
+        "name": "2014q4.zip"
+      },
+      {
+        "url": "https://www.sec.gov/files/dera/data/financial-statement-data-sets/2015q1.zip",
+        "name": "2015q1.zip"
+      },
+      {
+        "url": "https://www.sec.gov/files/dera/data/financial-statement-data-sets/2015q2.zip",
+        "name": "2015q2.zip"
+      },
+      {
+        "url": "https://www.sec.gov/files/dera/data/financial-statement-data-sets/2015q3.zip",
+        "name": "2015q3.zip"
+      },
+      {
+        "url": "https://www.sec.gov/files/dera/data/financial-statement-data-sets/2015q4.zip",
+        "name": "2015q4.zip"
+      },
+      {
+        "url": "https://www.sec.gov/files/dera/data/financial-statement-data-sets/2016q1.zip",
+        "name": "2016q1.zip"
+      },
+      {
+        "url": "https://www.sec.gov/files/dera/data/financial-statement-data-sets/2016q2.zip",
+        "name": "2016q2.zip"
+      },
+      {
+        "url": "https://www.sec.gov/files/dera/data/financial-statement-data-sets/2016q3.zip",
+        "name": "2016q3.zip"
+      },
+      {
+        "url": "https://www.sec.gov/files/dera/data/financial-statement-data-sets/2016q4.zip",
+        "name": "2016q4.zip"
+      },
+      {
+        "url": "https://www.sec.gov/files/dera/data/financial-statement-data-sets/2017q1.zip",
+        "name": "2017q1.zip"
+      },
+      {
+        "url": "https://www.sec.gov/files/dera/data/financial-statement-data-sets/2017q2.zip",
+        "name": "2017q2.zip"
+      },
+      {
+        "url": "https://www.sec.gov/files/dera/data/financial-statement-data-sets/2017q3.zip",
+        "name": "2017q3.zip"
+      },
+      {
+        "url": "https://www.sec.gov/files/dera/data/financial-statement-data-sets/2017q4.zip",
+        "name": "2017q4.zip"
+      },
+      {
+        "url": "https://www.sec.gov/files/dera/data/financial-statement-data-sets/2018q1.zip",
+        "name": "2018q1.zip"
+      },
+      {
+        "url": "https://www.sec.gov/files/dera/data/financial-statement-data-sets/2018q2.zip",
+        "name": "2018q2.zip"
+      },
+      {
+        "url": "https://www.sec.gov/files/dera/data/financial-statement-data-sets/2018q3.zip",
+        "name": "2018q3.zip"
+      },
+      {
+        "url": "https://www.sec.gov/files/dera/data/financial-statement-data-sets/2018q4.zip",
+        "name": "2018q4.zip"
+      },
+      {
+        "url": "https://www.sec.gov/files/dera/data/financial-statement-data-sets/2019q1.zip",
+        "name": "2019q1.zip"
+      },
+      {
+        "url": "https://www.sec.gov/files/dera/data/financial-statement-data-sets/2019q2.zip",
+        "name": "2019q2.zip"
+      },
+      {
+        "url": "https://www.sec.gov/files/dera/data/financial-statement-data-sets/2019q3.zip",
+        "name": "2019q3.zip"
+      },
+      {
+        "url": "https://www.sec.gov/files/dera/data/financial-statement-data-sets/2019q4.zip",
+        "name": "2019q4.zip"
+      },
+      {
+        "url": "https://www.sec.gov/files/dera/data/financial-statement-data-sets/2020q1.zip",
+        "name": "2020q1.zip"
+      },
+      {
+        "url": "https://www.sec.gov/files/dera/data/financial-statement-data-sets/2020q2.zip",
+        "name": "2020q2.zip"
+      },
+      {
+        "url": "https://www.sec.gov/files/dera/data/financial-statement-data-sets/2020q3.zip",
+        "name": "2020q3.zip"
+      },
+      {
+        "url": "https://www.sec.gov/files/dera/data/financial-statement-data-sets/2020q4.zip",
+        "name": "2020q4.zip"
+      },
+      {
+        "url": "https://www.sec.gov/files/dera/data/financial-statement-data-sets/2021q1.zip",
+        "name": "2021q1.zip"
+      },
+      {
+        "url": "https://www.sec.gov/files/dera/data/financial-statement-data-sets/2021q2.zip",
+        "name": "2021q2.zip"
+      },
+      {
+        "url": "https://www.sec.gov/files/dera/data/financial-statement-data-sets/2021q3.zip",
+        "name": "2021q3.zip"
+      },
+      {
+        "url": "https://www.sec.gov/files/dera/data/financial-statement-data-sets/2021q4.zip",
+        "name": "2021q4.zip"
+      },
+      {
+        "url": "https://www.sec.gov/files/dera/data/financial-statement-data-sets/2022q1.zip",
+        "name": "2022q1.zip"
+      },
+      {
+        "url": "https://www.sec.gov/files/dera/data/financial-statement-data-sets/2022q2.zip",
+        "name": "2022q2.zip"
+      },
+      {
+        "url": "https://www.sec.gov/files/dera/data/financial-statement-data-sets/2022q3.zip",
+        "name": "2022q3.zip"
+      },
+      {
+        "url": "https://www.sec.gov/files/dera/data/financial-statement-data-sets/2022q4.zip",
+        "name": "2022q4.zip"
+      },
+      {
+        "url": "https://www.sec.gov/files/dera/data/financial-statement-data-sets/2023q1.zip",
+        "name": "2023q1.zip"
+      },
+      {
+        "url": "https://www.sec.gov/files/dera/data/financial-statement-data-sets/2023q2.zip",
+        "name": "2023q2.zip"
+      },
+      {
+        "url": "https://www.sec.gov/files/dera/data/financial-statement-data-sets/2023q3.zip",
+        "name": "2023q3.zip"
+      },
+      {
+        "url": "https://www.sec.gov/files/dera/data/financial-statement-data-sets/2023q4.zip",
+        "name": "2023q4.zip"
+      },
+      {
+        "url": "https://www.sec.gov/files/dera/data/financial-statement-data-sets/2024q1.zip",
+        "name": "2024q1.zip"
+      },
+      {
+        "url": "https://www.sec.gov/files/dera/data/financial-statement-data-sets/2024q2.zip",
+        "name": "2024q2.zip"
+      },
+      {
+        "url": "https://www.sec.gov/files/dera/data/financial-statement-data-sets/2024q3.zip",
+        "name": "2024q3.zip"
+      },
+      {
+        "url": "https://www.sec.gov/files/dera/data/financial-statement-data-sets/2024q4.zip",
+        "name": "2024q4.zip"
+      },
+      {
+        "url": "https://www.sec.gov/files/dera/data/financial-statement-data-sets/2025q1.zip",
+        "name": "2025q1.zip"
+      },
+      {
+        "url": "https://www.sec.gov/files/dera/data/financial-statement-data-sets/2025q2.zip",
+        "name": "2025q2.zip"
+      },
+      {
+        "url": "https://www.sec.gov/files/dera/data/financial-statement-data-sets/2025q3.zip",
+        "name": "2025q3.zip"
+      },
+      {
+        "url": "https://www.sec.gov/files/dera/data/financial-statement-data-sets/2025q4.zip",
+        "name": "2025q4.zip"
+      },
+      {
+        "url": "https://www.sec.gov/files/dera/data/financial-statement-data-sets/2026q1.zip",
+        "name": "2026q1.zip"
+      },
+      {
+        "url": "https://www.sec.gov/files/dera/data/financial-statement-data-sets/2026q2.zip",
+        "name": "2026q2.zip"
+      }
+    ],
+    "user_agent_env": "SEC_USER_AGENT",
+    "rate_limit": {
+      "requests_per_second": 5,
+      "key": "sec.gov"
+    },
+    "timeout_seconds": 180,
+    "retries": 8,
+    "reader": {
+      "format": "tsv",
+      "members": [
+        "*.txt"
+      ],
+      "strict": false
+    }
+  },
+  "coverage": {
+    "representative": false,
+    "completeness": "complete_for_declared_scope",
+    "scope": "Selected standard tags from 10-K/10-Q/20-F/40-F (+transition/amended) filings in all 55 FSDS quarterly ZIPs 2012Q4-2026Q2"
+  }
+}

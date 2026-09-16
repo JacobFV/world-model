@@ -1,0 +1,60 @@
+{
+  "id": "trade_concordances",
+  "schema_version": 2,
+  "dependencies": [],
+  "kind": "source",
+  "status": "full_acquisition_configured",
+  "description": "Product and industry concordances with versioned code namespaces: Census 2026 import (HTS) and export (Schedule B) 10-digit concordances to HS6, NAICS 2022, SITC Rev.4 and end-use; WITS HS2017->SITC Rev.3, HS2022->SITC Rev.3 and HS2012->ISIC Rev.3; UNSD HS2022<->HS2017 and HS2017<->HS1992 conversion and correlation tables",
+  "source": {
+    "publisher": "U.S. Census Bureau (Foreign Trade Division); World Bank WITS; United Nations Statistics Division",
+    "documentation": "https://www.census.gov/foreign-trade/reference/codes/concordance/index.html ; https://wits.worldbank.org/product_concordance.html ; https://unstats.un.org/unsd/classifications/Econ/",
+    "license_status": "publisher_terms",
+    "license_notes": "Census concordances: US federal government work, public domain (17 U.S.C. 105). WITS concordance extracts: World Bank WITS terms of use (derived from UNSD tables); keep internal and cite WITS/UNSD, verify before redistribution. UNSD correlation tables: UN terms of use, free use with attribution. Records carry a per-row licence attribute."
+  },
+  "entrypoint": "pipeline.py:run",
+  "parameters": {
+    "census_naics_revision": {"2026": "2022"}
+  },
+  "sampling": {
+    "criteria": "No sample adapter: seven small files are acquired in full",
+    "disk_budget_bytes": 67108864,
+    "format": "jsonl",
+    "max_download_bytes": 1048576,
+    "max_rows": 100,
+    "max_sample_bytes": 1048576,
+    "max_uncompressed_bytes": 1048576,
+    "reason": "Full acquisition only (about 3.2 MB)",
+    "strategy": "blocked"
+  },
+  "acquisition": {
+    "strategy": "files",
+    "description": "impconcord26/expconcord26 (latest published year, 2026; NAICS 2022 basis verified against the NAICS 2022 code list), WITS Concordance_H5_to_S3/H6_to_S3/H4_to_I3 (no H5/H6->ISIC archive exists), UNSD HS2022toHS2017 and HS2017toHS1992 tables",
+    "documentation": "https://www.census.gov/foreign-trade/reference/codes/concordance/index.html",
+    "desired_bytes": 3400000,
+    "priority": 2.0,
+    "files": [
+      {"url": "https://www.census.gov/foreign-trade/reference/codes/concordance/impconcord26.xlsx", "name": "impconcord26.xlsx"},
+      {"url": "https://www.census.gov/foreign-trade/reference/codes/concordance/expconcord26.xlsx", "name": "expconcord26.xlsx"},
+      {"url": "https://wits.worldbank.org/data/public/concordance/Concordance_H5_to_S3.zip", "name": "Concordance_H5_to_S3.zip"},
+      {"url": "https://wits.worldbank.org/data/public/concordance/Concordance_H6_to_S3.zip", "name": "Concordance_H6_to_S3.zip"},
+      {"url": "https://wits.worldbank.org/data/public/concordance/Concordance_H4_to_I3.zip", "name": "Concordance_H4_to_I3.zip"},
+      {"url": "https://unstats.un.org/unsd/classifications/Econ/tables/HS2022toHS2017ConversionAndCorrelationTables.xlsx", "name": "HS2022toHS2017ConversionAndCorrelationTables.xlsx"},
+      {"url": "https://unstats.un.org/unsd/classifications/Econ/tables/HS2017toHS1992ConversionAndCorrelationTables.xlsx", "name": "HS2017toHS1992ConversionAndCorrelationTables.xlsx"}
+    ],
+    "rate_limit": {"requests_per_second": 0.5},
+    "timeout_seconds": 120,
+    "retries": 5
+  },
+  "stages": [
+    {
+      "id": "normalized",
+      "entrypoint": "pipeline.py:run",
+      "depends_on": [],
+      "schema": {"format": "evidence_jsonl", "compression": "gzip"},
+      "validation": {"allow_empty": false, "max_rows": 1000000},
+      "cache": "content",
+      "retention": "retain"
+    }
+  ],
+  "output_stage": "normalized"
+}

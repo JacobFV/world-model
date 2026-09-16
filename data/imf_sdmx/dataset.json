@@ -1,0 +1,69 @@
+{
+  "id": "imf_sdmx",
+  "schema_version": 2,
+  "kind": "source",
+  "dependencies": [],
+  "status": "full_acquisition_configured",
+  "description": "IMF statistics via the IMF SDMX API (SDMX-CSV, all economies): headline CPI, national currency per USD exchange rates, goods trade with the world (monthly) and bilateral (annual, 2015+), BOP/IIP aggregated presentation, international reserves, WEO (latest vintage), annual/quarterly national accounts, interest rates, monetary aggregates and primary commodity prices",
+  "source": {
+    "publisher": "International Monetary Fund",
+    "url": "https://data.imf.org/",
+    "license": "IMF Copyright and Usage (https://www.imf.org/external/terms.htm): free use with attribution; some third-party content may be restricted",
+    "license_status": "open_with_attribution",
+    "terms_url": "https://www.imf.org/external/terms.htm",
+    "attribution": "Source: International Monetary Fund (IMF data portal, SDMX API)"
+  },
+  "entrypoint": "pipeline.py:run",
+  "parameters": {},
+  "sampling": {
+    "strategy": "blocked",
+    "reason": "Full SDMX API acquisition only; no bounded sample configured",
+    "criteria": "First 100 records, at most 1 MiB",
+    "format": "jsonl",
+    "max_rows": 100,
+    "max_sample_bytes": 1048576,
+    "max_download_bytes": 1048576,
+    "max_uncompressed_bytes": 1048576,
+    "disk_budget_bytes": 67108864
+  },
+  "acquisition": {
+    "strategy": "files",
+    "description": "One SDMX-CSV response per dataflow/key (all economies). SDMX 3.0 queries use attributes=none; the bilateral IMTS query uses SDMX 2.1 with startPeriod=2015 and detail=dataonly. Keys restrict to headline series to fit the budget.",
+    "documentation": "https://portal.api.imf.org/",
+    "desired_bytes": 265000000,
+    "min_bytes": 0,
+    "priority": 3.0,
+    "files": [
+      {"url": "https://api.imf.org/external/sdmx/3.0/data/dataflow/IMF.STA/CPI/+/*.CPI._T.IX+YOY_PCH_PA_PT.M+Q+A?attributes=none&measures=all", "name": "CPI.csv"},
+      {"url": "https://api.imf.org/external/sdmx/3.0/data/dataflow/IMF.STA/ER/+/*.XDC_USD.PA_RT+EOP_RT.M?attributes=none&measures=all", "name": "ER.csv"},
+      {"url": "https://api.imf.org/external/sdmx/3.0/data/dataflow/IMF.STA/IMTS/+/*.XG_FOB_USD+MG_CIF_USD+TBG_USD.G001.M?attributes=none&measures=all", "name": "IMTS_world_M.csv"},
+      {"url": "https://api.imf.org/external/sdmx/2.1/data/IMF.STA,IMTS/.XG_FOB_USD+MG_CIF_USD..A?startPeriod=2015&detail=dataonly", "name": "IMTS_bilateral_A.csv"},
+      {"url": "https://api.imf.org/external/sdmx/3.0/data/dataflow/IMF.STA/BOP_AGG/+/*.*.*.A?attributes=none&measures=all", "name": "BOP_AGG.csv"},
+      {"url": "https://api.imf.org/external/sdmx/3.0/data/dataflow/IMF.STA/IL/+/*.TRGMV_REVS+RXF11_REVS.USD.M?attributes=none&measures=all", "name": "IL.csv"},
+      {"url": "https://api.imf.org/external/sdmx/3.0/data/dataflow/IMF.RES/WEO/+/*.*.A?attributes=none&measures=all", "name": "WEO.csv"},
+      {"url": "https://api.imf.org/external/sdmx/3.0/data/dataflow/IMF.STA/ANEA/+/*.*.*.*.A?attributes=none&measures=all", "name": "ANEA.csv"},
+      {"url": "https://api.imf.org/external/sdmx/3.0/data/dataflow/IMF.STA/QNEA/+/*.*.*.SA.*.Q?attributes=none&measures=all", "name": "QNEA.csv"},
+      {"url": "https://api.imf.org/external/sdmx/3.0/data/dataflow/IMF.STA/MFS_IR/+/*.*.M?attributes=none&measures=all", "name": "MFS_IR.csv"},
+      {"url": "https://api.imf.org/external/sdmx/3.0/data/dataflow/IMF.STA/MFS_MA/+/*.BM_MAI+CIC_OUTDCORP_MAI.*.M?attributes=none&measures=all", "name": "MFS_MA.csv"},
+      {"url": "https://api.imf.org/external/sdmx/3.0/data/dataflow/IMF.RES/PCPS/+/*.*.*.M?attributes=none&measures=all", "name": "PCPS.csv"}
+    ],
+    "headers": {"Accept": "application/vnd.sdmx.data+csv;version=1.0.0"},
+    "accept_encoding": "gzip",
+    "rate_limit": {"requests_per_second": 0.5},
+    "timeout_seconds": 900,
+    "retries": 5,
+    "reader": {"format": "csv"}
+  },
+  "stages": [
+    {
+      "id": "normalized",
+      "entrypoint": "pipeline.py:run",
+      "depends_on": [],
+      "schema": {"format": "evidence_jsonl", "compression": "gzip"},
+      "validation": {"allow_empty": false, "max_rows": 10000000},
+      "cache": "content",
+      "retention": "retain"
+    }
+  ],
+  "output_stage": "normalized"
+}

@@ -1,17 +1,23 @@
 # openalex_people
 
-Bounded public scholarly author directory and publication affiliation years, with explicit ORCID and ROR crosswalks
+OpenAlex US institutions and strategic-institution authors.
 
-## Pipeline
+**Source**: OpenAlex `/institutions` (country US, type company|facility|government; 13,075) and `/authors` whose last known institution is one of 43 strategic US defense, national-laboratory and technology institutions (IDs resolved by OpenAlex search 2026-09-15; see dataset.json) with works_count > 99 (12,998). Anonymous API budget ~1000 requests/day.
 
-Local implementation: [pipeline.py](pipeline.py). Stages: **normalized**; default output: `normalized`. The [dataset.json](dataset.json) declaration pins source configuration, parameters, dependencies and validation.
+**Licence**: CC0.
 
-Dependencies: None (source input).
+**Evidence**: `openalex:I...` institutions (business / government_agency / institution) with ROR/GRID/Wikidata identifiers, `institution_lineage_ancestor`, `works_count` and `citation_count`; `openalex:A...` persons with ORCID/Scopus identifiers, undated `last_known_affiliation`, works and citation counts. No employment is asserted. Legacy samples keep publication-affiliation years.
 
-## Scope and evidence
+Implementation: [pipeline.py](pipeline.py); declaration: [dataset.json](dataset.json).
 
-Source statements retain their provenance, units and available dates. A bounded sample does not establish complete or representative coverage.
+## Rebuild
 
-## Local files
+```sh
+wm acquire openalex_people --dry-run
+wm acquire openalex_people --allow-network        # --resume after interruptions
+WORLD_MODEL_RAW_VERIFY=size wm run openalex_people
+wm verify openalex_people
+```
 
-`artifacts/` contains generated immutable stage products; `scratch/` is temporary local work. Both are ignored by Git. Legacy generated paths are also ignored. Source terms and access requirements remain in `dataset.json`; repository code licensing does not grant dataset redistribution rights.
+Tests: `python3 -m unittest tests.test_companies_markets_research_datasets`.
+`artifacts/` and `scratch/` are ignored by Git. Cross-dataset identity notes: [docs/data/companies-markets-research.md](../../docs/data/companies-markets-research.md).

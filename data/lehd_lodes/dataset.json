@@ -1,0 +1,277 @@
+{
+  "dependencies": [],
+  "description": "LEHD LODES 8 (2020 census blocks): workplace area characteristics S000/JT00 for all states (2023; Michigan 2021 and Alaska 2016 are the latest published) aggregated to tract and county, and 2023 in-state origin-destination (main) primary-job flows for California and Texas aggregated to tract and county pairs",
+  "entrypoint": "pipeline.py:run",
+  "id": "lehd_lodes",
+  "kind": "source",
+  "output_stage": "normalized",
+  "parameters": {
+    "od_min_tract_pair_jobs": 5
+  },
+  "sampling": {
+    "criteria": "First 100 records, at most 1 MiB",
+    "disk_budget_bytes": 67108864,
+    "format": "jsonl",
+    "max_download_bytes": 1048576,
+    "max_rows": 100,
+    "max_sample_bytes": 1048576,
+    "max_uncompressed_bytes": 1048576,
+    "reason": "Full acquisition only (wm acquire lehd_lodes)",
+    "strategy": "blocked"
+  },
+  "schema_version": 2,
+  "stages": [
+    {
+      "cache": "content",
+      "depends_on": [],
+      "entrypoint": "pipeline.py:run",
+      "id": "normalized",
+      "retention": "retain",
+      "schema": {
+        "format": "evidence_jsonl",
+        "compression": "gzip"
+      },
+      "validation": {
+        "allow_empty": false,
+        "max_rows": 30000000
+      }
+    }
+  ],
+  "status": "full_acquisition_configured",
+  "source": {
+    "publisher": "U.S. Census Bureau, Longitudinal Employer-Household Dynamics",
+    "license_status": "public_domain_us_government",
+    "license_notes": "US federal government work; no redistribution restriction. LODES block-level counts are noise-infused (differential privacy for workers); aggregate before use and cite LEHD.",
+    "documentation": "https://lehd.ces.census.gov/data/lodes/LODES8/LODESTechDoc8.3.pdf"
+  },
+  "acquisition": {
+    "strategy": "files",
+    "description": "LODES8 WAC S000 JT00 csv.gz for 50 states + DC and OD main JT00 2023 for CA and TX; one shard per file (~230 MB measured)",
+    "documentation": "https://lehd.ces.census.gov/data/",
+    "desired_bytes": 250000000,
+    "min_bytes": 0,
+    "priority": 2.0,
+    "files": [
+      {
+        "url": "https://lehd.ces.census.gov/data/lodes/LODES8/al/wac/al_wac_S000_JT00_2023.csv.gz",
+        "name": "al_wac_S000_JT00_2023.csv.gz"
+      },
+      {
+        "url": "https://lehd.ces.census.gov/data/lodes/LODES8/az/wac/az_wac_S000_JT00_2023.csv.gz",
+        "name": "az_wac_S000_JT00_2023.csv.gz"
+      },
+      {
+        "url": "https://lehd.ces.census.gov/data/lodes/LODES8/ar/wac/ar_wac_S000_JT00_2023.csv.gz",
+        "name": "ar_wac_S000_JT00_2023.csv.gz"
+      },
+      {
+        "url": "https://lehd.ces.census.gov/data/lodes/LODES8/ca/wac/ca_wac_S000_JT00_2023.csv.gz",
+        "name": "ca_wac_S000_JT00_2023.csv.gz"
+      },
+      {
+        "url": "https://lehd.ces.census.gov/data/lodes/LODES8/co/wac/co_wac_S000_JT00_2023.csv.gz",
+        "name": "co_wac_S000_JT00_2023.csv.gz"
+      },
+      {
+        "url": "https://lehd.ces.census.gov/data/lodes/LODES8/ct/wac/ct_wac_S000_JT00_2023.csv.gz",
+        "name": "ct_wac_S000_JT00_2023.csv.gz"
+      },
+      {
+        "url": "https://lehd.ces.census.gov/data/lodes/LODES8/de/wac/de_wac_S000_JT00_2023.csv.gz",
+        "name": "de_wac_S000_JT00_2023.csv.gz"
+      },
+      {
+        "url": "https://lehd.ces.census.gov/data/lodes/LODES8/dc/wac/dc_wac_S000_JT00_2023.csv.gz",
+        "name": "dc_wac_S000_JT00_2023.csv.gz"
+      },
+      {
+        "url": "https://lehd.ces.census.gov/data/lodes/LODES8/fl/wac/fl_wac_S000_JT00_2023.csv.gz",
+        "name": "fl_wac_S000_JT00_2023.csv.gz"
+      },
+      {
+        "url": "https://lehd.ces.census.gov/data/lodes/LODES8/ga/wac/ga_wac_S000_JT00_2023.csv.gz",
+        "name": "ga_wac_S000_JT00_2023.csv.gz"
+      },
+      {
+        "url": "https://lehd.ces.census.gov/data/lodes/LODES8/hi/wac/hi_wac_S000_JT00_2023.csv.gz",
+        "name": "hi_wac_S000_JT00_2023.csv.gz"
+      },
+      {
+        "url": "https://lehd.ces.census.gov/data/lodes/LODES8/id/wac/id_wac_S000_JT00_2023.csv.gz",
+        "name": "id_wac_S000_JT00_2023.csv.gz"
+      },
+      {
+        "url": "https://lehd.ces.census.gov/data/lodes/LODES8/il/wac/il_wac_S000_JT00_2023.csv.gz",
+        "name": "il_wac_S000_JT00_2023.csv.gz"
+      },
+      {
+        "url": "https://lehd.ces.census.gov/data/lodes/LODES8/in/wac/in_wac_S000_JT00_2023.csv.gz",
+        "name": "in_wac_S000_JT00_2023.csv.gz"
+      },
+      {
+        "url": "https://lehd.ces.census.gov/data/lodes/LODES8/ia/wac/ia_wac_S000_JT00_2023.csv.gz",
+        "name": "ia_wac_S000_JT00_2023.csv.gz"
+      },
+      {
+        "url": "https://lehd.ces.census.gov/data/lodes/LODES8/ks/wac/ks_wac_S000_JT00_2023.csv.gz",
+        "name": "ks_wac_S000_JT00_2023.csv.gz"
+      },
+      {
+        "url": "https://lehd.ces.census.gov/data/lodes/LODES8/ky/wac/ky_wac_S000_JT00_2023.csv.gz",
+        "name": "ky_wac_S000_JT00_2023.csv.gz"
+      },
+      {
+        "url": "https://lehd.ces.census.gov/data/lodes/LODES8/la/wac/la_wac_S000_JT00_2023.csv.gz",
+        "name": "la_wac_S000_JT00_2023.csv.gz"
+      },
+      {
+        "url": "https://lehd.ces.census.gov/data/lodes/LODES8/me/wac/me_wac_S000_JT00_2023.csv.gz",
+        "name": "me_wac_S000_JT00_2023.csv.gz"
+      },
+      {
+        "url": "https://lehd.ces.census.gov/data/lodes/LODES8/md/wac/md_wac_S000_JT00_2023.csv.gz",
+        "name": "md_wac_S000_JT00_2023.csv.gz"
+      },
+      {
+        "url": "https://lehd.ces.census.gov/data/lodes/LODES8/ma/wac/ma_wac_S000_JT00_2023.csv.gz",
+        "name": "ma_wac_S000_JT00_2023.csv.gz"
+      },
+      {
+        "url": "https://lehd.ces.census.gov/data/lodes/LODES8/mn/wac/mn_wac_S000_JT00_2023.csv.gz",
+        "name": "mn_wac_S000_JT00_2023.csv.gz"
+      },
+      {
+        "url": "https://lehd.ces.census.gov/data/lodes/LODES8/ms/wac/ms_wac_S000_JT00_2023.csv.gz",
+        "name": "ms_wac_S000_JT00_2023.csv.gz"
+      },
+      {
+        "url": "https://lehd.ces.census.gov/data/lodes/LODES8/mo/wac/mo_wac_S000_JT00_2023.csv.gz",
+        "name": "mo_wac_S000_JT00_2023.csv.gz"
+      },
+      {
+        "url": "https://lehd.ces.census.gov/data/lodes/LODES8/mt/wac/mt_wac_S000_JT00_2023.csv.gz",
+        "name": "mt_wac_S000_JT00_2023.csv.gz"
+      },
+      {
+        "url": "https://lehd.ces.census.gov/data/lodes/LODES8/ne/wac/ne_wac_S000_JT00_2023.csv.gz",
+        "name": "ne_wac_S000_JT00_2023.csv.gz"
+      },
+      {
+        "url": "https://lehd.ces.census.gov/data/lodes/LODES8/nv/wac/nv_wac_S000_JT00_2023.csv.gz",
+        "name": "nv_wac_S000_JT00_2023.csv.gz"
+      },
+      {
+        "url": "https://lehd.ces.census.gov/data/lodes/LODES8/nh/wac/nh_wac_S000_JT00_2023.csv.gz",
+        "name": "nh_wac_S000_JT00_2023.csv.gz"
+      },
+      {
+        "url": "https://lehd.ces.census.gov/data/lodes/LODES8/nj/wac/nj_wac_S000_JT00_2023.csv.gz",
+        "name": "nj_wac_S000_JT00_2023.csv.gz"
+      },
+      {
+        "url": "https://lehd.ces.census.gov/data/lodes/LODES8/nm/wac/nm_wac_S000_JT00_2023.csv.gz",
+        "name": "nm_wac_S000_JT00_2023.csv.gz"
+      },
+      {
+        "url": "https://lehd.ces.census.gov/data/lodes/LODES8/ny/wac/ny_wac_S000_JT00_2023.csv.gz",
+        "name": "ny_wac_S000_JT00_2023.csv.gz"
+      },
+      {
+        "url": "https://lehd.ces.census.gov/data/lodes/LODES8/nc/wac/nc_wac_S000_JT00_2023.csv.gz",
+        "name": "nc_wac_S000_JT00_2023.csv.gz"
+      },
+      {
+        "url": "https://lehd.ces.census.gov/data/lodes/LODES8/nd/wac/nd_wac_S000_JT00_2023.csv.gz",
+        "name": "nd_wac_S000_JT00_2023.csv.gz"
+      },
+      {
+        "url": "https://lehd.ces.census.gov/data/lodes/LODES8/oh/wac/oh_wac_S000_JT00_2023.csv.gz",
+        "name": "oh_wac_S000_JT00_2023.csv.gz"
+      },
+      {
+        "url": "https://lehd.ces.census.gov/data/lodes/LODES8/ok/wac/ok_wac_S000_JT00_2023.csv.gz",
+        "name": "ok_wac_S000_JT00_2023.csv.gz"
+      },
+      {
+        "url": "https://lehd.ces.census.gov/data/lodes/LODES8/or/wac/or_wac_S000_JT00_2023.csv.gz",
+        "name": "or_wac_S000_JT00_2023.csv.gz"
+      },
+      {
+        "url": "https://lehd.ces.census.gov/data/lodes/LODES8/pa/wac/pa_wac_S000_JT00_2023.csv.gz",
+        "name": "pa_wac_S000_JT00_2023.csv.gz"
+      },
+      {
+        "url": "https://lehd.ces.census.gov/data/lodes/LODES8/ri/wac/ri_wac_S000_JT00_2023.csv.gz",
+        "name": "ri_wac_S000_JT00_2023.csv.gz"
+      },
+      {
+        "url": "https://lehd.ces.census.gov/data/lodes/LODES8/sc/wac/sc_wac_S000_JT00_2023.csv.gz",
+        "name": "sc_wac_S000_JT00_2023.csv.gz"
+      },
+      {
+        "url": "https://lehd.ces.census.gov/data/lodes/LODES8/sd/wac/sd_wac_S000_JT00_2023.csv.gz",
+        "name": "sd_wac_S000_JT00_2023.csv.gz"
+      },
+      {
+        "url": "https://lehd.ces.census.gov/data/lodes/LODES8/tn/wac/tn_wac_S000_JT00_2023.csv.gz",
+        "name": "tn_wac_S000_JT00_2023.csv.gz"
+      },
+      {
+        "url": "https://lehd.ces.census.gov/data/lodes/LODES8/tx/wac/tx_wac_S000_JT00_2023.csv.gz",
+        "name": "tx_wac_S000_JT00_2023.csv.gz"
+      },
+      {
+        "url": "https://lehd.ces.census.gov/data/lodes/LODES8/ut/wac/ut_wac_S000_JT00_2023.csv.gz",
+        "name": "ut_wac_S000_JT00_2023.csv.gz"
+      },
+      {
+        "url": "https://lehd.ces.census.gov/data/lodes/LODES8/vt/wac/vt_wac_S000_JT00_2023.csv.gz",
+        "name": "vt_wac_S000_JT00_2023.csv.gz"
+      },
+      {
+        "url": "https://lehd.ces.census.gov/data/lodes/LODES8/va/wac/va_wac_S000_JT00_2023.csv.gz",
+        "name": "va_wac_S000_JT00_2023.csv.gz"
+      },
+      {
+        "url": "https://lehd.ces.census.gov/data/lodes/LODES8/wa/wac/wa_wac_S000_JT00_2023.csv.gz",
+        "name": "wa_wac_S000_JT00_2023.csv.gz"
+      },
+      {
+        "url": "https://lehd.ces.census.gov/data/lodes/LODES8/wv/wac/wv_wac_S000_JT00_2023.csv.gz",
+        "name": "wv_wac_S000_JT00_2023.csv.gz"
+      },
+      {
+        "url": "https://lehd.ces.census.gov/data/lodes/LODES8/wi/wac/wi_wac_S000_JT00_2023.csv.gz",
+        "name": "wi_wac_S000_JT00_2023.csv.gz"
+      },
+      {
+        "url": "https://lehd.ces.census.gov/data/lodes/LODES8/wy/wac/wy_wac_S000_JT00_2023.csv.gz",
+        "name": "wy_wac_S000_JT00_2023.csv.gz"
+      },
+      {
+        "url": "https://lehd.ces.census.gov/data/lodes/LODES8/mi/wac/mi_wac_S000_JT00_2021.csv.gz",
+        "name": "mi_wac_S000_JT00_2021.csv.gz"
+      },
+      {
+        "url": "https://lehd.ces.census.gov/data/lodes/LODES8/ak/wac/ak_wac_S000_JT00_2016.csv.gz",
+        "name": "ak_wac_S000_JT00_2016.csv.gz"
+      },
+      {
+        "url": "https://lehd.ces.census.gov/data/lodes/LODES8/ca/od/ca_od_main_JT00_2023.csv.gz",
+        "name": "ca_od_main_JT00_2023.csv.gz"
+      },
+      {
+        "url": "https://lehd.ces.census.gov/data/lodes/LODES8/tx/od/tx_od_main_JT00_2023.csv.gz",
+        "name": "tx_od_main_JT00_2023.csv.gz"
+      }
+    ],
+    "rate_limit": {
+      "requests_per_second": 1.0
+    },
+    "timeout_seconds": 300,
+    "retries": 5,
+    "reader": {
+      "format": "csv"
+    }
+  }
+}

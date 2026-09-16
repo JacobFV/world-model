@@ -1,17 +1,21 @@
 # nasdaq_index_reference
 
-Nasdaq-100 index documentation and constituent acquisition availability.
+Nasdaq-100 constituents snapshot and methodology.
 
-## Pipeline
+**Source**: `https://api.nasdaq.com/api/quote/list-type/nasdaq100` (JSON) and `https://indexes.nasdaqomx.com/docs/Methodology_NDX.pdf`. **Credential**: none. **Licence**: proprietary Nasdaq index data, reference use only; no redistribution.
 
-Local implementation: [pipeline.py](pipeline.py). Stages: **normalized**; default output: `normalized`. The [dataset.json](dataset.json) declaration pins source configuration, parameters, dependencies and validation.
+**Evidence**: `index:nasdaq:NDX`; `index_constituent` from `ticker:XNAS:<symbol>` valid only on the snapshot date; `market_capitalization` (USD) and `last_sale_price` (USD/share, delayed) at the snapshot time; methodology document entity (PDF retained, not parsed). No weights are published by this endpoint.
 
-Dependencies: None (source input).
+Implementation: [pipeline.py](pipeline.py); declaration: [dataset.json](dataset.json).
 
-## Scope and evidence
+## Rebuild
 
-Source statements retain their provenance, units and available dates. A bounded sample does not establish complete or representative coverage. No acquired normalization path is available; the local pipeline fails explicitly instead of fabricating records.
+```sh
+wm acquire nasdaq_index_reference --dry-run
+wm acquire nasdaq_index_reference --allow-network        # --resume after interruptions
+WORLD_MODEL_RAW_VERIFY=size wm run nasdaq_index_reference
+wm verify nasdaq_index_reference
+```
 
-## Local files
-
-`artifacts/` contains generated immutable stage products; `scratch/` is temporary local work. Both are ignored by Git. Legacy generated paths are also ignored. Source terms and access requirements remain in `dataset.json`; repository code licensing does not grant dataset redistribution rights.
+Tests: `python3 -m unittest tests.test_companies_markets_research_datasets`.
+`artifacts/` and `scratch/` are ignored by Git. Cross-dataset identity notes: [docs/data/companies-markets-research.md](../../docs/data/companies-markets-research.md).

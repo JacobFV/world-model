@@ -1,15 +1,17 @@
 {
   "id": "congress_people",
   "schema_version": 2,
-  "dependencies": [],
   "kind": "source",
-  "status": "sample_adapter_ready",
-  "description": "Community-maintained public Congressional person identifiers and dated House/Senate terms; first 100 source rows only",
+  "status": "full_acquisition_complete",
+  "description": "unitedstates/congress-legislators: all current and historical members (ID crosswalks, terms, party), executive officers, committees and current committee membership, social media accounts",
   "source": {
     "publisher": "unitedstates/congress-legislators contributors (community, not official Congress publisher)",
-    "license_status": "verify_for_selected_release",
-    "authority": "community_directory"
+    "license_status": "CC0-1.0",
+    "authority": "community_directory",
+    "documentation": "https://github.com/unitedstates/congress-legislators",
+    "license_notes": "Public domain dedication (CC0 1.0)."
   },
+  "dependencies": [],
   "expected_outputs": [
     "person",
     "role",
@@ -63,15 +65,62 @@
       "entrypoint": "pipeline.py:run",
       "depends_on": [],
       "schema": {
-        "format": "evidence_jsonl"
+        "format": "evidence_jsonl",
+        "compression": "gzip"
       },
       "validation": {
         "allow_empty": false,
-        "max_rows": 100000
+        "max_rows": 3000000
       },
       "cache": "content",
       "retention": "retain"
     }
   ],
-  "output_stage": "normalized"
+  "output_stage": "normalized",
+  "acquisition": {
+    "strategy": "files",
+    "description": "Complete published JSON files (GitHub Pages)",
+    "desired_bytes": 20000000,
+    "priority": 3.0,
+    "documentation": "https://github.com/unitedstates/congress-legislators/blob/main/README.md",
+    "files": [
+      {
+        "url": "https://unitedstates.github.io/congress-legislators/legislators-current.json",
+        "name": "legislators-current.json"
+      },
+      {
+        "url": "https://unitedstates.github.io/congress-legislators/legislators-historical.json",
+        "name": "legislators-historical.json"
+      },
+      {
+        "url": "https://unitedstates.github.io/congress-legislators/executive.json",
+        "name": "executive.json"
+      },
+      {
+        "url": "https://unitedstates.github.io/congress-legislators/committees-current.json",
+        "name": "committees-current.json"
+      },
+      {
+        "url": "https://unitedstates.github.io/congress-legislators/committees-historical.json",
+        "name": "committees-historical.json"
+      },
+      {
+        "url": "https://unitedstates.github.io/congress-legislators/committee-membership-current.json",
+        "name": "committee-membership-current.json"
+      },
+      {
+        "url": "https://unitedstates.github.io/congress-legislators/legislators-social-media.json",
+        "name": "legislators-social-media.json"
+      }
+    ],
+    "rate_limit": {
+      "requests_per_second": 1.0
+    },
+    "timeout_seconds": 60,
+    "retries": 6,
+    "reader": {
+      "format": "json",
+      "records_path": []
+    }
+  }
 }

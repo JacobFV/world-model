@@ -1,0 +1,144 @@
+{
+  "id": "congress_gov_api",
+  "schema_version": 2,
+  "kind": "source",
+  "status": "full_acquisition_complete",
+  "description": "congress.gov API v3 list records: amendments, nominations, committee reports and treaties (Congresses 117-119), House roll-call votes (118-119), committees (119)",
+  "source": {
+    "publisher": "Library of Congress (congress.gov API)",
+    "documentation": "https://github.com/LibraryOfCongress/api.congress.gov",
+    "license_status": "public_domain_us_government_work_api_terms",
+    "license_notes": "US federal government data; api.data.gov key terms and rate limits apply."
+  },
+  "dependencies": [],
+  "entrypoint": "pipeline.py:run",
+  "output_stage": "normalized",
+  "parameters": {},
+  "sampling": {
+    "criteria": "First 100 records, at most 1 MiB",
+    "disk_budget_bytes": 67108864,
+    "format": "jsonl",
+    "max_download_bytes": 1048576,
+    "max_rows": 100,
+    "max_sample_bytes": 1048576,
+    "max_uncompressed_bytes": 1048576,
+    "reason": "Configure a documented source URL and format before acquisition",
+    "strategy": "blocked"
+  },
+  "stages": [
+    {
+      "id": "normalized",
+      "entrypoint": "pipeline.py:run",
+      "depends_on": [],
+      "schema": {
+        "format": "evidence_jsonl",
+        "compression": "gzip"
+      },
+      "validation": {
+        "allow_empty": false,
+        "max_rows": 500000
+      },
+      "cache": "content",
+      "retention": "retain"
+    }
+  ],
+  "acquisition": {
+    "strategy": "paged_api",
+    "description": "List endpoints, limit=250, next-link pagination; whole JSON pages stored as JSONL lines",
+    "documentation": "https://api.congress.gov/",
+    "desired_bytes": 12000000,
+    "priority": 2.0,
+    "url_template": "https://api.congress.gov/v3/{endpoint}/{congress}?format=json&limit=250",
+    "combinations": [
+      {
+        "endpoint": "amendment",
+        "congress": 117
+      },
+      {
+        "endpoint": "amendment",
+        "congress": 118
+      },
+      {
+        "endpoint": "amendment",
+        "congress": 119
+      },
+      {
+        "endpoint": "nomination",
+        "congress": 117
+      },
+      {
+        "endpoint": "nomination",
+        "congress": 118
+      },
+      {
+        "endpoint": "nomination",
+        "congress": 119
+      },
+      {
+        "endpoint": "committee-report",
+        "congress": 117
+      },
+      {
+        "endpoint": "committee-report",
+        "congress": 118
+      },
+      {
+        "endpoint": "committee-report",
+        "congress": 119
+      },
+      {
+        "endpoint": "treaty",
+        "congress": 117
+      },
+      {
+        "endpoint": "treaty",
+        "congress": 118
+      },
+      {
+        "endpoint": "treaty",
+        "congress": 119
+      },
+      {
+        "endpoint": "house-vote",
+        "congress": 118
+      },
+      {
+        "endpoint": "house-vote",
+        "congress": 119
+      },
+      {
+        "endpoint": "committee",
+        "congress": 119
+      }
+    ],
+    "pagination": {
+      "mode": "next_url",
+      "next_url_path": [
+        "pagination",
+        "next"
+      ]
+    },
+    "store": "jsonl",
+    "rollover_bytes": 67108864,
+    "credentials": [
+      {
+        "env": "CONGRESS_API_KEY",
+        "query": "api_key"
+      }
+    ],
+    "rate_limit": {
+      "requests_per_second": 1.0,
+      "key": "api.data.gov"
+    },
+    "timeout_seconds": 90,
+    "retries": 6,
+    "error_paths": [
+      [
+        "error"
+      ]
+    ],
+    "reader": {
+      "format": "jsonl"
+    }
+  }
+}

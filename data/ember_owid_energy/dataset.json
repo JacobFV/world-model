@@ -1,0 +1,59 @@
+{
+  "id": "ember_owid_energy",
+  "schema_version": 2,
+  "kind": "source",
+  "description": "Ember yearly electricity release (generation, capacity, demand, emissions by country/region and fuel, long format) and the Our World in Data energy panel (country-year energy consumption, production, electricity mix)",
+  "status": "complete",
+  "dependencies": [],
+  "parameters": {},
+  "source": {
+    "publisher": "Ember; Our World in Data",
+    "documentation": "https://ember-energy.org/data/yearly-electricity-data/ ; https://github.com/owid/energy-data",
+    "license": "CC-BY-4.0",
+    "license_id": "CC-BY-4.0",
+    "license_status": "open_with_attribution",
+    "terms_url": "https://creativecommons.org/licenses/by/4.0/",
+    "attribution": "Ember Yearly Electricity Data (CC BY 4.0); Our World in Data energy dataset (CC BY 4.0; underlying Energy Institute Statistical Review, EIA and Ember data)",
+    "redistribution": "allowed_with_attribution"
+  },
+  "entrypoint": "pipeline.py:run",
+  "output_stage": "normalized",
+  "acquisition": {
+    "strategy": "files",
+    "description": "Ember yearly full release (long format CSV) and OWID owid-energy-data.csv, both in full; one shard each",
+    "documentation": "https://ember-energy.org/data/yearly-electricity-data/",
+    "desired_bytes": 64000000,
+    "min_bytes": 0,
+    "priority": 2.0,
+    "files": [
+      {"url": "https://files.ember-energy.org/public-downloads/yearly_full_release_long_format.csv", "name": "ember_yearly_full_release_long_format.csv"},
+      {"url": "https://nyc3.digitaloceanspaces.com/owid-public/data/energy/owid-energy-data.csv", "name": "owid-energy-data.csv"}
+    ],
+    "rate_limit": {"requests_per_second": 0.5},
+    "timeout_seconds": 120,
+    "retries": 5,
+    "reader": {"format": "csv"}
+  },
+  "stages": [
+    {
+      "id": "normalized",
+      "entrypoint": "pipeline.py:run",
+      "depends_on": [],
+      "schema": {"format": "evidence_jsonl", "compression": "gzip"},
+      "validation": {"allow_empty": false, "max_rows": 20000000},
+      "cache": "content",
+      "retention": "retain"
+    }
+  ],
+  "sampling": {
+    "strategy": "blocked",
+    "format": "jsonl",
+    "max_rows": 100,
+    "max_sample_bytes": 1048576,
+    "max_download_bytes": 1048576,
+    "max_uncompressed_bytes": 1048576,
+    "disk_budget_bytes": 67108864,
+    "criteria": "Not sampled; use full acquisition (two CSV files)",
+    "reason": "Full files are small; see acquisition block"
+  }
+}

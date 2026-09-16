@@ -3,11 +3,13 @@
   "schema_version": 2,
   "dependencies": [],
   "kind": "source",
-  "status": "sample_adapter_ready",
-  "description": "Bounded selected US MIC reference records, including published Texas venue names; registration does not prove operation.",
+  "status": "complete",
+  "description": "Complete ISO 10383 Market Identifier Code list (all operating and segment MICs worldwide, active and expired); registration does not prove operation",
   "source": {
-    "publisher": "ISO 10383 Registration Authority / SWIFT",
-    "license_status": "see_publisher_terms"
+    "publisher": "ISO 10383 Registration Authority (SWIFT)",
+    "license_status": "free_public_reference",
+    "license_notes": "ISO 10383 MIC list is published free of charge by the registration authority for reference use.",
+    "documentation": "https://www.iso20022.org/market-identifier-codes"
   },
   "entrypoint": "pipeline.py:run",
   "parameters": {},
@@ -31,8 +33,8 @@
   },
   "coverage": {
     "representative": false,
-    "completeness": "unknown",
-    "scope": "Bounded selected US MIC reference records, including published Texas venue names; registration does not prove operation."
+    "completeness": "complete_for_declared_scope",
+    "scope": "Complete ISO 10383 MIC list (2,883 MICs)"
   },
   "documentation_verified_on": "2026-09-15",
   "stages": [
@@ -41,15 +43,35 @@
       "entrypoint": "pipeline.py:run",
       "depends_on": [],
       "schema": {
-        "format": "evidence_jsonl"
+        "format": "evidence_jsonl",
+        "compression": "gzip"
       },
       "validation": {
         "allow_empty": false,
-        "max_rows": 100000
+        "max_rows": 50000
       },
       "cache": "content",
       "retention": "retain"
     }
   ],
-  "output_stage": "normalized"
+  "output_stage": "normalized",
+  "acquisition": {
+    "strategy": "files",
+    "description": "ISO10383_MIC.csv full list",
+    "documentation": "https://www.iso20022.org/market-identifier-codes",
+    "desired_bytes": 700000,
+    "priority": 2.0,
+    "files": [
+      {
+        "url": "https://www.iso20022.org/sites/default/files/ISO10383_MIC/ISO10383_MIC.csv",
+        "name": "ISO10383_MIC.csv"
+      }
+    ],
+    "rate_limit": {
+      "requests_per_second": 0.5
+    },
+    "reader": {
+      "format": "csv"
+    }
+  }
 }

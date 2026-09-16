@@ -3,12 +3,13 @@
   "schema_version": 2,
   "dependencies": [],
   "kind": "source",
-  "status": "configured_bounded_source",
-  "description": "Publisher-deposited publication, author and citation metadata; source-scoped affiliations with unknown tenure.",
+  "status": "complete",
+  "description": "Crossref work metadata for works funded by the U.S. Department of Defense (published 2024+) and DARPA (published 2022+): DOI, title, authors with ORCID/affiliations, funders and award numbers, venue, citation counts",
   "source": {
     "publisher": "Crossref",
     "documentation": "https://www.crossref.org/documentation/retrieve-metadata/rest-api/",
-    "license_status": "retain publisher/source terms; metadata does not grant content redistribution"
+    "license_status": "CC0-1.0_metadata",
+    "license_notes": "Crossref bibliographic metadata facts are CC0; abstracts may be copyrighted and are not requested. Public pool limit observed 1 request/second, concurrency 1."
   },
   "entrypoint": "pipeline.py:run",
   "sampling": {
@@ -39,15 +40,65 @@
       "entrypoint": "pipeline.py:run",
       "depends_on": [],
       "schema": {
-        "format": "evidence_jsonl"
+        "format": "evidence_jsonl",
+        "compression": "gzip"
       },
       "validation": {
         "allow_empty": false,
-        "max_rows": 100000
+        "max_rows": 1000000
       },
       "cache": "content",
       "retention": "retain"
     }
   ],
-  "output_stage": "normalized"
+  "output_stage": "normalized",
+  "acquisition": {
+    "strategy": "paged_api",
+    "description": "Cursor-paginated /works queries with select= limited fields (no references/abstracts), 1000 rows per page. Scope: DoD funder DOI 10.13039/100000005 published 2024+ (7,680 works on 2026-09-15) and DARPA 10.13039/100006502 published 2022+ (825 works); ~3.9 KB per work.",
+    "documentation": "https://api.crossref.org/swagger-ui/index.html",
+    "desired_bytes": 37000000,
+    "priority": 1.0,
+    "url_template": "https://api.crossref.org/works?filter={filter}&select=DOI,title,author,funder,issued,published,publisher,type,container-title,ISSN,is-referenced-by-count,subject&rows=1000",
+    "combinations": [
+      {
+        "filter": "funder:10.13039/100000005,from-pub-date:2024-01-01"
+      },
+      {
+        "filter": "funder:10.13039/100006502,from-pub-date:2022-01-01"
+      }
+    ],
+    "pagination": {
+      "mode": "cursor",
+      "param": "cursor",
+      "start": "*",
+      "cursor_path": [
+        "message",
+        "next-cursor"
+      ],
+      "page_size": 1000
+    },
+    "records_path": [
+      "message",
+      "items"
+    ],
+    "stop": {
+      "empty_page": true,
+      "short_page": true
+    },
+    "store": "jsonl",
+    "user_agent_env": "SEC_USER_AGENT",
+    "rate_limit": {
+      "requests_per_second": 0.5
+    },
+    "timeout_seconds": 120,
+    "retries": 6,
+    "reader": {
+      "format": "jsonl"
+    }
+  },
+  "coverage": {
+    "representative": false,
+    "completeness": "complete_for_declared_scope",
+    "scope": "DoD-funded works published 2024+ and DARPA-funded works published 2022+ (Crossref funder DOIs)"
+  }
 }

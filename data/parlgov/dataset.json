@@ -1,0 +1,74 @@
+{
+  "id": "parlgov",
+  "schema_version": 2,
+  "kind": "source",
+  "status": "full_acquisition_complete",
+  "description": "ParlGov development release: parties (with left-right and party family), parliamentary/EP elections (vote share, seats) and cabinets (party composition, prime minister) for EU/OECD democracies",
+  "source": {
+    "publisher": "ParlGov (Döring, Huber, Manow)",
+    "documentation": "https://www.parlgov.org/data-info/",
+    "license_status": "CC-BY-SA-4.0",
+    "license_notes": "CC BY-SA 4.0: attribution required; derived databases must be shared alike."
+  },
+  "dependencies": [],
+  "entrypoint": "pipeline.py:run",
+  "output_stage": "normalized",
+  "parameters": {},
+  "sampling": {
+    "criteria": "First 100 records, at most 1 MiB",
+    "disk_budget_bytes": 67108864,
+    "format": "jsonl",
+    "max_download_bytes": 1048576,
+    "max_rows": 100,
+    "max_sample_bytes": 1048576,
+    "max_uncompressed_bytes": 1048576,
+    "reason": "Configure a documented source URL and format before acquisition",
+    "strategy": "blocked"
+  },
+  "stages": [
+    {
+      "id": "normalized",
+      "entrypoint": "pipeline.py:run",
+      "depends_on": [],
+      "schema": {
+        "format": "evidence_jsonl",
+        "compression": "gzip"
+      },
+      "validation": {
+        "allow_empty": false,
+        "max_rows": 1000000
+      },
+      "cache": "content",
+      "retention": "retain"
+    }
+  ],
+  "acquisition": {
+    "strategy": "files",
+    "description": "view_party.csv, view_election.csv, view_cabinet.csv (UTF-8)",
+    "documentation": "https://www.parlgov.org/data-info/",
+    "desired_bytes": 5000000,
+    "priority": 1.0,
+    "files": [
+      {
+        "url": "https://www.parlgov.org/data/parlgov-development_csv-utf-8/view_party.csv",
+        "name": "view_party.csv"
+      },
+      {
+        "url": "https://www.parlgov.org/data/parlgov-development_csv-utf-8/view_election.csv",
+        "name": "view_election.csv"
+      },
+      {
+        "url": "https://www.parlgov.org/data/parlgov-development_csv-utf-8/view_cabinet.csv",
+        "name": "view_cabinet.csv"
+      }
+    ],
+    "rate_limit": {
+      "requests_per_second": 0.5
+    },
+    "timeout_seconds": 60,
+    "retries": 6,
+    "reader": {
+      "format": "csv"
+    }
+  }
+}

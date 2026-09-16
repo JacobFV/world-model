@@ -1,0 +1,73 @@
+{
+  "id": "usaspending_assistance",
+  "schema_version": 2,
+  "kind": "source",
+  "status": "full_acquisition_complete",
+  "description": "USAspending prime financial assistance transactions (grants, loans, direct payments, insurance) for all agencies, FY2026 and FY2025 (full award data archives)",
+  "source": {
+    "publisher": "U.S. Department of the Treasury, Bureau of the Fiscal Service / USAspending.gov",
+    "documentation": "https://files.usaspending.gov/award_data_archive/",
+    "license_status": "public_domain_us_government_work",
+    "license_notes": "US federal government work; no redistribution restriction. Individual recipients are PII-redacted at source; highly compensated officer names are present in raw files and are not emitted."
+  },
+  "dependencies": [],
+  "parameters": {},
+  "entrypoint": "pipeline.py:run",
+  "output_stage": "normalized",
+  "stages": [
+    {
+      "id": "normalized",
+      "entrypoint": "pipeline.py:run",
+      "depends_on": [],
+      "schema": {
+        "format": "evidence_jsonl",
+        "compression": "gzip"
+      },
+      "validation": {
+        "allow_empty": false,
+        "max_rows": 120000000
+      },
+      "cache": "content",
+      "retention": "retain"
+    }
+  ],
+  "sampling": {
+    "strategy": "blocked",
+    "format": "jsonl",
+    "max_rows": 100,
+    "max_sample_bytes": 1048576,
+    "max_download_bytes": 1048576,
+    "max_uncompressed_bytes": 1048576,
+    "disk_budget_bytes": 67108864,
+    "criteria": "First 100 records, at most 1 MiB",
+    "reason": "Individual contributor rows are PII; only aggregated full acquisitions are normalized"
+  },
+  "acquisition": {
+    "strategy": "files",
+    "description": "FY2026 and FY2025 All-agency Assistance Full archives (CSV members of up to 1M rows, 112 columns). Archives are rebuilt monthly; the dated file names must be updated to refresh.",
+    "documentation": "https://files.usaspending.gov/award_data_archive/?prefix=FY2026_All_Assistance",
+    "desired_bytes": 2520000000,
+    "priority": 2.0,
+    "files": [
+      {
+        "url": "https://files.usaspending.gov/award_data_archive/FY2026_All_Assistance_Full_20260906.zip",
+        "name": "FY2026_All_Assistance_Full_20260906.zip"
+      },
+      {
+        "url": "https://files.usaspending.gov/award_data_archive/FY2025_All_Assistance_Full_20260906.zip",
+        "name": "FY2025_All_Assistance_Full_20260906.zip"
+      }
+    ],
+    "rate_limit": {
+      "requests_per_second": 1.0
+    },
+    "timeout_seconds": 120,
+    "retries": 8,
+    "reader": {
+      "format": "csv",
+      "members": [
+        "*.csv"
+      ]
+    }
+  }
+}

@@ -1,14 +1,16 @@
 {
   "id": "usaspending",
   "schema_version": 2,
-  "dependencies": [],
   "kind": "source",
-  "status": "sample_adapter_ready",
-  "description": "Agencies, recipients, awards and transactions",
+  "status": "full_acquisition_complete",
+  "description": "USAspending prime contract transactions for all agencies, FY2025 and FY2026 (full award data archives)",
   "source": {
-    "publisher": "USAspending",
-    "license_status": "verify_for_selected_release"
+    "publisher": "U.S. Department of the Treasury, Bureau of the Fiscal Service / USAspending.gov",
+    "license_status": "public_domain_us_government_work",
+    "documentation": "https://files.usaspending.gov/award_data_archive/",
+    "license_notes": "US federal government work; no redistribution restriction. Recipient officer compensation names are present in raw files and are not emitted."
   },
+  "dependencies": [],
   "expected_outputs": [
     "organization",
     "contract",
@@ -76,15 +78,44 @@
       "entrypoint": "pipeline.py:run",
       "depends_on": [],
       "schema": {
-        "format": "evidence_jsonl"
+        "format": "evidence_jsonl",
+        "compression": "gzip"
       },
       "validation": {
         "allow_empty": false,
-        "max_rows": 100000
+        "max_rows": 250000000
       },
       "cache": "content",
       "retention": "retain"
     }
   ],
-  "output_stage": "normalized"
+  "output_stage": "normalized",
+  "acquisition": {
+    "strategy": "files",
+    "description": "FY2025 and FY2026 All-agency Contracts Full archives (CSV members of up to 1M rows each). Archives are rebuilt monthly; the dated file names must be updated to refresh.",
+    "documentation": "https://files.usaspending.gov/award_data_archive/?prefix=FY2026_All_Contracts",
+    "desired_bytes": 4150000000,
+    "priority": 2.0,
+    "files": [
+      {
+        "url": "https://files.usaspending.gov/award_data_archive/FY2026_All_Contracts_Full_20260906.zip",
+        "name": "FY2026_All_Contracts_Full_20260906.zip"
+      },
+      {
+        "url": "https://files.usaspending.gov/award_data_archive/FY2025_All_Contracts_Full_20260906.zip",
+        "name": "FY2025_All_Contracts_Full_20260906.zip"
+      }
+    ],
+    "rate_limit": {
+      "requests_per_second": 1.0
+    },
+    "timeout_seconds": 120,
+    "retries": 8,
+    "reader": {
+      "format": "csv",
+      "members": [
+        "*.csv"
+      ]
+    }
+  }
 }

@@ -1,0 +1,71 @@
+{
+  "id": "opensanctions",
+  "schema_version": 2,
+  "kind": "source",
+  "status": "complete_snapshot_normalized",
+  "description": "OpenSanctions 'sanctions' collection targets (simple CSV): deduplicated sanctioned persons, companies, vessels etc. across 100+ official lists (EU, CH, CA, AU, JP, UA...). NON-COMMERCIAL licence (CC BY-NC 4.0).",
+  "dependencies": [],
+  "parameters": {},
+  "entrypoint": "pipeline.py:run",
+  "output_stage": "normalized",
+  "source": {
+    "publisher": "OpenSanctions Datenbanken GmbH",
+    "documentation": "https://www.opensanctions.org/datasets/sanctions/",
+    "license": "CC BY-NC 4.0 (non-commercial use only; commercial use requires an OpenSanctions data licence)",
+    "license_id": "CC-BY-NC-4.0",
+    "license_status": "non_commercial_only",
+    "terms_url": "https://www.opensanctions.org/licensing/",
+    "attribution": "OpenSanctions (https://www.opensanctions.org), CC BY-NC 4.0",
+    "redistribution": "restricted",
+    "non_commercial": true
+  },
+  "sampling": {
+    "strategy": "blocked",
+    "format": "jsonl",
+    "max_rows": 100,
+    "max_sample_bytes": 1048576,
+    "max_download_bytes": 1048576,
+    "max_uncompressed_bytes": 1048576,
+    "disk_budget_bytes": 67108864,
+    "criteria": "Not sampled; complete current lists are small enough for full acquisition",
+    "reason": "Use wm acquire opensanctions; single complete CSV"
+  },
+  "acquisition": {
+    "strategy": "files",
+    "description": "Latest sanctions collection targets.simple.csv (redirects to a dated artifact). Re-acquire periodically; first_seen/last_seen are OpenSanctions crawl times, not designation dates.",
+    "documentation": "https://www.opensanctions.org/docs/bulk/",
+    "desired_bytes": 85000000,
+    "priority": 2.0,
+    "files": [
+      {
+        "url": "https://data.opensanctions.org/datasets/latest/sanctions/targets.simple.csv",
+        "name": "targets.simple.csv"
+      }
+    ],
+    "rate_limit": {
+      "requests_per_second": 0.5
+    },
+    "timeout_seconds": 300,
+    "retries": 5,
+    "reader": {
+      "format": "csv"
+    }
+  },
+  "stages": [
+    {
+      "id": "normalized",
+      "entrypoint": "pipeline.py:run",
+      "depends_on": [],
+      "schema": {
+        "format": "evidence_jsonl",
+        "compression": "gzip"
+      },
+      "validation": {
+        "allow_empty": false,
+        "max_rows": 5000000
+      },
+      "cache": "content",
+      "retention": "retain"
+    }
+  ]
+}

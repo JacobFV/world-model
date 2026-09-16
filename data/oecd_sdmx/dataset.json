@@ -1,0 +1,68 @@
+{
+  "id": "oecd_sdmx",
+  "schema_version": 2,
+  "kind": "source",
+  "dependencies": [],
+  "status": "full_acquisition_configured",
+  "description": "OECD Data Explorer SDMX API extracts (SDMX-CSV): composite leading indicators, business and consumer confidence, financial market rates, Economic Outlook (latest edition, annual, key measures incl. projections), analytical house prices, quarterly national accounts headline aggregates, CPI headline/core/food/energy, monthly unemployment rates, unit labour costs and monetary aggregates",
+  "source": {
+    "publisher": "OECD",
+    "url": "https://data-explorer.oecd.org/",
+    "license": "CC BY 4.0 (OECD terms and conditions since July 2024); some series originate from third parties",
+    "license_status": "open_with_attribution",
+    "terms_url": "https://www.oecd.org/en/about/terms-conditions.html",
+    "attribution": "Source: OECD Data Explorer"
+  },
+  "entrypoint": "pipeline.py:run",
+  "parameters": {},
+  "sampling": {
+    "strategy": "blocked",
+    "reason": "Full SDMX API acquisition only; no bounded sample configured",
+    "criteria": "First 100 records, at most 1 MiB",
+    "format": "jsonl",
+    "max_rows": 100,
+    "max_sample_bytes": 1048576,
+    "max_download_bytes": 1048576,
+    "max_uncompressed_bytes": 1048576,
+    "disk_budget_bytes": 67108864
+  },
+  "acquisition": {
+    "strategy": "files",
+    "description": "One SDMX-CSV (format=csvfile) response per dataflow and filtered key; the OECD API allows 60 data downloads per hour, so requests are spaced about 70 s apart.",
+    "documentation": "https://gitlab.algobank.oecd.org/public-documentation/dotstat-migration/-/raw/main/OECD_Data_API_documentation.pdf",
+    "desired_bytes": 150000000,
+    "min_bytes": 0,
+    "priority": 2.0,
+    "files": [
+      {"url": "https://sdmx.oecd.org/public/rest/data/OECD.SDD.STES,DSD_STES@DF_CLI,4.1/.M.LI+BCICP+CCICP......?format=csvfile", "name": "CLI.csv"},
+      {"url": "https://sdmx.oecd.org/public/rest/data/OECD.SDD.STES,DSD_STES@DF_BTS,4.0/.M.BCICP+PR+OB+EM......?format=csvfile", "name": "BTS.csv"},
+      {"url": "https://sdmx.oecd.org/public/rest/data/OECD.SDD.STES,DSD_STES@DF_CS,4.0/.M.......?format=csvfile", "name": "CS.csv"},
+      {"url": "https://sdmx.oecd.org/public/rest/data/OECD.SDD.STES,DSD_STES@DF_FINMARK,4.0/.M.......?format=csvfile", "name": "FINMARK.csv"},
+      {"url": "https://sdmx.oecd.org/public/rest/data/OECD.ECO.MAD,DSD_EO@DF_EO,1.5/.GDP+GDPV+GDPV_ANNPCT+PGDP+GDPVTR+GAP+CPI+CPIH+PCORE+PCP+UNR+ET+LF+POP+IRS+IRL+EXCH+CBGDPR+NLGQ+GGFLQ+ULC+WAGE+XGSV+MGSV+ITISKV+CPV+CGV+SRATIO+YDRH+PDTY+WPBRENT+TGSVD+MPEN.A?format=csvfile", "name": "EO.csv"},
+      {"url": "https://sdmx.oecd.org/public/rest/data/OECD.ECO.MPD,DSD_AN_HOUSE_PRICES@DF_HOUSE_PRICES,1.0/.Q..?format=csvfile", "name": "HOUSE_PRICES.csv"},
+      {"url": "https://sdmx.oecd.org/public/rest/data/OECD.SDD.NAD,DSD_NAMAIN1@DF_QNA,1.1/Q.Y..S1+S13+S1M..B1GQ+P3+P5+P51G+P52+P6+P7+B11+D1+EMP+B1GQ_POP+POP._Z._Z+_T._Z+_T.XDC+USD_PPP+PS+USD_PPP_PS.V+LR+_Z.N+LA.?format=csvfile", "name": "QNA.csv"},
+      {"url": "https://sdmx.oecd.org/public/rest/data/OECD.SDD.TPS,DSD_PRICES@DF_PRICES_ALL,1.0/.M.N.CPI.IX+PA._T+CP01+CP045_0722+_TXCP01_NRG..?format=csvfile", "name": "PRICES.csv"},
+      {"url": "https://sdmx.oecd.org/public/rest/data/OECD.SDD.TPS,DSD_LFS@DF_IALFS_UNE_M,1.0/....._T.Y_GE15+Y15T24..?format=csvfile", "name": "UNE_M.csv"},
+      {"url": "https://sdmx.oecd.org/public/rest/data/OECD.SDD.TPS,DSD_PDB@DF_PDB_ULC_Q,1.0/all?format=csvfile", "name": "PDB_ULC_Q.csv"},
+      {"url": "https://sdmx.oecd.org/public/rest/data/OECD.SDD.STES,DSD_STES@DF_MONAGG,4.0/.M.......?format=csvfile", "name": "MONAGG.csv"}
+    ],
+    "rate_limit": {"requests_per_second": 0.014},
+    "timeout_seconds": 900,
+    "retries": 4,
+    "backoff_seconds": 60,
+    "max_backoff_seconds": 1800,
+    "reader": {"format": "csv"}
+  },
+  "stages": [
+    {
+      "id": "normalized",
+      "entrypoint": "pipeline.py:run",
+      "depends_on": [],
+      "schema": {"format": "evidence_jsonl", "compression": "gzip"},
+      "validation": {"allow_empty": false, "max_rows": 5000000},
+      "cache": "content",
+      "retention": "retain"
+    }
+  ],
+  "output_stage": "normalized"
+}

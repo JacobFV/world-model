@@ -3,11 +3,13 @@
   "schema_version": 2,
   "dependencies": [],
   "kind": "source",
-  "status": "sample_adapter_ready",
-  "description": "One published direct accounting-consolidation parent relationship for Bloomberg Finance L.P.; not a beneficial ownership or exposure ledger.",
+  "status": "complete",
+  "description": "GLEIF Level 2 golden copy: all published relationship records (direct/ultimate accounting-consolidation parents, international/fund relationships) and reporting exceptions; not beneficial ownership or exposure",
   "source": {
-    "publisher": "GLEIF",
-    "license_status": "see_publisher_terms"
+    "publisher": "GLEIF (Global Legal Entity Identifier Foundation)",
+    "license_status": "CC0-1.0",
+    "license_notes": "Level 2 RR-CDF and Reporting Exceptions golden copies are CC0 1.0.",
+    "documentation": "https://www.gleif.org/en/lei-data/access-and-use-lei-data/level-2-data-who-owns-whom"
   },
   "entrypoint": "pipeline.py:run",
   "parameters": {},
@@ -32,8 +34,8 @@
   },
   "coverage": {
     "representative": false,
-    "completeness": "unknown",
-    "scope": "One published direct accounting-consolidation parent relationship for Bloomberg Finance L.P.; not a beneficial ownership or exposure ledger."
+    "completeness": "complete_for_declared_scope",
+    "scope": "All 487,964 GLEIF Level 2 relationship records; reporting exceptions restricted to informative ULTIMATE-parent claims plus aggregate counts"
   },
   "documentation_verified_on": "2026-09-15",
   "stages": [
@@ -42,15 +44,44 @@
       "entrypoint": "pipeline.py:run",
       "depends_on": [],
       "schema": {
-        "format": "evidence_jsonl"
+        "format": "evidence_jsonl",
+        "compression": "gzip"
       },
       "validation": {
         "allow_empty": false,
-        "max_rows": 100000
+        "max_rows": 3000000
       },
       "cache": "content",
       "retention": "retain"
     }
   ],
-  "output_stage": "normalized"
+  "output_stage": "normalized",
+  "acquisition": {
+    "strategy": "files",
+    "description": "Pinned 2026-09-15 16:00 UTC RR (relationship record) and REPEX (reporting exception) CSV golden copies; URLs rotate, refresh from the publishes/latest manifest",
+    "documentation": "https://www.gleif.org/en/about-lei/common-data-file-format/relationship-record-cdf-format",
+    "desired_bytes": 88000000,
+    "priority": 3.0,
+    "files": [
+      {
+        "url": "https://goldencopy.gleif.org/storage/golden-copy-files/2026/09/15/1276805/20260915-1600-gleif-goldencopy-rr-golden-copy.csv.zip",
+        "name": "rr-golden-copy.csv.zip"
+      },
+      {
+        "url": "https://goldencopy.gleif.org/storage/golden-copy-files/2026/09/15/1276850/20260915-1600-gleif-goldencopy-repex-golden-copy.csv.zip",
+        "name": "repex-golden-copy.csv.zip"
+      }
+    ],
+    "rate_limit": {
+      "requests_per_second": 1
+    },
+    "timeout_seconds": 120,
+    "retries": 8,
+    "reader": {
+      "format": "csv",
+      "members": [
+        "*.csv"
+      ]
+    }
+  }
 }

@@ -1,17 +1,22 @@
 # fec_candidates
 
-Published FEC candidate names for two existing graph IDs; historical candidacy metadata, no inferred current office or movements
+FEC candidate master files for every two-year cycle 1980–2026 (`cn80.zip` … `cn26.zip`,
+`https://www.fec.gov/files/bulk-downloads/{YYYY}/cn{YY}.zip`, ~4.8 MB).
 
-## Pipeline
+Licence: U.S. government work; 52 U.S.C. 30111(a)(4) bars solicitation/commercial use. No credentials.
 
-Local implementation: [pipeline.py](pipeline.py). Stages: **normalized**; default output: `normalized`. The [dataset.json](dataset.json) declaration pins source configuration, parameters, dependencies and validation.
+## Normalized evidence
 
-Dependencies: None (source input).
+- entity `fec:candidate:{ID}` (`person`; label from the newest cycle; one person may hold separate IDs per office)
+- assertion `fec_candidacy` per cycle (`valid_from` = Jan 1 of the odd year, `valid_to` = Jan 1 after the
+  election year): office, state, district, party, incumbent/challenger, candidate status
+- assertion `principal_campaign_committee` → `fec:committee:{ID}` per cycle
 
-## Scope and evidence
+Candidate mailing addresses are not emitted. Legacy OpenFEC API JSONL samples use `sample`.
 
-Source statements retain their provenance, units and available dates. A bounded sample does not establish complete or representative coverage.
+## Rebuild
 
-## Local files
-
-`artifacts/` contains generated immutable stage products; `scratch/` is temporary local work. Both are ignored by Git. Legacy generated paths are also ignored. Source terms and access requirements remain in `dataset.json`; repository code licensing does not grant dataset redistribution rights.
+```sh
+python3 -m worldmodel acquire fec_candidates --allow-network
+WORLD_MODEL_RAW_VERIFY=size python3 -m worldmodel run fec_candidates
+```

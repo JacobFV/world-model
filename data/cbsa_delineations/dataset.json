@@ -1,0 +1,60 @@
+{
+  "id": "cbsa_delineations",
+  "schema_version": 2,
+  "dependencies": [],
+  "kind": "source",
+  "status": "full_acquisition_configured",
+  "description": "OMB core-based statistical area delineations (List 1: CBSA, metropolitan division, CSA by county) for the September 2018, March 2020 and July 2023 vintages as dated county membership assertions with metro/micro type and central/outlying status",
+  "source": {
+    "publisher": "U.S. Office of Management and Budget; files prepared by U.S. Census Bureau, Population Division",
+    "documentation": "https://www.census.gov/geographies/reference-files/time-series/demo/metro-micro/delineation-files.html",
+    "license_status": "public_domain_us_federal",
+    "license_notes": "US federal government work: public domain in the United States (17 U.S.C. 105); no redistribution restriction; cite OMB bulletins 18-04, 20-01 and 23-01 and the Census Bureau."
+  },
+  "entrypoint": "pipeline.py:run",
+  "parameters": {
+    "vintages": {
+      "list1_Sep_2018.xls": {"vintage": "2018", "bulletin": "OMB Bulletin 18-04", "valid_from": "2018-09-14", "valid_to": "2020-03-06"},
+      "list1_2020.xls": {"vintage": "2020", "bulletin": "OMB Bulletin 20-01", "valid_from": "2020-03-06", "valid_to": "2023-07-21"},
+      "list1_2023.xlsx": {"vintage": "2023", "bulletin": "OMB Bulletin 23-01", "valid_from": "2023-07-21", "valid_to": null}
+    }
+  },
+  "sampling": {
+    "criteria": "No sample adapter: three small workbooks are acquired in full",
+    "disk_budget_bytes": 67108864,
+    "format": "jsonl",
+    "max_download_bytes": 1048576,
+    "max_rows": 100,
+    "max_sample_bytes": 1048576,
+    "max_uncompressed_bytes": 1048576,
+    "reason": "Full acquisition only (about 1 MB)",
+    "strategy": "blocked"
+  },
+  "acquisition": {
+    "strategy": "files",
+    "description": "List 1 delineation workbooks; Census publishes 2018 and 2020 only as legacy .xls (read with the stdlib BIFF8 reader in helpers.py) and 2023 as .xlsx",
+    "documentation": "https://www2.census.gov/programs-surveys/metro-micro/geographies/reference-files/",
+    "desired_bytes": 1100000,
+    "priority": 2.0,
+    "files": [
+      {"url": "https://www2.census.gov/programs-surveys/metro-micro/geographies/reference-files/2018/delineation-files/list1_Sep_2018.xls", "name": "list1_Sep_2018.xls"},
+      {"url": "https://www2.census.gov/programs-surveys/metro-micro/geographies/reference-files/2020/delineation-files/list1_2020.xls", "name": "list1_2020.xls"},
+      {"url": "https://www2.census.gov/programs-surveys/metro-micro/geographies/reference-files/2023/delineation-files/list1_2023.xlsx", "name": "list1_2023.xlsx"}
+    ],
+    "rate_limit": {"requests_per_second": 1.0},
+    "timeout_seconds": 120,
+    "retries": 5
+  },
+  "stages": [
+    {
+      "id": "normalized",
+      "entrypoint": "pipeline.py:run",
+      "depends_on": [],
+      "schema": {"format": "evidence_jsonl", "compression": "gzip"},
+      "validation": {"allow_empty": false, "max_rows": 200000},
+      "cache": "content",
+      "retention": "retain"
+    }
+  ],
+  "output_stage": "normalized"
+}

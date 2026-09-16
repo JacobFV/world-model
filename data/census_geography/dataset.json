@@ -3,11 +3,13 @@
   "schema_version": 2,
   "dependencies": [],
   "kind": "source",
-  "status": "sample_adapter_ready",
-  "description": "TIGER/Line boundaries and GNIS places",
+  "status": "full_acquisition_configured",
+  "description": "Census 2024 geography: Gazetteer entities (states, counties, CBSAs, CSAs, places, tracts, ZCTAs) with land/water area and internal points, hierarchy assertions, and compact 1:500k cartographic boundary polygons in a separate geometry stage",
   "source": {
-    "publisher": "Census / USGS",
-    "license_status": "verify_for_selected_release"
+    "publisher": "U.S. Census Bureau, Geography Division",
+    "license_status": "public_domain",
+    "documentation": "https://www.census.gov/geographies/mapping-files/time-series/geo/cartographic-boundary.html",
+    "license_notes": "US federal government work: public domain in the United States (17 U.S.C. 105); no redistribution restriction; cite the publisher. Cartographic boundary (1:500k) files are generalized; use TIGER/Line for legal/precise boundaries."
   },
   "expected_outputs": [
     "location",
@@ -43,20 +45,109 @@
     "entity_identity": "source IDs, canonical geography, explicitly labeled unresolved references and aggregate cohorts",
     "coverage": "acquired sample only"
   },
+  "acquisition": {
+    "strategy": "files",
+    "description": "2024 Gazetteer files (land/water area, internal points) for counties, places, CBSAs, tracts and ZCTAs plus 2024 cartographic boundary 1:500k shapefiles for states, counties, CBSAs, CSAs, places and tracts (ZCTA polygons from 2020 release)",
+    "desired_bytes": 190000000,
+    "priority": 3.0,
+    "files": [
+      {
+        "url": "https://www2.census.gov/geo/docs/maps-data/data/gazetteer/2024_Gazetteer/2024_Gaz_counties_national.zip",
+        "name": "2024_Gaz_counties_national.zip"
+      },
+      {
+        "url": "https://www2.census.gov/geo/docs/maps-data/data/gazetteer/2024_Gazetteer/2024_Gaz_place_national.zip",
+        "name": "2024_Gaz_place_national.zip"
+      },
+      {
+        "url": "https://www2.census.gov/geo/docs/maps-data/data/gazetteer/2024_Gazetteer/2024_Gaz_cbsa_national.zip",
+        "name": "2024_Gaz_cbsa_national.zip"
+      },
+      {
+        "url": "https://www2.census.gov/geo/docs/maps-data/data/gazetteer/2024_Gazetteer/2024_Gaz_tracts_national.zip",
+        "name": "2024_Gaz_tracts_national.zip"
+      },
+      {
+        "url": "https://www2.census.gov/geo/docs/maps-data/data/gazetteer/2024_Gazetteer/2024_Gaz_zcta_national.zip",
+        "name": "2024_Gaz_zcta_national.zip"
+      },
+      {
+        "url": "https://www2.census.gov/geo/tiger/GENZ2024/shp/cb_2024_us_state_500k.zip",
+        "name": "cb_2024_us_state_500k.zip"
+      },
+      {
+        "url": "https://www2.census.gov/geo/tiger/GENZ2024/shp/cb_2024_us_county_500k.zip",
+        "name": "cb_2024_us_county_500k.zip"
+      },
+      {
+        "url": "https://www2.census.gov/geo/tiger/GENZ2024/shp/cb_2024_us_cbsa_500k.zip",
+        "name": "cb_2024_us_cbsa_500k.zip"
+      },
+      {
+        "url": "https://www2.census.gov/geo/tiger/GENZ2024/shp/cb_2024_us_csa_500k.zip",
+        "name": "cb_2024_us_csa_500k.zip"
+      },
+      {
+        "url": "https://www2.census.gov/geo/tiger/GENZ2024/shp/cb_2024_us_place_500k.zip",
+        "name": "cb_2024_us_place_500k.zip"
+      },
+      {
+        "url": "https://www2.census.gov/geo/tiger/GENZ2024/shp/cb_2024_us_tract_500k.zip",
+        "name": "cb_2024_us_tract_500k.zip"
+      },
+      {
+        "url": "https://www2.census.gov/geo/tiger/GENZ2020/shp/cb_2020_us_zcta520_500k.zip",
+        "name": "cb_2020_us_zcta520_500k.zip"
+      }
+    ],
+    "rate_limit": {
+      "requests_per_second": 1.0
+    },
+    "timeout_seconds": 180,
+    "reader": {
+      "format": "tsv",
+      "members": [
+        "*.txt"
+      ]
+    }
+  },
   "stages": [
     {
       "id": "normalized",
       "entrypoint": "pipeline.py:run",
       "depends_on": [],
       "schema": {
-        "format": "evidence_jsonl"
+        "format": "evidence_jsonl",
+        "compression": "gzip"
       },
       "validation": {
         "allow_empty": false,
-        "max_rows": 100000
+        "max_rows": 3000000
       },
       "cache": "content",
       "retention": "retain"
+    },
+    {
+      "id": "geometry",
+      "entrypoint": "pipeline.py:geometry",
+      "depends_on": [],
+      "schema": {
+        "format": "jsonl",
+        "compression": "gzip",
+        "required": {
+          "id": "string",
+          "entity_id": "string",
+          "layer": "string",
+          "rings": "array",
+          "bbox": "array"
+        }
+      },
+      "validation": {
+        "allow_empty": false,
+        "max_rows": 500000
+      },
+      "cache": "content",
+      "retention": "rebuildable"
     }
   ],
   "output_stage": "normalized"

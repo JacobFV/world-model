@@ -3,21 +3,33 @@
   "schema_version": 2,
   "dependencies": [],
   "kind": "source",
-  "status": "adapter_ready_requires_key",
-  "description": "Agriculture census, Quick Stats and cropland data",
+  "status": "full_acquisition_complete",
+  "description": "USDA NASS Quick Stats crops sector bulk file: survey and census crop statistics (area, yield, production, prices received, stocks) at national, state and county level",
   "source": {
-    "publisher": "USDA",
-    "license_status": "verify_for_selected_release"
+    "publisher": "U.S. Department of Agriculture, National Agricultural Statistics Service",
+    "url": "https://www.nass.usda.gov/datasets/",
+    "documentation": "https://quickstats.nass.usda.gov/param_define",
+    "license": "US-Government-Work-Public-Domain",
+    "license_status": "public_domain_us_federal_work",
+    "terms_url": "https://www.usa.gov/government-works",
+    "attribution": "USDA National Agricultural Statistics Service, Quick Stats",
+    "redistribution": true
   },
   "expected_outputs": [
     "crop",
-    "livestock",
     "acreage",
-    "yield"
+    "yield",
+    "production",
+    "price_received"
   ],
-  "setup": "Select survey and aggregation level; retain suppressed values, units and geographic vintage.",
+  "setup": "Bulk file name carries the publisher build date (qs.crops_YYYYMMDD.txt.gz) and older builds are removed; refresh acquisition.files[0].url from https://www.nass.usda.gov/datasets/ before a new acquisition.",
   "entrypoint": "pipeline.py:run",
-  "parameters": {},
+  "parameters": {
+    "min_year": 2000,
+    "sources": ["SURVEY", "CENSUS"],
+    "agg_levels": ["NATIONAL", "STATE", "COUNTY"],
+    "domains": ["TOTAL"]
+  },
   "sampling": {
     "strategy": "download",
     "max_rows": 100,
@@ -38,12 +50,27 @@
     "criteria": "2023 annual surveyed corn yield by state; first 100 rows, no county/farm microdata.",
     "documentation": "https://quickstats.nass.usda.gov/api"
   },
+  "acquisition": {
+    "strategy": "files",
+    "description": "Quick Stats crops sector bulk dump (tab-delimited gzip, full history). Build-dated file name; refresh from the listing before re-acquiring.",
+    "documentation": "https://www.nass.usda.gov/datasets/",
+    "desired_bytes": 1131000000,
+    "min_bytes": 0,
+    "priority": 3.0,
+    "files": [
+      {"url": "https://www.nass.usda.gov/datasets/qs.crops_20260915.txt.gz", "name": "qs.crops_20260915.txt.gz"}
+    ],
+    "rate_limit": {"requests_per_second": 0.5},
+    "timeout_seconds": 300,
+    "retries": 8,
+    "reader": {"format": "tsv", "compression": "gzip", "quoting": "none", "strict": false}
+  },
   "normalization": {
-    "adapter_version": 1,
-    "input_format": "sampled_jsonl",
-    "raw_fields": "preserved in attributes.source_row",
-    "entity_identity": "source IDs, canonical geography, explicitly labeled unresolved references and aggregate cohorts",
-    "coverage": "fictional shape validated; real access requires USDA_NASS_API_KEY"
+    "adapter_version": 2,
+    "input_format": "sampled_jsonl (legacy sample) or sharded Quick Stats bulk TSV (full)",
+    "raw_fields": "sample: preserved in attributes.source_row; full: key Quick Stats descriptors only",
+    "entity_identity": "geo:US / geo:US:state:SS / geo:US:county:SSCCC; nass:commodity:<slug> and nass:series:<digest> aggregate cohorts",
+    "coverage": "full: SURVEY+CENSUS, NATIONAL/STATE/COUNTY, year >= min_year, annual/marketing-year/point-in-time/monthly periods"
   },
   "stages": [
     {
@@ -51,11 +78,12 @@
       "entrypoint": "pipeline.py:run",
       "depends_on": [],
       "schema": {
-        "format": "evidence_jsonl"
+        "format": "evidence_jsonl",
+        "compression": "gzip"
       },
       "validation": {
         "allow_empty": false,
-        "max_rows": 100000
+        "max_rows": 60000000
       },
       "cache": "content",
       "retention": "retain"

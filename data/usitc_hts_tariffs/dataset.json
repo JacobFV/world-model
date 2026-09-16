@@ -1,0 +1,66 @@
+{
+  "id": "usitc_hts_tariffs",
+  "schema_version": 2,
+  "kind": "source",
+  "status": "manual_download_required",
+  "description": "U.S. Harmonized Tariff Schedule: current HTS revision (general, special-program and column 2 rates, chapter 99 additional duties) via the HTS REST export, plus manually imported USITC annual tariff databases (2024-2026)",
+  "dependencies": [],
+  "parameters": {},
+  "entrypoint": "pipeline.py:run",
+  "output_stage": "normalized",
+  "source": {
+    "publisher": "U.S. International Trade Commission",
+    "documentation": "https://hts.usitc.gov/",
+    "terms_url": "https://www.usitc.gov/site_policies",
+    "license": "US federal government work: public domain",
+    "license_id": "public-domain-us-government",
+    "license_status": "public_domain_us_federal_work",
+    "attribution": "U.S. International Trade Commission, Harmonized Tariff Schedule of the United States",
+    "redistribution": true,
+    "manual_files": [
+      "https://www.usitc.gov/tariff_affairs/documents/tariff_data/tariff_database_2024.zip",
+      "https://www.usitc.gov/tariff_affairs/documents/tariff_data/tariff_database_2025.zip",
+      "https://www.usitc.gov/tariff_affairs/documents/tariff_data/tariff_database_2026.zip"
+    ],
+    "access_notes": "The annual tariff database ZIPs return 403 (bot protection) to scripted clients (verified 2026-09-15); download them in a browser and run `wm import usitc_hts_tariffs <file>`. The HTS REST export (hts.usitc.gov/reststop) answered scripted requests on 2026-09-15 and is acquired automatically."
+  },
+  "acquisition": {
+    "strategy": "files",
+    "description": "Current HTS revision as the full REST JSON export (headings 0100-9999 incl. chapter 99) plus the HTS release list (supplies the current revision name and start date). Annual tariff databases require manual import.",
+    "documentation": "https://hts.usitc.gov/reststop/api/docs",
+    "desired_bytes": 16000000,
+    "min_bytes": 0,
+    "priority": 3.0,
+    "files": [
+      {"url": "https://hts.usitc.gov/reststop/exportList?from=0100&to=9999&format=JSON&styles=false", "name": "hts_current_export.json"},
+      {"url": "https://hts.usitc.gov/reststop/releaseList", "name": "hts_release_list.json"}
+    ],
+    "headers": {"Accept": "application/json"},
+    "rate_limit": {"requests_per_second": 0.2},
+    "timeout_seconds": 300,
+    "retries": 4,
+    "reader": {"format": "json", "compression": "none"}
+  },
+  "sampling": {
+    "strategy": "blocked",
+    "format": "jsonl",
+    "max_rows": 100,
+    "max_sample_bytes": 1048576,
+    "max_download_bytes": 1048576,
+    "max_uncompressed_bytes": 1048576,
+    "disk_budget_bytes": 67108864,
+    "criteria": "No bounded sample; use full acquisition or manual import",
+    "reason": "Annual tariff database is bot-protected (manual download); HTS export is acquired in full"
+  },
+  "stages": [
+    {
+      "id": "normalized",
+      "entrypoint": "pipeline.py:run",
+      "depends_on": [],
+      "schema": {"format": "evidence_jsonl", "compression": "gzip"},
+      "validation": {"allow_empty": false, "max_rows": 2000000},
+      "cache": "content",
+      "retention": "retain"
+    }
+  ]
+}

@@ -3,11 +3,13 @@
   "schema_version": 2,
   "dependencies": [],
   "kind": "source",
-  "status": "sample_adapter_ready",
+  "status": "full_acquisition_configured",
   "description": "Economic census, CBP, nonemployers, BDS and AIES",
   "source": {
-    "publisher": "Census",
-    "license_status": "verify_for_selected_release"
+    "publisher": "U.S. Census Bureau",
+    "license_status": "public_domain",
+    "documentation": "https://www.census.gov/programs-surveys/cbp.html",
+    "license_notes": "US federal government work: public domain in the United States (17 U.S.C. 105); no redistribution restriction; cite the publisher. CBP values are noise-infused with noise flags; cells are withheld (D/S) to avoid disclosure."
   },
   "expected_outputs": [
     "establishment_count",
@@ -43,17 +45,115 @@
     "entity_identity": "source IDs, canonical geography, explicitly labeled unresolved references and aggregate cohorts",
     "coverage": "acquired sample only"
   },
+  "acquisition": {
+    "strategy": "files",
+    "description": "County Business Patterns 2019-2023 (U.S., state, county), 2023 metro and ZIP Code detail, Nonemployer Statistics 2022 (state, county), Business Dynamics Statistics 1978-2023 by state and sector",
+    "documentation": "https://www2.census.gov/programs-surveys/cbp/technical-documentation/records-layouts/",
+    "desired_bytes": 160000000,
+    "priority": 3.0,
+    "files": [
+      {
+        "url": "https://www2.census.gov/programs-surveys/cbp/datasets/2019/cbp19us.zip",
+        "name": "cbp19us.zip"
+      },
+      {
+        "url": "https://www2.census.gov/programs-surveys/cbp/datasets/2019/cbp19st.zip",
+        "name": "cbp19st.zip"
+      },
+      {
+        "url": "https://www2.census.gov/programs-surveys/cbp/datasets/2019/cbp19co.zip",
+        "name": "cbp19co.zip"
+      },
+      {
+        "url": "https://www2.census.gov/programs-surveys/cbp/datasets/2020/cbp20us.zip",
+        "name": "cbp20us.zip"
+      },
+      {
+        "url": "https://www2.census.gov/programs-surveys/cbp/datasets/2020/cbp20st.zip",
+        "name": "cbp20st.zip"
+      },
+      {
+        "url": "https://www2.census.gov/programs-surveys/cbp/datasets/2020/cbp20co.zip",
+        "name": "cbp20co.zip"
+      },
+      {
+        "url": "https://www2.census.gov/programs-surveys/cbp/datasets/2021/cbp21us.zip",
+        "name": "cbp21us.zip"
+      },
+      {
+        "url": "https://www2.census.gov/programs-surveys/cbp/datasets/2021/cbp21st.zip",
+        "name": "cbp21st.zip"
+      },
+      {
+        "url": "https://www2.census.gov/programs-surveys/cbp/datasets/2021/cbp21co.zip",
+        "name": "cbp21co.zip"
+      },
+      {
+        "url": "https://www2.census.gov/programs-surveys/cbp/datasets/2022/cbp22us.zip",
+        "name": "cbp22us.zip"
+      },
+      {
+        "url": "https://www2.census.gov/programs-surveys/cbp/datasets/2022/cbp22st.zip",
+        "name": "cbp22st.zip"
+      },
+      {
+        "url": "https://www2.census.gov/programs-surveys/cbp/datasets/2022/cbp22co.zip",
+        "name": "cbp22co.zip"
+      },
+      {
+        "url": "https://www2.census.gov/programs-surveys/cbp/datasets/2023/cbp23us.zip",
+        "name": "cbp23us.zip"
+      },
+      {
+        "url": "https://www2.census.gov/programs-surveys/cbp/datasets/2023/cbp23st.zip",
+        "name": "cbp23st.zip"
+      },
+      {
+        "url": "https://www2.census.gov/programs-surveys/cbp/datasets/2023/cbp23co.zip",
+        "name": "cbp23co.zip"
+      },
+      {
+        "url": "https://www2.census.gov/programs-surveys/cbp/datasets/2023/cbp23msa.zip",
+        "name": "cbp23msa.zip"
+      },
+      {
+        "url": "https://www2.census.gov/programs-surveys/cbp/datasets/2023/zbp23detail.zip",
+        "name": "zbp23detail.zip"
+      },
+      {
+        "url": "https://www2.census.gov/programs-surveys/nonemployer-statistics/datasets/2022/historical-datasets/nonemp22st.zip",
+        "name": "nonemp22st.zip"
+      },
+      {
+        "url": "https://www2.census.gov/programs-surveys/nonemployer-statistics/datasets/2022/historical-datasets/nonemp22co.zip",
+        "name": "nonemp22co.zip"
+      },
+      {
+        "url": "https://www2.census.gov/programs-surveys/bds/tables/time-series/2023/bds2023_st_sec.csv",
+        "name": "bds2023_st_sec.csv"
+      }
+    ],
+    "rate_limit": {
+      "requests_per_second": 1.0
+    },
+    "timeout_seconds": 180,
+    "reader": {
+      "format": "csv",
+      "encoding": "latin-1"
+    }
+  },
   "stages": [
     {
       "id": "normalized",
       "entrypoint": "pipeline.py:run",
       "depends_on": [],
       "schema": {
-        "format": "evidence_jsonl"
+        "format": "evidence_jsonl",
+        "compression": "gzip"
       },
       "validation": {
         "allow_empty": false,
-        "max_rows": 100000
+        "max_rows": 20000000
       },
       "cache": "content",
       "retention": "retain"

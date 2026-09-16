@@ -1,0 +1,64 @@
+{
+  "id": "wto_timeseries",
+  "schema_version": 2,
+  "kind": "source",
+  "status": "awaiting_credentials",
+  "description": "WTO Timeseries API: tariff profile averages (MFN applied, bound), merchandise and commercial services trade values by reporting economy, 2015-2026",
+  "dependencies": [],
+  "parameters": {},
+  "entrypoint": "pipeline.py:run",
+  "output_stage": "normalized",
+  "source": {
+    "publisher": "World Trade Organization",
+    "documentation": "https://apiportal.wto.org/api-details",
+    "terms_url": "https://www.wto.org/english/info_e/cprght_e.htm",
+    "license": "WTO terms of use: non-commercial use with attribution",
+    "license_id": "wto-terms-non-commercial",
+    "license_status": "non_commercial_with_attribution",
+    "attribution": "World Trade Organization, WTO Stats (Timeseries API)",
+    "redistribution": "restricted",
+    "non_commercial": true,
+    "credential": "WTO_API_KEY from https://apiportal.wto.org/signup (subscribe to the Timeseries product)"
+  },
+  "acquisition": {
+    "strategy": "url_list",
+    "description": "One request per indicator for all reporters, 2015-2026, full mode JSON. Indicator codes must be re-checked against /timeseries/v1/indicators once a key exists; unknown codes are skipped (400/404).",
+    "documentation": "https://apiportal.wto.org/api-details#api=version1",
+    "desired_bytes": 30000000,
+    "min_bytes": 0,
+    "priority": 1.0,
+    "url_template": "https://api.wto.org/timeseries/v1/data?i={indicator}&r=all&p=default&ps=2015-2026&fmt=json&mode=full&lang=1&max=1000000",
+    "parameters": {
+      "indicator": ["TP_A_0010", "TP_A_0020", "TP_A_0030", "ITS_MTV_AX", "ITS_MTV_AM", "ITS_CS_AX6", "ITS_CS_AM6"]
+    },
+    "credentials": [{"env": "WTO_API_KEY", "header": "Ocp-Apim-Subscription-Key"}],
+    "headers": {"Accept": "application/json"},
+    "skip_statuses": [400, 404],
+    "rate_limit": {"requests_per_second": 0.5, "requests_per_day": 1000},
+    "timeout_seconds": 300,
+    "retries": 4,
+    "reader": {"format": "json", "records_path": ["Dataset"], "compression": "none"}
+  },
+  "sampling": {
+    "strategy": "blocked",
+    "format": "jsonl",
+    "max_rows": 100,
+    "max_sample_bytes": 1048576,
+    "max_download_bytes": 1048576,
+    "max_uncompressed_bytes": 1048576,
+    "disk_budget_bytes": 67108864,
+    "criteria": "No bounded sample",
+    "reason": "Requires WTO_API_KEY (not yet available); API returns 401 without a subscription key"
+  },
+  "stages": [
+    {
+      "id": "normalized",
+      "entrypoint": "pipeline.py:run",
+      "depends_on": [],
+      "schema": {"format": "evidence_jsonl", "compression": "gzip"},
+      "validation": {"allow_empty": false, "max_rows": 5000000},
+      "cache": "content",
+      "retention": "retain"
+    }
+  ]
+}

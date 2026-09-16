@@ -1,15 +1,21 @@
 # Dataset catalog
 
+121 declarations: 116 sources and 5 derived datasets. 107 publish a normalized stage,
+totalling about 1.31 billion records built from 87.7 GiB of acquired raw data. Run
+`wm catalog` for the authoritative per-declaration status; the counts here are a
+2026-09-15 snapshot.
+
 Every child directory owns one source, computation or graph dataset. Its tracked
 `dataset.json` declares external dependencies, source metadata, parameters and
 schema 2 stages. Source-specific processing lives in the adjacent `pipeline.py`,
 with optional local helpers, JSON configuration resources and tests.
 
-The `demo_countries` pipeline has a real `parsed` → `normalized` dependency.
-`rando_joes_happiness_index` computes from that normalized dataset; `world_graph`
-is another computed dataset. Other directories contain bounded public-source
-mappings or explicit unavailable feeds. A pipeline file does not imply that
-credentials, a usable sample or redistribution rights are available.
+`demo_countries`, `demo_graph`, `rando_joes_happiness_index`, `world_graph` and
+`strategic_scenarios` are deliberately fictional fixtures; `wm catalog` labels them
+`offline_example` or `synthetic_example`. The rest are real public sources. A pipeline
+file does not imply that credentials, acquired data or redistribution rights are
+available: fourteen declarations have no published normalized stage, and 75 of the 107
+that do carry `redistribution_review_required` in their rights metadata.
 
 ## Files
 
@@ -41,11 +47,16 @@ wm verify demo_countries/normalized
 inputs; `dependencies` declares other datasets. Verified content caches can skip
 stage execution. Retention declarations do not automatically evict artifacts.
 
-Sampling policies retain at most 100 rows and 1 MiB on the laptop, with a shared
-64 MiB temporary download budget. `sample all --allow-network` explicitly requests
-network acquisition; `explore DATASET` verifies the retained sample profile.
-Sampling does not update the full-data raw pointer or establish complete coverage.
+Full data is acquired with `wm acquire DATASET --allow-network` within the 100 GiB
+fair-share budget (`wm budget`); see [full acquisition](../docs/full-acquisition.md).
+
+The separate bounded `sample` path retains at most 100 rows and 1 MiB per source, with a
+shared 64 MiB temporary download budget, and exists for schema exploration only.
+`sample all --allow-network` explicitly requests network acquisition; `explore DATASET`
+verifies the retained sample profile. Sampling does not update the full-data raw pointer
+or establish complete coverage. Sample payloads may have been pruned to reclaim space
+while their manifests remain, which makes `wm evidence-audit` abort.
 
 See [the dataset layout guide](../docs/dataset-layout.md) for schemas, Context APIs,
-caching, storage and recovery, and [sampling](../docs/sampling.md) for acquisition
+caching, storage and recovery, and [sampling](../docs/sampling.md) for the sampling
 limits and source-specific access requirements.

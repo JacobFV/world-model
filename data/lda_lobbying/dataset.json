@@ -1,0 +1,149 @@
+{
+  "id": "lda_lobbying",
+  "schema_version": 2,
+  "kind": "source",
+  "status": "partial_acquisition_in_progress",
+  "description": "LDA.gov lobbying disclosure filings (LD-1/LD-2: registrants, clients, lobbyists, issue areas, government entities, income/expenses) and LD-203 contribution reports for filing years 2025-2026",
+  "source": {
+    "publisher": "Secretary of the Senate and Clerk of the House (LDA.gov)",
+    "documentation": "https://lda.gov/api/redoc/v1/",
+    "license_status": "public_domain_us_government_work_api_terms",
+    "license_notes": "US federal government records; LDA.gov API terms of service apply (authenticated key, rate limits). Lobbyist names are public disclosures; registrant contact telephone numbers and street addresses are not emitted."
+  },
+  "dependencies": [],
+  "entrypoint": "pipeline.py:run",
+  "output_stage": "normalized",
+  "parameters": {},
+  "sampling": {
+    "criteria": "First 100 records, at most 1 MiB",
+    "disk_budget_bytes": 67108864,
+    "format": "jsonl",
+    "max_download_bytes": 1048576,
+    "max_rows": 100,
+    "max_sample_bytes": 1048576,
+    "max_uncompressed_bytes": 1048576,
+    "reason": "Configure a documented source URL and format before acquisition",
+    "strategy": "blocked"
+  },
+  "stages": [
+    {
+      "id": "normalized",
+      "entrypoint": "pipeline.py:run",
+      "depends_on": [],
+      "schema": {
+        "format": "evidence_jsonl",
+        "compression": "gzip"
+      },
+      "validation": {
+        "allow_empty": false,
+        "max_rows": 12000000
+      },
+      "cache": "content",
+      "retention": "retain"
+    }
+  ],
+  "acquisition": {
+    "strategy": "paged_api",
+    "description": "filings and contributions endpoints per filing_year x filing_period (keeps page depth <= ~1,150 because deep offsets are slow), ordered by dt_posted (stable page order while new filings arrive); page_size is capped at 25 by the API. Period partitions were verified to sum to the filing_year totals on 2026-09-15.",
+    "documentation": "https://lda.gov/api/redoc/v1/",
+    "desired_bytes": 760000000,
+    "priority": 3.0,
+    "url_template": "https://lda.gov/api/v1/{endpoint}/?filing_year={year}&filing_period={period}&ordering=dt_posted",
+    "combinations": [
+      {
+        "endpoint": "filings",
+        "year": 2026,
+        "period": "first_quarter"
+      },
+      {
+        "endpoint": "filings",
+        "year": 2026,
+        "period": "second_quarter"
+      },
+      {
+        "endpoint": "filings",
+        "year": 2026,
+        "period": "third_quarter"
+      },
+      {
+        "endpoint": "filings",
+        "year": 2026,
+        "period": "fourth_quarter"
+      },
+      {
+        "endpoint": "contributions",
+        "year": 2026,
+        "period": "mid_year"
+      },
+      {
+        "endpoint": "contributions",
+        "year": 2026,
+        "period": "year_end"
+      },
+      {
+        "endpoint": "filings",
+        "year": 2025,
+        "period": "first_quarter"
+      },
+      {
+        "endpoint": "filings",
+        "year": 2025,
+        "period": "second_quarter"
+      },
+      {
+        "endpoint": "filings",
+        "year": 2025,
+        "period": "third_quarter"
+      },
+      {
+        "endpoint": "filings",
+        "year": 2025,
+        "period": "fourth_quarter"
+      },
+      {
+        "endpoint": "contributions",
+        "year": 2025,
+        "period": "mid_year"
+      },
+      {
+        "endpoint": "contributions",
+        "year": 2025,
+        "period": "year_end"
+      }
+    ],
+    "pagination": {
+      "mode": "page",
+      "param": "page",
+      "size_param": "page_size",
+      "page_size": 25
+    },
+    "records_path": [
+      "results"
+    ],
+    "stop": {
+      "has_more_path": [
+        "next"
+      ],
+      "short_page": true,
+      "empty_page": true
+    },
+    "store": "jsonl",
+    "rollover_bytes": 268435456,
+    "credentials": [
+      {
+        "env": "LDA_API_KEY",
+        "header": "Authorization",
+        "prefix": "Token "
+      }
+    ],
+    "rate_limit": {
+      "requests_per_second": 1.8,
+      "key": "lda.gov"
+    },
+    "timeout_seconds": 90,
+    "retries": 8,
+    "reader": {
+      "format": "jsonl"
+    }
+  }
+}

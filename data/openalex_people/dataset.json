@@ -3,11 +3,12 @@
   "schema_version": 2,
   "dependencies": [],
   "kind": "source",
-  "status": "sample_adapter_ready",
-  "description": "Bounded public scholarly author directory and publication affiliation years, with explicit ORCID and ROR crosswalks",
+  "status": "complete",
+  "description": "OpenAlex US company/facility/government institutions (ROR crosswalks, lineage) and authors (works_count>99) whose last known institution is one of 43 strategic US defense, national-laboratory and technology institutions",
   "source": {
     "publisher": "OpenAlex / OurResearch",
-    "license_status": "verify_for_selected_release",
+    "license_status": "CC0-1.0",
+    "license_notes": "OpenAlex data is CC0. Anonymous API budget observed 2026-09-15: 1000 requests/day ($0.10); acquisition needs ~150 requests.",
     "authority": "scholarly_metadata_aggregator"
   },
   "expected_outputs": [
@@ -39,25 +40,21 @@
     "documentation": "https://developers.openalex.org/api-reference/authors"
   },
   "coverage": {
-    "scope": "Five selected public author records and publication affiliation years, not global academia or employment history",
     "representative": false,
-    "completeness": "unknown",
-    "not_available": [
-      "private_movements",
-      "inferred_biography",
-      "complete_global_people_directory"
-    ]
+    "completeness": "complete_for_declared_scope",
+    "scope": "13,075 US company/facility/government institutions and 12,998 authors (works_count>99) last known at 43 strategic institutions"
   },
   "access": {
-    "probe": "HTTP 200 on 2026-09-15; bounded prefix read, not a retained acquisition",
-    "credentials": "No credentials required by verified endpoint probe; access policies may change",
+    "probe": "Full acquisition 2026-09-15 (152 requests, anonymous)",
+    "credentials": "None; anonymous budget ~1000 requests/day",
     "blockers": []
   },
   "normalization": {
-    "input_format": "sampled_jsonl",
-    "raw_fields": "source_row on person; source_term or source_affiliation on role; all claims retain raw line evidence",
+    "input_format": "full_acquisition_shards (legacy sampled_jsonl still supported)",
+    "raw_fields": "selected fields in compact attributes; full rows remain in raw",
     "identity": "Only published identifier crosswalks; names are aliases, never merge evidence",
-    "temporal_scope": "Separate publication affiliation years; no employment or continuous affiliation inferred"
+    "temporal_scope": "Separate publication affiliation years; no employment or continuous affiliation inferred",
+    "coverage": "13,075 US company/facility/government institutions and 12,998 authors (works_count>99) last known at 43 strategic institutions"
   },
   "stages": [
     {
@@ -65,15 +62,63 @@
       "entrypoint": "pipeline.py:run",
       "depends_on": [],
       "schema": {
-        "format": "evidence_jsonl"
+        "format": "evidence_jsonl",
+        "compression": "gzip"
       },
       "validation": {
         "allow_empty": false,
-        "max_rows": 100000
+        "max_rows": 500000
       },
       "cache": "content",
       "retention": "retain"
     }
   ],
-  "output_stage": "normalized"
+  "output_stage": "normalized",
+  "acquisition": {
+    "strategy": "paged_api",
+    "description": "Cursor-paginated institutions and authors queries with select= field lists, 200 per page. Strategic institution IDs resolved by OpenAlex search on 2026-09-15 (see README).",
+    "documentation": "https://developers.openalex.org/api-reference/authors",
+    "desired_bytes": 30000000,
+    "priority": 1.0,
+    "url_template": "https://api.openalex.org/{entity}?filter={filter}&select={select}&per-page=200",
+    "combinations": [
+      {
+        "entity": "institutions",
+        "filter": "country_code:US,type:company|facility|government",
+        "select": "id,ror,display_name,type,country_code,geo,lineage,works_count,cited_by_count,ids,updated_date"
+      },
+      {
+        "entity": "authors",
+        "filter": "last_known_institutions.id:I1287521167|I1306686416|I2948394018|I1295339012|I1343953105|I1343871089|I4210104735|I1282311441|I1289243028|I1334627681|I4210122954|I2802946424|I1282105669|I2800102766|I142606810|I1297288678|I1280414376|I1288214837|I166416128|I1280581677|I1291425158|I1290206253|I1341412227|I1343180700|I4210127875|I1332737386|I923382979|I4210118014|I4210163537|I4210117222|I82514191|I4210140478|I1311688040|I4210114444|I4210153776|I4210087596|I200870766|I148283060|I1314696892|I130440993|I44896327|I1309849503,works_count:>99",
+        "select": "id,orcid,display_name,works_count,cited_by_count,last_known_institutions,ids,updated_date"
+      }
+    ],
+    "pagination": {
+      "mode": "cursor",
+      "param": "cursor",
+      "start": "*",
+      "cursor_path": [
+        "meta",
+        "next_cursor"
+      ],
+      "page_size": 200
+    },
+    "records_path": [
+      "results"
+    ],
+    "stop": {
+      "empty_page": true,
+      "short_page": false
+    },
+    "store": "jsonl",
+    "rate_limit": {
+      "requests_per_second": 1,
+      "requests_per_day": 900
+    },
+    "timeout_seconds": 120,
+    "retries": 6,
+    "reader": {
+      "format": "jsonl"
+    }
+  }
 }

@@ -1,0 +1,72 @@
+{
+  "id": "ofac_sanctions",
+  "schema_version": 2,
+  "kind": "source",
+  "status": "complete_snapshot_normalized",
+  "description": "U.S. Treasury OFAC SDN and consolidated non-SDN sanctions lists (advanced XML): parties, aliases, identifiers, addresses, programs, designation dates and ownership/control relationships. Current snapshot only.",
+  "dependencies": [],
+  "parameters": {},
+  "entrypoint": "pipeline.py:run",
+  "output_stage": "normalized",
+  "source": {
+    "publisher": "U.S. Department of the Treasury, Office of Foreign Assets Control (OFAC)",
+    "documentation": "https://ofac.treasury.gov/sanctions-list-service",
+    "license": "U.S. federal government work (public domain, 17 U.S.C. 105)",
+    "license_id": "US-Government-Public-Domain",
+    "license_status": "public_domain_us_federal",
+    "terms_url": "https://ofac.treasury.gov/sanctions-list-service",
+    "attribution": "U.S. Treasury OFAC Sanctions List Service",
+    "redistribution": true,
+    "non_commercial": false
+  },
+  "sampling": {
+    "strategy": "blocked",
+    "format": "jsonl",
+    "max_rows": 100,
+    "max_sample_bytes": 1048576,
+    "max_download_bytes": 1048576,
+    "max_uncompressed_bytes": 1048576,
+    "disk_budget_bytes": 67108864,
+    "criteria": "Not sampled; complete current lists are small enough for full acquisition",
+    "reason": "Use wm acquire ofac_sanctions; the advanced XML is a single structured document, not a row sample"
+  },
+  "acquisition": {
+    "strategy": "files",
+    "description": "Current SDN_ADVANCED.XML and CONS_ADVANCED.XML (OFAC Sanctions List Service advanced schema). Re-acquire periodically: artifacts are immutable snapshots, so listing/delisting history accrues across snapshots.",
+    "documentation": "https://ofac.treasury.gov/sanctions-list-service",
+    "desired_bytes": 145000000,
+    "priority": 3.0,
+    "files": [
+      {
+        "url": "https://sanctionslistservice.ofac.treas.gov/api/PublicationPreview/exports/SDN_ADVANCED.XML",
+        "name": "SDN_ADVANCED.XML"
+      },
+      {
+        "url": "https://sanctionslistservice.ofac.treas.gov/api/PublicationPreview/exports/CONS_ADVANCED.XML",
+        "name": "CONS_ADVANCED.XML"
+      }
+    ],
+    "rate_limit": {
+      "requests_per_second": 0.5
+    },
+    "timeout_seconds": 300,
+    "retries": 5
+  },
+  "stages": [
+    {
+      "id": "normalized",
+      "entrypoint": "pipeline.py:run",
+      "depends_on": [],
+      "schema": {
+        "format": "evidence_jsonl",
+        "compression": "gzip"
+      },
+      "validation": {
+        "allow_empty": false,
+        "max_rows": 5000000
+      },
+      "cache": "content",
+      "retention": "retain"
+    }
+  ]
+}

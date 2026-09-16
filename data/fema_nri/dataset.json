@@ -1,0 +1,96 @@
+{
+  "id": "fema_nri",
+  "schema_version": 2,
+  "dependencies": [],
+  "kind": "source",
+  "status": "full_acquisition_configured",
+  "description": "FEMA National Risk Index v1.20 (December 2025): composite risk, expected annual loss, social vulnerability, community resilience and 18 per-hazard frequency/exposure/loss values for U.S. counties and census tracts",
+  "source": {
+    "publisher": "Federal Emergency Management Agency (FEMA), National Risk Index",
+    "documentation": "https://hazards.fema.gov/nri/data-resources",
+    "license_status": "public_domain",
+    "license_notes": "US federal government work: public domain in the United States (17 U.S.C. 105); no redistribution restriction; cite the publisher. Retrieved from FEMA's official public ArcGIS Online feature services (owner FEMA_NationalRiskIndex) because fema.gov ZIP downloads return 403 to scripted clients; scores are relative indices, EAL values are modeled USD/year.",
+    "manual_alternative": "Browser download NRI_Table_Counties.zip and NRI_Table_CensusTracts.zip from https://hazards.fema.gov/nri/data-resources and `wm import fema_nri <zip>`"
+  },
+  "entrypoint": "pipeline.py:run",
+  "parameters": {},
+  "sampling": {
+    "criteria": "First 100 records, at most 1 MiB",
+    "disk_budget_bytes": 67108864,
+    "format": "jsonl",
+    "max_download_bytes": 1048576,
+    "max_rows": 100,
+    "max_sample_bytes": 1048576,
+    "max_uncompressed_bytes": 1048576,
+    "reason": "Configure a documented source URL and format before acquisition",
+    "strategy": "blocked"
+  },
+  "acquisition": {
+    "strategy": "paged_api",
+    "description": "ArcGIS FeatureServer query (no geometry), 2,000 features per page ordered by OBJECTID; counties with all published fields (URL length limits an explicit list), tracts with composite plus per-hazard EAL/frequency/risk score",
+    "documentation": "https://services.arcgis.com/XG15cJAlne2vxtgt/arcgis/rest/services/National_Risk_Index_Counties/FeatureServer/0",
+    "desired_bytes": 230000000,
+    "priority": 3.0,
+    "url_template": "https://services.arcgis.com/XG15cJAlne2vxtgt/arcgis/rest/services/{layer}/FeatureServer/0/query?where=1%3D1&outFields={fields}&returnGeometry=false&orderByFields=OBJECTID&f=json",
+    "combinations": [
+      {
+        "layer": "National_Risk_Index_Counties",
+        "fields": "*"
+      },
+      {
+        "layer": "National_Risk_Index_Census_Tracts",
+        "fields": "NRI_ID,STATEFIPS,COUNTYFIPS,STCOFIPS,TRACTFIPS,COUNTY,STATEABBRV,POPULATION,BUILDVALUE,AGRIVALUE,AREA,RISK_VALUE,RISK_SCORE,RISK_RATNG,EAL_VALT,EAL_VALB,EAL_VALP,EAL_VALPE,EAL_VALA,EAL_SCORE,SOVI_SCORE,SOVI_RATNG,RESL_SCORE,RESL_VALUE,CRF_VALUE,NRI_VER,AVLN_EALT,AVLN_AFREQ,AVLN_RISKS,CFLD_EALT,CFLD_AFREQ,CFLD_RISKS,CWAV_EALT,CWAV_AFREQ,CWAV_RISKS,DRGT_EALT,DRGT_AFREQ,DRGT_RISKS,ERQK_EALT,ERQK_AFREQ,ERQK_RISKS,HAIL_EALT,HAIL_AFREQ,HAIL_RISKS,HWAV_EALT,HWAV_AFREQ,HWAV_RISKS,HRCN_EALT,HRCN_AFREQ,HRCN_RISKS,ISTM_EALT,ISTM_AFREQ,ISTM_RISKS,LNDS_EALT,LNDS_AFREQ,LNDS_RISKS,LTNG_EALT,LTNG_AFREQ,LTNG_RISKS,IFLD_EALT,IFLD_AFREQ,IFLD_RISKS,SWND_EALT,SWND_AFREQ,SWND_RISKS,TRND_EALT,TRND_AFREQ,TRND_RISKS,TSUN_EALT,TSUN_AFREQ,TSUN_RISKS,VLCN_EALT,VLCN_AFREQ,VLCN_RISKS,WFIR_EALT,WFIR_AFREQ,WFIR_RISKS,WNTW_EALT,WNTW_AFREQ,WNTW_RISKS"
+      }
+    ],
+    "pagination": {
+      "mode": "offset",
+      "param": "resultOffset",
+      "size_param": "resultRecordCount",
+      "page_size": 2000,
+      "start": 0
+    },
+    "records_path": [
+      "features"
+    ],
+    "stop": {
+      "has_more_path": [
+        "exceededTransferLimit"
+      ],
+      "short_page": true,
+      "empty_page": true
+    },
+    "error_paths": [
+      [
+        "error"
+      ]
+    ],
+    "store": "jsonl",
+    "rollover_bytes": 134217728,
+    "rate_limit": {
+      "requests_per_second": 1.0
+    },
+    "timeout_seconds": 180,
+    "retries": 6,
+    "reader": {
+      "format": "jsonl"
+    }
+  },
+  "stages": [
+    {
+      "cache": "content",
+      "depends_on": [],
+      "entrypoint": "pipeline.py:run",
+      "id": "normalized",
+      "retention": "retain",
+      "schema": {
+        "format": "evidence_jsonl",
+        "compression": "gzip"
+      },
+      "validation": {
+        "allow_empty": false,
+        "max_rows": 12000000
+      }
+    }
+  ],
+  "output_stage": "normalized"
+}

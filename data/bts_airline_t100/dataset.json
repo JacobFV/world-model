@@ -1,0 +1,53 @@
+{
+  "dependencies": [],
+  "description": "BTS T-100 Segment (All Carriers): monthly passengers, freight, mail, seats, available payload and departures by reporting carrier, aircraft type and airport pair; imported from manual TranStats CSV downloads (no scripted bulk endpoint)",
+  "entrypoint": "pipeline.py:run",
+  "id": "bts_airline_t100",
+  "kind": "source",
+  "parameters": {},
+  "sampling": {
+    "criteria": "Manual TranStats T-100 Segment (All Carriers) CSV export",
+    "disk_budget_bytes": 67108864,
+    "format": "csv",
+    "max_download_bytes": 1048576,
+    "max_rows": 100,
+    "max_sample_bytes": 1048576,
+    "max_uncompressed_bytes": 1048576,
+    "reason": "TranStats T-100 downloads require an interactive form postback; no scripted bulk file exists (verified 2026-09-15)",
+    "strategy": "blocked"
+  },
+  "schema_version": 2,
+  "status": "manual_download_required",
+  "source": {
+    "publisher": "US DOT Bureau of Transportation Statistics, Office of Airline Information (TranStats)",
+    "license_status": "public_domain",
+    "license": "US federal government work (public domain)",
+    "documentation": "https://www.transtats.bts.gov/Tables.asp?QO_VQ=EEE&QO_anzr=Nv4%20Pn44vr45&QO_fu146_anzr=Nv4%20Pn44vr45",
+    "download_page": "https://www.transtats.bts.gov/DL_SelectFields.aspx?gnoyr_VQ=FMG&QO_fu146_anzr=Nv4%20Pn44vr45",
+    "access_notes": "T-100 has no PREZIP bulk file; the TranStats form (ASP.NET postback) must be used in a browser per year/month, then imported with wm import. Plan priority 3: deferred because the link to economic/geopolitical simulations is weak."
+  },
+  "normalization": {
+    "adapter_version": 1,
+    "input_format": "TranStats CSV or ZIP(CSV) imported with wm import",
+    "entity_identity": "iata:XXX airports, dot:carrier:XX carriers",
+    "coverage": "whatever months the user downloads"
+  },
+  "stages": [
+    {
+      "id": "normalized",
+      "entrypoint": "pipeline.py:run",
+      "depends_on": [],
+      "schema": {
+        "format": "evidence_jsonl",
+        "compression": "gzip"
+      },
+      "validation": {
+        "allow_empty": false,
+        "max_rows": 50000000
+      },
+      "cache": "content",
+      "retention": "retain"
+    }
+  ],
+  "output_stage": "normalized"
+}

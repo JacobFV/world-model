@@ -1,0 +1,57 @@
+{
+  "id": "un_wpp",
+  "schema_version": 2,
+  "kind": "source",
+  "description": "UN World Population Prospects 2024 (medium variant): annual demographic indicators and 1 July population by 5-year age group and sex for countries, areas and aggregates, 1950-2023 estimates and 2024-2100 projections",
+  "status": "full_acquisition_configured",
+  "source": {
+    "publisher": "United Nations, Department of Economic and Social Affairs, Population Division",
+    "release": "World Population Prospects 2024",
+    "documentation": "https://population.un.org/wpp/downloads",
+    "license_status": "open_with_attribution",
+    "license": "CC BY 3.0 IGO",
+    "license_notes": "Creative Commons Attribution 3.0 IGO. Cite: United Nations, DESA, Population Division (2024). World Population Prospects 2024. Projections (2024+) are model outputs, not observations."
+  },
+  "dependencies": [],
+  "parameters": {},
+  "entrypoint": "pipeline.py:run",
+  "output_stage": "normalized",
+  "acquisition": {
+    "strategy": "files",
+    "description": "WPP 2024 medium-variant CSV (gzip) bulk files: demographic indicators and population by 5-year age group and sex",
+    "documentation": "https://population.un.org/wpp/downloads?folder=Standard%20Projections&group=CSV%20format",
+    "desired_bytes": 52428800,
+    "min_bytes": 0,
+    "priority": 3.0,
+    "files": [
+      {"url": "https://population.un.org/wpp/assets/Excel%20Files/1_Indicator%20(Standard)/CSV_FILES/WPP2024_Demographic_Indicators_Medium.csv.gz", "name": "WPP2024_Demographic_Indicators_Medium.csv.gz"},
+      {"url": "https://population.un.org/wpp/assets/Excel%20Files/1_Indicator%20(Standard)/CSV_FILES/WPP2024_PopulationByAge5GroupSex_Medium.csv.gz", "name": "WPP2024_PopulationByAge5GroupSex_Medium.csv.gz"}
+    ],
+    "rate_limit": {"requests_per_second": 0.5},
+    "timeout_seconds": 120,
+    "retries": 5,
+    "reader": {"format": "csv", "encoding": "utf-8-sig"}
+  },
+  "stages": [
+    {
+      "id": "normalized",
+      "entrypoint": "pipeline.py:run",
+      "depends_on": [],
+      "schema": {"format": "evidence_jsonl", "compression": "gzip"},
+      "validation": {"allow_empty": false, "max_rows": 8000000},
+      "cache": "content",
+      "retention": "retain"
+    }
+  ],
+  "sampling": {
+    "strategy": "blocked",
+    "format": "jsonl",
+    "max_rows": 100,
+    "max_sample_bytes": 1048576,
+    "max_download_bytes": 1048576,
+    "max_uncompressed_bytes": 1048576,
+    "disk_budget_bytes": 67108864,
+    "criteria": "Not sampled; use full acquisition (two gzip CSV files)",
+    "reason": "Full acquisition is small enough; no separate sample configured"
+  }
+}

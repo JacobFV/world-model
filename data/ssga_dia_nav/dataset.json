@@ -3,12 +3,13 @@
   "schema_version": 2,
   "dependencies": [],
   "kind": "source",
-  "status": "configured_bounded_source",
-  "description": "DIA net asset value per fund share; not adjusted market prices.",
+  "status": "complete",
+  "description": "Full published DIA daily NAV history (NAV per share, shares outstanding, total net assets); not adjusted market prices",
   "source": {
     "publisher": "State Street Investment Management",
     "documentation": "https://www.ssga.com/us/en/intermediary/etfs/state-street-spdr-dow-jones-industrial-average-etf-trust-dia",
-    "license_status": "publisher terms apply; raw workbook not redistributed",
+    "license_status": "publisher_terms_informational_use",
+    "license_notes": "SSGA website terms: informational/personal use; raw workbook not redistributed.",
     "unit_basis": "publisher table headers and fund page definitions"
   },
   "entrypoint": "pipeline.py:run",
@@ -42,7 +43,8 @@
       "entrypoint": "pipeline.py:run",
       "depends_on": [],
       "schema": {
-        "format": "evidence_jsonl"
+        "format": "evidence_jsonl",
+        "compression": "gzip"
       },
       "validation": {
         "allow_empty": false,
@@ -52,5 +54,35 @@
       "retention": "retain"
     }
   ],
-  "output_stage": "normalized"
+  "output_stage": "normalized",
+  "acquisition": {
+    "strategy": "files",
+    "description": "navhist-us-en-dia.xlsx full history workbook",
+    "documentation": "https://www.ssga.com/us/en/intermediary/etfs/state-street-spdr-dow-jones-industrial-average-etf-trust-dia",
+    "desired_bytes": 350000,
+    "priority": 1.0,
+    "files": [
+      {
+        "url": "https://www.ssga.com/library-content/products/fund-data/etfs/us/navhist-us-en-dia.xlsx",
+        "name": "navhist-us-en-dia.xlsx"
+      }
+    ],
+    "rate_limit": {
+      "requests_per_second": 0.5
+    },
+    "reader": {
+      "format": "xlsx",
+      "header_row": 4,
+      "stop_when_blank": "Date",
+      "context_cells": {
+        "fund": "B1",
+        "ticker": "B2"
+      }
+    }
+  },
+  "coverage": {
+    "representative": false,
+    "completeness": "complete_for_declared_scope",
+    "scope": "Full published DIA NAV history (5,735 trading days)"
+  }
 }

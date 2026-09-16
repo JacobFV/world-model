@@ -1,0 +1,145 @@
+{
+  "dependencies": [],
+  "description": "SEC DERA structured data: Form 13F institutional holdings data sets for four quarters (filed 2025-09..2026-08) and Forms 3/4/5 insider transaction data sets 2023Q1-2026Q2, normalized to holder->security and insider->issuer ownership evidence",
+  "entrypoint": "pipeline.py:run",
+  "id": "sec_ownership_datasets",
+  "kind": "source",
+  "output_stage": "normalized",
+  "parameters": {},
+  "schema_version": 2,
+  "stages": [
+    {
+      "id": "normalized",
+      "entrypoint": "pipeline.py:run",
+      "depends_on": [],
+      "schema": {
+        "format": "evidence_jsonl",
+        "compression": "gzip"
+      },
+      "validation": {
+        "allow_empty": false,
+        "max_rows": 25000000
+      },
+      "cache": "content",
+      "retention": "retain"
+    }
+  ],
+  "status": "complete",
+  "source": {
+    "publisher": "U.S. Securities and Exchange Commission (Division of Economic and Risk Analysis)",
+    "license_status": "public_domain_us_government_work",
+    "license_notes": "US federal government work; SEC notes data sets are extracted from filings as submitted and not verified. Fair-access: declared User-Agent, <=10 requests/second.",
+    "documentation": "https://www.sec.gov/data-research/sec-markets-data/form-13f-data-sets"
+  },
+  "acquisition": {
+    "strategy": "files",
+    "description": "Four Form 13F data sets (filings 2025-09-01..2026-08-31: one year of quarterly institutional holdings) and fourteen quarterly Form 345 ZIPs 2023Q1-2026Q2. Paths moved from /files/structureddata/ to /files/datastandardsinnovation/ in 2026. Expanded after the shared budget rose to 50 GiB. Budget note: desired_bytes counts the earlier 182 MB artifact still referenced by a retained stage version, so the ceiling is ~560 MB new data + 182 MB retained.",
+    "documentation": "https://www.sec.gov/data-research/sec-markets-data/insider-transactions-data-sets",
+    "desired_bytes": 745000000,
+    "priority": 2.0,
+    "files": [
+      {
+        "url": "https://www.sec.gov/files/datastandardsinnovation/data/form-13f-data-sets/01jun2026-31aug2026_form13f.zip",
+        "name": "01jun2026-31aug2026_form13f.zip"
+      },
+      {
+        "url": "https://www.sec.gov/files/structureddata/data/form-13f-data-sets/01mar2026-31may2026_form13f.zip",
+        "name": "01mar2026-31may2026_form13f.zip"
+      },
+      {
+        "url": "https://www.sec.gov/files/structureddata/data/form-13f-data-sets/01dec2025-28feb2026_form13f.zip",
+        "name": "01dec2025-28feb2026_form13f.zip"
+      },
+      {
+        "url": "https://www.sec.gov/files/structureddata/data/form-13f-data-sets/01sep2025-30nov2025_form13f.zip",
+        "name": "01sep2025-30nov2025_form13f.zip"
+      },
+      {
+        "url": "https://www.sec.gov/files/structureddata/data/insider-transactions-data-sets/2023q1_form345.zip",
+        "name": "2023q1_form345.zip"
+      },
+      {
+        "url": "https://www.sec.gov/files/structureddata/data/insider-transactions-data-sets/2023q2_form345.zip",
+        "name": "2023q2_form345.zip"
+      },
+      {
+        "url": "https://www.sec.gov/files/structureddata/data/insider-transactions-data-sets/2023q3_form345.zip",
+        "name": "2023q3_form345.zip"
+      },
+      {
+        "url": "https://www.sec.gov/files/structureddata/data/insider-transactions-data-sets/2023q4_form345.zip",
+        "name": "2023q4_form345.zip"
+      },
+      {
+        "url": "https://www.sec.gov/files/structureddata/data/insider-transactions-data-sets/2024q1_form345.zip",
+        "name": "2024q1_form345.zip"
+      },
+      {
+        "url": "https://www.sec.gov/files/structureddata/data/insider-transactions-data-sets/2024q2_form345.zip",
+        "name": "2024q2_form345.zip"
+      },
+      {
+        "url": "https://www.sec.gov/files/structureddata/data/insider-transactions-data-sets/2024q3_form345.zip",
+        "name": "2024q3_form345.zip"
+      },
+      {
+        "url": "https://www.sec.gov/files/structureddata/data/insider-transactions-data-sets/2024q4_form345.zip",
+        "name": "2024q4_form345.zip"
+      },
+      {
+        "url": "https://www.sec.gov/files/structureddata/data/insider-transactions-data-sets/2025q1_form345.zip",
+        "name": "2025q1_form345.zip"
+      },
+      {
+        "url": "https://www.sec.gov/files/structureddata/data/insider-transactions-data-sets/2025q2_form345.zip",
+        "name": "2025q2_form345.zip"
+      },
+      {
+        "url": "https://www.sec.gov/files/structureddata/data/insider-transactions-data-sets/2025q3_form345.zip",
+        "name": "2025q3_form345.zip"
+      },
+      {
+        "url": "https://www.sec.gov/files/structureddata/data/insider-transactions-data-sets/2025q4_form345.zip",
+        "name": "2025q4_form345.zip"
+      },
+      {
+        "url": "https://www.sec.gov/files/structureddata/data/insider-transactions-data-sets/2026q1_form345.zip",
+        "name": "2026q1_form345.zip"
+      },
+      {
+        "url": "https://www.sec.gov/files/datastandardsinnovation/data/insider-transactions-data-sets/2026q2_form345.zip",
+        "name": "2026q2_form345.zip"
+      }
+    ],
+    "user_agent_env": "SEC_USER_AGENT",
+    "rate_limit": {
+      "requests_per_second": 5,
+      "key": "sec.gov"
+    },
+    "timeout_seconds": 120,
+    "retries": 8,
+    "reader": {
+      "format": "tsv",
+      "members": [
+        "*.tsv"
+      ],
+      "strict": false
+    }
+  },
+  "sampling": {
+    "strategy": "blocked",
+    "format": "jsonl",
+    "max_rows": 100,
+    "max_sample_bytes": 1048576,
+    "max_download_bytes": 1048576,
+    "max_uncompressed_bytes": 1048576,
+    "disk_budget_bytes": 67108864,
+    "criteria": "Full acquisition only",
+    "reason": "Bulk ZIP data sets are acquired with wm acquire; no bounded sample endpoint"
+  },
+  "coverage": {
+    "representative": false,
+    "completeness": "complete_for_declared_scope",
+    "scope": "Four Form 13F data sets (filings 2025-09-01..2026-08-31) and Forms 3/4/5 data sets 2023Q1-2026Q2"
+  }
+}

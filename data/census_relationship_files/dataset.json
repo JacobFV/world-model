@@ -1,0 +1,56 @@
+{
+  "id": "census_relationship_files",
+  "schema_version": 2,
+  "dependencies": [],
+  "kind": "source",
+  "status": "full_acquisition_configured",
+  "description": "Census geographic relationship files as weighted crosswalks: 2020 ZCTA5<->2020 county, ZCTA5 2010<->2020, county subdivision 2010<->2020, county 2010<->2020 (aggregated from the tract 2010<->2020 file because Census publishes no county-to-county 2020 relationship file), and the 2010 ZCTA5<->county file with population/housing weights",
+  "source": {
+    "publisher": "U.S. Census Bureau, Geography Division",
+    "documentation": "https://www.census.gov/geographies/reference-files/time-series/geo/relationship-files.2020.html ; https://www.census.gov/programs-surveys/geography/technical-documentation/records-layout/2020-comp-record-layout.html",
+    "license_status": "public_domain_us_federal",
+    "license_notes": "US federal government work: public domain in the United States (17 U.S.C. 105); no redistribution restriction; cite the U.S. Census Bureau."
+  },
+  "entrypoint": "pipeline.py:run",
+  "parameters": {},
+  "sampling": {
+    "criteria": "No sample adapter: the relationship files are small enough to acquire in full",
+    "disk_budget_bytes": 67108864,
+    "format": "jsonl",
+    "max_download_bytes": 1048576,
+    "max_rows": 100,
+    "max_sample_bytes": 1048576,
+    "max_uncompressed_bytes": 1048576,
+    "reason": "Full acquisition only (about 60 MB of pipe-delimited text)",
+    "strategy": "blocked"
+  },
+  "acquisition": {
+    "strategy": "files",
+    "description": "National pipe-delimited 2020 relationship files (ZCTA520-county20, ZCTA510-ZCTA520, cousub20-cousub10, tract20-tract10) and the comma-delimited 2010 ZCTA-county file with POPPT/HUPT",
+    "documentation": "https://www.census.gov/geographies/reference-files/time-series/geo/relationship-files.2020.html",
+    "desired_bytes": 62000000,
+    "priority": 2.0,
+    "files": [
+      {"url": "https://www2.census.gov/geo/docs/maps-data/data/rel2020/zcta520/tab20_zcta520_county20_natl.txt", "name": "tab20_zcta520_county20_natl.txt"},
+      {"url": "https://www2.census.gov/geo/docs/maps-data/data/rel2020/zcta520/tab20_zcta510_zcta520_natl.txt", "name": "tab20_zcta510_zcta520_natl.txt"},
+      {"url": "https://www2.census.gov/geo/docs/maps-data/data/rel2020/cousub/tab20_cousub20_cousub10_natl.txt", "name": "tab20_cousub20_cousub10_natl.txt"},
+      {"url": "https://www2.census.gov/geo/docs/maps-data/data/rel2020/tract/tab20_tract20_tract10_natl.txt", "name": "tab20_tract20_tract10_natl.txt"},
+      {"url": "https://www2.census.gov/geo/docs/maps-data/data/rel/zcta_county_rel_10.txt", "name": "zcta_county_rel_10.txt"}
+    ],
+    "rate_limit": {"requests_per_second": 1.0},
+    "timeout_seconds": 300,
+    "retries": 5
+  },
+  "stages": [
+    {
+      "id": "normalized",
+      "entrypoint": "pipeline.py:run",
+      "depends_on": [],
+      "schema": {"format": "evidence_jsonl", "compression": "gzip"},
+      "validation": {"allow_empty": false, "max_rows": 1000000},
+      "cache": "content",
+      "retention": "retain"
+    }
+  ],
+  "output_stage": "normalized"
+}

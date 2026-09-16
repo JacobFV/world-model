@@ -1,0 +1,107 @@
+{
+  "dependencies": [],
+  "description": "ACLED disaggregated political violence, protest and strategic development events (global, 2018-present); approval-gated API tier",
+  "entrypoint": "pipeline.py:run",
+  "id": "acled",
+  "kind": "source",
+  "output_stage": "normalized",
+  "parameters": {},
+  "sampling": {
+    "strategy": "blocked",
+    "format": "jsonl",
+    "max_rows": 100,
+    "max_sample_bytes": 1048576,
+    "max_download_bytes": 1048576,
+    "max_uncompressed_bytes": 1048576,
+    "disk_budget_bytes": 67108864,
+    "criteria": "Not sampled",
+    "reason": "Requires an approved ACLED API tier and OAuth access token (ACLED_ACCESS_TOKEN)"
+  },
+  "schema_version": 2,
+  "stages": [
+    {
+      "id": "normalized",
+      "entrypoint": "pipeline.py:run",
+      "depends_on": [],
+      "schema": {
+        "format": "evidence_jsonl",
+        "compression": "gzip"
+      },
+      "validation": {
+        "allow_empty": false,
+        "max_rows": 6000000
+      },
+      "cache": "content",
+      "retention": "retain"
+    }
+  ],
+  "status": "awaiting_credentials",
+  "source": {
+    "publisher": "Armed Conflict Location & Event Data (ACLED)",
+    "documentation": "https://acleddata.com/api-documentation/getting-started",
+    "license": "ACLED Terms of Use / EULA: attribution required; redistribution of raw event data prohibited; commercial use requires a licence",
+    "license_id": "ACLED-EULA",
+    "license_status": "restricted_no_redistribution",
+    "terms_url": "https://acleddata.com/terms-of-use/",
+    "attribution": "Armed Conflict Location & Event Data (ACLED); www.acleddata.com",
+    "redistribution": "prohibited",
+    "non_commercial": true
+  },
+  "expected_outputs": [
+    "event",
+    "fatalities"
+  ],
+  "acquisition": {
+    "strategy": "paged_api",
+    "description": "ACLED read API, JSON, one pagination sequence per calendar year 2018-2026. The engine cannot run the OAuth password grant: obtain a short-lived access token (POST https://acleddata.com/oauth/token with ACLED_EMAIL/ACLED_PASSWORD, grant_type=password, client_id=acled) and export it as ACLED_ACCESS_TOKEN before acquiring. Budget is 0 until an API tier is approved; raise desired_bytes to ~150000000 then.",
+    "documentation": "https://acleddata.com/api-documentation/acled-endpoint",
+    "desired_bytes": 0,
+    "min_bytes": 0,
+    "priority": 2.0,
+    "url_template": "https://acleddata.com/api/acled/read?_format=json&event_date={year}-01-01|{year}-12-31&event_date_where=BETWEEN&limit=5000",
+    "parameters": {
+      "year": {
+        "range": [
+          2018,
+          2026
+        ],
+        "step": 1
+      }
+    },
+    "credentials": [
+      {
+        "env": "ACLED_ACCESS_TOKEN",
+        "header": "Authorization",
+        "prefix": "Bearer "
+      }
+    ],
+    "pagination": {
+      "mode": "page",
+      "param": "page",
+      "start": 1,
+      "page_size": 5000
+    },
+    "records_path": [
+      "data"
+    ],
+    "stop": {
+      "empty_page": true,
+      "short_page": true
+    },
+    "store": "jsonl",
+    "rollover_bytes": 134217728,
+    "rate_limit": {
+      "requests_per_second": 0.5,
+      "key": "acleddata.com"
+    },
+    "timeout_seconds": 120,
+    "error_paths": [
+      [
+        "error"
+      ]
+    ],
+    "reader": {
+      "format": "jsonl"
+    }
+  }
+}

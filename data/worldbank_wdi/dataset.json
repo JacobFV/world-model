@@ -1,0 +1,56 @@
+{
+  "id": "worldbank_wdi",
+  "schema_version": 2,
+  "kind": "source",
+  "dependencies": [],
+  "status": "full_acquisition_configured",
+  "description": "World Bank World Development Indicators bulk CSV (about 1,500 indicators x 266 economies and aggregates, 1960-present) normalized to country-year observations",
+  "source": {
+    "publisher": "World Bank",
+    "url": "https://datacatalog.worldbank.org/search/dataset/0037712/World-Development-Indicators",
+    "license": "CC BY 4.0 (World Bank Dataset Terms of Use); a few third-party indicators carry their own terms, recorded per indicator in WDISeries.csv 'License Type'",
+    "license_status": "open_with_attribution",
+    "terms_url": "https://www.worldbank.org/en/about/legal/terms-of-use-for-datasets",
+    "attribution": "World Bank, World Development Indicators"
+  },
+  "entrypoint": "pipeline.py:run",
+  "parameters": {},
+  "sampling": {
+    "strategy": "blocked",
+    "reason": "Full bulk ZIP acquisition only; no bounded sample configured",
+    "criteria": "First 100 records, at most 1 MiB",
+    "format": "jsonl",
+    "max_rows": 100,
+    "max_sample_bytes": 1048576,
+    "max_download_bytes": 1048576,
+    "max_uncompressed_bytes": 1048576,
+    "disk_budget_bytes": 67108864
+  },
+  "acquisition": {
+    "strategy": "files",
+    "description": "WDI_CSV.zip bulk download (WDICSV.csv wide data, WDICountry.csv, WDISeries.csv, footnotes); one shard",
+    "documentation": "https://datatopics.worldbank.org/world-development-indicators/",
+    "desired_bytes": 300000000,
+    "min_bytes": 0,
+    "priority": 3.0,
+    "files": [
+      {"url": "https://databankfiles.worldbank.org/public/ddpext_download/WDI_CSV.zip", "name": "WDI_CSV.zip"}
+    ],
+    "rate_limit": {"requests_per_second": 1.0},
+    "timeout_seconds": 120,
+    "retries": 5,
+    "reader": {"format": "csv", "members": ["WDICSV.csv"]}
+  },
+  "stages": [
+    {
+      "id": "normalized",
+      "entrypoint": "pipeline.py:run",
+      "depends_on": [],
+      "schema": {"format": "evidence_jsonl", "compression": "gzip"},
+      "validation": {"allow_empty": false, "max_rows": 30000000},
+      "cache": "content",
+      "retention": "retain"
+    }
+  ],
+  "output_stage": "normalized"
+}

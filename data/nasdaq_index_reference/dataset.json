@@ -3,11 +3,13 @@
   "schema_version": 2,
   "dependencies": [],
   "kind": "source",
-  "status": "blocked",
-  "description": "Nasdaq-100 index documentation and constituent acquisition availability.",
+  "status": "complete",
+  "description": "Nasdaq-100 (NDX) constituent snapshot from the public nasdaq.com list endpoint plus the official NDX methodology PDF; reference use only",
   "source": {
-    "publisher": "Nasdaq",
-    "license_status": "see_publisher_terms"
+    "publisher": "Nasdaq Global Indexes / Nasdaq.com",
+    "license_status": "proprietary_reference_use_only",
+    "license_notes": "Nasdaq index data and methodology are proprietary. Retained for internal reference; do not redistribute constituent lists, weights or prices.",
+    "documentation": "https://indexes.nasdaqomx.com/Index/Overview/NDX"
   },
   "entrypoint": "pipeline.py:run",
   "parameters": {},
@@ -28,8 +30,8 @@
   },
   "coverage": {
     "representative": false,
-    "completeness": "unknown",
-    "scope": "Nasdaq-100 index documentation and constituent acquisition availability."
+    "completeness": "complete_for_declared_scope",
+    "scope": "Nasdaq-100 constituent snapshot (101 listings) and methodology PDF; reference use only"
   },
   "documentation_verified_on": "2026-09-15",
   "reference": {
@@ -44,15 +46,47 @@
       "entrypoint": "pipeline.py:run",
       "depends_on": [],
       "schema": {
-        "format": "evidence_jsonl"
+        "format": "evidence_jsonl",
+        "compression": "gzip"
       },
       "validation": {
         "allow_empty": false,
-        "max_rows": 100000
+        "max_rows": 10000
       },
       "cache": "content",
       "retention": "retain"
     }
   ],
-  "output_stage": "normalized"
+  "output_stage": "normalized",
+  "acquisition": {
+    "strategy": "files",
+    "description": "api.nasdaq.com nasdaq100 list-type JSON (symbol, company name, market cap, last sale) and Methodology_NDX.pdf (retained as evidence; not parsed)",
+    "documentation": "https://indexes.nasdaqomx.com/Index/Overview/NDX",
+    "desired_bytes": 1000000,
+    "priority": 1.0,
+    "files": [
+      {
+        "url": "https://api.nasdaq.com/api/quote/list-type/nasdaq100",
+        "name": "nasdaq100.json"
+      },
+      {
+        "url": "https://indexes.nasdaqomx.com/docs/Methodology_NDX.pdf",
+        "name": "Methodology_NDX.pdf"
+      }
+    ],
+    "headers": {
+      "Accept": "application/json, text/plain, */*"
+    },
+    "rate_limit": {
+      "requests_per_second": 0.5
+    },
+    "reader": {
+      "format": "json",
+      "records_path": [
+        "data",
+        "data",
+        "rows"
+      ]
+    }
+  }
 }

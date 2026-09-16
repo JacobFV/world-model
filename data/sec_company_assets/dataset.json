@@ -3,11 +3,13 @@
   "schema_version": 2,
   "dependencies": [],
   "kind": "source",
-  "status": "sample_adapter_ready",
-  "description": "Apple CIK0000320193 us-gaap Assets observations ending2023–2025, first100 filings; filing duplicates/revisions preserved",
+  "status": "complete",
+  "description": "SEC EDGAR XBRL companyfacts bulk snapshot: point-in-time financial facts for every XBRL filer (normalized to a documented tag set; filed date is knowledge time)",
   "source": {
-    "publisher": "SEC",
-    "license_status": "see_publisher_terms"
+    "publisher": "U.S. Securities and Exchange Commission (EDGAR XBRL)",
+    "license_status": "public_domain_us_government_work",
+    "license_notes": "US federal government work; no redistribution restriction. SEC fair-access policy: declared User-Agent with contact, <=10 requests/second.",
+    "documentation": "https://www.sec.gov/search-filings/edgar-application-programming-interfaces"
   },
   "entrypoint": "pipeline.py:run",
   "parameters": {},
@@ -42,15 +44,48 @@
       "entrypoint": "pipeline.py:run",
       "depends_on": [],
       "schema": {
-        "format": "evidence_jsonl"
+        "format": "evidence_jsonl",
+        "compression": "gzip"
       },
       "validation": {
         "allow_empty": false,
-        "max_rows": 100000
+        "max_rows": 40000000
       },
       "cache": "content",
       "retention": "retain"
     }
   ],
-  "output_stage": "normalized"
+  "output_stage": "normalized",
+  "acquisition": {
+    "strategy": "files",
+    "description": "companyfacts.zip nightly bulk archive (one JSON document per CIK with all dei/us-gaap/ifrs-full/srt facts, units, accession, fiscal period, form and filed date)",
+    "documentation": "https://www.sec.gov/search-filings/edgar-application-programming-interfaces",
+    "desired_bytes": 1450000000,
+    "priority": 3.0,
+    "files": [
+      {
+        "url": "https://www.sec.gov/Archives/edgar/daily-index/xbrl/companyfacts.zip",
+        "name": "companyfacts.zip"
+      }
+    ],
+    "user_agent_env": "SEC_USER_AGENT",
+    "rate_limit": {
+      "requests_per_second": 5,
+      "key": "sec.gov"
+    },
+    "timeout_seconds": 120,
+    "retries": 8,
+    "reader": {
+      "format": "json",
+      "members": [
+        "*.json"
+      ],
+      "max_json_bytes": 268435456
+    }
+  },
+  "coverage": {
+    "representative": false,
+    "completeness": "complete_for_declared_scope",
+    "scope": "Point-in-time XBRL facts for ~55 us-gaap, 2 dei and 10 ifrs-full concepts from periodic/current reports of all 20,362 companyfacts CIKs (nightly snapshot 2026-09-15)"
+  }
 }

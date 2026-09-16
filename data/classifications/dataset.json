@@ -3,11 +3,13 @@
   "schema_version": 2,
   "dependencies": [],
   "kind": "source",
-  "status": "sample_adapter_ready",
-  "description": "NAICS, NAPCS, SIC and industry/commodity crosswalks",
+  "status": "full_acquisition_configured",
+  "description": "Industry, product and occupation classifications: NAICS 2017/2022 code hierarchies, NAICS 2012->2017->2022 concordances, Census Schedule B/HTS 10-digit trade concordances to NAICS/SITC/end-use (2022) and Schedule B 2025 codes, SOC 2018 structure",
   "source": {
-    "publisher": "Census / BEA",
-    "license_status": "verify_for_selected_release"
+    "publisher": "U.S. Census Bureau / U.S. Bureau of Labor Statistics",
+    "license_status": "public_domain",
+    "documentation": "https://www.census.gov/naics/ ; https://www.census.gov/foreign-trade/reference/codes/concordance/ ; https://www.bls.gov/soc/2018/",
+    "license_notes": "US federal government work: public domain in the United States (17 U.S.C. 105); no redistribution restriction; cite the publisher."
   },
   "expected_outputs": [
     "industry",
@@ -43,17 +45,67 @@
     "entity_identity": "source IDs, canonical geography, explicitly labeled unresolved references and aggregate cohorts",
     "coverage": "acquired sample only"
   },
+  "acquisition": {
+    "strategy": "files",
+    "description": "NAICS 2022 and 2017 2-6 digit code lists, NAICS 2012->2017 and 2017->2022 concordances, 2022 Schedule B export and HTS import concordances (HS10 -> NAICS/SITC/end-use), 2025 Schedule B code list, SOC 2018 structure",
+    "desired_bytes": 25000000,
+    "priority": 3.0,
+    "files": [
+      {
+        "url": "https://www.census.gov/naics/2022NAICS/2-6%20digit_2022_Codes.xlsx",
+        "name": "2-6_digit_2022_Codes.xlsx"
+      },
+      {
+        "url": "https://www.census.gov/naics/2017NAICS/2-6%20digit_2017_Codes.xlsx",
+        "name": "2-6_digit_2017_Codes.xlsx"
+      },
+      {
+        "url": "https://www.census.gov/naics/concordances/2012_to_2017_NAICS.xlsx",
+        "name": "2012_to_2017_NAICS.xlsx"
+      },
+      {
+        "url": "https://www.census.gov/naics/concordances/2017_to_2022_NAICS.xlsx",
+        "name": "2017_to_2022_NAICS.xlsx"
+      },
+      {
+        "url": "https://www.census.gov/foreign-trade/reference/codes/concordance/expconcord22.xlsx",
+        "name": "expconcord22.xlsx"
+      },
+      {
+        "url": "https://www.census.gov/foreign-trade/reference/codes/concordance/impconcord22.xlsx",
+        "name": "impconcord22.xlsx"
+      },
+      {
+        "url": "https://www.census.gov/foreign-trade/schedules/b/2025/exp-code.txt",
+        "name": "exp-code.txt"
+      },
+      {
+        "url": "https://www.bls.gov/soc/2018/soc_structure_2018.xlsx",
+        "name": "soc_structure_2018.xlsx"
+      }
+    ],
+    "skip_statuses": [
+      404
+    ],
+    "rate_limit": {
+      "requests_per_second": 0.5
+    },
+    "timeout_seconds": 120,
+    "user_agent_env": "BLS_USER_AGENT",
+    "reader": null
+  },
   "stages": [
     {
       "id": "normalized",
       "entrypoint": "pipeline.py:run",
       "depends_on": [],
       "schema": {
-        "format": "evidence_jsonl"
+        "format": "evidence_jsonl",
+        "compression": "gzip"
       },
       "validation": {
         "allow_empty": false,
-        "max_rows": 100000
+        "max_rows": 2000000
       },
       "cache": "content",
       "retention": "retain"

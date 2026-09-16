@@ -1,0 +1,91 @@
+{
+  "id": "cepii_baci",
+  "schema_version": 2,
+  "kind": "source",
+  "status": "complete",
+  "description": "CEPII BACI HS2017 (V202601) reconciled bilateral trade flows, exporter x importer x HS6 product x year 2017-2024 (value in thousand current USD, quantity in metric tons), with HS4 aggregates",
+  "dependencies": [],
+  "parameters": {},
+  "source": {
+    "publisher": "CEPII (Centre d'Etudes Prospectives et d'Informations Internationales)",
+    "documentation": "https://www.cepii.fr/CEPII/en/bdd_modele/bdd_modele_item.asp?id=37",
+    "url": "https://www.cepii.fr/DATA_DOWNLOAD/baci/data/BACI_HS17_V202601.zip",
+    "release": "V202601",
+    "license": "Etalab Open Licence 2.0",
+    "license_id": "etalab-2.0",
+    "license_status": "open_with_attribution",
+    "terms_url": "https://www.etalab.gouv.fr/licence-ouverte-open-licence/",
+    "attribution": "Gaulier, G. and Zignago, S. (2010) BACI: International Trade Database at the Product-Level. The 1994-2007 Version. CEPII Working Paper N 2010-23",
+    "redistribution": "permitted_with_attribution"
+  },
+  "entrypoint": "pipeline.py:run",
+  "sampling": {
+    "strategy": "blocked",
+    "format": "jsonl",
+    "max_rows": 100,
+    "max_sample_bytes": 1048576,
+    "max_download_bytes": 1048576,
+    "max_uncompressed_bytes": 1048576,
+    "disk_budget_bytes": 67108864,
+    "criteria": "No bounded sample: the single 795 MB ZIP cannot be subset before download",
+    "reason": "Use full acquisition (wm acquire cepii_baci)"
+  },
+  "acquisition": {
+    "strategy": "files",
+    "description": "BACI HS17 V202601 bulk ZIP: eight yearly CSVs (t,i,j,k,v,q) 2017-2024 plus country_codes and product_codes tables",
+    "documentation": "https://www.cepii.fr/DATA_DOWNLOAD/baci/doc/DescriptionBACI.html",
+    "desired_bytes": 794583540,
+    "min_bytes": 0,
+    "priority": 3.0,
+    "files": [
+      {
+        "url": "https://www.cepii.fr/DATA_DOWNLOAD/baci/data/BACI_HS17_V202601.zip",
+        "name": "BACI_HS17_V202601.zip"
+      }
+    ],
+    "rate_limit": {
+      "requests_per_second": 0.5
+    },
+    "timeout_seconds": 120,
+    "retries": 6,
+    "reader": {
+      "format": "csv",
+      "members": [
+        "BACI_HS17_Y*_V*.csv"
+      ]
+    }
+  },
+  "stages": [
+    {
+      "id": "normalized",
+      "entrypoint": "pipeline.py:run",
+      "depends_on": [],
+      "schema": {
+        "format": "evidence_jsonl",
+        "compression": "gzip"
+      },
+      "validation": {
+        "allow_empty": false,
+        "max_rows": 200000000
+      },
+      "cache": "content",
+      "retention": "retain"
+    },
+    {
+      "id": "hs4",
+      "entrypoint": "pipeline.py:hs4",
+      "depends_on": [],
+      "schema": {
+        "format": "evidence_jsonl",
+        "compression": "gzip"
+      },
+      "validation": {
+        "allow_empty": false,
+        "max_rows": 100000000
+      },
+      "cache": "content",
+      "retention": "retain"
+    }
+  ],
+  "output_stage": "normalized"
+}

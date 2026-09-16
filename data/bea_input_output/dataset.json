@@ -3,11 +3,12 @@
   "schema_version": 2,
   "dependencies": [],
   "kind": "source",
-  "status": "sample_unavailable",
-  "description": "Supply-use and input-output accounts",
+  "status": "full_acquisition_configured",
+  "description": "BEA input-output accounts: make/use (before/after redefinitions), supply-use, direct and total requirements workbooks (sector/summary 1997-2023, detail 2007/2012/2017 benchmarks) plus all GDP-by-industry API tables (annual and quarterly)",
   "source": {
-    "publisher": "BEA",
-    "license_status": "verify_for_selected_release"
+    "publisher": "U.S. Bureau of Economic Analysis",
+    "license_status": "public_domain_us_government",
+    "license_notes": "U.S. federal government work; no redistribution restriction. BEA API terms of use apply to API access (https://apps.bea.gov/api/_pdf/bea_api_tos.pdf)."
   },
   "expected_outputs": [
     "industry",
@@ -17,7 +18,21 @@
   ],
   "setup": "Pin table vintage, valuation basis, industry crosswalks and units; coefficients are aggregate constraints.",
   "entrypoint": "pipeline.py:run",
-  "parameters": {},
+  "parameters": {
+    "io_members": [
+      "IOMake_Before_Redefinitions_PRO_*_Summary.xlsx",
+      "IOMake_Before_Redefinitions_*_Detail*.xlsx",
+      "IOUse_Before_Redefinitions_PRO_*_Summary.xlsx",
+      "IOUse_Before_Redefinitions_PRO_*_Detail.xlsx",
+      "Supply_Tables_*_Summary.xlsx",
+      "Supply_*_DET.xlsx",
+      "Use_Tables_Supply-Use_Framework_*_Summary.xlsx",
+      "Use_SUT_Framework_*_DET.xlsx",
+      "CxI_DR_*_Summary.xlsx",
+      "CxI_DR_*_Detail.xlsx",
+      "IxI_TR_*_Summary.xlsx"
+    ]
+  },
   "sampling": {
     "strategy": "download",
     "max_rows": 100,
@@ -41,11 +56,71 @@
     "documentation": "https://apps.bea.gov/api/signup/"
   },
   "normalization": {
-    "adapter_version": 1,
-    "input_format": "sampled_jsonl",
-    "raw_fields": "preserved in attributes.source_row",
-    "entity_identity": "source IDs, canonical geography, explicitly labeled unresolved references and aggregate cohorts",
-    "coverage": "no acquired sample; adapter unavailable"
+    "adapter_version": 2,
+    "input_format": "sharded_full_acquisition",
+    "raw_fields": "key identifiers and multipliers in attributes; exact cell locators in evidence",
+    "entity_identity": "bea_io:<level>:<industry|commodity|final_use|value_added|total|supply_adjustment>:<BEA code>; bea_gdp_by_industry:<code>",
+    "coverage": "full static IO/SUP archives and GDPbyIndustry tables; normalized members selected by parameters.io_members; zero and '...' cells omitted"
+  },
+  "acquisition": {
+    "strategy": "files",
+    "description": "Static AllTablesIO.zip and AllTablesSUP.zip archives plus one BEA API GDPbyIndustry GetData request per table (Industry=ALL, Frequency=A,Q, Year=ALL).",
+    "documentation": "https://apps.bea.gov/iTable/?reqid=1243 ; https://apps.bea.gov/api/_pdf/bea_web_service_api_user_guide.pdf",
+    "desired_bytes": 110000000,
+    "min_bytes": 0,
+    "priority": 3.0,
+    "files": [
+      {"url": "https://apps.bea.gov/industry/iTables%20Static%20Files/AllTablesIO.zip", "name": "AllTablesIO.zip"},
+      {"url": "https://apps.bea.gov/industry/iTables%20Static%20Files/AllTablesSUP.zip", "name": "AllTablesSUP.zip"},
+      "https://apps.bea.gov/api/data/?method=GetData&datasetname=GDPbyIndustry&TableID=1&Industry=ALL&Frequency=A,Q&Year=ALL&ResultFormat=JSON",
+      "https://apps.bea.gov/api/data/?method=GetData&datasetname=GDPbyIndustry&TableID=5&Industry=ALL&Frequency=A,Q&Year=ALL&ResultFormat=JSON",
+      "https://apps.bea.gov/api/data/?method=GetData&datasetname=GDPbyIndustry&TableID=6&Industry=ALL&Frequency=A,Q&Year=ALL&ResultFormat=JSON",
+      "https://apps.bea.gov/api/data/?method=GetData&datasetname=GDPbyIndustry&TableID=7&Industry=ALL&Frequency=A,Q&Year=ALL&ResultFormat=JSON",
+      "https://apps.bea.gov/api/data/?method=GetData&datasetname=GDPbyIndustry&TableID=8&Industry=ALL&Frequency=A,Q&Year=ALL&ResultFormat=JSON",
+      "https://apps.bea.gov/api/data/?method=GetData&datasetname=GDPbyIndustry&TableID=9&Industry=ALL&Frequency=A,Q&Year=ALL&ResultFormat=JSON",
+      "https://apps.bea.gov/api/data/?method=GetData&datasetname=GDPbyIndustry&TableID=10&Industry=ALL&Frequency=A,Q&Year=ALL&ResultFormat=JSON",
+      "https://apps.bea.gov/api/data/?method=GetData&datasetname=GDPbyIndustry&TableID=11&Industry=ALL&Frequency=A,Q&Year=ALL&ResultFormat=JSON",
+      "https://apps.bea.gov/api/data/?method=GetData&datasetname=GDPbyIndustry&TableID=12&Industry=ALL&Frequency=A,Q&Year=ALL&ResultFormat=JSON",
+      "https://apps.bea.gov/api/data/?method=GetData&datasetname=GDPbyIndustry&TableID=13&Industry=ALL&Frequency=A,Q&Year=ALL&ResultFormat=JSON",
+      "https://apps.bea.gov/api/data/?method=GetData&datasetname=GDPbyIndustry&TableID=14&Industry=ALL&Frequency=A,Q&Year=ALL&ResultFormat=JSON",
+      "https://apps.bea.gov/api/data/?method=GetData&datasetname=GDPbyIndustry&TableID=15&Industry=ALL&Frequency=A,Q&Year=ALL&ResultFormat=JSON",
+      "https://apps.bea.gov/api/data/?method=GetData&datasetname=GDPbyIndustry&TableID=16&Industry=ALL&Frequency=A,Q&Year=ALL&ResultFormat=JSON",
+      "https://apps.bea.gov/api/data/?method=GetData&datasetname=GDPbyIndustry&TableID=17&Industry=ALL&Frequency=A,Q&Year=ALL&ResultFormat=JSON",
+      "https://apps.bea.gov/api/data/?method=GetData&datasetname=GDPbyIndustry&TableID=18&Industry=ALL&Frequency=A,Q&Year=ALL&ResultFormat=JSON",
+      "https://apps.bea.gov/api/data/?method=GetData&datasetname=GDPbyIndustry&TableID=19&Industry=ALL&Frequency=A,Q&Year=ALL&ResultFormat=JSON",
+      "https://apps.bea.gov/api/data/?method=GetData&datasetname=GDPbyIndustry&TableID=20&Industry=ALL&Frequency=A,Q&Year=ALL&ResultFormat=JSON",
+      "https://apps.bea.gov/api/data/?method=GetData&datasetname=GDPbyIndustry&TableID=21&Industry=ALL&Frequency=A,Q&Year=ALL&ResultFormat=JSON",
+      "https://apps.bea.gov/api/data/?method=GetData&datasetname=GDPbyIndustry&TableID=22&Industry=ALL&Frequency=A,Q&Year=ALL&ResultFormat=JSON",
+      "https://apps.bea.gov/api/data/?method=GetData&datasetname=GDPbyIndustry&TableID=23&Industry=ALL&Frequency=A,Q&Year=ALL&ResultFormat=JSON",
+      "https://apps.bea.gov/api/data/?method=GetData&datasetname=GDPbyIndustry&TableID=24&Industry=ALL&Frequency=A,Q&Year=ALL&ResultFormat=JSON",
+      "https://apps.bea.gov/api/data/?method=GetData&datasetname=GDPbyIndustry&TableID=25&Industry=ALL&Frequency=A,Q&Year=ALL&ResultFormat=JSON",
+      "https://apps.bea.gov/api/data/?method=GetData&datasetname=GDPbyIndustry&TableID=26&Industry=ALL&Frequency=A,Q&Year=ALL&ResultFormat=JSON",
+      "https://apps.bea.gov/api/data/?method=GetData&datasetname=GDPbyIndustry&TableID=29&Industry=ALL&Frequency=A,Q&Year=ALL&ResultFormat=JSON",
+      "https://apps.bea.gov/api/data/?method=GetData&datasetname=GDPbyIndustry&TableID=30&Industry=ALL&Frequency=A,Q&Year=ALL&ResultFormat=JSON",
+      "https://apps.bea.gov/api/data/?method=GetData&datasetname=GDPbyIndustry&TableID=31&Industry=ALL&Frequency=A,Q&Year=ALL&ResultFormat=JSON",
+      "https://apps.bea.gov/api/data/?method=GetData&datasetname=GDPbyIndustry&TableID=32&Industry=ALL&Frequency=A,Q&Year=ALL&ResultFormat=JSON",
+      "https://apps.bea.gov/api/data/?method=GetData&datasetname=GDPbyIndustry&TableID=33&Industry=ALL&Frequency=A,Q&Year=ALL&ResultFormat=JSON",
+      "https://apps.bea.gov/api/data/?method=GetData&datasetname=GDPbyIndustry&TableID=34&Industry=ALL&Frequency=A,Q&Year=ALL&ResultFormat=JSON",
+      "https://apps.bea.gov/api/data/?method=GetData&datasetname=GDPbyIndustry&TableID=35&Industry=ALL&Frequency=A,Q&Year=ALL&ResultFormat=JSON",
+      "https://apps.bea.gov/api/data/?method=GetData&datasetname=GDPbyIndustry&TableID=36&Industry=ALL&Frequency=A,Q&Year=ALL&ResultFormat=JSON",
+      "https://apps.bea.gov/api/data/?method=GetData&datasetname=GDPbyIndustry&TableID=37&Industry=ALL&Frequency=A,Q&Year=ALL&ResultFormat=JSON",
+      "https://apps.bea.gov/api/data/?method=GetData&datasetname=GDPbyIndustry&TableID=38&Industry=ALL&Frequency=A,Q&Year=ALL&ResultFormat=JSON",
+      "https://apps.bea.gov/api/data/?method=GetData&datasetname=GDPbyIndustry&TableID=39&Industry=ALL&Frequency=A,Q&Year=ALL&ResultFormat=JSON",
+      "https://apps.bea.gov/api/data/?method=GetData&datasetname=GDPbyIndustry&TableID=40&Industry=ALL&Frequency=A,Q&Year=ALL&ResultFormat=JSON",
+      "https://apps.bea.gov/api/data/?method=GetData&datasetname=GDPbyIndustry&TableID=41&Industry=ALL&Frequency=A,Q&Year=ALL&ResultFormat=JSON",
+      "https://apps.bea.gov/api/data/?method=GetData&datasetname=GDPbyIndustry&TableID=42&Industry=ALL&Frequency=A,Q&Year=ALL&ResultFormat=JSON",
+      "https://apps.bea.gov/api/data/?method=GetData&datasetname=GDPbyIndustry&TableID=208&Industry=ALL&Frequency=A,Q&Year=ALL&ResultFormat=JSON",
+      "https://apps.bea.gov/api/data/?method=GetData&datasetname=GDPbyIndustry&TableID=209&Industry=ALL&Frequency=A,Q&Year=ALL&ResultFormat=JSON"
+    ],
+    "credentials": [
+      {"env": "BEA_API_KEY", "query": "UserID"}
+    ],
+    "rate_limit": {
+      "requests_per_second": 0.5,
+      "key": "apps.bea.gov"
+    },
+    "timeout_seconds": 300,
+    "retries": 5
   },
   "stages": [
     {
@@ -53,11 +128,12 @@
       "entrypoint": "pipeline.py:run",
       "depends_on": [],
       "schema": {
-        "format": "evidence_jsonl"
+        "format": "evidence_jsonl",
+        "compression": "gzip"
       },
       "validation": {
         "allow_empty": false,
-        "max_rows": 100000
+        "max_rows": 4000000
       },
       "cache": "content",
       "retention": "retain"

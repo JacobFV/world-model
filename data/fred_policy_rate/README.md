@@ -1,17 +1,44 @@
 # fred_policy_rate
 
-DFF: 2025-01-01 through 2025-03-31; dated historical sample, current vintage, not real-time historical availability
+Federal Funds Effective Rate (`DFF`), daily, percent unless noted, from FRED/ALFRED.
 
-## Pipeline
+## Source and scope
 
-Local implementation: [pipeline.py](pipeline.py). Stages: **normalized**; default output: `normalized`. The [dataset.json](dataset.json) declaration pins source configuration, parameters, dependencies and validation.
+- Publisher: Federal Reserve Bank of St. Louis (FRED/ALFRED); originating source: Board of Governors of the Federal Reserve System (H.15).
+- Full acquisition (`wm acquire fred_policy_rate --allow-network`): FRED API `series/observations` for `DFF` over the whole
+  real-time history (`realtime_start=1776-07-04`, `realtime_end=9999-12-31`), split into 3 window(s) because
+  FRED rejects JSON requests spanning more than 2,000 vintage dates. One shard per window.
+- Credential: `FRED_API_KEY` (query `api_key`, injected per request and redacted). Rate limit 1.5 req/s shared with
+  the other fred_* datasets (`rate_limit.key = api.stlouisfed.org`; FRED allows ~120/min).
+- Sample (`wm sample fred_policy_rate`): the dated 2025 Q1 fredgraph.csv excerpt, unchanged.
+- The last window grows by ~250 vintage dates a year; when it approaches 2,000 split it (see
+  `wm acquire fred_policy_rate --dry-run` and FRED `series/vintagedates`).
 
-Dependencies: None (source input).
+## Evidence
 
-## Scope and evidence
+`normalized` (gzip evidence JSONL):
+- entities `geo:US` (country) and `fred:DFF` (economic_series) plus assertion `fred:DFF describes_location geo:US`;
+- observations `subject=geo:US`, `metric=policy_rate`, `unit=percent`, `valid_from`/`valid_to` = the observation day
+  (half-open), `dimensions = {series_id, frequency, seasonal_adjustment, vintage}` where `vintage` is the ALFRED
+  `realtime_start`; `attributes.realtime_start/realtime_end` give the real-time period during which the value was
+  current, and `observed_at` is `realtime_start` (knowledge time for point-in-time backtests). Real-time periods split at
+  request-window boundaries are merged back. Values `.` (not available in that vintage) are `null` with
+  `missing_reason`.
+- ALFRED coverage for this series starts at its first vintage date; history published before ALFRED began carries that
+  first vintage date as `realtime_start`.
 
-Source statements retain their provenance, units and available dates. A bounded sample does not establish complete or representative coverage.
+The sample adapter (legacy JSONL sample rows) is retained for single-payload inputs.
 
-## Local files
+## Licence
 
-`artifacts/` contains generated immutable stage products; `scratch/` is temporary local work. Both are ignored by Git. Legacy generated paths are also ignored. Source terms and access requirements remain in `dataset.json`; repository code licensing does not grant dataset redistribution rights.
+FRED API Terms of Use (https://fred.stlouisfed.org/docs/api/terms_of_use.html); the series data are produced by US government agencies (public domain) but FRED terms apply to API use. Internal use; cite FRED and the originating agency.
+
+## Rebuild
+
+```sh
+wm acquire fred_policy_rate --dry-run
+wm acquire fred_policy_rate --allow-network
+WORLD_MODEL_RAW_VERIFY=size wm run fred_policy_rate
+wm verify fred_policy_rate
+```
+Tests: `python3 -m unittest discover -s data/fred_macro_panel/tests` (shared FRED tests cover this dataset).

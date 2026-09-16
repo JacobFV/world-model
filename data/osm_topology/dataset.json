@@ -3,14 +3,22 @@
   "schema_version": 2,
   "dependencies": [],
   "kind": "source",
-  "status": "sample_adapter_ready",
-  "description": "First100 highway ways in a small San Francisco bounding box; full node IDs and geometry per retained way; bounded subgraph, not global coverage",
+  "status": "full_acquisition_ready",
+  "description": "OpenStreetMap network topology for the western United States (Geofabrik US West extract, a superset of California): simplified road, rail, power-line, pipeline and ferry edges between intersection/endpoint nodes, plus transport and energy facilities; the sampling block keeps the bounded San Francisco Overpass excerpt",
   "source": {
-    "publisher": "OpenStreetMap contributors",
-    "license_status": "see_publisher_terms"
+    "publisher": "OpenStreetMap contributors via Geofabrik GmbH",
+    "license_status": "open_share_alike",
+    "license": "ODbL-1.0",
+    "license_url": "https://opendatacommons.org/licenses/odbl/1-0/",
+    "attribution": "(c) OpenStreetMap contributors, https://www.openstreetmap.org/copyright",
+    "license_notes": "Attribution required; a publicly distributed derived database must be offered under ODbL (share-alike). Produced works need attribution only.",
+    "release": "us-west-260914.osm.pbf (replication snapshot 2026-09-14)"
   },
   "entrypoint": "pipeline.py:run",
-  "parameters": {},
+  "parameters": {
+    "workers": 12,
+    "edge_geometry": true
+  },
   "sampling": {
     "strategy": "download",
     "max_rows": 100,
@@ -29,17 +37,57 @@
     ],
     "documentation": "https://wiki.openstreetmap.org/wiki/Overpass_QL"
   },
+  "acquisition": {
+    "strategy": "files",
+    "description": "Geofabrik US West OpenStreetMap extract (dated snapshot 2026-09-14, 3,400,591,554 bytes, md5 09b41da4f8d8b3eb4a46074d33384e60), decoded by the dataset-local streaming PBF reader. The superseded California artifact was retired after this build verified.",
+    "documentation": "https://download.geofabrik.de/north-america/us-west.html",
+    "desired_bytes": 3410000000,
+    "min_bytes": 0,
+    "priority": 3.0,
+    "files": [
+      {
+        "url": "https://download.geofabrik.de/north-america/us-west-260914.osm.pbf",
+        "name": "us-west-260914.osm.pbf"
+      }
+    ],
+    "rate_limit": {
+      "requests_per_second": 0.2
+    },
+    "timeout_seconds": 600,
+    "retries": 8
+  },
   "stages": [
+    {
+      "id": "parsed",
+      "entrypoint": "pipeline.py:parse",
+      "depends_on": [],
+      "schema": {
+        "format": "jsonl",
+        "compression": "gzip",
+        "required": {
+          "type": "string"
+        }
+      },
+      "validation": {
+        "allow_empty": true,
+        "max_rows": 80000000
+      },
+      "cache": "content",
+      "retention": "rebuildable"
+    },
     {
       "id": "normalized",
       "entrypoint": "pipeline.py:run",
-      "depends_on": [],
+      "depends_on": [
+        "parsed"
+      ],
       "schema": {
-        "format": "evidence_jsonl"
+        "format": "evidence_jsonl",
+        "compression": "gzip"
       },
       "validation": {
         "allow_empty": false,
-        "max_rows": 100000
+        "max_rows": 80000000
       },
       "cache": "content",
       "retention": "retain"

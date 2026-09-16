@@ -1,0 +1,273 @@
+{
+  "dependencies": [],
+  "description": "SEC Form 13F structured data sets 2013Q2 through the 01jun2025-31aug2025 release (50 ZIPs; the four latest quarters live in sec_ownership_datasets): quarterly institutional holdings history as dated manager->security assertions",
+  "entrypoint": "pipeline.py:run",
+  "id": "sec_13f_history",
+  "kind": "source",
+  "output_stage": "normalized",
+  "parameters": {},
+  "sampling": {
+    "strategy": "blocked",
+    "format": "jsonl",
+    "max_rows": 100,
+    "max_sample_bytes": 1048576,
+    "max_download_bytes": 1048576,
+    "max_uncompressed_bytes": 1048576,
+    "disk_budget_bytes": 67108864,
+    "criteria": "Full acquisition only",
+    "reason": "Bulk quarterly ZIP data sets are acquired with wm acquire; no bounded sample endpoint"
+  },
+  "schema_version": 2,
+  "stages": [
+    {
+      "id": "normalized",
+      "entrypoint": "pipeline.py:run",
+      "depends_on": [],
+      "schema": {
+        "format": "evidence_jsonl",
+        "compression": "gzip"
+      },
+      "validation": {
+        "allow_empty": false,
+        "max_rows": 250000000
+      },
+      "cache": "content",
+      "retention": "retain"
+    }
+  ],
+  "status": "complete",
+  "source": {
+    "publisher": "U.S. Securities and Exchange Commission (Division of Economic and Risk Analysis)",
+    "documentation": "https://www.sec.gov/data-research/sec-markets-data/form-13f-data-sets",
+    "license_status": "public_domain_us_government_work",
+    "license_notes": "US federal government work; SEC notes these data sets are extracted as filed and not verified. Fair access: declared User-Agent, <=10 requests/second."
+  },
+  "acquisition": {
+    "strategy": "files",
+    "description": "50 13F data set ZIPs from https://www.sec.gov/data-research/sec-markets-data/form-13f-data-sets (calendar-quarter files 2013q2-2023q4, then filing-window files 01jan2024-29feb2024 .. 01jun2025-31aug2025); sizes verified 2026-09-15 by HEAD.",
+    "documentation": "https://www.sec.gov/data-research/sec-markets-data/form-13f-data-sets",
+    "desired_bytes": 2750000000,
+    "priority": 2.0,
+    "files": [
+      {
+        "url": "https://www.sec.gov/files/structureddata/data/form-13f-data-sets/01dec2024-28feb2025_form13f.zip",
+        "name": "01dec2024-28feb2025_form13f.zip"
+      },
+      {
+        "url": "https://www.sec.gov/files/structureddata/data/form-13f-data-sets/01jan2024-29feb2024_form13f.zip",
+        "name": "01jan2024-29feb2024_form13f.zip"
+      },
+      {
+        "url": "https://www.sec.gov/files/structureddata/data/form-13f-data-sets/01jun2024-31aug2024_form13f.zip",
+        "name": "01jun2024-31aug2024_form13f.zip"
+      },
+      {
+        "url": "https://www.sec.gov/files/structureddata/data/form-13f-data-sets/01jun2025-31aug2025_form13f.zip",
+        "name": "01jun2025-31aug2025_form13f.zip"
+      },
+      {
+        "url": "https://www.sec.gov/files/structureddata/data/form-13f-data-sets/01mar2024-31may2024_form13f.zip",
+        "name": "01mar2024-31may2024_form13f.zip"
+      },
+      {
+        "url": "https://www.sec.gov/files/structureddata/data/form-13f-data-sets/01mar2025-31may2025_form13f.zip",
+        "name": "01mar2025-31may2025_form13f.zip"
+      },
+      {
+        "url": "https://www.sec.gov/files/structureddata/data/form-13f-data-sets/01sep2024-30nov2024_form13f.zip",
+        "name": "01sep2024-30nov2024_form13f.zip"
+      },
+      {
+        "url": "https://www.sec.gov/files/structureddata/data/form-13f-data-sets/2013q2_form13f.zip",
+        "name": "2013q2_form13f.zip"
+      },
+      {
+        "url": "https://www.sec.gov/files/structureddata/data/form-13f-data-sets/2013q3_form13f.zip",
+        "name": "2013q3_form13f.zip"
+      },
+      {
+        "url": "https://www.sec.gov/files/structureddata/data/form-13f-data-sets/2013q4_form13f.zip",
+        "name": "2013q4_form13f.zip"
+      },
+      {
+        "url": "https://www.sec.gov/files/structureddata/data/form-13f-data-sets/2014q1_form13f.zip",
+        "name": "2014q1_form13f.zip"
+      },
+      {
+        "url": "https://www.sec.gov/files/structureddata/data/form-13f-data-sets/2014q2_form13f.zip",
+        "name": "2014q2_form13f.zip"
+      },
+      {
+        "url": "https://www.sec.gov/files/structureddata/data/form-13f-data-sets/2014q3_form13f.zip",
+        "name": "2014q3_form13f.zip"
+      },
+      {
+        "url": "https://www.sec.gov/files/structureddata/data/form-13f-data-sets/2014q4_form13f.zip",
+        "name": "2014q4_form13f.zip"
+      },
+      {
+        "url": "https://www.sec.gov/files/structureddata/data/form-13f-data-sets/2015q1_form13f.zip",
+        "name": "2015q1_form13f.zip"
+      },
+      {
+        "url": "https://www.sec.gov/files/structureddata/data/form-13f-data-sets/2015q2_form13f.zip",
+        "name": "2015q2_form13f.zip"
+      },
+      {
+        "url": "https://www.sec.gov/files/structureddata/data/form-13f-data-sets/2015q3_form13f.zip",
+        "name": "2015q3_form13f.zip"
+      },
+      {
+        "url": "https://www.sec.gov/files/structureddata/data/form-13f-data-sets/2015q4_form13f.zip",
+        "name": "2015q4_form13f.zip"
+      },
+      {
+        "url": "https://www.sec.gov/files/structureddata/data/form-13f-data-sets/2016q1_form13f.zip",
+        "name": "2016q1_form13f.zip"
+      },
+      {
+        "url": "https://www.sec.gov/files/structureddata/data/form-13f-data-sets/2016q2_form13f.zip",
+        "name": "2016q2_form13f.zip"
+      },
+      {
+        "url": "https://www.sec.gov/files/structureddata/data/form-13f-data-sets/2016q3_form13f.zip",
+        "name": "2016q3_form13f.zip"
+      },
+      {
+        "url": "https://www.sec.gov/files/structureddata/data/form-13f-data-sets/2016q4_form13f.zip",
+        "name": "2016q4_form13f.zip"
+      },
+      {
+        "url": "https://www.sec.gov/files/structureddata/data/form-13f-data-sets/2017q1_form13f.zip",
+        "name": "2017q1_form13f.zip"
+      },
+      {
+        "url": "https://www.sec.gov/files/structureddata/data/form-13f-data-sets/2017q2_form13f.zip",
+        "name": "2017q2_form13f.zip"
+      },
+      {
+        "url": "https://www.sec.gov/files/structureddata/data/form-13f-data-sets/2017q3_form13f.zip",
+        "name": "2017q3_form13f.zip"
+      },
+      {
+        "url": "https://www.sec.gov/files/structureddata/data/form-13f-data-sets/2017q4_form13f.zip",
+        "name": "2017q4_form13f.zip"
+      },
+      {
+        "url": "https://www.sec.gov/files/structureddata/data/form-13f-data-sets/2018q1_form13f.zip",
+        "name": "2018q1_form13f.zip"
+      },
+      {
+        "url": "https://www.sec.gov/files/structureddata/data/form-13f-data-sets/2018q2_form13f.zip",
+        "name": "2018q2_form13f.zip"
+      },
+      {
+        "url": "https://www.sec.gov/files/structureddata/data/form-13f-data-sets/2018q3_form13f.zip",
+        "name": "2018q3_form13f.zip"
+      },
+      {
+        "url": "https://www.sec.gov/files/structureddata/data/form-13f-data-sets/2018q4_form13f.zip",
+        "name": "2018q4_form13f.zip"
+      },
+      {
+        "url": "https://www.sec.gov/files/structureddata/data/form-13f-data-sets/2019q1_form13f.zip",
+        "name": "2019q1_form13f.zip"
+      },
+      {
+        "url": "https://www.sec.gov/files/structureddata/data/form-13f-data-sets/2019q2_form13f.zip",
+        "name": "2019q2_form13f.zip"
+      },
+      {
+        "url": "https://www.sec.gov/files/structureddata/data/form-13f-data-sets/2019q3_form13f.zip",
+        "name": "2019q3_form13f.zip"
+      },
+      {
+        "url": "https://www.sec.gov/files/structureddata/data/form-13f-data-sets/2019q4_form13f.zip",
+        "name": "2019q4_form13f.zip"
+      },
+      {
+        "url": "https://www.sec.gov/files/structureddata/data/form-13f-data-sets/2020q1_form13f.zip",
+        "name": "2020q1_form13f.zip"
+      },
+      {
+        "url": "https://www.sec.gov/files/structureddata/data/form-13f-data-sets/2020q2_form13f.zip",
+        "name": "2020q2_form13f.zip"
+      },
+      {
+        "url": "https://www.sec.gov/files/structureddata/data/form-13f-data-sets/2020q3_form13f.zip",
+        "name": "2020q3_form13f.zip"
+      },
+      {
+        "url": "https://www.sec.gov/files/structureddata/data/form-13f-data-sets/2020q4_form13f.zip",
+        "name": "2020q4_form13f.zip"
+      },
+      {
+        "url": "https://www.sec.gov/files/structureddata/data/form-13f-data-sets/2021q1_form13f.zip",
+        "name": "2021q1_form13f.zip"
+      },
+      {
+        "url": "https://www.sec.gov/files/structureddata/data/form-13f-data-sets/2021q2_form13f.zip",
+        "name": "2021q2_form13f.zip"
+      },
+      {
+        "url": "https://www.sec.gov/files/structureddata/data/form-13f-data-sets/2021q3_form13f.zip",
+        "name": "2021q3_form13f.zip"
+      },
+      {
+        "url": "https://www.sec.gov/files/structureddata/data/form-13f-data-sets/2021q4_form13f.zip",
+        "name": "2021q4_form13f.zip"
+      },
+      {
+        "url": "https://www.sec.gov/files/structureddata/data/form-13f-data-sets/2022q1_form13f.zip",
+        "name": "2022q1_form13f.zip"
+      },
+      {
+        "url": "https://www.sec.gov/files/structureddata/data/form-13f-data-sets/2022q2_form13f.zip",
+        "name": "2022q2_form13f.zip"
+      },
+      {
+        "url": "https://www.sec.gov/files/structureddata/data/form-13f-data-sets/2022q3_form13f.zip",
+        "name": "2022q3_form13f.zip"
+      },
+      {
+        "url": "https://www.sec.gov/files/structureddata/data/form-13f-data-sets/2022q4_form13f.zip",
+        "name": "2022q4_form13f.zip"
+      },
+      {
+        "url": "https://www.sec.gov/files/structureddata/data/form-13f-data-sets/2023q1_form13f.zip",
+        "name": "2023q1_form13f.zip"
+      },
+      {
+        "url": "https://www.sec.gov/files/structureddata/data/form-13f-data-sets/2023q2_form13f.zip",
+        "name": "2023q2_form13f.zip"
+      },
+      {
+        "url": "https://www.sec.gov/files/structureddata/data/form-13f-data-sets/2023q3_form13f.zip",
+        "name": "2023q3_form13f.zip"
+      },
+      {
+        "url": "https://www.sec.gov/files/structureddata/data/form-13f-data-sets/2023q4_form13f.zip",
+        "name": "2023q4_form13f.zip"
+      }
+    ],
+    "user_agent_env": "SEC_USER_AGENT",
+    "rate_limit": {
+      "requests_per_second": 5,
+      "key": "sec.gov"
+    },
+    "timeout_seconds": 180,
+    "retries": 8,
+    "reader": {
+      "format": "tsv",
+      "members": [
+        "*.tsv"
+      ],
+      "strict": false
+    }
+  },
+  "coverage": {
+    "representative": false,
+    "completeness": "complete_for_declared_scope",
+    "scope": "13F-HR/13F-HR-A holdings from all 50 SEC 13F data sets covering filings 2013-04..2025-08"
+  }
+}

@@ -3,11 +3,13 @@
   "schema_version": 2,
   "dependencies": [],
   "kind": "source",
-  "status": "ready_for_authorized_file_import",
-  "description": "Strict canonical authorized-feed JSONL import; no external feed acquired",
+  "status": "full_acquisition_configured",
+  "description": "Massive reference data: full stock split history, the complete published cash dividend history and the stock ticker directory (active and delisted; primary exchange MIC, CIK, composite/share-class FIGI, delisting dates); canonical authorized-feed JSONL imports remain supported",
   "source": {
-    "publisher": "Nasdaq",
-    "license_status": "see_publisher_terms"
+    "publisher": "Massive (formerly Polygon.io)",
+    "documentation": "https://massive.com/docs/rest/stocks/corporate-actions/splits",
+    "license_status": "provider_terms_individual_non_professional",
+    "license_notes": "Massive (formerly Polygon.io) Stocks Basic plan: individual, non-professional use only; no redistribution of raw or derived price data. Keep artifacts local."
   },
   "entrypoint": "pipeline.py:run",
   "parameters": {},
@@ -28,8 +30,8 @@
   },
   "coverage": {
     "representative": false,
-    "completeness": "unknown",
-    "scope": "Imported source rows only; no feed access or complete history configured"
+    "completeness": "complete_for_declared_scope",
+    "scope": "Massive split history, complete dividend history and stock ticker directory (active and delisted)"
   },
   "documentation_verified_on": "2026-09-15",
   "stages": [
@@ -38,15 +40,89 @@
       "entrypoint": "pipeline.py:run",
       "depends_on": [],
       "schema": {
-        "format": "evidence_jsonl"
+        "format": "evidence_jsonl",
+        "compression": "gzip"
       },
       "validation": {
         "allow_empty": false,
-        "max_rows": 100000
+        "max_rows": 3000000
       },
       "cache": "content",
       "retention": "retain"
     }
   ],
-  "output_stage": "normalized"
+  "output_stage": "normalized",
+  "acquisition": {
+    "strategy": "paged_api",
+    "description": "Cursor (next_url) pagination over /v3/reference/splits, /v3/reference/tickers (market=stocks, active=true then false) and /v3/reference/dividends (complete published history, newest ex-dividend date first), 1000 rows per page, 5 requests/minute shared with market_prices. Combination order puts splits and the ticker directory (the identity crosswalk: primary exchange MIC, CIK, FIGI) before the dividend history, and dividends descend from the newest ex-date, so any stop truncates the oldest dividends rather than the crosswalk or recent actions. desired_bytes 3,000,000,000 bytes (2.79 GiB, under the 5 GiB per-dataset cap): the plan's 110 MB estimate was low (dividends alone exceed it at ~250 KB per 1,000-row page) and the full dividend history length is unknown, so the ceiling is set generously. Alpaca /v1/corporate-actions (mergers, spin-offs, symbol changes) is not included: it needs a separate host and symbol lists.",
+    "documentation": "https://massive.com/docs/rest/stocks/corporate-actions/splits",
+    "desired_bytes": 3000000000,
+    "priority": 3.0,
+    "url_template": "https://api.massive.com/v3/reference/{endpoint}?limit=1000&{k1}={v1}&{k2}={v2}",
+    "combinations": [
+      {
+        "endpoint": "splits",
+        "k1": "execution_date.gte",
+        "v1": "1970-01-01",
+        "k2": "sort",
+        "v2": "execution_date"
+      },
+      {
+        "endpoint": "tickers",
+        "k1": "market",
+        "v1": "stocks",
+        "k2": "active",
+        "v2": "true"
+      },
+      {
+        "endpoint": "tickers",
+        "k1": "market",
+        "v1": "stocks",
+        "k2": "active",
+        "v2": "false"
+      },
+      {
+        "endpoint": "dividends",
+        "k1": "ex_dividend_date.gte",
+        "v1": "1970-01-01",
+        "k2": "order",
+        "v2": "desc"
+      }
+    ],
+    "pagination": {
+      "mode": "next_url",
+      "next_url_path": [
+        "next_url"
+      ]
+    },
+    "records_path": [
+      "results"
+    ],
+    "stop": {
+      "empty_page": true,
+      "short_page": false
+    },
+    "store": "jsonl",
+    "error_paths": [
+      [
+        "error"
+      ]
+    ],
+    "credentials": [
+      {
+        "env": "MASSIVE_API_KEY",
+        "query": "apiKey"
+      }
+    ],
+    "rate_limit": {
+      "requests_per_second": 0.08,
+      "key": "api.massive.com"
+    },
+    "timeout_seconds": 120,
+    "retries": 6,
+    "max_retry_after_seconds": 900,
+    "reader": {
+      "format": "jsonl"
+    }
+  }
 }

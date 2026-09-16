@@ -1,0 +1,78 @@
+{
+  "dependencies": [],
+  "description": "UK Companies House bulk products: Basic Company Data (all live companies, monthly) and the People with Significant Control snapshot (daily), normalized to company entities and dated beneficial ownership/control assertions with natures of control",
+  "entrypoint": "pipeline.py:run",
+  "id": "companies_house_uk",
+  "kind": "source",
+  "output_stage": "normalized",
+  "parameters": {},
+  "sampling": {
+    "strategy": "blocked",
+    "format": "csv",
+    "max_rows": 100,
+    "max_sample_bytes": 1048576,
+    "max_download_bytes": 1048576,
+    "max_uncompressed_bytes": 1048576,
+    "disk_budget_bytes": 67108864,
+    "criteria": "Deferred dataset",
+    "reason": "Bulk ZIP products are acquired with wm acquire; no bounded sample endpoint configured"
+  },
+  "schema_version": 2,
+  "stages": [
+    {
+      "id": "normalized",
+      "entrypoint": "pipeline.py:run",
+      "depends_on": [],
+      "schema": {
+        "format": "evidence_jsonl",
+        "compression": "gzip"
+      },
+      "validation": {
+        "allow_empty": false,
+        "max_rows": 120000000
+      },
+      "cache": "content",
+      "retention": "retain"
+    }
+  ],
+  "status": "complete",
+  "source": {
+    "publisher": "UK Companies House",
+    "documentation": "https://download.companieshouse.gov.uk/en_output.html",
+    "license_status": "OGL-3.0",
+    "license_notes": "Open Government Licence v3.0: reuse permitted with attribution 'Contains public sector information licensed under the Open Government Licence v3.0'. PSC data include personal data of individuals published under statutory register rules; normalization keeps name, nationality, country of residence and control facts only (no birth dates or addresses)."
+  },
+  "acquisition": {
+    "strategy": "files",
+    "description": "BasicCompanyDataAsOneFile-2026-09-01.zip (492,551,925 bytes) and persons-with-significant-control-snapshot-2026-09-15.zip (2,213,176,181 bytes), sizes verified 2026-09-15. Activated after the shared budget rose to 50 GiB; both file names change (monthly/daily).",
+    "documentation": "https://download.companieshouse.gov.uk/en_output.html",
+    "desired_bytes": 2750000000,
+    "priority": 2.0,
+    "files": [
+      {
+        "url": "https://download.companieshouse.gov.uk/BasicCompanyDataAsOneFile-2026-09-01.zip",
+        "name": "BasicCompanyDataAsOneFile-2026-09-01.zip"
+      },
+      {
+        "url": "https://download.companieshouse.gov.uk/persons-with-significant-control-snapshot-2026-09-15.zip",
+        "name": "persons-with-significant-control-snapshot-2026-09-15.zip"
+      }
+    ],
+    "rate_limit": {
+      "requests_per_second": 0.5
+    },
+    "timeout_seconds": 300,
+    "retries": 8,
+    "reader": {
+      "format": "csv",
+      "members": [
+        "*.csv"
+      ]
+    }
+  },
+  "coverage": {
+    "representative": false,
+    "completeness": "complete_for_declared_scope",
+    "scope": "All UK companies in Basic Company Data 2026-09-01 and every PSC register entry in the 2026-09-15 snapshot"
+  }
+}

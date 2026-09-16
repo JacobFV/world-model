@@ -3,7 +3,27 @@ import json
 from worldmodel.util import digest
 from worldmodel.source_helpers import STATE_FIPS
 
+
 def run(context):
+    """Sample artifacts keep the legacy adapter; full MRDS/MCS files use pipeline_full.run_full."""
+    if not context.raw_inputs:
+        raise ValueError('usgs_resources: no raw artifact supplied')
+    if _sampled(context):
+        yield from _run_sample(context)
+    else:
+        from .pipeline_full import run_full
+        yield from run_full(context)
+
+
+def _sampled(context, index=0):
+    try:
+        coverage = context.raw_coverage(index)
+    except Exception:
+        return True
+    return not isinstance(coverage, dict) or bool(coverage.get('sampled'))
+
+
+def _run_sample(context):
     dataset = 'usgs_resources'
     if not context.raw_inputs:
         raise ValueError(f'{dataset}: no sample artifact supplied')

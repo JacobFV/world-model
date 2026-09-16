@@ -1,0 +1,67 @@
+{
+  "id": "mit_election_returns",
+  "schema_version": 2,
+  "kind": "source",
+  "status": "partial_manual_download_required",
+  "description": "MIT Election Data + Science Lab returns: state-level U.S. President and U.S. Senate 1976-2024 (scripted); county presidential 2000-2024 and U.S. House 1976-2024 require a Dataverse guestbook response and are manual imports",
+  "source": {
+    "publisher": "MIT Election Data and Science Lab (Harvard Dataverse)",
+    "documentation": "https://electionlab.mit.edu/data",
+    "license_status": "CC0-1.0",
+    "license_notes": "CC0 1.0 verified on each Dataverse dataset (42MVDX, PEJ5QU, VOQCHQ, IG0UN2); cite MEDSL."
+  },
+  "dependencies": [],
+  "entrypoint": "pipeline.py:run",
+  "output_stage": "normalized",
+  "parameters": {},
+  "sampling": {
+    "criteria": "First 100 records, at most 1 MiB",
+    "disk_budget_bytes": 67108864,
+    "format": "jsonl",
+    "max_download_bytes": 1048576,
+    "max_rows": 100,
+    "max_sample_bytes": 1048576,
+    "max_uncompressed_bytes": 1048576,
+    "reason": "Configure a documented source URL and format before acquisition",
+    "strategy": "blocked"
+  },
+  "stages": [
+    {
+      "id": "normalized",
+      "entrypoint": "pipeline.py:run",
+      "depends_on": [],
+      "schema": {
+        "format": "evidence_jsonl",
+        "compression": "gzip"
+      },
+      "validation": {
+        "allow_empty": false,
+        "max_rows": 2000000
+      },
+      "cache": "content",
+      "retention": "retain"
+    }
+  ],
+  "acquisition": {
+    "strategy": "files",
+    "description": "1976-2024-president.csv (doi:10.7910/DVN/42MVDX) and 1976-2024-senate-state.tab (doi:10.7910/DVN/PEJ5QU)",
+    "documentation": "https://dataverse.harvard.edu/dataverse/medsl_election_returns",
+    "desired_bytes": 2000000,
+    "priority": 2.0,
+    "files": [
+      {
+        "url": "https://dataverse.harvard.edu/api/access/datafile/13887042",
+        "name": "1976-2024-president.csv"
+      },
+      {
+        "url": "https://dataverse.harvard.edu/api/access/datafile/13887039",
+        "name": "1976-2024-senate-state.tab"
+      }
+    ],
+    "rate_limit": {
+      "requests_per_second": 0.5
+    },
+    "timeout_seconds": 120,
+    "retries": 6
+  }
+}

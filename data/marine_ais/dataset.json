@@ -3,14 +3,22 @@
   "schema_version": 2,
   "dependencies": [],
   "kind": "source",
-  "status": "access_verified_export_not_acquired",
-  "description": "Historical AIS availability; no bulk daily download on laptop",
+  "status": "full_acquisition_ready",
+  "description": "MarineCadastre US coastal AIS vessel tracks for seasonal months of 2025 (January, July, December; acquired month by month in that priority order): track-segment and stationary-period events, vessel entities with IMO identifiers and dimensions, and vessel-month activity observations",
   "source": {
-    "publisher": "NOAA / BOEM / USCG MarineCadastre",
-    "license_status": "see_publisher_terms"
+    "publisher": "NOAA Office for Coastal Management, BOEM and USCG (MarineCadastre.gov)",
+    "license_status": "public_domain",
+    "license": "CC0 1.0 / US federal government work",
+    "license_url": "https://github.com/ocm-marinecadastre/ais-vessel-traffic",
+    "license_notes": "AIS coverage is limited to US coastal receivers; data are cleaned and segmented by the publisher. Reading GeoParquet requires the optional pyarrow package.",
+    "release": "aistrack monthly GeoParquet: ais-track-2025-01, -2025-07, -2025-12 (published 2026)"
   },
   "entrypoint": "pipeline.py:run",
-  "parameters": {},
+  "parameters": {
+    "stationary_max_km": 1.0,
+    "stationary_min_minutes": 60,
+    "batch_size": 50000
+  },
   "sampling": {
     "strategy": "blocked",
     "max_rows": 100,
@@ -27,17 +35,45 @@
     "reason": "AccessAIS status endpoint returned HTTP200 on2026-09-15. Its export flow requires an asynchronous order; no bounded synchronous track export or bulk archive has been verified within62MiB. No vessel tracks acquired.",
     "documentation": "https://marinecadastre.gov/accessais/"
   },
+  "acquisition": {
+    "strategy": "files",
+    "description": "MarineCadastre cleaned AIS vessel-track GeoParquet, one indivisible file per month, in priority order: 2025-01 (1,143,946,313 bytes, winter), 2025-07 (1,781,213,231 bytes, peak summer), 2025-12 (1,395,724,810 bytes, winter / holiday peak); total 4,320,884,354 bytes. Shards are reserved one at a time, so a budget stop publishes the completed months and stays resumable. No further month fits under the 10% per-dataset cap (the smallest remaining 2025 month, February, is 1,081,091,902 bytes).",
+    "documentation": "https://ocmgeodatastor1.blob.core.windows.net/marinecadastre/aistrack/index-aistrack.html",
+    "desired_bytes": 4330000000,
+    "min_bytes": 0,
+    "priority": 3.0,
+    "files": [
+      {
+        "url": "https://ocmgeodatastor1.blob.core.windows.net/marinecadastre/aistrack/ais-track-2025-01.parquet",
+        "name": "ais-track-2025-01.parquet"
+      },
+      {
+        "url": "https://ocmgeodatastor1.blob.core.windows.net/marinecadastre/aistrack/ais-track-2025-07.parquet",
+        "name": "ais-track-2025-07.parquet"
+      },
+      {
+        "url": "https://ocmgeodatastor1.blob.core.windows.net/marinecadastre/aistrack/ais-track-2025-12.parquet",
+        "name": "ais-track-2025-12.parquet"
+      }
+    ],
+    "rate_limit": {
+      "requests_per_second": 0.5
+    },
+    "timeout_seconds": 300,
+    "retries": 8
+  },
   "stages": [
     {
       "id": "normalized",
       "entrypoint": "pipeline.py:run",
       "depends_on": [],
       "schema": {
-        "format": "evidence_jsonl"
+        "format": "evidence_jsonl",
+        "compression": "gzip"
       },
       "validation": {
         "allow_empty": false,
-        "max_rows": 100000
+        "max_rows": 40000000
       },
       "cache": "content",
       "retention": "retain"

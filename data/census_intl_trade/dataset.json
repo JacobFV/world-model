@@ -1,0 +1,1752 @@
+{
+ "id": "census_intl_trade",
+ "schema_version": 2,
+ "kind": "source",
+ "status": "full_acquisition_complete",
+ "description": "U.S. monthly merchandise imports (general value, consumption value, calculated duty, dutiable value) and exports by HS6: all-country totals 2022-01..2026-07 and 18 major partners 2024-01..2026-07",
+ "dependencies": [],
+ "parameters": {},
+ "entrypoint": "pipeline.py:run",
+ "output_stage": "normalized",
+ "source": {
+  "publisher": "U.S. Census Bureau (Foreign Trade Division)",
+  "documentation": "https://www.census.gov/foreign-trade/reference/guides/Guide_to_International_Trade_Datasets.pdf",
+  "terms_url": "https://www.census.gov/data/developers/about/terms-of-service.html",
+  "license": "US federal government work: public domain",
+  "license_id": "public-domain-us-government",
+  "license_status": "public_domain_us_federal_work",
+  "attribution": "U.S. Census Bureau, International Trade API. This product uses the Census Bureau Data API but is not endorsed or certified by the Census Bureau.",
+  "redistribution": true,
+  "partners": {
+   "2010": "Mexico",
+   "1220": "Canada",
+   "5700": "China",
+   "4280": "Germany (Federal Republic of Germany)",
+   "5880": "Japan",
+   "5800": "South Korea (Republic of Korea)",
+   "5520": "Vietnam",
+   "5830": "Taiwan",
+   "5330": "India",
+   "4190": "Ireland",
+   "4120": "United Kingdom",
+   "4419": "Switzerland",
+   "4759": "Italy",
+   "4279": "France",
+   "4210": "Netherlands",
+   "5490": "Thailand",
+   "5570": "Malaysia",
+   "3510": "Brazil"
+  }
+ },
+ "acquisition": {
+  "strategy": "url_list",
+  "description": "Census intltrade HS6 time-series API in 6-month windows: CTY_CODE=- totals since 2022 plus one request per partner per window since 2024 (single-month all-partner HS6 queries time out with HTTP 500). desired_bytes 270 MB exceeds the plan's unverified 150 MB estimate: measured 2026-09-15 at ~33 MB for totals plus ~1.06 MB per partner x flow x 6-month window (236 requests), projecting ~261 MB.",
+  "documentation": "https://api.census.gov/data/timeseries/intltrade/imports/hs/variables.html",
+  "desired_bytes": 270000000,
+  "min_bytes": 0,
+  "priority": 3.0,
+  "url_template": "https://api.census.gov/data/timeseries/intltrade/{flow}/hs?get={fields}&time=from+{start}+to+{end}&COMM_LVL=HS6&CTY_CODE={partner}",
+  "combinations": [
+   {
+    "flow": "imports",
+    "fields": "I_COMMODITY,GEN_VAL_MO,CON_VAL_MO,CAL_DUT_MO,DUT_VAL_MO",
+    "start": "2022-01",
+    "end": "2022-06",
+    "partner": "-"
+   },
+   {
+    "flow": "exports",
+    "fields": "E_COMMODITY,ALL_VAL_MO",
+    "start": "2022-01",
+    "end": "2022-06",
+    "partner": "-"
+   },
+   {
+    "flow": "imports",
+    "fields": "I_COMMODITY,GEN_VAL_MO,CON_VAL_MO,CAL_DUT_MO,DUT_VAL_MO",
+    "start": "2022-07",
+    "end": "2022-12",
+    "partner": "-"
+   },
+   {
+    "flow": "exports",
+    "fields": "E_COMMODITY,ALL_VAL_MO",
+    "start": "2022-07",
+    "end": "2022-12",
+    "partner": "-"
+   },
+   {
+    "flow": "imports",
+    "fields": "I_COMMODITY,GEN_VAL_MO,CON_VAL_MO,CAL_DUT_MO,DUT_VAL_MO",
+    "start": "2023-01",
+    "end": "2023-06",
+    "partner": "-"
+   },
+   {
+    "flow": "exports",
+    "fields": "E_COMMODITY,ALL_VAL_MO",
+    "start": "2023-01",
+    "end": "2023-06",
+    "partner": "-"
+   },
+   {
+    "flow": "imports",
+    "fields": "I_COMMODITY,GEN_VAL_MO,CON_VAL_MO,CAL_DUT_MO,DUT_VAL_MO",
+    "start": "2023-07",
+    "end": "2023-12",
+    "partner": "-"
+   },
+   {
+    "flow": "exports",
+    "fields": "E_COMMODITY,ALL_VAL_MO",
+    "start": "2023-07",
+    "end": "2023-12",
+    "partner": "-"
+   },
+   {
+    "flow": "imports",
+    "fields": "I_COMMODITY,GEN_VAL_MO,CON_VAL_MO,CAL_DUT_MO,DUT_VAL_MO",
+    "start": "2024-01",
+    "end": "2024-06",
+    "partner": "-"
+   },
+   {
+    "flow": "exports",
+    "fields": "E_COMMODITY,ALL_VAL_MO",
+    "start": "2024-01",
+    "end": "2024-06",
+    "partner": "-"
+   },
+   {
+    "flow": "imports",
+    "fields": "I_COMMODITY,GEN_VAL_MO,CON_VAL_MO,CAL_DUT_MO,DUT_VAL_MO",
+    "start": "2024-07",
+    "end": "2024-12",
+    "partner": "-"
+   },
+   {
+    "flow": "exports",
+    "fields": "E_COMMODITY,ALL_VAL_MO",
+    "start": "2024-07",
+    "end": "2024-12",
+    "partner": "-"
+   },
+   {
+    "flow": "imports",
+    "fields": "I_COMMODITY,GEN_VAL_MO,CON_VAL_MO,CAL_DUT_MO,DUT_VAL_MO",
+    "start": "2025-01",
+    "end": "2025-06",
+    "partner": "-"
+   },
+   {
+    "flow": "exports",
+    "fields": "E_COMMODITY,ALL_VAL_MO",
+    "start": "2025-01",
+    "end": "2025-06",
+    "partner": "-"
+   },
+   {
+    "flow": "imports",
+    "fields": "I_COMMODITY,GEN_VAL_MO,CON_VAL_MO,CAL_DUT_MO,DUT_VAL_MO",
+    "start": "2025-07",
+    "end": "2025-12",
+    "partner": "-"
+   },
+   {
+    "flow": "exports",
+    "fields": "E_COMMODITY,ALL_VAL_MO",
+    "start": "2025-07",
+    "end": "2025-12",
+    "partner": "-"
+   },
+   {
+    "flow": "imports",
+    "fields": "I_COMMODITY,GEN_VAL_MO,CON_VAL_MO,CAL_DUT_MO,DUT_VAL_MO",
+    "start": "2026-01",
+    "end": "2026-06",
+    "partner": "-"
+   },
+   {
+    "flow": "exports",
+    "fields": "E_COMMODITY,ALL_VAL_MO",
+    "start": "2026-01",
+    "end": "2026-06",
+    "partner": "-"
+   },
+   {
+    "flow": "imports",
+    "fields": "I_COMMODITY,GEN_VAL_MO,CON_VAL_MO,CAL_DUT_MO,DUT_VAL_MO",
+    "start": "2026-07",
+    "end": "2026-07",
+    "partner": "-"
+   },
+   {
+    "flow": "exports",
+    "fields": "E_COMMODITY,ALL_VAL_MO",
+    "start": "2026-07",
+    "end": "2026-07",
+    "partner": "-"
+   },
+   {
+    "flow": "imports",
+    "fields": "I_COMMODITY,GEN_VAL_MO,CON_VAL_MO,CAL_DUT_MO,DUT_VAL_MO",
+    "start": "2024-01",
+    "end": "2024-06",
+    "partner": "2010"
+   },
+   {
+    "flow": "exports",
+    "fields": "E_COMMODITY,ALL_VAL_MO",
+    "start": "2024-01",
+    "end": "2024-06",
+    "partner": "2010"
+   },
+   {
+    "flow": "imports",
+    "fields": "I_COMMODITY,GEN_VAL_MO,CON_VAL_MO,CAL_DUT_MO,DUT_VAL_MO",
+    "start": "2024-01",
+    "end": "2024-06",
+    "partner": "1220"
+   },
+   {
+    "flow": "exports",
+    "fields": "E_COMMODITY,ALL_VAL_MO",
+    "start": "2024-01",
+    "end": "2024-06",
+    "partner": "1220"
+   },
+   {
+    "flow": "imports",
+    "fields": "I_COMMODITY,GEN_VAL_MO,CON_VAL_MO,CAL_DUT_MO,DUT_VAL_MO",
+    "start": "2024-01",
+    "end": "2024-06",
+    "partner": "5700"
+   },
+   {
+    "flow": "exports",
+    "fields": "E_COMMODITY,ALL_VAL_MO",
+    "start": "2024-01",
+    "end": "2024-06",
+    "partner": "5700"
+   },
+   {
+    "flow": "imports",
+    "fields": "I_COMMODITY,GEN_VAL_MO,CON_VAL_MO,CAL_DUT_MO,DUT_VAL_MO",
+    "start": "2024-01",
+    "end": "2024-06",
+    "partner": "4280"
+   },
+   {
+    "flow": "exports",
+    "fields": "E_COMMODITY,ALL_VAL_MO",
+    "start": "2024-01",
+    "end": "2024-06",
+    "partner": "4280"
+   },
+   {
+    "flow": "imports",
+    "fields": "I_COMMODITY,GEN_VAL_MO,CON_VAL_MO,CAL_DUT_MO,DUT_VAL_MO",
+    "start": "2024-01",
+    "end": "2024-06",
+    "partner": "5880"
+   },
+   {
+    "flow": "exports",
+    "fields": "E_COMMODITY,ALL_VAL_MO",
+    "start": "2024-01",
+    "end": "2024-06",
+    "partner": "5880"
+   },
+   {
+    "flow": "imports",
+    "fields": "I_COMMODITY,GEN_VAL_MO,CON_VAL_MO,CAL_DUT_MO,DUT_VAL_MO",
+    "start": "2024-01",
+    "end": "2024-06",
+    "partner": "5800"
+   },
+   {
+    "flow": "exports",
+    "fields": "E_COMMODITY,ALL_VAL_MO",
+    "start": "2024-01",
+    "end": "2024-06",
+    "partner": "5800"
+   },
+   {
+    "flow": "imports",
+    "fields": "I_COMMODITY,GEN_VAL_MO,CON_VAL_MO,CAL_DUT_MO,DUT_VAL_MO",
+    "start": "2024-01",
+    "end": "2024-06",
+    "partner": "5520"
+   },
+   {
+    "flow": "exports",
+    "fields": "E_COMMODITY,ALL_VAL_MO",
+    "start": "2024-01",
+    "end": "2024-06",
+    "partner": "5520"
+   },
+   {
+    "flow": "imports",
+    "fields": "I_COMMODITY,GEN_VAL_MO,CON_VAL_MO,CAL_DUT_MO,DUT_VAL_MO",
+    "start": "2024-01",
+    "end": "2024-06",
+    "partner": "5830"
+   },
+   {
+    "flow": "exports",
+    "fields": "E_COMMODITY,ALL_VAL_MO",
+    "start": "2024-01",
+    "end": "2024-06",
+    "partner": "5830"
+   },
+   {
+    "flow": "imports",
+    "fields": "I_COMMODITY,GEN_VAL_MO,CON_VAL_MO,CAL_DUT_MO,DUT_VAL_MO",
+    "start": "2024-01",
+    "end": "2024-06",
+    "partner": "5330"
+   },
+   {
+    "flow": "exports",
+    "fields": "E_COMMODITY,ALL_VAL_MO",
+    "start": "2024-01",
+    "end": "2024-06",
+    "partner": "5330"
+   },
+   {
+    "flow": "imports",
+    "fields": "I_COMMODITY,GEN_VAL_MO,CON_VAL_MO,CAL_DUT_MO,DUT_VAL_MO",
+    "start": "2024-01",
+    "end": "2024-06",
+    "partner": "4190"
+   },
+   {
+    "flow": "exports",
+    "fields": "E_COMMODITY,ALL_VAL_MO",
+    "start": "2024-01",
+    "end": "2024-06",
+    "partner": "4190"
+   },
+   {
+    "flow": "imports",
+    "fields": "I_COMMODITY,GEN_VAL_MO,CON_VAL_MO,CAL_DUT_MO,DUT_VAL_MO",
+    "start": "2024-01",
+    "end": "2024-06",
+    "partner": "4120"
+   },
+   {
+    "flow": "exports",
+    "fields": "E_COMMODITY,ALL_VAL_MO",
+    "start": "2024-01",
+    "end": "2024-06",
+    "partner": "4120"
+   },
+   {
+    "flow": "imports",
+    "fields": "I_COMMODITY,GEN_VAL_MO,CON_VAL_MO,CAL_DUT_MO,DUT_VAL_MO",
+    "start": "2024-01",
+    "end": "2024-06",
+    "partner": "4419"
+   },
+   {
+    "flow": "exports",
+    "fields": "E_COMMODITY,ALL_VAL_MO",
+    "start": "2024-01",
+    "end": "2024-06",
+    "partner": "4419"
+   },
+   {
+    "flow": "imports",
+    "fields": "I_COMMODITY,GEN_VAL_MO,CON_VAL_MO,CAL_DUT_MO,DUT_VAL_MO",
+    "start": "2024-01",
+    "end": "2024-06",
+    "partner": "4759"
+   },
+   {
+    "flow": "exports",
+    "fields": "E_COMMODITY,ALL_VAL_MO",
+    "start": "2024-01",
+    "end": "2024-06",
+    "partner": "4759"
+   },
+   {
+    "flow": "imports",
+    "fields": "I_COMMODITY,GEN_VAL_MO,CON_VAL_MO,CAL_DUT_MO,DUT_VAL_MO",
+    "start": "2024-01",
+    "end": "2024-06",
+    "partner": "4279"
+   },
+   {
+    "flow": "exports",
+    "fields": "E_COMMODITY,ALL_VAL_MO",
+    "start": "2024-01",
+    "end": "2024-06",
+    "partner": "4279"
+   },
+   {
+    "flow": "imports",
+    "fields": "I_COMMODITY,GEN_VAL_MO,CON_VAL_MO,CAL_DUT_MO,DUT_VAL_MO",
+    "start": "2024-01",
+    "end": "2024-06",
+    "partner": "4210"
+   },
+   {
+    "flow": "exports",
+    "fields": "E_COMMODITY,ALL_VAL_MO",
+    "start": "2024-01",
+    "end": "2024-06",
+    "partner": "4210"
+   },
+   {
+    "flow": "imports",
+    "fields": "I_COMMODITY,GEN_VAL_MO,CON_VAL_MO,CAL_DUT_MO,DUT_VAL_MO",
+    "start": "2024-01",
+    "end": "2024-06",
+    "partner": "5490"
+   },
+   {
+    "flow": "exports",
+    "fields": "E_COMMODITY,ALL_VAL_MO",
+    "start": "2024-01",
+    "end": "2024-06",
+    "partner": "5490"
+   },
+   {
+    "flow": "imports",
+    "fields": "I_COMMODITY,GEN_VAL_MO,CON_VAL_MO,CAL_DUT_MO,DUT_VAL_MO",
+    "start": "2024-01",
+    "end": "2024-06",
+    "partner": "5570"
+   },
+   {
+    "flow": "exports",
+    "fields": "E_COMMODITY,ALL_VAL_MO",
+    "start": "2024-01",
+    "end": "2024-06",
+    "partner": "5570"
+   },
+   {
+    "flow": "imports",
+    "fields": "I_COMMODITY,GEN_VAL_MO,CON_VAL_MO,CAL_DUT_MO,DUT_VAL_MO",
+    "start": "2024-01",
+    "end": "2024-06",
+    "partner": "3510"
+   },
+   {
+    "flow": "exports",
+    "fields": "E_COMMODITY,ALL_VAL_MO",
+    "start": "2024-01",
+    "end": "2024-06",
+    "partner": "3510"
+   },
+   {
+    "flow": "imports",
+    "fields": "I_COMMODITY,GEN_VAL_MO,CON_VAL_MO,CAL_DUT_MO,DUT_VAL_MO",
+    "start": "2024-07",
+    "end": "2024-12",
+    "partner": "2010"
+   },
+   {
+    "flow": "exports",
+    "fields": "E_COMMODITY,ALL_VAL_MO",
+    "start": "2024-07",
+    "end": "2024-12",
+    "partner": "2010"
+   },
+   {
+    "flow": "imports",
+    "fields": "I_COMMODITY,GEN_VAL_MO,CON_VAL_MO,CAL_DUT_MO,DUT_VAL_MO",
+    "start": "2024-07",
+    "end": "2024-12",
+    "partner": "1220"
+   },
+   {
+    "flow": "exports",
+    "fields": "E_COMMODITY,ALL_VAL_MO",
+    "start": "2024-07",
+    "end": "2024-12",
+    "partner": "1220"
+   },
+   {
+    "flow": "imports",
+    "fields": "I_COMMODITY,GEN_VAL_MO,CON_VAL_MO,CAL_DUT_MO,DUT_VAL_MO",
+    "start": "2024-07",
+    "end": "2024-12",
+    "partner": "5700"
+   },
+   {
+    "flow": "exports",
+    "fields": "E_COMMODITY,ALL_VAL_MO",
+    "start": "2024-07",
+    "end": "2024-12",
+    "partner": "5700"
+   },
+   {
+    "flow": "imports",
+    "fields": "I_COMMODITY,GEN_VAL_MO,CON_VAL_MO,CAL_DUT_MO,DUT_VAL_MO",
+    "start": "2024-07",
+    "end": "2024-12",
+    "partner": "4280"
+   },
+   {
+    "flow": "exports",
+    "fields": "E_COMMODITY,ALL_VAL_MO",
+    "start": "2024-07",
+    "end": "2024-12",
+    "partner": "4280"
+   },
+   {
+    "flow": "imports",
+    "fields": "I_COMMODITY,GEN_VAL_MO,CON_VAL_MO,CAL_DUT_MO,DUT_VAL_MO",
+    "start": "2024-07",
+    "end": "2024-12",
+    "partner": "5880"
+   },
+   {
+    "flow": "exports",
+    "fields": "E_COMMODITY,ALL_VAL_MO",
+    "start": "2024-07",
+    "end": "2024-12",
+    "partner": "5880"
+   },
+   {
+    "flow": "imports",
+    "fields": "I_COMMODITY,GEN_VAL_MO,CON_VAL_MO,CAL_DUT_MO,DUT_VAL_MO",
+    "start": "2024-07",
+    "end": "2024-12",
+    "partner": "5800"
+   },
+   {
+    "flow": "exports",
+    "fields": "E_COMMODITY,ALL_VAL_MO",
+    "start": "2024-07",
+    "end": "2024-12",
+    "partner": "5800"
+   },
+   {
+    "flow": "imports",
+    "fields": "I_COMMODITY,GEN_VAL_MO,CON_VAL_MO,CAL_DUT_MO,DUT_VAL_MO",
+    "start": "2024-07",
+    "end": "2024-12",
+    "partner": "5520"
+   },
+   {
+    "flow": "exports",
+    "fields": "E_COMMODITY,ALL_VAL_MO",
+    "start": "2024-07",
+    "end": "2024-12",
+    "partner": "5520"
+   },
+   {
+    "flow": "imports",
+    "fields": "I_COMMODITY,GEN_VAL_MO,CON_VAL_MO,CAL_DUT_MO,DUT_VAL_MO",
+    "start": "2024-07",
+    "end": "2024-12",
+    "partner": "5830"
+   },
+   {
+    "flow": "exports",
+    "fields": "E_COMMODITY,ALL_VAL_MO",
+    "start": "2024-07",
+    "end": "2024-12",
+    "partner": "5830"
+   },
+   {
+    "flow": "imports",
+    "fields": "I_COMMODITY,GEN_VAL_MO,CON_VAL_MO,CAL_DUT_MO,DUT_VAL_MO",
+    "start": "2024-07",
+    "end": "2024-12",
+    "partner": "5330"
+   },
+   {
+    "flow": "exports",
+    "fields": "E_COMMODITY,ALL_VAL_MO",
+    "start": "2024-07",
+    "end": "2024-12",
+    "partner": "5330"
+   },
+   {
+    "flow": "imports",
+    "fields": "I_COMMODITY,GEN_VAL_MO,CON_VAL_MO,CAL_DUT_MO,DUT_VAL_MO",
+    "start": "2024-07",
+    "end": "2024-12",
+    "partner": "4190"
+   },
+   {
+    "flow": "exports",
+    "fields": "E_COMMODITY,ALL_VAL_MO",
+    "start": "2024-07",
+    "end": "2024-12",
+    "partner": "4190"
+   },
+   {
+    "flow": "imports",
+    "fields": "I_COMMODITY,GEN_VAL_MO,CON_VAL_MO,CAL_DUT_MO,DUT_VAL_MO",
+    "start": "2024-07",
+    "end": "2024-12",
+    "partner": "4120"
+   },
+   {
+    "flow": "exports",
+    "fields": "E_COMMODITY,ALL_VAL_MO",
+    "start": "2024-07",
+    "end": "2024-12",
+    "partner": "4120"
+   },
+   {
+    "flow": "imports",
+    "fields": "I_COMMODITY,GEN_VAL_MO,CON_VAL_MO,CAL_DUT_MO,DUT_VAL_MO",
+    "start": "2024-07",
+    "end": "2024-12",
+    "partner": "4419"
+   },
+   {
+    "flow": "exports",
+    "fields": "E_COMMODITY,ALL_VAL_MO",
+    "start": "2024-07",
+    "end": "2024-12",
+    "partner": "4419"
+   },
+   {
+    "flow": "imports",
+    "fields": "I_COMMODITY,GEN_VAL_MO,CON_VAL_MO,CAL_DUT_MO,DUT_VAL_MO",
+    "start": "2024-07",
+    "end": "2024-12",
+    "partner": "4759"
+   },
+   {
+    "flow": "exports",
+    "fields": "E_COMMODITY,ALL_VAL_MO",
+    "start": "2024-07",
+    "end": "2024-12",
+    "partner": "4759"
+   },
+   {
+    "flow": "imports",
+    "fields": "I_COMMODITY,GEN_VAL_MO,CON_VAL_MO,CAL_DUT_MO,DUT_VAL_MO",
+    "start": "2024-07",
+    "end": "2024-12",
+    "partner": "4279"
+   },
+   {
+    "flow": "exports",
+    "fields": "E_COMMODITY,ALL_VAL_MO",
+    "start": "2024-07",
+    "end": "2024-12",
+    "partner": "4279"
+   },
+   {
+    "flow": "imports",
+    "fields": "I_COMMODITY,GEN_VAL_MO,CON_VAL_MO,CAL_DUT_MO,DUT_VAL_MO",
+    "start": "2024-07",
+    "end": "2024-12",
+    "partner": "4210"
+   },
+   {
+    "flow": "exports",
+    "fields": "E_COMMODITY,ALL_VAL_MO",
+    "start": "2024-07",
+    "end": "2024-12",
+    "partner": "4210"
+   },
+   {
+    "flow": "imports",
+    "fields": "I_COMMODITY,GEN_VAL_MO,CON_VAL_MO,CAL_DUT_MO,DUT_VAL_MO",
+    "start": "2024-07",
+    "end": "2024-12",
+    "partner": "5490"
+   },
+   {
+    "flow": "exports",
+    "fields": "E_COMMODITY,ALL_VAL_MO",
+    "start": "2024-07",
+    "end": "2024-12",
+    "partner": "5490"
+   },
+   {
+    "flow": "imports",
+    "fields": "I_COMMODITY,GEN_VAL_MO,CON_VAL_MO,CAL_DUT_MO,DUT_VAL_MO",
+    "start": "2024-07",
+    "end": "2024-12",
+    "partner": "5570"
+   },
+   {
+    "flow": "exports",
+    "fields": "E_COMMODITY,ALL_VAL_MO",
+    "start": "2024-07",
+    "end": "2024-12",
+    "partner": "5570"
+   },
+   {
+    "flow": "imports",
+    "fields": "I_COMMODITY,GEN_VAL_MO,CON_VAL_MO,CAL_DUT_MO,DUT_VAL_MO",
+    "start": "2024-07",
+    "end": "2024-12",
+    "partner": "3510"
+   },
+   {
+    "flow": "exports",
+    "fields": "E_COMMODITY,ALL_VAL_MO",
+    "start": "2024-07",
+    "end": "2024-12",
+    "partner": "3510"
+   },
+   {
+    "flow": "imports",
+    "fields": "I_COMMODITY,GEN_VAL_MO,CON_VAL_MO,CAL_DUT_MO,DUT_VAL_MO",
+    "start": "2025-01",
+    "end": "2025-06",
+    "partner": "2010"
+   },
+   {
+    "flow": "exports",
+    "fields": "E_COMMODITY,ALL_VAL_MO",
+    "start": "2025-01",
+    "end": "2025-06",
+    "partner": "2010"
+   },
+   {
+    "flow": "imports",
+    "fields": "I_COMMODITY,GEN_VAL_MO,CON_VAL_MO,CAL_DUT_MO,DUT_VAL_MO",
+    "start": "2025-01",
+    "end": "2025-06",
+    "partner": "1220"
+   },
+   {
+    "flow": "exports",
+    "fields": "E_COMMODITY,ALL_VAL_MO",
+    "start": "2025-01",
+    "end": "2025-06",
+    "partner": "1220"
+   },
+   {
+    "flow": "imports",
+    "fields": "I_COMMODITY,GEN_VAL_MO,CON_VAL_MO,CAL_DUT_MO,DUT_VAL_MO",
+    "start": "2025-01",
+    "end": "2025-06",
+    "partner": "5700"
+   },
+   {
+    "flow": "exports",
+    "fields": "E_COMMODITY,ALL_VAL_MO",
+    "start": "2025-01",
+    "end": "2025-06",
+    "partner": "5700"
+   },
+   {
+    "flow": "imports",
+    "fields": "I_COMMODITY,GEN_VAL_MO,CON_VAL_MO,CAL_DUT_MO,DUT_VAL_MO",
+    "start": "2025-01",
+    "end": "2025-06",
+    "partner": "4280"
+   },
+   {
+    "flow": "exports",
+    "fields": "E_COMMODITY,ALL_VAL_MO",
+    "start": "2025-01",
+    "end": "2025-06",
+    "partner": "4280"
+   },
+   {
+    "flow": "imports",
+    "fields": "I_COMMODITY,GEN_VAL_MO,CON_VAL_MO,CAL_DUT_MO,DUT_VAL_MO",
+    "start": "2025-01",
+    "end": "2025-06",
+    "partner": "5880"
+   },
+   {
+    "flow": "exports",
+    "fields": "E_COMMODITY,ALL_VAL_MO",
+    "start": "2025-01",
+    "end": "2025-06",
+    "partner": "5880"
+   },
+   {
+    "flow": "imports",
+    "fields": "I_COMMODITY,GEN_VAL_MO,CON_VAL_MO,CAL_DUT_MO,DUT_VAL_MO",
+    "start": "2025-01",
+    "end": "2025-06",
+    "partner": "5800"
+   },
+   {
+    "flow": "exports",
+    "fields": "E_COMMODITY,ALL_VAL_MO",
+    "start": "2025-01",
+    "end": "2025-06",
+    "partner": "5800"
+   },
+   {
+    "flow": "imports",
+    "fields": "I_COMMODITY,GEN_VAL_MO,CON_VAL_MO,CAL_DUT_MO,DUT_VAL_MO",
+    "start": "2025-01",
+    "end": "2025-06",
+    "partner": "5520"
+   },
+   {
+    "flow": "exports",
+    "fields": "E_COMMODITY,ALL_VAL_MO",
+    "start": "2025-01",
+    "end": "2025-06",
+    "partner": "5520"
+   },
+   {
+    "flow": "imports",
+    "fields": "I_COMMODITY,GEN_VAL_MO,CON_VAL_MO,CAL_DUT_MO,DUT_VAL_MO",
+    "start": "2025-01",
+    "end": "2025-06",
+    "partner": "5830"
+   },
+   {
+    "flow": "exports",
+    "fields": "E_COMMODITY,ALL_VAL_MO",
+    "start": "2025-01",
+    "end": "2025-06",
+    "partner": "5830"
+   },
+   {
+    "flow": "imports",
+    "fields": "I_COMMODITY,GEN_VAL_MO,CON_VAL_MO,CAL_DUT_MO,DUT_VAL_MO",
+    "start": "2025-01",
+    "end": "2025-06",
+    "partner": "5330"
+   },
+   {
+    "flow": "exports",
+    "fields": "E_COMMODITY,ALL_VAL_MO",
+    "start": "2025-01",
+    "end": "2025-06",
+    "partner": "5330"
+   },
+   {
+    "flow": "imports",
+    "fields": "I_COMMODITY,GEN_VAL_MO,CON_VAL_MO,CAL_DUT_MO,DUT_VAL_MO",
+    "start": "2025-01",
+    "end": "2025-06",
+    "partner": "4190"
+   },
+   {
+    "flow": "exports",
+    "fields": "E_COMMODITY,ALL_VAL_MO",
+    "start": "2025-01",
+    "end": "2025-06",
+    "partner": "4190"
+   },
+   {
+    "flow": "imports",
+    "fields": "I_COMMODITY,GEN_VAL_MO,CON_VAL_MO,CAL_DUT_MO,DUT_VAL_MO",
+    "start": "2025-01",
+    "end": "2025-06",
+    "partner": "4120"
+   },
+   {
+    "flow": "exports",
+    "fields": "E_COMMODITY,ALL_VAL_MO",
+    "start": "2025-01",
+    "end": "2025-06",
+    "partner": "4120"
+   },
+   {
+    "flow": "imports",
+    "fields": "I_COMMODITY,GEN_VAL_MO,CON_VAL_MO,CAL_DUT_MO,DUT_VAL_MO",
+    "start": "2025-01",
+    "end": "2025-06",
+    "partner": "4419"
+   },
+   {
+    "flow": "exports",
+    "fields": "E_COMMODITY,ALL_VAL_MO",
+    "start": "2025-01",
+    "end": "2025-06",
+    "partner": "4419"
+   },
+   {
+    "flow": "imports",
+    "fields": "I_COMMODITY,GEN_VAL_MO,CON_VAL_MO,CAL_DUT_MO,DUT_VAL_MO",
+    "start": "2025-01",
+    "end": "2025-06",
+    "partner": "4759"
+   },
+   {
+    "flow": "exports",
+    "fields": "E_COMMODITY,ALL_VAL_MO",
+    "start": "2025-01",
+    "end": "2025-06",
+    "partner": "4759"
+   },
+   {
+    "flow": "imports",
+    "fields": "I_COMMODITY,GEN_VAL_MO,CON_VAL_MO,CAL_DUT_MO,DUT_VAL_MO",
+    "start": "2025-01",
+    "end": "2025-06",
+    "partner": "4279"
+   },
+   {
+    "flow": "exports",
+    "fields": "E_COMMODITY,ALL_VAL_MO",
+    "start": "2025-01",
+    "end": "2025-06",
+    "partner": "4279"
+   },
+   {
+    "flow": "imports",
+    "fields": "I_COMMODITY,GEN_VAL_MO,CON_VAL_MO,CAL_DUT_MO,DUT_VAL_MO",
+    "start": "2025-01",
+    "end": "2025-06",
+    "partner": "4210"
+   },
+   {
+    "flow": "exports",
+    "fields": "E_COMMODITY,ALL_VAL_MO",
+    "start": "2025-01",
+    "end": "2025-06",
+    "partner": "4210"
+   },
+   {
+    "flow": "imports",
+    "fields": "I_COMMODITY,GEN_VAL_MO,CON_VAL_MO,CAL_DUT_MO,DUT_VAL_MO",
+    "start": "2025-01",
+    "end": "2025-06",
+    "partner": "5490"
+   },
+   {
+    "flow": "exports",
+    "fields": "E_COMMODITY,ALL_VAL_MO",
+    "start": "2025-01",
+    "end": "2025-06",
+    "partner": "5490"
+   },
+   {
+    "flow": "imports",
+    "fields": "I_COMMODITY,GEN_VAL_MO,CON_VAL_MO,CAL_DUT_MO,DUT_VAL_MO",
+    "start": "2025-01",
+    "end": "2025-06",
+    "partner": "5570"
+   },
+   {
+    "flow": "exports",
+    "fields": "E_COMMODITY,ALL_VAL_MO",
+    "start": "2025-01",
+    "end": "2025-06",
+    "partner": "5570"
+   },
+   {
+    "flow": "imports",
+    "fields": "I_COMMODITY,GEN_VAL_MO,CON_VAL_MO,CAL_DUT_MO,DUT_VAL_MO",
+    "start": "2025-01",
+    "end": "2025-06",
+    "partner": "3510"
+   },
+   {
+    "flow": "exports",
+    "fields": "E_COMMODITY,ALL_VAL_MO",
+    "start": "2025-01",
+    "end": "2025-06",
+    "partner": "3510"
+   },
+   {
+    "flow": "imports",
+    "fields": "I_COMMODITY,GEN_VAL_MO,CON_VAL_MO,CAL_DUT_MO,DUT_VAL_MO",
+    "start": "2025-07",
+    "end": "2025-12",
+    "partner": "2010"
+   },
+   {
+    "flow": "exports",
+    "fields": "E_COMMODITY,ALL_VAL_MO",
+    "start": "2025-07",
+    "end": "2025-12",
+    "partner": "2010"
+   },
+   {
+    "flow": "imports",
+    "fields": "I_COMMODITY,GEN_VAL_MO,CON_VAL_MO,CAL_DUT_MO,DUT_VAL_MO",
+    "start": "2025-07",
+    "end": "2025-12",
+    "partner": "1220"
+   },
+   {
+    "flow": "exports",
+    "fields": "E_COMMODITY,ALL_VAL_MO",
+    "start": "2025-07",
+    "end": "2025-12",
+    "partner": "1220"
+   },
+   {
+    "flow": "imports",
+    "fields": "I_COMMODITY,GEN_VAL_MO,CON_VAL_MO,CAL_DUT_MO,DUT_VAL_MO",
+    "start": "2025-07",
+    "end": "2025-12",
+    "partner": "5700"
+   },
+   {
+    "flow": "exports",
+    "fields": "E_COMMODITY,ALL_VAL_MO",
+    "start": "2025-07",
+    "end": "2025-12",
+    "partner": "5700"
+   },
+   {
+    "flow": "imports",
+    "fields": "I_COMMODITY,GEN_VAL_MO,CON_VAL_MO,CAL_DUT_MO,DUT_VAL_MO",
+    "start": "2025-07",
+    "end": "2025-12",
+    "partner": "4280"
+   },
+   {
+    "flow": "exports",
+    "fields": "E_COMMODITY,ALL_VAL_MO",
+    "start": "2025-07",
+    "end": "2025-12",
+    "partner": "4280"
+   },
+   {
+    "flow": "imports",
+    "fields": "I_COMMODITY,GEN_VAL_MO,CON_VAL_MO,CAL_DUT_MO,DUT_VAL_MO",
+    "start": "2025-07",
+    "end": "2025-12",
+    "partner": "5880"
+   },
+   {
+    "flow": "exports",
+    "fields": "E_COMMODITY,ALL_VAL_MO",
+    "start": "2025-07",
+    "end": "2025-12",
+    "partner": "5880"
+   },
+   {
+    "flow": "imports",
+    "fields": "I_COMMODITY,GEN_VAL_MO,CON_VAL_MO,CAL_DUT_MO,DUT_VAL_MO",
+    "start": "2025-07",
+    "end": "2025-12",
+    "partner": "5800"
+   },
+   {
+    "flow": "exports",
+    "fields": "E_COMMODITY,ALL_VAL_MO",
+    "start": "2025-07",
+    "end": "2025-12",
+    "partner": "5800"
+   },
+   {
+    "flow": "imports",
+    "fields": "I_COMMODITY,GEN_VAL_MO,CON_VAL_MO,CAL_DUT_MO,DUT_VAL_MO",
+    "start": "2025-07",
+    "end": "2025-12",
+    "partner": "5520"
+   },
+   {
+    "flow": "exports",
+    "fields": "E_COMMODITY,ALL_VAL_MO",
+    "start": "2025-07",
+    "end": "2025-12",
+    "partner": "5520"
+   },
+   {
+    "flow": "imports",
+    "fields": "I_COMMODITY,GEN_VAL_MO,CON_VAL_MO,CAL_DUT_MO,DUT_VAL_MO",
+    "start": "2025-07",
+    "end": "2025-12",
+    "partner": "5830"
+   },
+   {
+    "flow": "exports",
+    "fields": "E_COMMODITY,ALL_VAL_MO",
+    "start": "2025-07",
+    "end": "2025-12",
+    "partner": "5830"
+   },
+   {
+    "flow": "imports",
+    "fields": "I_COMMODITY,GEN_VAL_MO,CON_VAL_MO,CAL_DUT_MO,DUT_VAL_MO",
+    "start": "2025-07",
+    "end": "2025-12",
+    "partner": "5330"
+   },
+   {
+    "flow": "exports",
+    "fields": "E_COMMODITY,ALL_VAL_MO",
+    "start": "2025-07",
+    "end": "2025-12",
+    "partner": "5330"
+   },
+   {
+    "flow": "imports",
+    "fields": "I_COMMODITY,GEN_VAL_MO,CON_VAL_MO,CAL_DUT_MO,DUT_VAL_MO",
+    "start": "2025-07",
+    "end": "2025-12",
+    "partner": "4190"
+   },
+   {
+    "flow": "exports",
+    "fields": "E_COMMODITY,ALL_VAL_MO",
+    "start": "2025-07",
+    "end": "2025-12",
+    "partner": "4190"
+   },
+   {
+    "flow": "imports",
+    "fields": "I_COMMODITY,GEN_VAL_MO,CON_VAL_MO,CAL_DUT_MO,DUT_VAL_MO",
+    "start": "2025-07",
+    "end": "2025-12",
+    "partner": "4120"
+   },
+   {
+    "flow": "exports",
+    "fields": "E_COMMODITY,ALL_VAL_MO",
+    "start": "2025-07",
+    "end": "2025-12",
+    "partner": "4120"
+   },
+   {
+    "flow": "imports",
+    "fields": "I_COMMODITY,GEN_VAL_MO,CON_VAL_MO,CAL_DUT_MO,DUT_VAL_MO",
+    "start": "2025-07",
+    "end": "2025-12",
+    "partner": "4419"
+   },
+   {
+    "flow": "exports",
+    "fields": "E_COMMODITY,ALL_VAL_MO",
+    "start": "2025-07",
+    "end": "2025-12",
+    "partner": "4419"
+   },
+   {
+    "flow": "imports",
+    "fields": "I_COMMODITY,GEN_VAL_MO,CON_VAL_MO,CAL_DUT_MO,DUT_VAL_MO",
+    "start": "2025-07",
+    "end": "2025-12",
+    "partner": "4759"
+   },
+   {
+    "flow": "exports",
+    "fields": "E_COMMODITY,ALL_VAL_MO",
+    "start": "2025-07",
+    "end": "2025-12",
+    "partner": "4759"
+   },
+   {
+    "flow": "imports",
+    "fields": "I_COMMODITY,GEN_VAL_MO,CON_VAL_MO,CAL_DUT_MO,DUT_VAL_MO",
+    "start": "2025-07",
+    "end": "2025-12",
+    "partner": "4279"
+   },
+   {
+    "flow": "exports",
+    "fields": "E_COMMODITY,ALL_VAL_MO",
+    "start": "2025-07",
+    "end": "2025-12",
+    "partner": "4279"
+   },
+   {
+    "flow": "imports",
+    "fields": "I_COMMODITY,GEN_VAL_MO,CON_VAL_MO,CAL_DUT_MO,DUT_VAL_MO",
+    "start": "2025-07",
+    "end": "2025-12",
+    "partner": "4210"
+   },
+   {
+    "flow": "exports",
+    "fields": "E_COMMODITY,ALL_VAL_MO",
+    "start": "2025-07",
+    "end": "2025-12",
+    "partner": "4210"
+   },
+   {
+    "flow": "imports",
+    "fields": "I_COMMODITY,GEN_VAL_MO,CON_VAL_MO,CAL_DUT_MO,DUT_VAL_MO",
+    "start": "2025-07",
+    "end": "2025-12",
+    "partner": "5490"
+   },
+   {
+    "flow": "exports",
+    "fields": "E_COMMODITY,ALL_VAL_MO",
+    "start": "2025-07",
+    "end": "2025-12",
+    "partner": "5490"
+   },
+   {
+    "flow": "imports",
+    "fields": "I_COMMODITY,GEN_VAL_MO,CON_VAL_MO,CAL_DUT_MO,DUT_VAL_MO",
+    "start": "2025-07",
+    "end": "2025-12",
+    "partner": "5570"
+   },
+   {
+    "flow": "exports",
+    "fields": "E_COMMODITY,ALL_VAL_MO",
+    "start": "2025-07",
+    "end": "2025-12",
+    "partner": "5570"
+   },
+   {
+    "flow": "imports",
+    "fields": "I_COMMODITY,GEN_VAL_MO,CON_VAL_MO,CAL_DUT_MO,DUT_VAL_MO",
+    "start": "2025-07",
+    "end": "2025-12",
+    "partner": "3510"
+   },
+   {
+    "flow": "exports",
+    "fields": "E_COMMODITY,ALL_VAL_MO",
+    "start": "2025-07",
+    "end": "2025-12",
+    "partner": "3510"
+   },
+   {
+    "flow": "imports",
+    "fields": "I_COMMODITY,GEN_VAL_MO,CON_VAL_MO,CAL_DUT_MO,DUT_VAL_MO",
+    "start": "2026-01",
+    "end": "2026-06",
+    "partner": "2010"
+   },
+   {
+    "flow": "exports",
+    "fields": "E_COMMODITY,ALL_VAL_MO",
+    "start": "2026-01",
+    "end": "2026-06",
+    "partner": "2010"
+   },
+   {
+    "flow": "imports",
+    "fields": "I_COMMODITY,GEN_VAL_MO,CON_VAL_MO,CAL_DUT_MO,DUT_VAL_MO",
+    "start": "2026-01",
+    "end": "2026-06",
+    "partner": "1220"
+   },
+   {
+    "flow": "exports",
+    "fields": "E_COMMODITY,ALL_VAL_MO",
+    "start": "2026-01",
+    "end": "2026-06",
+    "partner": "1220"
+   },
+   {
+    "flow": "imports",
+    "fields": "I_COMMODITY,GEN_VAL_MO,CON_VAL_MO,CAL_DUT_MO,DUT_VAL_MO",
+    "start": "2026-01",
+    "end": "2026-06",
+    "partner": "5700"
+   },
+   {
+    "flow": "exports",
+    "fields": "E_COMMODITY,ALL_VAL_MO",
+    "start": "2026-01",
+    "end": "2026-06",
+    "partner": "5700"
+   },
+   {
+    "flow": "imports",
+    "fields": "I_COMMODITY,GEN_VAL_MO,CON_VAL_MO,CAL_DUT_MO,DUT_VAL_MO",
+    "start": "2026-01",
+    "end": "2026-06",
+    "partner": "4280"
+   },
+   {
+    "flow": "exports",
+    "fields": "E_COMMODITY,ALL_VAL_MO",
+    "start": "2026-01",
+    "end": "2026-06",
+    "partner": "4280"
+   },
+   {
+    "flow": "imports",
+    "fields": "I_COMMODITY,GEN_VAL_MO,CON_VAL_MO,CAL_DUT_MO,DUT_VAL_MO",
+    "start": "2026-01",
+    "end": "2026-06",
+    "partner": "5880"
+   },
+   {
+    "flow": "exports",
+    "fields": "E_COMMODITY,ALL_VAL_MO",
+    "start": "2026-01",
+    "end": "2026-06",
+    "partner": "5880"
+   },
+   {
+    "flow": "imports",
+    "fields": "I_COMMODITY,GEN_VAL_MO,CON_VAL_MO,CAL_DUT_MO,DUT_VAL_MO",
+    "start": "2026-01",
+    "end": "2026-06",
+    "partner": "5800"
+   },
+   {
+    "flow": "exports",
+    "fields": "E_COMMODITY,ALL_VAL_MO",
+    "start": "2026-01",
+    "end": "2026-06",
+    "partner": "5800"
+   },
+   {
+    "flow": "imports",
+    "fields": "I_COMMODITY,GEN_VAL_MO,CON_VAL_MO,CAL_DUT_MO,DUT_VAL_MO",
+    "start": "2026-01",
+    "end": "2026-06",
+    "partner": "5520"
+   },
+   {
+    "flow": "exports",
+    "fields": "E_COMMODITY,ALL_VAL_MO",
+    "start": "2026-01",
+    "end": "2026-06",
+    "partner": "5520"
+   },
+   {
+    "flow": "imports",
+    "fields": "I_COMMODITY,GEN_VAL_MO,CON_VAL_MO,CAL_DUT_MO,DUT_VAL_MO",
+    "start": "2026-01",
+    "end": "2026-06",
+    "partner": "5830"
+   },
+   {
+    "flow": "exports",
+    "fields": "E_COMMODITY,ALL_VAL_MO",
+    "start": "2026-01",
+    "end": "2026-06",
+    "partner": "5830"
+   },
+   {
+    "flow": "imports",
+    "fields": "I_COMMODITY,GEN_VAL_MO,CON_VAL_MO,CAL_DUT_MO,DUT_VAL_MO",
+    "start": "2026-01",
+    "end": "2026-06",
+    "partner": "5330"
+   },
+   {
+    "flow": "exports",
+    "fields": "E_COMMODITY,ALL_VAL_MO",
+    "start": "2026-01",
+    "end": "2026-06",
+    "partner": "5330"
+   },
+   {
+    "flow": "imports",
+    "fields": "I_COMMODITY,GEN_VAL_MO,CON_VAL_MO,CAL_DUT_MO,DUT_VAL_MO",
+    "start": "2026-01",
+    "end": "2026-06",
+    "partner": "4190"
+   },
+   {
+    "flow": "exports",
+    "fields": "E_COMMODITY,ALL_VAL_MO",
+    "start": "2026-01",
+    "end": "2026-06",
+    "partner": "4190"
+   },
+   {
+    "flow": "imports",
+    "fields": "I_COMMODITY,GEN_VAL_MO,CON_VAL_MO,CAL_DUT_MO,DUT_VAL_MO",
+    "start": "2026-01",
+    "end": "2026-06",
+    "partner": "4120"
+   },
+   {
+    "flow": "exports",
+    "fields": "E_COMMODITY,ALL_VAL_MO",
+    "start": "2026-01",
+    "end": "2026-06",
+    "partner": "4120"
+   },
+   {
+    "flow": "imports",
+    "fields": "I_COMMODITY,GEN_VAL_MO,CON_VAL_MO,CAL_DUT_MO,DUT_VAL_MO",
+    "start": "2026-01",
+    "end": "2026-06",
+    "partner": "4419"
+   },
+   {
+    "flow": "exports",
+    "fields": "E_COMMODITY,ALL_VAL_MO",
+    "start": "2026-01",
+    "end": "2026-06",
+    "partner": "4419"
+   },
+   {
+    "flow": "imports",
+    "fields": "I_COMMODITY,GEN_VAL_MO,CON_VAL_MO,CAL_DUT_MO,DUT_VAL_MO",
+    "start": "2026-01",
+    "end": "2026-06",
+    "partner": "4759"
+   },
+   {
+    "flow": "exports",
+    "fields": "E_COMMODITY,ALL_VAL_MO",
+    "start": "2026-01",
+    "end": "2026-06",
+    "partner": "4759"
+   },
+   {
+    "flow": "imports",
+    "fields": "I_COMMODITY,GEN_VAL_MO,CON_VAL_MO,CAL_DUT_MO,DUT_VAL_MO",
+    "start": "2026-01",
+    "end": "2026-06",
+    "partner": "4279"
+   },
+   {
+    "flow": "exports",
+    "fields": "E_COMMODITY,ALL_VAL_MO",
+    "start": "2026-01",
+    "end": "2026-06",
+    "partner": "4279"
+   },
+   {
+    "flow": "imports",
+    "fields": "I_COMMODITY,GEN_VAL_MO,CON_VAL_MO,CAL_DUT_MO,DUT_VAL_MO",
+    "start": "2026-01",
+    "end": "2026-06",
+    "partner": "4210"
+   },
+   {
+    "flow": "exports",
+    "fields": "E_COMMODITY,ALL_VAL_MO",
+    "start": "2026-01",
+    "end": "2026-06",
+    "partner": "4210"
+   },
+   {
+    "flow": "imports",
+    "fields": "I_COMMODITY,GEN_VAL_MO,CON_VAL_MO,CAL_DUT_MO,DUT_VAL_MO",
+    "start": "2026-01",
+    "end": "2026-06",
+    "partner": "5490"
+   },
+   {
+    "flow": "exports",
+    "fields": "E_COMMODITY,ALL_VAL_MO",
+    "start": "2026-01",
+    "end": "2026-06",
+    "partner": "5490"
+   },
+   {
+    "flow": "imports",
+    "fields": "I_COMMODITY,GEN_VAL_MO,CON_VAL_MO,CAL_DUT_MO,DUT_VAL_MO",
+    "start": "2026-01",
+    "end": "2026-06",
+    "partner": "5570"
+   },
+   {
+    "flow": "exports",
+    "fields": "E_COMMODITY,ALL_VAL_MO",
+    "start": "2026-01",
+    "end": "2026-06",
+    "partner": "5570"
+   },
+   {
+    "flow": "imports",
+    "fields": "I_COMMODITY,GEN_VAL_MO,CON_VAL_MO,CAL_DUT_MO,DUT_VAL_MO",
+    "start": "2026-01",
+    "end": "2026-06",
+    "partner": "3510"
+   },
+   {
+    "flow": "exports",
+    "fields": "E_COMMODITY,ALL_VAL_MO",
+    "start": "2026-01",
+    "end": "2026-06",
+    "partner": "3510"
+   },
+   {
+    "flow": "imports",
+    "fields": "I_COMMODITY,GEN_VAL_MO,CON_VAL_MO,CAL_DUT_MO,DUT_VAL_MO",
+    "start": "2026-07",
+    "end": "2026-07",
+    "partner": "2010"
+   },
+   {
+    "flow": "exports",
+    "fields": "E_COMMODITY,ALL_VAL_MO",
+    "start": "2026-07",
+    "end": "2026-07",
+    "partner": "2010"
+   },
+   {
+    "flow": "imports",
+    "fields": "I_COMMODITY,GEN_VAL_MO,CON_VAL_MO,CAL_DUT_MO,DUT_VAL_MO",
+    "start": "2026-07",
+    "end": "2026-07",
+    "partner": "1220"
+   },
+   {
+    "flow": "exports",
+    "fields": "E_COMMODITY,ALL_VAL_MO",
+    "start": "2026-07",
+    "end": "2026-07",
+    "partner": "1220"
+   },
+   {
+    "flow": "imports",
+    "fields": "I_COMMODITY,GEN_VAL_MO,CON_VAL_MO,CAL_DUT_MO,DUT_VAL_MO",
+    "start": "2026-07",
+    "end": "2026-07",
+    "partner": "5700"
+   },
+   {
+    "flow": "exports",
+    "fields": "E_COMMODITY,ALL_VAL_MO",
+    "start": "2026-07",
+    "end": "2026-07",
+    "partner": "5700"
+   },
+   {
+    "flow": "imports",
+    "fields": "I_COMMODITY,GEN_VAL_MO,CON_VAL_MO,CAL_DUT_MO,DUT_VAL_MO",
+    "start": "2026-07",
+    "end": "2026-07",
+    "partner": "4280"
+   },
+   {
+    "flow": "exports",
+    "fields": "E_COMMODITY,ALL_VAL_MO",
+    "start": "2026-07",
+    "end": "2026-07",
+    "partner": "4280"
+   },
+   {
+    "flow": "imports",
+    "fields": "I_COMMODITY,GEN_VAL_MO,CON_VAL_MO,CAL_DUT_MO,DUT_VAL_MO",
+    "start": "2026-07",
+    "end": "2026-07",
+    "partner": "5880"
+   },
+   {
+    "flow": "exports",
+    "fields": "E_COMMODITY,ALL_VAL_MO",
+    "start": "2026-07",
+    "end": "2026-07",
+    "partner": "5880"
+   },
+   {
+    "flow": "imports",
+    "fields": "I_COMMODITY,GEN_VAL_MO,CON_VAL_MO,CAL_DUT_MO,DUT_VAL_MO",
+    "start": "2026-07",
+    "end": "2026-07",
+    "partner": "5800"
+   },
+   {
+    "flow": "exports",
+    "fields": "E_COMMODITY,ALL_VAL_MO",
+    "start": "2026-07",
+    "end": "2026-07",
+    "partner": "5800"
+   },
+   {
+    "flow": "imports",
+    "fields": "I_COMMODITY,GEN_VAL_MO,CON_VAL_MO,CAL_DUT_MO,DUT_VAL_MO",
+    "start": "2026-07",
+    "end": "2026-07",
+    "partner": "5520"
+   },
+   {
+    "flow": "exports",
+    "fields": "E_COMMODITY,ALL_VAL_MO",
+    "start": "2026-07",
+    "end": "2026-07",
+    "partner": "5520"
+   },
+   {
+    "flow": "imports",
+    "fields": "I_COMMODITY,GEN_VAL_MO,CON_VAL_MO,CAL_DUT_MO,DUT_VAL_MO",
+    "start": "2026-07",
+    "end": "2026-07",
+    "partner": "5830"
+   },
+   {
+    "flow": "exports",
+    "fields": "E_COMMODITY,ALL_VAL_MO",
+    "start": "2026-07",
+    "end": "2026-07",
+    "partner": "5830"
+   },
+   {
+    "flow": "imports",
+    "fields": "I_COMMODITY,GEN_VAL_MO,CON_VAL_MO,CAL_DUT_MO,DUT_VAL_MO",
+    "start": "2026-07",
+    "end": "2026-07",
+    "partner": "5330"
+   },
+   {
+    "flow": "exports",
+    "fields": "E_COMMODITY,ALL_VAL_MO",
+    "start": "2026-07",
+    "end": "2026-07",
+    "partner": "5330"
+   },
+   {
+    "flow": "imports",
+    "fields": "I_COMMODITY,GEN_VAL_MO,CON_VAL_MO,CAL_DUT_MO,DUT_VAL_MO",
+    "start": "2026-07",
+    "end": "2026-07",
+    "partner": "4190"
+   },
+   {
+    "flow": "exports",
+    "fields": "E_COMMODITY,ALL_VAL_MO",
+    "start": "2026-07",
+    "end": "2026-07",
+    "partner": "4190"
+   },
+   {
+    "flow": "imports",
+    "fields": "I_COMMODITY,GEN_VAL_MO,CON_VAL_MO,CAL_DUT_MO,DUT_VAL_MO",
+    "start": "2026-07",
+    "end": "2026-07",
+    "partner": "4120"
+   },
+   {
+    "flow": "exports",
+    "fields": "E_COMMODITY,ALL_VAL_MO",
+    "start": "2026-07",
+    "end": "2026-07",
+    "partner": "4120"
+   },
+   {
+    "flow": "imports",
+    "fields": "I_COMMODITY,GEN_VAL_MO,CON_VAL_MO,CAL_DUT_MO,DUT_VAL_MO",
+    "start": "2026-07",
+    "end": "2026-07",
+    "partner": "4419"
+   },
+   {
+    "flow": "exports",
+    "fields": "E_COMMODITY,ALL_VAL_MO",
+    "start": "2026-07",
+    "end": "2026-07",
+    "partner": "4419"
+   },
+   {
+    "flow": "imports",
+    "fields": "I_COMMODITY,GEN_VAL_MO,CON_VAL_MO,CAL_DUT_MO,DUT_VAL_MO",
+    "start": "2026-07",
+    "end": "2026-07",
+    "partner": "4759"
+   },
+   {
+    "flow": "exports",
+    "fields": "E_COMMODITY,ALL_VAL_MO",
+    "start": "2026-07",
+    "end": "2026-07",
+    "partner": "4759"
+   },
+   {
+    "flow": "imports",
+    "fields": "I_COMMODITY,GEN_VAL_MO,CON_VAL_MO,CAL_DUT_MO,DUT_VAL_MO",
+    "start": "2026-07",
+    "end": "2026-07",
+    "partner": "4279"
+   },
+   {
+    "flow": "exports",
+    "fields": "E_COMMODITY,ALL_VAL_MO",
+    "start": "2026-07",
+    "end": "2026-07",
+    "partner": "4279"
+   },
+   {
+    "flow": "imports",
+    "fields": "I_COMMODITY,GEN_VAL_MO,CON_VAL_MO,CAL_DUT_MO,DUT_VAL_MO",
+    "start": "2026-07",
+    "end": "2026-07",
+    "partner": "4210"
+   },
+   {
+    "flow": "exports",
+    "fields": "E_COMMODITY,ALL_VAL_MO",
+    "start": "2026-07",
+    "end": "2026-07",
+    "partner": "4210"
+   },
+   {
+    "flow": "imports",
+    "fields": "I_COMMODITY,GEN_VAL_MO,CON_VAL_MO,CAL_DUT_MO,DUT_VAL_MO",
+    "start": "2026-07",
+    "end": "2026-07",
+    "partner": "5490"
+   },
+   {
+    "flow": "exports",
+    "fields": "E_COMMODITY,ALL_VAL_MO",
+    "start": "2026-07",
+    "end": "2026-07",
+    "partner": "5490"
+   },
+   {
+    "flow": "imports",
+    "fields": "I_COMMODITY,GEN_VAL_MO,CON_VAL_MO,CAL_DUT_MO,DUT_VAL_MO",
+    "start": "2026-07",
+    "end": "2026-07",
+    "partner": "5570"
+   },
+   {
+    "flow": "exports",
+    "fields": "E_COMMODITY,ALL_VAL_MO",
+    "start": "2026-07",
+    "end": "2026-07",
+    "partner": "5570"
+   },
+   {
+    "flow": "imports",
+    "fields": "I_COMMODITY,GEN_VAL_MO,CON_VAL_MO,CAL_DUT_MO,DUT_VAL_MO",
+    "start": "2026-07",
+    "end": "2026-07",
+    "partner": "3510"
+   },
+   {
+    "flow": "exports",
+    "fields": "E_COMMODITY,ALL_VAL_MO",
+    "start": "2026-07",
+    "end": "2026-07",
+    "partner": "3510"
+   }
+  ],
+  "credentials": [
+   {
+    "env": "CENSUS_API_KEY",
+    "query": "key"
+   }
+  ],
+  "skip_statuses": [
+   204
+  ],
+  "rate_limit": {
+   "requests_per_second": 0.5,
+   "requests_per_day": 2000
+  },
+  "timeout_seconds": 300,
+  "retries": 5,
+  "backoff_seconds": 10,
+  "reader": {
+   "format": "json",
+   "compression": "none"
+  }
+ },
+ "sampling": {
+  "strategy": "blocked",
+  "format": "jsonl",
+  "max_rows": 100,
+  "max_sample_bytes": 1048576,
+  "max_download_bytes": 1048576,
+  "max_uncompressed_bytes": 1048576,
+  "disk_budget_bytes": 67108864,
+  "criteria": "No bounded sample",
+  "reason": "Full acquisition via the keyed API is used instead of samples"
+ },
+ "stages": [
+  {
+   "id": "normalized",
+   "entrypoint": "pipeline.py:run",
+   "depends_on": [],
+   "schema": {
+    "format": "evidence_jsonl",
+    "compression": "gzip"
+   },
+   "validation": {
+    "allow_empty": false,
+    "max_rows": 20000000
+   },
+   "cache": "content",
+   "retention": "retain"
+  }
+ ]
+}

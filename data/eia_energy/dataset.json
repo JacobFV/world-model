@@ -3,11 +3,17 @@
   "schema_version": 2,
   "dependencies": [],
   "kind": "source",
-  "status": "sample_adapter_ready",
-  "description": "Energy facilities, generation, fuel and grid data",
+  "status": "complete",
+  "description": "EIA bulk time series (electricity incl. plant-level, petroleum, natural gas, coal, SEDS state energy, international, total energy, STEO) plus the EIA-860 plant/generator/owner inventory and EIA-923 generation and fuel workbooks",
   "source": {
-    "publisher": "EIA / EPA / FERC",
-    "license_status": "verify_for_selected_release"
+    "publisher": "U.S. Energy Information Administration",
+    "documentation": "https://www.eia.gov/opendata/bulkfiles.php ; https://www.eia.gov/electricity/data/eia860/ ; https://www.eia.gov/electricity/data/eia923/",
+    "license": "US-Government-Public-Domain",
+    "license_id": "US-Government-Public-Domain",
+    "license_status": "public_domain_us_federal",
+    "terms_url": "https://www.eia.gov/about/copyrights_reuse.php",
+    "attribution": "Source: U.S. Energy Information Administration",
+    "redistribution": "allowed"
   },
   "expected_outputs": [
     "facility",
@@ -36,6 +42,31 @@
     "criteria": "California annual electricity retail sales, all sectors, 2023; public demo key only.",
     "documentation": "https://www.eia.gov/opendata/documentation.php"
   },
+  "acquisition": {
+    "strategy": "files",
+    "description": "EIA bulk ZIPs (one JSON-lines member each: series lines with data arrays plus category lines) for ELEC, PET, NG, SEDS, INTL, TOTAL, STEO and COAL; EIA-860 2025 annual workbook ZIP (plants, generators, owners); EIA-923 2025 final workbook ZIP; bulk manifest for last_updated vintages. No API key needed.",
+    "documentation": "https://www.eia.gov/opendata/bulkfiles.php",
+    "desired_bytes": 500000000,
+    "min_bytes": 0,
+    "priority": 3.0,
+    "files": [
+      {"url": "https://www.eia.gov/opendata/bulk/ELEC.zip", "name": "ELEC.zip"},
+      {"url": "https://www.eia.gov/opendata/bulk/PET.zip", "name": "PET.zip"},
+      {"url": "https://www.eia.gov/opendata/bulk/NG.zip", "name": "NG.zip"},
+      {"url": "https://www.eia.gov/opendata/bulk/SEDS.zip", "name": "SEDS.zip"},
+      {"url": "https://www.eia.gov/opendata/bulk/INTL.zip", "name": "INTL.zip"},
+      {"url": "https://www.eia.gov/opendata/bulk/TOTAL.zip", "name": "TOTAL.zip"},
+      {"url": "https://www.eia.gov/opendata/bulk/STEO.zip", "name": "STEO.zip"},
+      {"url": "https://www.eia.gov/opendata/bulk/COAL.zip", "name": "COAL.zip"},
+      {"url": "https://www.eia.gov/electricity/data/eia860/xls/eia8602025.zip", "name": "eia8602025.zip"},
+      {"url": "https://www.eia.gov/electricity/data/eia923/xls/f923_2025.zip", "name": "f923_2025.zip"},
+      {"url": "https://www.eia.gov/opendata/bulk/manifest.txt", "name": "manifest.txt"}
+    ],
+    "rate_limit": {"requests_per_second": 0.5},
+    "timeout_seconds": 300,
+    "retries": 6,
+    "reader": {"format": "jsonl", "members": ["*.txt"]}
+  },
   "normalization": {
     "adapter_version": 1,
     "input_format": "sampled_jsonl",
@@ -49,11 +80,12 @@
       "entrypoint": "pipeline.py:run",
       "depends_on": [],
       "schema": {
-        "format": "evidence_jsonl"
+        "format": "evidence_jsonl",
+        "compression": "gzip"
       },
       "validation": {
         "allow_empty": false,
-        "max_rows": 100000
+        "max_rows": 150000000
       },
       "cache": "content",
       "retention": "retain"

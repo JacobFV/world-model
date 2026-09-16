@@ -1,0 +1,227 @@
+{
+  "id": "un_comtrade",
+  "schema_version": 2,
+  "kind": "source",
+  "status": "complete",
+  "description": "UN Comtrade monthly merchandise trade 2024-01 to latest: HS2 chapters x World for G20 plus 40 other major traders (59 reporters), and all-commodity trade by partner for the G20; imports and exports",
+  "dependencies": [],
+  "parameters": {},
+  "source": {
+    "publisher": "United Nations Statistics Division (UN Comtrade)",
+    "documentation": "https://comtradedeveloper.un.org/",
+    "url": "https://comtradeapi.un.org/data/v1/get/C/M/HS",
+    "license": "UN Comtrade terms of use",
+    "license_status": "restricted_no_bulk_redistribution",
+    "terms_url": "https://comtradeplus.un.org/Legal",
+    "attribution": "United Nations Comtrade Database, https://comtradeplus.un.org/",
+    "redistribution": "restricted",
+    "credential": "COMTRADE_API_KEY (free subscription key from comtradedeveloper.un.org, product comtrade - v1)"
+  },
+  "entrypoint": "pipeline.py:run",
+  "sampling": {
+    "strategy": "blocked",
+    "format": "jsonl",
+    "max_rows": 100,
+    "max_sample_bytes": 1048576,
+    "max_download_bytes": 1048576,
+    "max_uncompressed_bytes": 1048576,
+    "disk_budget_bytes": 67108864,
+    "criteria": "No bounded sample; use full acquisition",
+    "reason": "Public preview endpoint is capped at 500 records and one period; full acquisition uses COMTRADE_API_KEY"
+  },
+  "acquisition": {
+    "strategy": "url_list",
+    "description": "Batched requests (10 reporters x 12 comma-separated periods per call) for year blocks 2024, 2025 and 2026: cmdCode=AG2 & partner World for 59 reporters (18 requests), cmdCode=TOTAL & all partners for 19 G20 reporters (6 requests); flows M,X; partner2/customs/transport-mode totals only; months not yet published return no rows. Reporter codes follow Comtrade reporter M49 variants (India 699, Norway 579, Switzerland 757). desired_bytes covers the retained 2025-2026 artifact (172 MB) plus ~480 MB for this grid.",
+    "documentation": "https://comtradedeveloper.un.org/api-details#api=comtrade-v1&operation=get-get",
+    "desired_bytes": 800000000,
+    "min_bytes": 0,
+    "priority": 2.0,
+    "url_template": "https://comtradeapi.un.org/data/v1/get/C/M/HS?reporterCode={reporter}&period={periods}&cmdCode={cmd}&flowCode=M,X&partnerCode={partner}&partner2Code=0&customsCode=C00&motCode=0&includeDesc=true&maxRecords=100000",
+    "combinations": [
+      {
+        "reporter": "842,156,276,392,826,251,699,380,410,124",
+        "periods": "202401,202402,202403,202404,202405,202406,202407,202408,202409,202410,202411,202412",
+        "cmd": "AG2",
+        "partner": "0"
+      },
+      {
+        "reporter": "842,156,276,392,826,251,699,380,410,124",
+        "periods": "202501,202502,202503,202504,202505,202506,202507,202508,202509,202510,202511,202512",
+        "cmd": "AG2",
+        "partner": "0"
+      },
+      {
+        "reporter": "842,156,276,392,826,251,699,380,410,124",
+        "periods": "202601,202602,202603,202604,202605,202606,202607,202608,202609,202610,202611,202612",
+        "cmd": "AG2",
+        "partner": "0"
+      },
+      {
+        "reporter": "484,643,76,36,360,792,682,32,710,528",
+        "periods": "202401,202402,202403,202404,202405,202406,202407,202408,202409,202410,202411,202412",
+        "cmd": "AG2",
+        "partner": "0"
+      },
+      {
+        "reporter": "484,643,76,36,360,792,682,32,710,528",
+        "periods": "202501,202502,202503,202504,202505,202506,202507,202508,202509,202510,202511,202512",
+        "cmd": "AG2",
+        "partner": "0"
+      },
+      {
+        "reporter": "484,643,76,36,360,792,682,32,710,528",
+        "periods": "202601,202602,202603,202604,202605,202606,202607,202608,202609,202610,202611,202612",
+        "cmd": "AG2",
+        "partner": "0"
+      },
+      {
+        "reporter": "56,724,757,702,344,704,458,764,616,784",
+        "periods": "202401,202402,202403,202404,202405,202406,202407,202408,202409,202410,202411,202412",
+        "cmd": "AG2",
+        "partner": "0"
+      },
+      {
+        "reporter": "56,724,757,702,344,704,458,764,616,784",
+        "periods": "202501,202502,202503,202504,202505,202506,202507,202508,202509,202510,202511,202512",
+        "cmd": "AG2",
+        "partner": "0"
+      },
+      {
+        "reporter": "56,724,757,702,344,704,458,764,616,784",
+        "periods": "202601,202602,202603,202604,202605,202606,202607,202608,202609,202610,202611,202612",
+        "cmd": "AG2",
+        "partner": "0"
+      },
+      {
+        "reporter": "752,40,372,203,208,579,376,608,152,348",
+        "periods": "202401,202402,202403,202404,202405,202406,202407,202408,202409,202410,202411,202412",
+        "cmd": "AG2",
+        "partner": "0"
+      },
+      {
+        "reporter": "752,40,372,203,208,579,376,608,152,348",
+        "periods": "202501,202502,202503,202504,202505,202506,202507,202508,202509,202510,202511,202512",
+        "cmd": "AG2",
+        "partner": "0"
+      },
+      {
+        "reporter": "752,40,372,203,208,579,376,608,152,348",
+        "periods": "202601,202602,202603,202604,202605,202606,202607,202608,202609,202610,202611,202612",
+        "cmd": "AG2",
+        "partner": "0"
+      },
+      {
+        "reporter": "703,620,246,642,300,554,398,634,414,818",
+        "periods": "202401,202402,202403,202404,202405,202406,202407,202408,202409,202410,202411,202412",
+        "cmd": "AG2",
+        "partner": "0"
+      },
+      {
+        "reporter": "703,620,246,642,300,554,398,634,414,818",
+        "periods": "202501,202502,202503,202504,202505,202506,202507,202508,202509,202510,202511,202512",
+        "cmd": "AG2",
+        "partner": "0"
+      },
+      {
+        "reporter": "703,620,246,642,300,554,398,634,414,818",
+        "periods": "202601,202602,202603,202604,202605,202606,202607,202608,202609,202610,202611,202612",
+        "cmd": "AG2",
+        "partner": "0"
+      },
+      {
+        "reporter": "566,170,604,804,50,586,368,705,442",
+        "periods": "202401,202402,202403,202404,202405,202406,202407,202408,202409,202410,202411,202412",
+        "cmd": "AG2",
+        "partner": "0"
+      },
+      {
+        "reporter": "566,170,604,804,50,586,368,705,442",
+        "periods": "202501,202502,202503,202504,202505,202506,202507,202508,202509,202510,202511,202512",
+        "cmd": "AG2",
+        "partner": "0"
+      },
+      {
+        "reporter": "566,170,604,804,50,586,368,705,442",
+        "periods": "202601,202602,202603,202604,202605,202606,202607,202608,202609,202610,202611,202612",
+        "cmd": "AG2",
+        "partner": "0"
+      },
+      {
+        "reporter": "842,156,276,392,826,251,699,380,410,124",
+        "periods": "202401,202402,202403,202404,202405,202406,202407,202408,202409,202410,202411,202412",
+        "cmd": "TOTAL",
+        "partner": ""
+      },
+      {
+        "reporter": "842,156,276,392,826,251,699,380,410,124",
+        "periods": "202501,202502,202503,202504,202505,202506,202507,202508,202509,202510,202511,202512",
+        "cmd": "TOTAL",
+        "partner": ""
+      },
+      {
+        "reporter": "842,156,276,392,826,251,699,380,410,124",
+        "periods": "202601,202602,202603,202604,202605,202606,202607,202608,202609,202610,202611,202612",
+        "cmd": "TOTAL",
+        "partner": ""
+      },
+      {
+        "reporter": "484,643,76,36,360,792,682,32,710",
+        "periods": "202401,202402,202403,202404,202405,202406,202407,202408,202409,202410,202411,202412",
+        "cmd": "TOTAL",
+        "partner": ""
+      },
+      {
+        "reporter": "484,643,76,36,360,792,682,32,710",
+        "periods": "202501,202502,202503,202504,202505,202506,202507,202508,202509,202510,202511,202512",
+        "cmd": "TOTAL",
+        "partner": ""
+      },
+      {
+        "reporter": "484,643,76,36,360,792,682,32,710",
+        "periods": "202601,202602,202603,202604,202605,202606,202607,202608,202609,202610,202611,202612",
+        "cmd": "TOTAL",
+        "partner": ""
+      }
+    ],
+    "credentials": [
+      {
+        "env": "COMTRADE_API_KEY",
+        "header": "Ocp-Apim-Subscription-Key"
+      }
+    ],
+    "rate_limit": {
+      "requests_per_second": 0.5,
+      "requests_per_day": 450,
+      "key": "comtradeapi.un.org"
+    },
+    "timeout_seconds": 300,
+    "retries": 5,
+    "max_requests": 100,
+    "accept_encoding": "gzip",
+    "reader": {
+      "format": "json",
+      "records_path": [
+        "data"
+      ],
+      "max_json_bytes": 268435456
+    }
+  },
+  "stages": [
+    {
+      "id": "normalized",
+      "entrypoint": "pipeline.py:run",
+      "depends_on": [],
+      "schema": {
+        "format": "evidence_jsonl",
+        "compression": "gzip"
+      },
+      "validation": {
+        "allow_empty": false,
+        "max_rows": 5000000
+      },
+      "cache": "content",
+      "retention": "retain"
+    }
+  ],
+  "output_stage": "normalized"
+}

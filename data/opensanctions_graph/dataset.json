@@ -1,0 +1,71 @@
+{
+  "id": "opensanctions_graph",
+  "schema_version": 2,
+  "kind": "source",
+  "status": "complete_snapshot_normalized",
+  "description": "OpenSanctions 'default' collection full FollowTheMoney entity graph, scoped to sanctioned, PEP/RCA, POI, wanted, crime and export-control-linked entities plus every relationship touching them (ownership, directorship, family, associate, membership, employment, representation, succession, unknown links, position occupancy, sanction records) and their one-hop counterparties. NON-COMMERCIAL licence (CC BY-NC 4.0).",
+  "dependencies": [],
+  "parameters": {},
+  "entrypoint": "pipeline.py:run",
+  "output_stage": "normalized",
+  "source": {
+    "publisher": "OpenSanctions Datenbanken GmbH",
+    "documentation": "https://www.opensanctions.org/datasets/default/ ; https://followthemoney.tech/explorer/",
+    "license": "CC BY-NC 4.0 (non-commercial use only; commercial use requires an OpenSanctions data licence)",
+    "license_id": "CC-BY-NC-4.0",
+    "license_status": "non_commercial_only",
+    "terms_url": "https://www.opensanctions.org/licensing/",
+    "attribution": "OpenSanctions (https://www.opensanctions.org), CC BY-NC 4.0",
+    "redistribution": "restricted",
+    "non_commercial": true
+  },
+  "sampling": {
+    "strategy": "blocked",
+    "format": "jsonl",
+    "max_rows": 100,
+    "max_sample_bytes": 1048576,
+    "max_download_bytes": 1048576,
+    "max_uncompressed_bytes": 1048576,
+    "disk_budget_bytes": 67108864,
+    "criteria": "Not sampled; graph scoping needs the complete export",
+    "reason": "Use wm acquire opensanctions_graph; the two-pass scope requires the full file"
+  },
+  "acquisition": {
+    "strategy": "files",
+    "description": "Latest default collection entities.ftm.json (FollowTheMoney JSON lines, ~2.6 GB; 307 redirect to a dated artifact; the artifact host ignored Range at probe time, so an interrupted download restarts). Re-acquire periodically; artifacts are immutable snapshots.",
+    "documentation": "https://www.opensanctions.org/docs/bulk/",
+    "desired_bytes": 2900000000,
+    "priority": 2.0,
+    "files": [
+      {
+        "url": "https://data.opensanctions.org/datasets/latest/default/entities.ftm.json",
+        "name": "entities.ftm.json"
+      }
+    ],
+    "rate_limit": {
+      "requests_per_second": 0.5
+    },
+    "timeout_seconds": 600,
+    "retries": 5,
+    "reader": {
+      "format": "jsonl"
+    }
+  },
+  "stages": [
+    {
+      "id": "normalized",
+      "entrypoint": "pipeline.py:run",
+      "depends_on": [],
+      "schema": {
+        "format": "evidence_jsonl",
+        "compression": "gzip"
+      },
+      "validation": {
+        "allow_empty": false,
+        "max_rows": 60000000
+      },
+      "cache": "content",
+      "retention": "retain"
+    }
+  ]
+}

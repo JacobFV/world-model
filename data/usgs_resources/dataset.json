@@ -3,11 +3,13 @@
   "schema_version": 2,
   "dependencies": [],
   "kind": "source",
-  "status": "sample_adapter_ready",
-  "description": "Mineral commodities, mines and resource estimates",
+  "status": "full_acquisition_configured",
+  "description": "USGS Mineral Resources Data System (global legacy deposit inventory) and Mineral Commodity Summaries 2026 data release (U.S. and world production, reserves, trade and prices by commodity; state production value; critical minerals)",
   "source": {
-    "publisher": "USGS",
-    "license_status": "verify_for_selected_release"
+    "publisher": "U.S. Geological Survey",
+    "license_status": "public_domain",
+    "documentation": "https://mrdata.usgs.gov/mrds/ ; https://doi.org/10.5066/P13XCP3R",
+    "license_notes": "US federal government work: public domain in the United States (17 U.S.C. 105); no redistribution restriction; cite the publisher. MRDS is a legacy (no longer updated, largely pre-2011) global inventory; MCS 2026 values for 2025 are estimates."
   },
   "expected_outputs": [
     "resource",
@@ -43,17 +45,47 @@
     "entity_identity": "source IDs, canonical geography, explicitly labeled unresolved references and aggregate cohorts",
     "coverage": "acquired sample only"
   },
+  "acquisition": {
+    "strategy": "files",
+    "description": "MRDS full CSV archive plus Mineral Commodity Summaries 2026 data release tables (commodity salient/world production and reserves, state value rank, critical minerals salient statistics)",
+    "desired_bytes": 32000000,
+    "priority": 2.0,
+    "files": [
+      {
+        "url": "https://mrdata.usgs.gov/mrds/mrds-csv.zip",
+        "name": "mrds-csv.zip"
+      },
+      {
+        "url": "https://www.sciencebase.gov/catalog/file/get/69837e43b66b01367d7ec7c7?f=__disk__d3%2Fac%2F84%2Fd3ac8466552946c5e8caa2c2c6338d9e1aff655d",
+        "name": "MCS2026_Commodities_Data.csv"
+      },
+      {
+        "url": "https://www.sciencebase.gov/catalog/file/get/696a75d5d4be0228872d3bf8?f=__disk__db%2Fe6%2Ffe%2Fdbe6fe84628b643d6417745c9707784783c25adc",
+        "name": "MCS2026_T3_State_Value_Rank.csv"
+      },
+      {
+        "url": "https://www.sciencebase.gov/catalog/file/get/696a75d5d4be0228872d3bf8?f=__disk__72%2Fec%2F18%2F72ec18177f3ba33eaa6e6cd09ce433456837b1c6",
+        "name": "MCS2026_T7_Critical_Minerals_Salient.csv"
+      }
+    ],
+    "rate_limit": {
+      "requests_per_second": 0.5
+    },
+    "timeout_seconds": 120,
+    "reader": null
+  },
   "stages": [
     {
       "id": "normalized",
       "entrypoint": "pipeline.py:run",
       "depends_on": [],
       "schema": {
-        "format": "evidence_jsonl"
+        "format": "evidence_jsonl",
+        "compression": "gzip"
       },
       "validation": {
         "allow_empty": false,
-        "max_rows": 100000
+        "max_rows": 3000000
       },
       "cache": "content",
       "retention": "retain"

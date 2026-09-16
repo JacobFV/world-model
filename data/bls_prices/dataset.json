@@ -1,0 +1,183 @@
+{
+  "dependencies": [],
+  "description": "BLS price statistics (CPI-U/CPI-W all items and areas, PPI commodity incl. final demand, PPI industry, average retail prices, import/export price indexes) from download.bls.gov flat files, plus the World Bank Pink Sheet monthly commodity prices",
+  "entrypoint": "pipeline.py:run",
+  "id": "bls_prices",
+  "kind": "source",
+  "output_stage": "normalized",
+  "parameters": {},
+  "sampling": {
+    "criteria": "First 100 records, at most 1 MiB",
+    "disk_budget_bytes": 67108864,
+    "format": "jsonl",
+    "max_download_bytes": 1048576,
+    "max_rows": 100,
+    "max_sample_bytes": 1048576,
+    "max_uncompressed_bytes": 1048576,
+    "reason": "Full acquisition only; flat files are consumed as sharded raw artifacts (wm acquire bls_prices)",
+    "strategy": "blocked"
+  },
+  "schema_version": 2,
+  "stages": [
+    {
+      "cache": "content",
+      "depends_on": [],
+      "entrypoint": "pipeline.py:run",
+      "id": "normalized",
+      "retention": "retain",
+      "schema": {
+        "format": "evidence_jsonl",
+        "compression": "gzip"
+      },
+      "validation": {
+        "allow_empty": false,
+        "max_rows": 20000000
+      }
+    }
+  ],
+  "status": "full_acquisition_configured",
+  "source": {
+    "publisher": "U.S. Bureau of Labor Statistics; World Bank (Pink Sheet)",
+    "license_status": "public_domain_us_government; CC-BY-4.0 (Pink Sheet)",
+    "license_notes": "BLS data are US federal government works without redistribution restriction; the World Bank Commodity Price Data (Pink Sheet) is CC BY 4.0 and requires attribution. download.bls.gov requires a contact User-Agent (BLS_USER_AGENT).",
+    "documentation": "https://www.bls.gov/bls/pss.htm"
+  },
+  "acquisition": {
+    "strategy": "files",
+    "description": "BLS time.series flat files for CU, WP, PC, AP and EI (Current files, all-items/final-demand/all-commodities history files and mapping files) plus World Bank CMO monthly XLSX; one shard per file",
+    "documentation": "https://download.bls.gov/pub/time.series/",
+    "desired_bytes": 240000000,
+    "min_bytes": 0,
+    "priority": 3.0,
+    "user_agent_env": "BLS_USER_AGENT",
+    "files": [
+      {
+        "url": "https://download.bls.gov/pub/time.series/cu/cu.data.0.Current",
+        "name": "cu.data.0.Current"
+      },
+      {
+        "url": "https://download.bls.gov/pub/time.series/cu/cu.data.1.AllItems",
+        "name": "cu.data.1.AllItems"
+      },
+      {
+        "url": "https://download.bls.gov/pub/time.series/cu/cu.series",
+        "name": "cu.series"
+      },
+      {
+        "url": "https://download.bls.gov/pub/time.series/cu/cu.item",
+        "name": "cu.item"
+      },
+      {
+        "url": "https://download.bls.gov/pub/time.series/cu/cu.area",
+        "name": "cu.area"
+      },
+      {
+        "url": "https://download.bls.gov/pub/time.series/cu/cu.periodicity",
+        "name": "cu.periodicity"
+      },
+      {
+        "url": "https://download.bls.gov/pub/time.series/cu/cu.footnote",
+        "name": "cu.footnote"
+      },
+      {
+        "url": "https://download.bls.gov/pub/time.series/wp/wp.data.0.Current",
+        "name": "wp.data.0.Current"
+      },
+      {
+        "url": "https://download.bls.gov/pub/time.series/wp/wp.data.22.FD-ID",
+        "name": "wp.data.22.FD-ID"
+      },
+      {
+        "url": "https://download.bls.gov/pub/time.series/wp/wp.data.1.AllCommodities",
+        "name": "wp.data.1.AllCommodities"
+      },
+      {
+        "url": "https://download.bls.gov/pub/time.series/wp/wp.series",
+        "name": "wp.series"
+      },
+      {
+        "url": "https://download.bls.gov/pub/time.series/wp/wp.item",
+        "name": "wp.item"
+      },
+      {
+        "url": "https://download.bls.gov/pub/time.series/wp/wp.group",
+        "name": "wp.group"
+      },
+      {
+        "url": "https://download.bls.gov/pub/time.series/wp/wp.footnote",
+        "name": "wp.footnote"
+      },
+      {
+        "url": "https://download.bls.gov/pub/time.series/pc/pc.data.0.Current",
+        "name": "pc.data.0.Current"
+      },
+      {
+        "url": "https://download.bls.gov/pub/time.series/pc/pc.series",
+        "name": "pc.series"
+      },
+      {
+        "url": "https://download.bls.gov/pub/time.series/pc/pc.industry",
+        "name": "pc.industry"
+      },
+      {
+        "url": "https://download.bls.gov/pub/time.series/pc/pc.product",
+        "name": "pc.product"
+      },
+      {
+        "url": "https://download.bls.gov/pub/time.series/pc/pc.footnote",
+        "name": "pc.footnote"
+      },
+      {
+        "url": "https://download.bls.gov/pub/time.series/ap/ap.data.0.Current",
+        "name": "ap.data.0.Current"
+      },
+      {
+        "url": "https://download.bls.gov/pub/time.series/ap/ap.series",
+        "name": "ap.series"
+      },
+      {
+        "url": "https://download.bls.gov/pub/time.series/ap/ap.item",
+        "name": "ap.item"
+      },
+      {
+        "url": "https://download.bls.gov/pub/time.series/ap/ap.area",
+        "name": "ap.area"
+      },
+      {
+        "url": "https://download.bls.gov/pub/time.series/ap/ap.footnote",
+        "name": "ap.footnote"
+      },
+      {
+        "url": "https://download.bls.gov/pub/time.series/ei/ei.data.0.Current",
+        "name": "ei.data.0.Current"
+      },
+      {
+        "url": "https://download.bls.gov/pub/time.series/ei/ei.series",
+        "name": "ei.series"
+      },
+      {
+        "url": "https://download.bls.gov/pub/time.series/ei/ei.index",
+        "name": "ei.index"
+      },
+      {
+        "url": "https://download.bls.gov/pub/time.series/ei/ei.footnote",
+        "name": "ei.footnote"
+      },
+      {
+        "url": "https://thedocs.worldbank.org/en/doc/5d903e848db1d1b83e0ec8f744e55570-0350012021/related/CMO-Historical-Data-Monthly.xlsx",
+        "name": "CMO-Historical-Data-Monthly.xlsx"
+      }
+    ],
+    "rate_limit": {
+      "requests_per_second": 0.5,
+      "requests_per_day": 2000,
+      "key": "bls.gov"
+    },
+    "timeout_seconds": 300,
+    "retries": 5,
+    "reader": {
+      "format": "tsv",
+      "quoting": "none"
+    }
+  }
+}

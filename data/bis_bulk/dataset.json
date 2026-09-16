@@ -1,0 +1,160 @@
+{
+  "id": "bis_bulk",
+  "schema_version": 2,
+  "kind": "source",
+  "dependencies": [],
+  "status": "full_acquisition_configured",
+  "description": "BIS statistics bulk flat CSVs: central bank policy rates, USD exchange rates, effective exchange rates, total credit, residential property prices, long CPI, consolidated banking (bilateral, headline cut) and international debt securities (headline cut)",
+  "source": {
+    "publisher": "Bank for International Settlements",
+    "url": "https://data.bis.org/bulkdownload",
+    "license": "BIS terms of use: free reuse with attribution (https://www.bis.org/terms_statistics.htm); some national source series are provided under source terms",
+    "license_status": "open_with_attribution",
+    "terms_url": "https://www.bis.org/terms_statistics.htm",
+    "attribution": "Source: BIS statistics"
+  },
+  "entrypoint": "pipeline.py:run",
+  "parameters": {
+    "cbs_filter": {
+      "L_MEASURE": [
+        "S"
+      ],
+      "CBS_BANK_TYPE": [
+        "4R"
+      ],
+      "CBS_BASIS": [
+        "F",
+        "U"
+      ],
+      "L_POSITION": [
+        "C"
+      ],
+      "L_INSTR": [
+        "A"
+      ],
+      "REM_MATURITY": [
+        "A"
+      ],
+      "CURR_TYPE_BOOK": [
+        "TO1"
+      ],
+      "L_CP_SECTOR": [
+        "A"
+      ]
+    },
+    "debt_sec_filter": {
+      "ISSUER_NAT": [
+        "3P"
+      ],
+      "ISSUER_BUS_ULT": [
+        "1"
+      ],
+      "ISSUE_TYPE": [
+        "A"
+      ],
+      "ISSUE_CUR_GROUP": [
+        "A"
+      ],
+      "ISSUE_CUR": [
+        "TO1"
+      ],
+      "ISSUE_OR_MAT": [
+        "A"
+      ],
+      "ISSUE_RE_MAT": [
+        "A"
+      ],
+      "ISSUE_RATE": [
+        "A"
+      ],
+      "ISSUE_RISK": [
+        "A"
+      ],
+      "ISSUE_COL": [
+        "A"
+      ]
+    }
+  },
+  "sampling": {
+    "strategy": "blocked",
+    "reason": "Full bulk ZIP acquisition only; no bounded sample configured",
+    "criteria": "First 100 records, at most 1 MiB",
+    "format": "jsonl",
+    "max_rows": 100,
+    "max_sample_bytes": 1048576,
+    "max_download_bytes": 1048576,
+    "max_uncompressed_bytes": 1048576,
+    "disk_budget_bytes": 67108864
+  },
+  "acquisition": {
+    "strategy": "files",
+    "description": "Eight BIS flat-CSV bulk ZIPs (one shard each). Locational banking statistics (WS_LBS_D_PUB, 360 MB) are excluded: the BIS CDN drops the connection mid-transfer and answers ranged resumes with the full body (weak ETag), so the shard restarts indefinitely. pipeline.py still maps the flow if it is added later.",
+    "documentation": "https://data.bis.org/bulkdownload",
+    "desired_bytes": 270000000,
+    "min_bytes": 0,
+    "priority": 2.0,
+    "files": [
+      {
+        "url": "https://data.bis.org/static/bulk/WS_CBPOL_csv_flat.zip",
+        "name": "WS_CBPOL_csv_flat.zip"
+      },
+      {
+        "url": "https://data.bis.org/static/bulk/WS_XRU_csv_flat.zip",
+        "name": "WS_XRU_csv_flat.zip"
+      },
+      {
+        "url": "https://data.bis.org/static/bulk/WS_EER_csv_flat.zip",
+        "name": "WS_EER_csv_flat.zip"
+      },
+      {
+        "url": "https://data.bis.org/static/bulk/WS_TC_csv_flat.zip",
+        "name": "WS_TC_csv_flat.zip"
+      },
+      {
+        "url": "https://data.bis.org/static/bulk/WS_SPP_csv_flat.zip",
+        "name": "WS_SPP_csv_flat.zip"
+      },
+      {
+        "url": "https://data.bis.org/static/bulk/WS_LONG_CPI_csv_flat.zip",
+        "name": "WS_LONG_CPI_csv_flat.zip"
+      },
+      {
+        "url": "https://data.bis.org/static/bulk/WS_CBS_PUB_csv_flat.zip",
+        "name": "WS_CBS_PUB_csv_flat.zip"
+      },
+      {
+        "url": "https://data.bis.org/static/bulk/WS_DEBT_SEC2_PUB_csv_flat.zip",
+        "name": "WS_DEBT_SEC2_PUB_csv_flat.zip"
+      }
+    ],
+    "rate_limit": {
+      "requests_per_second": 1.0
+    },
+    "timeout_seconds": 120,
+    "retries": 5,
+    "reader": {
+      "format": "csv",
+      "members": [
+        "*.csv"
+      ]
+    }
+  },
+  "stages": [
+    {
+      "id": "normalized",
+      "entrypoint": "pipeline.py:run",
+      "depends_on": [],
+      "schema": {
+        "format": "evidence_jsonl",
+        "compression": "gzip"
+      },
+      "validation": {
+        "allow_empty": false,
+        "max_rows": 20000000
+      },
+      "cache": "content",
+      "retention": "retain"
+    }
+  ],
+  "output_stage": "normalized"
+}

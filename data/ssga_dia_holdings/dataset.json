@@ -3,12 +3,13 @@
   "schema_version": 2,
   "dependencies": [],
   "kind": "source",
-  "status": "configured_bounded_source",
-  "description": "Published DIA fund holdings snapshot; not official Dow membership or issuer ownership.",
+  "status": "complete",
+  "description": "Published daily holdings snapshots for SPDR DIA, SPY, MDY and the 11 Select Sector SPDR ETFs; fund positions, not official index membership or issuer ownership",
   "source": {
     "publisher": "State Street Investment Management",
-    "documentation": "https://www.ssga.com/us/en/intermediary/etfs/state-street-spdr-dow-jones-industrial-average-etf-trust-dia",
-    "license_status": "publisher terms apply; raw workbook not redistributed",
+    "documentation": "https://www.ssga.com/us/en/intermediary/etfs",
+    "license_status": "publisher_terms_informational_use",
+    "license_notes": "SSGA website terms: informational/personal use; raw workbooks are not redistributed.",
     "unit_basis": "publisher table headers and fund page definitions"
   },
   "entrypoint": "pipeline.py:run",
@@ -40,15 +41,64 @@
       "entrypoint": "pipeline.py:run",
       "depends_on": [],
       "schema": {
-        "format": "evidence_jsonl"
+        "format": "evidence_jsonl",
+        "compression": "gzip"
       },
       "validation": {
         "allow_empty": false,
-        "max_rows": 100000
+        "max_rows": 50000
       },
       "cache": "content",
       "retention": "retain"
     }
   ],
-  "output_stage": "normalized"
+  "output_stage": "normalized",
+  "acquisition": {
+    "strategy": "url_list",
+    "description": "holdings-daily-us-en-{ticker}.xlsx for 14 SPDR ETFs (one snapshot; re-acquire daily for history)",
+    "documentation": "https://www.ssga.com/us/en/intermediary/etfs",
+    "desired_bytes": 1500000,
+    "priority": 2.0,
+    "url_template": "https://www.ssga.com/library-content/products/fund-data/etfs/us/holdings-daily-us-en-{fund}.xlsx",
+    "parameters": {
+      "fund": [
+        "dia",
+        "spy",
+        "mdy",
+        "xlb",
+        "xlc",
+        "xle",
+        "xlf",
+        "xli",
+        "xlk",
+        "xlp",
+        "xlre",
+        "xlu",
+        "xlv",
+        "xly"
+      ]
+    },
+    "skip_statuses": [
+      404
+    ],
+    "rate_limit": {
+      "requests_per_second": 0.5
+    },
+    "accept_encoding": "identity",
+    "reader": {
+      "format": "xlsx",
+      "header_row": 5,
+      "stop_when_blank": "Ticker",
+      "context_cells": {
+        "fund": "B1",
+        "ticker": "B2",
+        "date": "B3"
+      }
+    }
+  },
+  "coverage": {
+    "representative": false,
+    "completeness": "complete_for_declared_scope",
+    "scope": "Holdings snapshots for 14 SPDR ETFs as of the acquisition date (1,476 positions)"
+  }
 }

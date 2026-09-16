@@ -1,0 +1,65 @@
+{
+  "id": "wri_aqueduct",
+  "schema_version": 2,
+  "dependencies": [],
+  "kind": "source",
+  "status": "full_acquisition_configured",
+  "description": "WRI Aqueduct 4.0 water risk: baseline annual and monthly indicators and future (2030/2050/2080) water stress projections by HydroBASINS level-6 sub-basin",
+  "source": {
+    "publisher": "World Resources Institute",
+    "documentation": "https://www.wri.org/data/aqueduct-global-maps-40-data",
+    "license_status": "open_with_attribution",
+    "license": "CC BY 4.0",
+    "license_notes": "Creative Commons Attribution 4.0 International. Cite Kuzma et al. (2023) Aqueduct 4.0, WRI Technical Note. Future values are scenario projections."
+  },
+  "entrypoint": "pipeline.py:run",
+  "parameters": {},
+  "sampling": {
+    "criteria": "First 100 records, at most 1 MiB",
+    "disk_budget_bytes": 67108864,
+    "format": "jsonl",
+    "max_download_bytes": 1048576,
+    "max_rows": 100,
+    "max_sample_bytes": 1048576,
+    "max_uncompressed_bytes": 1048576,
+    "reason": "Configure a documented source URL and format before acquisition",
+    "strategy": "blocked"
+  },
+  "acquisition": {
+    "strategy": "files",
+    "description": "Single published ZIP (CSV tables plus file geodatabase); pipeline reads only the CSV members",
+    "desired_bytes": 270000000,
+    "priority": 2.0,
+    "files": [
+      {
+        "url": "https://files.wri.org/aqueduct/aqueduct-4-0-water-risk-data.zip",
+        "name": "aqueduct-4-0-water-risk-data.zip"
+      }
+    ],
+    "timeout_seconds": 180,
+    "reader": {
+      "format": "csv",
+      "members": [
+        "*/CVS/*.csv"
+      ]
+    }
+  },
+  "stages": [
+    {
+      "cache": "content",
+      "depends_on": [],
+      "entrypoint": "pipeline.py:run",
+      "id": "normalized",
+      "retention": "retain",
+      "schema": {
+        "format": "evidence_jsonl",
+        "compression": "gzip"
+      },
+      "validation": {
+        "allow_empty": false,
+        "max_rows": 20000000
+      }
+    }
+  ],
+  "output_stage": "normalized"
+}

@@ -3,12 +3,17 @@
   "schema_version": 2,
   "dependencies": [],
   "kind": "source",
-  "status": "requires_source_token",
-  "description": "UCDP reported organized-violence events; bounded source estimates with uncertain dates/effects.",
+  "status": "complete",
+  "description": "UCDP GED 26.1 georeferenced organized-violence events (1989-2025) plus GED Candidate 2026 releases, UCDP/PRIO armed conflicts, dyadic, non-state, one-sided, battle-related deaths and actor list (26.1); reported source estimates with low/best/high bounds",
   "source": {
     "publisher": "Uppsala Conflict Data Program",
-    "documentation": "https://ucdp.uu.se/apidocs/",
-    "license_status": "retain publisher/source terms; metadata does not grant content redistribution"
+    "documentation": "https://ucdp.uu.se/downloads/",
+    "license": "CC BY 4.0",
+    "license_id": "CC-BY-4.0",
+    "license_status": "open_with_attribution",
+    "terms_url": "https://ucdp.uu.se/downloads/",
+    "attribution": "Uppsala Conflict Data Program (UCDP); cite Sundberg & Melander (2013) for GED, Gleditsch et al. (2002)/Davies et al. for UCDP/PRIO ACD",
+    "redistribution": "permitted_with_attribution"
   },
   "entrypoint": "pipeline.py:run",
   "sampling": {
@@ -38,15 +43,70 @@
       "entrypoint": "pipeline.py:run",
       "depends_on": [],
       "schema": {
-        "format": "evidence_jsonl"
+        "format": "evidence_jsonl",
+        "compression": "gzip"
       },
       "validation": {
         "allow_empty": false,
-        "max_rows": 100000
+        "max_rows": 3000000
       },
       "cache": "content",
       "retention": "retain"
     }
   ],
-  "output_stage": "normalized"
+  "output_stage": "normalized",
+  "acquisition": {
+    "strategy": "files",
+    "description": "UCDP bulk CSV downloads (no access token): GED 26.1, GED Candidate 2026-01..06 and 2026-07, ACD, dyadic, non-state, one-sided, BRD dyadic and actor list 26.1; one shard per file",
+    "documentation": "https://ucdp.uu.se/downloads/",
+    "desired_bytes": 48641643,
+    "min_bytes": 0,
+    "priority": 3.0,
+    "files": [
+      {
+        "url": "https://ucdp.uu.se/downloads/ged/ged261-csv.zip",
+        "name": "ged261-csv.zip"
+      },
+      {
+        "url": "https://ucdp.uu.se/downloads/candidateged/GEDEvent_v26_01_26_06.csv",
+        "name": "GEDEvent_v26_01_26_06.csv"
+      },
+      {
+        "url": "https://ucdp.uu.se/downloads/candidateged/GEDEvent_v26_0_7.csv",
+        "name": "GEDEvent_v26_0_7.csv"
+      },
+      {
+        "url": "https://ucdp.uu.se/downloads/ucdpprio/ucdp-prio-acd-261-csv.zip",
+        "name": "ucdp-prio-acd-261-csv.zip"
+      },
+      {
+        "url": "https://ucdp.uu.se/downloads/dyadic/ucdp-dyadic-261-csv.zip",
+        "name": "ucdp-dyadic-261-csv.zip"
+      },
+      {
+        "url": "https://ucdp.uu.se/downloads/nsos/ucdp-nonstate-261-csv.zip",
+        "name": "ucdp-nonstate-261-csv.zip"
+      },
+      {
+        "url": "https://ucdp.uu.se/downloads/nsos/ucdp-onesided-261-csv.zip",
+        "name": "ucdp-onesided-261-csv.zip"
+      },
+      {
+        "url": "https://ucdp.uu.se/downloads/brd/ucdp-brd-dyadic-261-csv.zip",
+        "name": "ucdp-brd-dyadic-261-csv.zip"
+      },
+      {
+        "url": "https://ucdp.uu.se/downloads/actor/ucdp-actor-261-csv.zip",
+        "name": "ucdp-actor-261-csv.zip"
+      }
+    ],
+    "rate_limit": {
+      "requests_per_second": 0.5
+    },
+    "timeout_seconds": 120,
+    "retries": 5,
+    "reader": {
+      "format": "csv"
+    }
+  }
 }

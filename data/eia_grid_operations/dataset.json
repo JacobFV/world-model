@@ -1,0 +1,59 @@
+{
+  "id": "eia_grid_operations",
+  "schema_version": 2,
+  "kind": "source",
+  "description": "EIA-930 U.S. electric system operating data (bulk EBA, older than 7 days): balancing-authority and regional demand, day-ahead demand forecast, net generation (total and by fuel), total and bilateral interchange; UTC hourly series from 2015-07 (fuel mix from 2018-07)",
+  "status": "complete",
+  "dependencies": [],
+  "parameters": {},
+  "source": {
+    "publisher": "U.S. Energy Information Administration (Form EIA-930)",
+    "documentation": "https://www.eia.gov/electricity/gridmonitor/about ; https://www.eia.gov/opendata/bulkfiles.php",
+    "license": "US-Government-Public-Domain",
+    "license_id": "US-Government-Public-Domain",
+    "license_status": "public_domain_us_federal",
+    "terms_url": "https://www.eia.gov/about/copyrights_reuse.php",
+    "attribution": "Source: U.S. Energy Information Administration, Form EIA-930",
+    "redistribution": "allowed"
+  },
+  "entrypoint": "pipeline.py:run",
+  "output_stage": "normalized",
+  "acquisition": {
+    "strategy": "files",
+    "description": "Full bulk EBA.zip (single JSON-lines member, one line per series with all hourly points); cannot be subset before download. Rebuilt daily by EIA, so an interrupted resume may restart the shard.",
+    "documentation": "https://www.eia.gov/opendata/bulkfiles.php",
+    "desired_bytes": 760000000,
+    "min_bytes": 0,
+    "priority": 2.0,
+    "files": [
+      {"url": "https://www.eia.gov/opendata/bulk/EBA.zip", "name": "EBA.zip"},
+      {"url": "https://www.eia.gov/opendata/bulk/manifest.txt", "name": "manifest.txt"}
+    ],
+    "rate_limit": {"requests_per_second": 0.5},
+    "timeout_seconds": 300,
+    "retries": 6,
+    "reader": {"format": "jsonl", "members": ["EBA.txt"]}
+  },
+  "stages": [
+    {
+      "id": "normalized",
+      "entrypoint": "pipeline.py:run",
+      "depends_on": [],
+      "schema": {"format": "evidence_jsonl", "compression": "gzip"},
+      "validation": {"allow_empty": false, "max_rows": 60000000},
+      "cache": "content",
+      "retention": "retain"
+    }
+  ],
+  "sampling": {
+    "strategy": "blocked",
+    "format": "jsonl",
+    "max_rows": 100,
+    "max_sample_bytes": 1048576,
+    "max_download_bytes": 1048576,
+    "max_uncompressed_bytes": 1048576,
+    "disk_budget_bytes": 67108864,
+    "criteria": "Not sampled; single bulk ZIP",
+    "reason": "Bulk file cannot be subset; see acquisition block"
+  }
+}

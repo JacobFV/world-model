@@ -3,11 +3,13 @@
   "schema_version": 2,
   "dependencies": [],
   "kind": "source",
-  "status": "sample_adapter_ready",
-  "description": "First 100 Nasdaq-listed directory rows excluding test issues. Source-scoped instrument/listing references; no legal issuer ID supplied.",
+  "status": "complete",
+  "description": "Complete Nasdaq Trader symbol directories: nasdaqlisted.txt (Nasdaq-listed) and otherlisted.txt (NYSE, NYSE American, NYSE Arca, Cboe BZX, IEX) snapshot; listings are venue-scoped ticker identities without issuer IDs",
   "source": {
     "publisher": "Nasdaq Trader",
-    "license_status": "see_publisher_terms"
+    "license_status": "publisher_terms_reference_use",
+    "license_notes": "Nasdaq Trader symbol directory files are public reference files under nasdaqtrader.com site terms; attribute Nasdaq; do not redistribute as a data product.",
+    "documentation": "https://www.nasdaqtrader.com/Trader.aspx?id=SymbolDirDefs"
   },
   "entrypoint": "pipeline.py:run",
   "parameters": {},
@@ -33,8 +35,8 @@
   },
   "coverage": {
     "representative": false,
-    "completeness": "unknown",
-    "scope": "First 100 Nasdaq-listed directory rows excluding test issues. Source-scoped instrument/listing references; no legal issuer ID supplied."
+    "completeness": "complete_for_declared_scope",
+    "scope": "Complete nasdaqlisted.txt and otherlisted.txt snapshot (13,199 non-test listings)"
   },
   "documentation_verified_on": "2026-09-15",
   "stages": [
@@ -43,15 +45,39 @@
       "entrypoint": "pipeline.py:run",
       "depends_on": [],
       "schema": {
-        "format": "evidence_jsonl"
+        "format": "evidence_jsonl",
+        "compression": "gzip"
       },
       "validation": {
         "allow_empty": false,
-        "max_rows": 100000
+        "max_rows": 200000
       },
       "cache": "content",
       "retention": "retain"
     }
   ],
-  "output_stage": "normalized"
+  "output_stage": "normalized",
+  "acquisition": {
+    "strategy": "files",
+    "description": "Both pipe-delimited symbol directory files (one snapshot; re-acquire daily to accumulate listing history)",
+    "documentation": "https://www.nasdaqtrader.com/Trader.aspx?id=SymbolDirDefs",
+    "desired_bytes": 2000000,
+    "priority": 3.0,
+    "files": [
+      {
+        "url": "https://www.nasdaqtrader.com/dynamic/SymDir/nasdaqlisted.txt",
+        "name": "nasdaqlisted.txt"
+      },
+      {
+        "url": "https://www.nasdaqtrader.com/dynamic/SymDir/otherlisted.txt",
+        "name": "otherlisted.txt"
+      }
+    ],
+    "rate_limit": {
+      "requests_per_second": 0.5
+    },
+    "reader": {
+      "format": "psv"
+    }
+  }
 }

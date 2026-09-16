@@ -3,19 +3,21 @@
   "schema_version": 2,
   "dependencies": [],
   "kind": "source",
-  "status": "sample_adapter_ready",
-  "description": "Company identities, filings, XBRL facts and LEI relationships",
+  "status": "complete",
+  "description": "GLEIF LEI Level 1 golden copy (LEI-CDF 3.1 CSV, all ~3.43M legal entities) plus GLEIF ISIN-to-LEI and BIC-to-LEI mapping files",
   "source": {
-    "publisher": "SEC / GLEIF",
-    "license_status": "verify_for_selected_release"
+    "publisher": "GLEIF (Global Legal Entity Identifier Foundation)",
+    "license_status": "CC0-1.0",
+    "license_notes": "LEI golden copy and GLEIF mapping files are published under CC0 1.0; no attribution required. ISIN-LEI mapping is produced with ANNA; BIC-LEI with SWIFT, both published by GLEIF free of charge.",
+    "documentation": "https://www.gleif.org/en/lei-data/gleif-golden-copy-and-delta-files"
   },
   "expected_outputs": [
     "organization",
-    "security",
-    "owns",
-    "controls"
+    "investment_fund",
+    "registered_in",
+    "issuer_security",
+    "successor_entity"
   ],
-  "setup": "Parse filing-specific contexts, accession IDs, units and periods. Match identifiers only with explicit evidence.",
   "entrypoint": "pipeline.py:run",
   "parameters": {},
   "sampling": {
@@ -37,11 +39,10 @@
     "documentation": "https://www.gleif.org/en/lei-data/gleif-api"
   },
   "normalization": {
-    "adapter_version": 1,
-    "input_format": "sampled_jsonl",
-    "raw_fields": "preserved in attributes.source_row",
+    "input_format": "full_acquisition_shards (legacy sampled_jsonl still supported)",
+    "raw_fields": "selected fields in compact attributes; full rows remain in raw",
     "entity_identity": "source IDs, canonical geography, explicitly labeled unresolved references and aggregate cohorts",
-    "coverage": "acquired sample only"
+    "coverage": "All 3,431,064 LEI records; ISIN links for US/CA ISINs; all BIC links"
   },
   "stages": [
     {
@@ -49,15 +50,53 @@
       "entrypoint": "pipeline.py:run",
       "depends_on": [],
       "schema": {
-        "format": "evidence_jsonl"
+        "format": "evidence_jsonl",
+        "compression": "gzip"
       },
       "validation": {
         "allow_empty": false,
-        "max_rows": 100000
+        "max_rows": 12000000
       },
       "cache": "content",
       "retention": "retain"
     }
   ],
-  "output_stage": "normalized"
+  "output_stage": "normalized",
+  "acquisition": {
+    "strategy": "files",
+    "description": "Pinned 2026-09-15 16:00 UTC golden-copy publish (URLs rotate three times daily; update from https://goldencopy.gleif.org/api/v2/golden-copies/publishes/latest) plus latest ISIN-LEI (2026-09-15) and BIC-LEI (2026-08-28) mapping files",
+    "documentation": "https://www.gleif.org/en/lei-data/gleif-golden-copy-and-delta-files",
+    "desired_bytes": 550000000,
+    "priority": 3.0,
+    "files": [
+      {
+        "url": "https://goldencopy.gleif.org/storage/golden-copy-files/2026/09/15/1276757/20260915-1600-gleif-goldencopy-lei2-golden-copy.csv.zip",
+        "name": "lei2-golden-copy.csv.zip"
+      },
+      {
+        "url": "https://mapping.gleif.org/api/v2/isin-lei/f800d1c7-cd02-4d54-8be9-425c0466b169/download",
+        "name": "isin-lei-20260915T071509.zip"
+      },
+      {
+        "url": "https://mapping.gleif.org/api/v2/bic-lei/fc357d54-5c42-4a16-95ae-7aab8b148c4d/download",
+        "name": "lei-bic-20260828.zip"
+      }
+    ],
+    "rate_limit": {
+      "requests_per_second": 1
+    },
+    "timeout_seconds": 120,
+    "retries": 8,
+    "reader": {
+      "format": "csv",
+      "members": [
+        "*.csv"
+      ]
+    }
+  },
+  "coverage": {
+    "representative": false,
+    "completeness": "complete_for_declared_scope",
+    "scope": "All 3,431,064 LEI records; ISIN links for US/CA ISINs; all BIC links"
+  }
 }

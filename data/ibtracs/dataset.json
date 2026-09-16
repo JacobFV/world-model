@@ -1,0 +1,63 @@
+{
+  "id": "ibtracs",
+  "schema_version": 2,
+  "dependencies": [],
+  "kind": "source",
+  "status": "full_acquisition_configured",
+  "description": "IBTrACS v04r01 global tropical cyclone best-track positions and intensities since 1980 (all agencies merged list CSV)",
+  "source": {
+    "publisher": "NOAA National Centers for Environmental Information (IBTrACS)",
+    "documentation": "https://www.ncei.noaa.gov/products/international-best-track-archive",
+    "license_status": "public_domain",
+    "license_notes": "US federal government work: public domain in the United States (17 U.S.C. 105); no redistribution restriction; cite the publisher. Cite Knapp et al. (2010) BAMS and Gahtan et al. (2024) IBTrACS v04r01. Recent seasons are provisional."
+  },
+  "entrypoint": "pipeline.py:run",
+  "parameters": {},
+  "sampling": {
+    "criteria": "First 100 records, at most 1 MiB",
+    "disk_budget_bytes": 67108864,
+    "format": "jsonl",
+    "max_download_bytes": 1048576,
+    "max_rows": 100,
+    "max_sample_bytes": 1048576,
+    "max_uncompressed_bytes": 1048576,
+    "reason": "Configure a documented source URL and format before acquisition",
+    "strategy": "blocked"
+  },
+  "acquisition": {
+    "strategy": "files",
+    "description": "ibtracs.since1980.list.v04r01.csv (143,925,802 bytes on 2026-09-15)",
+    "desired_bytes": 150000000,
+    "priority": 2.0,
+    "files": [
+      {
+        "url": "https://www.ncei.noaa.gov/data/international-best-track-archive-for-climate-stewardship-ibtracs/v04r01/access/csv/ibtracs.since1980.list.v04r01.csv",
+        "name": "ibtracs.since1980.list.v04r01.csv"
+      }
+    ],
+    "timeout_seconds": 180,
+    "user_agent_env": "SEC_USER_AGENT",
+    "reader": {
+      "format": "csv",
+      "skip_lines": 0
+    }
+  },
+  "stages": [
+    {
+      "cache": "content",
+      "depends_on": [],
+      "entrypoint": "pipeline.py:run",
+      "id": "normalized",
+      "retention": "retain",
+      "schema": {
+        "format": "evidence_jsonl",
+        "compression": "gzip"
+      },
+      "validation": {
+        "allow_empty": false,
+        "max_rows": 6000000
+      }
+    }
+  ],
+  "output_stage": "normalized"
+}

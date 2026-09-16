@@ -1,0 +1,76 @@
+{
+  "dependencies": [],
+  "description": "V-Dem Country-Year Full+Others v16: curated democracy, governance, conflict and economic indicators by country-year (1946-2025)",
+  "entrypoint": "pipeline.py:run",
+  "id": "vdem",
+  "kind": "source",
+  "output_stage": "normalized",
+  "parameters": {},
+  "sampling": {
+    "strategy": "blocked",
+    "format": "jsonl",
+    "max_rows": 100,
+    "max_sample_bytes": 1048576,
+    "max_download_bytes": 1048576,
+    "max_uncompressed_bytes": 1048576,
+    "disk_budget_bytes": 67108864,
+    "criteria": "Not sampled",
+    "reason": "Single 27 MB ZIP acquired in full"
+  },
+  "schema_version": 2,
+  "stages": [
+    {
+      "id": "normalized",
+      "entrypoint": "pipeline.py:run",
+      "depends_on": [],
+      "schema": {
+        "format": "evidence_jsonl",
+        "compression": "gzip"
+      },
+      "validation": {
+        "allow_empty": false,
+        "max_rows": 3000000
+      },
+      "cache": "content",
+      "retention": "retain"
+    }
+  ],
+  "status": "complete",
+  "source": {
+    "publisher": "V-Dem Institute, University of Gothenburg",
+    "documentation": "https://v-dem.net/data/the-v-dem-dataset/",
+    "license": "CC BY-SA 4.0",
+    "license_id": "CC-BY-SA-4.0",
+    "license_status": "open_share_alike",
+    "terms_url": "https://v-dem.net/data/the-v-dem-dataset/",
+    "attribution": "Coppedge et al. 2026. V-Dem Country-Year Dataset v16. Varieties of Democracy (V-Dem) Project; plus Pemstein et al. measurement model; e_* variables retain their original source citations",
+    "redistribution": "permitted_share_alike"
+  },
+  "expected_outputs": [
+    "country_year_indicator"
+  ],
+  "acquisition": {
+    "strategy": "files",
+    "description": "V-Dem CY-Full+Others v16 CSV ZIP (406 MB CSV, 4618 columns) with codebook",
+    "documentation": "https://v-dem.net/data/the-v-dem-dataset/",
+    "desired_bytes": 26867425,
+    "min_bytes": 0,
+    "priority": 3.0,
+    "files": [
+      {
+        "url": "https://v-dem.net/media/datasets/V-Dem-CY-FullOthers-v16_csv.zip",
+        "name": "V-Dem-CY-FullOthers-v16_csv.zip"
+      }
+    ],
+    "rate_limit": {
+      "requests_per_second": 0.5
+    },
+    "timeout_seconds": 180,
+    "reader": {
+      "format": "csv",
+      "members": [
+        "V-Dem-CY-Full+Others-v16.csv"
+      ]
+    }
+  }
+}

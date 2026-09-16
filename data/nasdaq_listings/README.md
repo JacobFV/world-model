@@ -1,17 +1,21 @@
 # nasdaq_listings
 
-First 100 Nasdaq-listed directory rows excluding test issues. Source-scoped instrument/listing references; no legal issuer ID supplied.
+Nasdaq Trader symbol directories.
 
-## Pipeline
+**Source**: `nasdaqlisted.txt` and `otherlisted.txt` (pipe-delimited, daily). **Credential**: none. **Licence**: Nasdaq Trader site terms, reference use with attribution; do not redistribute.
 
-Local implementation: [pipeline.py](pipeline.py). Stages: **normalized**; default output: `normalized`. The [dataset.json](dataset.json) declaration pins source configuration, parameters, dependencies and validation.
+**Evidence**: `ticker:<MIC>:<symbol>` listing entities (XNAS for Nasdaq; XNYS, XASE, ARCX, BATS, IEXG, TXSE from the Exchange code) with security name, ETF flag, market tier and financial status; `listing_venue` to `mic:<MIC>`; ticker identifier assignments scoped by MIC. Test issues are skipped. No issuer or security identity is published or inferred. Re-acquire daily to build listing history.
 
-Dependencies: None (source input).
+Implementation: [pipeline.py](pipeline.py); declaration: [dataset.json](dataset.json).
 
-## Scope and evidence
+## Rebuild
 
-Source statements retain their provenance, units and available dates. A bounded sample does not establish complete or representative coverage.
+```sh
+wm acquire nasdaq_listings --dry-run
+wm acquire nasdaq_listings --allow-network        # --resume after interruptions
+WORLD_MODEL_RAW_VERIFY=size wm run nasdaq_listings
+wm verify nasdaq_listings
+```
 
-## Local files
-
-`artifacts/` contains generated immutable stage products; `scratch/` is temporary local work. Both are ignored by Git. Legacy generated paths are also ignored. Source terms and access requirements remain in `dataset.json`; repository code licensing does not grant dataset redistribution rights.
+Tests: `python3 -m unittest tests.test_companies_markets_research_datasets`.
+`artifacts/` and `scratch/` are ignored by Git. Cross-dataset identity notes: [docs/data/companies-markets-research.md](../../docs/data/companies-markets-research.md).

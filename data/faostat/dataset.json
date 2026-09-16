@@ -1,0 +1,77 @@
+{
+  "id": "faostat",
+  "schema_version": 2,
+  "kind": "source",
+  "description": "FAOSTAT bulk (normalized) production (quantities, indices, value), producer and consumer prices, agricultural trade (bilateral detailed matrix, country totals, indicators, indices) and food balance sheets for all countries and FAO aggregates",
+  "status": "full_acquisition_complete",
+  "dependencies": [],
+  "parameters": {
+    "min_year": 2000,
+    "min_year_by_domain": {
+      "TM": 2010
+    },
+    "elements": {
+      "QCL": ["5510", "5513", "5312", "5412", "5413", "5417", "5424", "5320", "5321", "5111", "5112", "5114", "5318", "5313"],
+      "PP": ["5530", "5532", "5539"],
+      "FBS": ["511", "5511", "5611", "5911", "5072", "5301", "5521", "5527", "5123", "5131", "5154", "5142", "5171", "5170", "664", "674", "684"]
+    }
+  },
+  "source": {
+    "publisher": "Food and Agriculture Organization of the United Nations (FAO)",
+    "url": "https://www.fao.org/faostat/en/#data",
+    "documentation": "https://files-faostat.fao.org/production/FAOSTAT_API_Documentation.pdf",
+    "license": "CC-BY-4.0",
+    "license_status": "cc_by_4_0",
+    "terms_url": "https://www.fao.org/contact-us/terms/db-terms-of-use/en/",
+    "attribution": "FAO. FAOSTAT. Licence: CC BY 4.0 (cite dataset name and access date)",
+    "redistribution": true
+  },
+  "entrypoint": "pipeline.py:run",
+  "output_stage": "normalized",
+  "acquisition": {
+    "strategy": "files",
+    "description": "FAOSTAT normalized bulk ZIPs for the production, trade and prices domains: Production_Crops_Livestock (QCL), Production_Indices (QI), Value_of_Production (QV), Prices (PP), ConsumerPriceIndices (CP), Trade_DetailedTradeMatrix (TM, bilateral), Trade_CropsLivestock (TCL, country totals), Trade_CropsLivestockIndicators (TCLI), Trade_Indices (TI), plus FoodBalanceSheets (FBS, 2010-).",
+    "documentation": "https://bulks-faostat.fao.org/production/datasets_E.json",
+    "desired_bytes": 1060000000,
+    "min_bytes": 0,
+    "priority": 2.0,
+    "files": [
+      {"url": "https://bulks-faostat.fao.org/production/Production_Crops_Livestock_E_All_Data_(Normalized).zip", "name": "Production_Crops_Livestock_E_All_Data_(Normalized).zip"},
+      {"url": "https://bulks-faostat.fao.org/production/Prices_E_All_Data_(Normalized).zip", "name": "Prices_E_All_Data_(Normalized).zip"},
+      {"url": "https://bulks-faostat.fao.org/production/FoodBalanceSheets_E_All_Data_(Normalized).zip", "name": "FoodBalanceSheets_E_All_Data_(Normalized).zip"},
+      {"url": "https://bulks-faostat.fao.org/production/Trade_DetailedTradeMatrix_E_All_Data_(Normalized).zip", "name": "Trade_DetailedTradeMatrix_E_All_Data_(Normalized).zip"},
+      {"url": "https://bulks-faostat.fao.org/production/Trade_CropsLivestock_E_All_Data_(Normalized).zip", "name": "Trade_CropsLivestock_E_All_Data_(Normalized).zip"},
+      {"url": "https://bulks-faostat.fao.org/production/Trade_CropsLivestockIndicators_E_All_Data_(Normalized).zip", "name": "Trade_CropsLivestockIndicators_E_All_Data_(Normalized).zip"},
+      {"url": "https://bulks-faostat.fao.org/production/Trade_Indices_E_All_Data_(Normalized).zip", "name": "Trade_Indices_E_All_Data_(Normalized).zip"},
+      {"url": "https://bulks-faostat.fao.org/production/Production_Indices_E_All_Data_(Normalized).zip", "name": "Production_Indices_E_All_Data_(Normalized).zip"},
+      {"url": "https://bulks-faostat.fao.org/production/Value_of_Production_E_All_Data_(Normalized).zip", "name": "Value_of_Production_E_All_Data_(Normalized).zip"},
+      {"url": "https://bulks-faostat.fao.org/production/ConsumerPriceIndices_E_All_Data_(Normalized).zip", "name": "ConsumerPriceIndices_E_All_Data_(Normalized).zip"}
+    ],
+    "rate_limit": {"requests_per_second": 0.5},
+    "timeout_seconds": 180,
+    "retries": 5,
+    "reader": {"format": "csv", "members": ["*_All_Data_(Normalized).csv"]}
+  },
+  "stages": [
+    {
+      "id": "normalized",
+      "entrypoint": "pipeline.py:run",
+      "depends_on": [],
+      "schema": {"format": "evidence_jsonl", "compression": "gzip"},
+      "validation": {"allow_empty": false, "max_rows": 80000000},
+      "cache": "content",
+      "retention": "retain"
+    }
+  ],
+  "sampling": {
+    "strategy": "blocked",
+    "format": "jsonl",
+    "max_rows": 100,
+    "max_sample_bytes": 1048576,
+    "max_download_bytes": 1048576,
+    "max_uncompressed_bytes": 1048576,
+    "disk_budget_bytes": 67108864,
+    "criteria": "Not sampled; use full acquisition",
+    "reason": "Bulk ZIP archives only; acquire with `wm acquire faostat --allow-network`"
+  }
+}

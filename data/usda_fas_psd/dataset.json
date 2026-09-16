@@ -1,0 +1,58 @@
+{
+  "id": "usda_fas_psd",
+  "schema_version": 2,
+  "kind": "source",
+  "description": "USDA FAS Production, Supply and Distribution (PSD): global agricultural commodity balance sheets by country and marketing year (production, supply, use, trade, stocks)",
+  "status": "full_acquisition_complete",
+  "dependencies": [],
+  "parameters": {},
+  "source": {
+    "publisher": "U.S. Department of Agriculture, Foreign Agricultural Service",
+    "url": "https://apps.fas.usda.gov/psdonline/app/index.html#/app/downloads",
+    "documentation": "https://apps.fas.usda.gov/psdonline/app/index.html#/app/about",
+    "license": "US-Government-Work-Public-Domain",
+    "license_status": "public_domain_us_federal_work",
+    "terms_url": "https://www.usa.gov/government-works",
+    "attribution": "USDA Foreign Agricultural Service, PSD Online",
+    "redistribution": true
+  },
+  "entrypoint": "pipeline.py:run",
+  "output_stage": "normalized",
+  "acquisition": {
+    "strategy": "files",
+    "description": "Full PSD all-commodities CSV bundle (single ZIP, refreshed monthly with WASDE)",
+    "documentation": "https://apps.fas.usda.gov/psdonline/app/index.html#/app/downloads",
+    "desired_bytes": 10500000,
+    "min_bytes": 0,
+    "priority": 3.0,
+    "files": [
+      {"url": "https://apps.fas.usda.gov/psdonline/downloads/psd_alldata_csv.zip", "name": "psd_alldata_csv.zip"}
+    ],
+    "rate_limit": {"requests_per_second": 0.5},
+    "timeout_seconds": 120,
+    "retries": 5,
+    "reader": {"format": "csv", "members": ["*.csv"]}
+  },
+  "stages": [
+    {
+      "id": "normalized",
+      "entrypoint": "pipeline.py:run",
+      "depends_on": [],
+      "schema": {"format": "evidence_jsonl", "compression": "gzip"},
+      "validation": {"allow_empty": false, "max_rows": 5000000},
+      "cache": "content",
+      "retention": "retain"
+    }
+  ],
+  "sampling": {
+    "strategy": "blocked",
+    "format": "jsonl",
+    "max_rows": 100,
+    "max_sample_bytes": 1048576,
+    "max_download_bytes": 1048576,
+    "max_uncompressed_bytes": 1048576,
+    "disk_budget_bytes": 67108864,
+    "criteria": "Not sampled; use full acquisition (10 MB ZIP)",
+    "reason": "Single small bulk ZIP; acquire the full file with `wm acquire usda_fas_psd --allow-network`"
+  }
+}

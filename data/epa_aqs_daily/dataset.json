@@ -1,0 +1,425 @@
+{
+  "id": "epa_aqs_daily",
+  "schema_version": 2,
+  "dependencies": [],
+  "kind": "source",
+  "status": "full_acquisition_configured",
+  "description": "EPA Air Quality System daily summaries 2010-2024 aggregated to county-day means over monitors: PM2.5 FRM/FEM, ozone daily max 8-hour, NO2, SO2, CO and PM10",
+  "source": {
+    "publisher": "U.S. Environmental Protection Agency, Air Quality System (AirData pre-generated files)",
+    "documentation": "https://aqs.epa.gov/aqsweb/airdata/download_files.html",
+    "license_status": "public_domain",
+    "license_notes": "US federal government work: public domain in the United States (17 U.S.C. 105); no redistribution restriction; cite the publisher. Pre-generated files are refreshed periodically (recent years change as data are certified); exceptional-event flagged records are de-prioritized."
+  },
+  "entrypoint": "pipeline.py:run",
+  "parameters": {},
+  "sampling": {
+    "criteria": "First 100 records, at most 1 MiB",
+    "disk_budget_bytes": 67108864,
+    "format": "jsonl",
+    "max_download_bytes": 1048576,
+    "max_rows": 100,
+    "max_sample_bytes": 1048576,
+    "max_uncompressed_bytes": 1048576,
+    "reason": "Configure a documented source URL and format before acquisition",
+    "strategy": "blocked"
+  },
+  "acquisition": {
+    "strategy": "files",
+    "description": "90 yearly ZIP files for PM2.5 (88101), ozone (44201), NO2 (42602), SO2 (42401), CO (42101) and PM10 (81102), 2010-2024 (289,988,152 bytes listed 2026-09-15)",
+    "documentation": "https://aqs.epa.gov/aqsweb/airdata/FileFormats.html",
+    "desired_bytes": 320000000,
+    "priority": 2.0,
+    "files": [
+      {
+        "url": "https://aqs.epa.gov/aqsweb/airdata/daily_88101_2010.zip",
+        "name": "daily_88101_2010.zip"
+      },
+      {
+        "url": "https://aqs.epa.gov/aqsweb/airdata/daily_88101_2011.zip",
+        "name": "daily_88101_2011.zip"
+      },
+      {
+        "url": "https://aqs.epa.gov/aqsweb/airdata/daily_88101_2012.zip",
+        "name": "daily_88101_2012.zip"
+      },
+      {
+        "url": "https://aqs.epa.gov/aqsweb/airdata/daily_88101_2013.zip",
+        "name": "daily_88101_2013.zip"
+      },
+      {
+        "url": "https://aqs.epa.gov/aqsweb/airdata/daily_88101_2014.zip",
+        "name": "daily_88101_2014.zip"
+      },
+      {
+        "url": "https://aqs.epa.gov/aqsweb/airdata/daily_88101_2015.zip",
+        "name": "daily_88101_2015.zip"
+      },
+      {
+        "url": "https://aqs.epa.gov/aqsweb/airdata/daily_88101_2016.zip",
+        "name": "daily_88101_2016.zip"
+      },
+      {
+        "url": "https://aqs.epa.gov/aqsweb/airdata/daily_88101_2017.zip",
+        "name": "daily_88101_2017.zip"
+      },
+      {
+        "url": "https://aqs.epa.gov/aqsweb/airdata/daily_88101_2018.zip",
+        "name": "daily_88101_2018.zip"
+      },
+      {
+        "url": "https://aqs.epa.gov/aqsweb/airdata/daily_88101_2019.zip",
+        "name": "daily_88101_2019.zip"
+      },
+      {
+        "url": "https://aqs.epa.gov/aqsweb/airdata/daily_88101_2020.zip",
+        "name": "daily_88101_2020.zip"
+      },
+      {
+        "url": "https://aqs.epa.gov/aqsweb/airdata/daily_88101_2021.zip",
+        "name": "daily_88101_2021.zip"
+      },
+      {
+        "url": "https://aqs.epa.gov/aqsweb/airdata/daily_88101_2022.zip",
+        "name": "daily_88101_2022.zip"
+      },
+      {
+        "url": "https://aqs.epa.gov/aqsweb/airdata/daily_88101_2023.zip",
+        "name": "daily_88101_2023.zip"
+      },
+      {
+        "url": "https://aqs.epa.gov/aqsweb/airdata/daily_88101_2024.zip",
+        "name": "daily_88101_2024.zip"
+      },
+      {
+        "url": "https://aqs.epa.gov/aqsweb/airdata/daily_44201_2010.zip",
+        "name": "daily_44201_2010.zip"
+      },
+      {
+        "url": "https://aqs.epa.gov/aqsweb/airdata/daily_44201_2011.zip",
+        "name": "daily_44201_2011.zip"
+      },
+      {
+        "url": "https://aqs.epa.gov/aqsweb/airdata/daily_44201_2012.zip",
+        "name": "daily_44201_2012.zip"
+      },
+      {
+        "url": "https://aqs.epa.gov/aqsweb/airdata/daily_44201_2013.zip",
+        "name": "daily_44201_2013.zip"
+      },
+      {
+        "url": "https://aqs.epa.gov/aqsweb/airdata/daily_44201_2014.zip",
+        "name": "daily_44201_2014.zip"
+      },
+      {
+        "url": "https://aqs.epa.gov/aqsweb/airdata/daily_44201_2015.zip",
+        "name": "daily_44201_2015.zip"
+      },
+      {
+        "url": "https://aqs.epa.gov/aqsweb/airdata/daily_44201_2016.zip",
+        "name": "daily_44201_2016.zip"
+      },
+      {
+        "url": "https://aqs.epa.gov/aqsweb/airdata/daily_44201_2017.zip",
+        "name": "daily_44201_2017.zip"
+      },
+      {
+        "url": "https://aqs.epa.gov/aqsweb/airdata/daily_44201_2018.zip",
+        "name": "daily_44201_2018.zip"
+      },
+      {
+        "url": "https://aqs.epa.gov/aqsweb/airdata/daily_44201_2019.zip",
+        "name": "daily_44201_2019.zip"
+      },
+      {
+        "url": "https://aqs.epa.gov/aqsweb/airdata/daily_44201_2020.zip",
+        "name": "daily_44201_2020.zip"
+      },
+      {
+        "url": "https://aqs.epa.gov/aqsweb/airdata/daily_44201_2021.zip",
+        "name": "daily_44201_2021.zip"
+      },
+      {
+        "url": "https://aqs.epa.gov/aqsweb/airdata/daily_44201_2022.zip",
+        "name": "daily_44201_2022.zip"
+      },
+      {
+        "url": "https://aqs.epa.gov/aqsweb/airdata/daily_44201_2023.zip",
+        "name": "daily_44201_2023.zip"
+      },
+      {
+        "url": "https://aqs.epa.gov/aqsweb/airdata/daily_44201_2024.zip",
+        "name": "daily_44201_2024.zip"
+      },
+      {
+        "url": "https://aqs.epa.gov/aqsweb/airdata/daily_42602_2010.zip",
+        "name": "daily_42602_2010.zip"
+      },
+      {
+        "url": "https://aqs.epa.gov/aqsweb/airdata/daily_42602_2011.zip",
+        "name": "daily_42602_2011.zip"
+      },
+      {
+        "url": "https://aqs.epa.gov/aqsweb/airdata/daily_42602_2012.zip",
+        "name": "daily_42602_2012.zip"
+      },
+      {
+        "url": "https://aqs.epa.gov/aqsweb/airdata/daily_42602_2013.zip",
+        "name": "daily_42602_2013.zip"
+      },
+      {
+        "url": "https://aqs.epa.gov/aqsweb/airdata/daily_42602_2014.zip",
+        "name": "daily_42602_2014.zip"
+      },
+      {
+        "url": "https://aqs.epa.gov/aqsweb/airdata/daily_42602_2015.zip",
+        "name": "daily_42602_2015.zip"
+      },
+      {
+        "url": "https://aqs.epa.gov/aqsweb/airdata/daily_42602_2016.zip",
+        "name": "daily_42602_2016.zip"
+      },
+      {
+        "url": "https://aqs.epa.gov/aqsweb/airdata/daily_42602_2017.zip",
+        "name": "daily_42602_2017.zip"
+      },
+      {
+        "url": "https://aqs.epa.gov/aqsweb/airdata/daily_42602_2018.zip",
+        "name": "daily_42602_2018.zip"
+      },
+      {
+        "url": "https://aqs.epa.gov/aqsweb/airdata/daily_42602_2019.zip",
+        "name": "daily_42602_2019.zip"
+      },
+      {
+        "url": "https://aqs.epa.gov/aqsweb/airdata/daily_42602_2020.zip",
+        "name": "daily_42602_2020.zip"
+      },
+      {
+        "url": "https://aqs.epa.gov/aqsweb/airdata/daily_42602_2021.zip",
+        "name": "daily_42602_2021.zip"
+      },
+      {
+        "url": "https://aqs.epa.gov/aqsweb/airdata/daily_42602_2022.zip",
+        "name": "daily_42602_2022.zip"
+      },
+      {
+        "url": "https://aqs.epa.gov/aqsweb/airdata/daily_42602_2023.zip",
+        "name": "daily_42602_2023.zip"
+      },
+      {
+        "url": "https://aqs.epa.gov/aqsweb/airdata/daily_42602_2024.zip",
+        "name": "daily_42602_2024.zip"
+      },
+      {
+        "url": "https://aqs.epa.gov/aqsweb/airdata/daily_42401_2010.zip",
+        "name": "daily_42401_2010.zip"
+      },
+      {
+        "url": "https://aqs.epa.gov/aqsweb/airdata/daily_42401_2011.zip",
+        "name": "daily_42401_2011.zip"
+      },
+      {
+        "url": "https://aqs.epa.gov/aqsweb/airdata/daily_42401_2012.zip",
+        "name": "daily_42401_2012.zip"
+      },
+      {
+        "url": "https://aqs.epa.gov/aqsweb/airdata/daily_42401_2013.zip",
+        "name": "daily_42401_2013.zip"
+      },
+      {
+        "url": "https://aqs.epa.gov/aqsweb/airdata/daily_42401_2014.zip",
+        "name": "daily_42401_2014.zip"
+      },
+      {
+        "url": "https://aqs.epa.gov/aqsweb/airdata/daily_42401_2015.zip",
+        "name": "daily_42401_2015.zip"
+      },
+      {
+        "url": "https://aqs.epa.gov/aqsweb/airdata/daily_42401_2016.zip",
+        "name": "daily_42401_2016.zip"
+      },
+      {
+        "url": "https://aqs.epa.gov/aqsweb/airdata/daily_42401_2017.zip",
+        "name": "daily_42401_2017.zip"
+      },
+      {
+        "url": "https://aqs.epa.gov/aqsweb/airdata/daily_42401_2018.zip",
+        "name": "daily_42401_2018.zip"
+      },
+      {
+        "url": "https://aqs.epa.gov/aqsweb/airdata/daily_42401_2019.zip",
+        "name": "daily_42401_2019.zip"
+      },
+      {
+        "url": "https://aqs.epa.gov/aqsweb/airdata/daily_42401_2020.zip",
+        "name": "daily_42401_2020.zip"
+      },
+      {
+        "url": "https://aqs.epa.gov/aqsweb/airdata/daily_42401_2021.zip",
+        "name": "daily_42401_2021.zip"
+      },
+      {
+        "url": "https://aqs.epa.gov/aqsweb/airdata/daily_42401_2022.zip",
+        "name": "daily_42401_2022.zip"
+      },
+      {
+        "url": "https://aqs.epa.gov/aqsweb/airdata/daily_42401_2023.zip",
+        "name": "daily_42401_2023.zip"
+      },
+      {
+        "url": "https://aqs.epa.gov/aqsweb/airdata/daily_42401_2024.zip",
+        "name": "daily_42401_2024.zip"
+      },
+      {
+        "url": "https://aqs.epa.gov/aqsweb/airdata/daily_42101_2010.zip",
+        "name": "daily_42101_2010.zip"
+      },
+      {
+        "url": "https://aqs.epa.gov/aqsweb/airdata/daily_42101_2011.zip",
+        "name": "daily_42101_2011.zip"
+      },
+      {
+        "url": "https://aqs.epa.gov/aqsweb/airdata/daily_42101_2012.zip",
+        "name": "daily_42101_2012.zip"
+      },
+      {
+        "url": "https://aqs.epa.gov/aqsweb/airdata/daily_42101_2013.zip",
+        "name": "daily_42101_2013.zip"
+      },
+      {
+        "url": "https://aqs.epa.gov/aqsweb/airdata/daily_42101_2014.zip",
+        "name": "daily_42101_2014.zip"
+      },
+      {
+        "url": "https://aqs.epa.gov/aqsweb/airdata/daily_42101_2015.zip",
+        "name": "daily_42101_2015.zip"
+      },
+      {
+        "url": "https://aqs.epa.gov/aqsweb/airdata/daily_42101_2016.zip",
+        "name": "daily_42101_2016.zip"
+      },
+      {
+        "url": "https://aqs.epa.gov/aqsweb/airdata/daily_42101_2017.zip",
+        "name": "daily_42101_2017.zip"
+      },
+      {
+        "url": "https://aqs.epa.gov/aqsweb/airdata/daily_42101_2018.zip",
+        "name": "daily_42101_2018.zip"
+      },
+      {
+        "url": "https://aqs.epa.gov/aqsweb/airdata/daily_42101_2019.zip",
+        "name": "daily_42101_2019.zip"
+      },
+      {
+        "url": "https://aqs.epa.gov/aqsweb/airdata/daily_42101_2020.zip",
+        "name": "daily_42101_2020.zip"
+      },
+      {
+        "url": "https://aqs.epa.gov/aqsweb/airdata/daily_42101_2021.zip",
+        "name": "daily_42101_2021.zip"
+      },
+      {
+        "url": "https://aqs.epa.gov/aqsweb/airdata/daily_42101_2022.zip",
+        "name": "daily_42101_2022.zip"
+      },
+      {
+        "url": "https://aqs.epa.gov/aqsweb/airdata/daily_42101_2023.zip",
+        "name": "daily_42101_2023.zip"
+      },
+      {
+        "url": "https://aqs.epa.gov/aqsweb/airdata/daily_42101_2024.zip",
+        "name": "daily_42101_2024.zip"
+      },
+      {
+        "url": "https://aqs.epa.gov/aqsweb/airdata/daily_81102_2010.zip",
+        "name": "daily_81102_2010.zip"
+      },
+      {
+        "url": "https://aqs.epa.gov/aqsweb/airdata/daily_81102_2011.zip",
+        "name": "daily_81102_2011.zip"
+      },
+      {
+        "url": "https://aqs.epa.gov/aqsweb/airdata/daily_81102_2012.zip",
+        "name": "daily_81102_2012.zip"
+      },
+      {
+        "url": "https://aqs.epa.gov/aqsweb/airdata/daily_81102_2013.zip",
+        "name": "daily_81102_2013.zip"
+      },
+      {
+        "url": "https://aqs.epa.gov/aqsweb/airdata/daily_81102_2014.zip",
+        "name": "daily_81102_2014.zip"
+      },
+      {
+        "url": "https://aqs.epa.gov/aqsweb/airdata/daily_81102_2015.zip",
+        "name": "daily_81102_2015.zip"
+      },
+      {
+        "url": "https://aqs.epa.gov/aqsweb/airdata/daily_81102_2016.zip",
+        "name": "daily_81102_2016.zip"
+      },
+      {
+        "url": "https://aqs.epa.gov/aqsweb/airdata/daily_81102_2017.zip",
+        "name": "daily_81102_2017.zip"
+      },
+      {
+        "url": "https://aqs.epa.gov/aqsweb/airdata/daily_81102_2018.zip",
+        "name": "daily_81102_2018.zip"
+      },
+      {
+        "url": "https://aqs.epa.gov/aqsweb/airdata/daily_81102_2019.zip",
+        "name": "daily_81102_2019.zip"
+      },
+      {
+        "url": "https://aqs.epa.gov/aqsweb/airdata/daily_81102_2020.zip",
+        "name": "daily_81102_2020.zip"
+      },
+      {
+        "url": "https://aqs.epa.gov/aqsweb/airdata/daily_81102_2021.zip",
+        "name": "daily_81102_2021.zip"
+      },
+      {
+        "url": "https://aqs.epa.gov/aqsweb/airdata/daily_81102_2022.zip",
+        "name": "daily_81102_2022.zip"
+      },
+      {
+        "url": "https://aqs.epa.gov/aqsweb/airdata/daily_81102_2023.zip",
+        "name": "daily_81102_2023.zip"
+      },
+      {
+        "url": "https://aqs.epa.gov/aqsweb/airdata/daily_81102_2024.zip",
+        "name": "daily_81102_2024.zip"
+      }
+    ],
+    "rate_limit": {
+      "requests_per_second": 0.5
+    },
+    "timeout_seconds": 180,
+    "user_agent_env": "SEC_USER_AGENT",
+    "reader": {
+      "format": "csv",
+      "members": [
+        "*.csv"
+      ]
+    }
+  },
+  "stages": [
+    {
+      "id": "normalized",
+      "entrypoint": "pipeline.py:run",
+      "depends_on": [],
+      "schema": {
+        "format": "evidence_jsonl",
+        "compression": "gzip"
+      },
+      "validation": {
+        "allow_empty": false,
+        "max_rows": 25000000
+      },
+      "cache": "content",
+      "retention": "retain"
+    }
+  ],
+  "output_stage": "normalized"
+}

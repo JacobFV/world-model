@@ -4,7 +4,7 @@ import math
 from worldmodel.util import digest
 from worldmodel.source_helpers import SERIES, next_day, month_end
 
-def run(context):
+def _sample_run(context):
     dataset = 'fred_cpi'
     if not context.raw_inputs:
         raise ValueError('Source sample artifact required')
@@ -66,3 +66,22 @@ def run(context):
             if not found:
                 raise ValueError('No recognized FRED series columns')
             yield from out
+
+
+def run(context):
+    """Full sharded artifacts stream through fred_alfred; sample/single payloads keep the sample adapter."""
+    if getattr(context, 'raw_coverage', None) is None or not _full(context):
+        yield from _sample_run(context)
+        return
+    from .fred_alfred import api_records, graph_records
+    series = context.parameters['series']
+    shards = list(context.raw_shards())
+    if shards and (shards[0].get('request') or {}).get('params', {}).get('series_id'):
+        yield from api_records(context, 'fred_cpi', series, lambda series_id: 'vintages')
+    else:  # Earlier fredgraph.csv artifacts (current vintage only).
+        yield from graph_records(context, 'fred_cpi', series)
+
+
+def _full(context):
+    coverage = context.raw_coverage()
+    return not coverage['sampled'] and coverage['layout'] == 'shards'

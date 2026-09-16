@@ -1,17 +1,32 @@
 # congress_people
 
-Community-maintained public Congressional person identifiers and dated House/Senate terms; first 100 source rows only
+Community-maintained [unitedstates/congress-legislators](https://github.com/unitedstates/congress-legislators)
+directory (not an official Congress publication). Licence: CC0 1.0. No credentials.
 
-## Pipeline
+## Source and scope
 
-Local implementation: [pipeline.py](pipeline.py). Stages: **normalized**; default output: `normalized`. The [dataset.json](dataset.json) declaration pins source configuration, parameters, dependencies and validation.
+All published JSON files from `https://unitedstates.github.io/congress-legislators/`:
+`legislators-current`, `legislators-historical`, `executive`, `committees-current`,
+`committees-historical`, `committee-membership-current`, `legislators-social-media` (~17 MB).
 
-Dependencies: None (source input).
+## Normalized evidence
 
-## Scope and evidence
+- entities `bioguide:{ID}` (`person`; executive-only people without a bioguide use `govtrack:{ID}`)
+- `identifier_assignment` for bioguide, wikidata, fec, govtrack, lis, thomas, opensecrets, votesmart, icpsr,
+  cspan, ballotpedia, maplight, google_entity_id, social accounts (undated)
+- `same_as` crosswalks: `fec:candidate:{ID}`, `icpsr:{N}` (joins `fec_candidates`, `fec`, `voteview_rollcalls`)
+- dated `holds_role` / `role_in_organization` / `role_affiliation` from published terms (House, Senate,
+  President, Vice President); aliases with name-change dates
+- committees `congress:committee:{thomas_id lower}00` and subcommittees `…{code}{sub}` (`institution`,
+  `part_of`, `active_in_congresses`) — identical to congress.gov/BILLSTATUS `systemCode`
+- `committee_member` bioguide → committee (current file, undated; rank, title, side)
 
-Source statements retain their provenance, units and available dates. A bounded sample does not establish complete or representative coverage.
+Names are aliases and never merge evidence. Office phone numbers and addresses in terms are dropped.
+Legacy JSONL samples (one legislator per line) use `sample`.
 
-## Local files
+## Rebuild
 
-`artifacts/` contains generated immutable stage products; `scratch/` is temporary local work. Both are ignored by Git. Legacy generated paths are also ignored. Source terms and access requirements remain in `dataset.json`; repository code licensing does not grant dataset redistribution rights.
+```sh
+python3 -m worldmodel acquire congress_people --allow-network
+WORLD_MODEL_RAW_VERIFY=size python3 -m worldmodel run congress_people
+```

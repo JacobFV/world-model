@@ -1,0 +1,261 @@
+{
+  "dependencies": [],
+  "description": "Global Fishing Watch AIS-derived events (port visits, vessel encounters, loitering) 2024-2026 via API v3; deferred: token requires an approved non-commercial account and the plan allots budget 0",
+  "entrypoint": "pipeline.py:run",
+  "id": "global_fishing_watch",
+  "kind": "source",
+  "parameters": {},
+  "sampling": {
+    "criteria": "API v3 events pages",
+    "disk_budget_bytes": 67108864,
+    "format": "jsonl",
+    "max_download_bytes": 1048576,
+    "max_rows": 100,
+    "max_sample_bytes": 1048576,
+    "max_uncompressed_bytes": 1048576,
+    "reason": "Requires an approved GFW API token (GFW_API_TOKEN); not available",
+    "strategy": "blocked"
+  },
+  "schema_version": 2,
+  "status": "awaiting_credentials",
+  "source": {
+    "publisher": "Global Fishing Watch",
+    "license_status": "non_commercial",
+    "license": "CC BY-NC 4.0",
+    "license_url": "https://globalfishingwatch.org/our-apis/documentation#terms-of-use",
+    "license_notes": "Non-commercial use only; attribution required; token request must state the intended use. Do not redistribute derived data commercially.",
+    "credential": {
+      "env": "GFW_API_TOKEN",
+      "how_to_get": "https://globalfishingwatch.org/our-apis/tokens/signup",
+      "instant": false
+    }
+  },
+  "acquisition": {
+    "strategy": "paged_api",
+    "description": "GFW API v3 /events for port visits, encounters and loitering, quarterly windows 2024-01-01..2026-10-01, 1,000 events per page; JSONL shards of event objects",
+    "documentation": "https://globalfishingwatch.org/our-apis/documentation",
+    "desired_bytes": 0,
+    "min_bytes": 0,
+    "priority": 1.0,
+    "url_template": "https://gateway.api.globalfishingwatch.org/v3/events?datasets%5B0%5D={dataset}&start-date={start}&end-date={end}",
+    "combinations": [
+      {
+        "dataset": "public-global-port-visits-events:latest",
+        "start": "2024-01-01",
+        "end": "2024-04-01"
+      },
+      {
+        "dataset": "public-global-port-visits-events:latest",
+        "start": "2024-04-01",
+        "end": "2024-07-01"
+      },
+      {
+        "dataset": "public-global-port-visits-events:latest",
+        "start": "2024-07-01",
+        "end": "2024-10-01"
+      },
+      {
+        "dataset": "public-global-port-visits-events:latest",
+        "start": "2024-10-01",
+        "end": "2025-01-01"
+      },
+      {
+        "dataset": "public-global-port-visits-events:latest",
+        "start": "2025-01-01",
+        "end": "2025-04-01"
+      },
+      {
+        "dataset": "public-global-port-visits-events:latest",
+        "start": "2025-04-01",
+        "end": "2025-07-01"
+      },
+      {
+        "dataset": "public-global-port-visits-events:latest",
+        "start": "2025-07-01",
+        "end": "2025-10-01"
+      },
+      {
+        "dataset": "public-global-port-visits-events:latest",
+        "start": "2025-10-01",
+        "end": "2026-01-01"
+      },
+      {
+        "dataset": "public-global-port-visits-events:latest",
+        "start": "2026-01-01",
+        "end": "2026-04-01"
+      },
+      {
+        "dataset": "public-global-port-visits-events:latest",
+        "start": "2026-04-01",
+        "end": "2026-07-01"
+      },
+      {
+        "dataset": "public-global-port-visits-events:latest",
+        "start": "2026-07-01",
+        "end": "2026-10-01"
+      },
+      {
+        "dataset": "public-global-encounters-events:latest",
+        "start": "2024-01-01",
+        "end": "2024-04-01"
+      },
+      {
+        "dataset": "public-global-encounters-events:latest",
+        "start": "2024-04-01",
+        "end": "2024-07-01"
+      },
+      {
+        "dataset": "public-global-encounters-events:latest",
+        "start": "2024-07-01",
+        "end": "2024-10-01"
+      },
+      {
+        "dataset": "public-global-encounters-events:latest",
+        "start": "2024-10-01",
+        "end": "2025-01-01"
+      },
+      {
+        "dataset": "public-global-encounters-events:latest",
+        "start": "2025-01-01",
+        "end": "2025-04-01"
+      },
+      {
+        "dataset": "public-global-encounters-events:latest",
+        "start": "2025-04-01",
+        "end": "2025-07-01"
+      },
+      {
+        "dataset": "public-global-encounters-events:latest",
+        "start": "2025-07-01",
+        "end": "2025-10-01"
+      },
+      {
+        "dataset": "public-global-encounters-events:latest",
+        "start": "2025-10-01",
+        "end": "2026-01-01"
+      },
+      {
+        "dataset": "public-global-encounters-events:latest",
+        "start": "2026-01-01",
+        "end": "2026-04-01"
+      },
+      {
+        "dataset": "public-global-encounters-events:latest",
+        "start": "2026-04-01",
+        "end": "2026-07-01"
+      },
+      {
+        "dataset": "public-global-encounters-events:latest",
+        "start": "2026-07-01",
+        "end": "2026-10-01"
+      },
+      {
+        "dataset": "public-global-loitering-events:latest",
+        "start": "2024-01-01",
+        "end": "2024-04-01"
+      },
+      {
+        "dataset": "public-global-loitering-events:latest",
+        "start": "2024-04-01",
+        "end": "2024-07-01"
+      },
+      {
+        "dataset": "public-global-loitering-events:latest",
+        "start": "2024-07-01",
+        "end": "2024-10-01"
+      },
+      {
+        "dataset": "public-global-loitering-events:latest",
+        "start": "2024-10-01",
+        "end": "2025-01-01"
+      },
+      {
+        "dataset": "public-global-loitering-events:latest",
+        "start": "2025-01-01",
+        "end": "2025-04-01"
+      },
+      {
+        "dataset": "public-global-loitering-events:latest",
+        "start": "2025-04-01",
+        "end": "2025-07-01"
+      },
+      {
+        "dataset": "public-global-loitering-events:latest",
+        "start": "2025-07-01",
+        "end": "2025-10-01"
+      },
+      {
+        "dataset": "public-global-loitering-events:latest",
+        "start": "2025-10-01",
+        "end": "2026-01-01"
+      },
+      {
+        "dataset": "public-global-loitering-events:latest",
+        "start": "2026-01-01",
+        "end": "2026-04-01"
+      },
+      {
+        "dataset": "public-global-loitering-events:latest",
+        "start": "2026-04-01",
+        "end": "2026-07-01"
+      },
+      {
+        "dataset": "public-global-loitering-events:latest",
+        "start": "2026-07-01",
+        "end": "2026-10-01"
+      }
+    ],
+    "pagination": {
+      "mode": "offset",
+      "param": "offset",
+      "size_param": "limit",
+      "page_size": 1000,
+      "start": 0
+    },
+    "records_path": [
+      "entries"
+    ],
+    "stop": {
+      "total_path": [
+        "total"
+      ],
+      "empty_page": true,
+      "short_page": true
+    },
+    "credentials": [
+      {
+        "env": "GFW_API_TOKEN",
+        "header": "Authorization",
+        "prefix": "Bearer "
+      }
+    ],
+    "rate_limit": {
+      "requests_per_second": 0.5,
+      "requests_per_day": 20000
+    },
+    "timeout_seconds": 120,
+    "retries": 5,
+    "store": "jsonl",
+    "reader": {
+      "format": "jsonl"
+    }
+  },
+  "stages": [
+    {
+      "id": "normalized",
+      "entrypoint": "pipeline.py:run",
+      "depends_on": [],
+      "schema": {
+        "format": "evidence_jsonl",
+        "compression": "gzip"
+      },
+      "validation": {
+        "allow_empty": false,
+        "max_rows": 20000000
+      },
+      "cache": "content",
+      "retention": "retain"
+    }
+  ],
+  "output_stage": "normalized"
+}

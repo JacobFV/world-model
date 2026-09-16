@@ -3,13 +3,15 @@
   "schema_version": 2,
   "dependencies": [],
   "kind": "source",
-  "status": "sample_unavailable",
-  "description": "Commodity Flow Survey and Freight Analysis Framework",
+  "status": "full_acquisition_ready",
+  "description": "Freight Analysis Framework origin-destination flows: FAF5.7.1 state and FAF-zone flows by domestic mode and SCTG2 commodity (tons, constant and current value, ton-miles; 2017-2024 estimates, 2030-2050 baseline forecasts and low/high scenarios flagged as projections), reprocessed 1997-2012 state history, state-level import/export legs by foreign region, and the FAF6.0 2022 state benchmark",
   "source": {
-    "publisher": "Census / BTS",
-    "license_status": "verify_for_selected_release",
-    "release": "FAF6.0,2022 benchmark",
-    "unit_notes": "BTS documents thousand tons and million2022 constant dollars; no rows normalized without verified release columns."
+    "publisher": "USDOT Bureau of Transportation Statistics and Federal Highway Administration; Oak Ridge National Laboratory (FAF)",
+    "license_status": "public_domain",
+    "license": "US federal government work (public domain)",
+    "release": "FAF5.7.1 (2017 base, 2018-2024 annual estimates, 2030-2050 baseline/low/high forecasts; reprocessed 1997, 2002, 2007, 2012 state history); FAF6.0 state (2022 benchmark, published 2026-08)",
+    "unit_notes": "Tons in thousand short tons; FAF5 value in million 2017 constant dollars (current_value in million current dollars); FAF6.0 value in million 2022 dollars; ton-miles in millions. All values are modeled estimates, not survey counts.",
+    "documentation": "https://faf.ornl.gov/faf5/ ; https://www.bts.gov/faf"
   },
   "expected_outputs": [
     "commodity_flow",
@@ -36,11 +38,52 @@
     "url": "https://faf.ornl.gov/faf6/data/Download_Files/ZIP/FAF6.0_State.zip"
   },
   "normalization": {
-    "adapter_version": 1,
-    "input_format": "sampled_jsonl",
-    "raw_fields": "preserved in attributes.source_row",
-    "entity_identity": "source IDs, canonical geography, explicitly labeled unresolved references and aggregate cohorts",
-    "coverage": "no acquired sample; adapter unavailable"
+    "adapter_version": 2,
+    "input_format": "sharded ZIP CSV (FAF5.7.1, FAF5.7.1_State, FAF6.0_State)",
+    "raw_fields": "not copied; aggregate vectors keyed by origin, destination, mode and commodity",
+    "entity_identity": "geo:US:state:NN, faf5:zone:NNN, faf5:foreign_region:80N, faf6:foreign_region:80N, sctg2:NN",
+    "coverage": "complete published files; zero-valued years omitted"
+  },
+  "acquisition": {
+    "strategy": "files",
+    "description": "Freight Analysis Framework: FAF5.7.1 regional (FAF zone) and state origin-destination flows by SCTG2 commodity, mode and trade type (tons, value, current value, ton-miles; 2017-2024 plus 2030-2050 baseline forecasts), FAF6.0 state 2022 benchmark, FAF5.7.1 reprocessed 1997/2002/2007/2012 state history (38,901,646 bytes) and state low/high forecast scenarios (203,448,107 bytes).",
+    "documentation": "https://faf.ornl.gov/faf5/",
+    "desired_bytes": 705000000,
+    "min_bytes": 0,
+    "priority": 3.0,
+    "files": [
+      {
+        "url": "https://faf.ornl.gov/faf5/Data/Download_Files/FAF5.7.1.zip",
+        "name": "FAF5.7.1.zip"
+      },
+      {
+        "url": "https://faf.ornl.gov/faf5/Data/Download_Files/FAF5.7.1_State.zip",
+        "name": "FAF5.7.1_State.zip"
+      },
+      {
+        "url": "https://faf.ornl.gov/faf6/data/Download_Files/ZIP/FAF6.0_State.zip",
+        "name": "FAF6.0_State.zip"
+      },
+      {
+        "url": "https://faf.ornl.gov/faf5/Data/Download_Files/FAF5.7.1_Reprocessed_1997-2012_State.zip",
+        "name": "FAF5.7.1_Reprocessed_1997-2012_State.zip"
+      },
+      {
+        "url": "https://faf.ornl.gov/faf5/Data/Download_Files/FAF5.7.1_State_HiLoForecasts.zip",
+        "name": "FAF5.7.1_State_HiLoForecasts.zip"
+      }
+    ],
+    "rate_limit": {
+      "requests_per_second": 0.5
+    },
+    "timeout_seconds": 180,
+    "retries": 6,
+    "reader": {
+      "format": "csv",
+      "members": [
+        "*.csv"
+      ]
+    }
   },
   "stages": [
     {
@@ -48,11 +91,12 @@
       "entrypoint": "pipeline.py:run",
       "depends_on": [],
       "schema": {
-        "format": "evidence_jsonl"
+        "format": "evidence_jsonl",
+        "compression": "gzip"
       },
       "validation": {
         "allow_empty": false,
-        "max_rows": 100000
+        "max_rows": 60000000
       },
       "cache": "content",
       "retention": "retain"

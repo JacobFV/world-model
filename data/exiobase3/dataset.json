@@ -1,0 +1,65 @@
+{
+  "id": "exiobase3",
+  "schema_version": 2,
+  "kind": "source",
+  "dependencies": [],
+  "status": "full_acquisition_configured",
+  "description": "EXIOBASE 3.9.4 monetary multi-regional input-output table 2022, industry-by-industry (49 regions x 163 industries): gross output, thresholded inter-industry flows, final demand by consuming region, value added, employment and selected air emissions",
+  "source": {
+    "publisher": "EXIOBASE consortium (Zenodo record 14614930, v3.9.4)",
+    "url": "https://zenodo.org/records/14614930",
+    "license": "CC BY-SA 4.0 (share-alike applies to derived tables); cite Stadler et al. (2018) and the Zenodo record",
+    "license_status": "open_share_alike",
+    "terms_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+    "attribution": "EXIOBASE 3 (Stadler et al. 2018, doi:10.1111/jiec.12715), Zenodo record 14614930",
+    "redistribution": "Share-alike: derived tables must be released under CC BY-SA 4.0"
+  },
+  "entrypoint": "pipeline.py:run",
+  "parameters": {
+    "flow_min_meur": 0.1,
+    "flow_min_coefficient": 0.0001,
+    "final_demand_min_meur": 0.1,
+    "emission_stressors": ["CO2 - combustion - air", "CH4 - combustion - air", "N2O - combustion - air", "CO2 - non combustion - Cement production - air", "CO2 - non combustion - Lime production - air", "CH4 - agriculture - air", "N2O - agriculture - air", "CH4 - waste - air", "CO2 - waste - fossil - air"]
+  },
+  "sampling": {
+    "strategy": "blocked",
+    "reason": "Full ZIP acquisition only; no bounded sample configured",
+    "criteria": "First 100 records, at most 1 MiB",
+    "format": "jsonl",
+    "max_rows": 100,
+    "max_sample_bytes": 1048576,
+    "max_download_bytes": 1048576,
+    "max_uncompressed_bytes": 1048576,
+    "disk_budget_bytes": 67108864
+  },
+  "acquisition": {
+    "strategy": "files",
+    "description": "IOT_<year>_ixi.zip (Z, A, Y, x, extensions) from Zenodo record 14614930 (v3.9.4) for 2010, 2014, 2017, 2020 and 2022; one shard per year (sizes from the Zenodo API: 585,577,636 / 572,899,882 / 566,841,786 / 572,485,244 / 504,823,350 bytes). desired_bytes also covers the superseded 2022-only raw artifact (504.8 MB) that remains on disk and counts toward usage.",
+    "documentation": "https://zenodo.org/records/14614930",
+    "desired_bytes": 3350000000,
+    "min_bytes": 0,
+    "priority": 2.0,
+    "files": [
+      {"url": "https://zenodo.org/records/14614930/files/IOT_2010_ixi.zip", "name": "IOT_2010_ixi.zip"},
+      {"url": "https://zenodo.org/records/14614930/files/IOT_2014_ixi.zip", "name": "IOT_2014_ixi.zip"},
+      {"url": "https://zenodo.org/records/14614930/files/IOT_2017_ixi.zip", "name": "IOT_2017_ixi.zip"},
+      {"url": "https://zenodo.org/records/14614930/files/IOT_2020_ixi.zip", "name": "IOT_2020_ixi.zip"},
+      {"url": "https://zenodo.org/records/14614930/files/IOT_2022_ixi.zip", "name": "IOT_2022_ixi.zip"}
+    ],
+    "rate_limit": {"requests_per_second": 0.5},
+    "timeout_seconds": 180,
+    "retries": 6
+  },
+  "stages": [
+    {
+      "id": "normalized",
+      "entrypoint": "pipeline.py:run",
+      "depends_on": [],
+      "schema": {"format": "evidence_jsonl", "compression": "gzip"},
+      "validation": {"allow_empty": false, "max_rows": 20000000},
+      "cache": "content",
+      "retention": "retain"
+    }
+  ],
+  "output_stage": "normalized"
+}

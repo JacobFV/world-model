@@ -1,14 +1,16 @@
 {
   "id": "fec_candidates",
   "schema_version": 2,
-  "dependencies": [],
   "kind": "source",
-  "status": "sample_adapter_ready",
-  "description": "Published FEC candidate names for two existing graph IDs; historical candidacy metadata, no inferred current office or movements",
+  "status": "full_acquisition_complete",
+  "description": "FEC candidate master files for every two-year cycle 1980-2026 (candidacy, office, party, principal campaign committee)",
   "source": {
-    "publisher": "FEC",
-    "license_status": "verify_for_selected_release"
+    "publisher": "Federal Election Commission",
+    "license_status": "public_domain_us_government_work_with_use_restriction",
+    "documentation": "https://www.fec.gov/campaign-finance-data/candidate-master-file-description/",
+    "license_notes": "US federal government work; 52 U.S.C. 30111(a)(4) bars use for solicitation or commercial purposes. Candidate mailing addresses are not emitted."
   },
+  "dependencies": [],
   "expected_outputs": [
     "person"
   ],
@@ -38,15 +40,152 @@
       "entrypoint": "pipeline.py:run",
       "depends_on": [],
       "schema": {
-        "format": "evidence_jsonl"
+        "format": "evidence_jsonl",
+        "compression": "gzip"
       },
       "validation": {
         "allow_empty": false,
-        "max_rows": 100000
+        "max_rows": 2000000
       },
       "cache": "content",
       "retention": "retain"
     }
   ],
-  "output_stage": "normalized"
+  "output_stage": "normalized",
+  "acquisition": {
+    "strategy": "files",
+    "description": "cn80.zip through cn26.zip",
+    "desired_bytes": 6000000,
+    "priority": 3.0,
+    "documentation": "https://www.fec.gov/data/browse-data/?tab=bulk-data",
+    "files": [
+      {
+        "url": "https://www.fec.gov/files/bulk-downloads/1980/cn80.zip",
+        "name": "cn80.zip"
+      },
+      {
+        "url": "https://www.fec.gov/files/bulk-downloads/1982/cn82.zip",
+        "name": "cn82.zip"
+      },
+      {
+        "url": "https://www.fec.gov/files/bulk-downloads/1984/cn84.zip",
+        "name": "cn84.zip"
+      },
+      {
+        "url": "https://www.fec.gov/files/bulk-downloads/1986/cn86.zip",
+        "name": "cn86.zip"
+      },
+      {
+        "url": "https://www.fec.gov/files/bulk-downloads/1988/cn88.zip",
+        "name": "cn88.zip"
+      },
+      {
+        "url": "https://www.fec.gov/files/bulk-downloads/1990/cn90.zip",
+        "name": "cn90.zip"
+      },
+      {
+        "url": "https://www.fec.gov/files/bulk-downloads/1992/cn92.zip",
+        "name": "cn92.zip"
+      },
+      {
+        "url": "https://www.fec.gov/files/bulk-downloads/1994/cn94.zip",
+        "name": "cn94.zip"
+      },
+      {
+        "url": "https://www.fec.gov/files/bulk-downloads/1996/cn96.zip",
+        "name": "cn96.zip"
+      },
+      {
+        "url": "https://www.fec.gov/files/bulk-downloads/1998/cn98.zip",
+        "name": "cn98.zip"
+      },
+      {
+        "url": "https://www.fec.gov/files/bulk-downloads/2000/cn00.zip",
+        "name": "cn00.zip"
+      },
+      {
+        "url": "https://www.fec.gov/files/bulk-downloads/2002/cn02.zip",
+        "name": "cn02.zip"
+      },
+      {
+        "url": "https://www.fec.gov/files/bulk-downloads/2004/cn04.zip",
+        "name": "cn04.zip"
+      },
+      {
+        "url": "https://www.fec.gov/files/bulk-downloads/2006/cn06.zip",
+        "name": "cn06.zip"
+      },
+      {
+        "url": "https://www.fec.gov/files/bulk-downloads/2008/cn08.zip",
+        "name": "cn08.zip"
+      },
+      {
+        "url": "https://www.fec.gov/files/bulk-downloads/2010/cn10.zip",
+        "name": "cn10.zip"
+      },
+      {
+        "url": "https://www.fec.gov/files/bulk-downloads/2012/cn12.zip",
+        "name": "cn12.zip"
+      },
+      {
+        "url": "https://www.fec.gov/files/bulk-downloads/2014/cn14.zip",
+        "name": "cn14.zip"
+      },
+      {
+        "url": "https://www.fec.gov/files/bulk-downloads/2016/cn16.zip",
+        "name": "cn16.zip"
+      },
+      {
+        "url": "https://www.fec.gov/files/bulk-downloads/2018/cn18.zip",
+        "name": "cn18.zip"
+      },
+      {
+        "url": "https://www.fec.gov/files/bulk-downloads/2020/cn20.zip",
+        "name": "cn20.zip"
+      },
+      {
+        "url": "https://www.fec.gov/files/bulk-downloads/2022/cn22.zip",
+        "name": "cn22.zip"
+      },
+      {
+        "url": "https://www.fec.gov/files/bulk-downloads/2024/cn24.zip",
+        "name": "cn24.zip"
+      },
+      {
+        "url": "https://www.fec.gov/files/bulk-downloads/2026/cn26.zip",
+        "name": "cn26.zip"
+      }
+    ],
+    "rate_limit": {
+      "requests_per_second": 1.0
+    },
+    "timeout_seconds": 60,
+    "retries": 6,
+    "reader": {
+      "format": "psv",
+      "members": [
+        "*.txt"
+      ],
+      "encoding": "latin-1",
+      "quoting": "none",
+      "strict": false,
+      "fieldnames": [
+        "CAND_ID",
+        "CAND_NAME",
+        "CAND_PTY_AFFILIATION",
+        "CAND_ELECTION_YR",
+        "CAND_OFFICE_ST",
+        "CAND_OFFICE",
+        "CAND_OFFICE_DISTRICT",
+        "CAND_ICI",
+        "CAND_STATUS",
+        "CAND_PCC",
+        "CAND_ST1",
+        "CAND_ST2",
+        "CAND_CITY",
+        "CAND_ST",
+        "CAND_ZIP"
+      ]
+    }
+  }
 }

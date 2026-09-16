@@ -3,14 +3,149 @@
   "schema_version": 2,
   "dependencies": [],
   "kind": "source",
-  "status": "sample_adapter_ready",
-  "description": "CPIAUCSL: 2018-01-01 through 2025-06-01; dated historical sample, current vintage, not real-time historical availability",
+  "status": "full_acquired",
+  "description": "Headline CPI (CPIAUCSL), core CPI (CPILFESL) and PCE price index (PCEPI): full history with every ALFRED real-time vintage from the FRED API (fredgraph.csv refuses scripted downloads)",
   "source": {
-    "publisher": "Federal Reserve Bank of St. Louis",
-    "license_status": "see_publisher_terms"
+    "publisher": "Federal Reserve Bank of St. Louis (FRED)",
+    "originating_source": "U.S. Bureau of Labor Statistics (CPI); U.S. Bureau of Economic Analysis (PCE price index)",
+    "documentation": "https://fred.stlouisfed.org/series/CPIAUCSL",
+    "license_status": "publisher_terms",
+    "license_notes": "FRED API Terms of Use (https://fred.stlouisfed.org/docs/api/terms_of_use.html); the series data are produced by US government agencies (public domain) but FRED terms apply to API use. Internal use; cite FRED and the originating agency."
   },
   "entrypoint": "pipeline.py:run",
-  "parameters": {},
+  "parameters": {
+    "series": {
+      "CPIAUCSL": {
+        "metric": "consumer_price_index",
+        "unit": "index_1982_1984_100",
+        "multiplier": 1,
+        "frequency": "M",
+        "frequency_long": "Monthly",
+        "seasonal_adjustment": "SA",
+        "geography": "geo:US",
+        "title": "Consumer Price Index for All Urban Consumers: All Items in U.S. City Average",
+        "tier": "vintages",
+        "category": "prices",
+        "source_units": "Index 1982-1984=100",
+        "units_history": [
+          {
+            "realtime_start": "1972-07-21",
+            "realtime_end": "1988-02-25",
+            "source_units": "Index 1967=100",
+            "unit": "index_1967_100",
+            "multiplier": 1.0,
+            "base_period": "1967",
+            "unit_normalized": true
+          },
+          {
+            "realtime_start": "1988-02-26",
+            "realtime_end": "9999-12-31",
+            "source_units": "Index 1982-1984=100",
+            "unit": "index_1982_1984_100",
+            "multiplier": 1.0,
+            "base_period": "1982_1984",
+            "unit_normalized": true
+          }
+        ],
+        "units_change_across_vintages": true
+      },
+      "CPILFESL": {
+        "metric": "core_consumer_price_index",
+        "unit": "index_1982_1984_100",
+        "multiplier": 1,
+        "frequency": "M",
+        "frequency_long": "Monthly",
+        "seasonal_adjustment": "SA",
+        "geography": "geo:US",
+        "title": "Consumer Price Index for All Urban Consumers: All Items Less Food and Energy in U.S. City Average",
+        "tier": "vintages",
+        "category": "prices",
+        "source_units": "Index 1982-1984=100",
+        "units_history": [
+          {
+            "realtime_start": "1996-12-12",
+            "realtime_end": "9999-12-31",
+            "source_units": "Index 1982-1984=100",
+            "unit": "index_1982_1984_100",
+            "multiplier": 1.0,
+            "base_period": "1982_1984",
+            "unit_normalized": true
+          }
+        ],
+        "units_change_across_vintages": false
+      },
+      "PCEPI": {
+        "metric": "pce_price_index",
+        "unit": "index_2017_100",
+        "multiplier": 1,
+        "frequency": "M",
+        "frequency_long": "Monthly",
+        "seasonal_adjustment": "SA",
+        "geography": "geo:US",
+        "title": "Personal Consumption Expenditures: Chain-type Price Index",
+        "tier": "vintages",
+        "category": "prices",
+        "source_units": "Index 2017=100",
+        "units_history": [
+          {
+            "realtime_start": "2000-08-01",
+            "realtime_end": "2003-12-22",
+            "source_units": "Index 1996=100",
+            "unit": "index_1996_100",
+            "multiplier": 1.0,
+            "base_period": "1996",
+            "unit_normalized": true
+          },
+          {
+            "realtime_start": "2003-12-23",
+            "realtime_end": "2009-08-03",
+            "source_units": "Index 2000=100",
+            "unit": "index_2000_100",
+            "multiplier": 1.0,
+            "base_period": "2000",
+            "unit_normalized": true
+          },
+          {
+            "realtime_start": "2009-08-04",
+            "realtime_end": "2013-08-01",
+            "source_units": "Index 2005=100",
+            "unit": "index_2005_100",
+            "multiplier": 1.0,
+            "base_period": "2005",
+            "unit_normalized": true
+          },
+          {
+            "realtime_start": "2013-08-02",
+            "realtime_end": "2018-07-30",
+            "source_units": "Index 2009=100",
+            "unit": "index_2009_100",
+            "multiplier": 1.0,
+            "base_period": "2009",
+            "unit_normalized": true
+          },
+          {
+            "realtime_start": "2018-07-31",
+            "realtime_end": "2023-09-28",
+            "source_units": "Index 2012=100",
+            "unit": "index_2012_100",
+            "multiplier": 1.0,
+            "base_period": "2012",
+            "unit_normalized": true
+          },
+          {
+            "realtime_start": "2023-09-29",
+            "realtime_end": "9999-12-31",
+            "source_units": "Index 2017=100",
+            "unit": "index_2017_100",
+            "multiplier": 1.0,
+            "base_period": "2017",
+            "unit_normalized": true
+          }
+        ],
+        "units_change_across_vintages": true
+      }
+    }
+  },
   "sampling": {
     "strategy": "download",
     "max_rows": 100,
@@ -29,13 +164,62 @@
       "observation_date": "20(?:1[89]|2[0-5])-\\d\\d-\\d\\d"
     }
   },
+  "acquisition": {
+    "strategy": "url_list",
+    "description": "FRED API series/observations for CPIAUCSL, CPILFESL and PCEPI with all ALFRED vintages (each has <1,900 vintage dates, so one request per series). Replaces the keyless fredgraph.csv list, which timed out on every scripted request on 2026-09-15.",
+    "documentation": "https://fred.stlouisfed.org/docs/api/fred/series_observations.html",
+    "desired_bytes": 2097152,
+    "min_bytes": 0,
+    "priority": 3.0,
+    "url_template": "https://api.stlouisfed.org/fred/series/observations?series_id={series_id}&realtime_start={realtime_start}&realtime_end={realtime_end}&file_type=json&limit=100000&sort_order=asc",
+    "combinations": [
+      {
+        "series_id": "CPIAUCSL",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31"
+      },
+      {
+        "series_id": "CPILFESL",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31"
+      },
+      {
+        "series_id": "PCEPI",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31"
+      }
+    ],
+    "credentials": [
+      {
+        "env": "FRED_API_KEY",
+        "query": "api_key"
+      }
+    ],
+    "rate_limit": {
+      "requests_per_second": 1.5,
+      "requests_per_day": null,
+      "key": "api.stlouisfed.org"
+    },
+    "skip_statuses": [
+      400
+    ],
+    "timeout_seconds": 120,
+    "retries": 5,
+    "reader": {
+      "format": "json",
+      "records_path": [
+        "observations"
+      ]
+    }
+  },
   "stages": [
     {
       "id": "normalized",
       "entrypoint": "pipeline.py:run",
       "depends_on": [],
       "schema": {
-        "format": "evidence_jsonl"
+        "format": "evidence_jsonl",
+        "compression": "gzip"
       },
       "validation": {
         "allow_empty": false,

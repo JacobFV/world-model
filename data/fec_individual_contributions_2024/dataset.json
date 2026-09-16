@@ -1,0 +1,63 @@
+{
+  "id": "fec_individual_contributions_2024",
+  "schema_version": 2,
+  "kind": "source",
+  "status": "full_acquisition_complete",
+  "description": "FEC itemized individual contributions, 2024 cycle (indiv24.zip): aggregated by recipient committee x contributor state x month, contributor ZIP3 x month, committee x occupation category and committee x contribution size band; no contributor-level rows are emitted",
+  "source": {
+    "publisher": "Federal Election Commission",
+    "documentation": "https://www.fec.gov/campaign-finance-data/contributions-individuals-file-description/",
+    "license_status": "public_domain_us_government_work_with_use_restriction",
+    "license_notes": "US federal government work. 52 U.S.C. 30111(a)(4): contributor names and addresses may not be sold or used for soliciting contributions or for any commercial purpose. Raw rows contain contributor PII; normalized output keeps only aggregates (state, ZIP3, occupation category, size band)."
+  },
+  "dependencies": [],
+  "parameters": {},
+  "entrypoint": "pipeline.py:run",
+  "output_stage": "normalized",
+  "stages": [
+    {
+      "id": "normalized",
+      "entrypoint": "pipeline.py:run",
+      "depends_on": [],
+      "schema": {
+        "format": "evidence_jsonl",
+        "compression": "gzip"
+      },
+      "validation": {
+        "allow_empty": false,
+        "max_rows": 40000000
+      },
+      "cache": "content",
+      "retention": "retain"
+    }
+  ],
+  "sampling": {
+    "strategy": "blocked",
+    "format": "jsonl",
+    "max_rows": 100,
+    "max_sample_bytes": 1048576,
+    "max_download_bytes": 1048576,
+    "max_uncompressed_bytes": 1048576,
+    "disk_budget_bytes": 67108864,
+    "criteria": "First 100 records, at most 1 MiB",
+    "reason": "Individual contributor rows are PII; only aggregated full acquisitions are normalized"
+  },
+  "acquisition": {
+    "strategy": "files",
+    "description": "indiv24.zip (itcont.txt, pipe-delimited, headerless, latin-1); separate dataset per cycle to stay under the 5 GiB per-dataset cap",
+    "documentation": "https://www.fec.gov/data/browse-data/?tab=bulk-data",
+    "desired_bytes": 4280000000,
+    "priority": 3.0,
+    "files": [
+      {
+        "url": "https://www.fec.gov/files/bulk-downloads/2024/indiv24.zip",
+        "name": "indiv24.zip"
+      }
+    ],
+    "rate_limit": {
+      "requests_per_second": 1.0
+    },
+    "timeout_seconds": 300,
+    "retries": 10
+  }
+}

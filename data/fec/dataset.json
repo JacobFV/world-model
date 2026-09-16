@@ -1,14 +1,16 @@
 {
   "id": "fec",
   "schema_version": 2,
-  "dependencies": [],
   "kind": "source",
-  "status": "sample_adapter_ready",
-  "description": "Public filings and financial transactions",
+  "status": "full_acquisition_complete",
+  "description": "FEC bulk committee master, candidate-committee linkages, candidate and PAC summaries, committee-to-candidate contributions (2000-2026), committee/organization receipts (2026) and operating expenditures (2024, 2026)",
   "source": {
-    "publisher": "FEC",
-    "license_status": "verify_for_selected_release"
+    "publisher": "Federal Election Commission",
+    "license_status": "public_domain_us_government_work_with_use_restriction",
+    "documentation": "https://www.fec.gov/data/browse-data/?tab=bulk-data",
+    "license_notes": "US federal government work. 52 U.S.C. 30111(a)(4): information copied from reports may not be sold or used by any person for soliciting contributions or for commercial purposes (other than using the name/address of a political committee to solicit contributions from that committee). Individual contributions (indiv) are excluded."
   },
+  "dependencies": [],
   "expected_outputs": [
     "organization",
     "transaction",
@@ -48,15 +50,331 @@
       "entrypoint": "pipeline.py:run",
       "depends_on": [],
       "schema": {
-        "format": "evidence_jsonl"
+        "format": "evidence_jsonl",
+        "compression": "gzip"
       },
       "validation": {
         "allow_empty": false,
-        "max_rows": 100000
+        "max_rows": 60000000
       },
       "cache": "content",
       "retention": "retain"
     }
   ],
-  "output_stage": "normalized"
+  "output_stage": "normalized",
+  "acquisition": {
+    "strategy": "files",
+    "description": "cm/ccl/weball/webk/pas2 for cycles 2000-2026, oth26, oppexp24 and oppexp26 (pipe-delimited, headerless ZIP members)",
+    "documentation": "https://www.fec.gov/campaign-finance-data/committee-master-file-description/",
+    "desired_bytes": 545000000,
+    "priority": 3.0,
+    "files": [
+      {
+        "url": "https://www.fec.gov/files/bulk-downloads/2000/cm00.zip",
+        "name": "cm00.zip"
+      },
+      {
+        "url": "https://www.fec.gov/files/bulk-downloads/2000/ccl00.zip",
+        "name": "ccl00.zip"
+      },
+      {
+        "url": "https://www.fec.gov/files/bulk-downloads/2000/weball00.zip",
+        "name": "weball00.zip"
+      },
+      {
+        "url": "https://www.fec.gov/files/bulk-downloads/2000/webk00.zip",
+        "name": "webk00.zip"
+      },
+      {
+        "url": "https://www.fec.gov/files/bulk-downloads/2000/pas200.zip",
+        "name": "pas200.zip"
+      },
+      {
+        "url": "https://www.fec.gov/files/bulk-downloads/2002/cm02.zip",
+        "name": "cm02.zip"
+      },
+      {
+        "url": "https://www.fec.gov/files/bulk-downloads/2002/ccl02.zip",
+        "name": "ccl02.zip"
+      },
+      {
+        "url": "https://www.fec.gov/files/bulk-downloads/2002/weball02.zip",
+        "name": "weball02.zip"
+      },
+      {
+        "url": "https://www.fec.gov/files/bulk-downloads/2002/webk02.zip",
+        "name": "webk02.zip"
+      },
+      {
+        "url": "https://www.fec.gov/files/bulk-downloads/2002/pas202.zip",
+        "name": "pas202.zip"
+      },
+      {
+        "url": "https://www.fec.gov/files/bulk-downloads/2004/cm04.zip",
+        "name": "cm04.zip"
+      },
+      {
+        "url": "https://www.fec.gov/files/bulk-downloads/2004/ccl04.zip",
+        "name": "ccl04.zip"
+      },
+      {
+        "url": "https://www.fec.gov/files/bulk-downloads/2004/weball04.zip",
+        "name": "weball04.zip"
+      },
+      {
+        "url": "https://www.fec.gov/files/bulk-downloads/2004/webk04.zip",
+        "name": "webk04.zip"
+      },
+      {
+        "url": "https://www.fec.gov/files/bulk-downloads/2004/pas204.zip",
+        "name": "pas204.zip"
+      },
+      {
+        "url": "https://www.fec.gov/files/bulk-downloads/2006/cm06.zip",
+        "name": "cm06.zip"
+      },
+      {
+        "url": "https://www.fec.gov/files/bulk-downloads/2006/ccl06.zip",
+        "name": "ccl06.zip"
+      },
+      {
+        "url": "https://www.fec.gov/files/bulk-downloads/2006/weball06.zip",
+        "name": "weball06.zip"
+      },
+      {
+        "url": "https://www.fec.gov/files/bulk-downloads/2006/webk06.zip",
+        "name": "webk06.zip"
+      },
+      {
+        "url": "https://www.fec.gov/files/bulk-downloads/2006/pas206.zip",
+        "name": "pas206.zip"
+      },
+      {
+        "url": "https://www.fec.gov/files/bulk-downloads/2008/cm08.zip",
+        "name": "cm08.zip"
+      },
+      {
+        "url": "https://www.fec.gov/files/bulk-downloads/2008/ccl08.zip",
+        "name": "ccl08.zip"
+      },
+      {
+        "url": "https://www.fec.gov/files/bulk-downloads/2008/weball08.zip",
+        "name": "weball08.zip"
+      },
+      {
+        "url": "https://www.fec.gov/files/bulk-downloads/2008/webk08.zip",
+        "name": "webk08.zip"
+      },
+      {
+        "url": "https://www.fec.gov/files/bulk-downloads/2008/pas208.zip",
+        "name": "pas208.zip"
+      },
+      {
+        "url": "https://www.fec.gov/files/bulk-downloads/2010/cm10.zip",
+        "name": "cm10.zip"
+      },
+      {
+        "url": "https://www.fec.gov/files/bulk-downloads/2010/ccl10.zip",
+        "name": "ccl10.zip"
+      },
+      {
+        "url": "https://www.fec.gov/files/bulk-downloads/2010/weball10.zip",
+        "name": "weball10.zip"
+      },
+      {
+        "url": "https://www.fec.gov/files/bulk-downloads/2010/webk10.zip",
+        "name": "webk10.zip"
+      },
+      {
+        "url": "https://www.fec.gov/files/bulk-downloads/2010/pas210.zip",
+        "name": "pas210.zip"
+      },
+      {
+        "url": "https://www.fec.gov/files/bulk-downloads/2012/cm12.zip",
+        "name": "cm12.zip"
+      },
+      {
+        "url": "https://www.fec.gov/files/bulk-downloads/2012/ccl12.zip",
+        "name": "ccl12.zip"
+      },
+      {
+        "url": "https://www.fec.gov/files/bulk-downloads/2012/weball12.zip",
+        "name": "weball12.zip"
+      },
+      {
+        "url": "https://www.fec.gov/files/bulk-downloads/2012/webk12.zip",
+        "name": "webk12.zip"
+      },
+      {
+        "url": "https://www.fec.gov/files/bulk-downloads/2012/pas212.zip",
+        "name": "pas212.zip"
+      },
+      {
+        "url": "https://www.fec.gov/files/bulk-downloads/2014/cm14.zip",
+        "name": "cm14.zip"
+      },
+      {
+        "url": "https://www.fec.gov/files/bulk-downloads/2014/ccl14.zip",
+        "name": "ccl14.zip"
+      },
+      {
+        "url": "https://www.fec.gov/files/bulk-downloads/2014/weball14.zip",
+        "name": "weball14.zip"
+      },
+      {
+        "url": "https://www.fec.gov/files/bulk-downloads/2014/webk14.zip",
+        "name": "webk14.zip"
+      },
+      {
+        "url": "https://www.fec.gov/files/bulk-downloads/2014/pas214.zip",
+        "name": "pas214.zip"
+      },
+      {
+        "url": "https://www.fec.gov/files/bulk-downloads/2016/cm16.zip",
+        "name": "cm16.zip"
+      },
+      {
+        "url": "https://www.fec.gov/files/bulk-downloads/2016/ccl16.zip",
+        "name": "ccl16.zip"
+      },
+      {
+        "url": "https://www.fec.gov/files/bulk-downloads/2016/weball16.zip",
+        "name": "weball16.zip"
+      },
+      {
+        "url": "https://www.fec.gov/files/bulk-downloads/2016/webk16.zip",
+        "name": "webk16.zip"
+      },
+      {
+        "url": "https://www.fec.gov/files/bulk-downloads/2016/pas216.zip",
+        "name": "pas216.zip"
+      },
+      {
+        "url": "https://www.fec.gov/files/bulk-downloads/2018/cm18.zip",
+        "name": "cm18.zip"
+      },
+      {
+        "url": "https://www.fec.gov/files/bulk-downloads/2018/ccl18.zip",
+        "name": "ccl18.zip"
+      },
+      {
+        "url": "https://www.fec.gov/files/bulk-downloads/2018/weball18.zip",
+        "name": "weball18.zip"
+      },
+      {
+        "url": "https://www.fec.gov/files/bulk-downloads/2018/webk18.zip",
+        "name": "webk18.zip"
+      },
+      {
+        "url": "https://www.fec.gov/files/bulk-downloads/2018/pas218.zip",
+        "name": "pas218.zip"
+      },
+      {
+        "url": "https://www.fec.gov/files/bulk-downloads/2020/cm20.zip",
+        "name": "cm20.zip"
+      },
+      {
+        "url": "https://www.fec.gov/files/bulk-downloads/2020/ccl20.zip",
+        "name": "ccl20.zip"
+      },
+      {
+        "url": "https://www.fec.gov/files/bulk-downloads/2020/weball20.zip",
+        "name": "weball20.zip"
+      },
+      {
+        "url": "https://www.fec.gov/files/bulk-downloads/2020/webk20.zip",
+        "name": "webk20.zip"
+      },
+      {
+        "url": "https://www.fec.gov/files/bulk-downloads/2020/pas220.zip",
+        "name": "pas220.zip"
+      },
+      {
+        "url": "https://www.fec.gov/files/bulk-downloads/2022/cm22.zip",
+        "name": "cm22.zip"
+      },
+      {
+        "url": "https://www.fec.gov/files/bulk-downloads/2022/ccl22.zip",
+        "name": "ccl22.zip"
+      },
+      {
+        "url": "https://www.fec.gov/files/bulk-downloads/2022/weball22.zip",
+        "name": "weball22.zip"
+      },
+      {
+        "url": "https://www.fec.gov/files/bulk-downloads/2022/webk22.zip",
+        "name": "webk22.zip"
+      },
+      {
+        "url": "https://www.fec.gov/files/bulk-downloads/2022/pas222.zip",
+        "name": "pas222.zip"
+      },
+      {
+        "url": "https://www.fec.gov/files/bulk-downloads/2024/cm24.zip",
+        "name": "cm24.zip"
+      },
+      {
+        "url": "https://www.fec.gov/files/bulk-downloads/2024/ccl24.zip",
+        "name": "ccl24.zip"
+      },
+      {
+        "url": "https://www.fec.gov/files/bulk-downloads/2024/weball24.zip",
+        "name": "weball24.zip"
+      },
+      {
+        "url": "https://www.fec.gov/files/bulk-downloads/2024/webk24.zip",
+        "name": "webk24.zip"
+      },
+      {
+        "url": "https://www.fec.gov/files/bulk-downloads/2024/pas224.zip",
+        "name": "pas224.zip"
+      },
+      {
+        "url": "https://www.fec.gov/files/bulk-downloads/2026/cm26.zip",
+        "name": "cm26.zip"
+      },
+      {
+        "url": "https://www.fec.gov/files/bulk-downloads/2026/ccl26.zip",
+        "name": "ccl26.zip"
+      },
+      {
+        "url": "https://www.fec.gov/files/bulk-downloads/2026/weball26.zip",
+        "name": "weball26.zip"
+      },
+      {
+        "url": "https://www.fec.gov/files/bulk-downloads/2026/webk26.zip",
+        "name": "webk26.zip"
+      },
+      {
+        "url": "https://www.fec.gov/files/bulk-downloads/2026/pas226.zip",
+        "name": "pas226.zip"
+      },
+      {
+        "url": "https://www.fec.gov/files/bulk-downloads/2026/oth26.zip",
+        "name": "oth26.zip"
+      },
+      {
+        "url": "https://www.fec.gov/files/bulk-downloads/2024/oppexp24.zip",
+        "name": "oppexp24.zip"
+      },
+      {
+        "url": "https://www.fec.gov/files/bulk-downloads/2026/oppexp26.zip",
+        "name": "oppexp26.zip"
+      }
+    ],
+    "rate_limit": {
+      "requests_per_second": 1.0
+    },
+    "timeout_seconds": 120,
+    "retries": 8,
+    "reader": {
+      "format": "psv",
+      "members": [
+        "*.txt"
+      ],
+      "encoding": "latin-1",
+      "quoting": "none",
+      "strict": false
+    }
+  }
 }

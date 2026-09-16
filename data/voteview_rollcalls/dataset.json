@@ -1,0 +1,154 @@
+{
+  "id": "voteview_rollcalls",
+  "schema_version": 2,
+  "kind": "source",
+  "status": "full_acquisition_complete",
+  "description": "Voteview congressional members with DW-NOMINATE (all congresses), all House/Senate roll calls, parties, and member votes for Congresses 110-119",
+  "source": {
+    "publisher": "Voteview (Lewis, Poole, Rosenthal, Boche, Rudkin, Sonnet; UCLA)",
+    "documentation": "https://voteview.com/data",
+    "license_status": "free_for_research_with_citation",
+    "license_notes": "No explicit open licence; Voteview asks users to cite: Lewis, Jeffrey B., Keith Poole, Howard Rosenthal, Adam Boche, Aaron Rudkin, and Luke Sonnet. Voteview: Congressional Roll-Call Votes Database. https://voteview.com/. Do not redistribute raw files."
+  },
+  "dependencies": [],
+  "entrypoint": "pipeline.py:run",
+  "output_stage": "normalized",
+  "parameters": {},
+  "sampling": {
+    "criteria": "First 100 records, at most 1 MiB",
+    "disk_budget_bytes": 67108864,
+    "format": "jsonl",
+    "max_download_bytes": 1048576,
+    "max_rows": 100,
+    "max_sample_bytes": 1048576,
+    "max_uncompressed_bytes": 1048576,
+    "reason": "Configure a documented source URL and format before acquisition",
+    "strategy": "blocked"
+  },
+  "stages": [
+    {
+      "id": "normalized",
+      "entrypoint": "pipeline.py:run",
+      "depends_on": [],
+      "schema": {
+        "format": "evidence_jsonl",
+        "compression": "gzip"
+      },
+      "validation": {
+        "allow_empty": false,
+        "max_rows": 3000000
+      },
+      "cache": "content",
+      "retention": "retain"
+    }
+  ],
+  "acquisition": {
+    "strategy": "files",
+    "description": "HSall members/rollcalls/parties CSV plus per-chamber vote CSVs for Congresses 110-119",
+    "documentation": "https://voteview.com/articles/data_help_votes",
+    "desired_bytes": 205000000,
+    "priority": 3.0,
+    "files": [
+      {
+        "url": "https://voteview.com/static/data/out/members/HSall_members.csv",
+        "name": "HSall_members.csv"
+      },
+      {
+        "url": "https://voteview.com/static/data/out/rollcalls/HSall_rollcalls.csv",
+        "name": "HSall_rollcalls.csv"
+      },
+      {
+        "url": "https://voteview.com/static/data/out/parties/HSall_parties.csv",
+        "name": "HSall_parties.csv"
+      },
+      {
+        "url": "https://voteview.com/static/data/out/votes/H110_votes.csv",
+        "name": "H110_votes.csv"
+      },
+      {
+        "url": "https://voteview.com/static/data/out/votes/S110_votes.csv",
+        "name": "S110_votes.csv"
+      },
+      {
+        "url": "https://voteview.com/static/data/out/votes/H111_votes.csv",
+        "name": "H111_votes.csv"
+      },
+      {
+        "url": "https://voteview.com/static/data/out/votes/S111_votes.csv",
+        "name": "S111_votes.csv"
+      },
+      {
+        "url": "https://voteview.com/static/data/out/votes/H112_votes.csv",
+        "name": "H112_votes.csv"
+      },
+      {
+        "url": "https://voteview.com/static/data/out/votes/S112_votes.csv",
+        "name": "S112_votes.csv"
+      },
+      {
+        "url": "https://voteview.com/static/data/out/votes/H113_votes.csv",
+        "name": "H113_votes.csv"
+      },
+      {
+        "url": "https://voteview.com/static/data/out/votes/S113_votes.csv",
+        "name": "S113_votes.csv"
+      },
+      {
+        "url": "https://voteview.com/static/data/out/votes/H114_votes.csv",
+        "name": "H114_votes.csv"
+      },
+      {
+        "url": "https://voteview.com/static/data/out/votes/S114_votes.csv",
+        "name": "S114_votes.csv"
+      },
+      {
+        "url": "https://voteview.com/static/data/out/votes/H115_votes.csv",
+        "name": "H115_votes.csv"
+      },
+      {
+        "url": "https://voteview.com/static/data/out/votes/S115_votes.csv",
+        "name": "S115_votes.csv"
+      },
+      {
+        "url": "https://voteview.com/static/data/out/votes/H116_votes.csv",
+        "name": "H116_votes.csv"
+      },
+      {
+        "url": "https://voteview.com/static/data/out/votes/S116_votes.csv",
+        "name": "S116_votes.csv"
+      },
+      {
+        "url": "https://voteview.com/static/data/out/votes/H117_votes.csv",
+        "name": "H117_votes.csv"
+      },
+      {
+        "url": "https://voteview.com/static/data/out/votes/S117_votes.csv",
+        "name": "S117_votes.csv"
+      },
+      {
+        "url": "https://voteview.com/static/data/out/votes/H118_votes.csv",
+        "name": "H118_votes.csv"
+      },
+      {
+        "url": "https://voteview.com/static/data/out/votes/S118_votes.csv",
+        "name": "S118_votes.csv"
+      },
+      {
+        "url": "https://voteview.com/static/data/out/votes/H119_votes.csv",
+        "name": "H119_votes.csv"
+      },
+      {
+        "url": "https://voteview.com/static/data/out/votes/S119_votes.csv",
+        "name": "S119_votes.csv"
+      }
+    ],
+    "rate_limit": {
+      "requests_per_second": 1.0
+    },
+    "timeout_seconds": 120,
+    "retries": 6,
+    "reader": {
+      "format": "csv"
+    }
+  }
+}

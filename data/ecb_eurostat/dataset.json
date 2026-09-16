@@ -1,0 +1,74 @@
+{
+  "id": "ecb_eurostat",
+  "schema_version": 2,
+  "kind": "source",
+  "dependencies": [],
+  "status": "full_acquisition_configured",
+  "description": "ECB euro foreign exchange reference rates (daily history) and selected Eurostat datasets: annual/quarterly GDP and components, regional GDP (NUTS2/NUTS3), HICP indices, monthly unemployment, EU trade by SITC, energy balances, industrial production and long-term interest rates",
+  "source": {
+    "publisher": "European Central Bank; Eurostat",
+    "url": "https://ec.europa.eu/eurostat/web/main/data/database",
+    "license": "Eurostat: free re-use with attribution (Eurostat copyright notice, CC BY 4.0 equivalent); ECB statistics: free re-use with source citation",
+    "license_status": "open_with_attribution",
+    "terms_url": "https://ec.europa.eu/eurostat/about-us/policies/copyright",
+    "attribution": "Source: Eurostat; European Central Bank"
+  },
+  "entrypoint": "pipeline.py:run",
+  "parameters": {
+    "filters": {
+      "namq_10_gdp": {"unit": ["CP_MEUR", "CLV10_MEUR", "CLV_PCH_PRE", "CLV_PCH_SM", "PD10_EUR"], "s_adj": ["SCA", "NSA"]},
+      "nama_10_gdp": {"unit": ["CP_MEUR", "CP_MNAC", "CLV10_MEUR", "CLV_PCH_PRE", "PD10_EUR", "CP_EUR_HAB", "CLV10_EUR_HAB"]},
+      "prc_hicp_midx": {"unit": ["I15"]},
+      "sts_inpr_m": {"unit": ["I21"], "s_adj": ["SCA"]},
+      "nrg_bal_c": {"unit": ["KTOE"]},
+      "ext_st_eu27_2020sitc": {"indic_et": ["TRD_VAL", "TRD_VAL_SCA"]}
+    }
+  },
+  "sampling": {
+    "strategy": "blocked",
+    "reason": "Full bulk acquisition only; no bounded sample configured",
+    "criteria": "First 100 records, at most 1 MiB",
+    "format": "jsonl",
+    "max_rows": 100,
+    "max_sample_bytes": 1048576,
+    "max_download_bytes": 1048576,
+    "max_uncompressed_bytes": 1048576,
+    "disk_budget_bytes": 67108864
+  },
+  "acquisition": {
+    "strategy": "files",
+    "description": "ECB eurofxref-hist.zip plus Eurostat SDMX 2.1 dissemination API full-dataset TSV (gzip) downloads, one shard per dataset",
+    "documentation": "https://wikis.ec.europa.eu/display/EUROSTATHELP/API+SDMX+2.1+-+data+query",
+    "desired_bytes": 115000000,
+    "min_bytes": 0,
+    "priority": 2.0,
+    "files": [
+      {"url": "https://www.ecb.europa.eu/stats/eurofxref/eurofxref-hist.zip", "name": "eurofxref-hist.zip"},
+      {"url": "https://ec.europa.eu/eurostat/api/dissemination/sdmx/2.1/data/nama_10_gdp?format=TSV&compressed=true", "name": "nama_10_gdp.tsv.gz"},
+      {"url": "https://ec.europa.eu/eurostat/api/dissemination/sdmx/2.1/data/namq_10_gdp?format=TSV&compressed=true", "name": "namq_10_gdp.tsv.gz"},
+      {"url": "https://ec.europa.eu/eurostat/api/dissemination/sdmx/2.1/data/nama_10r_2gdp?format=TSV&compressed=true", "name": "nama_10r_2gdp.tsv.gz"},
+      {"url": "https://ec.europa.eu/eurostat/api/dissemination/sdmx/2.1/data/nama_10r_3gdp?format=TSV&compressed=true", "name": "nama_10r_3gdp.tsv.gz"},
+      {"url": "https://ec.europa.eu/eurostat/api/dissemination/sdmx/2.1/data/prc_hicp_midx?format=TSV&compressed=true", "name": "prc_hicp_midx.tsv.gz"},
+      {"url": "https://ec.europa.eu/eurostat/api/dissemination/sdmx/2.1/data/une_rt_m?format=TSV&compressed=true", "name": "une_rt_m.tsv.gz"},
+      {"url": "https://ec.europa.eu/eurostat/api/dissemination/sdmx/2.1/data/ext_st_eu27_2020sitc?format=TSV&compressed=true", "name": "ext_st_eu27_2020sitc.tsv.gz"},
+      {"url": "https://ec.europa.eu/eurostat/api/dissemination/sdmx/2.1/data/nrg_bal_c?format=TSV&compressed=true", "name": "nrg_bal_c.tsv.gz"},
+      {"url": "https://ec.europa.eu/eurostat/api/dissemination/sdmx/2.1/data/sts_inpr_m?format=TSV&compressed=true", "name": "sts_inpr_m.tsv.gz"},
+      {"url": "https://ec.europa.eu/eurostat/api/dissemination/sdmx/2.1/data/irt_lt_mcby_m?format=TSV&compressed=true", "name": "irt_lt_mcby_m.tsv.gz"}
+    ],
+    "rate_limit": {"requests_per_second": 0.5},
+    "timeout_seconds": 300,
+    "retries": 5
+  },
+  "stages": [
+    {
+      "id": "normalized",
+      "entrypoint": "pipeline.py:run",
+      "depends_on": [],
+      "schema": {"format": "evidence_jsonl", "compression": "gzip"},
+      "validation": {"allow_empty": false, "max_rows": 30000000},
+      "cache": "content",
+      "retention": "retain"
+    }
+  ],
+  "output_stage": "normalized"
+}

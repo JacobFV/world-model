@@ -1,0 +1,92 @@
+{
+  "id": "osm_us_midwest",
+  "schema_version": 2,
+  "dependencies": [],
+  "kind": "source",
+  "status": "full_acquisition_ready",
+  "description": "OpenStreetMap network topology for the Geofabrik US Midwest extract (Illinois, Indiana, Iowa, Kansas, Michigan, Minnesota, Missouri, Nebraska, North Dakota, Ohio, South Dakota, Wisconsin): simplified road, rail, power-line, pipeline and ferry edges between intersection/endpoint nodes, plus transport and energy facilities; part of the contiguous-US OSM network with osm_topology (US West), osm_us_south, osm_us_midwest and osm_us_northeast",
+  "source": {
+    "publisher": "OpenStreetMap contributors via Geofabrik GmbH",
+    "license_status": "open_share_alike",
+    "license": "ODbL-1.0",
+    "license_url": "https://opendatacommons.org/licenses/odbl/1-0/",
+    "attribution": "(c) OpenStreetMap contributors, https://www.openstreetmap.org/copyright",
+    "license_notes": "Attribution required; a publicly distributed derived database must be offered under ODbL (share-alike). Produced works need attribution only.",
+    "release": "us-midwest-260914.osm.pbf (replication snapshot 2026-09-14)",
+    "states": "Illinois, Indiana, Iowa, Kansas, Michigan, Minnesota, Missouri, Nebraska, North Dakota, Ohio, South Dakota, Wisconsin"
+  },
+  "entrypoint": "pipeline.py:run",
+  "parameters": {
+    "workers": 12,
+    "edge_geometry": true
+  },
+  "sampling": {
+    "strategy": "blocked",
+    "format": "jsonl",
+    "max_rows": 100,
+    "max_sample_bytes": 1048576,
+    "max_download_bytes": 1048576,
+    "max_uncompressed_bytes": 1048576,
+    "disk_budget_bytes": 67108864,
+    "criteria": "Full regional PBF only",
+    "representative": false,
+    "reason": "Region-scale PBF extract; no bounded sample path (see osm_topology for the Overpass sample)"
+  },
+  "acquisition": {
+    "strategy": "files",
+    "description": "Geofabrik US Midwest OpenStreetMap extract (dated snapshot 2026-09-14, 2,500,351,197 bytes, md5 0a0c331cf3c9e8d92b9911a07d911533), decoded by the dataset-local stdlib PBF reader",
+    "documentation": "https://download.geofabrik.de/north-america/us-midwest.html",
+    "desired_bytes": 2505351197,
+    "min_bytes": 0,
+    "priority": 2.0,
+    "files": [
+      {
+        "url": "https://download.geofabrik.de/north-america/us-midwest-260914.osm.pbf",
+        "name": "us-midwest-260914.osm.pbf"
+      }
+    ],
+    "rate_limit": {
+      "requests_per_second": 0.2
+    },
+    "timeout_seconds": 600,
+    "retries": 8
+  },
+  "stages": [
+    {
+      "id": "parsed",
+      "entrypoint": "pipeline.py:parse",
+      "depends_on": [],
+      "schema": {
+        "format": "jsonl",
+        "compression": "gzip",
+        "required": {
+          "type": "string"
+        }
+      },
+      "validation": {
+        "allow_empty": true,
+        "max_rows": 80000000
+      },
+      "cache": "content",
+      "retention": "rebuildable"
+    },
+    {
+      "id": "normalized",
+      "entrypoint": "pipeline.py:run",
+      "depends_on": [
+        "parsed"
+      ],
+      "schema": {
+        "format": "evidence_jsonl",
+        "compression": "gzip"
+      },
+      "validation": {
+        "allow_empty": false,
+        "max_rows": 80000000
+      },
+      "cache": "content",
+      "retention": "retain"
+    }
+  ],
+  "output_stage": "normalized"
+}

@@ -1,0 +1,69 @@
+{
+  "id": "cepii_baci_hs92",
+  "schema_version": 2,
+  "kind": "source",
+  "status": "acquisition_configured",
+  "description": "CEPII BACI HS1992 (V202601) reconciled bilateral trade flows, exporter x importer x HS6 product x year 1995-2024 (value in thousand current USD, quantity in metric tons), with HS4 aggregates; long consistent-nomenclature history complementing cepii_baci (HS2017)",
+  "dependencies": [],
+  "parameters": {},
+  "source": {
+    "publisher": "CEPII (Centre d'Etudes Prospectives et d'Informations Internationales)",
+    "documentation": "https://www.cepii.fr/CEPII/en/bdd_modele/bdd_modele_item.asp?id=37",
+    "url": "https://www.cepii.fr/DATA_DOWNLOAD/baci/data/BACI_HS92_V202601.zip",
+    "release": "V202601",
+    "license": "Etalab Open Licence 2.0",
+    "license_id": "etalab-2.0",
+    "license_status": "open_with_attribution",
+    "terms_url": "https://www.etalab.gouv.fr/licence-ouverte-open-licence/",
+    "attribution": "Gaulier, G. and Zignago, S. (2010) BACI: International Trade Database at the Product-Level. The 1994-2007 Version. CEPII Working Paper N 2010-23",
+    "redistribution": "permitted_with_attribution"
+  },
+  "entrypoint": "pipeline.py:run",
+  "sampling": {
+    "strategy": "blocked",
+    "format": "jsonl",
+    "max_rows": 100,
+    "max_sample_bytes": 1048576,
+    "max_download_bytes": 1048576,
+    "max_uncompressed_bytes": 1048576,
+    "disk_budget_bytes": 67108864,
+    "criteria": "No bounded sample: the single 2.4 GB ZIP cannot be subset before download",
+    "reason": "Use full acquisition (wm acquire cepii_baci_hs92)"
+  },
+  "acquisition": {
+    "strategy": "files",
+    "description": "BACI HS92 V202601 bulk ZIP: thirty yearly CSVs (t,i,j,k,v,q) 1995-2024 plus country_codes and product_codes tables (Content-Length 2417732497 verified 2026-09-15)",
+    "documentation": "https://www.cepii.fr/DATA_DOWNLOAD/baci/doc/DescriptionBACI.html",
+    "desired_bytes": 2417732497,
+    "min_bytes": 0,
+    "priority": 3.0,
+    "files": [
+      {"url": "https://www.cepii.fr/DATA_DOWNLOAD/baci/data/BACI_HS92_V202601.zip", "name": "BACI_HS92_V202601.zip"}
+    ],
+    "rate_limit": {"requests_per_second": 0.5},
+    "timeout_seconds": 120,
+    "retries": 8,
+    "reader": {"format": "csv", "members": ["BACI_HS92_Y*_V*.csv"]}
+  },
+  "stages": [
+    {
+      "id": "normalized",
+      "entrypoint": "pipeline.py:run",
+      "depends_on": [],
+      "schema": {"format": "evidence_jsonl", "compression": "gzip"},
+      "validation": {"allow_empty": false, "max_rows": 400000000},
+      "cache": "content",
+      "retention": "retain"
+    },
+    {
+      "id": "hs4",
+      "entrypoint": "pipeline.py:hs4",
+      "depends_on": [],
+      "schema": {"format": "evidence_jsonl", "compression": "gzip"},
+      "validation": {"allow_empty": false, "max_rows": 300000000},
+      "cache": "content",
+      "retention": "retain"
+    }
+  ],
+  "output_stage": "normalized"
+}
