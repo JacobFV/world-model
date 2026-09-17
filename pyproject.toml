@@ -13,6 +13,11 @@ license = {file = "LICENSE"}
 [project.optional-dependencies]
 rl = ["gymnasium>=1.0,<2"]
 fast = ["numpy>=1.26"]
+# Grounded cognitive agents (worldmodel.agents). tensacode is the claim-store/appraisal/choose
+# substrate and has no third-party dependencies of its own. It is not on PyPI yet; install the
+# local checkout with `pip install -e <tensacode>/tensacode/python`, or point this at a
+# published release once there is one. The core imports and the full suite runs without it.
+agents = ["tensacode>=0.0.0.dev0"]
 
 [project.scripts]
 wm = "worldmodel.cli:main"
