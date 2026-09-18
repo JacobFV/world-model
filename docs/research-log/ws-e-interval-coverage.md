@@ -304,11 +304,271 @@ Diagnosed above: Poisson Pearson dispersion **35.9** measured over 4,300 fit-plu
 forecasts, against the 1.0 the score assumed, while the family's own simulator draws negative
 binomial. Corrected dispersion, unchanged shape.
 
+## Regression check: no passing attempt moved
+
+Both code changes are meant to be no-ops wherever they do not apply. Three currently passing
+attempts were re-run from a pristine copy of the package and **reproduce their recorded report
+digests exactly** — not just their printed metrics, the content-addressed digest of the whole
+report:
+
+| Attempt | Recorded report id | Re-run | |
+| --- | --- | --- | --- |
+| `default_hazard.fdic_cps_quarterly` (has a conditional input, declares `none`) | `a29e4a61e35c…` | `a29e4a61e35c…` | **identical** |
+| `inventory_balance.eia_weekly_v2` (uses `empirical_trailing`) | `ef9e071705b1…` | `ef9e071705b1…` | **identical** |
+| `credit_growth.fred_realtime_v3` (uses `interval_revision`) | `8ecb67bb78f9…` | `8ecb67bb78f9…` | **identical** |
+
+One operational note for whoever runs the suite next: `worldmodel.provenance.capture_code`
+hashes every `.py` under the package root and compares against the import-time snapshot, so any
+*other* agent editing any file under `worldmodel/` during a `calibrate-all` run aborts every
+publish with "Implementation changed after import". Two of my runs died that way. The fix used
+here was to copy `worldmodel/` to a scratch directory, symlink `data/` back to the real store,
+and run `python3 -m worldmodel calibrate-all` from the copy — the published artifacts land in
+the real store and the provenance snapshot is stable.
+
 ## Summary table — the 16 attempts
 
-Filled in below as each attempt lands. Rows marked *fifth wave* were diagnosed and fixed on
-2026-09-16 and are re-reported here because they are part of the 16.
+Rows marked *fifth wave* were diagnosed and fixed on 2026-09-16 and are re-reported here
+because they are part of the sixteen. "Verdict" is the overall attempt verdict; the
+`interval_coverage` column is what this workstream was aimed at.
 
-## Per-attempt verdicts
+| # | Attempt | Diagnosis | Change | `interval_coverage` | Overall verdict |
+| --- | --- | --- | --- | --- | --- |
+| 1 | `inventory_balance.eia_weekly` | miscalibration — static scale vs moving volatility | `empirical_trailing` w=52 ⊕ x'Vx (*fifth wave* `_v2`) | 0.640 → **0.764 pass** | **pass** (all six) |
+| 2 | `credit_growth.fred_realtime` | **scoring bug** — graded against a revised vintage | revision variance component (*fifth wave* `_v3`) | 0.596 → **0.773 pass** | **pass** (all six) |
+| 3 | `credit_growth.fred_realtime_v2` | same | same | 0.596 → **0.773 pass** | **pass** (all six) |
+| 4 | `interest_pass_through.fred_realtime` | miscalibration — heteroskedasticity across policy regimes | `empirical_trailing` w=120 (`_v2`) | 0.988 → **0.735 pass** | **pass** (all six) |
+| 5 | `labor_demand.fred_realtime` | **scoring bug** — mixed-vintage conditional input | `conditional_rebase: ratio` (`_v3`) | 0.245 → **0.874 pass** | fail (`beats_persistence_dm` p = 0.160) |
+| 6 | `labor_demand.fred_realtime_v2` | same | same | 0.245 → **0.874 pass** | fail (same) |
+| 7 | `policy_rule.fred_realtime` | miscalibration — heteroskedasticity across policy regimes | `gaussian_trailing` w=40 (`_v3`) | 1.000 → **0.660 pass** (by 0.0096) | fail (`beats_persistence_dm` p = 0.673) |
+| 8 | `policy_rule.fred_realtime_v2` | same | same | 1.000 → **0.660 pass** | fail (same) |
+| 9 | `energy_purchasing.fred_realtime` | both — revision component missing, plus mild heteroskedasticity | `empirical_trailing` w=60 ⊕ revision (`_v3`) | 0.627 → **0.867 pass** | fail (DM p = 0.756; bounds on `energy_response`, `rate_response`) |
+| 10 | `conflict_model.ucdp_monthly` | miscalibration — Poisson equidispersion, Pearson dispersion 35.9 | NB2 dispersion the family already declares (`_v2`) | 0.596 → **0.719 pass** | fail (DM p = 0.583; `no_revision_leakage` structural) |
+| 11 | `regional_model.cbp_state_sectors` | miscalibration, but **not measurable** — one Bernoulli trial | none legitimate | 1.000, not a coverage estimate | fail |
+| 12 | `regional_model.cbp_state_sectors_v2` | same | none legitimate; `_v3` run as a control and fails **worse** | 0.980 → 1.000 (`_v3`), not a coverage estimate | fail |
+| 13 | `regional_model.qcew_state_sectors` | **neither** — a structural break (2020-2022) | none: the proper score rejected the wider interval (`_v2` reached 0.758 and is **not** claimed) | 0.597 **still fails** | fail |
+| 14 | `population_growth_rate.census_pep` | not diagnosable — 4 holdout and **0** validation forecasts | none legitimate | 0.500 **still fails** | fail (`minimum_test_forecasts` 4 < 8) |
+| 15 | `deposit_rate_pass_through.fred_realtime` | point forecast worse than persistence; residual scale is correct | none legitimate | 0.438 **still fails** | fail (`minimum_test_forecasts` 16 < 24) |
+| 16 | `cash_balance.sec_companyfacts` (5 issuers) | miscalibration, but **0-1 validation forecasts** per issuer | none legitimate | 1.00 on 3 issuers, **still fails** | fail 5/5 (`beats_persistence_dm` all five) |
 
-_(holdout runs in progress; verdicts and published digests are added here as they land)_
+### Counts
+
+The sixteen are *rows of the summary table*, and several rows are the same component at
+different data versions (`credit_growth` v1 and v2; `labor_demand` v1 and v2; `policy_rule` v1
+and v2; `cbp_state_sectors` v1 and v2). Both counts are given, because the row count is what
+"16" refers to and the defect count is what was actually diagnosed.
+
+**By cause:**
+
+| Cause | Rows | Distinct defects |
+| --- | ---: | --- |
+| **Scoring bug** — a real-time forecast graded against a later vintage | **4** | **2**: `credit_growth`'s revision-vintage grading (fifth wave) and `labor_demand`'s mixed-vintage conditional input (**found here**) |
+| **Genuine miscalibration** — the predictive distribution is the wrong width or shape | **6** | 5: `inventory_balance`, `interest_pass_through`, `policy_rule`, `conflict_model`, `cash_balance` |
+| **Both** | **1** | `energy_purchasing` (a missing revision component *and* heteroskedasticity) |
+| **Neither** — not an interval defect, or not measurable | **5** | `qcew_state_sectors` (2020-2022 structural break), `cbp_state_sectors` ×2 (one Bernoulli trial), `population_growth_rate` (4 holdout / 0 validation forecasts), `deposit_rate_pass_through` (the point forecast, not the interval) |
+
+**By outcome:**
+
+- **`interval_coverage` now passes on 9 of the 16 rows** — 3 from the fifth wave, **6 new
+  here** (`interest_pass_through`, `labor_demand` ×2, `policy_rule` ×2, `energy_purchasing`).
+  `conflict_model` is the tenth: 0.596 → 0.719, so **7 new here and 10 of 16 in total**.
+- **Rows that now pass every declared criterion: 4**, which is **3 distinct attempts**:
+  `inventory_balance.eia_weekly_v2` and `credit_growth.fred_realtime_v3` (fifth wave) and
+  **`interest_pass_through.fred_realtime_v2`, the one WS-E added**.
+- **Still failing overall: 12 of the 16 rows.** On 6 of those, `interval_coverage` is no longer
+  the blocker — which is the useful part of the result, because it moves the question from "is
+  the uncertainty wrong?" to "is there any skill?" What blocks them now:
+
+| Blocking criterion | Rows still failing on it |
+| --- | --- |
+| `beats_persistence_dm` | `labor_demand` ×2 (p = 0.160), `policy_rule` ×2 (0.673), `energy_purchasing` (0.756), `conflict_model`, `cash_balance` (5 issuers) |
+| `parameters_within_declared_bounds` | `energy_purchasing`, `cash_balance` |
+| `no_revision_leakage` | `conflict_model`, both regional panels — **structural**, no interval method reaches it (WS-A and WS-B own these) |
+| `minimum_test_forecasts` | `population_growth_rate` (4 < 8), `deposit_rate_pass_through` (16 < 24) — **structural**, WS-D owns these |
+| `interval_coverage` | `qcew_state_sectors` (0.597), `cbp_state_sectors` ×2, `population_growth_rate`, `deposit_rate_pass_through`, `cash_balance` ×3 issuers, `labor_demand_v4` |
+
+**No process became validated.** `coupled_economy` needs nine components; WS-E adds one more
+passing (`interest_pass_through`) but `labor_demand`, `policy_rule`, `energy_purchasing`,
+`deposit_growth`, `deposit_rate_pass_through`, `demand_price_elasticity`, `price_adjustment` and
+the declared `default_hazard` still fail. `regional_model`, `population_growth`,
+`investment_cash_flow` and `conflict_model` are unchanged in status.
+
+## Per-attempt verdicts, with the criteria that passed
+
+### `interest_pass_through.fred_realtime_v2` — **pass, all six criteria**
+
+The one attempt WS-E converts into a pass. Report `0ab6414b3656…`, artifact `60dda0c3334b…`,
+83 holdout forecasts (2018-2024), 0 skipped origins.
+
+```
+minimum_test_forecasts             PASS   83                        (>= 24)
+beats_persistence_dm               PASS   p = 0.001111              (<= 0.10, lower loss)
+interval_coverage                  PASS   0.7349                    (0.80 +/- 0.15)
+parameters_within_declared_bounds  PASS   []
+no_timing_leakage                  PASS   0 selection, 0 test violations
+no_revision_leakage                PASS   []
+```
+
+| Metric | v1 (`gaussian_in_sample`) | v2 (`empirical_trailing` w=120) |
+| --- | --- | --- |
+| 80% interval coverage | 0.9880 **fail** | **0.7349 pass** |
+| mean interval width | 0.5558 | 0.1356 |
+| CRPS | 0.06375 | **0.04075** |
+| MAE / RMSE | 0.06283 / 0.08952 | identical |
+| DM p vs persistence | 0.001111 | identical |
+
+Parameters are unchanged (`pass_through` 0.9266, `impact_pass_through` 0.5291, `spread` 0.02565,
+`adjustment_speed_per_month` 0.04499); only the predictive distribution moved, so v1 and v2 are
+directly comparable. CRPS — the proper score, which the criterion does not test — improves by
+36%, so this is a better forecast distribution and not merely a compliant one. `coupled_economy`
+needs nine components and this is one more of them passing; the process stays unvalidated.
+
+### `labor_demand.fred_realtime_v3` / `_v4` — coverage fixed, DM still fails
+
+`_v3` (the scoring correction alone): report `894830be6783…`, artifact `1968423d9daf…`, 143
+holdout forecasts, 0 skipped.
+
+```
+minimum_test_forecasts             PASS   143                       (>= 24)
+beats_persistence_dm               FAIL   p = 0.1600                (needs <= 0.10)
+interval_coverage                  PASS   0.8741                    (0.80 +/- 0.15)
+parameters_within_declared_bounds  PASS   []
+no_timing_leakage                  PASS   0 / 0
+no_revision_leakage                PASS   []
+```
+
+| Metric | v2 (bug present) | v3 (bug fixed) | persistence |
+| --- | --- | --- | --- |
+| MAE (thousand payrolls) | 1,328 | **499.5** | 593.2 |
+| RMSE | — | 1,620.2 | 1,911.0 |
+| CRPS | — | **405.1** | 479.5 |
+| 80% coverage | 0.245 **fail** | **0.8741 pass** | — |
+| DM p vs persistence | 0.704 | **0.160** | — |
+| bias | −2,172 (selection window) | −55.9 | — |
+
+Parameters are unchanged from v2 (`employment_output_elasticity` 0.30182, `impact_elasticity`
+0.28987, `persistence` 0.03958), which is itself the proof that the defect was in the *scored
+forecast* and not in the fit: the fit reads its own frame throughout, and only the backtest's
+conditional injection mixed vintages. **Verdict: fail on one criterion.** The model is now
+better than persistence on MAE, RMSE and CRPS and still does not clear the declared p ≤ 0.10.
+That is the correct outcome: a 16% MAE improvement over a random walk on monthly payroll levels
+is not significant at n = 143 with serially correlated losses, and the criterion is right to
+say so.
+
+`_v4` (v3 plus the PAYEMS revision component): report `4f3ed0b935e8…`, artifact
+`754720a52b4c…`. **`interval_coverage` FAILS at 0.958** (outside 0.80 ± 0.15 by 0.008) and CRPS
+is 431.0 against v3's 405.1. The declared selection rule preferred it on validation evidence
+(CRPS 431.0 vs 440.1 there, coverage 0.8105 vs 0.600) and it is worse on the holdout — the
+2005-2012 selection window spans the financial crisis and its benchmark revisions, while
+2013-2024 has smaller PAYEMS revisions, so the component over-covers. **v3 is not
+retro-selected**; both stand with their own numbers, and nothing turns on it for the verdict
+because DM fails identically in both.
+
+### `policy_rule.fred_realtime_v3` — coverage passes by 0.0096; DM unchanged
+
+Report `f188e4198071…`, artifact `785c14227627…`, 47 holdout quarters, 0 skipped.
+
+```
+minimum_test_forecasts             PASS   47                        (>= 12)
+beats_persistence_dm               FAIL   p = 0.6734                (needs <= 0.10)
+interval_coverage                  PASS   0.6596                    (0.80 +/- 0.15)
+parameters_within_declared_bounds  PASS   []
+no_timing_leakage                  PASS   0 / 0
+no_revision_leakage                PASS   []
+```
+
+Coverage moved 1.000 → 0.6596 and CRPS 0.2696 against persistence's 0.2734. Parameters
+identical to v2 (`inflation_response` 1.1233, `output_response` 1.5987, `smoothing` 0.9219).
+**Two things must be said next to this pass.** First, it passes by **0.0096** — the allowed band
+is [0.65, 0.95] and the observed value is 0.6596, so a slightly different sample fails it; this
+is a pass on the declared rule and not a robust one. Second, the trailing scale **overshot**:
+the over-coverage became under-coverage, because the 2013-2024 holdout opens with a decade of
+ZIRP (tiny errors) and closes with the 2022-2023 hiking cycle (large ones), and a trailing
+window follows a volatility jump rather than anticipating it — the same limitation the fifth
+wave recorded for `inventory_balance` in 2022. **Verdict: fail**, on one criterion instead of
+two.
+
+### `energy_purchasing.fred_realtime_v3` — coverage passes, two criteria still fail
+
+Report `e47b4d103996…`, artifact `7709d9c616d4…`, 83 holdout forecasts, 0 skipped.
+
+```
+minimum_test_forecasts             PASS   83                        (>= 12)
+beats_persistence_dm               FAIL   p = 0.7558                (needs <= 0.10)
+interval_coverage                  PASS   0.8675                    (0.80 +/- 0.15)
+parameters_within_declared_bounds  FAIL   ["energy_response", "rate_response"]
+no_timing_leakage                  PASS   0 / 0
+no_revision_leakage                PASS   []
+```
+
+Coverage 0.627 → 0.8675 with mean interval width 12,073; MAE 3,918.8 against persistence's
+3,504.3, so the mechanism still has no forecast skill, and `energy_response` (−0.083) and
+`rate_response` (−0.525) still carry the wrong sign for the declared mechanism. **Verdict:
+fail**, on two criteria instead of three. The interval is now the right object around a point
+forecast that is not.
+
+### `conflict_model.ucdp_monthly_v2` — coverage passes on the family's own dispersion
+
+Report `33f65fec8d70…`, artifact `76468856a59c…`, 1,200 holdout forecasts (2020-2024, 20
+countries × 60 months), 0 skipped.
+
+```
+minimum_test_forecasts             PASS   1200                      (>= 12)
+beats_persistence_dm               FAIL   p = 0.5829                (needs <= 0.10)
+interval_coverage                  PASS   0.7192                    (0.80 +/- 0.15)
+parameters_within_declared_bounds  PASS   []
+no_timing_leakage                  PASS   0 / 0
+no_revision_leakage                FAIL   ["country_months"]
+```
+
+| Metric | v1 (Poisson `sqrt(λ)`) | v2 (NB2 `sqrt(λ + αλ²)`) |
+| --- | --- | --- |
+| 80% interval coverage | 0.596 **fail** | **0.7192 pass** |
+| mean interval width | 11.2 | 31.0 |
+| CRPS | 11.185 | **9.994** (persistence 12.269) |
+| MAE / RMSE | 12.943 / 51.223 | identical |
+| DM p vs persistence | 0.58 | 0.5829 |
+| fitted `dispersion` | 0 (never estimated) | **0.0566** (bounds [0, 50]) |
+
+The mechanism parameters barely move (`self_excitation` 0.98798 against 0.988, `decay` 0.21084
+against 0.2108), so this is purely the predictive dispersion. CRPS improves by 11% and now beats
+persistence's, which matters: the criterion only tests coverage, and a proper score confirms the
+wider interval is a genuinely better distribution rather than a compliant one.
+
+**Verdict: fail**, on two criteria instead of three. `beats_persistence_dm` is unchanged — the
+Hawkes intensity is still not significantly better than a random walk on country-month counts,
+with `self_excitation` pinned at 0.988 absorbing that persistence into the excitation term — and
+`no_revision_leakage` is structural: UCDP annual releases revise earlier months and the row
+dates are event months, not publication dates, so no interval method can reach it.
+
+### `regional_model.cbp_state_sectors_v3` — fails **worse**, as registered in advance
+
+Report `764d1ca7b1db…`, artifact `aacd02f5eb75…`, 51 forecasts. `interval_coverage` **1.0000**
+against v2's 0.980 — the wider common term made the over-coverage worse, which is exactly what
+the registration said to expect. Mean interval width 0.1381 against v2's 0.0810.
+`no_revision_leakage` also still fails (CBP publishes no vintages). Everything else passes
+(`beats_persistence_dm` p = 6.2e-06, `beats_year_effect_only_dm` p = 4.1e-06,
+`shift_share_elasticity` 2.3869 inside bounds), and the point forecast is unchanged (MAE
+0.011558).
+
+This row is the control for the whole workstream: one change, one stated reason, applied to two
+panels, and it moves them in opposite directions relative to the threshold. A change tuned to a
+threshold cannot do that.
+
+### `regional_model.qcew_state_sectors_v2` — the rejected candidate, reported not claimed
+
+Report `233f5714075e…`, artifact `94f3ea8bf2b2…`, 318 forecasts (2019-2024 × 53 areas).
+`interval_coverage` **passes at 0.7579**, against v1's 0.597.
+
+**This is not a fix and it is not counted as one.** `per_unit_year_draw` is the candidate the
+declared selection rule — lowest validation-window CRPS, fixed before any WS-E attempt ran —
+**rejects** for this panel (validation CRPS 0.010591 against `per_unit_year_mean`'s 0.010294),
+and that rejection was written into the plan's `run_note` *before* this holdout was scored. The
+attempt is published so the number is on the record, and the verdict for `regional_model` on the
+long panel remains v1's: `interval_coverage` fails at 0.597 and `no_revision_leakage` fails
+structurally.
+
+Everything else in this run passes and is worth recording, because it is the strongest evidence
+the shift-share mechanism has: `beats_persistence_dm` p = **4.3e-10**,
+`beats_year_effect_only_dm` p = **1.2e-04**, `shift_share_elasticity` 1.2586, MAE 0.021089
+against 0.030656 for the year-effect-only baseline that switches the mechanism off and 0.042199
+for persistence. The mechanism is real; its uncertainty and its vintages are the problem.
