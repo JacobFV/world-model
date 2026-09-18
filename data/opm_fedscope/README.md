@@ -17,10 +17,10 @@ declaration and each shard is renamed to `fedscope_<kind>_<period>.zip`.
 | Accession cube | 4 | FY2005-FY2009, FY2010-FY2014, FY2015-FY2019, FY2020-FY2024 |
 | Separation cube | 4 | the same blocks |
 
-Declared sizes on the OPM page total **1.372 GiB**. Each archive holds one fact file
-(`FACTDATA_<MMMYYYY>.TXT`, `ACCDATA_FY…​.TXT` or `SEPDATA_FY…​.TXT`, 81-153 MB uncompressed), its
-`DT*.txt` dimension tables and a documentation PDF. The public employment series stops at June 2022 as
-published; nothing newer is offered on that page.
+Acquired: **71 shards, 1,473,120,618 bytes = 1.372 GiB**, matching the sizes declared on the OPM page.
+Each archive holds one fact file (`FACTDATA_<MMMYYYY>.TXT`, `ACCDATA_FY….TXT` or `SEPDATA_FY….TXT`,
+81-153 MB uncompressed), its `DT*.txt` dimension tables and a documentation PDF. The public employment
+series stops at June 2022 as published; nothing newer is offered on that page.
 
 ## What OPM publishes, and what it does not
 
@@ -38,10 +38,21 @@ denominator is published as its own metric so a mean can be computed rather than
 
 ## Normalized evidence (`normalized`, gzip JSONL)
 
+**11,724,597 records** measured: 11,721,736 observations, 2,051 entities, 810 assertions, over 63
+employment cubes (September 1998 - June 2022) and 19 fiscal years of flows (FY2005-FY2023). 926 agency
+entities, 867 occupational-series entities, 51 state entities and 206 deliberately unjoined duty
+locations.
+
 Person-level rows are not a rights problem here; they are a volume problem. 63 employment cubes hold
 roughly 137 million employee rows, so the pipeline aggregates each cube **while streaming** into
 marginal cells and never re-emits a row. Every cell carries the headcount, the sum of published annual
 salaries and the number of employees whose salary was published.
+
+The aggregation is lossless at the margin, and that is checked rather than asserted: for June 2022 the
+`location` cells and the `agency` cells **each sum to 2,169,629 employees**, exactly the row count of
+`FACTDATA_JUN2022.TXT`. The blank-salary share measured back out of the published records is **0.1261**
+(1,896,004 of 2,169,629 carry a salary), matching the 273,625 blank rows counted in the raw file, and the
+mean published annual salary is $95,744.
 
 | Cell (`dimensions.cell`) | Key | Subject |
 | --- | --- | --- |
@@ -70,15 +81,23 @@ series (`occ:opm:<series>`) and duty locations become entities.
 
 * **Duty location is a state, not a county.** `DTloc.txt` publishes two-digit FIPS state codes for the
   50 states and DC, and two-letter FIPS 10-4 style codes for territories and foreign countries. Only the
-  numeric state codes become `geo:US:state:<FIPS>`. Territories and foreign duty stations get
+  numeric state codes become `geo:US:state:<FIPS>`, and all **51 of them match `census_geography`,
+  `census_population`, `openfema`, `lehd_lodes` and `mit_election_returns` exactly (1.0000)**.
+  Territories (`AQ` American Samoa, `CQ` Northern Marianas, `GQ` Guam, `RQ` Puerto Rico, `VQ` Virgin
+  Islands), roughly 200 foreign country codes and a `**` unspecified code get
   `opm:duty_location:<code>` entities rather than a guessed FIPS or ISO code, because neither OPM nor
-  this catalog publishes that crosswalk. No county-level federal employment is available from this
-  source.
+  this catalog publishes that crosswalk: **206 unjoined keys**, covering the 15.8% of geographic
+  observations that do not reach a `geo:US:state:` key (2,185,536 of 2,596,409 do = 0.8418).
+  **No county-level federal employment exists in this source at all**, so there is nothing to join at
+  county grain at any rate.
 * **FedScope agency codes are not Treasury CGAC codes.** `usaspending` keys agencies as
   `usgov:agency:<CGAC>`; FedScope uses OPM EHRI agency and sub-element codes. No crosswalk between them
   ships with either source, and matching them by agency name would be exactly the inferred name matching
-  this catalog measured at 0.4% recall and 2.3% precision. No identity link is asserted; the entity
-  attributes say so explicitly.
+  this catalog measured at 0.4% recall and 2.3% precision. No identity link is asserted; all 926 agency
+  entities carry `crosswalk_to_cgac` saying so. The measured consequence: **0 of 51** FedScope state keys
+  match anything in `usaspending`, because `usaspending`'s geography is county-level place of performance
+  and it references no state keys. Two federal datasets covering federal spending and federal employment
+  do not meet, because neither publishes a key at the other's grain.
 
 ## Rebuild
 
