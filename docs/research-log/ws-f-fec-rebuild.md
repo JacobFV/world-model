@@ -185,6 +185,15 @@ dollar in the cycle, from one five-digit ZIP**, nearly three times the largest M
 (Lake Forest, IL, $67.9M) and 78734 (Lakeway, TX, $61.4M). A national top-ten-ZIP list is a
 different object from a national top-ten-ZIP3 list, and only one of them was previously derivable.
 
+**It replicates on the 2024 cycle**, which matters because a single-cycle concentration figure could
+be an artifact of one self-funder. The 2024 artifact (`83a01f42…`, $12,079,690,654 over 57,986,091
+contributions) gives 42,117 full ZIPs against 996 ZIP3s, effective units **544.1 versus 95.9**, and
+the same shape (top 1% of units: 49.5% of dollars at full ZIP, 22.9% at ZIP3). Its largest full ZIPs
+are 78734 (Lakeway, TX) at $214,385,402 = 1.775% of the cycle, and **82331 (Saratoga, WY) at
+$197,116,764 from 618 contributions — a $319,000 mean.** ZIP3 `823` had that mixed into rural
+Wyoming; at full ZIP it is the second-largest ZIP in the country. Bala Cynwyd (19004) is present in
+both cycles, at $99,371,107 in 2024 over 7,642 contributions.
+
 Caveat, stated rather than hidden: a full ZIP is **not** a census geography. `docs/identity-units-
 crosswalks.md` lists the population-weighted ZCTA↔county crosswalk as *declared for acquisition, not
 loaded*, so these ZIPs cannot yet be apportioned to counties or CBSAs without assuming a mapping.
@@ -206,11 +215,13 @@ Before any join: the seven largest normalized employer keys are not employers.
 
 Those plus UNEMPLOYED account for **$2,227,724,391 = 37.9% of all itemized individual dollars and
 72.1% of all contribution rows.** A further 487,487 rows ($155.8M) report no employer string at all.
-So the ceiling on *any* employer-based analysis of this source is roughly 60% of the dollars, before
-join quality enters at all. This is the single most important number in this section and it is not
-an artifact of our method — it is what filers report.
+On the 2024 cycle the same seven keys are **$5,076,033,295 = 42.0% of dollars and 66.0% of rows.**
+So the ceiling on *any* employer-based analysis of this source is roughly 58-62% of the dollars,
+before join quality enters at all. This is the single most important number in this section and it is
+not an artifact of our method — it is what filers report.
 
-Across the remaining rows there are **403,453 distinct normalized employer keys**.
+Across the remaining rows there are **403,453 distinct normalized employer keys** in the 2026 cycle
+and 795,859 in 2024.
 
 ### 7c. Employer → public-company and federal-contractor joins — INFERRED, and quantified
 
