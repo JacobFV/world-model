@@ -90,6 +90,109 @@ class HelperTests(unittest.TestCase):
         self.assertEqual(len(pairs), len(set(pairs)), 'metric names must be unique per geography')
 
 
+class UnitsAcrossVintagesTests(unittest.TestCase):
+    """The one defect class that produced wrong numbers rather than missing ones.
+
+    FRED restates the *scale* a series is published in, not only its index base. Applying one
+    present-day multiplier to every vintage silently corrupts whole eras: TOTALSL was published in
+    billions and later in millions, and 11,612 of its 13,537 values were wrong by a factor of 1000,
+    which surfaced only as an implausible 22.5% output gap. The config tests below run offline; the
+    published-artifact test measures the shipped records and skips when nothing is published.
+    """
+
+    #: Periods and vintages hand-checked against the FRED API on 2026-09-17. Each pair is the same
+    #: period published on either side of a units change, with the raw value FRED served.
+    HAND_CHECKED = {
+        # (series, period): [(vintage, raw FRED value, source units, expected normalized value)]
+        ('TOTALSL', '1998-03-01'): [('2019-05-07', 1332.90344, 'Billions of Dollars', 1332.90344),
+                                    ('2025-02-07', 1332903.44, 'Millions of Dollars', 1332.90344)],
+        ('CAOTOT', '2000-01-01'): [('2018-09-25', 1102918418.0, 'Thousands of Dollars', 1102918418000.0),
+                                   ('2018-12-20', 1102918.4, 'Millions of Dollars', 1102918400000.0)],
+    }
+
+    def setUp(self):
+        self.config = json.loads((DATA / 'fred_macro_panel' / 'config.json').read_text())
+        if not self.config.get('series'):
+            self.skipTest('config.json series not generated yet')
+
+    def test_the_units_change_flag_is_derived_from_the_recorded_history(self):
+        scale_changes = []
+        for series_id, entry in self.config['series'].items():
+            history = entry.get('units_history') or []
+            if not history:
+                continue
+            changed = len({item['source_units'] for item in history}) > 1
+            self.assertEqual(bool(entry.get('units_change_across_vintages')), changed, series_id)
+            if len({item['multiplier'] for item in history}) > 1:
+                scale_changes.append(series_id)
+        # A scale change is the dangerous kind: a rebasing changes what a level means, a scale
+        # change changes it by a factor of 1000. This asserts the audit's measured count so that a
+        # rebuild which loses per-vintage units cannot pass quietly.
+        self.assertIn('TOTALSL', scale_changes)
+        self.assertGreaterEqual(len(scale_changes), 59, sorted(scale_changes))
+        self.assertIn('CAOTOT', scale_changes)          # 51 state personal-income series round-trip
+
+    def test_hand_checked_values_normalize_to_the_same_quantity_in_both_units(self):
+        """The regression test the TOTALSL bug asks for, against values checked at the publisher.
+
+        For each pair the raw FRED values differ by a factor of 1000 and the normalized values
+        agree, so a single-multiplier pipeline fails here by exactly that factor.
+        """
+        for (series_id, period), rows in self.HAND_CHECKED.items():
+            entry = self.config['series'].get(series_id)
+            self.assertIsNotNone(entry, series_id)
+            self.assertTrue(entry['units_change_across_vintages'], series_id)
+            # pipeline.load_config applies estimation_overrides[series].unit_scale, which is how the
+            # requirement's publisher-scale unit (billion_USD) is reached from base units.
+            scale = (self.config.get('estimation_overrides', {}).get(series_id) or {}).get('unit_scale', 1)
+            normalized = []
+            for vintage, raw, source_units, expected in rows:
+                item = next((h for h in entry['units_history']
+                             if h['realtime_start'] <= vintage <= h['realtime_end']), None)
+                self.assertIsNotNone(item, f'{series_id} has no units run covering {vintage}')
+                self.assertEqual(item['source_units'], source_units, f'{series_id}@{vintage}')
+                value = raw * item['multiplier'] / scale
+                self.assertAlmostEqual(value / expected, 1.0, places=6, msg=f'{series_id}@{vintage} {period}')
+                normalized.append(value)
+            ratio = max(r[1] for r in rows) / min(r[1] for r in rows)
+            self.assertAlmostEqual(ratio, 1000.0, places=3, msg='raw values must differ by 1000x')
+            self.assertAlmostEqual(max(normalized) / min(normalized), 1.0, places=6)
+
+    def test_published_records_carry_their_own_vintage_multiplier(self):
+        from worldmodel.store import Store
+        store = Store(DATA)
+        try:
+            ref = store.latest('fred_macro_panel', 'normalized')
+        except (FileNotFoundError, NotADirectoryError):
+            self.skipTest('fred_macro_panel/normalized is not published locally')
+        path = store.version_dir(ref) / 'records.jsonl.gz'
+        if not path.exists():
+            self.skipTest('no records.jsonl.gz in the published version')
+        series = sorted({series_id for series_id, _ in self.HAND_CHECKED})
+        needles = tuple(f'"series_id":"{series_id}"' for series_id in series)
+        found = {}
+        with gzip.open(path, 'rt', encoding='utf-8') as stream:
+            for line in stream:
+                if not any(needle in line for needle in needles):
+                    continue
+                record = json.loads(line)
+                if record.get('kind') != 'observation':
+                    continue
+                series_id = (record.get('dimensions') or {}).get('series_id')
+                key = (series_id, str(record.get('valid_from'))[:10])
+                if key in self.HAND_CHECKED:
+                    found.setdefault(key, {})[record['attributes']['realtime_start']] = record
+        for key, rows in self.HAND_CHECKED.items():
+            self.assertIn(key, found, f'{key} is absent from the published records')
+            for vintage, _, source_units, expected in rows:
+                record = found[key].get(vintage)
+                self.assertIsNotNone(record, f'{key} has no vintage {vintage}')
+                self.assertEqual(record['attributes']['source_units'], source_units, f'{key}@{vintage}')
+                self.assertAlmostEqual(record['value'] / expected, 1.0, places=6, msg=f'{key}@{vintage}')
+            multipliers = {found[key][v]['attributes']['unit_multiplier'] for v, _, _, _ in rows}
+            self.assertEqual(len(multipliers), 2, f'{key} must carry a different multiplier per vintage')
+
+
 class RunnerTests(unittest.TestCase):
     def setUp(self):
         self.temp = tempfile.TemporaryDirectory()

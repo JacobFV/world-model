@@ -1367,7 +1367,8 @@ def assets_fred_realtime_data(store, *, symbols=('JPY', 'GBP', 'CAD', 'CHF', 'AU
 
 
 def monetary_okun_realtime_data(store, *, start='1975-01', end='2024-12', trend_months=120, okun=2.0,
-                                inflation_target=2.0, elb=0.125, versions=None, dataset='fred_macro_panel'):
+                                inflation_target=2.0, elb=0.125, versions=None, dataset='fred_macro_panel',
+                                policy_rate_series='DFF'):
     """``monetary`` family rows with an Okun output-gap proxy built entirely from **first releases**.
 
     ``monetary_model.cpi_okun_proxy`` and its v2 rerun fail ``no_revision_leakage`` for one reason:
@@ -1375,7 +1376,10 @@ def monetary_okun_realtime_data(store, *, start='1975-01', end='2024-12', trend_
     current vintage. ALFRED has carried UNRATE since 1960-03-15 (799 vintages) and ``fred_macro_panel``
     already holds every one of them, so the same proxy can be built without any revision in it:
 
-    * ``policy_rate``: monthly mean of the first published DFF vintage of each day.
+    * ``policy_rate``: monthly mean of the first published vintage of each ``policy_rate_series``
+      observation. ``DFF`` is daily and entered ALFRED on 2005-06-28; ``FEDFUNDS`` is the monthly
+      average the rule is actually written in and entered on 1996-12-13, so it reaches back nine
+      years further. Which one an attempt uses is declared in the plan.
     * ``inflation``: twelve-month CPIAUCSL change, month *t* from its first release and month *t-12*
       from the latest vintage published on or before that release **and on the same base period**.
     * ``output_gap``: ``-okun * (u_t - u*_t)`` with u the first release of UNRATE and u* the mean of
@@ -1383,11 +1387,11 @@ def monetary_okun_realtime_data(store, *, start='1975-01', end='2024-12', trend_
       after the row's own release date.
     """
     evidence = Evidence()
-    ref, series = _vintage_series_multi(store, dataset, ['CPIAUCSL', 'UNRATE', 'DFF'], versions=versions,
-                                       with_base=True)
+    ref, series = _vintage_series_multi(store, dataset, ['CPIAUCSL', 'UNRATE', policy_rate_series],
+                                       versions=versions, with_base=True)
     cpi = series['CPIAUCSL']
     unemployment, unemployment_info = first_releases(series['UNRATE'])
-    rates, rate_info = first_releases(series['DFF'])
+    rates, rate_info = first_releases(series[policy_rate_series])
     cpi_first, cpi_info = first_releases(cpi)
     monthly_rate = {}
     for day, (value, record_id, _) in rates.items():
@@ -1428,7 +1432,9 @@ def monetary_okun_realtime_data(store, *, start='1975-01', end='2024-12', trend_
             'construction': {'rows': len(rows), 'first': rows[0]['date'], 'last': rows[-1]['date'],
                              'okun': okun, 'trend_months': trend_months, 'skipped': skipped,
                              'vintage_rule': 'first release of every input; archive-start periods dropped',
-                             'series': {'CPIAUCSL': cpi_info, 'UNRATE': unemployment_info, 'DFF': rate_info},
+                             'policy_rate_series': policy_rate_series,
+                             'series': {'CPIAUCSL': cpi_info, 'UNRATE': unemployment_info,
+                                        policy_rate_series: rate_info},
                              'dataset': dataset}}
     return data, evidence.reference()
 

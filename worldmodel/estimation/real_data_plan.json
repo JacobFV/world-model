@@ -1214,7 +1214,9 @@
       "rationale": "The revision-clean replacement for the Okun-proxy pair. monetary_model.cpi_okun_proxy and its v2 rerun fail no_revision_leakage for exactly one reason: the unemployment input was aggregated from LAUS state series and bls_labor publishes one current vintage. ALFRED has carried UNRATE since 1960-03-15 and fred_macro_panel already holds all 799 vintages, so the same proxy is rebuilt with the published national rate read as its first release, the CPI endpoints taken inside one base period, and the u* trend taken as the mean of the previous 120 FIRST releases. No number in a row was published after that row. No new data was acquired for this attempt; the vintages were already on disk.",
       "entity_rule": "National series only; no entity selection.",
       "expected_limits": "Coverage, not choice, sets the splits: DFF entered ALFRED on 2005-06-28, so first-release monthly means start 2005-06 and the panel is 235 months instead of the 420 the LAUS construction had. Train 2005-06..2013, validation 2014-2018, holdout 2019-2024 (72 forecasts). beats_persistence_dm is expected to fail again for the reason the v1 record already gives: a smoothed quarterly rule scored monthly is worse than a random walk on the policy rate, and the shorter sample cannot change that. This attempt is registered for the revision criterion, and the Okun proxy is still a proxy: monetary_model.fred_realtime_v2, which uses the declared GDPC1/GDPPOT gap, remains the passing attempt for this family.",
-      "supersedes": "monetary_model.cpi_okun_proxy; monetary_model.cpi_okun_proxy_v2"
+      "supersedes": "monetary_model.cpi_okun_proxy; monetary_model.cpi_okun_proxy_v2",
+      "run_note": "RUN NOTE (2026-09-17, after the run): status failed, not a criteria failure. \"Estimated smoothing is not below one; reaction coefficients unidentified\" -- the DFF archive start confines the training window to the ZLB era. Superseded by monetary_model.okun_unrate_realtime_v2, which changes the policy-rate series to FEDFUNDS; no holdout had been scored when that was declared.",
+      "superseded_by": "monetary_model.okun_unrate_realtime_v2"
     },
     {
       "id": "assets_model.fred_fx_realtime",
@@ -1401,6 +1403,39 @@
       "entity_rule": "Every state-equivalent that FRED serves as an aliased ALFRED series (50 states and DC; Puerto Rico and the Virgin Islands have no aliased form) and all nine universally archived CES supersectors plus the residual. Selection is availability only.",
       "rationale": "regional_model.ces_sae_realtime with the one interval method changed, so the real-time panel is scored under both declared regional spreads exactly as qcew_state_sectors and qcew_state_sectors_v2 score the revised panel. Registered at the same time as the first attempt and before either was run.",
       "expected_limits": "CES SAE publishes supersectors, not two-digit NAICS: this panel has ten industries where qcew_state_sectors had twenty, so the Bartik shock is built from a coarser decomposition and should be weaker, not stronger. The tenth industry is the within-vintage residual total_nonfarm minus the nine published supersectors, because five state-equivalents publish no aliased mining/logging/construction series. The panel starts in 2012 rather than 2008 because the state Information series enter ALFRED only on 2011-11-22 and a complete panel is real time only back to its shallowest member; thirteen growth years, against nineteen for QCEW. interval_coverage is not expected to be fixed by this attempt -- the holdout again contains 2020 -- and the paired per_unit_year_draw variant below is the WS-E correction on the same real-time rows."
+    },
+    {
+      "id": "monetary_model.okun_unrate_realtime_v2",
+      "kind": "family",
+      "target": "monetary",
+      "process_id": "monetary_model",
+      "loader": {
+        "function": "monetary_okun_realtime_data",
+        "options": {
+          "start": "1975-01",
+          "end": "2024-12",
+          "trend_months": 120,
+          "okun": 2.0,
+          "inflation_target": 2.0,
+          "elb": 0.125,
+          "policy_rate_series": "FEDFUNDS"
+        }
+      },
+      "data": "fred_macro_panel@normalized (CPIAUCSL, UNRATE and FEDFUNDS, every ALFRED vintage; every input read as its first release)",
+      "protocol": {
+        "train_end": "2007-12-31",
+        "validation_end": "2014-12-31",
+        "cutoff": "2024-12-31",
+        "vintage_policy": "family_rows",
+        "refit_every": 12,
+        "horizon": 1
+      },
+      "diagnosis": "monetary_model.okun_unrate_realtime did not reach a holdout at all: it raised \"Estimated smoothing is not below one; reaction coefficients unidentified\" while fitting. The cause is a data boundary, not a specification choice. DFF entered ALFRED on 2005-06-28, so first-release monthly means begin 2005-06 and the training window 2005-06..2013 lies almost entirely inside the zero-lower-bound era, where the policy rate is flat and the smoothed rule's rho is at 1 by construction. No acceptance criterion was evaluated and no holdout was scored, so nothing about a test outcome informed this change.",
+      "change": "policy_rate_series: FEDFUNDS instead of DFF. FEDFUNDS is the monthly average the rule is written in and it entered ALFRED on 1996-12-03, giving 337 first-release months (1996-12..2024-12) instead of 235. That restores the ORIGINAL splits of monetary_model.cpi_okun_proxy exactly -- train through 2007, validation 2008-2014, holdout 2015-2024, 120 forecasts -- so this attempt and the leaking one it supersedes differ only in where unemployment and the policy rate come from.",
+      "rationale": "The revision-clean replacement for the Okun-proxy pair. Both earlier attempts fail no_revision_leakage because the unemployment input was aggregated from LAUS state series and bls_labor publishes one current vintage. UNRATE has been in ALFRED since 1960-03-15 and fred_macro_panel already holds all 799 vintages, so the same proxy is rebuilt from first releases only. No new data was acquired.",
+      "entity_rule": "National series only; no entity selection.",
+      "expected_limits": "beats_persistence_dm is expected to fail again, for the reason the v1 record already gives: a smoothed quarterly rule scored at monthly frequency is worse than a random walk on the policy rate. This attempt is registered for the revision criterion. The gap is still an Okun proxy, not the declared GDPC1/GDPPOT gap, so monetary_model.fred_realtime_v2 remains the passing attempt for the family.",
+      "supersedes": "monetary_model.cpi_okun_proxy; monetary_model.cpi_okun_proxy_v2; monetary_model.okun_unrate_realtime"
     }
   ],
   "not_run": [
