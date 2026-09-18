@@ -327,6 +327,64 @@ class FamilyLoaderTests(unittest.TestCase):
         self.assertEqual({row['region'] for row in data['employment']}, {'geo:US:state:01'})
         self.assertEqual({row['year'] for row in data['employment']}, {2019, 2020})
 
+    def _ces_sae_records(self):
+        """Two states x two supersectors x total nonfarm, monthly, with an archive start and a revision.
+
+        Archive opens 2015-01-15 and republishes 2014 (so 2014 must be dropped as a pre-archive
+        snapshot). 2015 completes at 2016-02-10 for one series and 2016-03-10 for another, so the
+        year's release date is the later one. Every 2015 month is revised at 2017-04-10, and that
+        revision must never reach the row.
+        """
+        records, index = [], 0
+        for region in ('geo:US:state:01', 'geo:US:state:02'):
+            for industry, level in (('manufacturing', 100.0), ('government', 200.0), ('total_nonfarm', 400.0)):
+                complete = '2016-03-10' if industry == 'government' else '2016-02-10'
+                for year in (2014, 2015):
+                    for month in range(1, 13):
+                        month_start = f'{year}-{month:02d}-01'
+                        end = f'{year}-{month + 1:02d}-01' if month < 12 else f'{year + 1}-01-01'
+                        vintages = [('2015-01-15', level + 9)] if year == 2014 else [(complete, level)]
+                        if year == 2015:
+                            vintages.append(('2017-04-10', level + 50))   # later benchmark revision
+                        for vintage, value in vintages:
+                            index += 1
+                            records.append(observation(
+                                id=f'sae:{index}', metric='employment', unit='jobs', subject=region, value=value,
+                                valid_from=month_start, valid_to=end,
+                                dimensions={'frequency': 'M', 'industry': industry, 'panel_role': 'panel',
+                                            'vintage': vintage, 'seasonal_adjustment': 'NSA'},
+                                attributes={'realtime_start': vintage, 'realtime_end': '9999-12-31'}))
+        return records
+
+    def test_ces_sae_panel_is_first_release_dated_by_publication(self):
+        from worldmodel.estimation.loaders import ces_sae_regional_data
+        self.store.write('fred_state_employment_vintages', self._ces_sae_records())
+        data, _ = ces_sae_regional_data(self.store, min_rows=1)
+        self.assertEqual(data['information_time'], 'real_time')
+        self.assertEqual(data['revisions'], 'none')
+        # 2014 is republished history at the archive start, so the whole year is rejected.
+        self.assertEqual({row['year'] for row in data['employment']}, {2015})
+        # The row date is the day the release that completed the year landed, not '2015-12-31'.
+        self.assertEqual({row['date'] for row in data['employment']}, {'2016-03-10'})
+        # total_nonfarm is replaced by the residual, never emitted alongside its own components.
+        self.assertEqual({row['industry'] for row in data['employment']},
+                         {'ces_supersector:manufacturing', 'ces_supersector:government',
+                          'ces_supersector:mining_logging_construction'})
+        by_industry = {row['industry']: row['employment'] for row in data['employment']
+                       if row['region'] == 'geo:US:state:01'}
+        self.assertAlmostEqual(by_industry['ces_supersector:manufacturing'], 100.0)
+        self.assertAlmostEqual(by_industry['ces_supersector:mining_logging_construction'], 400.0 - 300.0)
+        self.assertEqual(data['construction']['release_dates'], {'2015': '2016-03-10'})
+
+    def test_ces_sae_panel_ignores_a_revision_published_after_the_release(self):
+        """The +50 revision at 2017-04-10 is in the fixture; no row may contain it."""
+        from worldmodel.estimation.loaders import ces_sae_regional_data
+        self.store.write('fred_state_employment_vintages', self._ces_sae_records())
+        data, _ = ces_sae_regional_data(self.store, min_rows=1)
+        levels = {row['employment'] for row in data['employment']}
+        # First releases are 100 / 200 / residual 100; the 2017-04-10 revision would give 150 / 250 / 150.
+        self.assertEqual(levels, {100.0, 200.0}, f'a post-release revision reached the panel: {sorted(levels)}')
+
 
 class PreRegisteredPlanTests(unittest.TestCase):
     def test_plan_attempts_are_runnable_declarations(self):
