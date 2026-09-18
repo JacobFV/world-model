@@ -308,6 +308,26 @@ class CensusAspepTests(FullPipelineBase):
         with self.assertRaisesRegex(Exception, 'matches no documented ASPEP layout'):
             self.build('census_aspep', [('aspep_2004.zip', self.archive(2004, rows, widened))])
 
+    def test_a_unit_function_printed_on_two_lines_is_summed_and_says_so(self):
+        rows = [id_row(self.SCHOOL, 'Example ISD', '2', 'Dakota', '27', '037', 2153, '90', '03', probability='0.3000')]
+        data = [unflagged_row(self.SCHOOL, '000', 92, 246185, 104, 76878, 9608, 144),
+                unflagged_row(self.SCHOOL, '012', 48, 148518, 44, 39917, 4886, 76),
+                unflagged_row(self.SCHOOL, '012', 25, 54823, 14, 7346, 951, 30)]
+        records = self.build('census_aspep', [('aspep_1995.zip', self.archive(1995, rows, data,
+                                                                             packaging='nested_zip'))])
+        instructional = [r for r in self.by(records, metric='government_employees')
+                         if r['dimensions']['function_code'] == '012'
+                         and r['dimensions']['employment_status'] == 'full_time']
+        self.assertEqual([(r['value'], r['attributes']['source_rows_merged']) for r in instructional], [(73, 2)])
+        payroll = [r for r in self.by(records, metric='government_payroll')
+                   if r['dimensions']['function_code'] == '012'
+                   and r['dimensions']['employment_status'] == 'full_time']
+        self.assertEqual([r['value'] for r in payroll], [148518 + 54823])
+        total = [r for r in self.by(records, metric='government_employees')
+                 if r['dimensions']['function_code'] == '000'
+                 and r['dimensions']['employment_status'] == 'full_time']
+        self.assertEqual([(r['value'], r['attributes']['source_rows_merged']) for r in total], [(92, 1)])
+
     def test_a_flagged_width_holding_no_flags_is_rejected_rather_than_mis_read(self):
         """The guard that stops the two-position shift from being read as plausible wrong numbers."""
         rows = [id_row(self.COUNTY, 'Autauga County', '3', 'Autauga', '01', '001', 41000, '90')]

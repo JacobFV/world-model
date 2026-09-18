@@ -331,40 +331,65 @@ class Aspep:
 
     # ----- the employment and payroll data --------------------------------------------------------
     def data(self, index, shard, year):
-        """Read the unit data member: one observation per unit, item code and measure."""
+        """Read the unit data member: one observation per unit, item code and measure.
+
+        A few years print the same unit and item code on two lines with different values — 14 pairs in
+        1995 and one in 1999, measured across the 31 acquired years. They are components of one
+        unit-function cell, not competing estimates of it, so they are summed and the merge is recorded
+        in `attributes.source_rows_merged`. Emitting them separately would leave two observations with
+        identical subject, metric and dimensions, which belief materialization reads as a conflict.
+        """
         lines, member = _member(shard, DATA_MEMBER)
         layout, width = _data_layout(shard, lines)
         table = FLAGGED_COLUMNS if layout == 'flagged' else UNFLAGGED_COLUMNS
         basis = 'census_of_governments' if year in CENSUS_YEARS else 'annual_sample'
         bounds = {'valid_from': f'{year:04d}-03-01', 'valid_to': f'{year:04d}-04-01'}
+        cells = {}
+        order = []
         for number, line in enumerate(lines, start=1):
-            locator = f'shard:{shard["index"]}/member:{member}/line:{number}'
-            if len(line) < 64 or not line[:14].isdigit():
-                continue
+            if len(line) < 64 or not line[:14].isdigit() or line[:2] == '00':
+                continue  # short rows and the national aggregate; see `directory`
             unit_id = line[0:14]
-            if unit_id[:2] == '00':
-                continue  # national aggregate; see `directory`
-            unit_type = line[2:3]
             item = line[17:20].strip() or '000'
-            unit = self.units.get(unit_id)
-            columns = [column for column in table if column[0][1] <= len(line)]
-            for (start, end), flag_at, status, metric, measure_unit in columns:
+            key = (unit_id, item)
+            cell = cells.get(key)
+            if cell is None:
+                cells[key] = cell = {'unit_type': line[2:3], 'line': number, 'rows': 0, 'values': {}}
+                order.append(key)
+            cell['rows'] += 1
+            for (start, end), flag_at, status, metric, measure_unit in table:
+                if end > len(line):
+                    continue
                 value = _int(line[start:end])
-                if value is None or (value == 0 and item != '000'):
+                if value is None:
                     continue
                 flag, flag_class = _flag(line, flag_at)
+                current = cell['values'].get((metric, status))
+                if current is None:
+                    cell['values'][(metric, status)] = [value, measure_unit, flag, flag_class]
+                else:
+                    current[0] += value
+        for key in order:
+            unit_id, item = key
+            cell = cells[key]
+            unit = self.units.get(unit_id)
+            kind, level = UNIT_TYPES.get(cell['unit_type'], ('unknown', 'unknown'))
+            locator = f'shard:{shard["index"]}/member:{member}/line:{cell["line"]}'
+            for (metric, status), (value, measure_unit, flag, flag_class) in cell['values'].items():
+                if value == 0 and item != '000':
+                    continue
                 yield self.base(shard, index, 'observation', [metric, year, unit_id, item, status], locator,
                                 subject=f'aspep:unit:{unit_id}', metric=metric, value=value, unit=measure_unit, **bounds,
                                 dimensions={'function_code': item, 'function': FUNCTIONS.get(item),
                                             'employment_status': status, 'survey_year': year,
-                                            'collection_basis': basis,
-                                            'government_type': UNIT_TYPES.get(unit_type, ('unknown', 'unknown'))[0],
-                                            'government_level': UNIT_TYPES.get(unit_type, ('unknown', 'unknown'))[1],
+                                            'collection_basis': basis, 'government_type': kind,
+                                            'government_level': level,
                                             'reference_period': 'march', 'frequency': 'annual'},
                                 attributes={'source_dataset': DATASET, 'individual_unit_id': unit_id,
                                             'data_flag': flag, 'data_flag_class': flag_class,
                                             'data_flags_published': layout == 'flagged',
                                             'record_layout': f'{layout}_{width}_character',
+                                            'source_rows_merged': cell['rows'],
                                             'payroll_basis': '31_day_monthly_equivalent_for_march' if measure_unit == 'USD' else None,
                                             'zero_values_omitted_except_total': True,
                                             'fips_state': (unit or {}).get('fips_state') or None,
