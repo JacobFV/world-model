@@ -99,13 +99,16 @@ says should happen. The delta is therefore an addition, not a replacement.
 
 | Dataset | aggregate-only artifact | rebuilt artifact | delta | dataset dir before → after |
 | --- | ---: | ---: | ---: | --- |
-| `fec_individual_contributions` | 0.0309 GiB | **1.4472 GiB** | **+1.4473 GiB** | 2.0673 → 3.5146 GiB |
-| `fec_individual_contributions_2024` | 0.0375 GiB | **2.7541 GiB** | **+2.7541 GiB** | 3.9903 → 6.7438 GiB |
+| `fec_individual_contributions` | 0.0309 GiB | **1.4472 GiB** | **+1.4472 GiB** | 2.0673 → 3.5145 GiB |
+| `fec_individual_contributions_2024` | 0.0375 GiB | **2.7543 GiB** | **+2.7543 GiB** | 3.9903 → 6.7447 GiB |
+| `fec_individual_contributions_2022` | 0.0363 GiB | **3.1209 GiB** | **+3.1210 GiB** | 4.8943 → 8.0153 GiB |
+| **total** | 0.1047 GiB | **7.3224 GiB** | **+7.3225 GiB** | 10.9519 → 18.2745 GiB |
 
 | Dataset | rebuilt version | aggregate-only version | `records.jsonl.gz` bytes | rows | build time |
 | --- | --- | --- | ---: | ---: | ---: |
 | 2026 cycle | `4c5960d6…` | `75a9e71b…` | 1,551,024,762 | 33,422,616 | 27m18s |
 | 2024 | `83a01f42…` | `5e478131…` | 2,954,550,535 | 60,086,927 | 49m38s |
+| 2022 | `1f44d0ca…` | `851f1eed…` | 3,348,218,809 | 65,745,114 | 48m48s |
 
 Cost per contributor row: **about 48-50 bytes gzipped**. That is far less than the ~1,649 bytes each
 record occupies uncompressed, because the ~700-byte `rights_decision` and `use_restriction` block
@@ -133,6 +136,8 @@ key** moved.
 | --- | ---: | ---: | --- | --- | --- |
 | `fec_individual_contributions` | **31,658,308** | 1,764,308 | `34f17ebd…` | `34f17ebd…` | **yes** |
 | `fec_individual_contributions_2024` | **57,986,091** | 2,100,836 | `6a94d078…` | `6a94d078…` | **yes** |
+| `fec_individual_contributions_2022` | **63,718,344** | 2,026,770 | `bd79c128…` | `bd79c128…` | **yes** |
+| **total** | **153,362,743** | 5,891,914 | | | |
 
 Every contributor-row count matches the independent pre-build count of §3 exactly, which is a
 second, separate check that the pipeline's filters did not change: the rows added are precisely the
@@ -330,3 +335,50 @@ that this question is now *askable* on this catalog — it was not before, since
 employer — and that the naive version of it returns nothing.
 
 
+
+## 8. Final state
+
+**Disk.** 1,589 GB free on `/` at the end, against a hard floor of 100 GB — the floor was never
+approached and no rebuild had to be abandoned. The three rebuilds ran strictly sequentially, with a
+free-space check between each; the chained runner was set to stop outright below a 200 GB margin and
+never tripped. Total added: **7.3225 GiB** across the three dataset directories (10.9519 → 18.2745
+GiB), which is the whole cost of the exercise.
+
+**Budget.** Unchanged, and deliberately so:
+
+| Dataset | fair-share allocation | used | before |
+| --- | ---: | ---: | ---: |
+| `fec_individual_contributions` | 2.036 GiB | 2.036 GiB | 2.036 GiB |
+| `fec_individual_contributions_2022` | 4.858 GiB | 4.858 GiB | 4.858 GiB |
+| `fec_individual_contributions_2024` | 3.953 GiB | 3.953 GiB | 3.953 GiB |
+
+All three remain far inside the 25 GiB per-dataset fair share, but that is not the interesting fact:
+`worldmodel.budget.scan_bytes` only counts `artifacts/raw/` and acquisition staging, so the ledger
+would have read the same numbers even if the rebuild had written ten times as much. **The fair-share
+budget does not constrain normalized output at all.** Anyone sizing a rebuild of this kind should
+measure the filesystem, not `wm budget`.
+
+**Tests.** `python3 -m unittest tests.test_politics_procurement_datasets tests.test_rights` — 24
+tests, all passing, including the new per-cycle regression test. The full suite was deliberately not
+run: five agents were writing this tree concurrently and `capture_code` raises on any concurrent
+edit, which is the same guard that killed the first rebuild attempt (§4).
+
+## 9. What this workstream did and did not establish
+
+**Established.** The rights mechanism works end to end on real data at real scale: three datasets,
+**153,362,743 contributor rows**, every one carrying the decision that produced it, and 5,891,914
+aggregate rows whose values are byte-identical to the aggregate-only builds. The flag adds rows; it
+moves nothing. Contributor-level data makes at least one question answerable that was not —
+geographic concentration at full ZIP — with no inference of any kind, and it replicates across two
+cycles.
+
+**Not established.** That employer-name joins are good enough to build on. They are inferred, they
+are 97-100% precise on a hand-adjudicated sample of 80 keys for SEC and demonstrably worse for
+USAspending (one worked false positive attributing $8.7M to a military college), and they can reach
+at most ~60% of the dollars because 38-42% of itemized giving reports RETIRED, NOT EMPLOYED or SELF.
+Nothing from those joins was written into the catalog, and nothing should be until there is a
+published crosswalk or a labelled sample large enough to put an interval on.
+
+**Not attempted, on purpose.** Any resolution of contributor names into persons. The same reported
+name in two cycles is two strings here. The measured cost of doing otherwise on this catalog is 0.4%
+recall at 2.3% precision and 103,211 wrongly merged entities.
