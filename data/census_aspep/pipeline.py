@@ -1,14 +1,23 @@
 """Census ASPEP: state and local government employment and payroll, per government unit and function.
 
-Each raw shard is one year's *Individual Unit Files* archive, holding two fixed-width ASCII members:
+Each raw shard is one survey year's archive, holding two fixed-width ASCII members:
 
-* ``<yy>empid.txt`` — the directory of government units: name, unit type, Census region, county name,
+* ``<yy>empid`` — the directory of government units: name, unit type, Census region, county name,
   **FIPS state and FIPS county**, population/enrollment/activity code, school level and the unit's
-  probability of selection.
-* ``<yy>empst.txt`` — the data: for each unit and each item code (functional category), full-time and
-  part-time employees and payroll, each with a data flag saying whether the value was reported or
-  imputed. Payroll is the 31-day monthly equivalent for **March** of the survey year. Files through
-  2016 also carry part-time hours and full-time-equivalent employees.
+  probability of selection. 206 characters through 2020, 213 from 2021 (which adds the New
+  Individual Unit ID), with every field this pipeline reads at the same position in both.
+* ``<yy>empst`` — the data: for each unit and each item code (functional category), full-time and
+  part-time employees and payroll, part-time hours and full-time-equivalent employees. Payroll is
+  the 31-day monthly equivalent for **March** of the survey year.
+
+The packaging and the data layout both changed several times, and neither is announced in the file:
+
+* Members are ``.txt`` (2014-2024), ``.dat`` inside a subdirectory (2012-2013) or a **nested ZIP**
+  holding one ``.DAT`` (1993-2011). Census-of-governments years prefix the name with ``c``.
+* The data record is 84 characters before 2007 and carries **no data flags**, so its payroll and
+  part-time fields sit two positions earlier than the documented layout. Reading it with the
+  documented positions yields plausible wrong numbers instead of an error, so the layout is chosen
+  from the record width and then checked against the bytes; an unknown width raises.
 
 The 14-character legacy Individual Unit ID is the longitudinal key: state code, unit type code, county
 code, unit identification number, supplement code and sub code. It is *not* a FIPS code; the FIPS state
@@ -19,9 +28,12 @@ Shards are processed newest year first so each unit's entity record carries its 
 name. Unit entities and their `within` containment are emitted once at the end of the run, dated by the
 span of years the unit was actually observed in, rather than once per unit-year.
 """
+import io
+import os
 import re
+import zipfile
+from collections import Counter
 
-from worldmodel.raw_readers import iter_rows
 from worldmodel.util import digest
 
 DATASET = 'census_aspep'
@@ -62,18 +74,36 @@ REGIONS = {'1': 'Northeast', '2': 'Midwest', '3': 'South', '4': 'West'}
 REPORTED_FLAGS = frozenset('CKRTUVZ')
 IMPUTED_FLAGS = frozenset('ABDGJPQX')
 
-#: (value slice, flag position, employment status, metric, unit) for the data file. Positions 1-70 are
-#: identical in every published vintage; part-time hours and full-time equivalents appear only
-#: through 2016, and the 2021+ layout reuses positions 75-80 for the New Individual Unit ID.
-DATA_COLUMNS = (((20, 30), 31, 'full_time', 'government_employees', 'people'),
-                ((32, 44), 45, 'full_time', 'government_payroll', 'USD'),
-                ((46, 56), 57, 'part_time', 'government_employees', 'people'),
-                ((58, 70), 71, 'part_time', 'government_payroll', 'USD'))
-LEGACY_COLUMNS = (((72, 82), 83, 'part_time', 'government_part_time_hours', 'hours'),
-                  ((84, 94), None, 'full_time_equivalent', 'government_employees', 'people'))
+#: The data file has two layouts, and they are **not** the same columns with a different tail.
+#:
+#: `flagged` is the one the 2014 and 2023 technical documentation describe: each value is followed by
+#: a one-character data flag. Acquired record widths using it are 72, 80, 94 and 96 characters.
+#:
+#: `unflagged` is the pre-2007 layout. It publishes no data flags at all, so every payroll and
+#: part-time field sits **two positions earlier**. Reading it with the documented positions does not
+#: fail loudly — the straddled slices still parse as integers for most rows — it silently returns
+#: wrong numbers. The only acquired width using it is 84 characters.
+#:
+#: Each entry is (value slice, flag position or None, employment status, metric, unit).
+FLAGGED_COLUMNS = (((20, 30), 31, 'full_time', 'government_employees', 'people'),
+                   ((32, 44), 45, 'full_time', 'government_payroll', 'USD'),
+                   ((46, 56), 57, 'part_time', 'government_employees', 'people'),
+                   ((58, 70), 71, 'part_time', 'government_payroll', 'USD'),
+                   ((72, 82), 83, 'part_time', 'government_part_time_hours', 'hours'),
+                   ((84, 94), None, 'full_time_equivalent', 'government_employees', 'people'))
+UNFLAGGED_COLUMNS = (((20, 30), None, 'full_time', 'government_employees', 'people'),
+                     ((30, 42), None, 'full_time', 'government_payroll', 'USD'),
+                     ((42, 52), None, 'part_time', 'government_employees', 'people'),
+                     ((52, 64), None, 'part_time', 'government_payroll', 'USD'),
+                     ((64, 74), None, 'part_time', 'government_part_time_hours', 'hours'),
+                     ((74, 84), None, 'full_time_equivalent', 'government_employees', 'people'))
+#: Modal data-record width -> layout. An unseen width raises rather than being parsed on a guess.
+DATA_LAYOUTS = {72: 'flagged', 80: 'flagged', 94: 'flagged', 95: 'flagged', 96: 'flagged', 84: 'unflagged'}
 
-READER = {'format': 'csv', 'encoding': 'latin-1', 'delimiter': '\x01', 'quoting': 'none',
-          'fieldnames': ['line'], 'strict': False}
+#: Members inside a year's archive. Census-of-governments years prefix the name with `c`, the
+#: extension is `.txt`, `.dat` or a nested `.zip`, and 2012-2015 bury them in a subdirectory.
+ID_MEMBER = re.compile(r'^\d\dc?empid\.(txt|dat|zip)$', re.I)
+DATA_MEMBER = re.compile(r'^\d\dc?empst\.(txt|dat|zip)$', re.I)
 
 
 def run(context):
@@ -125,6 +155,64 @@ def _flag(line, position):
     return flag, ('reported' if flag in REPORTED_FLAGS else 'imputed' if flag in IMPUTED_FLAGS else 'unknown')
 
 
+def _member(shard, pattern):
+    """Read one member of a year's archive, descending a single nested ZIP level when present.
+
+    Returns ``(lines, locator)``. The locator names the outer member, and a nested member as
+    ``outer.zip!INNER.DAT``, so a record's evidence points at the exact file its bytes came from.
+    A nested archive cannot be streamed, so its member is buffered; the largest acquired one is the
+    2012 census data file at roughly 60 MB.
+    """
+    with zipfile.ZipFile(shard['path']) as archive:
+        names = sorted(archive.namelist())
+        matches = [name for name in names if pattern.match(os.path.basename(name))]
+        if not matches:
+            raise ValueError(f'{DATASET}: {_name(shard)} has no member matching {pattern.pattern}; '
+                             f'members {[os.path.basename(n) for n in names]}')
+        name = matches[0]
+        payload = archive.read(name)
+        locator = name
+        if os.path.basename(name).lower().endswith('.zip'):
+            with zipfile.ZipFile(io.BytesIO(payload)) as inner:
+                inner_names = sorted(inner.namelist())
+                if len(inner_names) != 1:
+                    raise ValueError(f'{DATASET}: nested {name} holds {inner_names}, expected one member')
+                payload = inner.read(inner_names[0])
+                locator = f'{name}!{inner_names[0]}'
+    return payload.decode('latin-1').splitlines(), locator
+
+
+def _data_layout(shard, lines):
+    """Pick the data-file layout from the modal record width, then check the choice against the bytes.
+
+    The width alone decides, so the choice is deterministic. The check exists because reading the
+    unflagged layout with the documented positions produces plausible wrong numbers rather than an
+    error: a flagged file must carry letters where the flags belong, and an unflagged file must not.
+    """
+    widths = Counter(len(line) for line in lines if line.strip())
+    if not widths:
+        raise ValueError(f'{DATASET}: {_name(shard)} data member is empty')
+    width = widths.most_common(1)[0][0]
+    layout = DATA_LAYOUTS.get(width)
+    if layout is None:
+        raise ValueError(f'{DATASET}: {_name(shard)} data records are {width} characters wide, which matches no '
+                         f'documented ASPEP layout ({sorted(DATA_LAYOUTS)}); refusing to guess its columns')
+    alphabetic = sampled = 0
+    for line in lines[:20000]:
+        if len(line) < 72 or line[:2] == '00':
+            continue
+        sampled += 1
+        alphabetic += sum(line[position].isalpha() for position in (31, 45, 57, 71))
+    share = alphabetic / max(4 * sampled, 1)
+    if layout == 'flagged' and sampled and share < 0.5:
+        raise ValueError(f'{DATASET}: {_name(shard)} is {width} characters, which the layout table calls flagged, '
+                         f'but only {share:.1%} of flag positions hold a letter')
+    if layout == 'unflagged' and sampled and share > 0.05:
+        raise ValueError(f'{DATASET}: {_name(shard)} is {width} characters, which the layout table calls unflagged, '
+                         f'but {share:.1%} of the documented flag positions hold a letter')
+    return layout, width
+
+
 def _reference_year(two_digit, file_year):
     """Resolve the ID file's two-digit population/enrollment year against the survey year."""
     value = _int(two_digit)
@@ -172,10 +260,10 @@ class Aspep:
 
     # ----- the unit directory ---------------------------------------------------------------------
     def directory(self, index, shard, year):
-        """Read ``<yy>empid.txt``: register units and emit their population/enrollment for this year."""
-        config = {**READER, 'members': ['*empid.txt']}
-        for locator, row in iter_rows([shard], config):
-            line = row['line']
+        """Read the unit ID member: register units and emit their population/enrollment for this year."""
+        lines, member = _member(shard, ID_MEMBER)
+        for number, line in enumerate(lines, start=1):
+            locator = f'shard:{shard["index"]}/member:{member}/line:{number}'
             if len(line) < 114 or not line[:14].isdigit():
                 continue
             unit_id = line[0:14]
@@ -243,13 +331,15 @@ class Aspep:
 
     # ----- the employment and payroll data --------------------------------------------------------
     def data(self, index, shard, year):
-        """Read ``<yy>empst.txt``: one observation per unit, item code and measure."""
-        config = {**READER, 'members': ['*empst.txt']}
+        """Read the unit data member: one observation per unit, item code and measure."""
+        lines, member = _member(shard, DATA_MEMBER)
+        layout, width = _data_layout(shard, lines)
+        table = FLAGGED_COLUMNS if layout == 'flagged' else UNFLAGGED_COLUMNS
         basis = 'census_of_governments' if year in CENSUS_YEARS else 'annual_sample'
         bounds = {'valid_from': f'{year:04d}-03-01', 'valid_to': f'{year:04d}-04-01'}
-        for locator, row in iter_rows([shard], config):
-            line = row['line']
-            if len(line) < 70 or not line[:14].isdigit():
+        for number, line in enumerate(lines, start=1):
+            locator = f'shard:{shard["index"]}/member:{member}/line:{number}'
+            if len(line) < 64 or not line[:14].isdigit():
                 continue
             unit_id = line[0:14]
             if unit_id[:2] == '00':
@@ -257,7 +347,7 @@ class Aspep:
             unit_type = line[2:3]
             item = line[17:20].strip() or '000'
             unit = self.units.get(unit_id)
-            columns = DATA_COLUMNS + (LEGACY_COLUMNS if len(line) >= 94 else ())
+            columns = [column for column in table if column[0][1] <= len(line)]
             for (start, end), flag_at, status, metric, measure_unit in columns:
                 value = _int(line[start:end])
                 if value is None or (value == 0 and item != '000'):
@@ -273,6 +363,8 @@ class Aspep:
                                             'reference_period': 'march', 'frequency': 'annual'},
                                 attributes={'source_dataset': DATASET, 'individual_unit_id': unit_id,
                                             'data_flag': flag, 'data_flag_class': flag_class,
+                                            'data_flags_published': layout == 'flagged',
+                                            'record_layout': f'{layout}_{width}_character',
                                             'payroll_basis': '31_day_monthly_equivalent_for_march' if measure_unit == 'USD' else None,
                                             'zero_values_omitted_except_total': True,
                                             'fips_state': (unit or {}).get('fips_state') or None,

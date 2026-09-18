@@ -4,6 +4,7 @@ Each test writes a few fictional rows in the publisher's raw layout — fixed-wi
 a zipped fact file plus its DT*.txt dimension tables for FedScope — publishes them as a sharded raw
 artifact in a temporary data root, and runs the dataset-local pipeline through the Runner. No network.
 """
+import io
 import json
 from pathlib import Path
 import tempfile
@@ -80,7 +81,7 @@ def id_row(unit, name, region, county_name, fips_state, fips_county, population=
 
 def data_row(unit, item, ft_employees, ft_flag, ft_payroll, ft_pay_flag, pt_employees, pt_flag,
              pt_payroll, pt_pay_flag, pt_hours=None, pt_hours_flag=None, fte=None, new_id=''):
-    """Build one ``<yy>empst.txt`` record: 80 characters, or 94 for the pre-2017 layout."""
+    """Build one flagged ``<yy>empst`` record: 80 characters, or 94 for the 2007-2018 layout."""
     width = 94 if pt_hours is not None else 80
     line = [' '] * width
     def put(start, text, size):
@@ -105,15 +106,53 @@ def data_row(unit, item, ft_employees, ft_flag, ft_payroll, ft_pay_flag, pt_empl
     return ''.join(line)
 
 
+def unflagged_row(unit, item, ft_employees, ft_payroll, pt_employees, pt_payroll, pt_hours, fte):
+    """Build one pre-2007 ``<yy>empst`` record: 84 characters, no data flags, payroll two columns left."""
+    line = [' '] * 84
+    def put(start, text, size):
+        text = str(text)[:size]
+        line[start:start + len(text)] = list(text)
+    put(0, unit, 14)
+    put(17, item, 3)
+    put(20, str(ft_employees).rjust(10), 10)
+    put(30, str(ft_payroll).rjust(12), 12)
+    put(42, str(pt_employees).rjust(10), 10)
+    put(52, str(pt_payroll).rjust(12), 12)
+    put(64, str(pt_hours).rjust(10), 10)
+    put(74, str(fte).rjust(10), 10)
+    return ''.join(line)
+
+
 class CensusAspepTests(FullPipelineBase):
     COUNTY = unit_id('01', '1', '001', '001')
     SCHOOL = unit_id('01', '5', '030', '002')
     DISTRICT = unit_id('01', '4', '007', '003')
 
-    def archive(self, year, id_rows, data_rows):
+    def archive(self, year, id_rows, data_rows, packaging='txt'):
+        """Build a year's archive in one of the publisher's three packagings."""
         yy = f'{year % 100:02d}'
-        return self.zipped(f'aspep_{year}.zip', {f'{yy}empid.txt': '\n'.join(id_rows) + '\n',
-                                                 f'{yy}empst.txt': '\n'.join(data_rows) + '\n'})
+        prefix = 'c' if year in (1997, 2002, 2007, 2012, 2017, 2022) else ''
+        id_text = '\n'.join(id_rows) + '\n'
+        data_text = '\n'.join(data_rows) + '\n'
+        if packaging == 'txt':
+            members = {f'{yy}{prefix}empid.txt': id_text, f'{yy}{prefix}empst.txt': data_text}
+        elif packaging == 'dat_subdirectory':
+            members = {f'{year}_downloadable_data/Individual Unit File/{yy}{prefix}empid.dat': id_text,
+                       f'{year}_downloadable_data/Individual Unit File/{yy}{prefix}empst.dat': data_text}
+        elif packaging == 'nested_zip':
+            members = {f'{yy}{prefix}empid.zip': self.inner_zip(f'{yy.upper()}{prefix.upper()}EMPID.DAT', id_text),
+                       f'{yy}{prefix}empst.zip': self.inner_zip(f'{yy.upper()}{prefix.upper()}EMPST.DAT', data_text),
+                       f'{yy}fedfun.txt': 'unrelated federal function table\n'}
+        else:
+            raise AssertionError(packaging)
+        return self.zipped(f'aspep_{year}.zip', members)
+
+    @staticmethod
+    def inner_zip(name, text):
+        buffer = io.BytesIO()
+        with zipfile.ZipFile(buffer, 'w', zipfile.ZIP_DEFLATED) as archive:
+            archive.writestr(name, text)
+        return buffer.getvalue()
 
     def test_units_functions_flags_and_the_fips_geography_join(self):
         rows_2023 = [id_row('00000000000000', 'United States', ' ', '', '00', '   ', 331449281, '20'),
@@ -224,6 +263,58 @@ class CensusAspepTests(FullPipelineBase):
                                               '23empst.txt': data_row(self.COUNTY, '000', 1, 'R', 1, 'R', 0, ' ', 0, ' ') + '\n'})
         with self.assertRaisesRegex(Exception, 'aspep_<year>.zip'):
             self.build('census_aspep', [('23empst.zip', archive)])
+
+    def test_nested_zip_dat_and_txt_packagings_all_read(self):
+        """1993-2011 nest a ZIP inside the archive, 2012-2013 bury a .dat, 2014+ ship a plain .txt."""
+        rows = [id_row(self.COUNTY, 'Autauga County', '3', 'Autauga', '01', '001', 41000, '90', probability='0.4000')]
+        cases = [(2001, 'nested_zip', [unflagged_row(self.COUNTY, '000', 90, 400000, 20, 40000, 3000, 105)]),
+                 (2013, 'dat_subdirectory', [data_row(self.COUNTY, '000', 100, 'R', 500000, 'R', 25, 'R', 50000, 'R',
+                                                      pt_hours=3500, pt_hours_flag='R', fte=118)]),
+                 (2023, 'txt', [data_row(self.COUNTY, '000', 120, 'R', 700000, 'R', 40, 'R', 90000, 'R')])]
+        files = [(f'aspep_{year}.zip', self.archive(year, rows, data, packaging=packaging))
+                 for year, packaging, data in cases]
+        records = self.build('census_aspep', files)
+        full_time = {r['dimensions']['survey_year']: r['value'] for r in
+                     self.by(records, metric='government_employees') if r['dimensions']['employment_status'] == 'full_time'}
+        self.assertEqual(full_time, {2001: 90, 2013: 100, 2023: 120})
+        locators = {r['dimensions']['survey_year']: r['evidence'][0]['locator'] for r in
+                    self.by(records, metric='government_payroll')}
+        self.assertIn('member:01empst.zip!01EMPST.DAT', locators[2001])
+        self.assertIn('2013_downloadable_data/Individual Unit File/13empst.dat', locators[2013])
+        self.assertIn('member:23empst.txt', locators[2023])
+
+    def test_the_pre_2007_unflagged_layout_reads_its_own_columns(self):
+        """The 84-character record has no data flags, so payroll sits two positions to the left."""
+        rows = [id_row(self.COUNTY, 'Autauga County', '3', 'Autauga', '01', '001', 41000, '90', probability='0.4000')]
+        data = [unflagged_row(self.COUNTY, '000', 74510, 252908025, 27864, 26650319, 1941617, 85640)]
+        records = self.build('census_aspep', [('aspep_2003.zip', self.archive(2003, rows, data,
+                                                                             packaging='nested_zip'))])
+        values = {(r['metric'], r['dimensions']['employment_status']): r['value'] for r in records
+                  if r['kind'] == 'observation' and 'employment_status' in r['dimensions']}
+        self.assertEqual(values[('government_employees', 'full_time')], 74510)
+        self.assertEqual(values[('government_payroll', 'full_time')], 252908025)
+        self.assertEqual(values[('government_employees', 'part_time')], 27864)
+        self.assertEqual(values[('government_payroll', 'part_time')], 26650319)
+        self.assertEqual(values[('government_part_time_hours', 'part_time')], 1941617)
+        self.assertEqual(values[('government_employees', 'full_time_equivalent')], 85640)
+        payroll = next(r for r in self.by(records, metric='government_payroll')
+                       if r['dimensions']['employment_status'] == 'full_time')
+        self.assertEqual((payroll['attributes']['data_flags_published'], payroll['attributes']['data_flag'],
+                          payroll['attributes']['record_layout']), (False, None, 'unflagged_84_character'))
+
+    def test_an_undocumented_record_width_refuses_to_guess(self):
+        rows = [id_row(self.COUNTY, 'Autauga County', '3', 'Autauga', '01', '001', 41000, '90')]
+        widened = [unflagged_row(self.COUNTY, '000', 90, 400000, 20, 40000, 3000, 105) + '   EXTRA']
+        with self.assertRaisesRegex(Exception, 'matches no documented ASPEP layout'):
+            self.build('census_aspep', [('aspep_2004.zip', self.archive(2004, rows, widened))])
+
+    def test_a_flagged_width_holding_no_flags_is_rejected_rather_than_mis_read(self):
+        """The guard that stops the two-position shift from being read as plausible wrong numbers."""
+        rows = [id_row(self.COUNTY, 'Autauga County', '3', 'Autauga', '01', '001', 41000, '90')]
+        # 94 characters (a flagged width) but built with the unflagged column positions and no flags.
+        mislabelled = [(unflagged_row(self.COUNTY, '000', 90, 400000, 20, 40000, 3000, 105) + ' ' * 10)]
+        with self.assertRaisesRegex(Exception, 'the layout table calls flagged'):
+            self.build('census_aspep', [('aspep_2009.zip', self.archive(2009, rows, mislabelled))])
 
 
 AGENCIES = ('AGYTYP,AGYTYPT,AGY,AGYT,AGYSUB,AGYSUBT\n'
