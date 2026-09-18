@@ -40,6 +40,20 @@ filename, found only on the 2022 COG datasets page. A plausible-looking guess,
 table, and `1996/1996_individual_unit_files.zip` is a hard 404. The acquisition declares the year with
 `skip_statuses: [404]` so it is recorded as skipped rather than silently omitted.
 
+**ASPEP runs back to 1957, but the machine-readable individual-unit files start at 1993.** The research
+plan described this workstream as "ASPEP 1957–", and that is the survey's span, not the span of its
+downloadable microdata. The historical-data page
+(`https://www.census.gov/programs-surveys/apes/data/historical_data.html`, HTTP 200) was scraped in
+full: for 1957-1987 it offers **scanned publications** — `1957-vol2-no1-emp-summary.pdf`,
+`1957-vol2-no2-emp-compendium.zip`, `1962-vol5-loc-govt-in-metro-areas.zip` and so on — plus a set of
+historical databases under `https://www2.census.gov/programs-surveys/gov-finances/datasets/historical/`
+(`Public_Emp.zip`, `City_Govt_Emp.zip`, `County_Area_Emp.zip`, `County_Govt_Emp.zip`, `emp_est.zip`,
+`hist_em.zipp` — that last one is the publisher's typo, not a transcription error here). Those
+historical databases are **not acquired here and not claimed**: their layouts are undocumented on that
+page, they are aggregates rather than individual-unit records, and one of the URLs is malformed at the
+source. They are the obvious next extension and are listed here so the gap is a decision rather than
+an omission. Pre-1993 coverage in this dataset is therefore **zero**, and the description says 1993.
+
 Measured content-lengths (bytes, from HEAD):
 
 | Year | Bytes | Year | Bytes | Year | Bytes |
