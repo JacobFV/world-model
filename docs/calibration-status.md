@@ -16,7 +16,9 @@ each meet every declared criterion and each is the only required component of it
 *substituted* delinquency series but fails on its declared primary series, so it must still be
 read as not validated on the series `requirements.json` names. `coupled_economy` needs nine
 components and has two passing (one of them on a substitute) and seven failing or missing.
-`regional_model` fails on both the short CBP panel and the long QCEW panel. Every failure below
+`regional_model` fails on the short CBP panel, on the long QCEW panel, and on the real-time CES SAE
+panel — but the *reason* changed in the seventh wave: on the real-time panel it passes
+`no_revision_leakage` and `interval_coverage` and fails on skill. Every failure below
 is a result too, recorded with its reason.
 
 **No attempt now fails `minimum_test_forecasts`** (panel-length wave, 2026-09-17). The two that did
@@ -1151,6 +1153,34 @@ that use a national unemployment rate.
    The Census server serves only per-year `nst-est200X-popchgYYYY.csv` and `-compchgYYYY.csv`
    presentation tables for those vintages, so the 2000s come from the V2004-V2007 ALLDATA files plus
    the 2000-2010 national intercensal series (which is what fills 2008 and 2009).
+17. **[FIXED 2026-09-17] A declared conditional input was read across two vintages inside one design
+   row.** `rolling_origin_backtest` built the design row from the origin's point-in-time frame and
+   then substituted the conditional input at the *target* period from the evaluation frame, so any
+   design reading the driver against its own lag compared two vintages. `labor_demand` reads INDPRO
+   only as `log(output_t / output_{t−1})`, and the Federal Reserve rebases that index — the published
+   ALFRED vintages carry thirteen index bases. At the 2005-04 origin the regressor was **−0.2177**
+   against a realized **+0.000493**, the difference being exactly the rebasing factor
+   95.3804 / 118.393 = 0.8056. Components now declare `conditional_rebase` per input; `ratio` carries
+   the realized value onto the origin's vintage through the anchor-period overlap. All seven
+   conditional inputs were measured and only `labor_demand` needed one — `crude_price` and DFF show
+   an overlap factor of exactly 1.000000, `policy_rule` reads its GDP levels at the target period
+   from one vintage, and `default_hazard` reads UNRATE as a level. Five earlier attempts reproduce
+   their report digests exactly afterwards.
+18. **[KNOWN, NOT FIXED] `policy_rule`'s inflation term still mixes vintages mildly.** Its design
+   reads `price_index` at *t* from the evaluation vintage against *t−4* from the origin's, giving
+   0.678%/quarter where the single-vintage figure is 0.504%/quarter (anchor overlap factor 1.0017).
+   CPI revisions are small and this is not why `policy_rule` fails (`beats_persistence_dm`
+   p = 0.673), so it is recorded rather than silently changed: rebasing the CPI onto the origin would
+   move the attempt's declared inflation measure, which is a re-specification and needs its own
+   pre-registration.
+19. **[FIXED 2026-09-17] The conflict holdout scored Poisson while the family simulates negative
+   binomial.** `_conflict_forecast` set `sd = sqrt(mean)`, but
+   `worldmodel.models.conflict.simulate` draws counts as `negative_binomial(rng, lambda, dispersion)`
+   and `dispersion` (nb2_alpha) is a declared family parameter with bounds [0, 50] — `fit_hawkes`
+   never estimated it, so it stayed at 0. Measured over the fit-plus-validation window alone (4,300
+   one-step forecasts) the Poisson Pearson dispersion is **35.9** against the 1.0 assumed.
+   `fit_hawkes` now estimates α by method of moments on its own residuals and reports the Pearson
+   dispersion beside it; α = 0 reproduces `sqrt(mean)` exactly.
 
 ## Method notes
 
@@ -1176,6 +1206,13 @@ that use a national unemployment rate.
 - Coverage is an average. Where forecasts share a common shock — 51 states in one year, 141
   months spanning a dozen revision episodes — the effective number of independent observations
   is far smaller than the count, and the record says so rather than quoting the count.
+- Where several predictive distributions were admissible for one attempt, the rule declared in
+  advance (WS-E, 2026-09-17) is **lowest validation-window CRPS** — a proper score, blind to
+  interval coverage. It is not "coverage closest to nominal", which would be tuning to the
+  criterion. On two of the six attempts where it made a non-trivial choice the rule failed to
+  generalize (`labor_demand`, `regional_model.qcew_state_sectors`), both times because the
+  validation window's volatility regime differs from the holdout's. Neither was re-selected on
+  holdout evidence; both are recorded.
 ## Sixth wave (WS-A: the vintages were mostly already bought)
 
 Eight attempts failed `no_revision_leakage`, the one criterion no modelling change can fix. WS-A

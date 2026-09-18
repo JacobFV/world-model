@@ -76,6 +76,35 @@ and rebuild commands; this page records the conventions they share and how they 
   Metro-area unemployment and payrolls come from `bls_labor` (LAUS, CES state and metro) rather than FRED.
   Deposit rates: SNDR (2021+) from `fred_macro_panel`; SAVNRNJ/MMNRNJ/M2OWN from `fred_deposit_rates`.
 
+## State employment vintages (`fred_state_employment_vintages`)
+
+BLS **CES State and Area (SAE)** payroll employment by state-equivalent and CES supersector, monthly,
+NSA, with every ALFRED real-time vintage. Built because `regional_model` failed `no_revision_leakage`
+on CBP and on QCEW, both of which publish one current vintage — the audit is
+[`docs/research-log/ws-b-employment-vintages.md`](../research-log/ws-b-employment-vintages.md).
+
+- **Published 2026-09-17** (`07d42b0a…`): **949,207 records** from a 0.085 GiB raw artifact
+  (`1bc3940c…`, 603 shards, 91,013,298 bytes). 510 panel series (51 state-equivalents × 9 supersectors
+  + total nonfarm) and 93 residual-check series.
+- **Vintages.** 138 to 253 per series, **2007-06-19 .. 2026-08-21**, one per state employment release.
+  `dimensions.vintage` is the `realtime_start` and `attributes.realtime_end` closes it. The binding
+  constraint for a *complete* panel is state Information, which enters ALFRED on **2011-11-22**, so
+  the panel is real time from 2012 — `config.json`'s `coverage.binding_first_vintage` records it.
+- **Ids are discovered, not templated.** FRED serves the same BLS series under a short alias and under
+  the structured BLS id, and ALFRED coverage differs: `SMU48000003000000001` answers *"does not exist
+  in ALFRED"* where `TXMFGN` has 229 vintages, `TXINFO` has 229 where `CAINFO` has none, and for
+  Delaware only `SMS10000001500000001` is archived. `build_config.py` reads FRED release 112 by title
+  and verifies every id against `series/vintagedates`.
+- **The tenth industry is a within-vintage residual.** Five state-equivalents (DE, DC, HI, MD, NE)
+  publish no aliased mining/logging/construction series, so `total_nonfarm − Σ nine supersectors` is
+  formed by the consumer inside one vintage. Exact where checkable (Texas 2019-06: 1,031.0 = 778.6 +
+  252.4). The 93 `panel_role: 'residual_check'` series exist so that can be re-verified per vintage.
+- **No annual averages are published here.** An annual average is twelve monthly values from *one*
+  vintage; only a consumer that knows which vintage it stands in can form it, which is what keeps it
+  real time. `loaders.ces_sae_regional_data` does it and dates each year by the release that completed
+  it.
+- **Units** are jobs (published thousands of persons × 1000).
+
 ## BEA (`bea_input_output`, `bea_national_regional`) and `treasury_debt`
 
 - **IO identifiers** are `bea_io:<level>:<class>:<code>` with class `industry`, `commodity`, `final_use`,
