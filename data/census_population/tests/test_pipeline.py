@@ -32,8 +32,25 @@ FILES = {
                   '050,4,9,06,075,California,San Francisco County,805235,805505,870000,2000,8900\n',
     'nst2023.csv': 'SUMLEV,REGION,DIVISION,STATE,NAME,ESTIMATESBASE2020,POPESTIMATE2020,POPESTIMATE2023\n'
                    '010,0,0,00,United States,331464948,331526933,334914895\n',
+    # Vintage 2011: SUMLEV '10' and STATE '0' rather than '010'/'00'.
+    'nst2011.csv': 'SUMLEV,REGION,DIVISION,STATE,NAME,CENSUS2010POP,ESTIMATESBASE2010,POPESTIMATE2010,POPESTIMATE2011,'
+                   'BIRTHS2010,BIRTHS2011\n'
+                   '10,0,0,0,United States,308745538,308745538,309330219,311591917,990000,4008000\n'
+                   '40,4,9,6,California,37253956,37253956,37336011,37683933,100000,500000\n',
+    # Vintage 2006: mixed-case field names ('Sumlev', 'births2006') and INTERNALMIG instead of DOMESTICMIG.
+    'nst2006.csv': 'Sumlev,region,division,state,NAME,CENSUS2000POP,ESTIMATESBASE2000,POPESTIMATE2000,POPESTIMATE2006,'
+                   'births2000,births2006,INTERNALMIG2006\n'
+                   '010,0,0,00,United States,281421906,281424602,282216952,299398484,989020,4151889,0\n',
+    # 2000-2010 national intercensal series: one row per (reference month, year, single year of age).
+    'usint.csv': 'MONTH,YEAR,AGE,TOT_POP,TOT_MALE,TOT_FEMALE\n'
+                 '4,2000,999,281424600,138056128,143368472\n'
+                 '7,2000,999,282162411,138411644,143750767\n'
+                 '7,2008,999,304093966,149925000,154168966\n'
+                 '7,2008,30,4200000,2100000,2100000\n'
+                 '4,2010,999,308745538,151781326,156964212\n',
 }
-LAST_MODIFIED = {'nst.csv': 'Thu, 19 Dec 2024 13:35:06 GMT', 'nst2023.csv': 'Tue, 19 Dec 2023 13:55:13 GMT'}
+LAST_MODIFIED = {'nst.csv': 'Thu, 19 Dec 2024 13:35:06 GMT', 'nst2023.csv': 'Tue, 19 Dec 2023 13:55:13 GMT',
+                 'nst2011.csv': 'Tue, 19 Jul 2016 16:50:13 GMT', 'usint.csv': 'Wed, 24 Aug 2016 20:50:33 GMT'}
 
 
 class CensusPopulationFullTest(unittest.TestCase):
@@ -75,6 +92,37 @@ class CensusPopulationFullTest(unittest.TestCase):
                          (334914895, 2023, '2023-12-19T13:55:13Z'))
         self.assertEqual((v2024['value'], v2024['attributes']['released_at']), (336806231, '2024-12-19T13:35:06Z'))
         self.assertEqual(records['pep23:US:population:estimates_base:2020']['value'], 331464948)
+        # Vintage 2011: unpadded SUMLEV/STATE still resolve to the canonical geography ids.
+        v2011 = records['pep11:US:population:2011']
+        self.assertEqual((v2011['value'], v2011['dimensions']['vintage'], v2011['attributes']['released_at']),
+                         (311591917, 2011, '2016-07-19T16:50:13Z'))
+        self.assertEqual(records['pep11:state:06:population:2010']['value'], 37336011)
+        self.assertEqual(records['pep11:US:population:decennial_census:2010']['value'], 308745538)
+        # The base year comes from ESTIMATESBASE, so the first estimate year starts at its April 1 base.
+        self.assertEqual(records['pep11:US:births:2010']['valid_from'], '2010-04-01')
+        self.assertEqual(records['pep11:US:births:2011']['valid_from'], '2010-07-01')
+        # Vintage 2006: mixed-case fields, a 2000 census base, and INTERNALMIG read as domestic migration.
+        v2006 = records['pep06:US:population:2006']
+        self.assertEqual((v2006['value'], v2006['dimensions']['vintage']), (299398484, 2006))
+        self.assertEqual(records['pep06:US:population:estimates_base:2000']['value'], 281424602)
+        self.assertEqual(records['pep06:US:births:2000']['valid_from'], '2000-04-01')
+        self.assertEqual(records['pep06:US:net_domestic_migration:2006']['value'], 0)
+        # Intercensal series: all-ages July-1 totals plus the April-1 census counts, under its own vintage label.
+        intercensal = records['pepint:geo:US:population:2008']
+        self.assertEqual((intercensal['value'], intercensal['valid_from'], intercensal['valid_to']),
+                         (304093966, '2008-07-01', '2008-07-02'))
+        self.assertEqual(intercensal['dimensions'], {'vintage': '2000_2010_intercensal'})
+        self.assertEqual(intercensal['attributes']['released_at'], '2016-08-24T20:50:33Z')
+        self.assertEqual(records['pepint:geo:US:population:2000']['value'], 282162411)
+        self.assertEqual(records['pepint:geo:US:population:decennial_census:2010']['dimensions'],
+                         {'vintage': '2000_2010_intercensal', 'basis': 'decennial_census'})
+        # Age detail is not emitted: a national population row with an age or sex dimension would collide with
+        # the annual national series that the estimation loader selects on metric and subject alone.
+        self.assertFalse([k for k in records if k.startswith('pepint:') and ('male' in k or ':30' in k)])
+        national = [r for r in records.values() if r.get('metric') == 'population' and r.get('subject') == 'geo:US'
+                    and 'basis' not in (r.get('dimensions') or {})]
+        keys = [(r['dimensions']['vintage'], r['valid_from']) for r in national]
+        self.assertEqual(len(keys), len(set(keys)), 'one national population row per vintage and period')
 
 
 if __name__ == '__main__':

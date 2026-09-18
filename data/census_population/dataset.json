@@ -4,12 +4,12 @@
   "dependencies": [],
   "kind": "source",
   "status": "full_acquisition_configured",
-  "description": "Census Population Estimates Program: population and components of change by vintage (2020-2024 vintages; 2010-2020 series from vintage 2020), county characteristics, metro and sub-county totals",
+  "description": "Census Population Estimates Program: population and components of change by vintage (national and state vintages 2004-2007 and 2011-2025, county vintages 2020-2024, plus the 2000-2010 national intercensal series), county characteristics, metro and sub-county totals",
   "source": {
     "publisher": "U.S. Census Bureau, Population Estimates Program",
     "license_status": "public_domain",
     "documentation": "https://www.census.gov/programs-surveys/popest.html",
-    "license_notes": "US federal government work: public domain in the United States (17 U.S.C. 105); no redistribution restriction; cite the publisher. Vintage 2024 estimates (2020-2024) and vintage 2020 intercensal-base estimates (2010-2020); each vintage revises earlier years."
+    "license_notes": "US federal government work: public domain in the United States (17 U.S.C. 105); no redistribution restriction; cite the publisher. Each PEP vintage revises earlier years back to the last decennial census, and all of them are kept. Availability is the HTTP Last-Modified of each published file: for files older than the 2016 census.gov migration that is a migration timestamp (2016-07-19 or later), not the original December release date, so it is an upper bound on when the vintage was knowable."
   },
   "expected_outputs": [
     "population",
@@ -46,9 +46,9 @@
   },
   "acquisition": {
     "strategy": "files",
-    "description": "PEP national/state and county totals with components of change for every vintage 2020-2024 (NST-EST2020..2024, CO-EST2020..2024; each vintage kept separately), vintage 2024 county characteristics (age/sex/race/Hispanic origin), CBSA and sub-county totals",
+    "description": "PEP national/state and county totals with components of change for every vintage the Census server still serves in the machine-readable ALLDATA layout (national/state: V2004-V2007 and V2011-V2025; county: V2020-V2024; each vintage kept separately), the 2000-2010 national intercensal series, vintage 2024 county characteristics (age/sex/race/Hispanic origin), CBSA and sub-county totals. desired_bytes covers two raw artifacts (28 files, 105 MiB, and the superseded 13-file 102 MiB one, retained because the published population_growth_rate.census_pep calibration report pins the normalized output built from it).",
     "documentation": "https://www2.census.gov/programs-surveys/popest/technical-documentation/file-layouts/",
-    "desired_bytes": 115000000,
+    "desired_bytes": 220000000,
     "priority": 3.0,
     "files": [
       {
@@ -102,6 +102,66 @@
       {
         "url": "https://www2.census.gov/programs-surveys/popest/datasets/2020-2023/counties/totals/co-est2023-alldata.csv",
         "name": "co-est2023-alldata.csv"
+      },
+      {
+        "url": "https://www2.census.gov/programs-surveys/popest/datasets/2020-2025/state/totals/NST-EST2025-ALLDATA.csv",
+        "name": "NST-EST2025-ALLDATA.csv"
+      },
+      {
+        "url": "https://www2.census.gov/programs-surveys/popest/datasets/2010-2019/national/totals/nst-est2019-alldata.csv",
+        "name": "nst-est2019-alldata.csv"
+      },
+      {
+        "url": "https://www2.census.gov/programs-surveys/popest/datasets/2010-2018/national/totals/nst-est2018-alldata.csv",
+        "name": "nst-est2018-alldata.csv"
+      },
+      {
+        "url": "https://www2.census.gov/programs-surveys/popest/datasets/2010-2017/national/totals/nst-est2017-alldata.csv",
+        "name": "nst-est2017-alldata.csv"
+      },
+      {
+        "url": "https://www2.census.gov/programs-surveys/popest/datasets/2010-2016/national/totals/nst-est2016-alldata.csv",
+        "name": "nst-est2016-alldata.csv"
+      },
+      {
+        "url": "https://www2.census.gov/programs-surveys/popest/datasets/2010-2015/national/totals/nst-est2015-alldata.csv",
+        "name": "nst-est2015-alldata.csv"
+      },
+      {
+        "url": "https://www2.census.gov/programs-surveys/popest/datasets/2010-2014/national/totals/nst_est2014_alldata.csv",
+        "name": "nst_est2014_alldata.csv"
+      },
+      {
+        "url": "https://www2.census.gov/programs-surveys/popest/datasets/2010-2013/national/totals/nst_est2013_alldata.csv",
+        "name": "nst_est2013_alldata.csv"
+      },
+      {
+        "url": "https://www2.census.gov/programs-surveys/popest/datasets/2010-2012/national/totals/nst_est2012_alldata.csv",
+        "name": "nst_est2012_alldata.csv"
+      },
+      {
+        "url": "https://www2.census.gov/programs-surveys/popest/datasets/2010-2011/national/totals/nst_est2011_alldata.csv",
+        "name": "nst_est2011_alldata.csv"
+      },
+      {
+        "url": "https://www2.census.gov/programs-surveys/popest/datasets/2000-2010/intercensal/national/us-est00int-alldata.csv",
+        "name": "us-est00int-alldata.csv"
+      },
+      {
+        "url": "https://www2.census.gov/programs-surveys/popest/datasets/2000-2007/national/totals/nst-est2007-alldata.csv",
+        "name": "nst-est2007-alldata.csv"
+      },
+      {
+        "url": "https://www2.census.gov/programs-surveys/popest/datasets/2000-2006/national/totals/nst_est2006_alldata.csv",
+        "name": "nst_est2006_alldata.csv"
+      },
+      {
+        "url": "https://www2.census.gov/programs-surveys/popest/datasets/2000-2005/national/totals/nst_est2005_alldata.csv",
+        "name": "nst_est2005_alldata.csv"
+      },
+      {
+        "url": "https://www2.census.gov/programs-surveys/popest/datasets/2000-2004/national/totals/nst_est2004_alldata.csv",
+        "name": "nst_est2004_alldata.csv"
       }
     ],
     "rate_limit": {

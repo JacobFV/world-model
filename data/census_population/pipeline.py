@@ -25,16 +25,36 @@ def _sampled(context, index=0):
 
 # ---------------------------------------------------------------- full PEP files
 READER = {'format': 'csv', 'encoding': 'latin-1'}
-COMPONENT = re.compile(r'^(R?)(POPESTIMATE|NPOPCHG_?|BIRTHS?|DEATHS?|NATURALCHG|NATURALINC|INTERNATIONALMIG|DOMESTICMIG|NETMIG|RESIDUAL|GQESTIMATES)(\d{4})$')
+COMPONENT = re.compile(r'^(R?)(POPESTIMATE|NPOPCHG_?|BIRTHS?|DEATHS?|NATURALCHG|NATURALINC|INTERNATIONALMIG|INTERNALMIG'
+                       r'|DOMESTICMIG|NETMIG|RESIDUAL|GQESTIMATES)(\d{4})$')
 METRICS = {'POPESTIMATE': 'population', 'NPOPCHG': 'population_change', 'BIRTHS': 'births', 'DEATHS': 'deaths',
            'BIRTH': 'births', 'DEATH': 'deaths',
            'NATURALCHG': 'natural_change', 'NATURALINC': 'natural_change', 'INTERNATIONALMIG': 'net_international_migration',
-           'DOMESTICMIG': 'net_domestic_migration', 'NETMIG': 'net_migration', 'RESIDUAL': 'population_change_residual',
+           'DOMESTICMIG': 'net_domestic_migration', 'INTERNALMIG': 'net_domestic_migration',
+           'NETMIG': 'net_migration', 'RESIDUAL': 'population_change_residual',
            'GQESTIMATES': 'group_quarters_population'}
+# April-1 census counts and estimates bases; vintages before 2010 name them CENSUS2000POP / ESTIMATESBASE2000.
+BASIS = re.compile(r'^(?:(CENSUS)(\d{4})POP|(GQ)?(ESTIMATESBASE)(\d{4}))$')
+# Field names and identifier widths drift across vintages: 'Sumlev' in vintage 2012, lowercase 'births2000' in
+# vintage 2006, SUMLEV '10' rather than '010' and STATE '0' rather than '00' in vintage 2011. Normalizing both is a
+# no-op on every file published since 2016.
+PADDED = {'SUMLEV': 3, 'STATE': 2, 'COUNTY': 3, 'PLACE': 5, 'COUSUB': 5}
 RACE = {'WA': 'white_alone', 'BA': 'black_alone', 'IA': 'aian_alone', 'AA': 'asian_alone', 'NA': 'nhpi_alone',
         'TOM': 'two_or_more_races'}
 AGEGRP = {str(i): (f'{5 * (i - 1)}-{5 * i - 1}' if i < 18 else '85+') for i in range(1, 19)}
 REGIONS = {'1': 'Northeast', '2': 'Midwest', '3': 'South', '4': 'West'}
+
+
+def _normalize(row):
+    """Uppercase the field names and zero-pad the geographic identifiers of one source row."""
+    out = {}
+    for key, value in row.items():
+        key = key.upper() if isinstance(key, str) else key
+        width = PADDED.get(key)
+        if width and isinstance(value, str) and value.strip().isdigit():
+            value = value.strip().zfill(width)
+        out[key] = value
+    return out
 
 
 def _value(text):
@@ -75,11 +95,14 @@ class _Out:
         return record
 
 
-def _component_period(name, year, vintage):
-    """PEP components for year Y cover 1 July Y-1 .. 1 July Y; the first year starts at the April 1 census base."""
+def _component_period(name, year, first):
+    """PEP components for year Y cover 1 July Y-1 .. 1 July Y; the first year starts at the April 1 census base.
+
+    ``first`` is the earliest estimate year the row carries, which is the vintage's census base year (2000, 2010 or
+    2020). Reading it from the row rather than from the vintage keeps the pre-2010 vintage files correct.
+    """
     if name in ('POPESTIMATE', 'GQESTIMATES'):
         return f'{year}-07-01', f'{year}-07-02'
-    first = 2020 if vintage == 2024 else 2010
     if year == first:
         return f'{year}-04-01', f'{year}-07-01'
     return f'{year - 1}-07-01', f'{year}-07-01'
@@ -118,6 +141,8 @@ def _geography(row, kind):
 
 
 def _file_kind(row):
+    if 'TOT_POP' in row and 'MONTH' in row:
+        return 'intercensal'   # 2000-2010 national intercensal series: one row per (month, year, age)
     if 'AGEGRP' in row:
         return 'characteristics'
     if 'CBSA' in row:
@@ -143,10 +168,19 @@ def _released(context, index):
     return result
 
 
-def _vintage(row):
-    """A PEP vintage is the last POPESTIMATE year in the file (each vintage revises back to the last census)."""
+def _estimate_years(row):
+    """(census base year, vintage) for one row.
+
+    The vintage is the last POPESTIMATE year (each vintage revises back to the last census). The base year is the
+    year named by the row's ESTIMATESBASE field -- 2000, 2010 or 2020 -- because that is the April-1 base the first
+    estimate year measures from; it falls back to the earliest POPESTIMATE year.
+    """
     years = [int(field[-4:]) for field in row if field.startswith('POPESTIMATE') and field[-4:].isdigit()]
-    return max(years) if years else None
+    bases = [int(field[-4:]) for field in row if field.endswith(tuple('0123456789'))
+             and BASIS.match(field) and 'ESTIMATESBASE' in field]
+    if not years:
+        return (min(bases) if bases else None), None
+    return (min(bases) if bases else min(years)), max(years)
 
 
 def _run_full(context):
@@ -154,9 +188,14 @@ def _run_full(context):
         out = _Out(context, index)
         released = _released(context, index)
         for locator, row in context.raw_rows(index, **READER):
+            row = _normalize(row)
             kind = _file_kind(row)
             out.released = released.get(int(locator.split('/', 1)[0].split(':')[1]))
-            vintage = _vintage(row) or 2024
+            if kind == 'intercensal':
+                yield from _intercensal(out, locator, row)
+                continue
+            base_year, vintage = _estimate_years(row)
+            vintage = vintage or 2024
             if kind == 'characteristics':
                 yield from _characteristics(out, locator, row)
                 continue
@@ -180,10 +219,11 @@ def _run_full(context):
             dims = {'vintage': vintage}
             prefix = f'pep{vintage % 100:02d}:{key}'
             for field, text in row.items():
-                if field in ('CENSUS2010POP', 'ESTIMATESBASE2020', 'ESTIMATESBASE2010', 'GQESTIMATESBASE2020'):
-                    year = 2010 if '2010' in field else 2020
-                    metric = 'group_quarters_population' if field.startswith('GQ') else 'population'
-                    basis = 'decennial_census' if field.startswith('CENSUS') else 'estimates_base'
+                basis_match = BASIS.match(field)
+                if basis_match:
+                    year = int(basis_match.group(2) or basis_match.group(5))
+                    metric = 'group_quarters_population' if basis_match.group(3) else 'population'
+                    basis = 'decennial_census' if basis_match.group(1) else 'estimates_base'
                     yield out.obs(f'{prefix}:{metric}:{basis}:{year}', subject, metric, _value(text), 'people',
                                   f'{year}-04-01', f'{year}-04-02', locator, {**dims, 'basis': basis}, source_field=field)
                     continue
@@ -193,9 +233,39 @@ def _run_full(context):
                 rate, name, year = match.group(1), match.group(2).rstrip('_'), int(match.group(3))
                 metric = METRICS[name] + ('_rate' if rate else '')
                 unit = 'per_1000_population' if rate else 'people'
-                start, end = _component_period(name, year, vintage)
+                start, end = _component_period(name, year, base_year)
                 yield out.obs(f'{prefix}:{metric}:{year}', subject, metric, _value(text), unit, start, end, locator, dims,
                               source_field=field)
+
+
+INTERCENSAL_VINTAGE = '2000_2010_intercensal'
+
+
+def _intercensal(out, locator, row):
+    """National 2000-2010 intercensal series: the post-2010-census revision of the 2000s estimates.
+
+    One row per (reference month, year, age). Only the all-ages totals (AGE 999) are emitted: MONTH 7 as the July-1
+    population that the annual PEP series carries, MONTH 4 as the April-1 census count for 2000 and 2010. This is a
+    single revised series, not a real-time vintage, so it carries its own vintage label rather than a PEP year. The
+    file's age and sex detail is deliberately not emitted: a national ``population`` row with a ``sex`` dimension
+    would collide with the annual national series that the estimation loader selects on metric and subject alone.
+    """
+    if row.get('AGE') != '999':
+        return
+    year, month = int(row['YEAR']), int(row['MONTH'])
+    subject = 'geo:US'
+    record = out.entity(subject, 'country', 'United States', locator)
+    if record:
+        yield record
+    dims = {'vintage': INTERCENSAL_VINTAGE}
+    prefix = f'pepint:{subject}'
+    if month == 4:
+        yield out.obs(f'{prefix}:population:decennial_census:{year}', subject, 'population', _value(row['TOT_POP']),
+                      'people', f'{year}-04-01', f'{year}-04-02', locator,
+                      {**dims, 'basis': 'decennial_census'}, source_field='TOT_POP')
+        return
+    yield out.obs(f'{prefix}:population:{year}', subject, 'population', _value(row['TOT_POP']), 'people',
+                  f'{year}-07-01', f'{year}-07-02', locator, dims, source_field='TOT_POP')
 
 
 def _characteristics(out, locator, row):

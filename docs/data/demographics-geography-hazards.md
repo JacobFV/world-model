@@ -40,9 +40,13 @@ page has a published normalized stage.
 - Stocks at a point in time use a one-day interval (PEP 1 July populations, GHCN daily values); flows cover their
   reporting period (PEP components 1 July-1 July, CBP annual payroll calendar year, CBP employment the pay period
   including 12 March); ACS 5-year estimates carry the whole 2020-2024 period; IRS migration spans both filing years.
-- Real-time vintages: census_population keeps every Population Estimates vintage (2020-2024) as separate observations
-  (`dimensions.vintage`, `attributes.released_at` = HTTP Last-Modified of the published file, which matches the Census
-  release dates). WPP projections are flagged `attributes.projection`; Aqueduct future values carry
+- Real-time vintages: census_population keeps every Population Estimates vintage as separate observations
+  (`dimensions.vintage`, `attributes.released_at` = HTTP Last-Modified of the published file). As of 2026-09-17 that
+  is **20 vintages** — national/state V2004-V2007, V2011-V2025 and the 2000-2010 national intercensal series — giving
+  annual national population for 2000-2025. Read `released_at` as an upper bound, not a release date: files older
+  than the 2016 census.gov migration carry a migration timestamp (2016-07-19 or later) rather than their original
+  December release, so vintages 2004-2015 all appear to become knowable in mid-2016. From V2016 on the timestamp does
+  match the Census release date. WPP projections are flagged `attributes.projection`; Aqueduct future values carry
   `dimensions.scenario`.
 - Hazard events use UTC `occurred_at` (Storm Events converted from local CZ_TIMEZONE; ComCat origin times; IBTrACS
   ISO_TIME is UTC). OpenFEMA amounts are cumulative as of retrieval.
