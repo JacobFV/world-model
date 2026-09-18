@@ -781,7 +781,7 @@ CES_SUPERSECTOR_METRICS = {
 
 
 def regional_realtime_data(store, *, level='state', start_year=2008, end_year=2025, versions=None,
-                           dataset='fred_state_industry_vintages', months_required=12):
+                           dataset='fred_state_industry_vintages', months_required=12, min_rows=500):
     """State-by-supersector annual employment built **only from first releases**, so no row can
     contain a revision published later than the row itself.
 
@@ -842,7 +842,7 @@ def regional_realtime_data(store, *, level='state', start_year=2008, end_year=20
                            'employment': math.fsum(value for value, _ in items) / len(items)})
         for _, record_id in items:
             evidence.add(ref, record_id, 'employment')
-    if len(employment) < 500:
+    if len(employment) < min_rows:
         raise MissingData(f'Only {len(employment)} real-time state-industry-year rows were complete '
                           f'({incomplete} partial years); acquire {dataset} first')
     data = {'employment': employment, 'design': 'shift_share_correlational_ces_state_supersector_first_release',

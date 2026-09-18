@@ -9,7 +9,8 @@ from worldmodel.estimation.data import ObservationSet
 from worldmodel.estimation.loaders import (COMPONENT_SOURCES, BLOCKED_COMPONENTS, BLOCKED_FAMILIES, FAMILY_LOADERS,
                                            MissingData, assets_data, availability, cash_balance_data,
                                            commodities_data, conflict_data, fdic_noncurrent_loan_rate, load_for,
-                                           monetary_data, national_unemployment_rate, observation_set, regional_data)
+                                           monetary_data, national_unemployment_rate, observation_set, regional_data,
+                                           regional_realtime_data)
 from worldmodel.estimation_cli import load_plan
 
 DATA_ROOT = Path(__file__).resolve().parent.parent / 'data'
@@ -326,6 +327,52 @@ class FamilyLoaderTests(unittest.TestCase):
         self.assertEqual({row['industry'] for row in data['employment']}, {'naics2017:11', 'naics2017:31-33'})
         self.assertEqual({row['region'] for row in data['employment']}, {'geo:US:state:01'})
         self.assertEqual({row['year'] for row in data['employment']}, {2019, 2020})
+
+    def test_regional_realtime_uses_first_releases_and_declares_no_revisions(self):
+        """Each year is the mean of twelve first releases; later vintages must not enter a row.
+
+        The 2009 rows below carry a first release and a much larger benchmark revision. A loader
+        that took the latest vintage would report the revised level and would have to declare
+        revisions, which is what fails no_revision_leakage on CBP and QCEW.
+        """
+        records, index = [], 0
+        for region in ('geo:US:state:01', 'geo:US:state:06'):
+            for metric in ('employment_manufacturing', 'employment_construction'):
+                for year in (2008, 2009):
+                    for month in range(1, 13):
+                        for vintage, value in (((f'{year}-{month:02d}-20' if (year, month) != (2008, 1)
+                                                 else '2007-06-19'), 100.0 + month),
+                                               (f'{year + 2}-03-06', 900.0)):
+                            index += 1
+                            records.append(observation(
+                                id=f'fred:obs:{region}:{metric}:{year}-{month:02d}:{vintage}', metric=metric,
+                                unit='persons', subject=region, value=value * 1000,
+                                valid_from=f'{year}-{month:02d}-01',
+                                valid_to=f'{year + (month == 12)}-{1 if month == 12 else month + 1:02d}-01',
+                                observed_at=vintage, dimensions={'frequency': 'M', 'vintage': vintage},
+                                attributes={'realtime_start': vintage, 'realtime_end': '9999-12-31'}))
+        self.store.write('fred_state_industry_vintages', records)
+        data, evidence = regional_realtime_data(self.store, start_year=2008, end_year=2009, months_required=12, min_rows=4)
+        self.assertEqual(data['revisions'], 'none')
+        rows = {(row['region'], row['industry'], row['year']): row['employment'] for row in data['employment']}
+        # 2008 is dropped: its January first release IS the archive start, so the year is incomplete.
+        self.assertEqual(sorted({year for _, _, year in rows}), [2009])
+        self.assertEqual(len(rows), 4)
+        for value in rows.values():
+            self.assertAlmostEqual(value, sum(100.0 + m for m in range(1, 13)) / 12 * 1000)
+        self.assertEqual(sorted(data['construction']['industries']),
+                         ['ces_supersector:20', 'ces_supersector:30'])
+        self.assertEqual(data['construction']['regions'], 2)
+        self.assertEqual(evidence['series_counts']['employment'], 48)
+
+    def test_regional_realtime_refuses_a_panel_that_is_too_short_to_fit(self):
+        self.store.write('fred_state_industry_vintages', [
+            observation(id='fred:obs:one', metric='employment_manufacturing', unit='persons',
+                        subject='geo:US:state:01', value=1000.0, valid_from='2009-01-01', valid_to='2009-02-01',
+                        dimensions={'frequency': 'M', 'vintage': '2009-02-20'},
+                        attributes={'realtime_start': '2009-02-20'})])
+        with self.assertRaisesRegex(MissingData, 'real-time state-industry-year rows'):
+            regional_realtime_data(self.store, start_year=2008, end_year=2009)
 
 
 class PreRegisteredPlanTests(unittest.TestCase):
