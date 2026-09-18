@@ -1343,6 +1343,64 @@
       "expected_limits": "beats_persistence_dm and no_revision_leakage are expected to fail again. The second is structural: UCDP annual releases revise earlier months and the row dates are event months, not publication dates, so no interval method can reach it. At best this attempt goes from three failing criteria to two. self_excitation pinned at 0.99 is also unchanged -- the Hawkes fit is absorbing near-random-walk persistence into the excitation term, and the declared next step for that remains a published contiguity graph and the negative_binomial mechanism, neither of which is this attempt.",
       "supersedes": "conflict_model.ucdp_monthly",
       "entity_rule": "The 20 countries with the most state-based GED events in 2000-01..2015-12 (the training window only)."
+    },
+    {
+      "id": "regional_model.ces_sae_realtime",
+      "kind": "family",
+      "target": "regional",
+      "process_id": "regional_model",
+      "loader": {
+        "function": "ces_sae_regional_data",
+        "options": {
+          "level": "state",
+          "start_year": 2012,
+          "end_year": 2025
+        }
+      },
+      "estimator_options": {
+        "interval_method": "per_unit_year_mean"
+      },
+      "data": "fred_state_employment_vintages (CES SAE state x supersector, monthly NSA, every ALFRED vintage; first-release annual averages, 51 state-equivalents x 10 supersectors, 2012-2025)",
+      "protocol": {
+        "train_end": "2015-06-30",
+        "validation_end": "2020-06-30",
+        "cutoff": "2026-06-30",
+        "vintage_policy": "family_rows",
+        "refit_every": 1,
+        "horizon": 1
+      },
+      "entity_rule": "Every state-equivalent that FRED serves as an aliased ALFRED series (50 states and DC; Puerto Rico and the Virgin Islands have no aliased form) and all nine universally archived CES supersectors plus the residual. Selection is availability only.",
+      "rationale": "The first regional attempt whose rows are real time. docs/calibration-status.md called the no_revision_leakage failure structural -- \"no published employment source in this catalog carries vintages\" -- and that was true of the catalog, not of the world: ALFRED archives the BLS CES State and Area state-by-supersector series with 229 vintages from 2007-06-19. ces_sae_regional_data dates each reference year by the release that completed it and reads all twelve of its months at that vintage, so no row contains a value published after the row itself and information_time is 'real_time' as a fact about the rows. Boundaries are mid-year because a reference year's release lands in the late-January or mid-March release of the following year (TXMFGN vintages: 2020-01-24, 2021-01-26, ...), so June-30 splits partition the origins unambiguously: validation targets are reference years 2015-2019 and the holdout is 2020-2025, six years x 51 state-equivalents = 306 forecasts. The interval method is the same per_unit_year_mean that regional_model.qcew_state_sectors declared, so the data is the only thing that changes between the two.",
+      "expected_limits": "CES SAE publishes supersectors, not two-digit NAICS: this panel has ten industries where qcew_state_sectors had twenty, so the Bartik shock is built from a coarser decomposition and should be weaker, not stronger. The tenth industry is the within-vintage residual total_nonfarm minus the nine published supersectors, because five state-equivalents publish no aliased mining/logging/construction series. The panel starts in 2012 rather than 2008 because the state Information series enter ALFRED only on 2011-11-22 and a complete panel is real time only back to its shallowest member; thirteen growth years, against nineteen for QCEW. interval_coverage is not expected to be fixed by this attempt -- the holdout again contains 2020 -- and the paired per_unit_year_draw variant below is the WS-E correction on the same real-time rows."
+    },
+    {
+      "id": "regional_model.ces_sae_realtime_v2",
+      "kind": "family",
+      "target": "regional",
+      "process_id": "regional_model",
+      "loader": {
+        "function": "ces_sae_regional_data",
+        "options": {
+          "level": "state",
+          "start_year": 2012,
+          "end_year": 2025
+        }
+      },
+      "estimator_options": {
+        "interval_method": "per_unit_year_draw"
+      },
+      "data": "fred_state_employment_vintages (CES SAE state x supersector, monthly NSA, every ALFRED vintage; first-release annual averages, 51 state-equivalents x 10 supersectors, 2012-2025)",
+      "protocol": {
+        "train_end": "2015-06-30",
+        "validation_end": "2020-06-30",
+        "cutoff": "2026-06-30",
+        "vintage_policy": "family_rows",
+        "refit_every": 1,
+        "horizon": 1
+      },
+      "entity_rule": "Every state-equivalent that FRED serves as an aliased ALFRED series (50 states and DC; Puerto Rico and the Virgin Islands have no aliased form) and all nine universally archived CES supersectors plus the residual. Selection is availability only.",
+      "rationale": "regional_model.ces_sae_realtime with the one interval method changed, so the real-time panel is scored under both declared regional spreads exactly as qcew_state_sectors and qcew_state_sectors_v2 score the revised panel. Registered at the same time as the first attempt and before either was run.",
+      "expected_limits": "CES SAE publishes supersectors, not two-digit NAICS: this panel has ten industries where qcew_state_sectors had twenty, so the Bartik shock is built from a coarser decomposition and should be weaker, not stronger. The tenth industry is the within-vintage residual total_nonfarm minus the nine published supersectors, because five state-equivalents publish no aliased mining/logging/construction series. The panel starts in 2012 rather than 2008 because the state Information series enter ALFRED only on 2011-11-22 and a complete panel is real time only back to its shallowest member; thirteen growth years, against nineteen for QCEW. interval_coverage is not expected to be fixed by this attempt -- the holdout again contains 2020 -- and the paired per_unit_year_draw variant below is the WS-E correction on the same real-time rows."
     }
   ],
   "not_run": [
@@ -1366,5 +1424,6 @@
   "fourth_wave": "2026-09-15, after the chained-dollar base-year bug was fixed and fred_macro_panel and fred_cpi were rebuilt (panel 7dcce89c, cpi 34fe03f5). Every observation now carries attributes.source_units, a per-vintage unit_multiplier and base_period, and the unit token is per vintage. Two input defects were corrected: 189 of 849 panel series changed units across vintages (the old build labelled every vintage with one unit), and TOTALSL was published in billions for some vintages and millions for others, so 11,612 of its 13,537 values changed (e.g. 1998-03 1.3322 -> 1332.2). Five attempts are re-registered below with the SAME splits as their v1 counterparts so the two are comparable; the v1 verdicts are kept and marked contaminated. Verified value-identical between the two builds, so their verdicts stand without a rerun: DPRIME, DFF, SNDR, DRCCLACBS, UNRATE, DPSACBW027SBOG, PAYEMS, FEDFUNDS and RRSFS (RRSFS changed only its unit token).",
   "fifth_wave": "2026-09-16. Three strands. (a) Interval calibration on the three attempts that beat their baselines on point accuracy and failed ONLY interval_coverage: inventory_balance (0.640), credit_growth (0.596) and regional_model (1.000). Each was diagnosed first, and each new attempt records the diagnosis and the interval method it declares; the diagnoses differ, so the methods differ. Predictive distributions are now a declared choice in the estimator (worldmodel/estimation/intervals.py: gaussian_in_sample, gaussian_trailing, student_t_trailing, empirical_trailing, with optional coefficient-uncertainty and data-revision components; regional: pooled_year_draw or per_unit_year_mean), not a tuned multiplier, and the default keeps every earlier run bit-identical. (b) elections_model is no longer blocked: mit_election_returns published 33,805 U.S. House district rows, so the family is scored on real district returns with the split taken by election year. (c) bls_labor was rebuilt from 18.2M to 60.9M rows (the earlier build was an incomplete download), so every attempt that read it is rerun with the version as the only change, the newly available national CPS unemployment rate replaces one of the two substitutions in the passing default_hazard attempt, and QCEW makes the long regional panel possible.",
   "panel_length_wave": "2026-09-17 (WS-D, panel length). Two attempts failed minimum_test_forecasts, which is a data-quantity failure and not a modelling one: population_growth_rate.census_pep had 14 annual observations and n=4 against a declared 8, and deposit_rate_pass_through.fred_realtime had 62 monthly observations and n=16 against a declared 24. Five attempts are registered below and every split is taken from data coverage alone. Population is attempted twice: on the declared primary source, with census_population extended from two PEP vintages to twelve (V2004-V2007, V2011-V2025, plus the 2000-2010 national intercensal series, so annual national coverage is 2000-2025 instead of 2010-2024); and on POPTHM, which requirements.json already names as a source for the same series and which fred_macro_panel already publishes with 325 ALFRED vintages back to 1999-07-30. The deposit rate cannot be extended backwards -- SNDR does not exist before 2021-04 -- so it is attempted three ways: the declared series with the splits recut to the minimum the criteria demand (train = exactly the 36 months needed to fit, holdout = the last 25 months, validation = what is left), and two SUBSTITUTE series in a new fred_deposit_rates dataset (SAVNRNJ, SNDR's discontinued predecessor from the same FDIC programme, 2009-2021; and M2OWN, the M2 own rate, 1959-2019). Both substitutions are declared as overrides and neither can be read as the declared SNDR component passing, following the precedent of default_hazard.fdic_laus_quarterly.",
-  "sixth_wave": "2026-09-17, WS-E. interval_coverage blocked 16 of the 35 attempts, more than any other criterion, and needs no new data. Each of the 16 was diagnosed separately into one of two causes the record already distinguishes: a SCORING BUG (a real-time forecast graded against a later vintage, as credit_growth was) or GENUINE MISCALIBRATION (the predictive distribution is the wrong shape or the wrong width for the right reason). One new scoring bug was found and fixed in the code: the backtest handed a declared conditional input's value at the target period from the evaluation vintage while its own lag in the same design row came from the origin's vintage, so labor_demand's output-growth regressor was the INDPRO rebasing factor (-0.2177) rather than realized growth (+0.0005). Components now declare conditional_rebase per input; only labor_demand declares one, and the other six conditional inputs were measured and left unchanged. The regional family gains per_unit_year_draw, which pairs per_unit_year_mean's per-region within-year scale with the fresh-draw common term the default already used, because between/Y is the predictive variance of a year effect treated as a fixed level and the forecast error contains next year's own draw. Every candidate interval method was compared on the SELECTION window under a declared rule of lowest CRPS -- a proper score, blind to coverage -- and no threshold was relaxed. Attempts with no principled fix are recorded as still failing: see docs/research-log/ws-e-interval-coverage.md for the count and the reason for each."
+  "sixth_wave": "2026-09-17, WS-E. interval_coverage blocked 16 of the 35 attempts, more than any other criterion, and needs no new data. Each of the 16 was diagnosed separately into one of two causes the record already distinguishes: a SCORING BUG (a real-time forecast graded against a later vintage, as credit_growth was) or GENUINE MISCALIBRATION (the predictive distribution is the wrong shape or the wrong width for the right reason). One new scoring bug was found and fixed in the code: the backtest handed a declared conditional input's value at the target period from the evaluation vintage while its own lag in the same design row came from the origin's vintage, so labor_demand's output-growth regressor was the INDPRO rebasing factor (-0.2177) rather than realized growth (+0.0005). Components now declare conditional_rebase per input; only labor_demand declares one, and the other six conditional inputs were measured and left unchanged. The regional family gains per_unit_year_draw, which pairs per_unit_year_mean's per-region within-year scale with the fresh-draw common term the default already used, because between/Y is the predictive variance of a year effect treated as a fixed level and the forecast error contains next year's own draw. Every candidate interval method was compared on the SELECTION window under a declared rule of lowest CRPS -- a proper score, blind to coverage -- and no threshold was relaxed. Attempts with no principled fix are recorded as still failing: see docs/research-log/ws-e-interval-coverage.md for the count and the reason for each.",
+  "seventh_wave": "2026-09-17, WS-B. The first regional attempts whose rows are publication-dated. The earlier conclusion that no published employment source carries vintages was wrong about the world: ALFRED archives the BLS CES State and Area state-by-supersector series with 229 vintages from 2007-06-19, and fred_state_employment_vintages publishes them. regional_model.ces_sae_realtime and _v2 are the two attempts, differing only in the declared interval method, and both were registered before either ran. The audit of every source checked, with URLs and HTTP statuses, is docs/research-log/ws-b-employment-vintages.md."
 }
