@@ -34,7 +34,3626 @@
     "min_bytes": 0,
     "priority": 3.0,
     "url_template": "https://api.stlouisfed.org/fred/series/observations?series_id={series_id}&realtime_start={realtime_start}&realtime_end={realtime_end}&file_type=json&limit=100000&sort_order=asc&offset={offset}",
-    "combinations": [],
+    "combinations": [
+      {
+        "series_id": "AKCONSN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "AKEDUHN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "AKFIREN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "AKGOVTN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "AKINFON",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "AKLEIHN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "AKMFGN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "AKNAN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "AKNRMNN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "AKPBSVN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "AKSRVON",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "AKTRADN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "ALCONSN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "ALEDUHN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "ALFIREN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "ALGOVTN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "ALINFON",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "ALLEIHN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "ALMFGN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "ALNAN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "ALNRMNN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "ALPBSVN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "ALSRVON",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "ALTRADN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "ARCONSN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "AREDUHN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "ARFIREN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "ARGOVTN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "ARINFON",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "ARLEIHN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "ARMFGN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "ARNAN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "ARNRMNN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "ARPBSVN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "ARSRVON",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "ARTRADN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "AZCONSN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "AZEDUHN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "AZFIREN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "AZGOVTN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "AZINFON",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "AZLEIHN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "AZMFGN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "AZNAN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "AZNRMNN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "AZPBSVN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "AZSRVON",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "AZTRADN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "CACONSN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "CAEDUHN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "CAFIREN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "CAGOVTN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "CAINFON",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "CALEIHN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "CAMFGN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "CANAN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "CANRMNN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "CAPBSVN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "CASRVON",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "CATRADN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "COCONSN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "COEDUHN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "COFIREN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "COGOVTN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "COINFON",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "COLEIHN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "COMFGN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "CONAN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "CONRMNN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "COPBSVN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "COSRVON",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "COTRADN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "CTCONSN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "CTEDUHN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "CTFIREN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "CTGOVTN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "CTINFON",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "CTLEIHN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "CTMFGN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "CTNAN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "CTNRMNN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "CTPBSVN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "CTSRVON",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "CTTRADN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "DCEDUHN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "DCFIREN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "DCGOVTN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "DCINFON",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "DCLEIHN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "DCMFGN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "DCNAN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "DCPBSVN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "DCSRVON",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "DCTRADN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "DEEDUHN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "DEFIREN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "DEGOVTN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "DEINFON",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "DELEIHN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "DEMFGN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "DENAN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "DEPBSVN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "DESRVON",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "DETRADN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "FLCONSN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "FLEDUHN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "FLFIREN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "FLGOVTN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "FLINFON",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "FLLEIHN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "FLMFGN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "FLNAN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "FLNRMNN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "FLPBSVN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "FLSRVON",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "FLTRADN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "GACONSN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "GAEDUHN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "GAFIREN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "GAGOVTN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "GAINFON",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "GALEIHN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "GAMFGN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "GANAN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "GANRMNN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "GAPBSVN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "GASRVON",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "GATRADN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "HIEDUHN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "HIFIREN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "HIGOVTN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "HIINFON",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "HILEIHN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "HIMFGN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "HINAN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "HIPBSVN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "HISRVON",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "HITRADN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "IACONSN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "IAEDUHN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "IAFIREN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "IAGOVTN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "IAINFON",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "IALEIHN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "IAMFGN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "IANAN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "IANRMNN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "IAPBSVN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "IASRVON",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "IATRADN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "IDCONSN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "IDEDUHN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "IDFIREN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "IDGOVTN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "IDINFON",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "IDLEIHN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "IDMFGN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "IDNAN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "IDNRMNN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "IDPBSVN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "IDSRVON",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "IDTRADN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "ILCONSN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "ILEDUHN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "ILFIREN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "ILGOVTN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "ILINFON",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "ILLEIHN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "ILMFGN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "ILNAN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "ILNRMNN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "ILPBSVN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "ILSRVON",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "ILTRADN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "INCONSN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "INEDUHN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "INFIREN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "INGOVTN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "ININFON",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "INLEIHN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "INMFGN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "INNAN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "INNRMNN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "INPBSVN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "INSRVON",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "INTRADN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "KSCONSN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "KSEDUHN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "KSFIREN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "KSGOVTN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "KSINFON",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "KSLEIHN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "KSMFGN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "KSNAN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "KSNRMNN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "KSPBSVN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "KSSRVON",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "KSTRADN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "KYCONSN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "KYEDUHN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "KYFIREN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "KYGOVTN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "KYINFON",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "KYLEIHN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "KYMFGN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "KYNAN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "KYNRMNN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "KYPBSVN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "KYSRVON",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "KYTRADN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "LACONSN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "LAEDUHN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "LAFIREN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "LAGOVTN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "LAINFON",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "LALEIHN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "LAMFGN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "LANAN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "LANRMNN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "LAPBSVN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "LASRVON",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "LATRADN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "MACONSN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "MAEDUHN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "MAFIREN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "MAGOVTN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "MAINFON",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "MALEIHN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "MAMFGN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "MANAN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "MANRMNN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "MAPBSVN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "MASRVON",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "MATRADN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "MDEDUHN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "MDFIREN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "MDGOVTN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "MDINFON",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "MDLEIHN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "MDMFGN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "MDNAN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "MDPBSVN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "MDSRVON",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "MDTRADN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "MECONSN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "MEEDUHN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "MEFIREN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "MEGOVTN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "MEINFON",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "MELEIHN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "MEMFGN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "MENAN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "MENRMNN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "MEPBSVN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "MESRVON",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "METRADN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "MICONSN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "MIEDUHN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "MIFIREN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "MIGOVTN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "MIINFON",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "MILEIHN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "MIMFGN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "MINAN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "MINRMNN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "MIPBSVN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "MISRVON",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "MITRADN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "MNCONSN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "MNEDUHN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "MNFIREN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "MNGOVTN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "MNINFON",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "MNLEIHN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "MNMFGN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "MNNAN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "MNNRMNN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "MNPBSVN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "MNSRVON",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "MNTRADN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "MOCONSN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "MOEDUHN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "MOFIREN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "MOGOVTN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "MOINFON",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "MOLEIHN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "MOMFGN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "MONAN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "MONRMNN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "MOPBSVN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "MOSRVON",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "MOTRADN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "MSCONSN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "MSEDUHN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "MSFIREN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "MSGOVTN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "MSINFON",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "MSLEIHN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "MSMFGN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "MSNAN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "MSNRMNN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "MSPBSVN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "MSSRVON",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "MSTRADN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "MTCONSN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "MTEDUHN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "MTFIREN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "MTGOVTN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "MTINFON",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "MTLEIHN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "MTMFGN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "MTNAN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "MTNRMNN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "MTPBSVN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "MTSRVON",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "MTTRADN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "NCCONSN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "NCEDUHN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "NCFIREN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "NCGOVTN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "NCINFON",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "NCLEIHN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "NCMFGN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "NCNAN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "NCNRMNN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "NCPBSVN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "NCSRVON",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "NCTRADN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "NDCONSN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "NDEDUHN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "NDFIREN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "NDGOVTN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "NDINFON",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "NDLEIHN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "NDMFGN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "NDNAN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "NDNRMNN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "NDPBSVN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "NDSRVON",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "NDTRADN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "NEEDUHN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "NEFIREN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "NEGOVTN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "NEINFON",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "NELEIHN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "NEMFGN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "NENAN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "NEPBSVN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "NESRVON",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "NETRADN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "NHCONSN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "NHEDUHN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "NHFIREN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "NHGOVTN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "NHINFON",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "NHLEIHN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "NHMFGN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "NHNAN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "NHNRMNN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "NHPBSVN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "NHSRVON",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "NHTRADN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "NJCONSN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "NJEDUHN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "NJFIREN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "NJGOVTN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "NJINFON",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "NJLEIHN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "NJMFGN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "NJNAN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "NJNRMNN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "NJPBSVN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "NJSRVON",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "NJTRADN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "NMCONSN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "NMEDUHN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "NMFIREN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "NMGOVTN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "NMINFON",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "NMLEIHN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "NMMFGN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "NMNAN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "NMNRMNN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "NMPBSVN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "NMSRVON",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "NMTRADN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "NVCONSN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "NVEDUHN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "NVFIREN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "NVGOVTN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "NVINFON",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "NVLEIHN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "NVMFGN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "NVNAN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "NVNRMNN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "NVPBSVN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "NVSRVON",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "NVTRADN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "NYCONSN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "NYEDUHN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "NYFIREN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "NYGOVTN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "NYINFON",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "NYLEIHN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "NYMFGN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "NYNAN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "NYNRMNN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "NYPBSVN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "NYSRVON",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "NYTRADN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "OHCONSN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "OHEDUHN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "OHFIREN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "OHGOVTN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "OHINFON",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "OHLEIHN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "OHMFGN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "OHNAN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "OHNRMNN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "OHPBSVN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "OHSRVON",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "OHTRADN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "OKCONSN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "OKEDUHN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "OKFIREN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "OKGOVTN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "OKINFON",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "OKLEIHN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "OKMFGN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "OKNAN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "OKNRMNN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "OKPBSVN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "OKSRVON",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "OKTRADN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "ORCONSN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "OREDUHN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "ORFIREN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "ORGOVTN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "ORINFON",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "ORLEIHN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "ORMFGN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "ORNAN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "ORNRMNN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "ORPBSVN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "ORSRVON",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "ORTRADN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "PACONSN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "PAEDUHN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "PAFIREN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "PAGOVTN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "PAINFON",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "PALEIHN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "PAMFGN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "PANAN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "PANRMNN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "PAPBSVN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "PASRVON",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "PATRADN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "RICONSN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "RIEDUHN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "RIFIREN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "RIGOVTN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "RIINFON",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "RILEIHN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "RIMFGN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "RINAN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "RINRMNN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "RIPBSVN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "RISRVON",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "RITRADN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "SCCONSN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "SCEDUHN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "SCFIREN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "SCGOVTN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "SCINFON",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "SCLEIHN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "SCMFGN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "SCNAN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "SCNRMNN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "SCPBSVN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "SCSRVON",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "SCTRADN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "SDCONSN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "SDEDUHN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "SDFIREN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "SDGOVTN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "SDINFON",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "SDLEIHN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "SDMFGN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "SDMLCN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "SDNAN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "SDNRMNN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "SDPBSVN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "SDSRVON",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "SDTRADN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "TNCONSN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "TNEDUHN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "TNFIREN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "TNGOVTN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "TNINFON",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "TNLEIHN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "TNMFGN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "TNNAN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "TNNRMNN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "TNPBSVN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "TNSRVON",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "TNTRADN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "TXCONSN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "TXEDUHN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "TXFIREN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "TXGOVTN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "TXINFON",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "TXLEIHN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "TXMFGN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "TXNAN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "TXNRMNN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "TXPBSVN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "TXSRVON",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "TXTRADN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "UTCONSN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "UTEDUHN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "UTFIREN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "UTGOVTN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "UTINFON",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "UTLEIHN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "UTMFGN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "UTNAN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "UTNRMNN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "UTPBSVN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "UTSRVON",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "UTTRADN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "VACONSN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "VAEDUHN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "VAFIREN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "VAGOVTN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "VAINFON",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "VALEIHN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "VAMFGN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "VANAN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "VANRMNN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "VAPBSVN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "VASRVON",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "VATRADN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "VTCONSN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "VTEDUHN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "VTFIREN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "VTGOVTN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "VTINFON",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "VTLEIHN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "VTMFGN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "VTNAN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "VTNRMNN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "VTPBSVN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "VTSRVON",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "VTTRADN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "WACONSN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "WAEDUHN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "WAFIREN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "WAGOVTN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "WAINFON",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "WALEIHN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "WAMFGN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "WANAN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "WANRMNN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "WAPBSVN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "WASRVON",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "WATRADN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "WICONSN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "WIEDUHN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "WIFIREN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "WIGOVTN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "WIINFON",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "WILEIHN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "WIMFGN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "WINAN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "WINRMNN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "WIPBSVN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "WISRVON",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "WITRADN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "WVCONSN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "WVEDUHN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "WVFIREN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "WVGOVTN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "WVINFON",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "WVLEIHN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "WVMFGN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "WVNAN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "WVNRMNN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "WVPBSVN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "WVSRVON",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "WVTRADN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "WYCONSN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "WYEDUHN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "WYFIREN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "WYGOVTN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "WYINFON",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "WYLEIHN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "WYMFGN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "WYNAN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "WYNRMNN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "WYPBSVN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "WYSRVON",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      },
+      {
+        "series_id": "WYTRADN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "offset": 0
+      }
+    ],
     "credentials": [
       {
         "env": "FRED_API_KEY",
