@@ -296,7 +296,7 @@ def rolling_origin_backtest(estimator, data, *, start, end, evaluation_cutoff, h
     indices = [i for i, t in enumerate(truth.times) if lo < instant(t) <= hi and i - horizon >= 0]
     if len(indices) > max_origins:
         raise ValueError(f'Backtest origin budget exceeded ({len(indices)} > {max_origins})')
-    forecasts, skipped, modes = [], [], set()
+    forecasts, skipped, modes, rebase_audit = [], [], set(), {}
     estimate, fits, truncated, checked, violations, scale = None, 0, 0, 0, 0, None
     for position, i in enumerate(indices):
         anchor = truth.times[i - horizon]
@@ -335,8 +335,12 @@ def rolling_origin_backtest(estimator, data, *, start, end, evaluation_cutoff, h
         if instant(estimate.cutoff) > instant(origin_cutoff):
             violations += 1
             raise LeakageError('Estimate cutoff after forecast origin')
-        conditional = {name: [truth.columns[name][j] for j in range(i - horizon + 1, i + 1)]
-                       for name in getattr(estimator, 'conditional_inputs', ())}
+        conditional, rebased = _conditional_inputs(estimator, truth, frame, i, horizon, anchor)
+        for name, detail in rebased.items():
+            rebase_audit.setdefault(name, {'mode': detail['mode'], 'rows': 0, 'largest_adjustment': 0.0})
+            entry = rebase_audit[name]
+            entry['rows'] += 1
+            entry['largest_adjustment'] = max(entry['largest_adjustment'], abs(detail['adjustment']))
         for target in targets:
             history = frame.columns[target]
             if scale is None:
@@ -365,7 +369,58 @@ def rolling_origin_backtest(estimator, data, *, start, end, evaluation_cutoff, h
             'leakage_audit': {'origins_checked': checked, 'violations': violations, 'truncated_future_rows': truncated,
                               'vintage_modes': sorted(modes), 'conditional_inputs': list(getattr(estimator, 'conditional_inputs', ())),
                               'forecast_type': 'conditional_on_realized_inputs' if getattr(estimator, 'conditional_inputs', ()) else 'unconditional',
+                              # Only reported where a declared rebasing actually moved a value, so every
+                              # attempt that declares none stays byte-identical to its earlier report.
+                              **({'conditional_input_rebase': rebase_audit} if rebase_audit else {}),
                               'evaluation_cutoff': evaluation_cutoff}}
+
+
+def _conditional_inputs(estimator, truth, frame, index, horizon, anchor):
+    """Realized values of the declared conditional inputs for the target periods.
+
+    A conditional forecast conditions on the realized *movement* of a declared driver.
+    The realized value lives in the evaluation vintage while every other entry of the
+    design row comes from the origin's vintage, so a design that reads the driver
+    against its own lag — ``log(output_t / output_{t-1})`` — compares two vintages and
+    picks up whatever rebasing or benchmark revision happened between them. Where the
+    component declares ``conditional_rebase``, the realized value is carried onto the
+    origin's vintage using the two frames' overlap at the anchor period, which preserves
+    the realized movement exactly and introduces no information the origin did not have
+    beyond that movement. Series the design reads as a level at the target period, and
+    series that are never revised or rebased, declare ``'none'`` and are handed over
+    unchanged.
+    """
+    modes = getattr(estimator, 'conditional_rebase', {}) or {}
+    conditional, rebased = {}, {}
+    for name in getattr(estimator, 'conditional_inputs', ()):
+        values = [truth.columns[name][j] for j in range(index - horizon + 1, index + 1)]
+        mode = modes.get(name, 'none')
+        if mode == 'none' or name not in frame.columns or name not in truth.columns:
+            conditional[name] = values
+            continue
+        try:
+            origin_anchor = frame.columns[name][frame.times.index(anchor)]
+            truth_anchor = truth.columns[name][index - horizon]
+        except (ValueError, IndexError):
+            conditional[name] = values
+            continue
+        if origin_anchor is None or truth_anchor is None:
+            conditional[name] = values
+            continue
+        if mode == 'ratio':
+            if truth_anchor == 0 or origin_anchor <= 0 or truth_anchor <= 0:
+                conditional[name] = values
+                continue
+            factor = origin_anchor / truth_anchor
+            conditional[name] = [None if v is None else v * factor for v in values]
+            adjustment = math.log(factor)
+        else:
+            shift = origin_anchor - truth_anchor
+            conditional[name] = [None if v is None else v + shift for v in values]
+            adjustment = shift
+        if adjustment:
+            rebased[name] = {'mode': mode, 'adjustment': adjustment}
+    return conditional, rebased
 
 
 def _compact_backtest(result):

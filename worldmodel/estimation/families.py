@@ -17,6 +17,14 @@ REQUIREMENTS_PATH = Path(__file__).with_name('requirements.json')
 YEAR_SECONDS = 31557600
 DAYS_PER_MONTH = YEAR_SECONDS / 86400 / 12
 PERIOD_SECONDS = {'daily': 86400, 'weekly': 604800, 'monthly': YEAR_SECONDS / 12, 'quarterly': YEAR_SECONDS / 4, 'annual': YEAR_SECONDS}
+#: How a declared conditional input's realized value is carried onto the origin's vintage.
+#: A conditional forecast conditions on the *realized movement* of a driver, and a movement
+#: is only a movement when both of its endpoints are read from one vintage. ``'ratio'`` and
+#: ``'difference'`` convert the realized value onto the origin vintage using the two frames'
+#: overlap at the anchor period; ``'none'`` (the default) hands the realized value over
+#: unchanged, which is correct for a driver the design reads as a level at the target period
+#: and for one that is never revised or rebased.
+CONDITIONAL_REBASE = ('none', 'ratio', 'difference')
 
 
 @lru_cache(maxsize=1)
@@ -72,6 +80,13 @@ class ComponentEstimator:
         self.target = self.spec['target']
         self.targets = [self.target]
         self.conditional_inputs = tuple(self.spec.get('conditional_inputs', ()))
+        self.conditional_rebase = dict(self.spec.get('conditional_rebase', {}))
+        unknown_rebase = set(self.conditional_rebase) - set(self.conditional_inputs)
+        if unknown_rebase:
+            raise ValueError(f'{self.component}: conditional_rebase names non-conditional inputs {sorted(unknown_rebase)}')
+        bad = {k: v for k, v in self.conditional_rebase.items() if v not in CONDITIONAL_REBASE}
+        if bad:
+            raise ValueError(f'{self.component}: conditional_rebase must be one of {list(CONDITIONAL_REBASE)}; got {bad}')
         self.min_observations = self.spec.get('min_observations', 12)
         self.options = dict(self.spec.get('default_options', {}), **(options or {}))
         overrides = overrides or {}

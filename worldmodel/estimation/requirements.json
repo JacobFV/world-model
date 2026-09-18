@@ -1367,6 +1367,10 @@
    "conditional_inputs": [
     "output"
    ],
+   "conditional_rebase": {
+    "output": "ratio"
+   },
+   "conditional_rebase_reason": "The design reads industrial production only as the log ratio output_t/output_{t-1}. INDPRO is an index the Federal Reserve rebases (thirteen index bases across the published ALFRED vintages), so taking output_t from the evaluation vintage and its own lag from the origin vintage makes that ratio a rebasing factor rather than a growth rate: measured at a 2005 origin the regressor was -0.2177 against a realized +0.0005. Carrying the realized value onto the origin's base through the anchor-period overlap preserves the realized growth exactly and adds no information the origin lacked.",
    "min_observations": 60,
    "default_options": {
     "cov_type": "HAC"
