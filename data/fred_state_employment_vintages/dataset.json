@@ -2,7 +2,7 @@
   "id": "fred_state_employment_vintages",
   "schema_version": 2,
   "kind": "source",
-  "status": "declared",
+  "status": "full_acquired",
   "description": "BLS CES State and Area (SAE) employment by state-equivalent and CES supersector, monthly, not seasonally adjusted, with every ALFRED real-time vintage (229 vintages from 2007-06-19). The point-in-time employment panel regional_model needs: each row carries the vintage it was published in, so a first-release panel can be built without reading a revised level.",
   "source": {
     "publisher": "Federal Reserve Bank of St. Louis (FRED/ALFRED)",
@@ -28,7 +28,7 @@
   },
   "acquisition": {
     "strategy": "url_list",
-    "description": "One FRED API series/observations request per configured series, each over the full real-time window 1776-07-04..9999-12-31 so every ALFRED vintage comes back as [realtime_start, realtime_end] spans. Series are discovered and verified by build_config.py from FRED release 112 (State Employment and Unemployment); combinations here must match config.json (build_config.py --emit-combinations regenerates them). desired_bytes 320 MiB against a measured 0.28-0.46 MiB per series over ~600 series, i.e. ~0.17 GiB expected.",
+    "description": "One FRED API series/observations request per configured series, each over the full real-time window 1776-07-04..9999-12-31 so every ALFRED vintage comes back as [realtime_start, realtime_end] spans. Series are discovered and verified by build_config.py from FRED release 112 (State Employment and Unemployment); combinations here must match config.json (build_config.py --emit-combinations regenerates them). desired_bytes 320 MiB against the measured artifact: 603 shards, 91,013,298 bytes = 0.085 GiB.",
     "documentation": "https://fred.stlouisfed.org/docs/api/fred/series_observations.html",
     "desired_bytes": 335544320,
     "min_bytes": 0,
