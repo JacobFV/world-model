@@ -1,15 +1,19 @@
 # fec_individual_contributions
 
 FEC itemized **individual contributions** (`indivYY.zip` → `itcont.txt`, pipe-delimited, headerless, latin-1),
-normalized only as aggregates. Raw rows contain contributor PII (name, city, ZIP, employer, occupation);
-no contributor-level record is ever emitted.
+normalized as aggregates, plus contributor-level rows when the deployment declares a non-commercial purpose.
+Raw rows name individual contributors (name, city, ZIP, employer, occupation). **52 U.S.C. 30111(a)(4)** bars
+selling that information or using it to solicit contributions or for any commercial purpose; it does not bar
+research use. So `source.person_level_records` declares `policy: conditional, condition: non_commercial_use`, and
+whether contributor rows are written is decided by `WM_COMMERCIAL_USE` against that rule -- see
+`docs/use-policy.md`. Under `WM_COMMERCIAL_USE=1` (and when unset) the output is aggregate-only, exactly as before.
 
 ## Source and scope
 
 - `https://www.fec.gov/files/bulk-downloads/2026/indiv26.zip` (2026 cycle to date, ~2.19 GB).
-- The 2024 cycle (`indiv24.zip`, 4.24 GB) was requested, but a single file must fit in one budget reservation, and
-  the fair-share allocation under the shared 50 GiB pool was ~2.58 GB. To switch when budget allows, change
-  `acquisition.files` to `…/2024/indiv24.zip` and `desired_bytes` to ~4.26 GB (the pipeline reads any `indivYY.zip`).
+- Earlier cycles are separate datasets, not a repointing of this one: `fec_individual_contributions_2024` and
+  `fec_individual_contributions_2022` are acquired and built. One dataset per cycle keeps each inside the
+  per-dataset fair share. Join cycles on `fec:committee:*` subjects and `dimensions.cycle`.
 - Licence: U.S. government work, **52 U.S.C. 30111(a)(4)**: information about contributors may not be sold or used
   for soliciting contributions or for any commercial purpose. No credentials.
 
@@ -25,6 +29,20 @@ Every aggregate is emitted twice: `individual_contributions_amount` (USD) and `i
 | `committee_occupation` | committee | `occupation_category` (keyword proxy, `OCCUPATION_RULES` v1) | cycle |
 | `committee_size_band` | committee | `size_band` (under_200 … 3300_and_over, per transaction) | cycle |
 
+The `contribution` family is added only under a declared non-commercial purpose. It is keyed by the FEC `SUB_ID`,
+emits `individual_contribution_amount` (USD, singular -- the aggregate metric is `individual_contributions_amount`),
+and carries the contributor's identity **as reported** in `dimensions`: `contributor_name`, `contributor_city`,
+`contributor_zip` (full ZIP, not ZIP3), `contributor_employer`, `contributor_occupation`, `contributor_state`.
+
+No persistent person identity is asserted. The subject stays `fec:committee:C########`; the same name in two cycles
+is two reported strings, not one resolved human. Do not add entity resolution over these names: measured on this
+catalog it gives 0.4% recall at 2.3% precision and wrongly merges 103,211 entities.
+
+Every record -- aggregate and contributor alike -- carries `attributes.rights_decision` recording the rule, the
+declared purpose and the authority, so a filtered and an unfiltered build are told apart by provenance rather than
+by inspecting rows. Because the store is content-addressed they are different artifacts with different hashes; a
+rebuild under a new purpose does not replace the old one.
+
 Exclusions: memo lines (`MEMO_CD = X`, e.g. conduit earmark duplicates) and non-individual entity types. Rows
 with an unusable date fall back to the cycle window (`month = null`). Evidence cites the first raw row of each group.
 Unitemized contributions (under $200 aggregate per contributor) are not in the source.
@@ -36,6 +54,7 @@ python3 -m worldmodel budget
 python3 -m worldmodel acquire fec_individual_contributions --allow-network
 WORLD_MODEL_RAW_VERIFY=size python3 -m worldmodel run fec_individual_contributions
 python3 -m worldmodel verify fec_individual_contributions
+python3 -m worldmodel use-policy --dataset fec_individual_contributions   # what the run will write, and why
 ```
 
 Offline tests: `tests/test_politics_procurement_datasets.py`.
