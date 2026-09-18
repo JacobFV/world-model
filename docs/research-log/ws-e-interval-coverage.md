@@ -195,11 +195,120 @@ benchmarked series). **I have not changed the criterion**, and no attempt below 
 failed by anything other than the declared rule. This is recorded as an argument for a future
 pre-registered change, and the attempts that turn on it say so next to their verdicts.
 
+## The diagnoses, one per attempt
+
+### `interest_pass_through.fred_realtime` — miscalibration, heteroskedasticity across regimes
+
+The only failing criterion (coverage 0.988) on an attempt that halves persistence's error at
+p = 0.0011 — the single most valuable target in the sixteen. The predictive scale is an average
+across monetary-policy regimes rather than a forecast of the current one. Residual root mean
+square by decade at the validation cutoff, against a flat in-sample scale of **0.2217**:
+
+| 1950s | 1960s | 1970s | 1980s | 1990s | 2000s | 2010s |
+| --- | --- | --- | --- | --- | --- | --- |
+| 0.1560 | 0.1796 | 0.2539 | **0.4186** | 0.1142 | 0.0816 | **0.0416** |
+
+A tenfold spread, with the flat scale set mostly by the Volcker era — which enters every
+forecast because a 2005 ALFRED vintage of DPRIME publishes its history back to 1955. Visible
+before the holdout: in the selection window (2013-2017, 59 forecasts) the default over-covers
+at **1.000** with mean predictive sd 0.2259 against a realized RMSE of 0.0498. In-sample
+standardized errors have kurtosis 6.0 — what a rate moving in discrete 25bp steps looks like,
+a spike at zero change with occasional jumps.
+
+Declared: `empirical_trailing`, window 120 months, 40 nodes. Validation-window CRPS over the
+declared grid:
+
+| method | w=36 | w=60 | w=120 |
+| --- | --- | --- | --- |
+| `gaussian_in_sample` | — | 0.05714 | — |
+| `gaussian_trailing` | 0.02954 | 0.02945 | 0.02944 |
+| `student_t_trailing` | — | 0.03023 | — |
+| `empirical_trailing` | 0.02495 | 0.02497 | **0.02207** |
+
+The rule picks `empirical_trailing` at w=120, whose validation coverage (0.9153) is the
+**worst** of the three trailing windows (0.8983 at 36, 0.8814 at 60). That is the check that
+CRPS and not coverage did the selecting. No coefficient-uncertainty term was added (746
+residuals against 5 coefficients make `x'Vx` negligible) and no revision term (DPRIME is not
+revised) — neither is part of the diagnosis.
+
+### `labor_demand.fred_realtime` / `_v2` — a scoring bug, then a revision component
+
+Diagnosed as the conditional-input rebasing bug above. The correction alone (`_v3`) moves the
+selection window from MAE 2,194.6 to **578.1** thousand payrolls, bias from −2,171.8 to +280.8,
+and DM against persistence from **1.0000 to 0.0865**.
+
+That leaves a second, separate defect, which is `credit_growth`'s: the scored actual is the
+latest vintage while the forecast is anchored on the real-time level, so the scored error
+carries the anchor's benchmark revision, which is in no in-sample residual. PAYEMS log revisions
+from first release to latest have root mean square **0.00458** for 2000s periods against a model
+residual scale of **0.00304** — the revision is larger than the residual it is added to. In the
+selection window the corrected default under-covers at 0.600 (mean sd 414.5 against realized
+RMSE 767.2, standardized errors rms 1.86).
+
+Declared for `_v4`: the in-sample residual scale plus the revision component, window 120 mature
+periods, maturity 24 months (a CES period is through both its February level benchmark and the
+following year's seasonal-factor revision only after two Februaries; ten years keeps the
+estimate inside the current methodology, whose 1950s log-revision rms is 0.0185 against 0.0046
+in the 2000s). Validation-window CRPS:
+
+| candidate | coverage | mean sd | CRPS |
+| --- | --- | --- | --- |
+| default | 0.600 | 414.5 | 440.1 |
+| **+ revision** | 0.8105 | 659.2 | **431.0** |
+| `gaussian_trailing`(60) | 0.3579 | 206.1 | 489.5 |
+| `gaussian_trailing`(60) + revision | 0.7263 | 552.5 | 437.5 |
+| `gaussian_trailing`(120) + revision | 0.7263 | 545.0 | 437.6 |
+| `empirical_trailing`(60) + revision | 0.6737 | 519.3 | 434.9 |
+| `empirical_trailing`(120) + revision | 0.6526 | 471.5 | 437.0 |
+
+Note what the rule does here: the heteroskedasticity argument that fixed
+`interest_pass_through` is *also* true of PAYEMS (residual rms 0.0065 in the 1940s against
+0.0011 in the 1990s) but points the other way — a trailing scale **narrows** this interval and
+drives validation coverage down to 0.358. It is rejected. The same reason does not license the
+same change everywhere.
+
+### `policy_rule.fred_realtime` / `_v2` — miscalibration, and a change the selection window did not demand
+
+Coverage 1.000 alongside a `beats_persistence_dm` failure at p = 0.673. Residual rms by decade
+against a flat 0.8520: 0.4847 / 0.4350 / 1.0824 / **1.4652** / 0.3592 / 0.5720 / **0.2227** — a
+sevenfold spread, again set by the Volcker era, which a 1996 FEDFUNDS vintage publishes back to
+1954.
+
+**The honest caveat, registered in advance:** the selection window (2005-2012, 31 forecasts) does
+*not* reject the default — its coverage there is 0.871, because that window contains the
+financial crisis, when policy-rate errors genuinely were large (2009 RMSE 1.489 against 0.161 in
+2005). So the evidence for changing anything is the residual-scale spread, not a validation
+failure. Validation CRPS: `gaussian_in_sample` 0.38901; `gaussian_trailing` 0.36453 (w=40),
+0.37603 (w=20); `empirical_trailing` 0.36553 (w=40); `+revision` 0.38901 — *identical* to the
+default, which is independent confirmation that FEDFUNDS is unrevised and that no revision
+component is justified here. Declared: `gaussian_trailing`, window 40 quarters.
+
+### `energy_purchasing.fred_realtime` — two defects, a structural break, and a fix that cannot reach the verdict
+
+Coverage 0.627 alongside `beats_persistence_dm` (p = 0.756) and a bounds failure (both response
+parameters carry the wrong sign for the declared mechanism). Two measurable interval defects:
+RRSFS log revisions have root mean square **0.0154** (2010s) and 0.0339 (2000s) with systematic
+means of −0.0100 and −0.0313, against a model residual scale of **0.0087** — about twice the
+residual; and mild heteroskedasticity (0.0074 / 0.0113 / 0.0052 against the flat 0.0087). The
+selection window agrees: 0.661 coverage, mean sd 1,705 against realized RMSE 2,117.
+
+Declared: `empirical_trailing` w=60 ⊕ revision (w=120, maturity 24 — the Census annual retail
+trade survey benchmarks a month at the following year's revision and the CPI deflator is itself
+revised). Validation CRPS: default 1198.1; +revision 1199.9; `gaussian_trailing`(60) 1232.7;
+`empirical_trailing`(60)+revision **1144.5**. `energy_purchasing.fred_realtime_v2` was
+registered in the fourth wave but never run, so v1 is the comparison.
+
+### `conflict_model.ucdp_monthly` — equidispersion, which the family never assumed
+
+Diagnosed above: Poisson Pearson dispersion **35.9** measured over 4,300 fit-plus-validation
+forecasts, against the 1.0 the score assumed, while the family's own simulator draws negative
+binomial. Corrected dispersion, unchanged shape.
+
 ## Summary table — the 16 attempts
 
-Filled in as each attempt is run. Rows marked *fifth wave* were diagnosed and fixed on
+Filled in below as each attempt lands. Rows marked *fifth wave* were diagnosed and fixed on
 2026-09-16 and are re-reported here because they are part of the 16.
 
-## Per-attempt record
+## Per-attempt verdicts
 
-_(runs in progress)_
+_(holdout runs in progress; verdicts and published digests are added here as they land)_
