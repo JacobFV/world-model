@@ -135,6 +135,48 @@ precisely rather than as "not enough data".
   `regional_model.qcew_state_sectors` exists precisely to make the criterion evaluable, and it
   is where the regional question is settled.
 
+## The clearest test that the criterion was not gamed: regional
+
+`regional_model.qcew_state_sectors` (v1, `per_unit_year_mean`) fails `interval_coverage` from
+below at 0.597. I registered `per_unit_year_draw` to widen the common term, on the a-priori
+argument that the forecast error contains next year's own year effect, so the predictive
+variance should be `between × (1 + 1/Y)` and not `between / Y`.
+
+Then I measured, on the selection window, under the rule declared before any WS-E run:
+
+| method (212 forecasts, 2015-2018, nominal 0.80) | coverage | mean sd | **CRPS** |
+| --- | --- | --- | --- |
+| `per_unit_year_mean` (what v1 already declares) | 0.6321 | 0.01371 | **0.010294** |
+| `per_unit_year_draw` | 0.9340 | 0.02496 | 0.010591 |
+| `pooled_year_draw` | 0.9340 | 0.02541 | 0.010857 |
+
+**A wider interval that would almost certainly have passed was available, and I did not take
+it.** `per_unit_year_draw` reaches 0.9340 in validation, comfortably inside 0.80 ± 0.15; on the
+holdout it would very likely have converted `regional_model`'s coverage failure into a pass.
+It loses on CRPS — a proper score — so the declared rule selects `per_unit_year_mean`, which is
+what v1 already uses, and `regional_model` therefore **still fails** on the long panel.
+
+The a-priori argument was also wrong, and the evidence refuting it needed no holdout. The
+shift-share shock is built from *realized* other-region industry employment at the target year,
+a declared conditional input, so `log(others_after / others_before)` already contains the target
+year's common component; what remains to forecast is closer to an estimated level than to a
+fresh draw. On the synthetic shift-share panel in `tests/test_estimation_intervals.py` — 16
+years, 30 regions, a genuine common year shock of sd 0.004, region noise spanning twentyfold —
+`per_unit_year_mean` attains coverage **0.8000** against a nominal 0.80 while
+`per_unit_year_draw` over-covers at 0.8417 and `pooled_year_draw` at 0.8667. The fifth wave's
+choice was right and my correction to it was not a correction.
+
+Both attempts were still run and published, as **rejected candidates on the record** rather
+than as the answer, and the rejection was written into the plan before either holdout was
+scored (`run_note` on `regional_model.qcew_state_sectors_v2`).
+
+What actually blocks the long regional panel is not a variance component. v1's coverage by year
+is 0.85 (2019), **0.04 (2020)**, 0.38 (2021), 0.45 (2022), 0.98 (2023), 0.89 (2024): outside the
+pandemic the intervals are roughly right, and the 2020-2022 common component is not something
+nineteen pre-pandemic year effects can price. `no_revision_leakage` also fails structurally —
+no published employment source in this catalog carries vintages, which is WS-B's problem, not
+an interval problem.
+
 ## A criterion I think is wrong, argued rather than relaxed
 
 `interval_coverage` is evaluated as `|coverage − 0.80| ≤ tolerance` against the raw count of
