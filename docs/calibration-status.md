@@ -19,6 +19,12 @@ components and has two passing (one of them on a substitute) and seven failing o
 `regional_model` fails on both the short CBP panel and the long QCEW panel. Every failure below
 is a result too, recorded with its reason.
 
+**No attempt now fails `minimum_test_forecasts`** (panel-length wave, 2026-09-17). The two that did
+were data-quantity failures, and five new attempts on longer panels clear the criterion — while
+adding no passes: `population_growth_rate` fails `interval_coverage` on both its sources and
+`deposit_rate_pass_through` fails `beats_persistence_dm` on the declared SNDR series and on both
+substitute series. Lengthening a panel revealed a real failure that n = 16 could not test.
+
 *Validated* here means exactly one thing: every declared acceptance criterion passed on a
 holdout that was untouched until it was scored. It does not mean the model is right.
 
@@ -47,7 +53,7 @@ from the sources.
 | `demand_price_elasticity.eia_monthly` | coupled_economy / demand_price_elasticity | eia_energy@f5cd9308 + fred_oil_price@847b0f93, monthly 1990-09..2024-10 (409) | 106 | **fail** | parameters_within_declared_bounds |
 | `price_adjustment.eia_monthly` | coupled_economy / price_adjustment | eia_energy@f5cd9308 + fred_oil_price@847b0f93, monthly 1991-10..2024-11 (398) | 106 | **fail** | parameters_within_declared_bounds |
 | `cash_balance.sec_companyfacts` (5 issuers) | investment_cash_flow / cash_balance | sec_company_assets@68335122, quarterly 2008-2025 | 14–23 each | **fail** (5/5) | beats_persistence_dm (all), interval_coverage (3), bounds (2) |
-| `population_growth_rate.census_pep` | population_growth / population_growth_rate | census_population@d621c962, annual 2010-2024 (14) | 4 | **fail** | minimum_test_forecasts, interval_coverage |
+| `population_growth_rate.census_pep` | population_growth / population_growth_rate | census_population@d621c962, annual 2010-2024 (14) | 4 | **fail** (superseded) | minimum_test_forecasts, interval_coverage |
 | `conflict_model.ucdp_monthly` | conflict_model | ucdp_conflicts@65486acc + vdem@9ca2ac85, 20 countries × 300 months (6,000 rows) | 1,200 | **fail** | beats_persistence_dm, interval_coverage, no_revision_leakage |
 | `assets_model.alpaca_daily` | assets_model | alpaca_daily_bars@a825e6f0 + fred_policy_rate@2a3197b9, 5 symbols, daily 2016-2024 | 1,890 | **fail** | volatility_crps_skill, no_revision_leakage |
 | `commodities_model.eia_weekly_balance` | commodities_model | eia_energy@f5cd9308 + fred_oil_price@847b0f93, weekly 2010-2024 (782) | 20 | **fail** | beats_persistence_dm, bounds, no_revision_leakage |
@@ -55,7 +61,7 @@ from the sources.
 | `default_hazard.fdic_laus_quarterly` | coupled_economy / default_hazard | fdic_bank_financials@6283087f + bls_labor@50917b81 + fred_policy_rate@2a3197b9, quarterly 2010-2025 (62 obs) | 19 | **pass** | none |
 | `monetary_model.cpi_okun_proxy` | monetary_model | fred_cpi@c92b26cd + fred_policy_rate@2a3197b9 + bls_labor@50917b81, monthly 1990-2024 (420) | 120 | **fail** (superseded) | beats_persistence_dm, no_revision_leakage |
 | `interest_pass_through.fred_realtime` | coupled_economy / interest_pass_through | fred_macro_panel@b395bda0 (DPRIME) + fred_policy_rate@2a3197b9, monthly 1955-2024 (830) | 83 | **fail** | interval_coverage |
-| `deposit_rate_pass_through.fred_realtime` | coupled_economy / deposit_rate_pass_through (optional) | fred_macro_panel@b395bda0 (SNDR) + DFF, monthly 2021-2026 (62) | 16 | **fail** | minimum_test_forecasts, beats_persistence_dm, interval_coverage |
+| `deposit_rate_pass_through.fred_realtime` | coupled_economy / deposit_rate_pass_through (optional) | fred_macro_panel@b395bda0 (SNDR) + DFF, monthly 2021-2026 (62) | 16 | **fail** (superseded) | minimum_test_forecasts, beats_persistence_dm, interval_coverage |
 | `default_hazard.fred_primary_realtime` | coupled_economy / default_hazard | fred_macro_panel@b395bda0 (DRCCLACBS, UNRATE) + DFF, quarterly 1991-2025 (138) | 23 | **fail** | parameters_within_declared_bounds |
 | `deposit_growth.fred_realtime` | coupled_economy / deposit_growth | fred_macro_panel@b395bda0 (DPSACBW027SBOG) + DFF, monthly 1973-2024 (622) | 59 | **fail** | beats_persistence_dm |
 | `credit_growth.fred_realtime` | coupled_economy / credit_growth | fred_macro_panel@b395bda0 (TOTALSL), monthly 1943-2024 (975) | 141 | **fail** | interval_coverage |
@@ -78,6 +84,11 @@ from the sources.
 | `assets_model.fred_fx_realtime` | assets_model | fred_macro_panel@7dcce89c (DEXJPUS, DEXUSUK, DEXCAUS, DEXSZUS, DEXUSAL, DEXUSEU, DFF first releases), daily 2014-03..2024-12 (13,480 bars) | 1,875 | **pass** | none |
 | `monetary_model.okun_unrate_realtime` | monetary_model | fred_macro_panel@7dcce89c (CPIAUCSL, UNRATE, DFF first releases), monthly 2005-06..2024-12 (235) | — | **failed to fit** | smoothing not below one (unidentified) |
 | `monetary_model.okun_unrate_realtime_v2` | monetary_model | fred_macro_panel@7dcce89c (CPIAUCSL, UNRATE, FEDFUNDS first releases), monthly 1996-12..2024-12 (337) | 120 | **fail** | beats_persistence_dm, parameters_within_declared_bounds |
+| `population_growth_rate.census_pep_v2` | population_growth / population_growth_rate | census_population@063a1413 (20 PEP vintages), annual 2000-2025 (26) | 9 | **fail** | interval_coverage |
+| `population_growth_rate.fred_popthm` | population_growth / population_growth_rate | fred_macro_panel@7dcce89c (POPTHM, 325 ALFRED vintages), annual 1959-2025 (67) | 16 | **fail** | interval_coverage |
+| `deposit_rate_pass_through.fred_realtime_v2` | coupled_economy / deposit_rate_pass_through (optional) | fred_macro_panel@7dcce89c (SNDR) + DFF, monthly 2021-04..2026-07 (64), splits recut | 24 | **fail** | beats_persistence_dm, interval_coverage |
+| `deposit_rate_pass_through.savnrnj_substitute` | coupled_economy / deposit_rate_pass_through (optional) | fred_deposit_rates@ec9e94d6 (**SAVNRNJ substitute**) + DFF, monthly 2009-05..2021-02 (142) | 38 | **fail** | beats_persistence_dm |
+| `deposit_rate_pass_through.m2own_substitute` | coupled_economy / deposit_rate_pass_through (optional) | fred_deposit_rates@ec9e94d6 (**M2OWN substitute**) + DFF, monthly 1959-02..2019-05 (724) | 29 | **fail** | beats_persistence_dm, interval_coverage |
 
 Baseline names below: *persistence* = last value, *drift* = linear extrapolation,
 *mean* = historical mean, plus each family's supplied mechanism-off baseline. All
@@ -201,6 +212,10 @@ noisy differences). 5–7 origins per issuer were skipped because a required ser
 filed at the origin.
 
 ### population_growth / population_growth_rate — fail (too few forecasts)
+
+*Superseded by `population_growth_rate.census_pep_v2` and joined by
+`population_growth_rate.fred_popthm` (panel-length wave). Both clear `minimum_test_forecasts` and
+both still fail `interval_coverage`. This record is kept unchanged.*
 
 Census PEP national July-1 population, vintages 2020 and 2021-2024, `strict` policy:
 `attributes.released_at` gives real publication dates, so the audit reports `real_time`
@@ -857,6 +872,121 @@ rate", which is economically sensible, and they do **not** validate the declared
 grouped hazard on the FDIC bank panel with the declared credit-card series as a second
 equation is the declared next step; it was not run here.
 
+## Panel-length wave (the two `minimum_test_forecasts` failures)
+
+Two attempts failed a criterion that says nothing about a model: the test window did not contain
+enough forecasts to score. `population_growth_rate.census_pep` had n = 4 against a declared 8 and
+`deposit_rate_pass_through.fred_realtime` had n = 16 against a declared 24. Five attempts were
+pre-registered (`real_data_plan.json`, key `panel_length_wave`) and run on 2026-09-17.
+**`minimum_test_forecasts` now passes in all five. Nothing else newly passes**, and one criterion
+that had been unevaluable is now a real failure. Full working: [WS-D research
+log](research-log/ws-d-long-panels.md).
+
+### population_growth_rate — still fail, now on one criterion instead of two
+
+Two sources, both real-time, both pre-registered with splits taken from vintage coverage.
+
+`census_population` was extended from **two PEP vintages to twenty** — every national/state vintage
+the Census server still serves in the machine-readable ALLDATA layout (V2004-V2007, V2011-V2025)
+plus the 2000-2010 national intercensal series — so the national annual series runs 2000-2025
+(26 observations) instead of 2010-2024 (14). 0.81 MiB of new raw data. `population_growth_rate.fred_popthm`
+needed **no acquisition at all**: the fix the record above named, POPTHM ALFRED vintages, was already
+in `fred_macro_panel@7dcce89c` (811 monthly periods 1959-2026, 325 vintages from 1999-07-30), and
+`requirements.json` names POPTHM as a source for the same series.
+
+| | `census_pep` (recorded) | `census_pep_v2` | `fred_popthm` |
+| --- | --- | --- | --- |
+| Frame at the cutoff | 14, annual 2010-2024 | 26, annual 2000-2025 | 67, annual 1959-2025 |
+| Splits (train / val / test) | ≤2016 / 2017-18 / 2019-24 | ≤2015 / 2016 / 2017-25 | ≤2005 / 2006-09 / 2010-25 |
+| n test forecasts | 4 | **9** | **16** |
+| `growth_rate_per_year` (SE) | 0.006777 (0.000472) | 0.006652 (0.000401) | 0.006427 (0.000645) |
+| MAE (people) | 1.28e6 | 1.10e6 | 7.82e5 |
+| persistence / drift MAE | 3.36e6 / 1.36e6 | 2.51e6 / 1.05e6 | 2.98e6 / 7.42e5 |
+| CRPS | 1.07e6 | 8.79e5 | 6.13e5 |
+| DM p vs persistence | 0.020 | 0.0094 | 3.6e-07 |
+| 80% coverage (0.80 ± 0.20) | 0.50 | **0.333** | **0.500** |
+| Skipped origins | 2 | 0 | 0 |
+| Verdict | fail (min_forecasts, coverage) | **fail (coverage)** | **fail (coverage)** |
+
+Reports `b17aca9776c3…` / `96923961224d…`, artifacts `6dbe25f775da…` / `9be38e2a8920…`.
+
+**Verdict: fail, both, on `interval_coverage` alone.** `minimum_test_forecasts`,
+`beats_persistence_dm`, `parameters_within_declared_bounds`, `no_timing_leakage` and
+`no_revision_leakage` all pass. Three things belong next to that:
+
+1. **Coverage gets *worse* with more forecasts** (0.50 → 0.333 on the census panel), so this is not
+   a small-sample artifact. It is the fifth wave's diagnosis again: a Gaussian interval scaled by
+   the in-sample residual sd of a drift regression, against a series whose growth shifts level
+   (immigration, the pandemic, and the census rebasings). On POPTHM the mean interval width is
+   1.19e6 people against an MAE of 7.82e5 — the 80% half-width is smaller than the average error.
+   The declared next step is a trailing-scale predictive distribution of the kind that fixed
+   `inventory_balance`; it was not run here, because choosing it after seeing these holdouts would
+   be tuning.
+2. **Neither beats *drift*** (DM p = 0.954 and 0.907; drift MAE is slightly lower than the model's
+   in both). `beats_persistence_dm` is the declared criterion and it passes decisively, but a drift
+   regression on population is close to tautologically a drift extrapolation.
+3. **The panel extension alone was not enough.** Rerunning the v1 splits on the twenty-vintage build
+   gives n = 6 — still a failure. The binding constraint is that the **2016 census.gov migration
+   overwrote `Last-Modified` for every PEP file older than it**, so vintages 2004-2015 all appear to
+   become knowable in mid-2016 and the earliest annual origin with eight observations is 2016 rather
+   than 2012. A `Last-Modified` upper bound delays availability and cannot leak; substituting the
+   documented December release schedule would move availability earlier than the evidence supports,
+   so it was not done.
+
+### deposit_rate_pass_through — evaluable on three series, and it fails on all three
+
+**SNDR cannot be extended backwards**: the series begins 2021-04 because it *is* the FDIC National
+Rate under the methodology adopted in 2021. So the declared series was re-attempted with the splits
+recut by a mechanical rule (train = exactly the 36 months the component needs; holdout = everything
+after 2024-07-31; validation = the four months between), and two longer **substitute** series were
+published in a new 1.08 MiB dataset `fred_deposit_rates` and declared as substitutions:
+**SAVNRNJ** (FDIC National Rate on non-jumbo savings, SNDR's discontinued predecessor, weekly
+2009-2021) and **M2OWN** (the M2 own rate, monthly 1959-2019).
+
+| | `fred_realtime` (recorded) | `fred_realtime_v2` | `savnrnj_substitute` | `m2own_substitute` |
+| --- | --- | --- | --- | --- |
+| Deposit rate | SNDR | SNDR | SAVNRNJ *(substitute)* | M2OWN *(substitute)* |
+| Frame at the cutoff | 62 monthly | 64, 2021-04..2026-07 | 142, 2009-05..2021-02 | 724, 1959-02..2019-05 |
+| n test forecasts | 16 | **24** | **38** | **29** |
+| `pass_through` (SE) | 0.0782 (0.0018) | 0.0782 (0.0018) | 0.0808 (0.0407) | **0.6199 (0.0519)** |
+| `impact_pass_through` (SE) | — | 0.0121 (0.0095) | 0.0111 (0.0019) | 0.2507 (0.0380) |
+| `adjustment_speed_per_month` (SE) | 0.2393 (0.083) | 0.2393 (0.0831) | 0.0178 (0.0089) | 0.0320 (0.0108) |
+| MAE (pp) / persistence MAE | 0.0131 / 0.0056 | 0.01437 / 0.01000 | 0.00301 / 0.00259 | 0.02866 / 0.03248 |
+| CRPS | — | 0.01118 | 0.00227 | 0.03716 |
+| DM p vs persistence | 0.871 | 0.287 | 0.131 | 0.725 |
+| 80% coverage (0.80 ± 0.15) | 0.438 | 0.458 | **0.763 pass** | 0.966 |
+| Verdict | fail (3 criteria) | **fail (DM, coverage)** | **fail (DM)** | **fail (DM, coverage)** |
+
+Reports `3a2489b407af…` / `838457583c80…` / `0132ca127434…`, artifacts `aadc3329867c…` /
+`7ecb9df59d45…` / `b226e2393a0f…`.
+
+**Verdict: fail on all three, and the interesting failure is the one that used to be unevaluable.**
+
+- **A substituted series is a new attempt, never the declared one passing.** Neither substitute
+  passes, so the question is moot here, but the record follows the `default_hazard` precedent: the
+  FDIC changed the national-rate methodology in 2021, so SAVNRNJ is **not spliced** onto SNDR, and
+  M2OWN includes money-market mutual fund holdings that are not bank deposits at all.
+- **`beats_persistence_dm` fails on all three**, over three windows, two series and n = 24, 29, 38.
+  At n = 16 that was arguably a power problem. With 38 monthly forecasts spanning the 2019 cuts and
+  the March 2020 collapse to the floor it is a finding: an error-correction model in the level of an
+  administered deposit rate does not beat "the rate is what it was last month" — on SAVNRNJ the
+  model's MAE (0.00301) is *worse* than persistence's (0.00259). Lengthening the panel revealed the
+  failure rather than fixing it, which is the more informative result.
+- **The whole of 16 → 24 is the split recut, none of it newer data.** Rerunning v1's declared splits
+  on `fred_macro_panel@7dcce89c` reproduces n = 16, coverage 0.4375, DM p = 0.871 exactly. And 24 is
+  *exactly* the declared minimum, so v2 clears it with no margin.
+- **The two substitutes disagree about pass-through by a factor of eight, and regime is why.**
+  SAVNRNJ 2009-2021 is a floor-bound decade: 0.081 ± 0.041, indistinguishable from zero. M2OWN
+  1959-2019 spans many complete cycles: 0.620 ± 0.052 with a 0.251 ± 0.038 within-month impact and a
+  3.2%/month adjustment speed, a textbook shape. `mechanisms.deposit_interest.pass_through` is
+  regime-dependent, not a constant — the same lesson as `default_hazard`'s two variants disagreeing
+  on the sign of `unemployment_sensitivity`.
+- **`interval_coverage` passes for the first time on this component** (0.763 on SAVNRNJ), with no
+  interval work at all: a never-revised administered rate has a stable residual scale. It fails from
+  the *other* side on M2OWN (0.966, mean width 0.324pp against an MAE of 0.029pp), which is what a
+  heavily revised series does to an in-sample Gaussian. The declared next step there is the revision
+  component that fixed `credit_growth`; unrun.
+
 ## Blocked on data
 
 `python3 -m worldmodel estimation-load` prints this machine-readably. After
@@ -968,6 +1098,26 @@ that use a national unemployment rate.
    exactly one party has an incumbent.
 8. **UCDP monthly counts are floats in the records** (`"value": 7.0`) while the conflict family
    requires integer counts; the loader casts them.
+14. **The 2016 census.gov migration destroyed the original publication dates of the older PEP vintage
+   files.** `census_population` derives `attributes.released_at` from HTTP `Last-Modified`, and every
+   file older than the migration returns 2016-07-19 or later instead of its December release: V2004,
+   V2005, V2006, V2007, V2011, V2013 and V2014 all report 2016-07-19, the 2000-2010 intercensal
+   series 2016-08-24, V2012 2016-08-25 and V2015 2016-09-01. From V2016 on the timestamps do match
+   the Census release dates. This is an upper bound, so it cannot leak, but it costs origins: it is
+   the reason the earliest annual origin with eight observations is 2016 rather than 2012 and
+   `population_growth_rate.census_pep_v2` scores 9 forecasts rather than about 14.
+15. **PEP field names and identifier widths are not stable across vintages.** V2012 publishes
+   `Sumlev,Region,Division,State,Name`; V2006 publishes lowercase `births2000`; V2011 publishes
+   `SUMLEV` as `10` and `STATE` as `0` rather than `010`/`00`; V2004 and V2005 use `INTERNALMIG`
+   where later vintages use `DOMESTICMIG`; and pre-2010 vintages name their April-1 base fields
+   `CENSUS2000POP`/`ESTIMATESBASE2000`. Each of these silently dropped rows or whole files before
+   `census_population/pipeline.py` normalized field-name case and zero-padded the geographic
+   identifiers. The census base year is now read from each row's `ESTIMATESBASE<year>` field rather
+   than inferred from the vintage.
+16. **Vintages 2008-2010 of the PEP national/state totals do not exist in machine-readable form.**
+   The Census server serves only per-year `nst-est200X-popchgYYYY.csv` and `-compchgYYYY.csv`
+   presentation tables for those vintages, so the 2000s come from the V2004-V2007 ALLDATA files plus
+   the 2000-2010 national intercensal series (which is what fills 2008 and 2009).
 
 ## Method notes
 
