@@ -75,6 +75,9 @@ from the sources.
 | `default_hazard.fdic_cps_quarterly` | coupled_economy / default_hazard | fdic_bank_financials@6283087f + bls_labor@ffd7f43a (LNS14000000) + DFF, quarterly 2010-2025 (62) | 19 | **pass** | none |
 | `default_hazard.fdic_laus_quarterly_v2` | coupled_economy / default_hazard | same on the completed bls_labor@ffd7f43a | 19 | **pass** | none |
 | `monetary_model.cpi_okun_proxy_v2` | monetary_model | fred_cpi@34fe03f5 + DFF + bls_labor@ffd7f43a (LAUS states), monthly 1990-2024 (420) | 120 | **fail** (superseded) | beats_persistence_dm, no_revision_leakage |
+| `assets_model.fred_fx_realtime` | assets_model | fred_macro_panel@7dcce89c (DEXJPUS, DEXUSUK, DEXCAUS, DEXSZUS, DEXUSAL, DEXUSEU, DFF first releases), daily 2014-03..2024-12 (13,480 bars) | 1,875 | **pass** | none |
+| `monetary_model.okun_unrate_realtime` | monetary_model | fred_macro_panel@7dcce89c (CPIAUCSL, UNRATE, DFF first releases), monthly 2005-06..2024-12 (235) | — | **failed to fit** | smoothing not below one (unidentified) |
+| `monetary_model.okun_unrate_realtime_v2` | monetary_model | fred_macro_panel@7dcce89c (CPIAUCSL, UNRATE, FEDFUNDS first releases), monthly 1996-12..2024-12 (337) | 120 | **fail** | beats_persistence_dm, parameters_within_declared_bounds |
 
 Baseline names below: *persistence* = last value, *drift* = linear extrapolation,
 *mean* = historical mean, plus each family's supplied mechanism-off baseline. All
@@ -990,3 +993,76 @@ that use a national unemployment rate.
 - Coverage is an average. Where forecasts share a common shock — 51 states in one year, 141
   months spanning a dozen revision episodes — the effective number of independent observations
   is far smaller than the count, and the record says so rather than quoting the count.
+## Sixth wave (WS-A: the vintages were mostly already bought)
+
+Eight attempts failed `no_revision_leakage`, the one criterion no modelling change can fix. WS-A
+audited what FRED/ALFRED actually serves for every series those eight touch and acquired **0 new
+bytes**: three are closable from vintages `fred_macro_panel` already holds, three (`regional_model`)
+are WS-B's `fred_state_employment_vintages`, and two cannot be closed from any vintage archive —
+FRED carries neither UCDP nor any EIA petroleum *supply* series (`WCESTUS1`, `WCRFPUS2`, `WCRIMUS2`,
+`WCREXUS2`, `WCRRIUS2` all answer "the series does not exist"; EIA source 53 has only the price and
+Total Energy releases). All eight were re-run first and reproduce their recorded verdicts and report
+digests exactly. Full audit, probe transcripts and per-attempt table:
+[docs/research-log/ws-a-alfred-vintages.md](research-log/ws-a-alfred-vintages.md).
+
+### assets_model — **pass** (all seven criteria; the process is validated)
+
+Adjusted equity closes are restated by later corporate actions and FRED has no per-issuer prices, so
+`assets_model.alpaca_daily` cannot be repaired on its own series; it keeps its verdict. This attempt
+takes the point-in-time price feed the v1 record named as the fix: five major-currency FRED daily
+rates quoted as USD per unit of foreign currency, the euro as the common factor (never scored),
+`DFF/252` as the daily risk-free rate, **every day read from the vintage that first published it**.
+Splits are identical to the equity attempt. Measured across the published panel, each of these rates
+was ever revised on exactly one or two days, against 1,658 revised days for DFF.
+
+| Metric (1,875 forecasts, 0 skipped) | Model | `constant_volatility` | Persistence | Mean | Drift |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| MAE (log return) | 0.0027533 | 0.0027533 | 0.0051289 | 0.0035706 | 0.0051299 |
+| RMSE | 0.003813 | 0.003813 | 0.0069356 | 0.0049237 | 0.006937 |
+| CRPS | **0.0020104** | 0.0020852 | 0.0038049 | 0.0026742 | 0.0038056 |
+| DM p vs model | — | degenerate (identical means) | 0.0 | 0.0 | 0.0 |
+
+80% coverage 0.8597, mean width 0.01034, bias +0.0000827. Report `d6734d86ebd8...`, artifact
+`55c4e9410487...`.
+
+**Verdict: pass — all seven criteria, with four things that belong next to it.** (1) It is a
+*different estimand*, declared as such before the run: a currency cross-section, not five mega-cap
+issuers, so the pass does not retrospectively validate the equity attempt. (2) `volatility_crps_skill`
+passes at 0.964x where the equity attempt delivered 0.996x — currency volatility clusters more than
+idiosyncratic equity volatility, which was the declared reason for expecting it. (3) The forecasts are
+conditional on realized factor returns (`conditional_on_realized_inputs`), so beating a random walk
+here is a far weaker claim than forecasting exchange rates. (4) `no_revision_leakage` passes because
+of the first-release construction; the low revision counts are corroboration, not the basis.
+
+### monetary_model — the revision criterion closes, and a new failure appears
+
+`monetary_model.cpi_okun_proxy` and its v2 rerun failed `no_revision_leakage` for one reason: the
+unemployment input was aggregated from 51 LAUS state series and `bls_labor` publishes one current
+vintage. ALFRED has carried the published national rate UNRATE since 1960-03-15 (799 vintages), all
+already in `fred_macro_panel`, so the same proxy was rebuilt from first releases only.
+
+`monetary_model.okun_unrate_realtime` **failed to fit** — `Estimated smoothing is not below one;
+reaction coefficients unidentified` — because DFF entered ALFRED on 2005-06-28, putting the whole
+training window inside the zero-lower-bound era where a smoothed rule's rho is 1 by construction. No
+criterion was evaluated, so v2 (FEDFUNDS, in ALFRED since 1996-12-03, 337 first-release months) is a
+new attempt and not a re-specification; it restores the original `cpi_okun_proxy` splits exactly.
+
+| Parameter | v2 estimate | LAUS version |
+| --- | ---: | ---: |
+| `rho` | 0.98609 (SE 0.00549) | 0.9774 |
+| `phi_pi` | 3.0782 | 0.7517 |
+| `phi_y` | 1.5115 | 0.9327 |
+| `r_star` | **-5.1386** (outside bounds) | -1.9899 |
+
+120 forecasts, MAE 0.14855 against 0.09283 for persistence (DM p = 0.992), 80% coverage 0.71667,
+bias +0.07677. Report `65df6905e3cb...`.
+
+**Verdict: fail — `no_revision_leakage` and `interval_coverage` pass, `beats_persistence_dm` and
+`parameters_within_declared_bounds` fail.** The revision criterion is closed for this specification,
+which is what the attempt was registered for. `beats_persistence_dm` fails as declared in advance. The
+new failure is the finding: same proxy, same Okun coefficient, same splits, and `r_star` moves from
+-1.99 to -5.14 once the *published* unemployment rate is read in real time instead of a
+current-vintage state aggregate. The earlier attempt's more plausible `r_star` was partly an artefact
+of the substitute input, and reading the declared series point-in-time exposed the specification's
+problem instead of hiding it. `monetary_model.fred_realtime_v2`, which uses the declared
+GDPC1/GDPPOT gap, remains the passing attempt for this family.
