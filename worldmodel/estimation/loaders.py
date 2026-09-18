@@ -307,7 +307,8 @@ COMPONENT_SOURCES = {
     'population_growth_rate': (
         SeriesSource('population', 'census_population', 'population', 'people', subject='geo:US',
                      absent_dimensions=('basis',), availability='real_time',
-                     note='PEP vintages 2020 and 2024; attributes.released_at is the file publication date'),
+                     note='PEP vintages 2004-2025 plus the 2000-2010 intercensal series; '
+                          'attributes.released_at is the file publication date'),
     ),
     'inventory_balance': (
         SeriesSource('crude_stocks', 'eia_energy', 'crude_oil_commercial_stocks_excl_spr', 'Thousand Barrels', **EIA_US),
@@ -327,6 +328,56 @@ COMPONENT_SOURCES = {
         FRED_OIL_PRICE,
     ),
 }
+
+# ------------------------------------------------- alternative source sets for the same component
+#
+# A component can be attempted on more than one published series. Each alternative is a named
+# loader so a pre-registered attempt can select it by ``loader.function``; the estimator's
+# ``overrides`` (declared in the same attempt) rename the series in the requirement, so the
+# estimate's data audit says which object was actually fitted.
+
+POPULATION_POPTHM = (
+    SeriesSource('population', 'fred_macro_panel', 'resident_population', 'people', subject='geo:US',
+                 dimensions=(('series_id', 'POPTHM'),), availability='real_time',
+                 note='POPTHM ALFRED vintages (325 vintages from 1999-07-30): monthly national population, '
+                      'aggregated to annual with the requirement\'s "last" rule. requirements.json declares '
+                      'POPTHM as a source for this series alongside Census PEP.'),
+)
+
+DEPOSIT_RATE_SUBSTITUTES = {
+    # FDIC National Rates, the programme that publishes SNDR, before the 2021 methodology change.
+    'SAVNRNJ': ('national_rate_non_jumbo_savings', 'fred_deposit_rates'),
+    'MMNRNJ': ('national_rate_non_jumbo_money_market', 'fred_deposit_rates'),
+    # The weighted average rate paid on the deposit components of M2 (Board of Governors).
+    'M2OWN': ('m2_own_rate', 'fred_deposit_rates'),
+}
+
+
+def population_popthm_data(store, *, versions=None, estimator=None):
+    """``population_growth_rate`` on FRED POPTHM instead of the Census PEP vintage files."""
+    return observation_set('population_growth_rate', store, sources=POPULATION_POPTHM, versions=versions,
+                           estimator=estimator)
+
+
+def deposit_rate_substitute_data(store, *, series_id, versions=None, estimator=None):
+    """``deposit_rate_pass_through`` on a longer-history deposit rate than SNDR.
+
+    SNDR begins 2021-04, so it cannot supply both the 36 observations the component needs to fit
+    and the 24 holdout forecasts it declares. ``series_id`` selects a substitute deposit rate from
+    ``fred_deposit_rates``; it is a *different estimand* from the declared SNDR series and the
+    attempt that uses it declares that in its overrides.
+    """
+    if series_id not in DEPOSIT_RATE_SUBSTITUTES:
+        raise MissingData(f'Unknown deposit-rate substitute {series_id!r}; '
+                          f'known: {sorted(DEPOSIT_RATE_SUBSTITUTES)}')
+    metric, dataset = DEPOSIT_RATE_SUBSTITUTES[series_id]
+    sources = (SeriesSource('deposit_rate', dataset, metric, 'percent', subject='geo:US',
+                            dimensions=(('series_id', series_id),), availability='real_time',
+                            note=f'{series_id}: every observation carries realtime_start/realtime_end'),
+               FRED_POLICY_RATE)
+    return observation_set('deposit_rate_pass_through', store, sources=sources, versions=versions,
+                           estimator=estimator)
+
 
 BLOCKED_COMPONENTS = {
     'field_diffusion_transport': Blocked('No per-cell field panel with a declared topology is published; EPA AQS county PM2.5 '
@@ -1546,7 +1597,9 @@ LOADER_FUNCTIONS.update({'observation_set': observation_set, 'cash_balance_data'
                          'assets_data': assets_data, 'commodities_data': commodities_data,
                          'regional_data': regional_data, 'regional_realtime_data': regional_realtime_data,
                          'monetary_data': monetary_data,
-                         'monetary_realtime_data': monetary_realtime_data, 'elections_data': elections_data})
+                         'monetary_realtime_data': monetary_realtime_data, 'elections_data': elections_data,
+                         'population_popthm_data': population_popthm_data,
+                         'deposit_rate_substitute_data': deposit_rate_substitute_data})
 
 
 def availability():
@@ -1562,6 +1615,20 @@ def availability():
                   'constructed LAUS national unemployment rate, used while DRCCLACBS and UNRATE were unpublished.',
         'series': [{'requirement': 'delinquency_rate', 'dataset': 'fdic_bank_financials', 'metric': 'aggregate noncurrent-loan rate'},
                    {'requirement': 'unemployment_rate', 'dataset': 'bls_labor', 'metric': 'LAUS state aggregate'}]}
+    out['components']['population_growth_rate']['alternative'] = {
+        'loader': 'population_popthm_data', 'policy': 'strict',
+        'reason': 'A longer real-time annual series than the PEP vintage files can supply. POPTHM carries 325 '
+                  'ALFRED vintages from 1999-07-30 over monthly periods 1959-2026, so annual origins exist from '
+                  '2000 onward; requirements.json names POPTHM as a source for this series.',
+        'series': [{'requirement': 'population', 'dataset': 'fred_macro_panel', 'metric': 'resident_population',
+                    'unit': 'people', 'availability': 'real_time'}]}
+    out['components']['deposit_rate_pass_through']['alternative'] = {
+        'loader': 'deposit_rate_substitute_data', 'policy': 'strict',
+        'reason': 'SNDR begins 2021-04 and cannot supply 36 fitting observations plus 24 holdout forecasts with '
+                  'room to spare. Each substitute is a different deposit rate, declared as such in its attempt.',
+        'series': [{'requirement': 'deposit_rate', 'dataset': dataset, 'metric': metric, 'unit': 'percent',
+                    'availability': 'real_time', 'series_id': series_id}
+                   for series_id, (metric, dataset) in sorted(DEPOSIT_RATE_SUBSTITUTES.items())]}
     out['components']['cash_balance'] = {'status': 'available', 'series': [
         {'requirement': name, 'dataset': 'sec_company_assets', 'metric': concept, 'unit': 'USD', 'availability': 'real_time'}
         for name, concept in sorted(SEC_CONCEPTS.items())]}

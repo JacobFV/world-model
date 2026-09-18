@@ -885,34 +885,141 @@
       "run_note": "RUN NOTE (2026-09-16, after the run): as above, the unpinned inputs resolved to latest, so the run read fred_cpi@34fe03f5 and fred_policy_rate@966a0099 rather than the c92b26cd and 2a3197b9 the declaration named. Results reproduce v1 exactly, which independently confirms that the fourth-wave CPI rebuild changed metadata and not CPIAUCSL values."
     },
     {
-      "id": "regional_model.ces_state_supersectors_realtime",
-      "kind": "family",
-      "target": "regional",
-      "process_id": "regional_model",
+      "id": "population_growth_rate.fred_popthm",
+      "kind": "component",
+      "target": "population_growth_rate",
+      "process_id": "population_growth",
       "loader": {
-        "function": "regional_realtime_data",
-        "options": {
-          "level": "state",
-          "start_year": 2008,
-          "end_year": 2025
+        "function": "population_popthm_data"
+      },
+      "overrides": {
+        "population": {
+          "source_series": "POPTHM",
+          "native_frequency": "monthly",
+          "publication_lag_days": 30,
+          "description": "Monthly national population (Board of Governors/BEA POPTHM on FRED), aggregated to annual with the declared 'last' rule so an annual point is that year's December level. requirements.json names POPTHM as a source for this series alongside Census PEP; it is a total-resident-population measure rather than the PEP July-1 estimate, and it is rebased at each decennial census exactly as PEP is."
         }
       },
-      "estimator_options": {
-        "interval_method": "per_unit_year_mean"
-      },
-      "data": "fred_state_industry_vintages@normalized (CES state x supersector payroll employment, every ALFRED vintage; each year is the mean of its twelve FIRST releases, so no row contains a revision published after it)",
+      "data": "fred_macro_panel@normalized (POPTHM), monthly 1959-01..2026-07 with 325 ALFRED vintages from 1999-07-30, aggregated to annual",
       "protocol": {
-        "train_end": "2016-12-31",
-        "validation_end": "2019-12-31",
-        "cutoff": "2025-12-31",
-        "vintage_policy": "family_rows",
+        "train_end": "2005-12-31",
+        "validation_end": "2009-12-31",
+        "cutoff": "2026-06-30",
+        "vintage_policy": "strict",
+        "window": "expanding",
         "refit_every": 1,
         "horizon": 1
       },
-      "entity_rule": "Every state-equivalent FRED serves as an ALFRED series (50 states and DC; FRED has no Puerto Rico CES series) and all eleven CES supersectors, which partition total nonfarm employment. Selection is availability only.",
-      "rationale": "The declared structural fix for no_revision_leakage on regional_model. CBP and QCEW publish one current vintage, so row dates are not information times and the criterion fails whatever the intervals do. FRED's ALFRED archive of the CES state series starts 2007-06, so 2008 is the first year whose twelve months all have genuine first releases (a month whose earliest vintage IS the archive start is a 2007 snapshot of revised history and is dropped). Coverage therefore gives 2008-2025: eighteen years, seventeen growth years, base-year shares 2008, validation targets 2017-2019 and a holdout of 2020-2025 x 51 areas = 306 forecasts. Splits are taken from coverage only and match the six-year holdout of regional_model.qcew_state_sectors.",
-      "expected_limits": "interval_coverage is expected to fail again, and for the same reason as on QCEW: the holdout contains 2020 and 2021, whose common component no pre-pandemic year effect can price, and this attempt deliberately does not change the interval method. The eleven CES supersectors are coarser than QCEW's twenty two-digit NAICS sectors, so the shift-share shock has less industry detail; that is the price of vintages. A first release is also a noisier target than a benchmarked annual average -- the mechanism is scored against what a real-time observer would have seen, which is the point.",
-      "supersedes": "regional_model.qcew_state_sectors; regional_model.cbp_state_sectors_v2"
+      "rationale": "population_growth_rate.census_pep failed minimum_test_forecasts with n=4 because the published PEP vintages covered only 2010-2024. calibration-status.md named POPTHM ALFRED vintages as the fix and they are already published in fred_macro_panel: 811 monthly periods and 325 real vintages, the earliest 1999-07-30. Under the strict policy the first usable annual origin is therefore 2000, so the splits are taken from vintage coverage alone: train to 2005, validation 2006-2009, holdout 2010-2025 (16 annual forecasts against a declared minimum of 8). The cutoff stops at 2026-06-30 so the incomplete 2026 annual period is never aggregated.",
+      "expected_limits": "A longer window with real vintages is a harder test, not an easier one: it spans the 2010 and 2020 census rebasings, each of which moves the level discontinuously, and beats_persistence_dm now has 16 forecasts to fail on rather than 4. interval_coverage failed at 0.50 on n=4 and is not addressed here; the interval method is left at its default so the only change is the panel."
+    },
+    {
+      "id": "population_growth_rate.census_pep_v2",
+      "kind": "component",
+      "target": "population_growth_rate",
+      "process_id": "population_growth",
+      "loader": {
+        "function": "observation_set"
+      },
+      "data": "census_population@normalized, extended with PEP national/state vintage files 2004-2007, 2011-2019 and 2025 and the 2000-2010 national intercensal series (annual national July-1 population 2000-2025, twelve vintages)",
+      "protocol": {
+        "train_end": "2015-12-31",
+        "validation_end": "2016-12-31",
+        "cutoff": "2026-09-30",
+        "vintage_policy": "strict",
+        "window": "expanding",
+        "refit_every": 1,
+        "horizon": 1
+      },
+      "rationale": "The declared primary source, on a longer panel. census_population now carries every PEP national/state ALLDATA vintage file the Census server still serves (V2004-V2007, V2011-V2025) plus the 2000-2010 national intercensal series, so national annual coverage runs 2000-2025 instead of 2010-2024 and there are twelve vintages instead of two. Availability is still the HTTP Last-Modified of each published file, which for every file older than the 2016 site migration is 2016-07-19 or later rather than its original December release date; that is an upper bound, so it delays availability and cannot leak. It does mean the first origin with the eight observations the component needs is 2016 (vintage 2015, 2016-09-01, with the intercensal series available from 2016-08-24). Splits are taken from that coverage: train to 2015, validation 2016, holdout 2017-2025 (9 annual forecasts against a declared minimum of 8).",
+      "expected_limits": "Nine forecasts only just clears the declared minimum, and every one of them sits inside a single PEP vintage era plus the 2020 rebasing. The 2016 migration timestamps are the binding constraint: with the true December release dates the same files would give origins back to 2012. interval_coverage (0.50 on the four-forecast run) is not addressed.",
+      "supersedes": "population_growth_rate.census_pep"
+    },
+    {
+      "id": "deposit_rate_pass_through.fred_realtime_v2",
+      "kind": "component",
+      "target": "deposit_rate_pass_through",
+      "process_id": "coupled_economy",
+      "loader": {
+        "function": "observation_set"
+      },
+      "data": "fred_macro_panel@normalized (SNDR, 65 monthly periods 2021-04..2026-08 with 64 vintages) + fred_policy_rate@normalized (DFF), monthly",
+      "protocol": {
+        "train_end": "2024-03-31",
+        "validation_end": "2024-07-31",
+        "cutoff": "2026-08-31",
+        "vintage_policy": "strict",
+        "window": "expanding",
+        "refit_every": 1,
+        "horizon": 1
+      },
+      "rationale": "The declared series, with the splits recut to the minimum the declared criteria demand. SNDR cannot be extended backwards -- the series does not exist before 2021-04 -- but the published panel now holds 65 months, and the component needs 36 to fit and 24 holdout forecasts. The split rule is mechanical and outcome-free: train is exactly the first 36 months (2021-04..2024-03), the holdout is the last 25 (2024-08..2026-08, one more than the declared minimum), and validation is the four months left in between. v1 declared a twelve-month validation window and was left with 17 origins against 24.",
+      "expected_limits": "The holdout is a single easing cycle, so beats_persistence_dm (p = 0.871 on v1's 16 forecasts) is likely to fail again: a national deposit rate is close to a random walk at monthly frequency. interval_coverage was 0.438 on v1. Clearing minimum_test_forecasts makes those two verdicts real rather than unevaluable; it does not make them pass.",
+      "run_note": "RUN NOTE (2026-09-17, after the run): the rationale predicted 25 holdout forecasts from the declared boundaries; the realized count is 24, because the first target after validation_end has no informative origin (its anchor's first publication already covers it). 24 is exactly the declared minimum, so minimum_test_forecasts passes with no margin. The split boundaries are as declared and were not changed.",
+      "supersedes": "deposit_rate_pass_through.fred_realtime"
+    },
+    {
+      "id": "deposit_rate_pass_through.savnrnj_substitute",
+      "kind": "component",
+      "target": "deposit_rate_pass_through",
+      "process_id": "coupled_economy",
+      "loader": {
+        "function": "deposit_rate_substitute_data",
+        "options": {
+          "series_id": "SAVNRNJ"
+        }
+      },
+      "overrides": {
+        "deposit_rate": {
+          "metric": "national_rate_non_jumbo_savings",
+          "source_series": "SAVNRNJ",
+          "native_frequency": "weekly",
+          "description": "SUBSTITUTION, not the declared series. FDIC National Rate on Non-Jumbo Deposits (less than $100,000): Savings, weekly 2009-05-18..2021-03-29, aggregated to monthly with the declared 'mean' rule. This is SNDR's direct predecessor from the same FDIC National Rates programme, discontinued in 2021 when FDIC changed the methodology from a simple average over a sampled branch panel to a deposit-weighted average over all institutions. The level and the pass-through are therefore NOT comparable with SNDR's, and a pass here is a pass on SAVNRNJ."
+        }
+      },
+      "data": "fred_deposit_rates@normalized (SAVNRNJ, 624 weekly observations, ALFRED vintages from 2014-03-10) + fred_policy_rate@normalized (DFF), monthly",
+      "protocol": {
+        "train_end": "2015-12-31",
+        "validation_end": "2017-12-31",
+        "cutoff": "2021-03-31",
+        "vintage_policy": "strict",
+        "window": "expanding",
+        "refit_every": 1,
+        "horizon": 1
+      },
+      "rationale": "SNDR starts 2021-04 and cannot be extended backwards, so the only way to give this component a real holdout is a different deposit rate. SAVNRNJ is the closest published object: the same FDIC programme, the same deposit product, 143 months of coverage. ALFRED vintages of SAVNRNJ begin 2014-03-10, so under the strict policy the first usable origin is 2014-04; splits are taken from that coverage with validation starting after it. Train 2009-05..2015-12 (80 months), validation 2016-2017, holdout 2018-01..2021-03 (39 forecasts). The holdout contains the 2019 cuts and the March 2020 collapse to the floor, which is the variation a pass-through parameter is supposed to explain.",
+      "expected_limits": "This is a substituted series and must never be read as the declared SNDR component passing, exactly as default_hazard.fdic_laus_quarterly's pass on a substituted delinquency series is not read as default_hazard passing. The FDIC national rate is administered and sticky near zero for most of 2009-2015, so the fitted long-run pass-through describes a floor-bound regime."
+    },
+    {
+      "id": "deposit_rate_pass_through.m2own_substitute",
+      "kind": "component",
+      "target": "deposit_rate_pass_through",
+      "process_id": "coupled_economy",
+      "loader": {
+        "function": "deposit_rate_substitute_data",
+        "options": {
+          "series_id": "M2OWN"
+        }
+      },
+      "overrides": {
+        "deposit_rate": {
+          "metric": "m2_own_rate",
+          "source_series": "M2OWN",
+          "description": "SUBSTITUTION, not the declared series. M2 Own Rate (FRED M2OWN, discontinued 2019-06): the weighted average interest rate paid on the deposit components of M2, monthly 1959-02..2019-06. It is an aggregate realised cost of deposits rather than an advertised retail rate, so it is a different object from SNDR and from SAVNRNJ; a pass here is a pass on the M2 own rate."
+        }
+      },
+      "data": "fred_deposit_rates@normalized (M2OWN, 10,515 vintage observations over 725 monthly periods, ALFRED vintages from 2014-03-07) + fred_policy_rate@normalized (DFF), monthly",
+      "protocol": {
+        "train_end": "2015-12-31",
+        "validation_end": "2016-12-31",
+        "cutoff": "2019-06-30",
+        "vintage_policy": "strict",
+        "window": "expanding",
+        "refit_every": 1,
+        "horizon": 1
+      },
+      "rationale": "The second substitute, registered at the same time as the first and for the opposite reason: SAVNRNJ is close to SNDR in construction but covers only a floor-bound decade, while M2OWN covers 1959-2019 and therefore many complete tightening and easing cycles. Its ALFRED vintages also begin 2014-03, so origins start 2014-04 and the splits follow coverage: train 1959-02..2015-12, validation 2016, holdout 2017-01..2019-06 (30 forecasts). Registering both makes the disagreement visible if the two substitutes give different pass-through signs, which is how default_hazard's two variants were read.",
+      "expected_limits": "M2OWN is revised (118 vintages for some periods), so the scored error carries revisions the origin could not see, which is the mechanism that made credit_growth's intervals too narrow. The interval method is left at its default, so interval_coverage may well fail from that direction. Substitution caveat as above."
     }
   ],
   "not_run": [
@@ -935,5 +1042,6 @@
   "third_wave": "2026-09-15, after fred_macro_panel published 7.57M records covering every required FRED series with full ALFRED vintages (realtime_start/realtime_end on every observation). Nine attempts below were pre-registered with their splits before any holdout was scored. Splits start inside each series vintage era, because under the strict policy nothing is visible before a series first entered ALFRED: DFF and DPRIME 2005-06, DPSACBW027SBOG 2012-08, DRCCLACBS 2011-05, RRSFS 2001-06, TOTALSL and FEDFUNDS 1996-12, GDPC1 1992-12, GDPPOT 1994-01, SNDR 2021-04. The two second-wave attempts that used substitute series are superseded but retained with their verdicts so the substitution history stays visible.",
   "fourth_wave": "2026-09-15, after the chained-dollar base-year bug was fixed and fred_macro_panel and fred_cpi were rebuilt (panel 7dcce89c, cpi 34fe03f5). Every observation now carries attributes.source_units, a per-vintage unit_multiplier and base_period, and the unit token is per vintage. Two input defects were corrected: 189 of 849 panel series changed units across vintages (the old build labelled every vintage with one unit), and TOTALSL was published in billions for some vintages and millions for others, so 11,612 of its 13,537 values changed (e.g. 1998-03 1.3322 -> 1332.2). Five attempts are re-registered below with the SAME splits as their v1 counterparts so the two are comparable; the v1 verdicts are kept and marked contaminated. Verified value-identical between the two builds, so their verdicts stand without a rerun: DPRIME, DFF, SNDR, DRCCLACBS, UNRATE, DPSACBW027SBOG, PAYEMS, FEDFUNDS and RRSFS (RRSFS changed only its unit token).",
   "fifth_wave": "2026-09-16. Three strands. (a) Interval calibration on the three attempts that beat their baselines on point accuracy and failed ONLY interval_coverage: inventory_balance (0.640), credit_growth (0.596) and regional_model (1.000). Each was diagnosed first, and each new attempt records the diagnosis and the interval method it declares; the diagnoses differ, so the methods differ. Predictive distributions are now a declared choice in the estimator (worldmodel/estimation/intervals.py: gaussian_in_sample, gaussian_trailing, student_t_trailing, empirical_trailing, with optional coefficient-uncertainty and data-revision components; regional: pooled_year_draw or per_unit_year_mean), not a tuned multiplier, and the default keeps every earlier run bit-identical. (b) elections_model is no longer blocked: mit_election_returns published 33,805 U.S. House district rows, so the family is scored on real district returns with the split taken by election year. (c) bls_labor was rebuilt from 18.2M to 60.9M rows (the earlier build was an incomplete download), so every attempt that read it is rerun with the version as the only change, the newly available national CPS unemployment rate replaces one of the two substitutions in the passing default_hazard attempt, and QCEW makes the long regional panel possible.",
-  "sixth_wave": "2026-09-17 (WS-A, ALFRED vintage coverage). Eight attempts fail no_revision_leakage, which no modelling change can fix: the criterion asks for point-in-time vintages. An audit of what FRED/ALFRED actually serves found that five of the eight measure quantities FRED does not publish at all (UCDP event counts; per-issuer total-return equity closes; and the EIA weekly petroleum supply balance -- FRED carries only EIA prices and the CO2/Total Energy release, so the weekly WPSR series WCESTUS1, WCRFPUS2, WCRIMUS2, WCREXUS2 and WCRRIUS2 return 'the series does not exist'). The three regional_model failures CAN be fixed: FRED serves the BLS State Area Employment series as real ALFRED series with 229 archive vintages back to 2007-06, so a state-by-supersector employment panel can be built from first releases only. fred_state_industry_vintages was acquired for that, and the one attempt below is registered with the SAME estimator options as regional_model.qcew_state_sectors so the data's real-time property is the only change. Nothing else about the regional design is touched: the fifth wave's declared next step (a fresh-draw between-year term) stays unrun."
+  "panel_length_wave": "2026-09-17 (WS-D, panel length). Two attempts failed minimum_test_forecasts, which is a data-quantity failure and not a modelling one: population_growth_rate.census_pep had 14 annual observations and n=4 against a declared 8, and deposit_rate_pass_through.fred_realtime had 62 monthly observations and n=16 against a declared 24. Five attempts are registered below and every split is taken from data coverage alone. Population is attempted twice: on the declared primary source, with census_population extended from two PEP vintages to twelve (V2004-V2007, V2011-V2025, plus the 2000-2010 national intercensal series, so annual national coverage is 2000-2025 instead of 2010-2024); and on POPTHM, which requirements.json already names as a source for the same series and which fred_macro_panel already publishes with 325 ALFRED vintages back to 1999-07-30. The deposit rate cannot be extended backwards -- SNDR does not exist before 2021-04 -- so it is attempted three ways: the declared series with the splits recut to the minimum the criteria demand (train = exactly the 36 months needed to fit, holdout = the last 25 months, validation = what is left), and two SUBSTITUTE series in a new fred_deposit_rates dataset (SAVNRNJ, SNDR's discontinued predecessor from the same FDIC programme, 2009-2021; and M2OWN, the M2 own rate, 1959-2019). Both substitutions are declared as overrides and neither can be read as the declared SNDR component passing, following the precedent of default_hazard.fdic_laus_quarterly.",
+  "sixth_wave": "2026-09-17 (WS-A, ALFRED vintage coverage). Eight attempts fail no_revision_leakage, the one criterion no modelling change can fix. An audit of what FRED/ALFRED actually serves, against every series the eight touch, found that the binding constraint is what the publisher archives, not the download budget. Three of the eight (regional_model on CBP and QCEW) are fixable from ALFRED's CES State and Area archive and are WS-B's dataset fred_state_employment_vintages. Two (the monetary Okun-proxy pair) are fixable from vintages fred_macro_panel already holds, and are re-registered below. One (assets_model) is fixable only by changing which assets are scored, because FRED has no per-issuer equity prices; that is registered below as a separate attempt on FRED-native daily series whose ALFRED vintages are already acquired. Two cannot be fixed from ALFRED at all: UCDP event counts are not in FRED, and FRED carries no EIA weekly petroleum supply series (WCESTUS1, WCRFPUS2, WCRIMUS2, WCREXUS2 and WCRRIUS2 all answer 'the series does not exist'; source 53 has only the price and Total Energy releases)."
 }
