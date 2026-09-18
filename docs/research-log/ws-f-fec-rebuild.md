@@ -100,11 +100,14 @@ says should happen. The delta is therefore an addition, not a replacement.
 | Dataset | aggregate-only artifact | rebuilt artifact | delta | dataset dir before → after |
 | --- | ---: | ---: | ---: | --- |
 | `fec_individual_contributions` | 0.0309 GiB | **1.4472 GiB** | **+1.4473 GiB** | 2.0673 → 3.5146 GiB |
+| `fec_individual_contributions_2024` | 0.0375 GiB | **2.7541 GiB** | **+2.7541 GiB** | 3.9903 → 6.7438 GiB |
 
-Rebuilt `fec_individual_contributions` = version `4c5960d6…` (the aggregate-only one is
-`75a9e71b…`), `records.jsonl.gz` = 1,551,024,762 bytes for 33,422,616 rows, build time 27m18s.
+| Dataset | rebuilt version | aggregate-only version | `records.jsonl.gz` bytes | rows | build time |
+| --- | --- | --- | ---: | ---: | ---: |
+| 2026 cycle | `4c5960d6…` | `75a9e71b…` | 1,551,024,762 | 33,422,616 | 27m18s |
+| 2024 | `83a01f42…` | `5e478131…` | 2,954,550,535 | 60,086,927 | 49m38s |
 
-Cost per contributor row: **about 48 bytes gzipped**. That is far less than the ~1,649 bytes each
+Cost per contributor row: **about 48-50 bytes gzipped**. That is far less than the ~1,649 bytes each
 record occupies uncompressed, because the ~700-byte `rights_decision` and `use_restriction` block
 repeats verbatim on every row and gzip's window absorbs it. The honest reading is that carrying the
 decision on every record is nearly free on disk, not that the rows are small.
@@ -129,12 +132,18 @@ key** moved.
 | Dataset | contributor rows | aggregate rows | aggregate digest before | after | unchanged |
 | --- | ---: | ---: | --- | --- | --- |
 | `fec_individual_contributions` | **31,658,308** | 1,764,308 | `34f17ebd…` | `34f17ebd…` | **yes** |
+| `fec_individual_contributions_2024` | **57,986,091** | 2,100,836 | `6a94d078…` | `6a94d078…` | **yes** |
 
-Contributor rows for the 2026 cycle, all checks passing with zero exceptions:
+Every contributor-row count matches the independent pre-build count of §3 exactly, which is a
+second, separate check that the pipeline's filters did not change: the rows added are precisely the
+raw rows that survived the memo, entity-type and malformed filters, and no others.
 
-- `attributes.rights_decision` present on **all 33,422,616 rows**, aggregate and contributor alike,
-  and exactly **one distinct decision** across the whole artifact (policy `conditional`, condition
-  `non_commercial_use`, authority `52 U.S.C. 30111(a)(4)`, declared purpose `non_commercial`).
+All checks below passed with zero exceptions on every rebuilt dataset:
+
+- `attributes.rights_decision` present on **every row of every rebuilt artifact**, aggregate and
+  contributor alike, and exactly **one distinct decision** per artifact (policy `conditional`,
+  condition `non_commercial_use`, authority `52 U.S.C. 30111(a)(4)`, declared purpose
+  `non_commercial`).
 - Every contributor row is a plain `observation` with metric `individual_contribution_amount` and
   subject `fec:committee:C########`. **No row has a person subject, a `same_as` predicate, a
   resolved contributor id, or any `person`/`contributor_id` field.**
