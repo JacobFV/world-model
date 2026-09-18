@@ -107,6 +107,15 @@ def _int(text):
     return int(text)
 
 
+def _county_fips(unit):
+    """The 5-digit county FIPS, or None where the ID file publishes no county for this unit."""
+    state = (unit or {}).get('fips_state') or ''
+    county = (unit or {}).get('fips_county') or ''
+    if not (state.isdigit() and state != '00' and county.isdigit() and county != '000'):
+        return None
+    return state + county
+
+
 def _flag(line, position):
     if position is None or position >= len(line):
         return None, None
@@ -171,8 +180,11 @@ class Aspep:
                 continue
             unit_id = line[0:14]
             unit_type = line[2:3]
-            if unit_id == '00000000000000':
-                continue  # national aggregate row; it carries no employment data
+            if unit_id[:2] == '00':
+                # State code 00 is the national aggregate row. It carries no employment data, has no
+                # FIPS geography, and is not a government unit. Its unit type code has also moved:
+                # 2023 publishes 00000000000000, 2014 publishes 00600000000000.
+                continue
             entry = {'unit_id': unit_id, 'unit_type': unit_type, 'name': line[14:78].strip(),
                      'region': line[78:79].strip(), 'county_name': line[79:109].strip(),
                      'fips_state': line[109:111].strip(), 'fips_county': line[111:114].strip(),
@@ -240,6 +252,8 @@ class Aspep:
             if len(line) < 70 or not line[:14].isdigit():
                 continue
             unit_id = line[0:14]
+            if unit_id[:2] == '00':
+                continue  # national aggregate; see `directory`
             unit_type = line[2:3]
             item = line[17:20].strip() or '000'
             unit = self.units.get(unit_id)
@@ -262,7 +276,7 @@ class Aspep:
                                             'payroll_basis': '31_day_monthly_equivalent_for_march' if measure_unit == 'USD' else None,
                                             'zero_values_omitted_except_total': True,
                                             'fips_state': (unit or {}).get('fips_state') or None,
-                                            'fips_county': ((unit or {}).get('fips_state') or '') + ((unit or {}).get('fips_county') or '') or None,
+                                            'fips_county': _county_fips(unit),
                                             'unit_in_directory': unit is not None})
 
     # ----- units and containment, emitted once ----------------------------------------------------
@@ -288,9 +302,7 @@ class Aspep:
                                         'census_region': REGIONS.get(unit['region']),
                                         'school_level': SCHOOL_LEVELS.get(unit['school_level']),
                                         'fips_state': unit['fips_state'] or None,
-                                        'fips_county': (unit['fips_state'] + unit['fips_county']
-                                                        if unit['fips_state'] and unit['fips_county'].isdigit()
-                                                        and unit['fips_county'] != '000' else None),
+                                        'fips_county': _county_fips(unit),
                                         'county_name': unit['county_name'] or None,
                                         'special_district_activity_code': unit['activity_code'] or None,
                                         'special_district_activity_code_year': unit['activity_code_year'],
