@@ -303,6 +303,35 @@ Remaining scale concerns:
   rebuild of the catalog is an I/O-bound operation on ~88 GiB of raw input and has not
   been timed end to end.
 
+## Grounded cognitive agents
+
+The agent layer (see [agents.md](agents.md)) is the newest and least settled area.
+
+* **Nothing in it is validated.** No agent is fitted to an outcome or scored against a
+  baseline. Its fidelities, trust weights, slip direction, corporate thresholds and
+  authority defaults are authored assumptions, declared in each module. A demonstration
+  that a mechanism behaves as designed is not evidence about the world.
+* **The organizational record is thinner than the cognition built on it.** No source
+  publishes bylaws, so authority defaults to `UNDECLARED` and most institutional acts
+  return `Unknown`. Roles are inferred from filing titles; tenure stays `Unknown` because
+  filings publish a reporting period rather than an appointment.
+* **Perception is narrow where the catalog is narrow.** Only five edge predicates carry a
+  legislator subject, so a legislator's percept stream is thinner than the design allows,
+  and contribution amounts and lobbying contacts return `Unknown` rather than a number.
+* **Informal ties are inference, not record.** Affinity is derived from published
+  co-membership and marked as inference with its evidence attached. Nothing publishes
+  education, so those ties are not inferable at all and are absent rather than guessed.
+* **Agents do not learn.** They perceive, decide and remember, but nothing updates from
+  outcomes: trust derives from published structure rather than from whether a teller
+  proved right. Decisions are single-tick; there are no multi-step plans, no commitment
+  and no abandonment. Agents do not age, retire or die, and there is no household — the
+  economic unit that consumes — nor any use of the road network and geography the catalog
+  already holds.
+* **Scale is bounded by memory.** A legislator store measures about 1,548 bytes per claim
+  resident, roughly 470 claims per focal agent, which is ~11,800 focal agents at 8 GiB.
+  Beyond that, agents must live as compact state or cohorts.
+
 [handoff verification](handoff-verification-2026-09-15.json) is the pre-acquisition local
-check record and is historical. Current checks: 839 tests with 8 skips, `wm catalog`,
-`wm budget`, and per-dataset `wm verify DATASET/normalized`.
+check record and is historical. Current checks: 1,201 tests with 8 skips with the optional
+`agents` extra installed and 1,145 with 228 skips without it, `wm catalog`, `wm budget`,
+and per-dataset `wm verify DATASET/normalized`.

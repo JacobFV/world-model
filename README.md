@@ -615,10 +615,33 @@ per call, per process (`WORLD_MODEL_LIMITS`) or per command (`--limits`); measur
 time and peak RSS are in [scale-benchmarks.md](docs/scale-benchmarks.md). The parameters
 in these examples are assumptions, not estimated responses.
 
+## Grounded cognitive agents
+
+Entities that act: persons, firms and institutions bound to real ids from the unified
+index, perceiving published records, holding beliefs with provenance, deciding under
+constraints, and speaking to one another over channels drawn from published edges.
+
+```sh
+pip install -e <tensacode>/tensacode/python        # optional `agents` extra
+python3 -m worldmodel agent-inspect bioguide:K000367
+python3 -m worldmodel agent-explain bioguide:K000367 decided
+python3 -m worldmodel society-run --config examples/society-congress.json --ticks 6 --seed 7
+```
+
+A person carries episodic memory and affect read as structural measures over its own
+processing. A firm has no single self: roles hold claims that can contradict, decisions are
+procedures across roles, and its readings are named for solvency and exposure. An
+institution is governed by authority, and an act outside declared power is refused and
+recorded rather than performed. See [the agent layer](docs/agents.md).
+
+**Nothing in this layer is validated or fitted to outcomes**, and its parameters are
+authored assumptions. It is inspectable cognition over real evidence, not a predictor.
+
 ## Where to read next
 
 | Document | What it is |
 | --- | --- |
+| [agents.md](docs/agents.md) | the agent layer: three kinds of mind, grounding, what it does not claim |
 | [strategic-affordances-audit.md](docs/strategic-affordances-audit.md) | current audit: what works, where the boundary is, what is missing |
 | [session-2026-09-15-summary.md](docs/session-2026-09-15-summary.md) | what changed in this session, including the bugs found |
 | [calibration-status.md](docs/calibration-status.md) | every estimation attempt and its verdict |

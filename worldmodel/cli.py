@@ -47,6 +47,7 @@ def parser():
     from .models_cli import add_commands as add_models; add_models(sub)
     from .unify_cli import add_commands as add_unify; add_unify(sub)
     from .agents_cli import add_commands as add_agents; add_agents(sub)
+    from .society_cli import add_commands as add_society; add_society(sub)
     sub.add_parser('catalog', help='List declarations and readiness')
     sub.add_parser('ontology', help='Describe typed entities, relations and variables')
     sub.add_parser('processes', help='Describe process contracts and registered implementations')
@@ -148,6 +149,8 @@ def execute(args):
     if command in UNIFY_COMMANDS: return unify_execute(args, catalog, store, PROJECT, reference)
     from .agents_cli import COMMANDS as AGENT_COMMANDS, execute as agents_execute
     if command in AGENT_COMMANDS: return agents_execute(args, catalog, store, PROJECT, reference)
+    from .society_cli import COMMANDS as SOCIETY_COMMANDS, execute as society_execute
+    if command in SOCIETY_COMMANDS: return society_execute(args, catalog, store, PROJECT, reference)
     if command in ('materialize', 'view'):
         from .materialize import materialize, load_view
         ref = reference(args.reference, store)

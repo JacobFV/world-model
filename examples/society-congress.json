@@ -1,0 +1,77 @@
+{
+  "id": "house-budget-and-a-real-issuer",
+  "description": "Six real members of the House Committee on the Budget, that committee, the House Judiciary Committee, LyondellBasell Industries N.V., four of its real GLEIF subsidiaries and a cohort of four more. Every entity id is published in data/world_evidence/index.sqlite; nothing in this file invents a fact. The objectives, the two capital options, the delegation of authority and the three links are DECLARED assumptions (the catalog publishes what a firm did, not what it was trying to do) and are labelled as such here and in worldmodel/agents/firm.py.",
+  "epistemic_status": "simulation_internal_behaviour: not fitted, not validated, not a forecast",
+  "clock": {"start": "2025-01-01", "window_days": 90},
+  "seed": 7,
+  "hearsay_ticks": 4,
+  "relay_fidelity": 0.8,
+  "audience_cap": 32,
+
+  "persons": [
+    {"entity_id": "bioguide:A000375", "tier": "focal", "note": "Jodey C. Arrington, chair of the House Budget Committee"},
+    {"entity_id": "bioguide:B001296", "tier": "focal", "note": "Brendan F. Boyle, ranking member"},
+    {"entity_id": "bioguide:S000185", "tier": "focal", "note": "Robert C. Scott"},
+    {"entity_id": "bioguide:M001177", "tier": "focal", "note": "Tom McClintock, who sits on BOTH the Budget and the Judiciary Committee, so a request from him reaches two institutions with different published jurisdictions"},
+    {"entity_id": "bioguide:C001118", "tier": "focal", "note": "Ben Cline, also on both committees"},
+    {"entity_id": "bioguide:D000399", "tier": "compact", "note": "Lloyd Doggett; compact, so he hears and relays without a store"}
+  ],
+
+  "institutions": [
+    {"entity_id": "congress:committee:hsbu00", "tier": "focal", "referrals": 4000, "members": 80,
+     "acts_per_tick": 2,
+     "note": "House Committee on the Budget. Its jurisdiction is the set of measures referred to it, which is a published edge; the power vocabulary attached to each seat is authored (institution.COMMITTEE_AUTHORITY). referrals is the declared row budget on that jurisdiction; a budget that binds is reported in Institution.unknown()."},
+    {"entity_id": "congress:committee:hsju00", "tier": "focal", "referrals": 4000, "members": 80,
+     "acts_per_tick": 2,
+     "note": "House Committee on the Judiciary. It is here so that one request can reach two institutions and be within the jurisdiction of one and ultra vires for the other: which committee may report a measure is a published fact (referred_to_committee), not an authored one."}
+  ],
+
+  "firms": [
+    {"entity_id": "sec:cik:0001489393", "tier": "focal", "financials": "catalog", "max_quarters": 8,
+     "authority": "standard_delegation", "procedure": "capital_allocation",
+     "note": "LyondellBasell Industries N.V. Roles and holders come from real SEC insider filings; the delegation of authority is authored because no catalog dataset publishes bylaws.",
+     "objective": [
+       {"measure": "runway_quarters", "direction": "at_least", "target": 4.0, "weight": 1.0, "scale": 1.0},
+       {"measure": "cash_cover", "direction": "at_least", "target": 0.25, "weight": 0.5, "scale": 1.0}
+     ],
+     "role_objectives": {
+       "cfo": [{"measure": "operating_margin", "direction": "maximize", "weight": 1.0, "scale": 0.01}]
+     },
+     "options": [
+       {"id": "buyback", "label": "return capital to shareholders this quarter",
+        "effects": [["cash_usd", -1000000000.0], ["runway_quarters", -2.5], ["cash_cover", -0.35],
+                    ["operating_margin", 0.004]],
+        "amount": 1000000000.0},
+       {"id": "retain", "label": "hold the cash and fund the turnaround",
+        "effects": [["runway_quarters", 0.8], ["cash_cover", 0.12], ["operating_margin", -0.002]],
+        "amount": 0.0}
+     ]},
+    {"entity_id": "lei:54930078Y1VRL1H5QP44", "tier": "compact", "note": "LyondellBasell Subholdings B.V."},
+    {"entity_id": "lei:549300AXUVRBBFPKWI76", "tier": "compact", "note": "LyondellBasell Industries Holdings B.V."},
+    {"entity_id": "lei:5493004OGK9A7CGV3B42", "tier": "compact", "note": "LyondellBasell Advanced Polymers Inc."},
+    {"entity_id": "lei:549300A3XNBD0DZUV073", "tier": "compact", "note": "LYB Americas Finance Company LLC"}
+  ],
+
+  "cohorts": [
+    {"id": "cohort:lyb-other-subsidiaries", "kind": "firm",
+     "members": ["lei:549300B27GNO6CRMDK53", "lei:549300BBGA3CFHX0KS75", "lei:5493005V1FDQ8Y7KGO78",
+                 "lei:54930062PDKVAZMJOQ53"],
+     "note": "The far tier: one row for four more published GLEIF subsidiaries. It absorbs reach as a count and relays nothing."}
+  ],
+
+  "links": [
+    ["bioguide:A000375", "sec:cik:0001489393"],
+    ["bioguide:A000375", "congress:committee:hsju00"],
+    ["sec:cik:0001489393", "cohort:lyb-other-subsidiaries"]
+  ],
+  "_links_note": "DECLARED, not published. Co-membership is read off committee_member; these three links are asserted by this config. The second one exists so that the Budget chair's request about congress:bill:119-hconres-15 reaches the committee the index says that measure was actually referred to (Judiciary), which is the case where an institutional act is WITHIN jurisdiction. Without it the same request reaches only Budget and is correctly refused as ultra vires, because the chair of Budget has no authority over a measure referred elsewhere.",
+
+  "promote": [
+    {"at_tick": 2, "entity_id": "lei:54930078Y1VRL1H5QP44",
+     "note": "A subsidiary is promoted mid-run: its store is seeded from published records plus the event log, and the promotion report names every facet that stays Unknown."}
+  ],
+  "demote": [
+    {"at_tick": 3, "entity_id": "bioguide:S000185",
+     "note": "A focal member is demoted: the demotion report is the only record of what its store held."}
+  ]
+}

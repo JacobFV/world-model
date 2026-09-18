@@ -222,3 +222,61 @@ python3 -m worldmodel agent-inspect bioguide:K000367 --diverge serves_on
 Both are read-only and print JSON. `agent-explain` returns the indented support chain *and* a
 flat `records` list of every published record id the chain bottoms out in, so the answer to "why
 does this agent think that" is a set of dataset versions and record ids, not a narrative.
+
+---
+
+## Implementation notes: belief transmission (`worldmodel/agents/{lexicon,speech,transmission}.py`)
+
+Appended by the implementation of speech between grounded agents. `docs/agent-communication.md` is
+the full account; this records only what the contract above has to absorb.
+
+### Three new modules
+
+| Module | What it holds | Needs tensacode |
+| --- | --- | --- |
+| `agents/lexicon.py` | registers, sentence templates, spoken tokens, the frame rules that read them back, the stage slip | no (pure Python, like `affect`) |
+| `agents/speech.py` | `register_for`, `Names`, `hear`, `Provenance`/`supports_of`, `sayable` | yes |
+| `agents/transmission.py` | `Channel`/`Link`/`tie`/`trust_from`, `tell`, `receive`, `adjudicate`, `propagate`, `trace`, `divergence` | yes |
+
+### What the contract gains
+
+**A second evidence kind.** "Grounding is the addition" said an agent's percepts come from the
+unified graph. They can now also come from **another agent**, and the two are distinguishable at
+the evidence level: `method='heard:<channel>'` with `source=Ref('told:<id>')` and premises that are
+claims about the utterance (who said it, over which channel, how many tellers deep, the chain, and
+the published record id it bottoms out in — or the literal `nobody`). `explain` therefore shows
+hearsay as hearsay and traces it back through the tellers to a record or to nobody.
+
+**The network is grounded, not just the entities.** Who may speak to whom derives from
+`committee_member` (3,895 edges), `cosponsored_measure` (1,283,245) and
+`contacted_government_entity` (406,766); relevance on the committee channel comes from
+`referred_to_committee` (175,853). Trust derives from counts over those same edges, each citing its
+record ids. The lobbying channel is *chamber*-level in the source and is marked `attested=False`
+rather than being dressed up as a contact with a member.
+
+**Divergence acquires a second source.** The contract says divergence between belief and record is
+where error, rumour and ideology live. Until now the only way an agent's beliefs could diverge was
+staleness. Now a stage can arrive one rung too far up the ladder from a teller three hops away, and
+`transmission.divergence` reports the distance in rungs, the chain and the confidence rather than
+correcting it.
+
+**Conflict is adjudicated on the record.** Direct observation of a published record sits at 0.70;
+one teller is capped at 0.60, strictly below it, so hearsay from a single teller can never outrank
+the record. Independent tellers combine (`1 − Π(1 − wᵢ)` over disjoint chains) and can. The loser is
+retracted with the reason recorded, never forgotten, and a tie within 0.02 leaves both claims
+standing as `Unknown('tie_within_margin')` — the same refusal to break ties by coin flip that
+`Person._choose` already makes.
+
+**Register is read from the published role, not from the store.** Seeding writes one `chamber`
+claim per role record it reads, and `Store.claims` orders by claim id, so an agent who moved from
+the House to the Senate has two and the store answers by hash. `speech.published_role` reads the
+`holds_role` edge covering the moment instead. This is worth noting in the contract because it is a
+general hazard for any facet seeded once per role record.
+
+### Still not claimed
+
+Nothing here is fitted and nothing is `validated`. Channel fidelities, willingness weights, trust
+weights, the sentence templates and the direction of the stage slip are authored and declared as
+such; what is grounded is which channel exists, who is on it, and the record at the end of every
+chain. No language model is called: production is templates and understanding is the chart parser
+in `tensacode.language`, whose measured losses are the drift.
