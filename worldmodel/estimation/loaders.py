@@ -814,99 +814,6 @@ def regional_data(store, *, program='cbp', level='state', start_year=None, end_y
     return data, evidence.reference()
 
 
-#: The eleven CES supersectors ``fred_state_industry_vintages`` publishes, one metric each. They
-#: partition total nonfarm employment, so industry shares of a state sum to one in every vintage.
-CES_SUPERSECTOR_METRICS = {
-    'employment_mining_logging': 'ces_supersector:10',
-    'employment_construction': 'ces_supersector:20',
-    'employment_manufacturing': 'ces_supersector:30',
-    'employment_trade_transportation_utilities': 'ces_supersector:40',
-    'employment_information': 'ces_supersector:50',
-    'employment_financial_activities': 'ces_supersector:55',
-    'employment_professional_business_services': 'ces_supersector:60',
-    'employment_education_health_services': 'ces_supersector:65',
-    'employment_leisure_hospitality': 'ces_supersector:70',
-    'employment_other_services': 'ces_supersector:80',
-    'employment_government': 'ces_supersector:90',
-}
-
-
-def regional_realtime_data(store, *, level='state', start_year=2008, end_year=2025, versions=None,
-                           dataset='fred_state_industry_vintages', months_required=12, min_rows=500):
-    """State-by-supersector annual employment built **only from first releases**, so no row can
-    contain a revision published later than the row itself.
-
-    ``fred_state_industry_vintages`` carries every ALFRED vintage of the BLS State Area Employment
-    series. For each (state, supersector, month) this loader keeps the value of the *earliest*
-    vintage, and a year is the mean of its twelve first releases — an object fully determined by
-    data published by the January release of the following year. No later benchmark revision
-    enters it, so ``revisions`` is declared ``'none'`` exactly as in :func:`monetary_realtime_data`.
-    That is the whole point of the dataset: CBP and QCEW publish one current vintage, so every
-    regional attempt on them fails ``no_revision_leakage`` structurally.
-
-    Months whose earliest vintage *is* the series' ALFRED archive start are dropped. FRED's archive
-    begins in 2007, and the first vintage of everything before it is a 2007 snapshot of already
-    revised history, not a first release; keeping those months would reintroduce exactly the
-    leakage this loader exists to remove.
-    """
-    if level != 'state':
-        raise ValueError('The real-time regional loader is declared at state level only')
-    ref = catalog_ref(store, dataset, DEFAULT_STAGE, (versions or {}).get(dataset))
-    evidence = Evidence()
-    first = {}          # (region, metric, month) -> (vintage, value, record_id)
-    archive_start = {}  # (region, metric) -> earliest vintage seen for the series
-    for record in stream_records(store, ref, needles=tuple(f'"metric":"{m}"' for m in CES_SUPERSECTOR_METRICS)):
-        metric = record.get('metric')
-        if record.get('kind') != 'observation' or metric not in CES_SUPERSECTOR_METRICS or record.get('value') is None:
-            continue
-        region = str(record.get('subject') or '')
-        if not region.startswith('geo:US:state:'):
-            continue
-        dimensions = record.get('dimensions') or {}
-        if dimensions.get('frequency') != 'M':
-            continue
-        vintage = str((record.get('attributes') or {}).get('realtime_start') or dimensions.get('vintage'))[:10]
-        month = str(record['valid_from'])[:7]
-        series_key = (region, metric)
-        seen = archive_start.get(series_key)
-        if seen is None or vintage < seen:
-            archive_start[series_key] = vintage
-        key = (region, metric, month)
-        current = first.get(key)
-        if current is None or vintage < current[0]:
-            first[key] = (vintage, float(record['value']), record.get('id'))
-    months = {}
-    for (region, metric, month), (vintage, value, record_id) in first.items():
-        if vintage <= archive_start[(region, metric)]:
-            continue          # 2007 snapshot of pre-archive history, not a first release.
-        year = int(month[:4])
-        if year < start_year or year > end_year:
-            continue
-        months.setdefault((region, metric, year), []).append((value, record_id))
-    employment, incomplete = [], 0
-    for (region, metric, year), items in sorted(months.items(), key=str):
-        if len(items) != months_required:
-            incomplete += 1
-            continue
-        employment.append({'region': region, 'industry': CES_SUPERSECTOR_METRICS[metric], 'year': year,
-                           'date': f'{year}-12-31',
-                           'employment': math.fsum(value for value, _ in items) / len(items)})
-        for _, record_id in items:
-            evidence.add(ref, record_id, 'employment')
-    if len(employment) < min_rows:
-        raise MissingData(f'Only {len(employment)} real-time state-industry-year rows were complete '
-                          f'({incomplete} partial years); acquire {dataset} first')
-    data = {'employment': employment, 'design': 'shift_share_correlational_ces_state_supersector_first_release',
-            'information_time': 'valid_time', 'revisions': 'none',
-            'construction': {'rows': len(employment), 'years': sorted({r['year'] for r in employment}),
-                             'regions': len({r['region'] for r in employment}),
-                             'industries': sorted({r['industry'] for r in employment}),
-                             'months_per_year': months_required, 'incomplete_years_dropped': incomplete,
-                             'vintage_rule': 'earliest ALFRED vintage of each month, excluding the archive start',
-                             'dataset': dataset}}
-    return data, evidence.reference()
-
-
 # ----------------------------------------------------------------------------- constructed national series
 
 def national_unemployment_rate(store, *, start=None, end=None, versions=None):
@@ -1595,8 +1502,7 @@ def load_for(target, store, options=None, function=None):
 LOADER_FUNCTIONS.update({'observation_set': observation_set, 'cash_balance_data': cash_balance_data,
                          'default_hazard_data': default_hazard_data, 'conflict_data': conflict_data,
                          'assets_data': assets_data, 'commodities_data': commodities_data,
-                         'regional_data': regional_data, 'regional_realtime_data': regional_realtime_data,
-                         'monetary_data': monetary_data,
+                         'regional_data': regional_data, 'monetary_data': monetary_data,
                          'monetary_realtime_data': monetary_realtime_data, 'elections_data': elections_data,
                          'population_popthm_data': population_popthm_data,
                          'deposit_rate_substitute_data': deposit_rate_substitute_data})
