@@ -25,6 +25,19 @@ adding no passes: `population_growth_rate` fails `interval_coverage` on both its
 `deposit_rate_pass_through` fails `beats_persistence_dm` on the declared SNDR series and on both
 substitute series. Lengthening a panel revealed a real failure that n = 16 could not test.
 
+**`interval_coverage` blocked 16 attempt rows and now blocks 6** (WS-E, 2026-09-17, no new data).
+`interest_pass_through.fred_realtime_v2` became a full pass, adding one more current passing run
+(the total in the paragraph above predates this wave and WS-A's, and needs reconciling once the
+2026-09-17 waves are all in).
+`labor_demand`, `policy_rule`, `energy_purchasing` and `conflict_model` had their coverage failure
+removed and still fail on skill or on declared bounds, which moves them from "the uncertainty is
+wrong" to "there is no demonstrated edge over a random walk". Two code defects were found and
+fixed: a real-time forecast was being graded with a **mixed-vintage conditional input**, which put
+a fabricated 22% collapse in industrial production into every `labor_demand` design row, and
+conflict counts were scored **Poisson** while the family's own simulator draws negative binomial.
+No threshold was relaxed; the declared selection rule twice rejected the wider interval that would
+have passed, and both cases are recorded. No process became validated.
+
 *Validated* here means exactly one thing: every declared acceptance criterion passed on a
 holdout that was untouched until it was scored. It does not mean the model is right.
 
@@ -1500,3 +1513,85 @@ replacement tests coverage against a confidence interval built from the *effecti
 independent observations, clustering on the unit the common shock acts through. **The criterion was
 not changed and no attempt above was judged by anything other than the declared rule**; this is
 recorded as an argument for a future pre-registered change.
+
+## Seventh wave (WS-B: the employment vintages that were said not to exist)
+
+### regional_model — the revision criterion **passes**, and the mechanism's skill does not survive
+
+The fifth wave recorded `no_revision_leakage` as structural for this process because "no published
+employment source in this catalog carries vintages". That was true of the catalog. ALFRED archives
+the BLS **CES State and Area** state-by-supersector series with **229 real-time vintages from
+2007-06-19**, and it was hidden by an id trap: FRED serves the same BLS series under a short alias
+and under the structured BLS id with different ALFRED coverage — `SMU48000003000000001` answers
+*"does not exist in ALFRED"* where `TXMFGN` returns 229 vintage dates. Eighteen sources with URLs and
+HTTP statuses are in [`docs/research-log/ws-b-employment-vintages.md`](research-log/ws-b-employment-vintages.md).
+
+`fred_state_employment_vintages@07d42b0a` publishes 603 series (510 panel + 93 residual-check),
+949,207 records from a 0.085 GiB raw artifact. `loaders.ces_sae_regional_data` dates each reference
+year by **the release that completed it** — the latest first-vintage date across its 51 × 10 × 12
+cells — and reads all twelve months *at that vintage*, so the row's `date` is a publication date and
+`information_time` is `'real_time'` as a property of the rows rather than a claim about the publisher.
+Nothing published after a row's own date enters it, so `revisions` is `'none'`, as in
+`monetary_realtime_data`. Two attempts were registered before either ran, differing only in the
+declared interval method; base-year shares 2012, validation 2015-2019, holdout **2020-2025 × 51
+state-equivalents = 306 forecasts**.
+
+| Attempt | n | coverage | width | MAE | `year_effect_only` MAE | DM p vs yeo | `no_revision_leakage` | Verdict |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | --- | --- |
+| `ces_sae_realtime` (`per_unit_year_mean`) | 306 | **0.654** | 0.0321 | 0.027797 | 0.026569 | 1.000 | **pass** | fail |
+| `ces_sae_realtime_v2` (`per_unit_year_draw`) | 306 | **0.686** | 0.0352 | 0.027797 | 0.026569 | 1.000 | **pass** | fail |
+
+**Verdict: fail, both — on skill, not on revisions.** `minimum_test_forecasts`,
+`interval_coverage`, `parameters_within_declared_bounds`, `no_timing_leakage` and
+`no_revision_leakage` all pass. `beats_persistence_dm` (p = 0.751) and `beats_year_effect_only_dm`
+(p = 1.000) fail. On the revised QCEW panel the same mechanism cut the year-effect-only MAE from
+0.0307 to 0.0211 at p = 1.2e-04; on the real-time panel it does not beat that baseline at all.
+Reports `751e472f71633e76…` / `003f418a5cc94596…`, artifacts `92e00c191e97a460…` / `12d69de07e105ae7…`.
+
+**One year does all of it, and not for the reason the earlier records would predict.**
+
+| target year | release | coverage | model MAE | yeo MAE | bias |
+| --- | --- | ---: | ---: | ---: | ---: |
+| 2020 | 2021-01-26 | **0.000** | **0.11932** | 0.07359 | **+0.11932** |
+| 2021 | 2022-01-25 | 0.706 | 0.01158 | 0.01769 | −0.00489 |
+| 2022 | 2023-01-24 | 0.725 | 0.01091 | 0.03449 | −0.00301 |
+| 2023 | 2024-01-23 | 0.863 | 0.00839 | 0.01661 | +0.00217 |
+| 2024 | 2025-01-28 | 0.745 | 0.00888 | 0.00851 | −0.00423 |
+| 2025 | 2026-01-27 | 0.882 | 0.00771 | 0.00853 | −0.00259 |
+
+The bias equals the MAE in 2020, so the model over-predicted growth for all 51 states: it predicted a
+2020 **boom**. Decomposing one forecast, the shift-share term contributed **+0.0447** in a year whose
+realized other-state shock was strongly negative, which requires a negative elasticity. Refitting at
+each origin finds one:
+
+| fit through | years ≤ | `shift_share_elasticity` | cluster-robust SE | n |
+| --- | --- | ---: | ---: | ---: |
+| 2020-01-24 | 2019 | **−0.5795** | **1.6968** | 357 |
+| 2021-01-26 | 2020 | +0.7617 | 0.6330 | 408 |
+| 2022-01-25 | 2021 | +0.8086 | 0.5256 | 459 |
+| 2023-01-24 | 2022 | +1.2171 | 0.4634 | 510 |
+| 2026-01-27 | 2025 | +1.0338 | 0.4908 | 663 |
+
+**Seven pre-pandemic growth years and ten supersectors do not identify the Bartik elasticity; 2020
+does.** At the first holdout origin the point estimate has the wrong sign and an SE three times its
+magnitude. Every fit containing 2020 lands between +0.76 and +1.22 with an SE near 0.5. So the
+pandemic is both the year the model fails on and the year that identifies the parameter it needs —
+visible only because the panel is real time. On revised QCEW data the elasticity came out 1.2586
+(SE 0.3269) and the question never arose. Two readings survive this evidence and it does not separate
+them: either twenty two-digit sectors genuinely identify what ten supersectors cannot, or part of the
+QCEW result came from benchmarking making a published panel internally consistent in ways a
+first-release panel is not. Separating them needs a vintaged 2-digit-NAICS panel; the research log
+costs that reconstruction at ~15 GiB from Internet Archive snapshots of the QCEW singlefiles, with
+crawl dates rather than publication dates.
+
+**Read the coverage pass with the year table next to it.** 0.654 clears 0.80 − 0.15, but it is 0.000
+in 2020 and 0.71-0.88 in the other five years: the pooled statistic passes partly because one badly
+failing year is averaged with five good ones. Six holdout years is six independent draws of the
+common component, so the caveat in "A criterion this wave argues is wrong" applies here in full.
+
+**What is worse about this panel, stated for the record.** Ten CES supersectors instead of twenty
+two-digit NAICS sectors; thirteen growth years instead of nineteen, because a complete panel is real
+time only back to its shallowest series (state Information enters ALFRED on 2011-11-22); and a tenth
+industry formed as the within-vintage residual `total_nonfarm − Σ nine`, because five
+state-equivalents publish no aliased mining/logging/construction series. The residual is exact where
+it can be checked (Texas 2019-06: 1,031.0 = 778.6 + 252.4).
