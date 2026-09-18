@@ -293,7 +293,12 @@ def _variance(values):
     return sum((v - mean) ** 2 for v in values) / (len(values) - 1)
 
 
-INTERVAL_METHODS = ('pooled_year_draw', 'per_unit_year_mean')
+INTERVAL_METHODS = ('pooled_year_draw', 'per_unit_year_mean', 'per_unit_year_draw')
+#: Methods whose common term is the sampling variance of the estimated year level rather than
+#: the variance of next year's own draw.
+_YEAR_LEVEL_METHODS = ('per_unit_year_mean',)
+#: Methods that give each region its own within-year residual scale.
+_PER_UNIT_METHODS = ('per_unit_year_mean', 'per_unit_year_draw')
 
 
 def _holdout_forecast(parameters, history, rows, data, options=None):
@@ -318,6 +323,15 @@ def _holdout_forecast(parameters, history, rows, data, options=None):
         variance of the estimated year level. Declared where regions differ in scale by
         an order of magnitude, which makes one pooled scale simultaneously far too wide
         for stable regions and too narrow for volatile ones.
+    ``per_unit_year_draw``
+        The same per-region within-year variance with the *fresh-draw* common term
+        ``between x (1 + 1/Y)``. The forecast error decomposes into next year's own
+        common shock and the sampling error of the mean of the Y observed year effects,
+        so its variance is ``between + between/Y``; ``between/Y`` alone is the predictive
+        variance of a year effect treated as a fixed level being estimated, which
+        contradicts the existence of a between-year variance in the first place. This is
+        the correct pairing of the two corrections and is a statement about the
+        decomposition, not about any realized coverage.
     """
     method = (options or {}).get('interval_method', 'pooled_year_draw')
     if method not in INTERVAL_METHODS:
@@ -353,9 +367,9 @@ def _holdout_forecast(parameters, history, rows, data, options=None):
         within = sum(e * e for e in residuals[name]) / dof
         between = _variance(values)
         scale[name] = (sum(values) / len(values), math.sqrt(within + between * (1 + 1 / len(values))))
-        if method == 'per_unit_year_mean':
+        if method in _PER_UNIT_METHODS:
             pooled = sum(e * e for e in residuals[name]) / max(len(residuals[name]), 1)
-            common = between / len(values)
+            common = between / len(values) if method in _YEAR_LEVEL_METHODS else between * (1 + 1 / len(values))
             for region, errors in by_region[name].items():
                 shrunk = (sum(e * e for e in errors) + pooled) / (len(errors) + 1)
                 region_scale[name][region] = math.sqrt(shrunk + common)
@@ -381,7 +395,7 @@ def _holdout_forecast(parameters, history, rows, data, options=None):
             others_after = sum(after.get((o, k, year), 0.0) for o in regions if o != r)
             if share and others_before > 0 and others_after > 0:
                 shock += share * math.log(others_after / others_before)
-        spread = {name: region_scale[name].get(r, scale[name][1]) if method == 'per_unit_year_mean' else scale[name][1]
+        spread = {name: region_scale[name].get(r, scale[name][1]) if method in _PER_UNIT_METHODS else scale[name][1]
                   for name in ('model', 'null')}
         out.append({'target': f'employment_growth:{r}', 'actual': math.log(target_total / previous_total),
                     'mean': scale['model'][0] + b * shock, 'sd': spread['model'], 'history_values': past.get(r, []),

@@ -317,7 +317,9 @@
         "validation_end": "2017-12-31",
         "cutoff": "2024-12-31"
       },
-      "rationale": "Both series carry ALFRED vintages, so the strict real-time policy applies and no_revision_leakage is evaluable. DPRIME and DFF entered ALFRED in 2005-06, so the holdout starts well inside the vintage era: train to 2012, validation 2013-2017, holdout 2018-2024 (84 monthly origins)."
+      "rationale": "Both series carry ALFRED vintages, so the strict real-time policy applies and no_revision_leakage is evaluable. DPRIME and DFF entered ALFRED in 2005-06, so the holdout starts well inside the vintage era: train to 2012, validation 2013-2017, holdout 2018-2024 (84 monthly origins).",
+      "superseded_by": "interest_pass_through.fred_realtime_v2",
+      "superseded_reason": "WS-E interval calibration, 2026-09-17: see the sixth_wave note and docs/research-log/ws-e-interval-coverage.md."
     },
     {
       "id": "deposit_rate_pass_through.fred_realtime",
@@ -561,7 +563,9 @@
         "cutoff": "2024-12-31"
       },
       "rationale": "Same splits as v1. Base-agnostic selection: the source accepts whatever unit each vintage published and the requirement unit is applied as a label, with the published unit and base kept in attributes.published_unit/base_period. A point-in-time frame takes the latest vintage available at its cutoff for every period, and a vintage publishes its whole history on one base, so each frame is internally base-consistent and the estimator only reads within-frame ratios and growth rates.",
-      "supersedes": "labor_demand.fred_realtime"
+      "supersedes": "labor_demand.fred_realtime",
+      "superseded_by": "labor_demand.fred_realtime_v3",
+      "superseded_reason": "WS-E interval calibration, 2026-09-17: see the sixth_wave note and docs/research-log/ws-e-interval-coverage.md."
     },
     {
       "id": "energy_purchasing.fred_realtime_v2",
@@ -698,7 +702,9 @@
       "interval_method": "per_unit_year_mean: each state gets its own residual mean square shrunk toward the pooled one by a single prior observation (a three-year panel gives each state three residuals), and the common term becomes the sampling variance of the ESTIMATED year level (between-year variance / Y) rather than the variance of a fresh draw. Addresses the pooling defect directly; it cannot repair the common term, which three pandemic-era year effects cannot estimate.",
       "rationale": "Identical data, splits and acceptance criteria to regional_model.cbp_state_sectors.",
       "expected_limits": "With one holdout year, all 51 forecasts share one draw of the common component, so interval_coverage here is one Bernoulli trial and not a coverage estimate. regional_model.qcew_state_sectors is registered below to make the criterion evaluable on a longer panel with six holdout years. no_revision_leakage fails as in v1: CBP publishes no vintages.",
-      "supersedes": "regional_model.cbp_state_sectors"
+      "supersedes": "regional_model.cbp_state_sectors",
+      "superseded_by": "regional_model.cbp_state_sectors_v3",
+      "superseded_reason": "WS-E interval calibration, 2026-09-17: see the sixth_wave note and docs/research-log/ws-e-interval-coverage.md."
     },
     {
       "id": "regional_model.qcew_state_sectors",
@@ -732,7 +738,9 @@
       },
       "entity_rule": "Every state-equivalent QCEW publishes at aggregation level 54 (50 states, DC and Puerto Rico; 53 areas), and every two-digit NAICS private sector. Selection is availability only.",
       "rationale": "The declared fix for the CBP attempt: the rebuilt bls_labor (60.9M rows) carries QCEW annual averages from 1990, so the panel has twenty years and nineteen growth years instead of four and three. Base-year shares are 2005, the validation targets are 2015-2018 and the holdout is 2019-2024, six years x 53 areas, so the between-year component is estimated from thirteen year effects at the first holdout origin and interval_coverage is evaluated over six independent common draws instead of one. QCEW labels each year with the NAICS revision in force, so two-digit sector codes are compared across revisions and the published namespaces are recorded.",
-      "expected_limits": "no_revision_leakage is expected to fail: QCEW is benchmarked annually and bls_labor publishes one current vintage, so row dates are not information times. The holdout deliberately contains 2020 and 2021, which no interval method can anticipate; that is the point of scoring six years rather than one."
+      "expected_limits": "no_revision_leakage is expected to fail: QCEW is benchmarked annually and bls_labor publishes one current vintage, so row dates are not information times. The holdout deliberately contains 2020 and 2021, which no interval method can anticipate; that is the point of scoring six years rather than one.",
+      "superseded_by": "regional_model.qcew_state_sectors_v2",
+      "superseded_reason": "WS-E interval calibration, 2026-09-17: see the sixth_wave note and docs/research-log/ws-e-interval-coverage.md."
     },
     {
       "id": "elections_model.medsl_house_districts",
@@ -1020,6 +1028,157 @@
       },
       "rationale": "The second substitute, registered at the same time as the first and for the opposite reason: SAVNRNJ is close to SNDR in construction but covers only a floor-bound decade, while M2OWN covers 1959-2019 and therefore many complete tightening and easing cycles. Its ALFRED vintages also begin 2014-03, so origins start 2014-04 and the splits follow coverage: train 1959-02..2015-12, validation 2016, holdout 2017-01..2019-06 (30 forecasts). Registering both makes the disagreement visible if the two substitutes give different pass-through signs, which is how default_hazard's two variants were read.",
       "expected_limits": "M2OWN is revised (118 vintages for some periods), so the scored error carries revisions the origin could not see, which is the mechanism that made credit_growth's intervals too narrow. The interval method is left at its default, so interval_coverage may well fail from that direction. Substitution caveat as above."
+    },
+    {
+      "id": "interest_pass_through.fred_realtime_v2",
+      "kind": "component",
+      "target": "interest_pass_through",
+      "process_id": "coupled_economy",
+      "loader": {
+        "function": "observation_set"
+      },
+      "estimator_options": {
+        "interval_method": "empirical_trailing",
+        "interval_window": 120,
+        "interval_nodes": 40
+      },
+      "data": "fred_macro_panel@normalized (DPRIME) + fred_policy_rate@normalized (DFF), monthly means of daily vintages",
+      "protocol": {
+        "vintage_policy": "strict",
+        "window": "expanding",
+        "refit_every": 1,
+        "horizon": 1,
+        "train_end": "2012-12-31",
+        "validation_end": "2017-12-31",
+        "cutoff": "2024-12-31"
+      },
+      "diagnosis": "v1 failed interval_coverage alone (0.988 against 0.80 +/- 0.15) while halving persistence's error at p = 0.0011. The predictive scale is an average across monetary-policy regimes, not a forecast of the current one. At the validation cutoff the in-sample residual scale is 0.2217 while the residual root mean square by decade is 0.1560 (1950s), 0.1796 (1960s), 0.2539 (1970s), 0.4186 (1980s), 0.1142 (1990s), 0.0816 (2000s) and 0.0416 (2010s) -- a tenfold spread, with the flat scale set mostly by the Volcker era. A 2005 ALFRED vintage of DPRIME publishes its history back to 1955, so the expanding in-sample scale carries that era into every forecast. This is visible before the holdout: in the SELECTION window (2013-2017, 59 forecasts) the default over-covers at 1.000 with a mean predictive sd of 0.2259 against a realized RMSE of 0.0498. The in-sample standardized errors also have kurtosis 6.0, which is what a rate that moves in discrete 25bp steps looks like: a spike at zero change with occasional jumps, not a Gaussian.",
+      "interval_method": "empirical_trailing, window 120 months, 40 quantile nodes. The scale is the root mean square of the last 120 one-step residuals and the shape is the empirical quantiles of residuals standardized by their own trailing scale, so the discrete-step tails are taken from the data rather than assumed. No coefficient-uncertainty or revision component is declared: DPRIME is not revised and 746 residuals against 5 coefficients make x'Vx negligible, so neither is part of the diagnosis. Candidate interval methods are compared on the SELECTION window only (train_end -> validation_end, evaluated at validation_end, the same view validate_process uses to select candidates) and the declared rule is LOWEST VALIDATION-WINDOW CRPS, a proper score that is blind to interval coverage. Choosing the candidate whose coverage sits closest to 0.80 would be tuning to the acceptance criterion and was not used. Validation-window CRPS over the declared candidate grid (four methods x windows 36/60/120): gaussian_in_sample 0.05714; gaussian_trailing 0.02954 (36), 0.02945 (60), 0.02944 (120); student_t_trailing 0.03023 (60); empirical_trailing 0.02495 (36), 0.02497 (60), 0.02207 (120). The rule selects empirical_trailing at window 120, whose validation coverage (0.9153) is the WORST of the three trailing windows (0.8983 at 36, 0.8814 at 60) -- the evidence that CRPS and not coverage did the selecting.",
+      "rationale": "Identical data, splits, vintage policy and acceptance criteria to interest_pass_through.fred_realtime; the predictive distribution is the only change, so the two attempts are directly comparable.",
+      "supersedes": "interest_pass_through.fred_realtime"
+    },
+    {
+      "id": "labor_demand.fred_realtime_v3",
+      "kind": "component",
+      "target": "labor_demand",
+      "process_id": "coupled_economy",
+      "loader": {
+        "function": "observation_set"
+      },
+      "data": "fred_macro_panel@7dcce89c (PAYEMS, INDPRO across all index bases), monthly",
+      "protocol": {
+        "vintage_policy": "strict",
+        "window": "expanding",
+        "refit_every": 1,
+        "horizon": 1,
+        "train_end": "2004-12-31",
+        "validation_end": "2012-12-31",
+        "cutoff": "2024-12-31"
+      },
+      "correction": "2026-09-17: a scoring defect, not a re-specification. The backtest took the declared conditional input (INDPRO) at the target period from the evaluation vintage while its own lag in the same design row came from the origin's vintage, and the design reads industrial production only as the log ratio output_t/output_{t-1}. INDPRO is an index the Federal Reserve rebases and the published ALFRED vintages carry thirteen index bases, so that ratio was a rebasing factor rather than a growth rate: measured at the 2005-04 origin the regressor was -0.2177, a fabricated 22% collapse in industrial production, against a realized +0.0005 (95.3804 / 118.393 = 0.8056 is the base change). Every v1 and v2 forecast was computed with that shock in its design row, which is why their bias ran -2,172 thousand payrolls in 2005-2009 and decayed to zero as the origins approached the evaluation cutoff. labor_demand now declares conditional_rebase output: ratio, which carries the realized value onto the origin's base through the anchor-period overlap; this preserves the realized movement exactly and adds no information the origin did not have. The six other conditional inputs in the catalog were measured and declare 'none', so no other attempt changes.",
+      "diagnosis": "Records what the correction alone does, with the predictive distribution left at its default, so the effect of the correction and the effect of any interval change stay separable. In the SELECTION window the correction moves MAE from 2,194.6 to 578.1 thousand payrolls, bias from -2,171.8 to +280.8 and the Diebold-Mariano p-value against persistence from 1.0000 to 0.0865.",
+      "rationale": "Identical data, splits, vintage policy and acceptance criteria to labor_demand.fred_realtime_v2; the conditional-input scoring correction is the only change. Registered as a new attempt rather than a rerun because v1 and v2 keep their recorded numbers.",
+      "supersedes": "labor_demand.fred_realtime_v2",
+      "superseded_by": "labor_demand.fred_realtime_v4",
+      "superseded_reason": "WS-E interval calibration, 2026-09-17: see the sixth_wave note and docs/research-log/ws-e-interval-coverage.md."
+    },
+    {
+      "id": "labor_demand.fred_realtime_v4",
+      "kind": "component",
+      "target": "labor_demand",
+      "process_id": "coupled_economy",
+      "loader": {
+        "function": "observation_set"
+      },
+      "estimator_options": {
+        "interval_revision": {
+          "window": 120,
+          "maturity": 24
+        }
+      },
+      "data": "fred_macro_panel@7dcce89c (PAYEMS, INDPRO across all index bases), monthly",
+      "protocol": {
+        "vintage_policy": "strict",
+        "window": "expanding",
+        "refit_every": 1,
+        "horizon": 1,
+        "train_end": "2004-12-31",
+        "validation_end": "2012-12-31",
+        "cutoff": "2024-12-31"
+      },
+      "diagnosis": "With the conditional-input correction in force (v3) the remaining interval defect is the one credit_growth had: under the strict real-time policy the forecast is anchored on the PAYEMS level available at the origin while the actual is the latest vintage available at the evaluation cutoff, so the scored error carries the anchor's later benchmark revision, which is part of no in-sample residual. Measured at the validation cutoff, PAYEMS log revisions from first release to latest have a root mean square of 0.00458 for 2000s periods against a model residual scale of 0.00304 -- the revision component is larger than the residual it is being added to. In the SELECTION window the default under-covers at 0.600 with a mean predictive sd of 414.5 thousand against a realized RMSE of 767.2, and standardized errors have root mean square 1.86.",
+      "interval_method": "gaussian_in_sample residual scale plus an independent data-revision component: the standard deviation of the log revisions the publisher has ALREADY made by the origin, over the most recent 120 mature periods, where mature means at least 24 months old. Twenty-four months is the age at which a CES period has been through both its level benchmark (published with January data each February, revising from the previous March forward) and the following year's seasonal-factor revision. Ten years keeps the estimate inside the current benchmark methodology instead of averaging over the 1950s, whose log-revision root mean square is 0.0185 against 0.0046 in the 2000s. The mean revision is reported and deliberately not used to shift the point forecast, so systematic revision bias stays visible in the bias statistic. Candidate interval methods are compared on the SELECTION window only (train_end -> validation_end, evaluated at validation_end, the same view validate_process uses to select candidates) and the declared rule is LOWEST VALIDATION-WINDOW CRPS, a proper score that is blind to interval coverage. Choosing the candidate whose coverage sits closest to 0.80 would be tuning to the acceptance criterion and was not used. Validation-window CRPS over the declared candidates: default 440.1; +revision 431.0; gaussian_trailing(60) 489.5; gaussian_trailing(60)+revision 437.5; gaussian_trailing(120)+revision 437.6; empirical_trailing(60)+revision 434.9; empirical_trailing(120)+revision 437.0. The rule selects the revision component alone. The heteroskedasticity argument that fixed interest_pass_through is real here too (residual root mean square 0.0065 in the 1940s against 0.0011 in the 1990s) but points the other way: a trailing scale NARROWS this interval (mean sd 206.1 against 414.5) and drives validation coverage down to 0.358, so it is not adopted.",
+      "rationale": "Identical data, splits, vintage policy and acceptance criteria to labor_demand.fred_realtime_v3.",
+      "supersedes": "labor_demand.fred_realtime_v3"
+    },
+    {
+      "id": "regional_model.qcew_state_sectors_v2",
+      "kind": "family",
+      "target": "regional",
+      "process_id": "regional_model",
+      "loader": {
+        "function": "regional_data",
+        "options": {
+          "program": "qcew",
+          "level": "state",
+          "start_year": 2005,
+          "end_year": 2024,
+          "ownership": "private",
+          "versions": {
+            "bls_labor": "ffd7f43a2761e2f4bc85cd9765ba9bce61cf089cd26b8b5d12e428337546e267"
+          }
+        }
+      },
+      "estimator_options": {
+        "interval_method": "per_unit_year_draw"
+      },
+      "data": "bls_labor@ffd7f43a2761 (QCEW annual averages, private ownership, state x NAICS sector, 2005-2024)",
+      "protocol": {
+        "train_end": "2014-12-31",
+        "validation_end": "2018-12-31",
+        "cutoff": "2024-12-31",
+        "vintage_policy": "family_rows",
+        "refit_every": 1,
+        "horizon": 1
+      },
+      "diagnosis": "v1 failed interval_coverage from below (0.597) while beating the year-effect-only baseline at p = 1.2e-04. The defect is in the predictive variance of a random effect, and it is demonstrable from the forecast-error decomposition without reference to any coverage number. The forecast is mean-of-Y-observed-year-effects + b x shock; the actual is next year's own year effect + b x shock + residual. The error therefore contains (next year's effect - the mean of Y past effects), whose variance is between + between/Y = between x (1 + 1/Y). per_unit_year_mean prices only between/Y, the sampling variance of the mean, which is the right variance for a year effect that is a fixed level being estimated -- and that contradicts the existence of a between-year variance in the first place. So per_unit_year_mean's per-region within-year scale was a correction and its common term was an error.",
+      "interval_method": "per_unit_year_draw: the per-region within-year residual variance of per_unit_year_mean (each region's own residual mean square shrunk toward the pooled one by a single prior observation, declared because region residual sds span a factor of fifty) paired with the fresh-draw common term between x (1 + 1/Y) of the pooled default. The test that this is a correction and not tuning: it is ONE change applied for one reason to BOTH regional panels, and it moves them in OPPOSITE directions relative to their thresholds -- it widens, so it can only help qcew's under-coverage (0.597) and can only hurt cbp's over-coverage (0.980). A change tuned to a threshold cannot do that.",
+      "rationale": "Identical data, splits, entity rule and acceptance criteria to regional_model.qcew_state_sectors.",
+      "expected_limits": "no_revision_leakage fails structurally and no interval method can change it: no published employment source in this catalog carries vintages, so QCEW row dates are not information times. The attempt can at best reduce its failing criteria from two to one.",
+      "supersedes": "regional_model.qcew_state_sectors",
+      "entity_rule": "Every state-equivalent QCEW publishes at aggregation level 54 (50 states, DC and Puerto Rico; 53 areas), and every two-digit NAICS private sector. Selection is availability only."
+    },
+    {
+      "id": "regional_model.cbp_state_sectors_v3",
+      "kind": "family",
+      "target": "regional",
+      "process_id": "regional_model",
+      "loader": {
+        "function": "regional_data",
+        "options": {
+          "program": "cbp",
+          "level": "state",
+          "start_year": 2019,
+          "end_year": 2023
+        }
+      },
+      "estimator_options": {
+        "interval_method": "per_unit_year_draw"
+      },
+      "data": "census_business@5b0995c7 (County Business Patterns employment by state and NAICS sector)",
+      "protocol": {
+        "train_end": "2021-12-31",
+        "validation_end": "2022-12-31",
+        "cutoff": "2023-12-31",
+        "vintage_policy": "family_rows",
+        "refit_every": 1,
+        "horizon": 1
+      },
+      "diagnosis": "Run for the same reason as qcew_state_sectors_v2 and with the same single change, to show that the change is applied for its stated reason and not to a threshold. v2 over-covers at 0.980; a wider common term can only make that worse, and it is registered and run anyway.",
+      "interval_method": "per_unit_year_draw, as declared for regional_model.qcew_state_sectors_v2.",
+      "rationale": "Identical data, splits and acceptance criteria to regional_model.cbp_state_sectors_v2.",
+      "expected_limits": "interval_coverage is expected to fail WORSE than v2. With one holdout year all 51 forecasts share one draw of the common component, so coverage here is one Bernoulli trial and not a coverage estimate; no_revision_leakage also fails, as CBP publishes no vintages.",
+      "supersedes": "regional_model.cbp_state_sectors_v2"
     }
   ],
   "not_run": [
@@ -1043,5 +1202,5 @@
   "fourth_wave": "2026-09-15, after the chained-dollar base-year bug was fixed and fred_macro_panel and fred_cpi were rebuilt (panel 7dcce89c, cpi 34fe03f5). Every observation now carries attributes.source_units, a per-vintage unit_multiplier and base_period, and the unit token is per vintage. Two input defects were corrected: 189 of 849 panel series changed units across vintages (the old build labelled every vintage with one unit), and TOTALSL was published in billions for some vintages and millions for others, so 11,612 of its 13,537 values changed (e.g. 1998-03 1.3322 -> 1332.2). Five attempts are re-registered below with the SAME splits as their v1 counterparts so the two are comparable; the v1 verdicts are kept and marked contaminated. Verified value-identical between the two builds, so their verdicts stand without a rerun: DPRIME, DFF, SNDR, DRCCLACBS, UNRATE, DPSACBW027SBOG, PAYEMS, FEDFUNDS and RRSFS (RRSFS changed only its unit token).",
   "fifth_wave": "2026-09-16. Three strands. (a) Interval calibration on the three attempts that beat their baselines on point accuracy and failed ONLY interval_coverage: inventory_balance (0.640), credit_growth (0.596) and regional_model (1.000). Each was diagnosed first, and each new attempt records the diagnosis and the interval method it declares; the diagnoses differ, so the methods differ. Predictive distributions are now a declared choice in the estimator (worldmodel/estimation/intervals.py: gaussian_in_sample, gaussian_trailing, student_t_trailing, empirical_trailing, with optional coefficient-uncertainty and data-revision components; regional: pooled_year_draw or per_unit_year_mean), not a tuned multiplier, and the default keeps every earlier run bit-identical. (b) elections_model is no longer blocked: mit_election_returns published 33,805 U.S. House district rows, so the family is scored on real district returns with the split taken by election year. (c) bls_labor was rebuilt from 18.2M to 60.9M rows (the earlier build was an incomplete download), so every attempt that read it is rerun with the version as the only change, the newly available national CPS unemployment rate replaces one of the two substitutions in the passing default_hazard attempt, and QCEW makes the long regional panel possible.",
   "panel_length_wave": "2026-09-17 (WS-D, panel length). Two attempts failed minimum_test_forecasts, which is a data-quantity failure and not a modelling one: population_growth_rate.census_pep had 14 annual observations and n=4 against a declared 8, and deposit_rate_pass_through.fred_realtime had 62 monthly observations and n=16 against a declared 24. Five attempts are registered below and every split is taken from data coverage alone. Population is attempted twice: on the declared primary source, with census_population extended from two PEP vintages to twelve (V2004-V2007, V2011-V2025, plus the 2000-2010 national intercensal series, so annual national coverage is 2000-2025 instead of 2010-2024); and on POPTHM, which requirements.json already names as a source for the same series and which fred_macro_panel already publishes with 325 ALFRED vintages back to 1999-07-30. The deposit rate cannot be extended backwards -- SNDR does not exist before 2021-04 -- so it is attempted three ways: the declared series with the splits recut to the minimum the criteria demand (train = exactly the 36 months needed to fit, holdout = the last 25 months, validation = what is left), and two SUBSTITUTE series in a new fred_deposit_rates dataset (SAVNRNJ, SNDR's discontinued predecessor from the same FDIC programme, 2009-2021; and M2OWN, the M2 own rate, 1959-2019). Both substitutions are declared as overrides and neither can be read as the declared SNDR component passing, following the precedent of default_hazard.fdic_laus_quarterly.",
-  "sixth_wave": "2026-09-17 (WS-A, ALFRED vintage coverage). Eight attempts fail no_revision_leakage, the one criterion no modelling change can fix. An audit of what FRED/ALFRED actually serves, against every series the eight touch, found that the binding constraint is what the publisher archives, not the download budget. Three of the eight (regional_model on CBP and QCEW) are fixable from ALFRED's CES State and Area archive and are WS-B's dataset fred_state_employment_vintages. Two (the monetary Okun-proxy pair) are fixable from vintages fred_macro_panel already holds, and are re-registered below. One (assets_model) is fixable only by changing which assets are scored, because FRED has no per-issuer equity prices; that is registered below as a separate attempt on FRED-native daily series whose ALFRED vintages are already acquired. Two cannot be fixed from ALFRED at all: UCDP event counts are not in FRED, and FRED carries no EIA weekly petroleum supply series (WCESTUS1, WCRFPUS2, WCRIMUS2, WCREXUS2 and WCRRIUS2 all answer 'the series does not exist'; source 53 has only the price and Total Energy releases)."
+  "sixth_wave": "2026-09-17, WS-E. interval_coverage blocked 16 of the 35 attempts, more than any other criterion, and needs no new data. Each of the 16 was diagnosed separately into one of two causes the record already distinguishes: a SCORING BUG (a real-time forecast graded against a later vintage, as credit_growth was) or GENUINE MISCALIBRATION (the predictive distribution is the wrong shape or the wrong width for the right reason). One new scoring bug was found and fixed in the code: the backtest handed a declared conditional input's value at the target period from the evaluation vintage while its own lag in the same design row came from the origin's vintage, so labor_demand's output-growth regressor was the INDPRO rebasing factor (-0.2177) rather than realized growth (+0.0005). Components now declare conditional_rebase per input; only labor_demand declares one, and the other six conditional inputs were measured and left unchanged. The regional family gains per_unit_year_draw, which pairs per_unit_year_mean's per-region within-year scale with the fresh-draw common term the default already used, because between/Y is the predictive variance of a year effect treated as a fixed level and the forecast error contains next year's own draw. Every candidate interval method was compared on the SELECTION window under a declared rule of lowest CRPS -- a proper score, blind to coverage -- and no threshold was relaxed. Attempts with no principled fix are recorded as still failing: see docs/research-log/ws-e-interval-coverage.md for the count and the reason for each."
 }
