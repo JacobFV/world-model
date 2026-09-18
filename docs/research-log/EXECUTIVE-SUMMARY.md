@@ -41,7 +41,7 @@ work), and spend the rest of the effort on the 35 failures that no download can 
 | `interval_coverage` failures | 16 | *pending — WS-E* |
 | `no_revision_leakage` failures | 8 | *pending — WS-A* |
 | `minimum_test_forecasts` failures | 2 | **0** — WS-D: five new attempts, all clearing it, none passing |
-| `regional_model` | untestable (no vintaged employment source) | *pending — WS-B* |
+| `regional_model` | untestable (no vintaged employment source) | **testable, and tested** — passes `no_revision_leakage`; fails on skill |
 | Datasets | 125 | *pending — WS-C* |
 | Acquired bytes (ledger) | 88.2 GiB of a 500 GiB pool | *pending* |
 | Disk free | 1.5 TiB (after reclaiming 1,398 GiB) | *pending* |
@@ -51,7 +51,7 @@ work), and spend the rest of the effort on the 35 failures that no download can 
 | Workstream | Goal | Status |
 | --- | --- | --- |
 | [WS-A](ws-a-alfred-vintages.md) | ALFRED vintages for every series a failing process touches | running |
-| [WS-B](ws-b-employment-vintages.md) | vintaged employment, or a definitive negative | running |
+| [WS-B](ws-b-employment-vintages.md) | vintaged employment, or a definitive negative | **done** — the negative was wrong. ALFRED carries the BLS CES State and Area state-by-supersector series with 229 vintages from 2007-06-19; `fred_state_employment_vintages` (0.085 GiB, 949,207 records) publishes them, and `regional_model.ces_sae_realtime` **passes `no_revision_leakage` and `interval_coverage`** on 306 real-time forecasts. It still fails on skill (DM p = 1.000 vs the mechanism-off baseline), because the Bartik elasticity is −0.58 (SE 1.70) until 2020 is in the sample |
 | [WS-C](ws-c-public-employment.md) | ASPEP 1957– and FedScope: the public-sector labor graph | running |
 | [WS-D](ws-d-long-panels.md) | long annual panels for the two small-n attempts | **done** — both evaluable; `population_growth_rate` now fails only `interval_coverage` (n 4 → 9 on 20 PEP vintages, → 16 on POPTHM), `deposit_rate_pass_through` now fails `beats_persistence_dm` on SNDR (n 16 → 24) and on both substitute series |
 | [WS-E](ws-e-interval-coverage.md) | uncertainty calibration — the 16, with no new data | running |
