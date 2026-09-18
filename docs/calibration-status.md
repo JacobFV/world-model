@@ -1,25 +1,52 @@
 # Calibration status on real data
 
 What the estimation layer produced when it was run on the normalized datasets published
-in this catalog on 2026-09-15 and 2026-09-16. Every attempt was pre-registered in
+in this catalog on 2026-09-15, 2026-09-16 and 2026-09-17. Every attempt was pre-registered in
 [`worldmodel/estimation/real_data_plan.json`](../worldmodel/estimation/real_data_plan.json)
 — splits, loader options, entity-selection rules and acceptance criteria were frozen
 before any holdout was scored. Nothing below was re-specified after seeing a test result.
 
-**Six current attempt runs pass (eight including two superseded ones), and three processes
-are validated** (fifth wave, 2026-09-16).
-`monetary_model.fred_realtime_v2` (fourth wave) was the first. Two more joined it after the
-interval work: `inventory_balance.eia_weekly_v2` and `elections_model.medsl_house_districts`
+**Eight current attempt runs pass (ten including two superseded ones), and four of the 22
+processes are validated** — reconciled 2026-09-17, after all seven waves.
+The counts come from the 75 published validation reports in
+[`data/calibration_reports/`](../data/calibration_reports/README.md), not from this file; the
+Summary table below now agrees with them row for row. The unit is the pre-registered attempt id
+(the five `cash_balance` issuers are one attempt), and *current* means not superseded by the plan:
+**51 attempts registered, 30 current and 21 superseded**, plus the two recorded as `not_run` on
+compute budget. Of the 30 current attempts, **8 pass and 22 fail**.
+
+`monetary_model.fred_realtime_v2` (fourth wave) was the first process to validate. Two joined it
+after the interval work: `inventory_balance.eia_weekly_v2` and `elections_model.medsl_house_districts`
 each meet every declared criterion and each is the only required component of its process, so
-`resource_inventory` and `elections_model` are now **validated** as well.
-`credit_growth.fred_realtime_v3` also passes, and `default_hazard` passes on two variants of a
-*substituted* delinquency series but fails on its declared primary series, so it must still be
-read as not validated on the series `requirements.json` names. `coupled_economy` needs nine
-components and has two passing (one of them on a substitute) and seven failing or missing.
+`resource_inventory` and `elections_model` are **validated** as well. The fourth is `assets_model`,
+on WS-A's real-time FX panel (`assets_model.fred_fx_realtime`) — a different declared estimand from
+the equity attempt, which keeps its failing verdict. `monetary_model` and `assets_model` are the two
+whose required component also carries *failing* current attempts (`cpi_okun_proxy_v2` and
+`okun_unrate_realtime_v2`; `alpaca_daily`): each is validated on the specification and series it
+declared, and the failures beside it are recorded below rather than averaged away.
+`credit_growth.fred_realtime_v3` and `interest_pass_through.fred_realtime_v2` also pass, and
+`default_hazard` passes on two variants of a *substituted* delinquency series but fails on its
+declared primary series, so it must still be read as not validated on the series
+`requirements.json` names. `coupled_economy` needs nine components and has **three passing — one of
+them only on a substitute — and six failing**.
 `regional_model` fails on the short CBP panel, on the long QCEW panel, and on the real-time CES SAE
 panel — but the *reason* changed in the seventh wave: on the real-time panel it passes
 `no_revision_leakage` and `interval_coverage` and fails on skill. Every failure below
 is a result too, recorded with its reason.
+
+**What blocks the 22 failing current attempts**, one count per criterion:
+`beats_persistence_dm` 14, `parameters_within_declared_bounds` 7, `interval_coverage` 7,
+`no_revision_leakage` 6, `beats_year_effect_only_dm` 2, `volatility_crps_skill` 1,
+`minimum_test_forecasts` 0. Against the same measure on 2026-09-16 (23 current attempts, 6 passing)
+two of those counts went **up**: `beats_persistence_dm` 9 → 14 and
+`parameters_within_declared_bounds` 6 → 7. That is the honest shape of this push. Ten attempts that
+cleared a data or scoring problem — three `deposit_rate_pass_through` on panels long enough to
+score, `labor_demand_v4`, `policy_rule_v3`, `energy_purchasing_v3`, `conflict_model_v2`,
+`monetary_model.okun_unrate_realtime_v2` and the two real-time `regional_model.ces_sae` runs — were
+then graded on a skill test that the earlier failure had made untestable, and failed it. Five older
+skill failures were retired with their superseded attempts, leaving a net +5. The new
+`beats_year_effect_only_dm` count is the same effect: a criterion no regional attempt could reach
+until it had vintaged rows.
 
 **No attempt now fails `minimum_test_forecasts`** (panel-length wave, 2026-09-17). The two that did
 were data-quantity failures, and five new attempts on longer panels clear the criterion — while
@@ -27,10 +54,11 @@ adding no passes: `population_growth_rate` fails `interval_coverage` on both its
 `deposit_rate_pass_through` fails `beats_persistence_dm` on the declared SNDR series and on both
 substitute series. Lengthening a panel revealed a real failure that n = 16 could not test.
 
-**`interval_coverage` blocked 16 attempt rows and now blocks 6** (WS-E, 2026-09-17, no new data).
-`interest_pass_through.fred_realtime_v2` became a full pass, adding one more current passing run
-(the total in the paragraph above predates this wave and WS-A's, and needs reconciling once the
-2026-09-17 waves are all in).
+**`interval_coverage` blocked 16 of the rows this file then carried, and now blocks 6 of those 16**
+(WS-E, 2026-09-17, no new data); across all 30 current attempts, including the ones registered after
+WS-E, it blocks 7.
+`interest_pass_through.fred_realtime_v2` became a full pass, the seventh current passing run of the
+eight.
 `labor_demand`, `policy_rule`, `energy_purchasing` and `conflict_model` had their coverage failure
 removed and still fail on skill or on declared bounds, which moves them from "the uncertainty is
 wrong" to "there is no demonstrated edge over a random walk". Two code defects were found and
@@ -62,6 +90,17 @@ from the sources.
 
 ## Summary
 
+Fifty-one rows, one per pre-registered attempt id, checked row for row against the published
+validation reports on 2026-09-17: the failing-criteria column now matches
+`acceptance.results` in every case. Two corrections came out of that check.
+`energy_purchasing.fred_realtime_v2` had a published report from the fourth wave and **no row here**,
+which is why the earlier counts in this file said 35 attempts and 16 `interval_coverage` failures
+where the reports said 33 registered (35 with the two `not_run`) and 17; its row is below.
+`default_hazard.fdic_laus_quarterly` is marked **pass** without a superseded tag, but the plan
+supersedes it, which is why it counts among the two superseded passes and not the eight current ones.
+`monetary_model.okun_unrate_realtime` is the one row with no report: it raised during fitting, so no
+criterion was ever evaluated, and it is excluded from every pass/fail count below.
+
 | Attempt | Process / component | Data (dataset@version, window) | n test | Verdict | Failing criteria |
 | --- | --- | --- | --- | --- | --- |
 | `inventory_balance.eia_weekly` | resource_inventory / inventory_balance | eia_energy@f5cd9308, weekly 1991-02..2024-12 (1,767 obs) | 258 | **fail** | interval_coverage |
@@ -87,6 +126,7 @@ from the sources.
 | `policy_rule.fred_realtime_v2` | coupled_economy / policy_rule | fred_macro_panel@7dcce89c, quarterly 1955-2024 (277) | 47 | **fail** | beats_persistence_dm, interval_coverage |
 | `credit_growth.fred_realtime_v2` | coupled_economy / credit_growth | fred_macro_panel@7dcce89c (TOTALSL corrected), monthly 1943-2024 (975) | 141 | **fail** | interval_coverage |
 | `labor_demand.fred_realtime_v2` | coupled_economy / labor_demand | fred_macro_panel@7dcce89c (INDPRO all bases), monthly 1939-2024 (1,029) | 143 | **fail** | beats_persistence_dm, interval_coverage |
+| `energy_purchasing.fred_realtime_v2` | coupled_economy / energy_purchasing | fred_macro_panel@7dcce89c (RRSFS) + fred_oil_price@a42622a0 + DFF, monthly 1992-2024 (393) | 83 | **fail** (superseded) | beats_persistence_dm, interval_coverage, bounds |
 | `monetary_model.fred_realtime_v2` | monetary_model | fred_macro_panel@7dcce89c + fred_cpi@34fe03f5, quarterly first releases, base-paired (106) | 36 | **pass** | none |
 | `inventory_balance.eia_weekly_v2` | resource_inventory / inventory_balance | eia_energy@f5cd9308, weekly 1991-02..2024-12 (1,767) | 258 | **pass** | none |
 | `credit_growth.fred_realtime_v3` | coupled_economy / credit_growth | fred_macro_panel@7dcce89c (TOTALSL), monthly 1943-2024 (975) | 141 | **pass** | none |
@@ -1289,8 +1329,12 @@ GDPC1/GDPPOT gap, remains the passing attempt for this family.
 
 ## Sixth wave (WS-E: uncertainty calibration, and no new data at all)
 
-`interval_coverage` blocked **16** of the 35 attempt rows — more than any other criterion, and the
-only large block that needs no acquisition. Each of the sixteen was diagnosed separately into the
+`interval_coverage` blocked **16** of the attempt rows this file then carried — more than any other
+criterion, and the only large block that needs no acquisition. (The denominator used at the time was
+35: the 33 attempts the plan had registered plus the two recorded `not_run`. The reports say 17, not
+16, because `energy_purchasing.fred_realtime_v2` had a report and no row here; its row exists now and
+it was superseded by `_v3` in this same wave, so nothing below changes.) Each of the sixteen was
+diagnosed separately into the
 two causes this record already distinguishes: a **scoring bug** (a real-time forecast graded
 against a later vintage, as `credit_growth` was) or **genuine miscalibration** (the predictive
 distribution is the wrong width or the wrong shape for the right reason). Full working record,
