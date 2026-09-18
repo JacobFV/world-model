@@ -52,10 +52,11 @@ of things already in the panel. Two candidate expansions were costed and refused
 | CES **metro-area** employment by supersector, all ALFRED vintages (~390 MSAs × 12 industries) | ~2.5 GiB est. | No pre-registered attempt is at metro level, and `regional_model`'s *other* failing criterion (`interval_coverage`) fails on the common year component, which more cross-sectional units cannot fix. More units would not close a criterion. |
 | Reconstructing QCEW vintages from Internet Archive snapshots | ~15 GiB (WS-B's costing) | Crawl dates are not publication dates. |
 
-**Budget consequence.** WS-A declared and used no allocation. The acquisition pool stands where it
-was (94.7 GB used of 500 GiB; fair-share cap 25 GiB/dataset). An honest under-spend with a stated
-rule is reported here rather than padded: the 10–20 GiB the workstream was scoped for does not exist
-to buy for this purpose.
+**Budget consequence.** WS-A declared no dataset and used no allocation. `python3 -m worldmodel budget`
+after the work: **89.73 GiB used of the 500 GiB pool**, fair-share cap 25 GiB per dataset, and
+`fred_macro_panel` at **0.745 GiB used** of its 0.820 GiB declared — the same figure it had before.
+An honest under-spend with a stated rule is reported here rather than padded: the 10–20 GiB the
+workstream was scoped for does not exist to buy for this purpose.
 
 ## The audit: what ALFRED actually serves, per failing attempt
 
