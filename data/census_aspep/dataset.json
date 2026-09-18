@@ -1,0 +1,215 @@
+{
+  "id": "census_aspep",
+  "schema_version": 2,
+  "dependencies": [],
+  "kind": "source",
+  "status": "full_acquisition_configured",
+  "description": "Census Annual Survey of Public Employment & Payroll individual-unit files, 1993-2024: every surveyed state and local government unit by functional category, with full-time and part-time employees and March payroll, reported/imputed data flags, and the FIPS state and county published in the unit ID file. Census of Governments years (1997, 2002, 2007, 2012, 2017, 2022) enumerate all governments; every other year samples local governments.",
+  "source": {
+    "publisher": "U.S. Census Bureau, Economy-Wide Statistics Division, Employment Statistics Branch",
+    "license_status": "public_domain_us_government",
+    "documentation": "https://www.census.gov/programs-surveys/apes/technical-documentation.html",
+    "license_notes": "US federal government work: public domain in the United States (17 U.S.C. 105); no redistribution restriction; cite the publisher. Values carry a data flag saying whether they were reported by the respondent or imputed (technical documentation section 2.4); imputation is not suppression, so no cell is withheld. Non-census years are a probability sample of local governments, and the unit's probability of selection is published rather than a weight.",
+    "person_level_records": {
+      "policy": "prohibited",
+      "authority": "13 U.S.C. 9",
+      "note": "ASPEP publishes nothing about identified natural persons: the smallest published unit is a government and a functional category, not an employee. The restrictive default therefore costs this dataset nothing and no permission is claimed. Public payroll disclosure statutes are not engaged because the publisher never names anyone."
+    }
+  },
+  "expected_outputs": [
+    "government_employees",
+    "government_payroll",
+    "government_unit_population",
+    "school_enrollment"
+  ],
+  "setup": "One shard per survey year, named aspep_<year>.zip so the pipeline reads the year deterministically. Parse the fixed-width ID and data members by column position; join to geography only through the published FIPS state and county.",
+  "entrypoint": "pipeline.py:run",
+  "output_stage": "normalized",
+  "parameters": {},
+  "sampling": {
+    "strategy": "blocked",
+    "reason": "Full acquisition only (wm acquire census_aspep): a 100-row excerpt of one fixed-width member cannot be parsed without its companion ID file, and the pipeline requires both members of each year's archive.",
+    "criteria": "First 100 records, at most 1 MiB",
+    "format": "jsonl",
+    "max_rows": 100,
+    "max_sample_bytes": 1048576,
+    "max_download_bytes": 1048576,
+    "max_uncompressed_bytes": 1048576,
+    "disk_budget_bytes": 67108864
+  },
+  "stages": [
+    {
+      "id": "normalized",
+      "entrypoint": "pipeline.py:run",
+      "depends_on": [],
+      "schema": {
+        "format": "evidence_jsonl",
+        "compression": "gzip"
+      },
+      "validation": {
+        "allow_empty": false,
+        "max_rows": 40000000
+      },
+      "cache": "content",
+      "retention": "retain"
+    }
+  ],
+  "acquisition": {
+    "strategy": "files",
+    "description": "ASPEP Individual Unit Files, one zip per survey year 1993-2024. Each archive holds <yy>empid.txt (unit directory with FIPS state/county) and <yy>empst.txt (employment and payroll by item code), plus the year's technical documentation. Three publisher naming eras: <year>_downloadable_data.zip (1993-2014, 2016), <year>_individual_unit_files.zip (2015 under annual-apes, 2017-2021 and 2023-2024 flat) and '2022 COG-E Individual Unit Files.zip' for the 2022 Census of Governments. Measured sizes range from 1.5 MB (2005) to 37.7 MB (2017 Census of Governments). www2.census.gov applies a Cloudflare zone rate limit (error 1015, HTTP 429) to repeated requests, so this block spaces requests 10 s apart and backs off up to 10 minutes.",
+    "documentation": "https://www.census.gov/programs-surveys/apes/data/datasets.html",
+    "desired_bytes": 400000000,
+    "min_bytes": 0,
+    "priority": 3.0,
+    "skip_statuses": [
+      404
+    ],
+    "rate_limit": {
+      "requests_per_second": 0.1
+    },
+    "timeout_seconds": 300,
+    "retries": 12,
+    "backoff_seconds": 20.0,
+    "files": [
+      {
+        "url": "https://www2.census.gov/programs-surveys/apes/datasets/1993/annual-apes/1993_downloadable_data.zip",
+        "name": "aspep_1993.zip"
+      },
+      {
+        "url": "https://www2.census.gov/programs-surveys/apes/datasets/1994/annual-apes/1994_downloadable_data.zip",
+        "name": "aspep_1994.zip"
+      },
+      {
+        "url": "https://www2.census.gov/programs-surveys/apes/datasets/1995/annual-apes/1995_downloadable_data.zip",
+        "name": "aspep_1995.zip"
+      },
+      {
+        "url": "https://www2.census.gov/programs-surveys/apes/datasets/1996/annual-apes/1996_downloadable_data.zip",
+        "name": "aspep_1996.zip"
+      },
+      {
+        "url": "https://www2.census.gov/programs-surveys/apes/datasets/1997/annual-apes/1997_downloadable_data.zip",
+        "name": "aspep_1997.zip"
+      },
+      {
+        "url": "https://www2.census.gov/programs-surveys/apes/datasets/1998/annual-apes/1998_downloadable_data.zip",
+        "name": "aspep_1998.zip"
+      },
+      {
+        "url": "https://www2.census.gov/programs-surveys/apes/datasets/1999/annual-apes/1999_downloadable_data.zip",
+        "name": "aspep_1999.zip"
+      },
+      {
+        "url": "https://www2.census.gov/programs-surveys/apes/datasets/2000/annual-apes/2000_downloadable_data.zip",
+        "name": "aspep_2000.zip"
+      },
+      {
+        "url": "https://www2.census.gov/programs-surveys/apes/datasets/2001/annual-apes/2001_downloadable_data.zip",
+        "name": "aspep_2001.zip"
+      },
+      {
+        "url": "https://www2.census.gov/programs-surveys/apes/datasets/2002/annual-apes/2002_downloadable_data.zip",
+        "name": "aspep_2002.zip"
+      },
+      {
+        "url": "https://www2.census.gov/programs-surveys/apes/datasets/2003/annual-apes/2003_downloadable_data.zip",
+        "name": "aspep_2003.zip"
+      },
+      {
+        "url": "https://www2.census.gov/programs-surveys/apes/datasets/2004/annual-apes/2004_downloadable_data.zip",
+        "name": "aspep_2004.zip"
+      },
+      {
+        "url": "https://www2.census.gov/programs-surveys/apes/datasets/2005/annual-apes/2005_downloadable_data.zip",
+        "name": "aspep_2005.zip"
+      },
+      {
+        "url": "https://www2.census.gov/programs-surveys/apes/datasets/2006/annual-apes/2006_downloadable_data.zip",
+        "name": "aspep_2006.zip"
+      },
+      {
+        "url": "https://www2.census.gov/programs-surveys/apes/datasets/2007/annual-apes/2007_downloadable_data.zip",
+        "name": "aspep_2007.zip"
+      },
+      {
+        "url": "https://www2.census.gov/programs-surveys/apes/datasets/2008/annual-apes/2008_downloadable_data.zip",
+        "name": "aspep_2008.zip"
+      },
+      {
+        "url": "https://www2.census.gov/programs-surveys/apes/datasets/2009/annual-apes/2009_downloadable_data.zip",
+        "name": "aspep_2009.zip"
+      },
+      {
+        "url": "https://www2.census.gov/programs-surveys/apes/datasets/2010/annual-apes/2010_downloadable_data.zip",
+        "name": "aspep_2010.zip"
+      },
+      {
+        "url": "https://www2.census.gov/programs-surveys/apes/datasets/2011/annual-apes/2011_downloadable_data.zip",
+        "name": "aspep_2011.zip"
+      },
+      {
+        "url": "https://www2.census.gov/programs-surveys/apes/datasets/2012/annual-apes/2012_downloadable_data.zip",
+        "name": "aspep_2012.zip"
+      },
+      {
+        "url": "https://www2.census.gov/programs-surveys/apes/datasets/2013/annual-apes/2013_downloadable_data.zip",
+        "name": "aspep_2013.zip"
+      },
+      {
+        "url": "https://www2.census.gov/programs-surveys/apes/datasets/2014/annual-apes/2014_downloadable_data.zip",
+        "name": "aspep_2014.zip"
+      },
+      {
+        "url": "https://www2.census.gov/programs-surveys/apes/datasets/2015/annual-apes/2015_individual_unit_files.zip",
+        "name": "aspep_2015.zip"
+      },
+      {
+        "url": "https://www2.census.gov/programs-surveys/apes/datasets/2016/annual-apes/2016_downloadable_data.zip",
+        "name": "aspep_2016.zip"
+      },
+      {
+        "url": "https://www2.census.gov/programs-surveys/apes/datasets/2017/2017_individual_unit_files.zip",
+        "name": "aspep_2017.zip"
+      },
+      {
+        "url": "https://www2.census.gov/programs-surveys/apes/datasets/2018/2018_individual_unit_files.zip",
+        "name": "aspep_2018.zip"
+      },
+      {
+        "url": "https://www2.census.gov/programs-surveys/apes/datasets/2019/2019_individual_unit_files.zip",
+        "name": "aspep_2019.zip"
+      },
+      {
+        "url": "https://www2.census.gov/programs-surveys/apes/datasets/2020/2020_individual_unit_files.zip",
+        "name": "aspep_2020.zip"
+      },
+      {
+        "url": "https://www2.census.gov/programs-surveys/apes/datasets/2021/2021_individual_unit_files.zip",
+        "name": "aspep_2021.zip"
+      },
+      {
+        "url": "https://www2.census.gov/programs-surveys/apes/datasets/2022/2022%20COG-E%20Individual%20Unit%20Files.zip",
+        "name": "aspep_2022.zip"
+      },
+      {
+        "url": "https://www2.census.gov/programs-surveys/apes/datasets/2023/2023_individual_unit_files.zip",
+        "name": "aspep_2023.zip"
+      },
+      {
+        "url": "https://www2.census.gov/programs-surveys/apes/datasets/2024/2024_individual_unit_files.zip",
+        "name": "aspep_2024.zip"
+      }
+    ],
+    "reader": {
+      "format": "csv",
+      "encoding": "latin-1",
+      "delimiter": "\u0001",
+      "quoting": "none",
+      "fieldnames": [
+        "line"
+      ],
+      "strict": false
+    },
+    "max_backoff_seconds": 600
+  }
+}
