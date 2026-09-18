@@ -390,12 +390,12 @@ width is only legitimate if it follows from a stated defect rather than from the
 | 8 | `policy_rule.fred_realtime_v2` | same | same | 1.000 → **0.660 pass** | fail (same) |
 | 9 | `energy_purchasing.fred_realtime` | both — revision component missing, plus mild heteroskedasticity | `empirical_trailing` w=60 ⊕ revision (`_v3`) | 0.627 → **0.867 pass** | fail (DM p = 0.756; bounds on `energy_response`, `rate_response`) |
 | 10 | `conflict_model.ucdp_monthly` | miscalibration — Poisson equidispersion, Pearson dispersion 35.9 | NB2 dispersion the family already declares (`_v2`) | 0.596 → **0.719 pass** | fail (DM p = 0.583; `no_revision_leakage` structural) |
-| 11 | `regional_model.cbp_state_sectors` | miscalibration, but **not measurable** — one Bernoulli trial | none legitimate | 1.000, not a coverage estimate | fail |
+| 11 | `regional_model.cbp_state_sectors` | **not measurable** — one holdout year, so coverage is one Bernoulli trial | none legitimate | 1.000, not a coverage estimate | fail |
 | 12 | `regional_model.cbp_state_sectors_v2` | same | none legitimate; `_v3` run as a control and fails **worse** | 0.980 → 1.000 (`_v3`), not a coverage estimate | fail |
 | 13 | `regional_model.qcew_state_sectors` | **neither** — a structural break (2020-2022) | none: the proper score rejected the wider interval (`_v2` reached 0.758 and is **not** claimed) | 0.597 **still fails** | fail |
 | 14 | `population_growth_rate.census_pep` | not diagnosable — 4 holdout and **0** validation forecasts | none legitimate | 0.500 **still fails** | fail (`minimum_test_forecasts` 4 < 8) |
 | 15 | `deposit_rate_pass_through.fred_realtime` | point forecast worse than persistence; residual scale is correct | none legitimate | 0.438 **still fails** | fail (`minimum_test_forecasts` 16 < 24) |
-| 16 | `cash_balance.sec_companyfacts` (5 issuers) | miscalibration, but **0-1 validation forecasts** per issuer | none legitimate | 1.00 on 3 issuers, **still fails** | fail 5/5 (`beats_persistence_dm` all five) |
+| 16 | `cash_balance.sec_companyfacts` (5 issuers) | miscalibration (level-sigma from noisy differences), but **0-1 validation forecasts** per issuer, so not actionable | none legitimate | 1.00 on 3 issuers, **still fails** | fail 5/5 (`beats_persistence_dm` all five) |
 
 ### The modeling reason behind each change
 
