@@ -40,7 +40,7 @@ work), and spend the rest of the effort on the 35 failures that no download can 
 | Attempts passing | 8 of 35 | *pending* |
 | `interval_coverage` failures | 16 | *pending — WS-E* |
 | `no_revision_leakage` failures | 8 | *pending — WS-A* |
-| `minimum_test_forecasts` failures | 2 | *pending — WS-D* |
+| `minimum_test_forecasts` failures | 2 | **0** — WS-D: five new attempts, all clearing it, none passing |
 | `regional_model` | untestable (no vintaged employment source) | *pending — WS-B* |
 | Datasets | 125 | *pending — WS-C* |
 | Acquired bytes (ledger) | 88.2 GiB of a 500 GiB pool | *pending* |
@@ -53,7 +53,7 @@ work), and spend the rest of the effort on the 35 failures that no download can 
 | [WS-A](ws-a-alfred-vintages.md) | ALFRED vintages for every series a failing process touches | running |
 | [WS-B](ws-b-employment-vintages.md) | vintaged employment, or a definitive negative | running |
 | [WS-C](ws-c-public-employment.md) | ASPEP 1957– and FedScope: the public-sector labor graph | running |
-| [WS-D](ws-d-long-panels.md) | long annual panels for the two small-n attempts | running |
+| [WS-D](ws-d-long-panels.md) | long annual panels for the two small-n attempts | **done** — both evaluable; `population_growth_rate` now fails only `interval_coverage` (n 4 → 9 on 20 PEP vintages, → 16 on POPTHM), `deposit_rate_pass_through` now fails `beats_persistence_dm` on SNDR (n 16 → 24) and on both substitute series |
 | [WS-E](ws-e-interval-coverage.md) | uncertainty calibration — the 16, with no new data | running |
 | [WS-F](ws-f-fec-rebuild.md) | FEC rebuilt under the declared non-commercial purpose | running |
 
