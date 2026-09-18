@@ -140,8 +140,129 @@ NAICS detail turns out to matter, this is the documented fallback.
 
 ## Dataset built
 
-[`data/fred_state_employment_vintages/`](../../data/fred_state_employment_vintages/README.md) —
-603 FRED API requests, one per series over the full real-time window, declared `desired_bytes`
-320 MiB.
+[`data/fred_state_employment_vintages/`](../../data/fred_state_employment_vintages/README.md).
 
-<!-- RESULTS -->
+| | |
+| --- | --- |
+| raw artifact | `1bc3940c…`, **603 shards, 91,013,298 bytes = 0.085 GiB** (declared `desired_bytes` 320 MiB; 0.3% of the 25 GiB fair-share cap) |
+| normalized | `07d42b0a…`, **949,207 records**, 21,072,566 bytes gzip |
+| vintages | 229 per series at the deepest, 138 at the shallowest; **2007-06-19 .. 2026-08-21** |
+| panel the loader derives | 51 state-equivalents × 10 industries × 14 reference years = **7,140 annual rows**, from 85,680 cited monthly observations |
+
+## The re-run: `regional_model` is now testable, and here is what it says
+
+Two attempts, both pre-registered in `real_data_plan.json` before either ran, differing only in the
+declared interval method. Real output, `python3 -m worldmodel calibrate-all --attempt …`:
+
+| criterion | `ces_sae_realtime` | `ces_sae_realtime_v2` |
+| --- | --- | --- |
+| `minimum_test_forecasts` | **pass** (306) | **pass** (306) |
+| `beats_persistence_dm` | **fail** (p = 0.751) | **fail** (p = 0.751) |
+| `interval_coverage` | **pass** (0.654, nominal 0.80 ± 0.15) | **pass** (0.686) |
+| `parameters_within_declared_bounds` | **pass** | **pass** |
+| `no_timing_leakage` | **pass** (0 violations, 6 origins) | **pass** |
+| **`no_revision_leakage`** | **pass** | **pass** |
+| `beats_year_effect_only_dm` | **fail** (p = 1.000) | **fail** (p = 1.000) |
+| verdict | **fail** | **fail** |
+
+`regional_model` is **not validated**. But the failure has moved: `no_revision_leakage` passes for
+the first time on this process, with `vintage_modes: ['real_time']` and
+`revision_leakage_possible: false` in the audit, and `interval_coverage` passes too. What fails now
+is *skill* — and that is a result about the world, not about the data.
+
+Reports `751e472f71633e76…` / `003f418a5cc94596…`, artifacts `92e00c191e97a460…` /
+`12d69de07e105ae7…`.
+
+### The mechanism's skill does not survive the move to real time
+
+On the revised QCEW panel the shift-share term cut the year-effect-only MAE from 0.0307 to 0.0211
+at p = 1.2e-04. On the real-time panel it does not beat that baseline at all:
+
+| | model | `year_effect_only` | persistence | historical mean |
+| --- | ---: | ---: | ---: | ---: |
+| MAE (log growth) | 0.027797 | **0.026569** | 0.036165 | 0.026842 |
+| RMSE | 0.051170 | **0.037689** | 0.049052 | 0.037686 |
+| CRPS | 0.024749 | **0.021779** | 0.030403 | 0.022095 |
+| DM p vs model | 1.000 | — | 0.751 | 1.000 |
+
+### One year does all of it, and the reason is a sign flip, not the pandemic
+
+Per-origin, 51 forecasts each:
+
+| target year | release date | coverage | model MAE | `year_effect_only` MAE | bias | interval width |
+| --- | --- | ---: | ---: | ---: | ---: | ---: |
+| 2020 | 2021-01-26 | **0.000** | **0.11932** | 0.07359 | **+0.11932** | 0.0261 |
+| 2021 | 2022-01-25 | 0.706 | 0.01158 | 0.01769 | −0.00489 | 0.0332 |
+| 2022 | 2023-01-24 | 0.725 | 0.01091 | 0.03449 | −0.00301 | 0.0334 |
+| 2023 | 2024-01-23 | 0.863 | 0.00839 | 0.01661 | +0.00217 | 0.0341 |
+| 2024 | 2025-01-28 | 0.745 | 0.00888 | 0.00851 | −0.00423 | 0.0333 |
+| 2025 | 2026-01-27 | 0.882 | 0.00771 | 0.00853 | −0.00259 | 0.0327 |
+
+In 2021-2023 the mechanism beats the baseline by a wide margin and in 2024-2025 it ties. 2020 is
+the whole failure: MAE 0.119, coverage zero, and the bias equal to the MAE, meaning the model
+over-predicted growth for **all 51 states**.
+
+The obvious story — "no interval can price a pandemic" — is not what happened. The model predicted
+a 2020 *boom*. Decomposing one forecast: model mean +0.0583, year-effect-only mean +0.0135, so the
+shift-share term contributed **+0.0447** in a year when the realized other-state industry shock was
+strongly negative. That can only happen if the elasticity was negative at that origin, and refitting
+at each origin shows exactly that:
+
+| fit through | reference years used | `shift_share_elasticity` | cluster-robust SE | n state-years |
+| --- | --- | ---: | ---: | ---: |
+| 2020-01-24 | ≤ 2019 | **−0.5795** | **1.6968** | 357 |
+| 2021-01-26 | ≤ 2020 | +0.7617 | 0.6330 | 408 |
+| 2022-01-25 | ≤ 2021 | +0.8086 | 0.5256 | 459 |
+| 2023-01-24 | ≤ 2022 | +1.2171 | 0.4634 | 510 |
+| 2024-01-23 | ≤ 2023 | +1.1639 | 0.4785 | 561 |
+| 2025-01-28 | ≤ 2024 | +1.1072 | 0.4724 | 612 |
+| 2026-01-27 | ≤ 2025 | +1.0338 | 0.4908 | 663 |
+
+**Seven pre-pandemic growth years and ten supersectors do not identify the Bartik elasticity.** At
+the first holdout origin the point estimate has the wrong sign and an SE three times its magnitude;
+it is indistinguishable from zero and from +3. It is the 2020 observation itself that pins the
+elasticity down — every fit that includes 2020 lands between +0.76 and +1.22 with an SE near 0.5 —
+which means the pandemic is not only the year the model fails on, it is the year that identifies the
+parameter the model needs. That is a statement about identification, and it is visible only because
+the panel is real time: on revised data the elasticity came out at 1.2586 (SE 0.3269) and the
+question never arose.
+
+Two readings are consistent with this, and the evidence here does not separate them. Either the
+twenty-sector revised QCEW panel genuinely identifies what a ten-supersector panel cannot, or part
+of the QCEW result came from the revision process itself — benchmarking makes a published panel
+internally consistent in ways a first-release panel is not, and that can tighten a cross-sectional
+relationship. Distinguishing them needs a vintaged panel at 2-digit NAICS, which is the QCEW
+Wayback reconstruction costed above.
+
+### What passed, and what to make of the coverage pass
+
+`interval_coverage` passing at 0.654 and 0.686 is real but should be read with the year table next
+to it: it is 0.000 in 2020 and 0.71-0.88 in the other five years. The interval is the right size
+outside the pandemic — the QCEW panel's pattern was 0.85 / **0.04** / 0.38 / 0.45 / 0.98 / 0.89, so
+four of six years were off — and the pooled statistic clears 0.80 − 0.15 partly because a badly
+failing year is averaged with five good ones. Six holdout years is six independent draws of the
+common component, so this statistic still has far fewer effective observations than n = 306 suggests.
+The two declared spreads differ only in width (0.0321 vs 0.0352) and both land inside tolerance.
+
+The validation window, which selected nothing because there is one candidate, is worth recording for
+contrast: 255 forecasts over 2015-2019 at MAE 0.009044. The model is accurate in ordinary years.
+
+### Two properties of the panel worth knowing before reusing it
+
+* **Reference years 2012 and 2013 share the release date 2014-04-18.** The release date is the
+  *latest* first-vintage date across 6,120 cells, so one late-joining series sets it for the whole
+  year; two years can collapse onto one date. Neither is a holdout target here (`train_end` is
+  2015-06-30), and the rule errs late rather than early, so it cannot leak. A design that needed
+  2013 as a target would have to handle it.
+* **Release dates are late January, except 2012-2014, which are April.** The archive-start dates
+  present in the panel are 2005-06-17, 2007-06-19 and 2011-11-22, and no reference year was rejected
+  for pre-archive months, incompleteness or a missing series once `start_year` was set to 2012.
+
+## What this changes in the ledger
+
+`regional_model` was one of eight `no_revision_leakage` failures and the one the status doc called
+structurally untestable. It is now tested. The process still fails, on `beats_persistence_dm` and
+`beats_year_effect_only_dm`, which is a different and more interesting claim than the one it
+replaced: not "we cannot check this" but "the shift-share mechanism's measured skill on this
+employment panel does not survive being asked in real time, and its elasticity is identified by the
+pandemic".
