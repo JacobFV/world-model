@@ -16,7 +16,7 @@ explained, grounded in entities that actually exist.
 
 ## The cognitive substrate
 
-We use the tensorcode substrate (`~/Documents/tensacode`, zero runtime dependencies, same
+We use the tensorcode substrate (`pip install tensorcode`, zero runtime dependencies, same
 author) rather than reinventing it. The pieces we rely on:
 
 | Primitive | What it gives us |
@@ -135,8 +135,8 @@ forced by the contract.
 | `agents_cli.py` | `wm agent-inspect`, `wm agent-explain` | yes |
 
 The optional extra is `agents` (`pip install "worldmodel-substrate[agents]"`). tensorcode is not
-on PyPI yet, so a local checkout installs with `pip install -e <tensacode>/tensacode/python`, or
-runs with `PYTHONPATH=<tensacode>/tensacode/python/src`. Without it the core imports normally and
+published on PyPI as `tensorcode`, so the extra resolves it directly and no checkout is needed.
+Without it the core imports normally and
 every agent test skips, exactly like the numpy `fast` extra.
 
 ### What the catalog actually publishes about a legislator

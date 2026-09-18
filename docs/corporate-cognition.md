@@ -307,7 +307,7 @@ issued securities; there may be more" instead of presenting its holder list as c
 python3 -m unittest discover -s tests -p 'test_agents_*' -q
 
 # with the optional substrate from a local checkout
-PYTHONPATH=<tensacode>/tensacode/python/src python3 -m unittest discover -s tests -p 'test_agents_*' -q
+python3 -m unittest discover -s tests -p 'test_agents_*' -q
 ```
 
 The real-data tests additionally skip unless this checkout has `data/world_evidence/index.sqlite`

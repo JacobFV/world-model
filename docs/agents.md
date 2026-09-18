@@ -10,7 +10,7 @@ cognitive substrate, which is an **optional** dependency — the core imports wi
 every agent test skips.
 
 ```sh
-pip install -e <tensacode>/tensacode/python      # or: PYTHONPATH=<tensacode>/.../src
+pip install "worldmodel-substrate[agents]"       # pulls tensorcode from PyPI
 python3 -m worldmodel agent-inspect bioguide:K000367
 python3 -m worldmodel society-run --config examples/society-congress.json --ticks 6 --seed 7
 ```

@@ -8,7 +8,7 @@ the layer this sits in is `docs/agents-design.md`.
 
 The grounded person agent in `docs/agents-design.md` perceives published records and believes what
 they support. It has no way to learn anything from anybody else. In the civ sim
-(`~/Documents/tensacode/tensacode/python/research/civ_sim`) claims pass between minds as English
+([`research/civ_sim`](https://github.com/TensaCo/tensacode/tree/main/tensacode/python/research/civ_sim)) claims pass between minds as English
 sentences and are parsed back lossily, so rumours drift and villages end up believing different
 things. That is the interesting part, and it is what this ports.
 

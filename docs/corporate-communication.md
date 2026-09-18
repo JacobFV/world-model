@@ -12,7 +12,7 @@ two kinds of silence the model is careful to keep apart.
 
 ## 1. What is structurally different from a person speaking
 
-The reference point is `~/Documents/tensacode/tensacode/python/research/civ_sim/talk.py` and
+The reference point is [`research/civ_sim/talk.py`](https://github.com/TensaCo/tensacode/blob/main/tensacode/python/research/civ_sim/talk.py) and
 `minds.py` (`_sayable`, `_speak`), which this deliberately diverges from.
 
 | | Person (`civ_sim/talk.py`, `minds.py`) | Firm (`disclosure.py`) | Institution (`instruments.py`) |
@@ -326,7 +326,7 @@ positions and handled the same way, by key, with a declared row budget (1,200) t
 python3 -m unittest tests.test_agents_disclosure tests.test_agents_instruments -q
 
 # with the optional substrate from a local checkout
-PYTHONPATH=<tensacode>/tensacode/python/src python3 -m unittest \
+python3 -m unittest \
     tests.test_agents_disclosure tests.test_agents_instruments -q
 ```
 

@@ -16,9 +16,8 @@ worldmodel.agents.person`` fails loudly and clearly when the extra is missing.
 ``affect`` is pure Python and needs neither tensorcode nor numpy.
 """
 INSTALL_HINT = ('Grounded cognitive agents require the optional substrate: '
-                'pip install "worldmodel-substrate[agents]" (tensorcode>=0.0.0.dev0). '
-                'For a local checkout: pip install -e <tensacode>/tensacode/python, or run with '
-                'PYTHONPATH=<tensacode>/tensacode/python/src.')
+                'pip install "worldmodel-substrate[agents]", or install it directly '
+                'with: pip install "tensorcode>=0.1.0a1".')
 
 _tensorcode = None
 

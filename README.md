@@ -622,7 +622,7 @@ index, perceiving published records, holding beliefs with provenance, deciding u
 constraints, and speaking to one another over channels drawn from published edges.
 
 ```sh
-pip install -e <tensacode>/tensacode/python        # optional `agents` extra
+pip install "worldmodel-substrate[agents]"         # optional `agents` extra (tensorcode)
 python3 -m worldmodel agent-inspect bioguide:K000367
 python3 -m worldmodel agent-explain bioguide:K000367 decided
 python3 -m worldmodel society-run --config examples/society-congress.json --ticks 6 --seed 7

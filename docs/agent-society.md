@@ -461,7 +461,7 @@ confidence multiplier, is the obvious next composition and is not done here.
 python3 -m unittest tests.test_agents_society -q
 
 # with the optional substrate from a local checkout
-PYTHONPATH=<tensacode>/tensacode/python/src python3 -m unittest tests.test_agents_society -q
+python3 -m unittest tests.test_agents_society -q
 
 # the worked run
 wm society-run --config examples/society-congress.json --ticks 6 --summary
