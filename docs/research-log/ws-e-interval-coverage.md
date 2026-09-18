@@ -150,11 +150,27 @@ Then I measured, on the selection window, under the rule declared before any WS-
 | `per_unit_year_draw` | 0.9340 | 0.02496 | 0.010591 |
 | `pooled_year_draw` | 0.9340 | 0.02541 | 0.010857 |
 
-**A wider interval that would almost certainly have passed was available, and I did not take
-it.** `per_unit_year_draw` reaches 0.9340 in validation, comfortably inside 0.80 ± 0.15; on the
-holdout it would very likely have converted `regional_model`'s coverage failure into a pass.
-It loses on CRPS — a proper score — so the declared rule selects `per_unit_year_mean`, which is
-what v1 already uses, and `regional_model` therefore **still fails** on the long panel.
+**A wider interval that would have passed was available, and I did not take it.**
+`per_unit_year_draw` reaches 0.9340 in validation, comfortably inside 0.80 ± 0.15; run on the
+holdout it reaches **0.7579 — a pass**. It loses on *validation* CRPS — a proper score — so the
+declared rule selects `per_unit_year_mean`, which is what v1 already uses, and `regional_model`
+therefore **still fails** on the long panel.
+
+**The rule was wrong here, by its own metric, and that is the more interesting result.** On the
+holdout, `per_unit_year_draw`'s CRPS is **0.016269** against `per_unit_year_mean`'s **0.016934** —
+the rejected candidate is better on coverage *and* on the proper score, once the answer is
+visible. That is knowable only after the fact and does not license selecting it. The reason is
+that the validation window (2015-2018) is entirely pre-pandemic while the holdout (2019-2024) is
+not, so validation could not price the regime the holdout contains.
+
+`labor_demand` is the same failure in the opposite direction: validation (2005-2012, spanning the
+financial crisis and its benchmark revisions) preferred the revision component, and the holdout
+(2013-2024, with smaller PAYEMS revisions) punished it. **So of the six attempts where the
+selection rule made a non-trivial choice, it generalized on four and failed on two, both times
+because the validation window's volatility regime differs from the holdout's.** That is a finding
+about the protocol rather than about these attempts, and the fix — a selection window that spans
+the holdout's regimes, or a rule that penalizes regime sensitivity — is a new pre-registration,
+not something to retrofit here.
 
 The a-priori argument was also wrong, and the evidence refuting it needed no holdout. The
 shift-share shock is built from *realized* other-region industry employment at the target year,
@@ -306,7 +322,7 @@ binomial. Corrected dispersion, unchanged shape.
 
 ## Regression check: no passing attempt moved
 
-Both code changes are meant to be no-ops wherever they do not apply. Three currently passing
+Both code changes are meant to be no-ops wherever they do not apply. Five earlier
 attempts were re-run from a pristine copy of the package and **reproduce their recorded report
 digests exactly** — not just their printed metrics, the content-addressed digest of the whole
 report:
@@ -316,6 +332,8 @@ report:
 | `default_hazard.fdic_cps_quarterly` (has a conditional input, declares `none`) | `a29e4a61e35c…` | `a29e4a61e35c…` | **identical** |
 | `inventory_balance.eia_weekly_v2` (uses `empirical_trailing`) | `ef9e071705b1…` | `ef9e071705b1…` | **identical** |
 | `credit_growth.fred_realtime_v3` (uses `interval_revision`) | `8ecb67bb78f9…` | `8ecb67bb78f9…` | **identical** |
+| `regional_model.cbp_state_sectors_v2` (uses `per_unit_year_mean`) | `9c97d892752c…` | `9c97d892752c…` | **identical** |
+| `regional_model.qcew_state_sectors` (uses `per_unit_year_mean`) | `91090501d2aa…` | `91090501d2aa…` | **identical** |
 
 One operational note for whoever runs the suite next: `worldmodel.provenance.capture_code`
 hashes every `.py` under the package root and compares against the import-time snapshot, so any
@@ -557,7 +575,8 @@ threshold cannot do that.
 ### `regional_model.qcew_state_sectors_v2` — the rejected candidate, reported not claimed
 
 Report `233f5714075e…`, artifact `94f3ea8bf2b2…`, 318 forecasts (2019-2024 × 53 areas).
-`interval_coverage` **passes at 0.7579**, against v1's 0.597.
+`interval_coverage` **passes at 0.7579**, against v1's 0.597, and its holdout CRPS is 0.016269
+against v1's 0.016934.
 
 **This is not a fix and it is not counted as one.** `per_unit_year_draw` is the candidate the
 declared selection rule — lowest validation-window CRPS, fixed before any WS-E attempt ran —
