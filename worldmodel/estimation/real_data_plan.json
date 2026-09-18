@@ -148,7 +148,9 @@
       },
       "entity_rule": "The 20 countries with the most state-based GED events in 2000-01..2015-12 (the training window only).",
       "rationale": "Hawkes self- and neighbour-excitation on country-month counts. No contiguity dataset (CShapes) is published, so neighbours are omitted and the neighbour term is identified only from the panel. UCDP annual releases revise earlier months, and the row dates are event months rather than publication dates, so no_revision_leakage is expected to fail; that is recorded rather than excused.",
-      "correction": "2026-09-15: the split boundaries were first written as YYYY-MM (2015-12, 2019-12, 2024-12), which validate_process rejects (\"Invalid time\"). They are rewritten as the identical end-of-month dates. The windows are unchanged and no result had been produced when this was corrected."
+      "correction": "2026-09-15: the split boundaries were first written as YYYY-MM (2015-12, 2019-12, 2024-12), which validate_process rejects (\"Invalid time\"). They are rewritten as the identical end-of-month dates. The windows are unchanged and no result had been produced when this was corrected.",
+      "superseded_by": "conflict_model.ucdp_monthly_v2",
+      "superseded_reason": "WS-E interval calibration, 2026-09-17: see the sixth_wave note and docs/research-log/ws-e-interval-coverage.md."
     },
     {
       "id": "assets_model.alpaca_daily",
@@ -519,7 +521,9 @@
         "cutoff": "2024-12-31"
       },
       "rationale": "Same splits as the contaminated v1 attempt so the two are directly comparable. Base-agnostic selection: the source accepts whatever unit each vintage published and the requirement unit is applied as a label, with the published unit and base kept in attributes.published_unit/base_period. A point-in-time frame takes the latest vintage available at its cutoff for every period, and a vintage publishes its whole history on one base, so each frame is internally base-consistent and the estimator only reads within-frame ratios and growth rates.",
-      "supersedes": "policy_rule.fred_realtime"
+      "supersedes": "policy_rule.fred_realtime",
+      "superseded_by": "policy_rule.fred_realtime_v3",
+      "superseded_reason": "WS-E interval calibration, 2026-09-17: see the sixth_wave note and docs/research-log/ws-e-interval-coverage.md."
     },
     {
       "id": "credit_growth.fred_realtime_v2",
@@ -586,7 +590,9 @@
         "cutoff": "2024-12-31"
       },
       "rationale": "Same splits as v1; re-run only because RRSFS's unit token changed. Values are identical, so the verdict is expected to repeat.",
-      "supersedes": "energy_purchasing.fred_realtime"
+      "supersedes": "energy_purchasing.fred_realtime",
+      "superseded_by": "energy_purchasing.fred_realtime_v3",
+      "superseded_reason": "WS-E interval calibration, 2026-09-17: see the sixth_wave note and docs/research-log/ws-e-interval-coverage.md."
     },
     {
       "id": "monetary_model.fred_realtime_v2",
@@ -1243,6 +1249,100 @@
       "rationale": "assets_model.alpaca_daily fails no_revision_leakage because total-return adjusted closes are restated by later corporate actions, and no vintage archive can repair that: FRED has no per-issuer equity prices. docs/calibration-status.md names the fix -- \"an unadjusted or point-in-time price feed would make the second criterion evaluable\" -- and FRED daily exchange rates are one: fred_macro_panel already holds every ALFRED vintage of them, and measured across the acquired panel exactly ONE day of each rate was ever revised, against 1,658 revised days for DFF. Each day is still read from its first-publishing vintage, so the declaration does not rest on that measurement. Splits are identical to the equity attempt so the two are comparable. No new data was acquired for this attempt.",
       "expected_limits": "This is a DIFFERENT ESTIMAND from the equity attempt, not a rerun of it: a currency cross-section with the euro as the factor, so its parameters are not comparable with the five-issuer equity fit, and a pass here would not retrospectively validate that one. Whether volatility_crps_skill passes is genuinely open -- currency volatility clusters more than idiosyncratic equity volatility, which is the case for the GARCH filter, but the criterion demands CRPS <= 0.99x the same means with constant volatility and the equity attempt delivered 0.996x. Exchange rates are noon quotes, so a day is a quote-to-quote return and not a close-to-close one.",
       "supersedes": "none: assets_model.alpaca_daily keeps its verdict on its own data, which no vintage archive can fix"
+    },
+    {
+      "id": "policy_rule.fred_realtime_v3",
+      "kind": "component",
+      "target": "policy_rule",
+      "process_id": "coupled_economy",
+      "loader": {
+        "function": "observation_set"
+      },
+      "estimator_options": {
+        "interval_method": "gaussian_trailing",
+        "interval_window": 40
+      },
+      "data": "fred_macro_panel@7dcce89c (FEDFUNDS, CPIAUCSL, GDPC1, GDPPOT), quarterly",
+      "protocol": {
+        "vintage_policy": "strict",
+        "window": "expanding",
+        "refit_every": 1,
+        "horizon": 1,
+        "train_end": "2004-12-31",
+        "validation_end": "2012-12-31",
+        "cutoff": "2024-12-31"
+      },
+      "diagnosis": "v1 and v2 failed interval_coverage at 1.000 (and beats_persistence_dm at p = 0.673). The coverage failure is heteroskedasticity across monetary regimes, measurable from the training window alone: at the validation cutoff the in-sample residual scale is 0.8520 while the residual root mean square by decade is 0.4847 (1950s), 0.4350 (1960s), 1.0824 (1970s), 1.4652 (1980s), 0.3592 (1990s), 0.5720 (2000s) and 0.2227 (2010s) -- a sevenfold spread set largely by the Volcker era, which a 1996 FEDFUNDS vintage publishes back to 1954. Honest caveat recorded in advance: the SELECTION window (2005-2012, 31 forecasts) does NOT reject the default, whose coverage there is 0.871 -- because that window contains the financial crisis, when policy-rate errors genuinely were large (2009 RMSE 1.489 against 0.161 in 2005). So the evidence for the change is the residual-scale spread, not a coverage failure in validation.",
+      "interval_method": "gaussian_trailing, window 40 quarters. No revision component is declared: FEDFUNDS is not revised, and running the revision component confirmed it -- it reproduced the default's numbers to every printed digit, so its estimated scale is zero. No empirical shape component is declared either: 31 validation forecasts cannot estimate 40 quantile nodes usefully. Candidate interval methods are compared on the SELECTION window only and the declared rule is LOWEST VALIDATION-WINDOW CRPS, a proper score blind to interval coverage; picking the candidate whose coverage sits closest to 0.80 would be tuning to the acceptance criterion and was not used. Validation-window CRPS: gaussian_in_sample 0.38901; gaussian_trailing 0.36453 (40), 0.37603 (20); empirical_trailing 0.36553 (40); gaussian_in_sample + revision 0.38901 (identical, as above). The rule selects gaussian_trailing at 40 quarters.",
+      "rationale": "Identical data, splits, vintage policy and acceptance criteria to policy_rule.fred_realtime_v2; the predictive distribution is the only change.",
+      "expected_limits": "beats_persistence_dm is expected to fail again and is untouched by this change: the smoothed Taylor rule loses to a random walk on the quarterly policy rate (v2 p = 0.673) and the predictive distribution cannot alter a point forecast. At best this attempt goes from two failing criteria to one.",
+      "supersedes": "policy_rule.fred_realtime_v2"
+    },
+    {
+      "id": "energy_purchasing.fred_realtime_v3",
+      "kind": "component",
+      "target": "energy_purchasing",
+      "process_id": "coupled_economy",
+      "loader": {
+        "function": "observation_set"
+      },
+      "estimator_options": {
+        "interval_method": "empirical_trailing",
+        "interval_window": 60,
+        "interval_nodes": 40,
+        "interval_revision": {
+          "window": 120,
+          "maturity": 24
+        }
+      },
+      "data": "fred_macro_panel@7dcce89c (RRSFS) + fred_oil_price@847b0f93 + fred_policy_rate@2a3197b9, monthly",
+      "protocol": {
+        "vintage_policy": "strict",
+        "window": "expanding",
+        "refit_every": 1,
+        "horizon": 1,
+        "train_end": "2012-12-31",
+        "validation_end": "2017-12-31",
+        "cutoff": "2024-12-31"
+      },
+      "diagnosis": "v1 and v2 failed interval_coverage from below (0.627) along with beats_persistence_dm and parameter bounds. Two defects, both measurable before the holdout. (a) The scored error carries a revision the residuals never see: under the strict policy the forecast is anchored on the RRSFS level available at the origin while the actual is the latest vintage at the evaluation cutoff. Measured at the validation cutoff, RRSFS log revisions from first release to latest have a root mean square of 0.0154 for 2010s periods and 0.0339 for 2000s periods, with a systematic mean of -0.0100 and -0.0313, against a model residual scale of 0.0087 -- the revision is about twice the residual it would be added to. (b) Mild heteroskedasticity: residual root mean square 0.0074 (1990s), 0.0113 (2000s), 0.0052 (2010s) against the flat 0.0087. The SELECTION window agrees: the default under-covers there at 0.661 with mean predictive sd 1,705 against a realized RMSE of 2,117, and standardized errors have root mean square 1.24.",
+      "interval_method": "empirical_trailing, window 60 months, 40 quantile nodes, plus an independent data-revision component over the most recent 120 mature periods with maturity 24 months (the Census annual retail trade survey benchmarks a month's sales at the following year's revision, and the CPI deflator behind the real series is itself revised, so two years is the age at which a period has been through both). The mean revision is reported and deliberately not used to shift the point forecast, so the systematic -0.010 stays visible in the bias statistic. Candidate interval methods are compared on the SELECTION window only and the declared rule is LOWEST VALIDATION-WINDOW CRPS, a proper score blind to interval coverage; picking the candidate whose coverage sits closest to 0.80 would be tuning to the acceptance criterion and was not used. Validation-window CRPS: gaussian_in_sample 1198.1; +revision 1199.9; gaussian_trailing(60) 1232.7; empirical_trailing(60)+revision 1144.5. The rule selects the last.",
+      "rationale": "Identical data, splits, vintage policy and acceptance criteria to energy_purchasing.fred_realtime_v2.",
+      "expected_limits": "beats_persistence_dm (v2 p = 0.756) and parameters_within_declared_bounds (energy_response and rate_response both carry the wrong sign for the declared mechanism) are expected to fail again and are untouched by a predictive distribution. At best this attempt goes from three failing criteria to two. The holdout also contains 2020, whose retail-sales collapse no pre-2018 window can price.",
+      "supersedes": "energy_purchasing.fred_realtime_v2"
+    },
+    {
+      "id": "conflict_model.ucdp_monthly_v2",
+      "kind": "family",
+      "target": "conflict",
+      "process_id": "conflict_model",
+      "loader": {
+        "function": "conflict_data",
+        "options": {
+          "start": "2000-01",
+          "end": "2024-12",
+          "rank_end": "2015-12",
+          "country_count": 20,
+          "release": "26.1",
+          "violence": "state_based"
+        }
+      },
+      "data": "ucdp_conflicts@normalized (GED monthly country counts, release 26.1, state-based) + vdem@normalized (v2x_polyarchy, previous year)",
+      "protocol": {
+        "train_end": "2015-12-31",
+        "validation_end": "2019-12-31",
+        "cutoff": "2024-12-31",
+        "vintage_policy": "family_rows",
+        "refit_every": 12,
+        "horizon": 1
+      },
+      "correction": "2026-09-17: an inconsistency inside the code, not a re-specification of the mechanism. The Hawkes recursion gives the conditional MEAN of a country-month count; the holdout forecaster set sd = sqrt(mean), which asserts that the count is equidispersed Poisson. This family's own simulator does not assert that -- worldmodel.models.conflict.simulate draws counts as negative_binomial(rng, lambda, dispersion), and 'dispersion' (nb2_alpha) is a declared family parameter with bounds [0, 50]. fit_hawkes never estimated it, so it stayed at its default 0 and the score was Poisson while the simulator was negative binomial. fit_hawkes now estimates it by method of moments on the fit window's own residuals, alpha = sum[(N-lambda)^2 - lambda] / sum[lambda^2], and the forecaster uses Var = lambda + alpha lambda^2. alpha = 0 reproduces sqrt(mean) exactly, so this is not a widening factor: it is the dispersion the family already declared, measured instead of assumed.",
+      "diagnosis": "v1 failed interval_coverage at 0.596 along with beats_persistence_dm (p = 0.58) and no_revision_leakage. The coverage failure is the equidispersion assumption and the evidence is direct: over the fit-plus-validation window (4,300 one-step country-month forecasts, holdout untouched) the Poisson Pearson dispersion mean[(N-lambda)^2/lambda] is 35.9 against the 1.0 the Poisson score assumes, and the NB2 moment estimate of alpha is 0.041. Conflict counts cluster within a month beyond what a monthly excitation kernel can carry, which is the standard reason event counts are overdispersed.",
+      "interval_method": "Unchanged shape, corrected dispersion: the predictive stays Gaussian around the Hawkes intensity, as in v1, and only its standard deviation changes from sqrt(lambda) to sqrt(lambda + alpha lambda^2) with alpha estimated at each refit from pre-origin residuals. Changing the shape as well would be a second, separately arguable change and was not made.",
+      "rationale": "Identical data, splits, entity rule, vintage policy and acceptance criteria to conflict_model.ucdp_monthly.",
+      "expected_limits": "beats_persistence_dm and no_revision_leakage are expected to fail again. The second is structural: UCDP annual releases revise earlier months and the row dates are event months, not publication dates, so no interval method can reach it. At best this attempt goes from three failing criteria to two. self_excitation pinned at 0.99 is also unchanged -- the Hawkes fit is absorbing near-random-walk persistence into the excitation term, and the declared next step for that remains a published contiguity graph and the negative_binomial mechanism, neither of which is this attempt.",
+      "supersedes": "conflict_model.ucdp_monthly",
+      "entity_rule": "The 20 countries with the most state-based GED events in 2000-01..2015-12 (the training window only)."
     }
   ],
   "not_run": [

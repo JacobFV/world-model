@@ -112,6 +112,7 @@ def _conflict_forecast(parameters, history, rows, data):
         if key not in parameters:
             raise ValueError('Conflict holdout forecasts require a Hawkes fit')
     beta, es, en = parameters['decay'], parameters['self_excitation'], parameters['neighbor_excitation']
+    alpha = float(parameters.get('dispersion') or 0.0)
     coefficients = parameters['background_coefficients']
     countries = sorted({r['country'] for r in history})
     months = sorted({r['month'] for r in history}, key=_time)
@@ -129,7 +130,13 @@ def _conflict_forecast(parameters, history, rows, data):
         spill = sum(excitation[a] for a in adjacent) / len(adjacent) if adjacent else 0.0
         eta = coefficients.get('const', 0.0) + sum(coefficients[name] * row[name] for name in data.get('covariates', []))
         mean = math.exp(eta) + es * excitation[country] + en * spill
-        out.append({'target': f'events:{country}', 'actual': row['count'], 'mean': mean, 'sd': math.sqrt(max(mean, 1e-12)),
+        # The Hawkes recursion gives the conditional mean only. sqrt(mean) would assert
+        # equidispersion, which this family's own simulator does not: it draws counts as
+        # negative_binomial(lambda, dispersion). The fit estimates that dispersion from the
+        # fit window's residuals, so Var = lambda + alpha lambda^2 is the family's declared
+        # predictive variance rather than a new assumption. alpha = 0 reproduces sqrt(mean).
+        variance = max(mean, 1e-12) * (1 + alpha * max(mean, 0.0))
+        out.append({'target': f'events:{country}', 'actual': row['count'], 'mean': mean, 'sd': math.sqrt(variance),
                     'history_values': [counts[(country, m)] for m in months if (country, m) in counts]})
     return out
 

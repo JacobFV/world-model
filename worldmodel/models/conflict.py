@@ -82,6 +82,40 @@ def _excitation(N, W, beta):
     return S, Snb
 
 
+def _nb2_dispersion(N, X, S, Snb, gamma, es, en, start=1):
+    """NB2 overdispersion alpha by method of moments on the fit window's own intensities.
+
+    The Hawkes recursion gives the conditional *mean* of a count; it says nothing about
+    its conditional variance. Scoring the forecast as Poisson asserts variance = mean,
+    and this family's own simulator does not: ``simulate`` draws counts as
+    ``negative_binomial(rng, lambda, dispersion)``. This estimates the dispersion the
+    simulator is given, from the residuals of the fit window alone, by matching
+    ``Var = lambda + alpha lambda^2``::
+
+        alpha = sum[(N - lambda)^2 - lambda] / sum[lambda^2]
+
+    Reported alongside the Pearson dispersion ``mean[(N - lambda)^2 / lambda]``, whose
+    distance from 1 is the direct test of the equidispersion the Poisson score assumes.
+    """
+    numerator = denominator = pearson = 0.0
+    count = 0
+    for c in range(len(N)):
+        for t in range(start, len(N[0])):
+            lam = math.exp(sum(g * v for g, v in zip(gamma, X[c][t]))) + es * S[c][t] + en * Snb[c][t]
+            if lam <= 0:
+                continue
+            squared = (N[c][t] - lam) ** 2
+            numerator += squared - lam
+            denominator += lam * lam
+            pearson += squared / lam
+            count += 1
+    if not count or denominator <= 0:
+        return 0.0, {'observations': count, 'pearson_dispersion': None, 'method': 'nb2_method_of_moments'}
+    alpha = max(0.0, numerator / denominator)
+    return alpha, {'observations': count, 'pearson_dispersion': pearson / count, 'method': 'nb2_method_of_moments',
+                   'equidispersion_assumed_by_poisson_score': 1.0}
+
+
 def _loglik(N, X, S, Snb, gamma, es, en, start=1):
     total = 0.0
     for c in range(len(N)):
@@ -175,8 +209,11 @@ def fit_hawkes(rows, covariates=(), neighbors=None, cutoff=None, decay_bounds=(0
     theta = gamma + [es, en, beta]
     se = _numerical_se(lambda p: _loglik(N, X, *_excitation(N, W, p[-1]), p[:-3], p[-3], p[-2]), theta)
     radius = spectral_radius(es, en, W)
-    estimate = {'background_coefficients': dict(zip(names, gamma)), 'self_excitation': es, 'neighbor_excitation': en, 'decay': beta}
+    alpha, dispersion_diagnostics = _nb2_dispersion(N, X, S, Snb, gamma, es, en)
+    estimate = {'background_coefficients': dict(zip(names, gamma)), 'self_excitation': es, 'neighbor_excitation': en, 'decay': beta,
+                'dispersion': alpha}
     diagnostics = {'loglik': ll, 'em_iterations_final': iterations, 'converged': converged, 'branching_ratio': radius,
+                   'dispersion_estimate': dispersion_diagnostics,
                    'stationary': radius < 1, 'countries': len(countries), 'months': len(months),
                    'standard_errors': dict(zip(names + ['self_excitation', 'neighbor_excitation', 'decay'], se)) if se else None,
                    'mean_lag_months': 1 / (1 - beta)}
