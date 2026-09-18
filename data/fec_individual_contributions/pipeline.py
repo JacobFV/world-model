@@ -1,7 +1,12 @@
-"""FEC itemized individual contributions (indivYY.zip / itcont.txt) -> PII-free aggregates.
+"""FEC itemized individual contributions (indivYY.zip / itcont.txt) -> aggregates, plus contributions.
 
-Raw rows name individual contributors (name, city, ZIP, employer, occupation). Normalized output keeps only
-aggregates, never a contributor-level record:
+Raw rows name individual contributors (name, city, ZIP, employer, occupation). 52 U.S.C. 30111(a)(4) bars
+selling that information or using it to solicit contributions or for any commercial purpose -- it does not
+bar research use, so whether contributor-level rows are emitted is decided by the deployment's declared
+purpose (``WM_COMMERCIAL_USE``) against this dataset's ``source.person_level_records`` rule. See
+``worldmodel.rights.retain_identified_persons``; the decision is recorded on every emitted record.
+
+The aggregates below are emitted either way:
 
 * ``committee_state_month``: recipient ``fec:committee:C########`` x contributor state x calendar month
 * ``zip3_month``: contributor ``geo:US:zip3:NNN`` x calendar month (all recipients)
@@ -11,12 +16,18 @@ aggregates, never a contributor-level record:
 Each aggregate is emitted as ``individual_contributions_amount`` (USD) and ``individual_contribution_count``
 (contributions). Memo lines (MEMO_CD = X, e.g. conduit/earmark duplicates) are excluded from sums, as are
 non-individual entity types. Transactions with an unusable date use the cycle window (month = null).
-FEC use restriction (52 U.S.C. 30111(a)(4)): no solicitation or commercial use of contributor information.
 Memory is bounded by the aggregate key space (committees x states x months), not by the row count.
+
+When contributor rows are retained they are emitted as a ``contribution`` family keyed by the FEC SUB_ID,
+carrying the contributor's identity *as reported* in ``dimensions``. No persistent person identity is
+asserted: the same name in two cycles is two reported strings, not one resolved human, because resolving
+them is a probabilistic claim this pipeline does not make.
 """
 import io
 import re
 import zipfile
+
+from worldmodel import rights
 
 FIELD_COUNT = 21
 CMTE, AMNDT, RPT_TP, PGI, IMAGE, TX_TP, ENTITY_TP, NAME, CITY, STATE, ZIP, EMPLOYER, OCCUPATION, TX_DT, TX_AMT, OTHER_ID, TRAN_ID, FILE_NUM, MEMO_CD, MEMO_TEXT, SUB_ID = range(21)
@@ -116,15 +127,26 @@ def members(archive):
 
 def run(context):
     dataset = context.definition['id']
+    _, decision = rights.retain_identified_persons(context.definition.get('source'))
     for index, ref in enumerate(context.raw_inputs):
         observed_default = context.raw_receipt(index)['retrieved_at']
         for shard in context.raw_shards(index):
             cycle = shard_cycle(shard)
             observed = shard.get('retrieved_at') or observed_default
-            yield from shard_records(dataset, ref, shard, cycle, observed)
+            yield from shard_records(dataset, ref, shard, cycle, observed, decision)
 
 
-def shard_records(dataset, ref, shard, cycle, observed):
+def contributor_dimensions(fields):
+    """The contributor's identity exactly as the filer reported it, never normalized."""
+    return {'contributor_name': fields[NAME].strip() or None, 'contributor_city': fields[CITY].strip() or None,
+            'contributor_zip': fields[ZIP].strip() or None, 'contributor_employer': fields[EMPLOYER].strip() or None,
+            'contributor_occupation': fields[OCCUPATION].strip() or None}
+
+
+def shard_records(dataset, ref, shard, cycle, observed, decision=None):
+    decision = decision or {'identified_persons_retained': False, 'policy': 'prohibited',
+                            'reason': 'no rights decision supplied; defaulting to aggregates only'}
+    identified = bool(decision['identified_persons_retained'])
     by_state, by_zip3, by_occupation, by_band = {}, {}, {}, {}
     stats = {'rows': 0, 'memo_excluded': 0, 'non_individual_excluded': 0, 'malformed': 0}
     with zipfile.ZipFile(shard['path']) as archive:
@@ -161,8 +183,25 @@ def shard_records(dataset, ref, shard, cycle, observed):
                         add(by_zip3, (zip_code[:3], state, month), amount, locator)
                     add(by_occupation, (cmte, occupation_category(fields[OCCUPATION], fields[EMPLOYER])), amount, locator)
                     add(by_band, (cmte, size_band(abs(amount))), amount, locator)
-    base_attributes = {'source_dataset': dataset, 'aggregate': True, 'cycle': cycle,
-                       'exclusions': 'memo lines (MEMO_CD=X) and non-individual entity types; contributor identities are not retained'}
+                    if identified:
+                        sub_id = fields[SUB_ID].strip() or f'line:{shard["index"]}:{member}:{line_number}'
+                        yield {'kind': 'observation', 'id': f'{dataset}:{cycle}:contribution:{sub_id}',
+                               'subject': 'fec:committee:' + cmte, 'metric': 'individual_contribution_amount',
+                               'value': clean(amount), 'unit': 'USD',
+                               'dimensions': {'cycle': cycle, 'aggregation': 'contribution', 'contributor_state': state,
+                                              'month': month, 'transaction_type': fields[TX_TP].strip() or None,
+                                              **contributor_dimensions(fields)},
+                               **month_window(month, cycle), 'observed_at': observed,
+                               'evidence': [{'input': ref, 'locator': prefix + str(line_number)}],
+                               'attributes': {'source_dataset': dataset, 'aggregate': False, 'cycle': cycle,
+                                              'identity_basis': 'contributor fields as reported by the filer; '
+                                                                'no persistent person identity is asserted',
+                                              'use_restriction': '52 U.S.C. 30111(a)(4): not for sale, solicitation '
+                                                                 'or any commercial purpose',
+                                              'rights_decision': decision}}
+    base_attributes = {'source_dataset': dataset, 'aggregate': True, 'cycle': cycle, 'rights_decision': decision,
+                       'exclusions': 'memo lines (MEMO_CD=X) and non-individual entity types'
+                                     + ('' if identified else '; contributor identities are not retained')}
 
     def emit(family, key_id, subject, dims, window, entry, extra=None):
         amount, count, (member, line) = entry

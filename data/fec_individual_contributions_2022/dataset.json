@@ -3,12 +3,18 @@
   "schema_version": 2,
   "kind": "source",
   "status": "full_acquisition_complete",
-  "description": "FEC itemized individual contributions, 2022 cycle (indiv22.zip): aggregated by recipient committee x contributor state x month, contributor ZIP3 x month, committee x occupation category and committee x contribution size band; no contributor-level rows are emitted",
+  "description": "FEC itemized individual contributions, 2022 cycle (indiv22.zip): aggregated by recipient committee x contributor state x month, contributor ZIP3 x month, committee x occupation category and committee x contribution size band; contributor-level rows are emitted only under a declared non-commercial purpose",
   "source": {
     "publisher": "Federal Election Commission",
     "documentation": "https://www.fec.gov/campaign-finance-data/contributions-individuals-file-description/",
     "license_status": "public_domain_us_government_work_with_use_restriction",
-    "license_notes": "US federal government work. 52 U.S.C. 30111(a)(4): contributor names and addresses may not be sold or used for soliciting contributions or for any commercial purpose. Raw rows contain contributor PII; normalized output keeps only aggregates (state, ZIP3, occupation category, size band)."
+    "license_notes": "US federal government work. 52 U.S.C. 30111(a)(4): contributor names and addresses may not be sold or used for soliciting contributions or for any commercial purpose. Raw rows contain contributor PII. Normalized output always carries aggregates (state, ZIP3, occupation category, size band); contributor-level rows are added only when the deployment declares a non-commercial purpose (see source.person_level_records).",
+    "person_level_records": {
+      "policy": "conditional",
+      "condition": "non_commercial_use",
+      "authority": "52 U.S.C. 30111(a)(4)",
+      "note": "Contributor names and addresses may not be sold, used to solicit contributions, or used for any commercial purpose. Research use is not restricted, so contributor-level rows are retained only when the deployment declares WM_COMMERCIAL_USE=0."
+    }
   },
   "dependencies": [],
   "parameters": {},

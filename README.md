@@ -647,6 +647,7 @@ authored assumptions. It is inspectable cognition over real evidence, not a pred
 | [calibration-status.md](docs/calibration-status.md) | every estimation attempt and its verdict |
 | [remaining-concerns.md](docs/remaining-concerns.md) | known limits, by area |
 | [full-acquisition.md](docs/full-acquisition.md) | the acquisition contract and budget |
+| [use-policy.md](docs/use-policy.md) | declared purpose, and when identified natural persons are retained |
 | [dataset-layout.md](docs/dataset-layout.md) | storage, stages, caching and recovery |
 | [identity-units-crosswalks.md](docs/identity-units-crosswalks.md) | how cross-source joins are made defensible |
 | [unified-graph.md](docs/unified-graph.md) | the unified graph's current contents and limits |

@@ -4,9 +4,11 @@ Each test writes a few fictional rows in the publisher's raw layout, publishes t
 artifact in a temporary data root and runs the dataset-local pipeline through the Runner.
 """
 import json
+import os
 from pathlib import Path
 import tempfile
 import unittest
+from unittest import mock
 import zipfile
 
 from worldmodel.catalog import Catalog
@@ -111,6 +113,38 @@ class FecTests(FullPipelineBase):
         self.assertFalse(any('JANE PAYEE' in json.dumps(r) for r in records))
 
 
+    CONTRIBUTION_ROWS = [
+        'C00000001|N|Q2|P2024|1|15|IND|DOE, JANE|SPRINGFIELD|IL|627011234|ACME HOSPITAL|PHYSICIAN|05012024|250|||1|||1',
+        'C00000001|N|Q2|P2024|2|15|IND|ROE, RICK|SPRINGFIELD|IL|62702|SELF-EMPLOYED|WRITER|05202024|3500|||1|||2',
+        'C00000001|N|Q2|P2024|3|15E|IND|ROE, RICK|SPRINGFIELD|IL|62702|SELF-EMPLOYED|WRITER|05202024|999|C00000009||1|X|EARMARK MEMO|3',
+        'C00000001|N|Q2|P2024|4|15|ORG|EXAMPLE CORP|SPRINGFIELD|IL|62702|||05202024|5000|||1|||4',
+        'C00000002|N|YE|G2024|5|15|IND|POE, PAT|AUSTIN|TX|78701|NONE|RETIRED|99999999|100|||1|||5',
+        'short|row',
+    ]
+
+    def contribution_records(self, purpose):
+        archive = self.zipped('indiv24.zip', {'itcont.txt': '\n'.join(self.CONTRIBUTION_ROWS) + '\n',
+                                              'by_date/itcont_2024_1.txt': '\n'.join(self.CONTRIBUTION_ROWS) + '\n'})
+        with mock.patch.dict(os.environ, {'WM_COMMERCIAL_USE': purpose}):
+            return self.build('fec_individual_contributions', [('indiv24.zip', archive)])
+
+    def test_a_declared_non_commercial_purpose_retains_contributors(self):
+        records = self.contribution_records('0')
+        rows = [r for r in records if r['dimensions']['aggregation'] == 'contribution']
+        # Only the three non-memo individual rows: the memo line and the ORG row stay excluded.
+        self.assertEqual({r['dimensions']['contributor_name'] for r in rows}, {'DOE, JANE', 'ROE, RICK', 'POE, PAT'})
+        jane = next(r for r in rows if r['dimensions']['contributor_name'] == 'DOE, JANE')
+        self.assertEqual((jane['value'], jane['subject'], jane['dimensions']['contributor_employer']),
+                         (250, 'fec:committee:C00000001', 'ACME HOSPITAL'))
+        self.assertEqual(jane['dimensions']['contributor_zip'], '627011234')
+        self.assertEqual(jane['attributes']['rights_decision']['authority'], '52 U.S.C. 30111(a)(4)')
+        self.assertTrue(jane['attributes']['rights_decision']['identified_persons_retained'])
+        self.assertIn('no persistent person identity is asserted', jane['attributes']['identity_basis'])
+        # The aggregates are unaffected by the flag.
+        state = next(r for r in records if r['dimensions']['aggregation'] == 'committee_state_month'
+                     and r['metric'] == 'individual_contributions_amount' and r['subject'] == 'fec:committee:C00000001')
+        self.assertEqual(state['value'], 3750)
+
     def test_individual_contributions_are_aggregated_without_pii(self):
         rows = [
             'C00000001|N|Q2|P2024|1|15|IND|DOE, JANE|SPRINGFIELD|IL|627011234|ACME HOSPITAL|PHYSICIAN|05012024|250|||1|||1',
@@ -120,8 +154,10 @@ class FecTests(FullPipelineBase):
             'C00000002|N|YE|G2024|5|15|IND|POE, PAT|AUSTIN|TX|78701|NONE|RETIRED|99999999|100|||1|||5',
             'short|row',
         ]
-        archive = self.zipped('indiv24.zip', {'itcont.txt': '\n'.join(rows) + '\n', 'by_date/itcont_2024_1.txt': '\n'.join(rows) + '\n'})
-        records = self.build('fec_individual_contributions', [('indiv24.zip', archive)])
+        self.assertEqual(rows, self.CONTRIBUTION_ROWS)
+        # Declared explicitly: relying on the unset default would make this pass by accident.
+        records = self.contribution_records('1')
+        self.assertEqual([r for r in records if r['dimensions']['aggregation'] == 'contribution'], [])
         state = {r['metric']: r for r in records if r['dimensions']['aggregation'] == 'committee_state_month'
                  and r['subject'] == 'fec:committee:C00000001'}
         self.assertEqual((state['individual_contributions_amount']['value'], state['individual_contribution_count']['value']), (3750, 2))

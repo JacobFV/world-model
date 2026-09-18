@@ -3,11 +3,13 @@ from pathlib import Path
 from .artifacts import publish_report,load_report
 from .util import read_json
 
-COMMANDS={'coupled-economy','rights','evidence-audit','assess-model','reconcile','rl-benchmark','resources','spatial','spatial-timeline','sensitivity','benchmark-scenarios','cross-domain'}
+COMMANDS={'coupled-economy','rights','use-policy','evidence-audit','assess-model','reconcile','rl-benchmark','resources','spatial','spatial-timeline','sensitivity','benchmark-scenarios','cross-domain'}
 
 
 def add_commands(sub):
     sub.add_parser('resources',help='Locate bundled read-only catalogs/examples and writable data')
+    policy=sub.add_parser('use-policy',help='Show the declared purpose and what it permits per dataset')
+    policy.add_argument('--dataset',help='Report one dataset instead of every dataset that declares a rule')
     sub.add_parser('evidence-audit',help='Inspect source readiness, access gaps and rights metadata')
     for name in ('rights','assess-model','reconcile'):
         command=sub.add_parser(name);command.add_argument('reference')
@@ -30,6 +32,22 @@ def execute(args,catalog,store,project,reference):
         from .rights import inherited_rights
         ref=reference(args.reference,store);store.verify(ref)
         return inherited_rights(store,[ref])
+    if args.command=='use-policy':
+        from .rights import COMMERCIAL_USE_ENV,commercial_use,retain_identified_persons
+        purpose='commercial' if commercial_use() else 'non_commercial'
+        datasets=[]
+        for definition in catalog.list():
+            if args.dataset and definition['id']!=args.dataset:continue
+            source=definition.get('source') or {}
+            # Only the datasets that declared a rule are interesting; the rest default to
+            # aggregates only and would bury the ones the flag actually moves.
+            if 'person_level_records' not in source and not args.dataset:continue
+            allowed,decision=retain_identified_persons(source)
+            datasets.append({'dataset':definition['id'],'identified_persons_retained':allowed,**decision})
+        return {'declared_purpose':purpose,'environment_variable':COMMERCIAL_USE_ENV,
+                'default_when_unset':'commercial',
+                'scope':'decides what pipelines write; it does not adjudicate how published artifacts may be used',
+                'datasets':sorted(datasets,key=lambda row:row['dataset'])}
     if args.command=='evidence-audit':
         from .sampling import explore
         sources=[]
