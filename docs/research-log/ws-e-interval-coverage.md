@@ -349,6 +349,10 @@ Rows marked *fifth wave* were diagnosed and fixed on 2026-09-16 and are re-repor
 because they are part of the sixteen. "Verdict" is the overall attempt verdict; the
 `interval_coverage` column is what this workstream was aimed at.
 
+The **modeling reason** each change follows from is given in full after the table, one entry per
+distinct change, because that is the column that has to bear weight: a change to an interval's
+width is only legitimate if it follows from a stated defect rather than from the threshold.
+
 | # | Attempt | Diagnosis | Change | `interval_coverage` | Overall verdict |
 | --- | --- | --- | --- | --- | --- |
 | 1 | `inventory_balance.eia_weekly` | miscalibration — static scale vs moving volatility | `empirical_trailing` w=52 ⊕ x'Vx (*fifth wave* `_v2`) | 0.640 → **0.764 pass** | **pass** (all six) |
@@ -368,6 +372,89 @@ because they are part of the sixteen. "Verdict" is the overall attempt verdict; 
 | 15 | `deposit_rate_pass_through.fred_realtime` | point forecast worse than persistence; residual scale is correct | none legitimate | 0.438 **still fails** | fail (`minimum_test_forecasts` 16 < 24) |
 | 16 | `cash_balance.sec_companyfacts` (5 issuers) | miscalibration, but **0-1 validation forecasts** per issuer | none legitimate | 1.00 on 3 issuers, **still fails** | fail 5/5 (`beats_persistence_dm` all five) |
 
+### The modeling reason behind each change
+
+Seven distinct changes were made across the sixteen rows. Each is stated as the defect first and
+the change second, because that is the order in which they were decided.
+
+1. **`inventory_balance` — `empirical_trailing` w=52 ⊕ `x'Vx`** *(fifth wave, re-reported)*.
+   Reason: **heteroskedasticity across regimes plus fat tails.** One static scale was applied
+   against error volatility that moves by a factor of three between petroleum-market regimes, and
+   standardized errors were leptokurtic and left-skewed. A trailing window estimates the current
+   regime's scale; empirical quantile nodes take the tail shape from the data instead of assuming
+   a Gaussian. Window 52 weeks = one petroleum stock cycle.
+
+2. **`credit_growth` — in-sample residual scale ⊕ revision component** *(fifth wave,
+   re-reported)*. Reason: **the scored error contains a quantity no in-sample residual measures.**
+   Under the strict real-time policy the forecast is anchored on the TOTALSL level available at
+   the origin while the actual is the latest vintage, so the scored error carries the anchor's
+   later benchmark revision. The revision component is the dispersion of revisions the publisher
+   had *already made by the origin* — an observable, not a free parameter.
+
+3. **`interest_pass_through` — `empirical_trailing` w=120.** Reason: **heteroskedasticity across
+   monetary-policy regimes, plus discrete-step tails.** The flat in-sample scale (0.2217) is an
+   average over a tenfold spread of decade residual scales (0.0416 in the 2010s, 0.4186 in the
+   1980s), because a 2005 ALFRED vintage of DPRIME publishes back to 1955. The prime rate moves
+   in 25bp steps, so one-step errors are a spike at zero with occasional jumps — kurtosis 6.0,
+   which is why the shape is taken empirically rather than assumed. Window 120 months so the
+   window spans a full tightening-and-easing cycle and gives 40 quantile nodes some tail
+   resolution.
+
+4. **`labor_demand` — `conditional_rebase: output = ratio`.** Reason: **a movement is only a
+   movement when both endpoints come from one vintage.** This is not an interval change at all —
+   it is a correction to the scored forecast. The design reads industrial production solely as
+   `log(output_t / output_{t−1})`; INDPRO is rebased and the ALFRED vintages carry thirteen index
+   bases, so taking the numerator from the evaluation vintage and the denominator from the
+   origin's made that ratio a rebasing factor. Carrying the realized value onto the origin's base
+   through the anchor-period overlap preserves the realized growth exactly and adds no
+   information the origin lacked.
+
+5. **`labor_demand` — plus the PAYEMS revision component (`_v4`).** Reason: **same as
+   `credit_growth`'s** — the scored actual is the latest vintage while the forecast is anchored on
+   the real-time level, and PAYEMS log revisions (rms 0.00458 for 2000s periods) exceed the model
+   residual scale (0.00304). Maturity 24 months because a CES period is through both its February
+   level benchmark and the following year's seasonal-factor revision only after two Februaries;
+   window 120 months to stay inside the current benchmark methodology. **This change did not work
+   on the holdout** and is recorded as such.
+
+6. **`policy_rule` — `gaussian_trailing` w=40 quarters.** Reason: **heteroskedasticity across
+   monetary-policy regimes**, identical in form to `interest_pass_through`: flat scale 0.8520
+   against a sevenfold decade spread (0.2227 in the 2010s, 1.4652 in the 1980s). No empirical
+   shape component, because 31 validation forecasts cannot estimate 40 quantile nodes; no revision
+   component, because FEDFUNDS is not revised — and that was verified rather than assumed, by
+   running the revision component and observing it reproduce the default's numbers exactly.
+
+7. **`energy_purchasing` — `empirical_trailing` w=60 ⊕ revision component.** Reason: **both of the
+   above at once.** The revision half: RRSFS log revisions (rms 0.0154 in the 2010s, systematic
+   mean −0.0100) are about twice the model residual scale of 0.0087, and the real-time anchor is
+   scored against the revised actual. The heteroskedasticity half: decade residual scales 0.0074 /
+   0.0113 / 0.0052 against the flat 0.0087. Maturity 24 months because the Census annual retail
+   trade survey benchmarks a month at the following year's revision and the CPI deflator behind
+   the real series is itself revised.
+
+8. **`conflict_model` — NB2 predictive dispersion.** Reason: **the score asserted equidispersion
+   that the family itself never assumed.** `sqrt(λ)` is the standard deviation of an equidispersed
+   Poisson count; the measured Pearson dispersion over the fit-plus-validation window is 35.9, and
+   `worldmodel.models.conflict.simulate` already draws counts as
+   `negative_binomial(rng, λ, dispersion)` with `dispersion` a declared family parameter that
+   `fit_hawkes` simply never estimated. Estimating it aligns the scored predictive with the
+   declared mechanism; `α = 0` reproduces the old behaviour exactly, so it is a measurement rather
+   than a widening factor.
+
+9. **`regional_model` — `per_unit_year_draw`, and why it was *not* adopted.** The proposed reason
+   was that the forecast error contains next year's own common shock, so its predictive variance
+   should be `between × (1 + 1/Y)` rather than `between / Y`. **That reason is wrong for this
+   design**, and the evidence needed no holdout: the shift-share shock is built from realized
+   other-region employment at the target year, so it already carries the target year's common
+   component. On a synthetic panel with a genuine common shock, `per_unit_year_mean` attains
+   0.8000 against a nominal 0.80 while `per_unit_year_draw` over-covers at 0.8417. The method was
+   added to the code (WS-B's `ces_sae_realtime_v2` uses it) but **not adopted for either regional
+   attempt**, and the declared selection rule rejected it on validation CRPS.
+
+**No change was made to any of the remaining rows** — `population_growth_rate`,
+`deposit_rate_pass_through`, `cash_balance` and the two CBP rows — because no defect could be
+diagnosed from pre-holdout evidence. Those are recorded as still failing.
+
 ### Counts
 
 The sixteen are *rows of the summary table*, and several rows are the same component at
@@ -384,23 +471,36 @@ and v2; `cbp_state_sectors` v1 and v2). Both counts are given, because the row c
 | **Both** | **1** | `energy_purchasing` (a missing revision component *and* heteroskedasticity) |
 | **Neither** — not an interval defect, or not measurable | **5** | `qcew_state_sectors` (2020-2022 structural break), `cbp_state_sectors` ×2 (one Bernoulli trial), `population_growth_rate` (4 holdout / 0 validation forecasts), `deposit_rate_pass_through` (the point forecast, not the interval) |
 
-**By outcome:**
+**The four numbers, stated plainly:**
 
-- **`interval_coverage` now passes on 9 of the 16 rows** — 3 from the fifth wave, **6 new
-  here** (`interest_pass_through`, `labor_demand` ×2, `policy_rule` ×2, `energy_purchasing`).
-  `conflict_model` is the tenth: 0.596 → 0.719, so **7 new here and 10 of 16 in total**.
+| Question | Answer |
+| --- | ---: |
+| How many of the 16 were **scoring bugs**? | **4 rows / 2 distinct defects** (one found here) |
+| How many were **genuine miscalibration**? | **6 rows / 5 distinct defects**, plus **1 row that is both** |
+| How many were **neither** (no interval defect to fix)? | **5 rows** |
+| How many **`interval_coverage` failures are now resolved**? | **10 of 16 rows** (3 fifth wave, **7 new here**) |
+| How many **attempts now pass every declared criterion**? | **4 rows / 3 distinct attempts** (**1 added by WS-E**) |
+| How many **still fail overall**? | **12 of 16 rows** |
+
+**By outcome, in more detail:**
+
+- **`interval_coverage` now passes on 10 of the 16 rows.** Three were the fifth wave's
+  (`inventory_balance`, `credit_growth` ×2). Seven are new here: `interest_pass_through`,
+  `labor_demand` ×2, `policy_rule` ×2, `energy_purchasing`, `conflict_model`.
 - **Rows that now pass every declared criterion: 4**, which is **3 distinct attempts**:
   `inventory_balance.eia_weekly_v2` and `credit_growth.fred_realtime_v3` (fifth wave) and
   **`interest_pass_through.fred_realtime_v2`, the one WS-E added**.
-- **Still failing overall: 12 of the 16 rows.** On 6 of those, `interval_coverage` is no longer
-  the blocker — which is the useful part of the result, because it moves the question from "is
-  the uncertainty wrong?" to "is there any skill?" What blocks them now:
+- **Still failing overall: 12 of the 16 rows**, and that is the honest headline. Fixing the
+  uncertainty of a model does not make the model good. On 6 of those 12 rows
+  `interval_coverage` is no longer the blocker, which is the useful part: the question moves from
+  "is the uncertainty wrong?" to "is there any skill?", and for five components the answer turns
+  out to be no. What blocks them now:
 
 | Blocking criterion | Rows still failing on it |
 | --- | --- |
 | `beats_persistence_dm` | `labor_demand` ×2 (p = 0.160), `policy_rule` ×2 (0.673), `energy_purchasing` (0.756), `conflict_model`, `cash_balance` (5 issuers) |
 | `parameters_within_declared_bounds` | `energy_purchasing`, `cash_balance` |
-| `no_revision_leakage` | `conflict_model`, both regional panels — **structural**, no interval method reaches it (WS-A and WS-B own these) |
+| `no_revision_leakage` | `conflict_model`, both regional panels — no interval method reaches it; see the correction below on what "structural" turned out to mean (WS-A and WS-B own these) |
 | `minimum_test_forecasts` | `population_growth_rate` (4 < 8), `deposit_rate_pass_through` (16 < 24) — **structural**, WS-D owns these |
 | `interval_coverage` | `qcew_state_sectors` (0.597), `cbp_state_sectors` ×2, `population_growth_rate`, `deposit_rate_pass_through`, `cash_balance` ×3 issuers, `labor_demand_v4` |
 
@@ -409,6 +509,25 @@ passing (`interest_pass_through`) but `labor_demand`, `policy_rule`, `energy_pur
 `deposit_growth`, `deposit_rate_pass_through`, `demand_price_elasticity`, `price_adjustment` and
 the declared `default_hazard` still fail. `regional_model`, `population_growth`,
 `investment_cash_flow` and `conflict_model` are unchanged in status.
+
+### Correction: "structural" was too strong about regional revision leakage
+
+Written above and in the fifth wave's notes: *no published employment source in this catalog
+carries vintages, so `regional_model` cannot pass `no_revision_leakage` whatever the intervals
+do.* That was true of CBP and QCEW, which is what it was measured on, and **it was wrong as a
+general claim** — WS-B built `fred_state_employment_vintages` from archived CES state-and-area
+releases on the same day, and `regional_model.ces_sae_realtime` **passes `no_revision_leakage`**.
+The correction is a scoping one: the criterion is unreachable *on CBP and QCEW*, not in principle.
+
+Two things in that result belong here rather than only in WS-B's log. Their real-time panel also
+**passes `interval_coverage`** (0.654 with `per_unit_year_mean`, 0.686 with `per_unit_year_draw` —
+both inside 0.80 ± 0.15, and both only just), so `per_unit_year_draw`, the method added here and
+*not* adopted for either of my regional attempts, is used there. And on a genuinely real-time
+panel the shift-share mechanism **loses its skill**: `ces_sae_realtime` fails both
+`beats_persistence_dm` and `beats_year_effect_only_dm`, where the retrospective CBP and QCEW
+panels beat the mechanism-off baseline at p = 4.1e-06 and 1.2e-04. So the strong regional result
+recorded under my `qcew_state_sectors_v2` entry — p = 4.3e-10 against persistence — should be read
+as a result about a panel whose row dates are not information times.
 
 ## Per-attempt verdicts, with the criteria that passed
 
