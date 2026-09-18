@@ -312,3 +312,48 @@ PYTHONPATH=<tensacode>/tensacode/python/src python3 -m unittest discover -s test
 
 The real-data tests additionally skip unless this checkout has `data/world_evidence/index.sqlite`
 and a published `data/sec_company_assets`.
+
+---
+
+## 10. Organizational communication (`disclosure.py`, `instruments.py`)
+
+Appended by the implementation of corporate communication. Full commentary:
+[docs/corporate-communication.md](corporate-communication.md).
+
+Sections 1-9 above cover how an organization *decides*. This covers how it *speaks*, which is a
+different act again and needed its own vocabulary rather than a reuse of the person one:
+
+| | Person speech (`civ_sim/talk.py`) | Firm (`disclosure.py`) | Institution (`instruments.py`) |
+| --- | --- | --- | --- |
+| act | an utterance to a neighbour | a `Disclosure`: form, audience, effective date, authorizing role, permanent register entry | an `Issuance`: an exercise of power, checked by `authorize` against declared power *and* jurisdiction |
+| speaker | one mind | a **role**, seated by published record | a role, and the act is refused rather than performed when it is not there |
+| loss | dialects, misparsing, noise | **none.** What varies is whether it was said, when, and to whom | none; an instrument is contested, not disbelieved |
+| falsehood | a `lie` flag and `_invert` | **no deception flag exists.** What is modelled is *selection under obligation* | — |
+| timing | immediate | `known_at` and `effective_date` are separate. Delay is a choice | `effective_from` / `expires` / `lapse` / `contest` |
+| consequence | trust moves | the act discharges a declared `Obligation`, or does not | legitimacy erodes for the attempt |
+
+Three things this adds to the corporate layer above:
+
+1. **The belief/disclosure gap is first class.** `firm:<org>` holds what the firm holds;
+   `disclosed:<org>` holds one claim per statement, `derived_from` the claim it says.
+   `DisclosureDesk.gaps` returns every held claim as `undisclosed`, `disclosed` or
+   `selectively_disclosed` — the third being the same claim said to a counterparty and not to the
+   public.
+2. **Compliance is a five-valued test with `Unknown` in it.** `met`, `unmet`, `pending`, `unknown`,
+   `no_obligation`. Where no obligation is declared, silence is **not** a violation; where the
+   obligation or its deadline is not declared, the answer is `Unknown` and
+   `ComplianceFinding.compliant` returns `tc.Unknown` rather than `True`.
+3. **Reception is shared.** `disclosure.receive` turns a firm's filing *or* an institution's
+   instrument into a claim in the receiver's store with
+   `Evidence.method='disclosed_by:<org>/<channel>'`, so "was this observed or was I told" is a
+   query (`provenance_of`, `disclosed_not_observed`).
+
+Grounded on the same issuer as §4: LyondellBasell's real filing sequence shows cash for the quarter
+ended **2026-06-30** held on the period end and disclosed on **2026-07-31** in accession
+**0001489393-26-000061** — both dates from the same `sec_issuer_reference` filing record — and three
+genuinely late Form 4s (e.g. a transaction on **2017-06-06** filed **2018-03-29**, accession
+**0001562180-18-001729**) that are `unmet` against a declared two-business-day deadline. On the same
+committee as §5, the chair's referral of a measure actually referred to it is authorized and a
+referral of one that is not is refused, as is a plain member's, for a different reason.
+
+Tests: `tests/test_agents_disclosure.py` (34), `tests/test_agents_instruments.py` (20).
