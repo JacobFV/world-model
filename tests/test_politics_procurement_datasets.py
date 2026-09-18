@@ -122,11 +122,30 @@ class FecTests(FullPipelineBase):
         'short|row',
     ]
 
-    def contribution_records(self, purpose):
-        archive = self.zipped('indiv24.zip', {'itcont.txt': '\n'.join(self.CONTRIBUTION_ROWS) + '\n',
-                                              'by_date/itcont_2024_1.txt': '\n'.join(self.CONTRIBUTION_ROWS) + '\n'})
+    def contribution_records(self, purpose, dataset='fec_individual_contributions', shard='indiv24.zip'):
+        archive = self.zipped(shard, {'itcont.txt': '\n'.join(self.CONTRIBUTION_ROWS) + '\n',
+                                      'by_date/itcont_2024_1.txt': '\n'.join(self.CONTRIBUTION_ROWS) + '\n'})
         with mock.patch.dict(os.environ, {'WM_COMMERCIAL_USE': purpose}):
-            return self.build('fec_individual_contributions', [('indiv24.zip', archive)])
+            return self.build(dataset, [(shard, archive)])
+
+    def test_every_contribution_cycle_dataset_honours_the_same_declared_purpose(self):
+        """The per-cycle datasets declare the conditional rule, so their pipelines must read it too."""
+        for dataset, shard, cycle in (('fec_individual_contributions_2022', 'indiv22.zip', 2022),
+                                      ('fec_individual_contributions_2024', 'indiv24.zip', 2024)):
+            with self.subTest(dataset=dataset):
+                retained = self.contribution_records('0', dataset, shard)
+                rows = [r for r in retained if r['dimensions']['aggregation'] == 'contribution']
+                self.assertEqual({r['dimensions']['contributor_name'] for r in rows}, {'DOE, JANE', 'ROE, RICK', 'POE, PAT'})
+                self.assertEqual({r['dimensions']['cycle'] for r in rows}, {cycle})
+                self.assertTrue(all(r['attributes']['rights_decision']['identified_persons_retained'] for r in rows))
+                self.assertNotIn('person', json.dumps([r['subject'] for r in rows]))
+                filtered = self.contribution_records('1', dataset, shard)
+                self.assertEqual([r for r in filtered if r['dimensions']['aggregation'] == 'contribution'], [])
+                self.assertNotIn('DOE, JANE', json.dumps(filtered))
+                # The flag decides which rows exist, never what an aggregate says.
+                def totals(records):
+                    return {(r['id'], r['metric']): r['value'] for r in records if r['dimensions']['aggregation'] != 'contribution'}
+                self.assertEqual(totals(retained), totals(filtered))
 
     def test_a_declared_non_commercial_purpose_retains_contributors(self):
         records = self.contribution_records('0')

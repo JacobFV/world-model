@@ -31,7 +31,7 @@
       },
       "validation": {
         "allow_empty": false,
-        "max_rows": 40000000
+        "max_rows": 100000000
       },
       "cache": "content",
       "retention": "retain"
