@@ -1179,6 +1179,70 @@
       "rationale": "Identical data, splits and acceptance criteria to regional_model.cbp_state_sectors_v2.",
       "expected_limits": "interval_coverage is expected to fail WORSE than v2. With one holdout year all 51 forecasts share one draw of the common component, so coverage here is one Bernoulli trial and not a coverage estimate; no_revision_leakage also fails, as CBP publishes no vintages.",
       "supersedes": "regional_model.cbp_state_sectors_v2"
+    },
+    {
+      "id": "monetary_model.okun_unrate_realtime",
+      "kind": "family",
+      "target": "monetary",
+      "process_id": "monetary_model",
+      "loader": {
+        "function": "monetary_okun_realtime_data",
+        "options": {
+          "start": "1975-01",
+          "end": "2024-12",
+          "trend_months": 120,
+          "okun": 2.0,
+          "inflation_target": 2.0,
+          "elb": 0.125
+        }
+      },
+      "data": "fred_macro_panel@normalized (CPIAUCSL, UNRATE and DFF, every ALFRED vintage; every input read as its first release)",
+      "protocol": {
+        "train_end": "2013-12-31",
+        "validation_end": "2018-12-31",
+        "cutoff": "2024-12-31",
+        "vintage_policy": "family_rows",
+        "refit_every": 12,
+        "horizon": 1
+      },
+      "rationale": "The revision-clean replacement for the Okun-proxy pair. monetary_model.cpi_okun_proxy and its v2 rerun fail no_revision_leakage for exactly one reason: the unemployment input was aggregated from LAUS state series and bls_labor publishes one current vintage. ALFRED has carried UNRATE since 1960-03-15 and fred_macro_panel already holds all 799 vintages, so the same proxy is rebuilt with the published national rate read as its first release, the CPI endpoints taken inside one base period, and the u* trend taken as the mean of the previous 120 FIRST releases. No number in a row was published after that row. No new data was acquired for this attempt; the vintages were already on disk.",
+      "entity_rule": "National series only; no entity selection.",
+      "expected_limits": "Coverage, not choice, sets the splits: DFF entered ALFRED on 2005-06-28, so first-release monthly means start 2005-06 and the panel is 235 months instead of the 420 the LAUS construction had. Train 2005-06..2013, validation 2014-2018, holdout 2019-2024 (72 forecasts). beats_persistence_dm is expected to fail again for the reason the v1 record already gives: a smoothed quarterly rule scored monthly is worse than a random walk on the policy rate, and the shorter sample cannot change that. This attempt is registered for the revision criterion, and the Okun proxy is still a proxy: monetary_model.fred_realtime_v2, which uses the declared GDPC1/GDPPOT gap, remains the passing attempt for this family.",
+      "supersedes": "monetary_model.cpi_okun_proxy; monetary_model.cpi_okun_proxy_v2"
+    },
+    {
+      "id": "assets_model.fred_fx_realtime",
+      "kind": "family",
+      "target": "assets",
+      "process_id": "assets_model",
+      "loader": {
+        "function": "assets_fred_realtime_data",
+        "options": {
+          "symbols": [
+            "JPY",
+            "GBP",
+            "CAD",
+            "CHF",
+            "AUD"
+          ],
+          "factor_symbol": "EUR",
+          "start": "2014-03-19",
+          "end": "2024-12-31"
+        }
+      },
+      "data": "fred_macro_panel@normalized (DEXJPUS, DEXUSUK, DEXCAUS, DEXSZUS, DEXUSAL, DEXUSEU and DFF, every ALFRED vintage; each day read from the vintage that first published it)",
+      "protocol": {
+        "train_end": "2021-12-31",
+        "validation_end": "2023-06-30",
+        "cutoff": "2024-12-31",
+        "vintage_policy": "family_rows",
+        "refit_every": 21,
+        "horizon": 1
+      },
+      "entity_rule": "The five major-currency FRED daily rates whose ALFRED first releases start on the same date (2014-03-19), quoted as USD per unit of foreign currency; the euro is the common factor and is never scored. Selection is availability only.",
+      "rationale": "assets_model.alpaca_daily fails no_revision_leakage because total-return adjusted closes are restated by later corporate actions, and no vintage archive can repair that: FRED has no per-issuer equity prices. docs/calibration-status.md names the fix -- \"an unadjusted or point-in-time price feed would make the second criterion evaluable\" -- and FRED daily exchange rates are one: fred_macro_panel already holds every ALFRED vintage of them, and measured across the acquired panel exactly ONE day of each rate was ever revised, against 1,658 revised days for DFF. Each day is still read from its first-publishing vintage, so the declaration does not rest on that measurement. Splits are identical to the equity attempt so the two are comparable. No new data was acquired for this attempt.",
+      "expected_limits": "This is a DIFFERENT ESTIMAND from the equity attempt, not a rerun of it: a currency cross-section with the euro as the factor, so its parameters are not comparable with the five-issuer equity fit, and a pass here would not retrospectively validate that one. Whether volatility_crps_skill passes is genuinely open -- currency volatility clusters more than idiosyncratic equity volatility, which is the case for the GARCH filter, but the criterion demands CRPS <= 0.99x the same means with constant volatility and the equity attempt delivered 0.996x. Exchange rates are noon quotes, so a day is a quote-to-quote return and not a close-to-close one.",
+      "supersedes": "none: assets_model.alpaca_daily keeps its verdict on its own data, which no vintage archive can fix"
     }
   ],
   "not_run": [

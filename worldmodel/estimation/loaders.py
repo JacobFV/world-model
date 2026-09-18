@@ -776,6 +776,156 @@ def _qcew_regional_data(store, *, level, start_year, end_year, versions, ownersh
     return data, evidence.reference()
 
 
+CES_SAE_DATASET = 'fred_state_employment_vintages'
+CES_SAE_TOTAL = 'total_nonfarm'
+CES_SAE_RESIDUAL = 'mining_logging_construction'
+
+
+def _ces_sae_value_at(months, as_of):
+    """The value of one month as it stood on ``as_of``, or None if nothing was published by then."""
+    usable = [item for item in months if item[0] <= as_of]
+    return usable[-1] if usable else None
+
+
+def ces_sae_regional_data(store, *, level='state', start_year=None, end_year=None, versions=None,
+                          dataset=CES_SAE_DATASET, months_required=12, min_rows=400):
+    """``regional`` rows whose ``date`` is a **publication** date, from BLS CES SAE ALFRED vintages.
+
+    `docs/calibration-status.md` records ``regional_model`` failing ``no_revision_leakage`` on CBP
+    and on QCEW, and calls the failure structural because both loaders set
+    ``date = f'{year}-12-31'`` — a reference-period end, not an information time — on a
+    single current vintage. ALFRED archives the state-by-supersector CES SAE series (229 vintages
+    from 2007-06-19), so the panel can instead be assembled as follows:
+
+    * a reference year's **release date** is the *latest* first-vintage date over every
+      (state, supersector, month) of that year: the day the release that completed the year
+      landed, and the earliest day on which anyone could have formed its annual average;
+    * every one of the twelve monthly values is then read **as it stood on that release date**,
+      so an annual average is one vintage's view of one year and never a mix of vintages;
+    * the row's ``date`` is that release date. ``ModelFamilyEstimator`` orders and truncates rows
+      by ``date``, so the backtest's information set is literally a point-in-time information set,
+      and ``information_time`` is ``'real_time'`` as a fact about the rows rather than a claim
+      about the publisher.
+
+    Months whose first vintage *is* the series' archive start are dropped, and with them the whole
+    reference year: FRED's archive opens in 2007 with a snapshot of already-revised history, and
+    keeping it would reintroduce exactly the leakage this loader removes. (That rule is
+    :func:`first_releases`' ``drop_archive_start``, applied here per state-supersector series.)
+
+    The tenth industry is the within-vintage residual ``total_nonfarm - sum(nine supersectors)``,
+    because five state-equivalents publish no aliased mining/logging/construction series; see
+    ``data/fred_state_employment_vintages/README.md`` for the identity check. ``total_nonfarm``
+    itself is **not** emitted as an industry: the family sums industries to get region totals, so
+    emitting it would double-count every job.
+
+    No row contains a value published after the row's own date, so ``revisions`` is declared
+    ``'none'`` as in :func:`monetary_realtime_data`.
+    """
+    if level != 'state':
+        raise ValueError('The CES SAE regional loader is declared at state level only')
+    ref = catalog_ref(store, dataset, DEFAULT_STAGE, (versions or {}).get(dataset))
+    evidence = Evidence()
+    spans = {}                     # (region, industry) -> {month: [(vintage, value, record_id), ...]}
+    for record in stream_records(store, ref, needles=('"metric":"employment"',)):
+        if record.get('kind') != 'observation' or record.get('metric') != 'employment' or record.get('value') is None:
+            continue
+        dimensions = record.get('dimensions') or {}
+        if dimensions.get('panel_role') != 'panel' or dimensions.get('frequency') != 'M':
+            continue
+        region = str(record.get('subject') or '')
+        industry = str(dimensions.get('industry') or '')
+        if not region.startswith('geo:US:state:') or not industry:
+            continue
+        vintage = str((record.get('attributes') or {}).get('realtime_start') or dimensions.get('vintage'))[:10]
+        spans.setdefault((region, industry), {}).setdefault(str(record['valid_from'])[:7], []).append(
+            (vintage, float(record['value']), record.get('id')))
+    if not spans:
+        raise MissingData(f'{dataset} publishes no panel-role state employment observations')
+    spans = {key: _first_published(months) for key, months in spans.items()}
+    archive_start = {key: min(items[0][0] for items in months.values()) for key, months in spans.items()}
+    regions = sorted({key[0] for key in spans})
+    industries = sorted({key[1] for key in spans} - {CES_SAE_TOTAL})
+    years = sorted({int(month[:4]) for months in spans.values() for month in months})
+
+    # One release date per reference year: the last of its months to be published for the first time.
+    release, unusable = {}, {'pre_archive': [], 'incomplete': [], 'missing_series': []}
+    for year in years:
+        if (start_year is not None and year < start_year) or (end_year is not None and year > end_year):
+            continue
+        wanted = [f'{year}-{month:02d}' for month in range(1, 13)][:months_required]
+        latest, ok = None, True
+        for region in regions:
+            for industry in industries + [CES_SAE_TOTAL]:
+                months = spans.get((region, industry))
+                if months is None:
+                    unusable['missing_series'].append(f'{region}/{industry}')
+                    ok = False
+                    break
+                for month in wanted:
+                    items = months.get(month)
+                    if not items:
+                        unusable['incomplete'].append(f'{region}/{industry}/{month}')
+                        ok = False
+                        break
+                    if items[0][0] <= archive_start[(region, industry)]:
+                        unusable['pre_archive'].append(f'{region}/{industry}/{month}')
+                        ok = False
+                        break
+                    latest = items[0][0] if latest is None or items[0][0] > latest else latest
+                if not ok:
+                    break
+            if not ok:
+                break
+        if ok and latest is not None:
+            release[year] = latest
+
+    employment, negative_residuals = [], 0
+    for year in sorted(release):
+        as_of = release[year]
+        wanted = [f'{year}-{month:02d}' for month in range(1, 13)][:months_required]
+        for region in regions:
+            levels, ids = {}, []
+            for industry in industries + [CES_SAE_TOTAL]:
+                months = spans[(region, industry)]
+                values = [_ces_sae_value_at(months[month], as_of) for month in wanted]
+                if any(item is None for item in values):
+                    levels = None
+                    break
+                levels[industry] = math.fsum(item[1] for item in values) / len(values)
+                ids += [item[2] for item in values]
+            if levels is None:
+                continue
+            residual = levels[CES_SAE_TOTAL] - math.fsum(levels[industry] for industry in industries)
+            if residual <= 0:
+                negative_residuals += 1
+                continue
+            for industry in industries + [CES_SAE_RESIDUAL]:
+                employment.append({'region': region, 'industry': f'ces_supersector:{industry}', 'year': year,
+                                   'date': as_of,
+                                   'employment': residual if industry == CES_SAE_RESIDUAL else levels[industry]})
+            for record_id in ids:
+                evidence.add(ref, record_id, 'employment')
+    if len(employment) < min_rows:
+        raise MissingData(f'Only {len(employment)} CES SAE first-release state-supersector-year rows '
+                          f'matched the declared selection (need {min_rows})')
+    data = {'employment': employment,
+            'design': 'shift_share_correlational_ces_sae_state_supersector_first_release',
+            'information_time': 'real_time', 'revisions': 'none',
+            'construction': {
+                'rows': len(employment), 'years': sorted(release),
+                'release_dates': {str(year): release[year] for year in sorted(release)},
+                'regions': len({r['region'] for r in employment}),
+                'industries': sorted({r['industry'] for r in employment}),
+                'months_per_year': months_required,
+                'residual_industry': f'ces_supersector:{CES_SAE_RESIDUAL}',
+                'residual_rule': 'total_nonfarm minus the nine published supersectors, within one vintage',
+                'regions_dropped_for_nonpositive_residual': negative_residuals,
+                'years_rejected': {reason: len(items) for reason, items in unusable.items()},
+                'archive_start': sorted(set(archive_start.values())),
+                'vintage_basis': 'each year is read at the vintage that first completed it'}}
+    return data, evidence.reference()
+
+
 def regional_data(store, *, program='cbp', level='state', start_year=None, end_year=None, versions=None,
                   ownership='private', agglvl_code=QCEW_SECTOR_AGGLVL):
     """Employment by state and NAICS sector as the ``regional`` mapping (CBP or QCEW)."""
@@ -1073,6 +1223,213 @@ def monetary_data(store, *, start='1990-01', end='2024-12', trend_months=120, ok
         raise MissingData('No monetary rows could be built from fred_cpi, fred_policy_rate and bls_labor')
     data = {'observations': rows, 'inflation_target': inflation_target, 'elb': elb, 'exclude_elb': True,
             'information_time': 'valid_time', 'revisions': 'major'}
+    return data, evidence.reference()
+
+
+# ------------------------------------------------------- first-release panels from acquired ALFRED vintages
+#
+# `no_revision_leakage` passes only when a row cannot contain a revision published after the row
+# itself. Reading each series' EARLIEST vintage of a period gives exactly that, and it needs no new
+# download: `fred_macro_panel` already carries every ALFRED vintage of these series. The two loaders
+# below are the whole WS-A conversion for the monetary and assets families.
+#
+# Two rules apply to every first-release panel here, and both are enforced, not assumed:
+#
+# 1. **Drop the archive start.** A series' first ALFRED vintage republishes its entire back
+#    history, so for every period before that date the "earliest vintage" is a snapshot of already
+#    revised numbers, not a first release. Those periods are dropped and counted.
+# 2. **Never form a ratio across a rebasing.** FRED rebases index series, so two vintages of one
+#    index are levels in different units. Ratios are taken only inside one `base_period`.
+
+
+def _vintage_series_multi(store, dataset, series_ids, *, subject='geo:US', versions=None, with_base=False):
+    """One streaming pass for several series: ``{series_id: {period: [(vintage, value, id[, base]), ...]}}``.
+
+    ``_vintage_series`` re-reads the whole dataset per series, which costs a full pass over a 1.2 GiB
+    panel each time. These loaders need six to eight series at once, so they share one pass.
+    """
+    ref = catalog_ref(store, dataset, DEFAULT_STAGE, (versions or {}).get(dataset))
+    wanted = set(series_ids)
+    out = {series_id: {} for series_id in wanted}
+    for record in stream_records(store, ref, needles=tuple(f'"series_id":"{s}"' for s in wanted)):
+        if record.get('kind') != 'observation' or record.get('value') is None:
+            continue
+        dimensions = record.get('dimensions') or {}
+        series_id = dimensions.get('series_id')
+        if series_id not in wanted:
+            continue
+        if subject is not None and record.get('subject') != subject:
+            continue
+        attributes = record.get('attributes') or {}
+        vintage = str(attributes.get('realtime_start') or dimensions.get('vintage') or record.get('observed_at'))[:10]
+        entry = (vintage, float(record['value']), record.get('id'))
+        if with_base:
+            entry = entry + (str(dimensions.get('base_period')),)
+        out[series_id].setdefault(str(record['valid_from'])[:10], []).append(entry)
+    missing = sorted(s for s in wanted if not out[s])
+    if missing:
+        raise MissingData(f'{dataset} publishes no observations for {missing}')
+    return ref, {series_id: _first_published(periods) for series_id, periods in out.items()}
+
+
+def first_releases(periods, *, drop_archive_start=True):
+    """``({period: (value, record_id, base)}, diagnostics)`` keeping only each period's first vintage.
+
+    ``diagnostics`` records what was thrown away and what the data says about the series:
+    ``revised_periods`` is how many periods ever changed value across vintages, which is the
+    measurement behind a ``revisions`` declaration rather than an assumption about it.
+    """
+    archive_start = min((items[0][0] for items in periods.values()), default=None)
+    out, dropped, revised = {}, 0, 0
+    for period, items in periods.items():
+        if len({item[1] for item in items}) > 1:
+            revised += 1
+        if drop_archive_start and archive_start is not None and items[0][0] <= archive_start:
+            dropped += 1
+            continue
+        first = items[0]
+        out[period] = (first[1], first[2], first[3] if len(first) > 3 else None)
+    return out, {'archive_start': archive_start, 'periods_before_archive_start_dropped': dropped,
+                 'periods_ever_revised': revised, 'periods_kept': len(out)}
+
+
+#: USD per unit of foreign currency, and whether the FRED quote must be inverted to get there.
+#: FRED quotes the euro, sterling and the Australian dollar as USD per unit and the rest the other
+#: way round, so a cross-section of comparable returns needs the reciprocal of the second group.
+FRED_FX_QUOTES = {'EUR': ('DEXUSEU', False), 'GBP': ('DEXUSUK', False), 'AUD': ('DEXUSAL', False),
+                  'JPY': ('DEXJPUS', True), 'CAD': ('DEXCAUS', True), 'CHF': ('DEXSZUS', True),
+                  'CNY': ('DEXCHUS', True), 'MXN': ('DEXMXUS', True)}
+
+
+def assets_fred_realtime_data(store, *, symbols=('JPY', 'GBP', 'CAD', 'CHF', 'AUD'), factor_symbol='EUR',
+                              start='2014-03-19', end='2024-12-31', versions=None, dataset='fred_macro_panel'):
+    """``assets`` family rows from FRED daily exchange rates read as **first releases**.
+
+    Why not the declared Alpaca bars: ``assets_model.alpaca_daily`` fails ``no_revision_leakage``
+    because total-return adjusted closes are restated by later corporate actions, and FRED has no
+    per-issuer equity prices, so no vintage archive can repair that series. ``docs/calibration-status.md``
+    names the fix — "an unadjusted or point-in-time price feed would make the second criterion
+    evaluable" — and FRED's daily exchange rates are exactly that: ALFRED carries 653 vintages of
+    each from 2014-03-18, and each day's value is read from the vintage that first published it.
+
+    It is a **different estimand** from the equity attempt: a currency cross-section with the euro
+    as the common factor, not five mega-cap issuers with SPY. The criteria are the family's
+    unmodified defaults, and the splits match the equity attempt so the two are comparable.
+    """
+    if factor_symbol in symbols:
+        raise ValueError('The factor symbol must not be one of the scored symbols')
+    unknown = sorted((set(symbols) | {factor_symbol}) - set(FRED_FX_QUOTES))
+    if unknown:
+        raise ValueError(f'Unknown currency symbols {unknown}; known: {sorted(FRED_FX_QUOTES)}')
+    evidence = Evidence()
+    chosen = {symbol: FRED_FX_QUOTES[symbol] for symbol in list(symbols) + [factor_symbol]}
+    ref, series = _vintage_series_multi(store, dataset, [s for s, _ in chosen.values()] + ['DFF'], versions=versions)
+    diagnostics = {}
+    prices = {}
+    for symbol, (series_id, invert) in chosen.items():
+        kept, info = first_releases(series[series_id])
+        diagnostics[symbol] = {'series_id': series_id, 'inverted': invert, **info}
+        prices[symbol] = {}
+        for day, (value, record_id, _) in kept.items():
+            if not start <= day <= end or value <= 0:
+                continue
+            prices[symbol][day] = ((1.0 / value) if invert else value, record_id)
+    rates, rate_info = first_releases(series['DFF'])
+    diagnostics['risk_free'] = {'series_id': 'DFF', **rate_info}
+    bars = []
+    for symbol in symbols:
+        for day, (value, record_id) in sorted(prices[symbol].items()):
+            bars.append({'symbol': symbol, 'date': day, 'close': value})
+            evidence.add(ref, record_id, 'bars')
+    factor_days = sorted(prices[factor_symbol])
+    risk_free, factors = [], []
+    for previous_day, day in zip(factor_days, factor_days[1:]):
+        rate = rates.get(day)
+        if rate is None:
+            continue
+        daily = rate[0] / 100.0 / 252.0
+        previous, close = prices[factor_symbol][previous_day][0], prices[factor_symbol][day][0]
+        risk_free.append({'date': day, 'rf': daily})
+        factors.append({'date': day, 'currency_excess': math.log(close / previous) - daily})
+        evidence.add(ref, rate[1], 'risk_free')
+        evidence.add(ref, prices[factor_symbol][day][1], 'factor')
+    if len(factors) < 250 or len(bars) < 500:
+        raise MissingData(f'Only {len(factors)} factor days and {len(bars)} bars survived the first-release rule '
+                          f'({diagnostics})')
+    data = {'bars': bars, 'factors': factors, 'factor_names': ['currency_excess'], 'risk_free': risk_free,
+            'information_time': 'valid_time', 'revisions': 'none',
+            'construction': {'quotes': 'USD per unit of foreign currency (FRED quotes inverted where needed)',
+                             'factor': f'{factor_symbol} log return in excess of DFF/252, never scored',
+                             'vintage_rule': 'earliest ALFRED vintage of each day, archive start dropped',
+                             'symbols': list(symbols), 'bars': len(bars), 'factor_days': len(factors),
+                             'series': diagnostics, 'dataset': dataset}}
+    return data, evidence.reference()
+
+
+def monetary_okun_realtime_data(store, *, start='1975-01', end='2024-12', trend_months=120, okun=2.0,
+                                inflation_target=2.0, elb=0.125, versions=None, dataset='fred_macro_panel'):
+    """``monetary`` family rows with an Okun output-gap proxy built entirely from **first releases**.
+
+    ``monetary_model.cpi_okun_proxy`` and its v2 rerun fail ``no_revision_leakage`` for one reason:
+    the unemployment input was a construction over LAUS state series, and ``bls_labor`` publishes one
+    current vintage. ALFRED has carried UNRATE since 1960-03-15 (799 vintages) and ``fred_macro_panel``
+    already holds every one of them, so the same proxy can be built without any revision in it:
+
+    * ``policy_rate``: monthly mean of the first published DFF vintage of each day.
+    * ``inflation``: twelve-month CPIAUCSL change, month *t* from its first release and month *t-12*
+      from the latest vintage published on or before that release **and on the same base period**.
+    * ``output_gap``: ``-okun * (u_t - u*_t)`` with u the first release of UNRATE and u* the mean of
+      the first releases of the previous ``trend_months`` months. Nothing in the row was published
+      after the row's own release date.
+    """
+    evidence = Evidence()
+    ref, series = _vintage_series_multi(store, dataset, ['CPIAUCSL', 'UNRATE', 'DFF'], versions=versions,
+                                       with_base=True)
+    cpi = series['CPIAUCSL']
+    unemployment, unemployment_info = first_releases(series['UNRATE'])
+    rates, rate_info = first_releases(series['DFF'])
+    cpi_first, cpi_info = first_releases(cpi)
+    monthly_rate = {}
+    for day, (value, record_id, _) in rates.items():
+        item = monthly_rate.setdefault(day[:7], {'values': [], 'ids': []})
+        item['values'].append(value)
+        item['ids'].append(record_id)
+    ordered = sorted(unemployment)
+    rows, skipped = [], {'missing_input': 0, 'short_trend': 0, 'no_common_base': 0}
+    for month in sorted(m for m in monthly_rate if start <= m <= end):
+        period, base_month = f'{month}-01', f'{int(month[:4]) - 1}{month[4:]}-01'
+        if period not in cpi_first or base_month not in cpi or period not in unemployment:
+            skipped['missing_input'] += 1
+            continue
+        level, cpi_id, base = cpi_first[period]
+        release = min(item[0] for item in cpi[period])
+        earlier = [item for item in cpi[base_month] if item[0] <= release and item[3] == base]
+        if not earlier:
+            skipped['no_common_base'] += 1
+            continue
+        history = [unemployment[m][0] for m in ordered if m < period][-trend_months:]
+        if len(history) < trend_months or level <= 0 or earlier[-1][1] <= 0:
+            skipped['short_trend'] += 1
+            continue
+        trend = math.fsum(history) / len(history)
+        rate = monthly_rate[month]
+        rows.append({'date': period, 'policy_rate': math.fsum(rate['values']) / len(rate['values']),
+                     'inflation': 100.0 * (level / earlier[-1][1] - 1.0),
+                     'output_gap': -okun * (unemployment[period][0] - trend)})
+        evidence.add(ref, cpi_id, 'inflation')
+        evidence.add(ref, earlier[-1][2], 'inflation_base')
+        evidence.add(ref, unemployment[period][1], 'unemployment')
+        for record_id in rate['ids']:
+            evidence.add(ref, record_id, 'policy_rate')
+    if len(rows) < 120:
+        raise MissingData(f'Only {len(rows)} real-time Okun-proxy months could be built (skipped {skipped})')
+    data = {'observations': rows, 'inflation_target': inflation_target, 'elb': elb, 'exclude_elb': True,
+            'information_time': 'valid_time', 'revisions': 'none',
+            'construction': {'rows': len(rows), 'first': rows[0]['date'], 'last': rows[-1]['date'],
+                             'okun': okun, 'trend_months': trend_months, 'skipped': skipped,
+                             'vintage_rule': 'first release of every input; archive-start periods dropped',
+                             'series': {'CPIAUCSL': cpi_info, 'UNRATE': unemployment_info, 'DFF': rate_info},
+                             'dataset': dataset}}
     return data, evidence.reference()
 
 
@@ -1502,8 +1859,11 @@ def load_for(target, store, options=None, function=None):
 LOADER_FUNCTIONS.update({'observation_set': observation_set, 'cash_balance_data': cash_balance_data,
                          'default_hazard_data': default_hazard_data, 'conflict_data': conflict_data,
                          'assets_data': assets_data, 'commodities_data': commodities_data,
-                         'regional_data': regional_data, 'monetary_data': monetary_data,
+                         'regional_data': regional_data, 'ces_sae_regional_data': ces_sae_regional_data,
+                         'monetary_data': monetary_data,
                          'monetary_realtime_data': monetary_realtime_data, 'elections_data': elections_data,
+                         'assets_fred_realtime_data': assets_fred_realtime_data,
+                         'monetary_okun_realtime_data': monetary_okun_realtime_data,
                          'population_popthm_data': population_popthm_data,
                          'deposit_rate_substitute_data': deposit_rate_substitute_data})
 
