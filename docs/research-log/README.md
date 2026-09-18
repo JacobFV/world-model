@@ -21,6 +21,12 @@ So this push spends most of its effort on the 35, not the 10, and buys only the 
 converts directly into validity. The bet is that *validated processes / total processes* (3 of 22
 at the start) is the number that matters, not bytes acquired.
 
+**Outcome: 4 of 22.** The counts above are the ones the push was planned on and are kept as they
+stood; they were read off the `docs/calibration-status.md` Summary table, which was then missing a
+row, so the reports say 48 failures across 33 registered attempts rather than 45 across 35. The
+reconciled before/after, measured from the published validation reports, is in
+[EXECUTIVE-SUMMARY.md](EXECUTIVE-SUMMARY.md) — including the two criterion counts that went **up**.
+
 ## Workstreams
 
 | File | Workstream | Converts |
