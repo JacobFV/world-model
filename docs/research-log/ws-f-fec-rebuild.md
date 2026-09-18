@@ -165,8 +165,8 @@ This is the one that needs no join and no inference: the published aggregate was
 | ZIP3 (what the aggregate published) | 988 | 0.010801 | 92.6 |
 | Full ZIP (what the rebuild retains) | 35,990 | 0.001557 | 642.4 |
 
-Only **29 rows in 31.7 million** were ZIP3-only, so the ZIP3 aggregate was discarding precision it
-had in hand for essentially every row.
+Only **29 rows in 31.7 million** had three usable ZIP digits but not five (a further 20,748 had no
+usable ZIP at all), so the ZIP3 aggregate was discarding precision it already held on 99.93% of rows.
 
 What that hid, concretely. The largest ZIP3 is **100** (Manhattan) at $327,265,220 — and it is
 genuinely diffuse: 55 full ZIPs, the largest (10010) only 9.95% of it. But the largest *full* ZIP in
