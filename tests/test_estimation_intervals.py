@@ -411,5 +411,155 @@ class ElectionBaselineTests(unittest.TestCase):
         self.assertGreater(groups['D'][0], groups['R'][0])
 
 
+# ----------------------------------------------------------------------------- conditional-input vintages
+
+class ConditionalRebaseTests(unittest.TestCase):
+    """A conditional input read as a ratio against its own lag must come from one vintage.
+
+    The backtest substitutes the realized value of a declared conditional input at the target
+    period from the evaluation frame, while the rest of the design row comes from the origin's
+    frame. Where the design reads that driver against its own lag, the two vintages must be
+    reconciled or the ratio measures a rebasing rather than a growth rate.
+    """
+
+    def test_ratio_mode_carries_the_realized_movement_and_nothing_else(self):
+        from worldmodel.estimation.validation import _conditional_inputs
+
+        class Frame:
+            def __init__(self, times, columns):
+                self.times, self.columns = times, columns
+
+        truth = Frame(['t0', 't1', 't2'], {'x': [100.0, 110.0, 121.0]})
+        origin = Frame(['t0', 't1'], {'x': [80.0, 88.0]})       # same series on a different base
+
+        class Estimator:
+            conditional_inputs = ('x',)
+            conditional_rebase = {'x': 'ratio'}
+
+        values, rebased = _conditional_inputs(Estimator(), truth, origin, 2, 1, 't1')
+        # The realized movement is 121/110; applied to the origin's own level 88 that is 96.8.
+        self.assertAlmostEqual(values['x'][0], 96.8, places=9)
+        self.assertAlmostEqual(math.log(values['x'][0] / origin.columns['x'][1]),
+                               math.log(truth.columns['x'][2] / truth.columns['x'][1]), places=12)
+        self.assertEqual(rebased['x']['mode'], 'ratio')
+
+    def test_difference_mode_carries_the_realized_change(self):
+        from worldmodel.estimation.validation import _conditional_inputs
+
+        class Frame:
+            def __init__(self, times, columns):
+                self.times, self.columns = times, columns
+
+        truth = Frame(['t0', 't1', 't2'], {'r': [5.0, 5.2, 5.5]})
+        origin = Frame(['t0', 't1'], {'r': [5.1, 5.3]})
+
+        class Estimator:
+            conditional_inputs = ('r',)
+            conditional_rebase = {'r': 'difference'}
+
+        values, rebased = _conditional_inputs(Estimator(), truth, origin, 2, 1, 't1')
+        self.assertAlmostEqual(values['r'][0] - origin.columns['r'][1],
+                               truth.columns['r'][2] - truth.columns['r'][1], places=12)
+        self.assertEqual(rebased['r']['mode'], 'difference')
+
+    def test_none_is_a_no_op_and_records_nothing(self):
+        from worldmodel.estimation.validation import _conditional_inputs
+
+        class Frame:
+            def __init__(self, times, columns):
+                self.times, self.columns = times, columns
+
+        truth = Frame(['t0', 't1', 't2'], {'x': [100.0, 110.0, 121.0]})
+        origin = Frame(['t0', 't1'], {'x': [80.0, 88.0]})
+
+        class Estimator:
+            conditional_inputs = ('x',)
+            conditional_rebase = {}
+
+        values, rebased = _conditional_inputs(Estimator(), truth, origin, 2, 1, 't1')
+        self.assertEqual(values['x'], [121.0])      # the realized value, handed over untouched
+        self.assertEqual(rebased, {})
+
+    def test_equal_vintages_leave_the_value_alone(self):
+        """The declared rebasing is inert wherever the driver is neither revised nor rebased."""
+        from worldmodel.estimation.validation import _conditional_inputs
+
+        class Frame:
+            def __init__(self, times, columns):
+                self.times, self.columns = times, columns
+
+        truth = Frame(['t0', 't1', 't2'], {'x': [100.0, 110.0, 121.0]})
+        origin = Frame(['t0', 't1'], {'x': [100.0, 110.0]})
+
+        class Estimator:
+            conditional_inputs = ('x',)
+            conditional_rebase = {'x': 'ratio'}
+
+        values, rebased = _conditional_inputs(Estimator(), truth, origin, 2, 1, 't1')
+        self.assertEqual(values['x'], [121.0])
+        self.assertEqual(rebased, {})              # nothing moved, so nothing is audited
+
+    def test_labor_demand_declares_the_rebasing_and_the_others_do_not(self):
+        from worldmodel.estimation.families import CONDITIONAL_REBASE
+        self.assertEqual(estimator_for('labor_demand').conditional_rebase, {'output': 'ratio'})
+        for component in ('energy_purchasing', 'policy_rule', 'interest_pass_through',
+                          'deposit_growth', 'default_hazard'):
+            with self.subTest(component=component):
+                self.assertEqual(estimator_for(component).conditional_rebase, {})
+        self.assertEqual(CONDITIONAL_REBASE, ('none', 'ratio', 'difference'))
+
+
+# ----------------------------------------------------------------------------- count dispersion
+
+class ConflictDispersionTests(unittest.TestCase):
+    """The Hawkes predictive must use the NB2 dispersion the family declares, not sqrt(mean)."""
+
+    def test_equidispersed_counts_estimate_alpha_near_zero(self):
+        from worldmodel.models.conflict import _nb2_dispersion
+        rng = random.Random(11)
+        gamma, es, en = [math.log(20.0)], 0.0, 0.0
+        N = [[_poisson_draw(rng, 20.0) for _ in range(400)]]
+        X = [[[1.0] for _ in range(400)]]
+        S = [[0.0] * 400]
+        alpha, diagnostics = _nb2_dispersion(N, X, S, S, gamma, es, en)
+        self.assertLess(alpha, 0.01)
+        self.assertLess(abs(diagnostics['pearson_dispersion'] - 1.0), 0.25)
+
+    def test_overdispersed_counts_are_detected(self):
+        from worldmodel.models.conflict import _nb2_dispersion
+        rng = random.Random(12)
+        gamma, es, en = [math.log(20.0)], 0.0, 0.0
+        # Mixture over the intensity: mean 20, variance far above it.
+        N = [[_poisson_draw(rng, 20.0 * math.exp(rng.gauss(0, 0.6))) for _ in range(600)]]
+        X = [[[1.0] for _ in range(600)]]
+        S = [[0.0] * 600]
+        alpha, diagnostics = _nb2_dispersion(N, X, S, S, gamma, es, en)
+        self.assertGreater(alpha, 0.1)
+        self.assertGreater(diagnostics['pearson_dispersion'], 3.0)
+
+    def test_zero_alpha_reproduces_the_poisson_standard_deviation(self):
+        from worldmodel.estimation.model_families import _conflict_forecast
+        history = [{'country': 'A', 'month': f'2020-{m:02d}', 'count': 10} for m in range(1, 13)]
+        rows = [{'country': 'A', 'month': '2021-01', 'count': 12}]
+        data = {'covariates': []}
+        base = {'background_coefficients': {'const': math.log(5.0)}, 'self_excitation': 0.2,
+                'neighbor_excitation': 0.0, 'decay': 0.5}
+        poisson_out = _conflict_forecast(dict(base, dispersion=0.0), history, rows, data)
+        self.assertAlmostEqual(poisson_out[0]['sd'], math.sqrt(poisson_out[0]['mean']), places=12)
+        wider = _conflict_forecast(dict(base, dispersion=0.05), history, rows, data)
+        self.assertGreater(wider[0]['sd'], poisson_out[0]['sd'])
+        self.assertAlmostEqual(wider[0]['mean'], poisson_out[0]['mean'], places=12)
+
+
+def _poisson_draw(rng, mean):
+    """Knuth's method; adequate at the small means used above."""
+    limit, total, k = math.exp(-mean), 1.0, 0
+    while True:
+        total *= rng.random()
+        if total <= limit:
+            return k
+        k += 1
+
+
 if __name__ == '__main__':
     unittest.main()
