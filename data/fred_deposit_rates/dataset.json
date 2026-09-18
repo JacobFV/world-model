@@ -1,0 +1,163 @@
+{
+  "id": "fred_deposit_rates",
+  "schema_version": 2,
+  "dependencies": [],
+  "kind": "source",
+  "status": "full_acquisition_configured",
+  "description": "Long-history U.S. deposit rates with every ALFRED real-time vintage: the FDIC National Rates on non-jumbo savings and money market deposits (SAVNRNJ, MMNRNJ; weekly 2009-2021, the series SNDR replaced) and the St. Louis Fed M2 own rate (M2OWN; monthly 1959-2019)",
+  "source": {
+    "publisher": "Federal Reserve Bank of St. Louis (FRED/ALFRED)",
+    "originating_source": "Federal Deposit Insurance Corporation, National Rates and Rate Caps (SAVNRNJ, MMNRNJ); Federal Reserve Bank of St. Louis from Board of Governors H.6, FDIC national rates and iMoneyNet money-fund rates (M2OWN)",
+    "documentation": "https://fred.stlouisfed.org/series/SAVNRNJ",
+    "license_status": "publisher_terms",
+    "license_notes": "FRED API Terms of Use (https://fred.stlouisfed.org/docs/api/terms_of_use.html). SAVNRNJ and MMNRNJ are FDIC compilations of rates gathered by RateWatch; M2OWN is a St. Louis Fed construction whose money-fund rate input comes from iMoneyNet (Informa Financial Intelligence), a commercial source. Internal use; cite FRED and the originating agency, and do not redistribute the third-party inputs."
+  },
+  "entrypoint": "pipeline.py:run",
+  "parameters": {
+    "series": {
+      "SAVNRNJ": {
+        "metric": "national_rate_non_jumbo_savings",
+        "unit": "percent",
+        "multiplier": 1,
+        "frequency": "W",
+        "frequency_long": "Weekly, As of Monday",
+        "seasonal_adjustment": "NSA",
+        "geography": "geo:US",
+        "title": "National Rate on Non-Jumbo Deposits (less than $100,000): Savings (DISCONTINUED)",
+        "tier": "vintages",
+        "category": "rates",
+        "source_units": "Percent",
+        "units_history": [
+          {
+            "realtime_start": "2014-03-10",
+            "realtime_end": "9999-12-31",
+            "source_units": "Percent",
+            "unit": "percent",
+            "multiplier": 1.0,
+            "base_period": null,
+            "unit_normalized": true
+          }
+        ],
+        "units_change_across_vintages": false,
+        "third_party_copyright": []
+      },
+      "MMNRNJ": {
+        "metric": "national_rate_non_jumbo_money_market",
+        "unit": "percent",
+        "multiplier": 1,
+        "frequency": "W",
+        "frequency_long": "Weekly, As of Monday",
+        "seasonal_adjustment": "NSA",
+        "geography": "geo:US",
+        "title": "National Rate on Non-Jumbo Deposits (less than $100,000): Money Market (DISCONTINUED)",
+        "tier": "vintages",
+        "category": "rates",
+        "source_units": "Percent",
+        "units_history": [
+          {
+            "realtime_start": "2014-03-10",
+            "realtime_end": "9999-12-31",
+            "source_units": "Percent",
+            "unit": "percent",
+            "multiplier": 1.0,
+            "base_period": null,
+            "unit_normalized": true
+          }
+        ],
+        "units_change_across_vintages": false,
+        "third_party_copyright": []
+      },
+      "M2OWN": {
+        "metric": "m2_own_rate",
+        "unit": "percent",
+        "multiplier": 1,
+        "frequency": "M",
+        "frequency_long": "Monthly",
+        "seasonal_adjustment": "NSA",
+        "geography": "geo:US",
+        "title": "M2 Own Rate (DISCONTINUED)",
+        "tier": "vintages",
+        "category": "rates",
+        "source_units": "Percent",
+        "units_history": [
+          {
+            "realtime_start": "2014-03-07",
+            "realtime_end": "9999-12-31",
+            "source_units": "Percent",
+            "unit": "percent",
+            "multiplier": 1.0,
+            "base_period": null,
+            "unit_normalized": true
+          }
+        ],
+        "units_change_across_vintages": false,
+        "third_party_copyright": [
+          "iMoneyNet (Informa Financial Intelligence): money market mutual fund rates are one input to the St. Louis Fed's M2 own-rate construction"
+        ]
+      }
+    }
+  },
+  "acquisition": {
+    "strategy": "url_list",
+    "description": "FRED API series/observations for SAVNRNJ, MMNRNJ and M2OWN, all ALFRED vintages in one window each (365, 365 and 203 vintage dates, all under FRED's 2,000-vintage JSON limit; 624, 624 and 10,515 observation rows, all under the 100,000 row limit)",
+    "documentation": "https://fred.stlouisfed.org/docs/api/fred/series_observations.html",
+    "desired_bytes": 4194304,
+    "min_bytes": 0,
+    "priority": 3.0,
+    "url_template": "https://api.stlouisfed.org/fred/series/observations?series_id={series_id}&realtime_start={realtime_start}&realtime_end={realtime_end}&file_type=json&limit=100000&sort_order=asc",
+    "combinations": [
+      {
+        "series_id": "SAVNRNJ",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31"
+      },
+      {
+        "series_id": "MMNRNJ",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31"
+      },
+      {
+        "series_id": "M2OWN",
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31"
+      }
+    ],
+    "credentials": [
+      {
+        "env": "FRED_API_KEY",
+        "query": "api_key"
+      }
+    ],
+    "rate_limit": {
+      "requests_per_second": 1.5,
+      "requests_per_day": null,
+      "key": "api.stlouisfed.org"
+    },
+    "timeout_seconds": 120,
+    "retries": 5,
+    "reader": {
+      "format": "json",
+      "records_path": [
+        "observations"
+      ]
+    }
+  },
+  "stages": [
+    {
+      "id": "normalized",
+      "entrypoint": "pipeline.py:run",
+      "depends_on": [],
+      "schema": {
+        "format": "evidence_jsonl",
+        "compression": "gzip"
+      },
+      "validation": {
+        "allow_empty": false,
+        "max_rows": 200000
+      },
+      "cache": "content",
+      "retention": "retain"
+    }
+  ],
+  "output_stage": "normalized"
+}

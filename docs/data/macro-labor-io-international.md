@@ -63,8 +63,18 @@ and rebuild commands; this page records the conventions they share and how they 
 - **Third-party copyright.** Panel series whose FRED notes name a copyright holder (Moody's, S&P, CBOE, University of
   Michigan, Freddie Mac, NASDAQ, ...) are flagged in `config.json` and on each observation
   (`attributes.third_party_copyright`). Use them internally only.
+- **fred_deposit_rates** (published 2026-09-17, `ec9e94d6…`, 11,763 records from 1.08 MiB raw) holds the *long*
+  deposit rates the panel's SNDR cannot supply, all in the `vintages` tier: `SAVNRNJ` and `MMNRNJ` (FDIC National
+  Rate on non-jumbo savings and money market deposits, weekly 2009-05-18..2021-03-29, 624 rows each, ALFRED vintages
+  from 2014-03-10, never revised) and `M2OWN` (St. Louis Fed M2 own rate, monthly 1959-02..2019-06, 10,515 rows over
+  725 periods, up to 118 vintages for one month). SNDR in `fred_macro_panel` begins 2021-04 and has 65 months, which
+  is why the substitutes exist. SAVNRNJ/MMNRNJ are SNDR's discontinued predecessors and are **not** comparable across
+  the 2021 FDIC methodology change (simple average over a sampled branch panel → deposit-weighted average over all
+  institutions), so nothing is spliced. `M2OWN` carries an `attributes.third_party_copyright` note: its money-fund
+  rate input comes from iMoneyNet (Informa).
 - **Overlaps.** The Treasury par yield curve comes from the panel (DGS1MO to DGS30), not from `treasury_debt`.
   Metro-area unemployment and payrolls come from `bls_labor` (LAUS, CES state and metro) rather than FRED.
+  Deposit rates: SNDR (2021+) from `fred_macro_panel`; SAVNRNJ/MMNRNJ/M2OWN from `fred_deposit_rates`.
 
 ## BEA (`bea_input_output`, `bea_national_regional`) and `treasury_debt`
 

@@ -1013,7 +1013,7 @@
         "deposit_rate": {
           "metric": "m2_own_rate",
           "source_series": "M2OWN",
-          "description": "SUBSTITUTION, not the declared series. M2 Own Rate (FRED M2OWN, discontinued 2019-06): the weighted average interest rate paid on the deposit components of M2, monthly 1959-02..2019-06. It is an aggregate realised cost of deposits rather than an advertised retail rate, so it is a different object from SNDR and from SAVNRNJ; a pass here is a pass on the M2 own rate."
+          "description": "SUBSTITUTION, not the declared series. M2 Own Rate (FRED M2OWN, discontinued 2019-07-12): the weighted average of the rates received on the interest-bearing assets in M2 -- other checkable deposits, thrift savings deposits, money market mutual fund holdings and small time deposits -- monthly 1959-02..2019-06. It is an aggregate realised return on M2 rather than an advertised retail deposit rate, and its money-fund component is not a bank deposit at all, so it is a different object from SNDR and from SAVNRNJ; a pass here is a pass on the M2 own rate."
         }
       },
       "data": "fred_deposit_rates@normalized (M2OWN, 10,515 vintage observations over 725 monthly periods, ALFRED vintages from 2014-03-07) + fred_policy_rate@normalized (DFF), monthly",
