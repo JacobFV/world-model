@@ -4,7 +4,7 @@ Three layers, deliberately separated:
 
 * ``AffectGeometryTests`` needs nothing optional at all - ``worldmodel.agents.affect`` is pure
   Python - so it runs in every environment and pins the readings and the motif asymmetry.
-* the rest skip unless the optional ``agents`` extra (tensacode) is installed, the same way the
+* the rest skip unless the optional ``agents`` extra (tensorcode) is installed, the same way the
   numpy tests skip on the ``fast`` extra.
 * ``RealLegislatorSmokeTests`` additionally skips unless this checkout has the unified-graph
   index on disk. It is a smoke test against real published records, not a fixture.
@@ -15,12 +15,12 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from worldmodel.agents import INSTALL_HINT, tensacode_available
+from worldmodel.agents import INSTALL_HINT, tensorcode_available
 from worldmodel.agents import affect as af
 from worldmodel.graph import Graph
 
 UTC = dt.timezone.utc
-HAVE_TC = tensacode_available()
+HAVE_TC = tensorcode_available()
 REF = {'dataset': 'fixture_congress', 'stage': 'normalized', 'version': 'c' * 64}
 EVIDENCE = [{'input': {'dataset': 'fixture_congress', 'artifact': 'a' * 64}, 'locator': 'line:1'}]
 DATA_ROOT = Path(__file__).resolve().parents[1] / 'data'
@@ -207,7 +207,7 @@ def build_fixture_index(path):
     return graph
 
 
-@unittest.skipUnless(HAVE_TC, 'grounded agents require the optional agents extra (tensacode)')
+@unittest.skipUnless(HAVE_TC, 'grounded agents require the optional agents extra (tensorcode)')
 class GroundedAgentFixtureTests(unittest.TestCase):
     """Everything about grounding and the person loop, on a fixture small enough to reason about."""
 
@@ -273,7 +273,7 @@ class GroundedAgentFixtureTests(unittest.TestCase):
 
     # -- seeding --------------------------------------------------------------------------
     def test_seed_uses_published_records_only_and_reports_unknowns(self):
-        import tensacode as tc
+        import tensorcode as tc
         from worldmodel.agents.grounding import seed_store
         self.use_fixture_rollcalls()
         store = tc.Store()
@@ -302,7 +302,7 @@ class GroundedAgentFixtureTests(unittest.TestCase):
         self.assertEqual({row['object'] for row in published},
                          {'congress:committee:zz01', 'congress:committee:zz02'})
         # A belief the record does not support shows up as divergence, and is not corrected.
-        import tensacode as tc
+        import tensorcode as tc
         agent.store.tell(tc.Claim(agent.me, 'serves_on', tc.Ref('congress:committee:zz99')),
                          tc.Evidence(tc.Ref('rumour:corridor'), dt.datetime(2025, 3, 1, tzinfo=UTC), method='heard'))
         diverging = agent.grounding.divergence(agent.store, 'serves_on')
@@ -400,7 +400,7 @@ class GroundedAgentFixtureTests(unittest.TestCase):
         Standing knowledge seeded from the record survives, because it was never a percept. That
         split is the point of putting perception in its own scope.
         """
-        import tensacode as tc
+        import tensorcode as tc
         from worldmodel.agents.person import PERCEPT
         agent = self.agent()
         agent.tick((dt.datetime(2025, 1, 1, tzinfo=UTC), dt.datetime(2025, 4, 1, tzinfo=UTC)))
@@ -433,7 +433,7 @@ class GroundedAgentFixtureTests(unittest.TestCase):
             agent.episodes.append(Episode(at=now, tag='donation', text='backed me', salience=0.8,
                                           who=('fec:committee:D1',)))
             agent.episodes[-1].claim_id = agent._tell_self(
-                __import__('tensacode').Claim(agent.me, 'recalls', ('donation', str(len(agent.episodes)))),
+                __import__('tensorcode').Claim(agent.me, 'recalls', ('donation', str(len(agent.episodes)))),
                 [], 'recall')
         formed = agent._consolidate()
         self.assertIn('obliged_to fec:committee:D1', formed)
@@ -453,7 +453,7 @@ class GroundedAgentFixtureTests(unittest.TestCase):
         for target, model in agent.tom.items():
             self.assertGreaterEqual(model['agency'], 0.6)
             self.assertNotIn('congress:bill:', target)
-            scope = __import__('tensacode').Ref('model:%s' % target)
+            scope = __import__('tensorcode').Ref('model:%s' % target)
             self.assertTrue(agent.store.claims(scope=scope), target)
             # The stance follows the relation that brought the target into view, not whichever
             # incidental attribute percept happened to mention it first.
@@ -467,7 +467,7 @@ class GroundedAgentFixtureTests(unittest.TestCase):
             self.assertEqual(backer['phenomenality'], 0.02)
 
     def test_unknown_is_recorded_as_an_honest_non_decision(self):
-        import tensacode as tc
+        import tensorcode as tc
         from worldmodel.agents.person import Intention
         agent = self.agent()
         agent.tick((dt.datetime(2025, 1, 1, tzinfo=UTC), dt.datetime(2025, 4, 1, tzinfo=UTC)))
@@ -552,7 +552,7 @@ class GroundedAgentFixtureTests(unittest.TestCase):
         json.dumps(view)  # the CLI prints this
 
 
-@unittest.skipUnless(HAVE_TC, 'grounded agents require the optional agents extra (tensacode)')
+@unittest.skipUnless(HAVE_TC, 'grounded agents require the optional agents extra (tensorcode)')
 class AgentCliTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
@@ -600,7 +600,7 @@ class AgentCliTests(unittest.TestCase):
         self.assertEqual(view['divergence'], [])
 
 
-@unittest.skipUnless(HAVE_TC, 'grounded agents require the optional agents extra (tensacode)')
+@unittest.skipUnless(HAVE_TC, 'grounded agents require the optional agents extra (tensorcode)')
 @unittest.skipUnless(REAL_INDEX.exists(), 'no local unified-graph index; skipping the real-data smoke test')
 class RealLegislatorSmokeTests(unittest.TestCase):
     """A real legislator from the real index: it must ground, tick and explain itself."""

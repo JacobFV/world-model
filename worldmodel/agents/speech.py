@@ -2,7 +2,7 @@
 
 Three modules make up belief transmission and the split is deliberate:
 
-| Module | What it knows | Needs tensacode |
+| Module | What it knows | Needs tensorcode |
 | --- | --- | --- |
 | ``agents/lexicon.py`` | registers, templates, spoken tokens, frame rules, the stage slip | no |
 | ``agents/speech.py`` | claims: what an agent can say, what it resolves a name to, what it heard | yes |
@@ -31,7 +31,7 @@ Nothing here is fitted to an outcome and nothing here is ``validated``.
 """
 from dataclasses import dataclass, field
 
-from . import load_tensacode
+from . import load_tensorcode
 from .grounding import _parse_time
 from .lexicon import (  # noqa: F401  - re-exported: this module is the public face of both
     ALL_SKELETONS, BASE_FORMS, BASE_REGISTER, CANONICAL_SKELETONS, CHAMBER_FORMS, CONCEPTS,
@@ -41,7 +41,7 @@ from .lexicon import (  # noqa: F401  - re-exported: this module is the public f
     is_entity_id, kind_of_token, match_concept, one_word, parse, register_from, say, slip,
     spoken_token)
 
-tc = load_tensacode()
+tc = load_tensorcode()
 
 
 # --------------------------------------------------------------------------- the register

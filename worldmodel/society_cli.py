@@ -13,7 +13,7 @@ and nothing else in ``wm`` is affected.
 """
 from pathlib import Path
 
-from .agents import INSTALL_HINT, tensacode_available
+from .agents import INSTALL_HINT, tensorcode_available
 
 COMMANDS = {'society-run', 'society-report'}
 DEFAULT_DATASET = 'agent_society_report'
@@ -47,7 +47,7 @@ def add_commands(sub):
 
 
 def execute(args, catalog, store, project, reference):
-    if not tensacode_available():
+    if not tensorcode_available():
         raise RuntimeError(INSTALL_HINT)
     if args.command == 'society-report':
         from .artifacts import load_report

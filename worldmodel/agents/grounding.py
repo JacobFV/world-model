@@ -11,7 +11,7 @@ by metric. Every row it hands back carries the ``dataset``/``stage``/``version``
 published record id it came from. It never scans; every query is served by one of the
 index's eight indexes and is bounded by the agent's own degree.
 
-**Seeding from published records only.** :func:`seed_store` fills a tensacode ``Store``
+**Seeding from published records only.** :func:`seed_store` fills a tensorcode ``Store``
 with claims whose evidence is a published record. A facet with no published record stays
 **Unknown**: it is reported in :class:`SeedReport.unknown` and no claim is invented for
 it. On this catalog a legislator's individual roll-call votes are exactly such a facet -
@@ -53,9 +53,9 @@ import zlib
 from dataclasses import dataclass, field
 from pathlib import Path
 
-from . import load_tensacode
+from . import load_tensorcode
 
-tc = load_tensacode()
+tc = load_tensorcode()
 
 UTC = _dt.timezone.utc
 #: Mirrors ``worldmodel.graph.READABLE_SCHEMAS``: the resolved/edge shape this module reads.

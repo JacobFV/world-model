@@ -6,7 +6,7 @@ Four layers, deliberately separated:
   ``worldmodel.agents.observatory`` are plain Python and that module imports without the substrate,
   exactly like ``agents.affect`` - so they run everywhere.
 * ``SocietyFixtureTests``, ``ObservatoryFixtureTests`` and ``SocietyCliTests`` skip unless the
-  optional ``agents`` extra (tensacode) is installed, and run over a fixture index small enough to
+  optional ``agents`` extra (tensorcode) is installed, and run over a fixture index small enough to
   reason about: two legislators who share a committee, that committee, and a firm with declared
   financials.
 * ``RealSocietySmokeTests`` additionally skips unless this checkout has the unified-graph index on
@@ -25,11 +25,11 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from worldmodel.agents import tensacode_available
+from worldmodel.agents import tensorcode_available
 from worldmodel.graph import Graph
 
-HAVE_TC = tensacode_available()
-NEEDS_TC = 'a society of grounded agents requires the optional agents extra (tensacode)'
+HAVE_TC = tensorcode_available()
+NEEDS_TC = 'a society of grounded agents requires the optional agents extra (tensorcode)'
 DATA_ROOT = Path(__file__).resolve().parents[1] / 'data'
 REAL_INDEX = DATA_ROOT / 'world_evidence' / 'index.sqlite'
 EXAMPLE = Path(__file__).resolve().parents[1] / 'examples' / 'society-congress.json'

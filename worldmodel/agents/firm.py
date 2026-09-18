@@ -42,11 +42,11 @@ import datetime as _dt
 import re
 from dataclasses import dataclass, field, replace
 
-from . import load_tensacode
+from . import load_tensorcode
 
-tc = load_tensacode()
+tc = load_tensorcode()
 
-from tensacode.cognition import Fragment, Rule, Thought, explain as _explain, integrate, think  # noqa: E402
+from tensorcode.cognition import Fragment, Rule, Thought, explain as _explain, integrate, think  # noqa: E402
 
 from . import corporate_affect as ca  # noqa: E402
 from .roles import (ActLog, Authority, Charter, CorporateAct, Holder, Procedure, Role,  # noqa: E402
@@ -167,7 +167,7 @@ def preferred(aims, options, base):
 
 
 def _argmax_runtime():
-    """A tensacode runtime whose ``choose`` is a deterministic argmax over a declared utility.
+    """A tensorcode runtime whose ``choose`` is a deterministic argmax over a declared utility.
 
     ``tc.choose`` abstains with ``Unknown`` when more than one option is feasible and no backend
     is bound, which is correct: a decision needs an implementation. This one is in-process,

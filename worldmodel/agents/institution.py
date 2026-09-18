@@ -30,11 +30,11 @@ import datetime as _dt
 import math
 from dataclasses import dataclass, replace
 
-from . import load_tensacode
+from . import load_tensorcode
 
-tc = load_tensacode()
+tc = load_tensorcode()
 
-from tensacode.cognition import explain as _explain  # noqa: E402
+from tensorcode.cognition import explain as _explain  # noqa: E402
 
 from . import corporate_affect as ca  # noqa: E402
 from .roles import (ActLog, Authority, Charter, Holder, InstitutionalAct, Procedure, Role, Source,  # noqa: E402

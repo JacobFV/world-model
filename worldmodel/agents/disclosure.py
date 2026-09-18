@@ -54,9 +54,9 @@ import datetime as _dt
 from collections import defaultdict
 from dataclasses import dataclass, replace
 
-from . import load_tensacode
+from . import load_tensorcode
 
-tc = load_tensacode()
+tc = load_tensorcode()
 
 from .roles import Act, Source, authorize, seated  # noqa: E402
 

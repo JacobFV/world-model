@@ -37,7 +37,7 @@ and the same slice is what the hearer can put a name to, so one bound is used co
 
 ## Three modules
 
-| Module | What it knows | Needs tensacode |
+| Module | What it knows | Needs tensorcode |
 | --- | --- | --- |
 | `agents/lexicon.py` | registers, templates, spoken tokens, frame rules, the stage slip | no |
 | `agents/speech.py` | claims: what an agent can say, how it resolves a name, what it heard | yes |
@@ -45,7 +45,7 @@ and the same slice is what the hearer can put a name to, so one bound is used co
 
 `lexicon` is to `speech` what `affect` is to `person`: pure Python, so the declared tables are
 inspectable and testable in an environment with no optional extra installed.
-`tensacode.language` is imported lazily inside `lexicon.parse`, so only *parsing* needs the
+`tensorcode.language` is imported lazily inside `lexicon.parse`, so only *parsing* needs the
 substrate, not importing.
 
 ## The API
@@ -114,7 +114,7 @@ channel's fidelity.
 
 ## What is lossy, and how it was measured
 
-Understanding goes through the chart parser in `tensacode.language`. Production stays local and
+Understanding goes through the chart parser in `tensorcode.language`. Production stays local and
 templated, for the reason `civ_sim/language.py` records: the general generator has stemming and
 tense faults (*"snow cames"*, `owes` stemmed to `ow`). The note survives the port because the
 fault does.

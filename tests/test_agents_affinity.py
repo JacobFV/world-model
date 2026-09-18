@@ -6,7 +6,7 @@ Three layers, separated the way ``test_agents_speech.py`` separates them:
   ``worldmodel.agents.affinity``. That half of the module is pure Python — the same relationship
   ``lexicon`` has to ``speech`` — so these run in **every** environment, with or without the
   optional ``agents`` extra;
-* the fixture classes skip unless tensacode is installed, and run against a small index built in a
+* the fixture classes skip unless tensorcode is installed, and run against a small index built in a
   temporary directory;
 * ``RealAffinitySmokeTests`` additionally skips unless this checkout has the unified-graph index on
   disk. It builds the inferred network around a real legislator and a real researcher.
@@ -20,12 +20,12 @@ import unittest
 from pathlib import Path
 
 from worldmodel.agents import affinity as af
-from worldmodel.agents import tensacode_available
+from worldmodel.agents import tensorcode_available
 from worldmodel.graph import Graph
 
 UTC = dt.timezone.utc
-HAVE_TC = tensacode_available()
-NEEDS_TC = 'inferred affinity ties require the optional agents extra (tensacode)'
+HAVE_TC = tensorcode_available()
+NEEDS_TC = 'inferred affinity ties require the optional agents extra (tensorcode)'
 REF = {'dataset': 'fixture_affinity', 'stage': 'normalized', 'version': 'a' * 64}
 EVIDENCE = [{'input': {'dataset': 'fixture_affinity', 'artifact': 'b' * 64}, 'locator': 'line:1'}]
 DATA_ROOT = Path(__file__).resolve().parents[1] / 'data'
@@ -431,7 +431,7 @@ class InferenceTests(FixtureCase):
     """What is inferred, what is refused, and what the inference cites."""
 
     def test_no_tie_is_emitted_without_a_published_edge_joining_the_pair(self):
-        import tensacode as tc
+        import tensorcode as tc
         answer = af.tie(self.index, P1, L3, at=AT)
         self.assertIsInstance(answer, tc.Unknown)
         self.assertEqual(answer.reason, 'no_shared_published_context')
@@ -439,7 +439,7 @@ class InferenceTests(FixtureCase):
 
     def test_homophily_on_its_own_never_makes_a_tie(self):
         """L1 and L3 match on party, delegation and cohort and share no published context."""
-        import tensacode as tc
+        import tensorcode as tc
         resemblance = af.homophily(self.index, L1, L3, at=AT)
         self.assertIs(resemblance.same_party, True)
         self.assertIs(resemblance.same_delegation, True)
@@ -448,7 +448,7 @@ class InferenceTests(FixtureCase):
         self.assertIsInstance(af.tie(self.index, L1, L3, at=AT), tc.Unknown)
 
     def test_an_entity_has_no_tie_to_itself(self):
-        import tensacode as tc
+        import tensorcode as tc
         answer = af.tie(self.index, P1, P1, at=AT)
         self.assertIsInstance(answer, tc.Unknown)
         self.assertEqual(answer.reason, 'same_entity')
@@ -494,7 +494,7 @@ class InferenceTests(FixtureCase):
         self.assertEqual(by_signal['co_authorship'].members, 4)
 
     def test_duration_is_unknown_when_the_shared_predicate_carries_no_date(self):
-        import tensacode as tc
+        import tensorcode as tc
         undated = af.tie(self.index, P1, P2, at=AT)
         self.assertIsInstance(undated.duration_days, tc.Unknown)
         self.assertEqual(undated.duration_days.reason, 'undated_signals')
@@ -503,7 +503,7 @@ class InferenceTests(FixtureCase):
         self.assertIsInstance(dated.duration_days, int)
 
     def test_an_unpublished_homophily_term_is_unknown_and_contributes_nothing(self):
-        import tensacode as tc
+        import tensorcode as tc
         resemblance = af.homophily(self.index, P1, P2, at=AT)
         self.assertIsInstance(resemblance.same_party, tc.Unknown)
         self.assertIsInstance(resemblance.same_delegation, tc.Unknown)
@@ -553,7 +553,7 @@ class WritingTests(FixtureCase):
     """Putting an inferred tie into a store without it becoming a published claim."""
 
     def test_the_claim_is_affinity_with_and_its_evidence_says_inferred(self):
-        import tensacode as tc
+        import tensorcode as tc
         store = tc.Store()
         value = af.tie(self.index, P1, P2, at=AT)
         claim = af.claim(value)
@@ -564,7 +564,7 @@ class WritingTests(FixtureCase):
         claim_id, premises = af.assert_into(store, value, now=AT)
         self.assertTrue(claim_id)
         self.assertTrue(premises)
-        from tensacode import cognition
+        from tensorcode import cognition
         lines = '\n'.join(cognition.explain(store, claim_id, depth=4))
         self.assertIn('affinity_with', lines)
         self.assertIn('inferred:%s' % af.METHOD, lines)
@@ -572,7 +572,7 @@ class WritingTests(FixtureCase):
         self.assertIn(value.records[0], lines)
 
     def test_a_tie_that_claims_not_to_be_inferred_is_refused(self):
-        import tensacode as tc
+        import tensorcode as tc
         store = tc.Store()
         value = af.tie(self.index, P1, P2, at=AT)
         with self.assertRaises(ValueError):
@@ -612,7 +612,7 @@ class ChannelTests(FixtureCase):
                                 len(sp.sayable(agent, about=formal[0].about)))
 
     def test_a_weak_tie_is_refused_a_channel_with_the_reason_recorded(self):
-        import tensacode as tc
+        import tensorcode as tc
         link = af.link_for(self.index, P1, P3, at=AT)
         self.assertIsInstance(link, tc.Unknown)
         self.assertEqual(link.reason, 'tie_too_weak_for_a_channel')
@@ -620,7 +620,7 @@ class ChannelTests(FixtureCase):
         self.assertIn('0.20', link.detail)
 
     def test_no_shared_context_means_no_channel_at_all(self):
-        import tensacode as tc
+        import tensorcode as tc
         link = af.link_for(self.index, L1, L3, at=AT)
         self.assertIsInstance(link, tc.Unknown)
         self.assertEqual(link.reason, 'no_shared_published_context')
@@ -647,7 +647,7 @@ class ChannelTests(FixtureCase):
             self.assertTrue(any('heard:affinity' in line for line in trace['lines']))
 
     def test_gossip_without_a_channel_returns_the_refusal_rather_than_speaking(self):
-        import tensacode as tc
+        import tensorcode as tc
         result = af.gossip(self.person(L1), self.person(L3), index=self.index, now=AT)
         self.assertIsInstance(result, tc.Unknown)
 
@@ -715,7 +715,7 @@ class RealAffinitySmokeTests(unittest.TestCase):
         self.assertTrue(value.attested_contexts)
 
     def test_a_legislator_and_a_researcher_are_not_joinable_and_it_says_why(self):
-        import tensacode as tc
+        import tensorcode as tc
         answer = af.tie(self.index, af.WORKED_EXAMPLE['legislator'],
                         af.WORKED_EXAMPLE['researcher'], at=AT)
         self.assertIsInstance(answer, tc.Unknown)
@@ -723,7 +723,7 @@ class RealAffinitySmokeTests(unittest.TestCase):
 
     def test_the_two_research_namespaces_are_not_bridged_and_are_not_name_matched(self):
         """The measured reason ``NOT_AVAILABLE`` gives, checked against the index."""
-        import tensacode as tc
+        import tensorcode as tc
         self.assertEqual(self.index.cluster(af.WORKED_EXAMPLE['unjoinable_researcher']),
                          (af.WORKED_EXAMPLE['unjoinable_researcher'],))
         self.assertEqual(self.index.cluster(af.WORKED_EXAMPLE['researcher']),

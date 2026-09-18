@@ -2,22 +2,22 @@
 
 Fixtures are fully declared and deterministic; the real-data smoke tests skip unless this checkout
 has the unified index and the published ``sec_company_assets`` dataset. Everything skips unless the
-optional ``agents`` extra (tensacode) is installed, the same way the numpy tests skip on ``fast``.
+optional ``agents`` extra (tensorcode) is installed, the same way the numpy tests skip on ``fast``.
 """
 import datetime as dt
 import unittest
 from pathlib import Path
 
-from worldmodel.agents import tensacode_available
+from worldmodel.agents import tensorcode_available
 
-HAVE_TC = tensacode_available()
+HAVE_TC = tensorcode_available()
 DATA_ROOT = Path(__file__).resolve().parents[1] / 'data'
 INDEX = DATA_ROOT / 'world_evidence' / 'index.sqlite'
 SEC_ASSETS = DATA_ROOT / 'sec_company_assets' / 'manifests'
-NEEDS_TC = 'corporate cognition requires the optional agents extra (tensacode)'
+NEEDS_TC = 'corporate cognition requires the optional agents extra (tensorcode)'
 
 if HAVE_TC:
-    import tensacode as tc
+    import tensorcode as tc
 
     from worldmodel.agents import corporate_affect as ca
     from worldmodel.agents.firm import (Aim, CAPITAL_PROCEDURE, Firm, FirmRecords, Option,

@@ -1,46 +1,46 @@
 """Grounded cognitive agents: entities from the unified graph that perceive, believe and decide.
 
-The design contract is ``docs/agents-design.md``. The cognitive substrate is **tensacode**
+The design contract is ``docs/agents-design.md``. The cognitive substrate is **tensorcode**
 (``Store`` of claims with evidence, ``Fragment``/``integrate``, ``Rule``/``think``, ``explain``,
 ``choose`` with constraints and ``Unknown``), which is an **optional** dependency::
 
     pip install "worldmodel-substrate[agents]"
 
 The core of this package imports without it, exactly like the numpy extra in
-``worldmodel.backends``: ``tensacode_available()`` answers whether the substrate is installed
-and ``load_tensacode()`` either returns it or raises with an actionable message. The modules
-that actually need it (``grounding``, ``person``, ``agents_cli``) call ``load_tensacode()`` at
+``worldmodel.backends``: ``tensorcode_available()`` answers whether the substrate is installed
+and ``load_tensorcode()`` either returns it or raises with an actionable message. The modules
+that actually need it (``grounding``, ``person``, ``agents_cli``) call ``load_tensorcode()`` at
 import time, so ``import worldmodel.agents`` is always safe and ``import
 worldmodel.agents.person`` fails loudly and clearly when the extra is missing.
 
-``affect`` is pure Python and needs neither tensacode nor numpy.
+``affect`` is pure Python and needs neither tensorcode nor numpy.
 """
 INSTALL_HINT = ('Grounded cognitive agents require the optional substrate: '
-                'pip install "worldmodel-substrate[agents]" (tensacode>=0.0.0.dev0). '
+                'pip install "worldmodel-substrate[agents]" (tensorcode>=0.0.0.dev0). '
                 'For a local checkout: pip install -e <tensacode>/tensacode/python, or run with '
                 'PYTHONPATH=<tensacode>/tensacode/python/src.')
 
-_tensacode = None
+_tensorcode = None
 
 
-def load_tensacode(required=True):
-    """Return the ``tensacode`` module, or ``None`` when it is absent and not required."""
-    global _tensacode
-    if _tensacode is None:
+def load_tensorcode(required=True):
+    """Return the ``tensorcode`` module, or ``None`` when it is absent and not required."""
+    global _tensorcode
+    if _tensorcode is None:
         try:
-            import tensacode
+            import tensorcode
         except ImportError:
-            tensacode = False
-        _tensacode = tensacode
-    if _tensacode is False:
+            tensorcode = False
+        _tensorcode = tensorcode
+    if _tensorcode is False:
         if required:
             raise ImportError(INSTALL_HINT)
         return None
-    return _tensacode
+    return _tensorcode
 
 
-def tensacode_available():
-    return load_tensacode(required=False) is not None
+def tensorcode_available():
+    return load_tensorcode(required=False) is not None
 
 
 #: Names this package exposes lazily, so that a missing substrate costs an ImportError only
@@ -68,7 +68,7 @@ def __getattr__(name):
     except ImportError as error:
         # A sibling agent kind whose module is not in this checkout yet is simply absent, not
         # a broken install; a missing *substrate* still raises with the install hint.
-        if module_name in str(error) and 'tensacode' not in str(error):
+        if module_name in str(error) and 'tensorcode' not in str(error):
             raise AttributeError('module %r has no attribute %r' % (__name__, name)) from error
         raise
     try:
@@ -81,4 +81,4 @@ def __dir__():
     return sorted(set(list(globals()) + list(_LAZY)))
 
 
-__all__ = ['INSTALL_HINT', 'load_tensacode', 'tensacode_available', *sorted(_LAZY)]
+__all__ = ['INSTALL_HINT', 'load_tensorcode', 'tensorcode_available', *sorted(_LAZY)]

@@ -322,7 +322,7 @@ positions and handled the same way, by key, with a declared row budget (1,200) t
 ## 9. Running it
 
 ```sh
-# both test modules; they skip cleanly when tensacode is absent
+# both test modules; they skip cleanly when tensorcode is absent
 python3 -m unittest tests.test_agents_disclosure tests.test_agents_instruments -q
 
 # with the optional substrate from a local checkout

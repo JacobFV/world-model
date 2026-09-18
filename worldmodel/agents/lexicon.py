@@ -6,19 +6,19 @@ cognitive substrate at all**. It knows about concepts, sentences and tokens; it 
 what a ``Claim`` is. That is why the tables can be inspected and tested in any environment,
 including one without the optional ``agents`` extra installed.
 
-``tensacode.language`` is imported lazily inside :func:`parse`, so importing this module never
+``tensorcode.language`` is imported lazily inside :func:`parse`, so importing this module never
 needs the substrate either — only actually parsing a sentence does.
 
 ## The two directions
 
 **Production is local and templated.** :func:`say` puts one concept into one sentence from
 :data:`BASE_FORMS` as overridden by the speaker's register. No model is called, and the general
-generator in ``tensacode.language`` is deliberately not used: the civ sim measured its stemming
+generator in ``tensorcode.language`` is deliberately not used: the civ sim measured its stemming
 and tense faults (*"snow cames"*, ``owes`` stemmed to ``ow``) and kept production local for
 exactly that reason. The note survives the port because the fault does.
 
 **Understanding is general and lossy.** :func:`parse` runs the chart parser in
-``tensacode.language`` over the canonicalized sentence and maps the resulting ``Frame`` back onto
+``tensorcode.language`` over the canonicalized sentence and maps the resulting ``Frame`` back onto
 one of :data:`CONCEPTS`. It is lossy in ways that were measured rather than invented:
 
 1. *reported speech drops adjuncts.* ``"Warner told me that Kaine sits on Judiciary"`` parses as
@@ -392,11 +392,11 @@ def understand(text):
     different thing and does raise, with the install hint, rather than looking like a village that
     could not make out the words.
     """
-    from . import load_tensacode
-    load_tensacode()  # raises ImportError with the install hint when the extra is absent
+    from . import load_tensorcode
+    load_tensorcode()  # raises ImportError with the install hint when the extra is absent
     try:
-        from tensacode.language import ENGLISH
-        from tensacode.language import understand as _understand
+        from tensorcode.language import ENGLISH
+        from tensorcode.language import understand as _understand
         got = _understand(ENGLISH, text)
     except Exception:  # noqa: BLE001 - see above
         return (), 0

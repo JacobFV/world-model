@@ -23,7 +23,7 @@ transition cost added to the distance, so fear slides into anger more cheaply th
 grief does not run back into the attachment that preceded it.
 
 None of this claims anything is experienced. The readings are structural measures over
-computation. This module is pure Python and needs neither numpy nor tensacode.
+computation. This module is pure Python and needs neither numpy nor tensorcode.
 """
 import math
 

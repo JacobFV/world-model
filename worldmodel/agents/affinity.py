@@ -112,14 +112,14 @@ import datetime as _dt
 import math
 from dataclasses import dataclass, field
 
-from . import INSTALL_HINT, load_tensacode
+from . import INSTALL_HINT, load_tensorcode
 
 #: The substrate is optional here in the way ``lexicon`` is optional to ``speech``: the declared
 #: tables and the strength arithmetic below are pure Python and import in any environment, so the
 #: authored assumptions can be inspected and tested without the extra. Anything that has to say
 #: ``Unknown`` needs the substrate, because ``Unknown`` is a substrate type and this module will
 #: not invent a second one.
-tc = load_tensacode(required=False)
+tc = load_tensorcode(required=False)
 
 UTC = _dt.timezone.utc
 

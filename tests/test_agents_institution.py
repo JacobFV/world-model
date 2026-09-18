@@ -2,7 +2,7 @@
 
 The fixtures are a small regulator with three seats and one statutory instrument. The real-data
 smoke tests use a published congressional committee, whose jurisdiction is the set of measures
-actually referred to it. Everything skips unless the optional ``agents`` extra (tensacode) is
+actually referred to it. Everything skips unless the optional ``agents`` extra (tensorcode) is
 installed, the same way the numpy tests skip on ``fast``.
 """
 import datetime as dt
@@ -10,12 +10,12 @@ import math
 import unittest
 from pathlib import Path
 
-from worldmodel.agents import tensacode_available
+from worldmodel.agents import tensorcode_available
 
-HAVE_TC = tensacode_available()
+HAVE_TC = tensorcode_available()
 DATA_ROOT = Path(__file__).resolve().parents[1] / 'data'
 INDEX = DATA_ROOT / 'world_evidence' / 'index.sqlite'
-NEEDS_TC = 'institutional cognition requires the optional agents extra (tensacode)'
+NEEDS_TC = 'institutional cognition requires the optional agents extra (tensorcode)'
 
 if HAVE_TC:
     from worldmodel.agents.institution import (COMMITTEE_AUTHORITY, Institution, InstitutionRecords,

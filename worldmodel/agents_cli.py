@@ -11,7 +11,7 @@ hint and nothing else in ``wm`` is affected.
 import datetime as _dt
 from pathlib import Path
 
-from .agents import INSTALL_HINT, tensacode_available
+from .agents import INSTALL_HINT, tensorcode_available
 
 COMMANDS = {'agent-inspect', 'agent-explain'}
 UTC = _dt.timezone.utc
@@ -60,7 +60,7 @@ def _windows(until, count, days):
 
 
 def execute(args, catalog, store, project, reference):
-    if not tensacode_available():
+    if not tensorcode_available():
         raise RuntimeError(INSTALL_HINT)
     from .agents.grounding import EvidenceIndex, default_index_path
     from .agents.person import Person

@@ -16,7 +16,7 @@ explained, grounded in entities that actually exist.
 
 ## The cognitive substrate
 
-We use the tensacode substrate (`~/Documents/tensacode`, zero runtime dependencies, same
+We use the tensorcode substrate (`~/Documents/tensacode`, zero runtime dependencies, same
 author) rather than reinventing it. The pieces we rely on:
 
 | Primitive | What it gives us |
@@ -126,15 +126,15 @@ forced by the contract.
 
 ### Modules
 
-| Module | What it holds | Needs tensacode |
+| Module | What it holds | Needs tensorcode |
 | --- | --- | --- |
-| `agents/__init__.py` | `load_tensacode()` / `tensacode_available()`, mirroring `worldmodel.backends`; lazy attribute access so a missing substrate costs an `ImportError` only when something that needs it is touched | no |
+| `agents/__init__.py` | `load_tensorcode()` / `tensorcode_available()`, mirroring `worldmodel.backends`; lazy attribute access so a missing substrate costs an `ImportError` only when something that needs it is touched | no |
 | `agents/affect.py` | the seven readings, the twelve prototypes, the asymmetric transition costs, `soft_viability`, `entropy_rank`, the predicate→module table | no (pure Python, no numpy) |
 | `agents/grounding.py` | `EvidenceIndex`, `Horizon`/`PerceptSpec`/`MetricSpec`, `RollCalls`, `perceive`, `seed_store`, `Grounding` | yes |
 | `agents/person.py` | `Person`: the tick loop, appraisal rules, episodes, consolidation, theory of mind, `choose` | yes |
 | `agents_cli.py` | `wm agent-inspect`, `wm agent-explain` | yes |
 
-The optional extra is `agents` (`pip install "worldmodel-substrate[agents]"`). tensacode is not
+The optional extra is `agents` (`pip install "worldmodel-substrate[agents]"`). tensorcode is not
 on PyPI yet, so a local checkout installs with `pip install -e <tensacode>/tensacode/python`, or
 runs with `PYTHONPATH=<tensacode>/tensacode/python/src`. Without it the core imports normally and
 every agent test skips, exactly like the numpy `fast` extra.
@@ -232,7 +232,7 @@ the full account; this records only what the contract above has to absorb.
 
 ### Three new modules
 
-| Module | What it holds | Needs tensacode |
+| Module | What it holds | Needs tensorcode |
 | --- | --- | --- |
 | `agents/lexicon.py` | registers, sentence templates, spoken tokens, the frame rules that read them back, the stage slip | no (pure Python, like `affect`) |
 | `agents/speech.py` | `register_for`, `Names`, `hear`, `Provenance`/`supports_of`, `sayable` | yes |
@@ -279,4 +279,4 @@ Nothing here is fitted and nothing is `validated`. Channel fidelities, willingne
 weights, the sentence templates and the direction of the stage slip are authored and declared as
 such; what is grounded is which channel exists, who is on it, and the record at the end of every
 chain. No language model is called: production is templates and understanding is the chart parser
-in `tensacode.language`, whose measured losses are the drift.
+in `tensorcode.language`, whose measured losses are the drift.

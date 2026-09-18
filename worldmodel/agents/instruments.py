@@ -34,9 +34,9 @@ Nothing here is fitted to an outcome and nothing here is ``validated``.
 import datetime as _dt
 from dataclasses import dataclass, replace
 
-from . import load_tensacode
+from . import load_tensorcode
 
-tc = load_tensacode()
+tc = load_tensorcode()
 
 from .disclosure import AUDIENCE_REACH, AUDIENCES  # noqa: E402
 from .institution import Instrument  # noqa: E402

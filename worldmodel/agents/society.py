@@ -64,11 +64,11 @@ import time
 from collections import namedtuple
 from dataclasses import dataclass, field
 
-from . import load_tensacode
+from . import load_tensorcode
 
-tc = load_tensacode()
+tc = load_tensorcode()
 
-from tensacode.cognition import Rule, Thought, think  # noqa: E402
+from tensorcode.cognition import Rule, Thought, think  # noqa: E402
 
 from . import corporate_affect as ca  # noqa: E402
 from .grounding import LEGISLATOR, EvidenceIndex, default_index_path  # noqa: E402
@@ -83,7 +83,7 @@ V = tc.Var
 FOCAL, COMPACT, COHORT = 'focal', 'compact', 'cohort'
 TIERS = (FOCAL, COMPACT, COHORT)
 
-#: One claim costs about this much in a tensacode ``Store`` today. Measured in the civ-sim
+#: One claim costs about this much in a tensorcode ``Store`` today. Measured in the civ-sim
 #: benchmark and quoted in ``docs/agents-design.md`` ("Scale"); :func:`measure_claim_bytes`
 #: measures this checkout's own cost so the budget is not taken on trust.
 CLAIM_BYTES = 1200

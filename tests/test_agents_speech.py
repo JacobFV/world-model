@@ -4,7 +4,7 @@ Three layers, deliberately separated the same way ``test_agents.py`` separates t
 
 * ``SpeechTableTests`` pins the declared tables in ``worldmodel.agents.speech`` and the arithmetic
   in ``worldmodel.agents.transmission`` that needs no substrate and no index;
-* the fixture classes skip unless the optional ``agents`` extra (tensacode) is installed, and run
+* the fixture classes skip unless the optional ``agents`` extra (tensorcode) is installed, and run
   against a small index built in a temporary directory;
 * ``RealNetworkSmokeTests`` additionally skips unless this checkout has the unified-graph index on
   disk. It propagates a claim about a real measure between real senators joined by published
@@ -17,11 +17,11 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from worldmodel.agents import tensacode_available
+from worldmodel.agents import tensorcode_available
 from worldmodel.graph import Graph
 
 UTC = dt.timezone.utc
-HAVE_TC = tensacode_available()
+HAVE_TC = tensorcode_available()
 REF = {'dataset': 'fixture_speech', 'stage': 'normalized', 'version': 'e' * 64}
 EVIDENCE = [{'input': {'dataset': 'fixture_speech', 'artifact': 'b' * 64}, 'locator': 'line:1'}]
 DATA_ROOT = Path(__file__).resolve().parents[1] / 'data'
@@ -110,7 +110,7 @@ class LexiconTableTests(unittest.TestCase):
                          'Hirono told me that S1241 became law')
 
 
-@unittest.skipUnless(HAVE_TC, 'grounded agents require the optional agents extra (tensacode)')
+@unittest.skipUnless(HAVE_TC, 'grounded agents require the optional agents extra (tensorcode)')
 class EvidenceWeightTests(unittest.TestCase):
     """How lines of support are weighed. Arithmetic only, but it lives beside the substrate."""
 
@@ -280,7 +280,7 @@ class FixtureCase(unittest.TestCase):
 # --------------------------------------------------------------------------- speech surface
 
 
-@unittest.skipUnless(HAVE_TC, 'grounded agents require the optional agents extra (tensacode)')
+@unittest.skipUnless(HAVE_TC, 'grounded agents require the optional agents extra (tensorcode)')
 class SpeechSurfaceTests(FixtureCase):
     """Saying and hearing: the round trip, register opacity, relay loss and the slip."""
 
@@ -386,7 +386,7 @@ class SpeechSurfaceTests(FixtureCase):
 # --------------------------------------------------------------------------- channels
 
 
-@unittest.skipUnless(HAVE_TC, 'grounded agents require the optional agents extra (tensacode)')
+@unittest.skipUnless(HAVE_TC, 'grounded agents require the optional agents extra (tensorcode)')
 class ChannelTests(FixtureCase):
     """Who can talk to whom, and on what published evidence."""
 
@@ -438,7 +438,7 @@ class ChannelTests(FixtureCase):
 # --------------------------------------------------------------------------- conflict
 
 
-@unittest.skipUnless(HAVE_TC, 'grounded agents require the optional agents extra (tensacode)')
+@unittest.skipUnless(HAVE_TC, 'grounded agents require the optional agents extra (tensorcode)')
 class ConflictTests(FixtureCase):
     """A hearer holding two incompatible claims adjudicates them, on the record."""
 
@@ -516,7 +516,7 @@ class ConflictTests(FixtureCase):
 # --------------------------------------------------------------------------- cascades
 
 
-@unittest.skipUnless(HAVE_TC, 'grounded agents require the optional agents extra (tensacode)')
+@unittest.skipUnless(HAVE_TC, 'grounded agents require the optional agents extra (tensorcode)')
 class CascadeTests(FixtureCase):
     """A claim moving down a published chain, and what it costs it."""
 
@@ -662,7 +662,7 @@ class CascadeTests(FixtureCase):
 # --------------------------------------------------------------------------- real data
 
 
-@unittest.skipUnless(HAVE_TC, 'grounded agents require the optional agents extra (tensacode)')
+@unittest.skipUnless(HAVE_TC, 'grounded agents require the optional agents extra (tensorcode)')
 @unittest.skipUnless(REAL_INDEX.is_file(), 'needs the unified-graph index; run `wm unify` first')
 class RealNetworkSmokeTests(unittest.TestCase):
     """Propagate a claim about a real measure between real senators on a real committee."""

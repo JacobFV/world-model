@@ -42,12 +42,12 @@ import datetime as _dt
 import hashlib
 from dataclasses import dataclass
 
-from . import load_tensacode
+from . import load_tensorcode
 from . import speech as _speech
 from .grounding import advance_state
 from .person import Episode
 
-tc = load_tensacode()
+tc = load_tensorcode()
 
 UTC = _dt.timezone.utc
 
@@ -843,7 +843,7 @@ def believed(person, subject, predicate):
 
 def trace(person, claim_id, *, depth=8):
     """Why this agent believes it: the chain of tellers, then the published record or ``nobody``."""
-    from tensacode import cognition as _cognition
+    from tensorcode import cognition as _cognition
     record = person.store._claims.get(claim_id)
     if record is None:
         return {'claim': claim_id, 'lines': ['(forgotten %s)' % claim_id], 'chain': (), 'origin': None}

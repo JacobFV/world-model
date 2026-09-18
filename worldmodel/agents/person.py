@@ -26,12 +26,12 @@ import math
 import random
 from dataclasses import dataclass, field
 
-from . import load_tensacode
+from . import load_tensorcode
 from .affect import READINGS, SIGNS, read_affect, soft_viability
 from .grounding import LEGISLATOR, TERMINAL_STAGES, EvidenceIndex, default_index_path, perceive, seed_store
 
-tc = load_tensacode()
-from tensacode import cognition as _cognition  # noqa: E402  (only importable once tensacode is present)
+tc = load_tensorcode()
+from tensorcode import cognition as _cognition  # noqa: E402  (only importable once tensorcode is present)
 explain_claim, Fragment, Rule, integrate, think = (
     _cognition.explain, _cognition.Fragment, _cognition.Rule, _cognition.integrate, _cognition.think)
 V = tc.Var
@@ -189,7 +189,7 @@ class Person:
 
     @staticmethod
     def _runtime():
-        from tensacode.backends.builtin import UtilityChooser
+        from tensorcode.backends.builtin import UtilityChooser
         # A margin, so two options the agent cannot tell apart produce Unknown rather than a
         # coin flip dressed up as a decision.
         return tc.Runtime([UtilityChooser(margin=0.02)])

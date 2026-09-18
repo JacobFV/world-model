@@ -33,10 +33,10 @@ Two things are shared on purpose, because sharing them is the claim rather than 
 * **The same provenance mechanism.** Integration and contingency weight are counted from
   `Evidence.derived_from` exactly as in `affect.read_affect`. Only the partition changes.
 
-## 2. Roles, authority, and the `authorize` that tensacode does not ship
+## 2. Roles, authority, and the `authorize` that tensorcode does not ship
 
 `docs/agents-design.md` lists `@tc.action` / `authorize` as substrate. `@tc.action` exists;
-**`authorize` does not exist anywhere in tensacode** (it is named in `docs/civ-sim/architecture.md`
+**`authorize` does not exist anywhere in tensorcode** (it is named in `docs/civ-sim/architecture.md`
 and never implemented). It is implemented here, in `roles.py`, with these semantics:
 
 ```
@@ -303,7 +303,7 @@ issued securities; there may be more" instead of presenting its holder list as c
 ## 9. Running it
 
 ```sh
-# both test modules; they skip cleanly when tensacode is absent
+# both test modules; they skip cleanly when tensorcode is absent
 python3 -m unittest discover -s tests -p 'test_agents_*' -q
 
 # with the optional substrate from a local checkout

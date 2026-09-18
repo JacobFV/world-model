@@ -5,7 +5,7 @@ Entry point for `worldmodel/agents/`. The design contract is
 
 The catalog describes a world. This layer adds entities that *act* in it: they perceive
 published records, hold beliefs with provenance, decide under constraints, remember, and
-speak to one another. It runs on the [tensacode](https://github.com/TensaCo/tensacode)
+speak to one another. It runs on the [tensorcode](https://github.com/TensaCo/tensacode)
 cognitive substrate, which is an **optional** dependency — the core imports without it and
 every agent test skips.
 

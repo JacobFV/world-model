@@ -438,7 +438,7 @@ confidence multiplier, is the obvious next composition and is not done here.
   integrated and appraised in phase 2, before the perceptual tick, so it reaches *beliefs,
   appraisals and decisions* in the same tick; the belief change it caused is reported separately as
   `TickRecord.heard_derived` rather than folded into that tick's `arousal`.
-- **Evidence timestamps are not deterministic.** `tensacode.cognition.think` stamps a derived
+- **Evidence timestamps are not deterministic.** `tensorcode.cognition.think` stamps a derived
   claim's evidence with wall-clock time. Claim *ids* are content-addressed, so decisions, motifs,
   divergence and everything the observatory reports are reproducible from the seed; no report field
   carries a rule's evidence timestamp.
@@ -457,7 +457,7 @@ confidence multiplier, is the obvious next composition and is not done here.
 
 ```sh
 # a fixture society (no index needed beyond the test fixture) — both modules, skipping cleanly
-# when tensacode is absent
+# when tensorcode is absent
 python3 -m unittest tests.test_agents_society -q
 
 # with the optional substrate from a local checkout

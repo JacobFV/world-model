@@ -15,7 +15,7 @@ the machinery both :mod:`worldmodel.agents.firm` and :mod:`worldmodel.agents.ins
     clears - see :meth:`worldmodel.agents.firm.Firm.vacate`.
 
 ``authorize``
-    The check ``docs/agents-design.md`` names but tensacode does not ship. An act is refused
+    The check ``docs/agents-design.md`` names but tensorcode does not ship. An act is refused
     unless it is a registered ``@tc.action``, the acting role holds the power it declares, the
     act's subject is inside the role's declared jurisdiction, and its amount is inside the
     role's declared limit. Authority that was never *declared* returns ``unknown``, which is not
@@ -31,15 +31,15 @@ the machinery both :mod:`worldmodel.agents.firm` and :mod:`worldmodel.agents.ins
     needed for quorum. A step whose authorization does not hold blocks the procedure at that
     step; nothing downstream runs.
 
-tensacode is an optional dependency (see :mod:`worldmodel.agents`). This module needs it and
+tensorcode is an optional dependency (see :mod:`worldmodel.agents`). This module needs it and
 raises the package's install hint at import time when it is missing.
 """
 import datetime as _dt
 from dataclasses import dataclass, field, replace
 
-from . import load_tensacode
+from . import load_tensorcode
 
-tc = load_tensacode()
+tc = load_tensorcode()
 
 UTC = _dt.timezone.utc
 
@@ -431,7 +431,7 @@ def authorize(act, *, role, charter=None, holder=None, at=None, log=None, org=No
        more than one must have that many seats filled at ``at``.
 
     Whatever the outcome, an ``ActRecord`` is appended to ``log``. Nothing about this call
-    performs the act: :func:`tensacode.invoke` is a separate step that callers gate on the
+    performs the act: :func:`tensorcode.invoke` is a separate step that callers gate on the
     verdict, which is how an unauthorized act is refused rather than silently performed.
     """
     reasons, status = [], 'granted'
