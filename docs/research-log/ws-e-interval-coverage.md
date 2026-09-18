@@ -163,14 +163,7 @@ visible. That is knowable only after the fact and does not license selecting it.
 that the validation window (2015-2018) is entirely pre-pandemic while the holdout (2019-2024) is
 not, so validation could not price the regime the holdout contains.
 
-`labor_demand` is the same failure in the opposite direction: validation (2005-2012, spanning the
-financial crisis and its benchmark revisions) preferred the revision component, and the holdout
-(2013-2024, with smaller PAYEMS revisions) punished it. **So of the six attempts where the
-selection rule made a non-trivial choice, it generalized on four and failed on two, both times
-because the validation window's volatility regime differs from the holdout's.** That is a finding
-about the protocol rather than about these attempts, and the fix — a selection window that spans
-the holdout's regimes, or a rule that penalizes regime sensitivity — is a new pre-registration,
-not something to retrofit here.
+See the next section: this is one of two places the selection rule itself failed.
 
 The a-priori argument was also wrong, and the evidence refuting it needed no holdout. The
 shift-share shock is built from *realized* other-region industry employment at the target year,
@@ -189,9 +182,41 @@ scored (`run_note` on `regional_model.qcew_state_sectors_v2`).
 What actually blocks the long regional panel is not a variance component. v1's coverage by year
 is 0.85 (2019), **0.04 (2020)**, 0.38 (2021), 0.45 (2022), 0.98 (2023), 0.89 (2024): outside the
 pandemic the intervals are roughly right, and the 2020-2022 common component is not something
-nineteen pre-pandemic year effects can price. `no_revision_leakage` also fails structurally —
-no published employment source in this catalog carries vintages, which is WS-B's problem, not
-an interval problem.
+nineteen pre-pandemic year effects can price. `no_revision_leakage` also fails, and not for any
+reason an interval method reaches: QCEW publishes no vintages, so its row dates are not
+information times. (I first wrote that as "no published employment source in this catalog carries
+vintages". That was true of CBP and QCEW and wrong in general — see the correction under Counts,
+below: WS-B built one the same day.)
+
+## The selection rule failed to generalize on two of six choices
+
+The rule declared before any WS-E attempt ran — lowest validation-window CRPS — made a
+non-trivial choice on six attempts. It generalized on four and **failed on two**, and both
+failures have the same cause, in opposite directions.
+
+| Attempt | Validation window | What the rule chose | What the holdout said |
+| --- | --- | --- | --- |
+| `labor_demand` | 2005-2012, spanning the financial crisis and its benchmark revisions | **add** the PAYEMS revision component (validation CRPS 431.0 vs 440.1; coverage 0.8105 vs 0.600) | worse on both: CRPS 431.0 vs **405.1**, coverage **0.958 fail** vs 0.874 pass |
+| `regional_model.qcew_state_sectors` | 2015-2018, entirely pre-pandemic | **reject** `per_unit_year_draw` (validation CRPS 0.010591 vs 0.010294) | the rejected one is better on both: CRPS **0.016269** vs 0.016934, coverage **0.758 pass** vs 0.597 fail |
+
+The cause in both cases is that **the validation window's volatility regime differs from the
+holdout's**. `labor_demand`'s validation window contains large PAYEMS benchmark revisions and its
+holdout does not, so a revision component looked necessary and then over-covered.
+`qcew_state_sectors`'s validation window is pre-pandemic and its holdout contains 2020-2022, so a
+narrow common term looked sufficient and then under-covered.
+
+**Neither was re-selected on holdout evidence.** Choosing a predictive distribution after seeing
+the holdout is precisely what pre-registration exists to prevent, and doing it here would
+manufacture two extra `interval_coverage` passes out of nothing. `labor_demand_v4` keeps its
+failing coverage and `qcew_state_sectors_v2` is published as a rejected candidate.
+
+This is a finding about the protocol, not about these two attempts, and it generalizes past WS-E:
+**any rule that selects a predictive distribution on a validation window is only as good as that
+window's coverage of the holdout's regimes, whatever score the rule uses.** A proper score does
+not rescue it — CRPS is what failed here. Two fixes are worth pre-registering next: a validation
+window chosen to span the holdout's regimes rather than merely to precede it, and a rule that
+penalizes a candidate whose validation-to-holdout score gap is large (which is measurable on
+earlier waves without touching any current holdout). Neither was retrofitted here.
 
 ## A criterion I think is wrong, argued rather than relaxed
 
