@@ -17,6 +17,9 @@ fast = ["numpy>=1.26"]
 # substrate and has no third-party dependencies of its own. The specifier names a pre-release, so
 # PEP 440 admits 0.1.0a1 without `--pre`. The core imports and the full suite runs without it.
 agents = ["tensorcode>=0.1.0a1"]
+# World-state embeddings (worldmodel.embedding): the as-of tensors, the root-readout encoder and its
+# assay. The dated county panel builder (embed-panel) needs none of these.
+embed = ["numpy>=1.26", "torch>=2.4", "lightgbm>=4.0"]
 
 [project.scripts]
 wm = "worldmodel.cli:main"

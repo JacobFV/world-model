@@ -1,0 +1,26 @@
+{
+  "id": "embedding_reports",
+  "schema_version": 2,
+  "kind": "derived",
+  "status": "published_by_embedding_layer",
+  "description": "Validation reports of the world-state embedding assay: pre-registered attempts in worldmodel/embedding/plan.json scored on an untouched holdout against persistence, drift and a gradient-boosted model on the same inputs. Written by 'wm embed-assay'.",
+  "dependencies": ["county_panel"],
+  "entrypoint": "pipeline.py:run",
+  "parameters": {
+    "producer": "worldmodel.embedding.assay:run_attempt",
+    "plan": "worldmodel/embedding/plan.json",
+    "command": "python3 -m worldmodel embed-assay"
+  },
+  "stages": [
+    {
+      "id": "final",
+      "entrypoint": "pipeline.py:run",
+      "depends_on": [],
+      "schema": {"format": "jsonl"},
+      "validation": {"allow_empty": false, "max_rows": 100000},
+      "cache": "off",
+      "retention": "retain"
+    }
+  ],
+  "output_stage": "final"
+}

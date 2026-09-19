@@ -30,3 +30,6 @@ data/*/scratch/
 
 # Global acquisition budget ledger and locks
 data/.acquisition/
+
+# Agent worktrees created by Claude Code sessions
+.claude/worktrees/
