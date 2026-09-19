@@ -217,9 +217,10 @@ def _screen(connection, index, entries, *, timer, products_path, hops, groups, p
                   'no_path_within_bound': 'the bounded search finished without reaching a listed cluster. NOT clearance',
                   'not_resolved': 'the input is not an ID or a label in this index. NOT clearance'},
               'coverage_gaps': COVERAGE_GAPS,
-              'lists_in_this_index': {name: info['pinned_versions'][name] for name in
-                                      ('ofac_sanctions', 'other_sanctions_lists', 'opensanctions', 'opensanctions_graph')
-                                      if name in info['pinned_versions']}}
+              'lists_consulted': [{'dataset': name, **info['pinned_versions'][name],
+                                   'note': 'consulted for every input: a result, including no path, rests on it'}
+                                  for name in ('ofac_sanctions', 'other_sanctions_lists', 'opensanctions',
+                                               'opensanctions_graph') if name in info['pinned_versions']]}
     runs_out = ['Only these predicates were traversed: %s. A relationship published under any other predicate, or not '
                 'published, is invisible to this screen.' % ', '.join(predicates),
                 'Paths are shown for at most %d listed clusters per input and %d paths each; counts of every listed '

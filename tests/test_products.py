@@ -282,6 +282,8 @@ class ScreenTests(ProductsFixture):
         self.assertTrue(clean['absence_of_a_path_is_not_clearance'])
         # Holdings are not traversed by default ...
         self.assertEqual(results['sec:cik:0000000009']['status'], 'no_path_within_bound')
+        # The lists consulted carry their rights even when no path is found.
+        self.assertIn('opensanctions_graph', whole['rights']['non_commercial_only'])
         gaps = ' '.join(whole['answer']['coverage_gaps'])
         for phrase in ('not clearance', 'reporting thresholds', 'long-only US equity', 'non-commercial use only'):
             self.assertIn(phrase, gaps)
@@ -338,6 +340,7 @@ class PlaceTests(ProductsFixture):
         climate = answer['weather_and_climate']['annual_means_computed_here']['average_temperature']
         self.assertEqual(climate['years'], 3)
         self.assertIn('census_business', result['datasets_used'])
+        self.assertNotIn('lehd_lodes', result['datasets_used'])  # expected, but contributed nothing
 
     def test_brief_by_name_and_html(self):
         from worldmodel.products.html import render_place

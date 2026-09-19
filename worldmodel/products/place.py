@@ -247,7 +247,7 @@ def _place_brief(connection, index, place, *, timer, products_path, events, data
         for leg, dataset, what in LEGS:
             found = by_dataset.get(dataset, [])
             if not found:
-                answer[leg] = {'dataset': dataset, 'what': what, 'observations': 0,
+                answer[leg] = {'expected_dataset': dataset, 'what': what, 'observations': 0,
                                'note': 'no observation for this county in this index' if dataset in info['pinned_versions']
                                else '%s is not in this index' % dataset}
                 missing.append(dataset)
@@ -294,7 +294,8 @@ def _place_brief(connection, index, place, *, timer, products_path, events, data
         flows = graph.neighborhood(county, hops=1, predicates=['flow_source', 'flow_destination'], direction='in',
                                    limit=2000)
         answer['containment'] = containment
-        answer['migration_flows'] = {'dataset': 'irs_soi_migration', 'edges': len(flows['edges']),
+        answer['migration_flows'] = {('dataset' if flows['edges'] else 'expected_dataset'): 'irs_soi_migration',
+                                     'edges': len(flows['edges']),
                                      'truncated': flows['truncated'],
                                      'examples': describe_edges(connection, flows['edges'][:4])}
     with timer.step('storms_and_assistance'):
@@ -324,8 +325,8 @@ def _events(connection, products, county, limit):
     if products is None:
         note = ('Needs the products index (python3 -m worldmodel products-index): these publishers anchor records on '
                 'the event, not the county, so a GEOID lookup on the unified index never reaches them.')
-        return ({'dataset': 'noaa_storm_events', 'available': False, 'note': note},
-                {'dataset': 'openfema', 'available': False, 'note': note})
+        return ({'expected_dataset': 'noaa_storm_events', 'available': False, 'note': note},
+                {'expected_dataset': 'openfema', 'available': False, 'note': note})
     storms = [dict(r) for r in products.execute(
         "SELECT * FROM place_events WHERE geoid=? AND dataset='noaa_storm_events' ORDER BY occurred_at", (county,))]
     by_type = {}
@@ -346,7 +347,8 @@ def _events(connection, products, county, limit):
                        'label': r['title'], 'occurred_at': r['occurred_at'], 'deaths': r['deaths'],
                        'injuries': r['injuries'], 'damage_property_usd_nominal': r['damage_property'],
                        'latitude': r['latitude'], 'longitude': r['longitude']}
-    storm_leg = {'dataset': 'noaa_storm_events', 'available': True, 'events': len(storms),
+    storm_leg = {('dataset' if storms else 'expected_dataset'): 'noaa_storm_events', 'available': True,
+                 'events': len(storms),
                  'join_basis': 'NOAA publishes the county GEOID among the event\'s participants (asserted by the '
                                'publisher; no spatial join)',
                  'first': storms[0]['occurred_at'] if storms else None,
@@ -377,7 +379,7 @@ def _events(connection, products, county, limit):
         item['total'] += row['total']
         item['observations'] += row['observations']
         item['disasters'].add(row['disaster'])
-    assistance = {'dataset': 'openfema', 'available': True,
+    assistance = {('dataset' if declarations or named else 'expected_dataset'): 'openfema', 'available': True,
                   'declarations': {'count': len(declarations),
                                    'join_basis': 'FEMA publishes the county FIPS among the declaration\'s participants '
                                                  '(asserted by the publisher)',
