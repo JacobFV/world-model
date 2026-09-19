@@ -21,7 +21,6 @@ and the two-driver cell with the highest failure rate. It is not an optimality
 claim, and a failure rate is a share of a uniform sample over a declared box, not a
 probability of failure in the world.
 """
-import math
 import random
 
 from .evidence import recommendation_label

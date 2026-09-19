@@ -309,14 +309,16 @@ def recommend(compiled, policies, scenarios):
     is a comparison of supplied candidates under supplied scenarios, not a search for
     an optimum.
     """
-    rows = []
+    if not policies or not scenarios:
+        raise ValueError('Ranking needs at least one policy and one scenario')
+    rows, used = [], {}
     for name, policy in policies.items():
         runs = [compiled.rollout(policy, scenario, name=name) for scenario in scenarios]
         rows.append({'policy': name, 'scenarios': len(runs), 'success_rate': sum(r['success'] for r in runs) / len(runs),
                      'feasible_everywhere': all(r['feasible'] for r in runs),
                      'mean_weighted_score': math.fsum(r['weighted_score'] for r in runs) / len(runs),
                      'worst_severity': max(r['worst_severity'] for r in runs)})
-        used = runs[-1]['mechanisms_used']
+        used.update(runs[-1]['mechanisms_used'])
     rows.sort(key=lambda r: (not r['feasible_everywhere'], -r['mean_weighted_score'], r['policy']))
     return {'ranking': rows, 'recommended': rows[0]['policy'], 'label': recommendation_label(used),
             'not_an_optimality_claim': 'Ranks the supplied candidates only; a better policy may exist outside them.',
