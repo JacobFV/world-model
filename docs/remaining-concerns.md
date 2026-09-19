@@ -27,6 +27,27 @@ implementation exactly is still parameterised by assumptions. Do not read a pass
 a completed acquisition or a large record count as evidence that a model predicts
 anything.
 
+Three layers added on 2026-09-18 each end in the same place, and each says so in its own document:
+
+* **World-state embeddings.** Six scored attempts over five domains
+  ([world-state embeddings](world-state-embeddings.md)). The encoder beats the naive baseline
+  everywhere and beats a gradient-boosted model on the same subgraph only on county employment,
+  where the year-clustered test is not significant. Adding the embedding to that model does not
+  help. Every places attempt fails `no_revision_leakage` by declaration: the county panel is
+  current-vintage. None is validated.
+* **Natural experiments.** Eight designs over two waves ([natural experiments](natural-experiments.md)):
+  three identified nulls whose bounds all contain zero and are wider than the effect worth finding,
+  five failed diagnostics, and a power suite showing every design underpowered against its own
+  registered plausible effect. No intervention response is identified anywhere in this repository.
+* **Identity.** Mining every published bridge moved cross-source joins from 3.17% to 3.66% of
+  entities ([identity coverage](identity-coverage.md)). The ceiling is structural: 2.3 million
+  entities are records-as-entities that no second publisher describes.
+
+The decision layer ([decision layer](decision-layer.md)) makes the consequence explicit: its policy
+learner refuses to run on any mechanism that is not validated, and on the one process where it is
+allowed to run it beats its baselines on the history it trained on and loses to fixed rules on
+held-out history.
+
 ## Durable execution
 
 The incremental scheduler preserves state, RNG streams, agent memory, inputs and
