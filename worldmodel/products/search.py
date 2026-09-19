@@ -321,7 +321,9 @@ def search(connection, products, text, *, limit=10, prefixes=None, max_rows=400)
     hits = {}
     for row in products.execute('SELECT entity_id, dataset, entity_type, label, source FROM labels WHERE norm=? '
                                 'LIMIT ?', (key, max_rows)):
-        hits.setdefault(row['entity_id'], {'rows': [], 'exact': True, 'rank': -1e9})['rows'].append(dict(row))
+        rows = hits.setdefault(row['entity_id'], {'rows': [], 'exact': True, 'rank': -1e9})['rows']
+        if not any(r['label'] == row['label'] and r['dataset'] == row['dataset'] for r in rows):
+            rows.append(dict(row))
     for row in products.execute('SELECT l.entity_id, l.dataset, l.entity_type, l.label, l.source, bm25(labels_fts) AS rank '
                                 'FROM labels_fts JOIN labels l ON l.rowid = labels_fts.rowid '
                                 'WHERE labels_fts MATCH ? ORDER BY rank LIMIT ?', (_fts_query(tokens), max_rows)):

@@ -67,10 +67,19 @@ def fixture_records():
                              observation('census_geography', 1, COUNTY, 'latitude', 32.5, 'degrees', '2024-01-01'),
                              observation('census_geography', 2, COUNTY, 'longitude', -86.6, 'degrees', '2024-01-01')],
         'census_population': [observation('census_population', i, COUNTY, 'population', 5000 + 10 * i, 'people',
-                                          '%d-07-01' % (2018 + i), vintage=2024) for i in range(6)],
+                                          '%d-07-01' % (2018 + i), vintage=2024) for i in range(6)]
+        + [observation('census_population', 100 + i, COUNTY, 'population', 4000 + i, 'people',  # an older, longer
+                       '%d-07-01' % (2008 + i), vintage=2020) for i in range(12)],                # vintage
         'fema_nri': [observation('fema_nri', 1, COUNTY, 'national_risk_index_score', 42.0, 'score', '2025-12-01'),
                      observation('fema_nri', 2, COUNTY, 'expected_annual_loss', 12345.0, 'USD', '2025-12-01',
                                  hazard='tornado', consequence='total')],
+        'usda_agriculture': [
+            observation('usda_agriculture', 1, COUNTY, 'area_harvested', 900, 'ACRES', '2022-01-01',
+                        commodity='nass:commodity:corn', program='census'),
+            observation('usda_agriculture', 2, COUNTY, 'area_harvested', 700, 'ACRES', '2017-01-01',
+                        commodity='nass:commodity:corn', program='census'),
+            observation('usda_agriculture', 3, COUNTY, 'area_harvested', 300, 'ACRES', '2022-01-01',
+                        commodity='nass:commodity:hay', program='census')],
         'gleif_parent_relationships': [
             edge('gleif_parent_relationships', 1, 'lei:TESTLEI0000000000002', 'directly_consolidated_by', LEI)],
         'noaa_climdiv': [observation('noaa_climdiv', m, COUNTY, 'average_temperature', 60.0 + m % 12, 'degF',
@@ -327,7 +336,8 @@ class PlaceTests(ProductsFixture):
         result = place_brief('01999', **self.options)
         answer = result['answer']
         self.assertEqual(answer['employment_and_business']['metrics']['employment']['headline']['value'], 1003)
-        self.assertEqual([p['value'] for p in answer['series']['population']][-1], 5050)
+        # The plotted series is one vintage, the newest, never a splice of two.
+        self.assertEqual([p['value'] for p in answer['series']['population']], [5000, 5010, 5020, 5030, 5040, 5050])
         self.assertEqual(answer['storms']['events'], 2)
         tornado = next(t for t in answer['storms']['by_event_type'] if t['event_type'] == 'tornado')
         self.assertEqual((tornado['deaths'], tornado['damage_property_usd_nominal']), (2.0, 250000.0))
@@ -339,6 +349,9 @@ class PlaceTests(ProductsFixture):
         self.assertTrue(any('forecast zone' in s for s in result['where_the_evidence_runs_out']))
         climate = answer['weather_and_climate']['annual_means_computed_here']['average_temperature']
         self.assertEqual(climate['years'], 3)
+        corn = answer['agriculture']['largest_by_commodity']['area_harvested (ACRES)']
+        self.assertEqual([(c['commodity'], c['value']) for c in corn],
+                         [('nass:commodity:corn', 900), ('nass:commodity:hay', 300)])  # latest per commodity
         self.assertIn('census_business', result['datasets_used'])
         self.assertNotIn('lehd_lodes', result['datasets_used'])  # expected, but contributed nothing
 

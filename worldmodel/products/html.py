@@ -168,7 +168,12 @@ def render_place(result):
     for point in (annual or {}).get('annual', []):
         rows.append({'time': point['time'], 'entity': county['entity_id'], 'variable': 'annual mean temperature',
                      'value': point['value'], 'unit': unit, 'origin': 'computed here from noaa_climdiv'})
-    for leg in ('geography', 'employment_and_business', 'jobs', 'population', 'agriculture', 'weather_and_climate'):
+    for group, items in ((answer.get('agriculture') or {}).get('largest_by_commodity') or {}).items():
+        for item in items:
+            rows.append({'time': item['valid_from'], 'entity': '%s: %s' % (group, item['commodity']),
+                         'variable': 'agriculture by commodity', 'value': item['value'],
+                         'unit': item['program'], 'origin': 'usda_agriculture', 'record_id': item['record_id']})
+    for leg in ('geography', 'employment_and_business', 'jobs', 'population', 'weather_and_climate'):
         for metric, item in (answer.get(leg) or {}).get('metrics', {}).items():
             head = item['headline']
             rows.append({'time': head['valid_from'], 'entity': '%s: %s' % (leg, metric), 'variable': 'headline',
@@ -220,6 +225,8 @@ def render_place(result):
         {'kind': 'plot', 'title': 'Annual mean temperature, computed from nClimDiv monthly values',
          'entity': county['entity_id'], 'variable': 'annual mean temperature', 'limit': 200},
         {'kind': 'table', 'title': 'Headline values by leg', 'variable': 'headline', 'limit': 400},
+        {'kind': 'table', 'title': 'Agriculture: largest latest values by commodity (NASS)',
+         'variable': 'agriculture by commodity', 'limit': 100},
         {'kind': 'table', 'title': 'Largest expected annual loss by hazard (NRI)',
          'variable': 'expected annual loss by hazard'},
         {'kind': 'table', 'title': 'Storm events by type', 'variable': 'storm events by type'},

@@ -137,14 +137,17 @@ def _series(rows, metric, *, minimal=True, last=None):
         dims = {}
         for item in items:  # one dimension set only, so the series is one line
             dims.setdefault(repr(sorted((item.get('dimensions') or {}).items())), []).append(item)
-        items = max(dims.values(), key=len)
+        # The dimension set that reaches the latest date (the newest vintage), then the longest: a plot that
+        # mixed Population Estimates vintages would draw a revision as a change.
+        items = max(dims.values(), key=lambda g: (max(_time_key(o.get('valid_from')) for o in g), len(g)))
     seen, series = set(), []
     for item in sorted(items, key=lambda o: _time_key(o.get('valid_from'))):
         if item.get('valid_from') in seen:
             continue
         seen.add(item.get('valid_from'))
         series.append({'time': item.get('valid_from'), 'value': item['value'], 'unit': item.get('unit'),
-                       'record_id': item.get('record_id'), 'from_dataset': item['from_dataset']})
+                       'record_id': item.get('record_id'), 'from_dataset': item['from_dataset'],
+                       'dimensions': item.get('dimensions')})
     return series[-last:] if last else series
 
 
