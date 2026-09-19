@@ -1,0 +1,33 @@
+{
+  "id": "county_realtime_panel",
+  "schema_version": 2,
+  "kind": "derived",
+  "status": "published_by_embedding_layer",
+  "description": "First releases of the county vintages (fred_county_vintages): each value is the earliest vintage the ALFRED archive holds for its period, dated by that vintage, so the panel is never revised and an as-of view of it carries no revision leakage. Static county geography is carried from county_panel. Written by the embedding layer's realtime_panel builder, not by a stage pipeline.",
+  "dependencies": [
+    "fred_county_vintages",
+    "county_panel"
+  ],
+  "entrypoint": "pipeline.py:run",
+  "parameters": {
+    "producer": "worldmodel.embedding.realtime_panel:build",
+    "basis": "first_release"
+  },
+  "stages": [
+    {
+      "id": "final",
+      "entrypoint": "pipeline.py:run",
+      "depends_on": [],
+      "schema": {
+        "format": "jsonl"
+      },
+      "validation": {
+        "allow_empty": false,
+        "max_rows": 20000000
+      },
+      "cache": "off",
+      "retention": "retain"
+    }
+  ],
+  "output_stage": "final"
+}

@@ -15,6 +15,8 @@ def add_commands(sub):
     panel.add_argument('--processes', type=int, default=6, help='Parallel collector processes')
     panel.add_argument('--cache', type=Path, help='Pickle of collected inputs, reused if present')
     panel.add_argument('--dry-run', action='store_true', help='Collect and summarize without publishing')
+    panel.add_argument('--realtime', action='store_true',
+                       help='Build county_realtime_panel from the county ALFRED vintages instead: first releases only')
     assay = sub.add_parser('embed-assay', help='Run a pre-registered world-state encoder attempt (worldmodel/embedding/plan.json)')
     assay.add_argument('attempt', nargs='?', help='Attempt id; omit to list the plan')
     assay.add_argument('--no-publish', action='store_true', help='Score without publishing reports')
@@ -35,6 +37,12 @@ def add_commands(sub):
 
 def execute(args, catalog, store, project, reference):
     if args.command == 'embed-panel':
+        if args.realtime:
+            from .embedding.county_realtime import build as build_realtime
+            ref, report = build_realtime(store, publish=not args.dry_run)
+            return {'ref': ref, 'values': report['values'], 'units': report['units'],
+                    'features': {k: v.get('rows') for k, v in report['features'].items()},
+                    'does_not_establish': report['does_not_establish']}
         from .embedding.county_panel import build
         ref, report = build(store.root, processes=args.processes, publish=not args.dry_run,
                             cache=str(args.cache) if args.cache else None)
