@@ -229,6 +229,40 @@ about; and a past match does not mean the query county will follow that county's
 | `actors.fec_repeat_contribution_v1` | queued | will a committee give to the same recipient again next cycle |
 | `actors.fdic_bank_distress_v1` | queued | will a bank's noncurrent ratio cross 3%, or deposits fall over 10% |
 
+## What the embedding is worth so far
+
+Four scored attempts across three domains, every one of them against a gradient-boosted model given
+the *same* subgraph, because that is the baseline that decides whether an embedding is worth having.
+
+| Domain and target | Beats the naive baseline | Beats LightGBM on the same inputs |
+| --- | --- | --- |
+| County employment (next year) | yes, persistence and drift | **yes** (pooled DM p < 0.001; per-year p = 0.25, not significant) |
+| County establishments | yes | no (tie, p = 0.24) |
+| County population | beats persistence | no: drift and LightGBM are better |
+| 13F exit, 13F increase | yes, base rate and the manager's own rate | no (p = 0.99, 1.00), and adding the embedding to LightGBM does not help either |
+| Roll-call defection | yes, base rate and the member's own rate | no (p = 1.00) |
+
+Three things follow, and they are worth stating plainly because they are not what the design hoped
+for.
+
+1. **The graph carries signal.** In every attempt the encoder on the full subgraph beat the same
+   encoder on the seed alone, on validation, before any holdout was touched. Neighbours matter.
+2. **A gradient-boosted model on hand-aggregated neighbour features extracts that signal at least as
+   well**, everywhere except county employment. The encoder's advantage is not "it sees the graph";
+   both see the graph. What is left for the encoder is what the aggregation throws away, and on
+   quarterly filings and roll calls that appears to be very little.
+3. **Where the encoder does win, the win is small and the evidence is thin.** County employment is
+   one target, on six test years, significant pooled and not significant year by year.
+
+The one architectural claim that survives intact is the one about intervals: the Student-t head with
+split-conformal scales met its coverage criterion on every places target, in a repository where
+`interval_coverage` is the most common failure.
+
+The honest next tests are not bigger models. They are (a) real-time county vintages, which is the
+only way any places attempt can pass its declared criteria at all, and (b) domains where a
+neighbour-mean cannot express the structure: paths, cycles and multi-hop reachability rather than
+one-hop aggregates.
+
 ## Results
 
 ### places.county_root_readout_v3
