@@ -75,7 +75,7 @@ def coverage(store):
     construction = {}
     for stage in ('concordance', 'tariffs', 'panel'):
         for line in _lines(store, stage):
-            if '":construction"' in line:
+            if ':construction"' in line:
                 construction[stage] = json.loads(line).get('construction')
     return {'panel': _ref(store, 'panel'), 'coverage': report, 'construction': construction, 'rules': trade.RULES}
 

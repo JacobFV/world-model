@@ -103,7 +103,7 @@ def lookup(store, issuer, as_of=None, periods=40, full=False):
 
 def coverage(store):
     report = firm.coverage(_rows(store, 'panel'), [row for row in _rows(store, 'ownership') if row.get('cik')])
-    construction = {stage: next((row for row in _rows(store, stage, '":construction"') if 'construction' in row), None)
+    construction = {stage: next((row for row in _rows(store, stage, ':construction"') if 'construction' in row), None)
                     for stage in ('links', 'ownership', 'panel')}
     return {'panel': _ref(store, 'panel'), 'coverage': report,
             'construction': {stage: (row or {}).get('construction') for stage, row in construction.items()},

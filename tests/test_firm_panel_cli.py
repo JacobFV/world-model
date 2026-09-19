@@ -44,8 +44,8 @@ class Args:
 class FirmPanelCliTest(unittest.TestCase):
     def setUp(self):
         source = firm_fixture.source()
-        links = [row for row in firm.build_links(source) if row.get('cik')]
-        ownership = [row for row in firm.build_ownership(source, links) if row.get('cik')]
+        links = list(firm.build_links(source))
+        ownership = list(firm.build_ownership(source, links))
         self.temporary = tempfile.TemporaryDirectory()
         with tempfile.TemporaryDirectory() as work:
             panel = list(firm.build_panel(source, links, ownership, workdir=work))
@@ -85,6 +85,9 @@ class FirmPanelCliTest(unittest.TestCase):
         self.assertEqual(coverage['coverage']['issuers'], 1)
         self.assertEqual(coverage['coverage']['issuer_share']['federal_contracts'], 0.0)
         self.assertIn('UEI', coverage['federal_contracts'])
+        self.assertEqual(coverage['construction']['links']['ciks_linked_to_lei'], 2)
+        self.assertEqual(coverage['construction']['ownership']['issuer_quarters'], 1)
+        self.assertEqual(coverage['construction']['panel']['rows'], 4)
         self.assertEqual(firm_cli.status(self.store)['panel']['version'], 'v')
 
     def test_unknown_issuer_is_an_error(self):
@@ -118,6 +121,8 @@ class TradePanelCliTest(unittest.TestCase):
     def test_coverage_and_status(self):
         coverage = trade_cli.coverage(self.store)
         self.assertEqual(coverage['coverage']['hs17']['2019']['records'], 4)
+        self.assertEqual(coverage['construction']['tariffs']['wits_reporter_years'], 3)
+        self.assertEqual(coverage['construction']['concordance']['un_hs17_hs92_correlation'], 4)
         self.assertIn('baci_release_calendar', coverage['rules'])
         self.assertEqual(trade_cli.status(self.store)['tariffs']['version'], 'v')
 
