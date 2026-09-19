@@ -1,0 +1,2980 @@
+{
+ "query": "q7_who_moves_on_this_bill",
+ "answer": {
+  "measure": {
+   "bill": "congress:bill:119-hr-1",
+   "title": "An act to provide for reconciliation pursuant to title II of H. Con. Res. 14.",
+   "policy_area": "Economics and Public Finance",
+   "introduced_date": "2025-05-20",
+   "status": "enacted as public/private law",
+   "from_dataset": "govinfo_billstatus"
+  },
+  "sponsor": {
+   "bioguide": "bioguide:A000375",
+   "label": "Jodey C. Arrington",
+   "party": "R",
+   "state": "TX",
+   "chamber": "House"
+  },
+  "cosponsors": {
+   "count": 0,
+   "by_party": {},
+   "withdrawn": 0,
+   "from_dataset": "govinfo_billstatus"
+  },
+  "committees_of_referral": [
+   {
+    "committee": "congress:committee:hsbu00",
+    "label": "House Committee on the Budget"
+   }
+  ],
+  "committee_seats_on_referral_committees": {
+   "count": 37,
+   "leadership": [
+    {
+     "bioguide": "bioguide:A000375",
+     "label": "Jodey C. Arrington",
+     "party": "R",
+     "state": "TX",
+     "chamber": "House",
+     "committee": "congress:committee:hsbu00",
+     "title": "Chair",
+     "rank": 1,
+     "side": "majority"
+    },
+    {
+     "bioguide": "bioguide:B001296",
+     "label": "Brendan F. Boyle",
+     "party": "D",
+     "state": "PA",
+     "chamber": "House",
+     "committee": "congress:committee:hsbu00",
+     "title": "Ranking Member",
+     "rank": 1,
+     "side": "minority"
+    }
+   ],
+   "from_dataset": "congress_people"
+  },
+  "roll_calls": [
+   {
+    "rollcall": "voteview_rollcalls:rollcall:H119:143",
+    "date": "2025-05-22",
+    "question": "On Motion to Recommit",
+    "result": "Failed",
+    "party_tally": {
+     "D": {
+      "yea": 212,
+      "nay": 0
+     },
+     "R": {
+      "yea": 0,
+      "nay": 215
+     },
+     "mixed": {
+      "yea": 0,
+      "nay": 1
+     }
+    },
+    "party_majority": {
+     "D": "yea",
+     "R": "nay"
+    },
+    "voted_against_own_party": [],
+    "voted_against_own_party_count": 0,
+    "from_dataset": "voteview_rollcalls"
+   },
+   {
+    "rollcall": "voteview_rollcalls:rollcall:H119:144",
+    "date": "2025-05-22",
+    "question": "On Passage",
+    "result": "Passed",
+    "party_tally": {
+     "D": {
+      "yea": 0,
+      "nay": 212
+     },
+     "R": {
+      "yea": 214,
+      "nay": 2
+     },
+     "mixed": {
+      "yea": 1,
+      "nay": 0
+     },
+     "unlinked": {
+      "yea": 1,
+      "nay": 0
+     }
+    },
+    "party_majority": {
+     "R": "yea",
+     "D": "nay"
+    },
+    "voted_against_own_party": [
+     {
+      "bioguide": "bioguide:D000626",
+      "label": "Warren Davidson",
+      "party": "R",
+      "state": "OH",
+      "chamber": "House",
+      "voted": "nay",
+      "party_majority": "yea"
+     },
+     {
+      "bioguide": "bioguide:M001184",
+      "label": "Thomas Massie",
+      "party": "R",
+      "state": "KY",
+      "chamber": "House",
+      "voted": "nay",
+      "party_majority": "yea"
+     }
+    ],
+    "voted_against_own_party_count": 2,
+    "from_dataset": "voteview_rollcalls"
+   },
+   {
+    "rollcall": "voteview_rollcalls:rollcall:S119:329",
+    "date": "2025-06-28",
+    "question": "On the Motion to Proceed",
+    "result": "Motion to Proceed Agreed to",
+    "party_tally": {
+     "328": {
+      "yea": 0,
+      "nay": 2
+     },
+     "D": {
+      "yea": 0,
+      "nay": 45
+     },
+     "R": {
+      "yea": 51,
+      "nay": 2
+     }
+    },
+    "party_majority": {
+     "R": "yea",
+     "D": "nay"
+    },
+    "voted_against_own_party": [
+     {
+      "bioguide": "bioguide:P000603",
+      "label": "Rand Paul",
+      "party": "R",
+      "state": "KY",
+      "chamber": "Senate",
+      "voted": "nay",
+      "party_majority": "yea"
+     },
+     {
+      "bioguide": "bioguide:T000476",
+      "label": "Thom Tillis",
+      "party": "R",
+      "state": "NC",
+      "chamber": "Senate",
+      "voted": "nay",
+      "party_majority": "yea"
+     }
+    ],
+    "voted_against_own_party_count": 2,
+    "from_dataset": "voteview_rollcalls"
+   },
+   {
+    "rollcall": "voteview_rollcalls:rollcall:S119:330",
+    "date": "2025-06-30",
+    "question": "On the Decision of the Chair",
+    "result": "Decision of Chair Sustained",
+    "party_tally": {
+     "328": {
+      "yea": 0,
+      "nay": 2
+     },
+     "D": {
+      "yea": 0,
+      "nay": 45
+     },
+     "R": {
+      "yea": 53,
+      "nay": 0
+     }
+    },
+    "party_majority": {
+     "R": "yea",
+     "D": "nay"
+    },
+    "voted_against_own_party": [],
+    "voted_against_own_party_count": 0,
+    "from_dataset": "voteview_rollcalls"
+   },
+   {
+    "rollcall": "voteview_rollcalls:rollcall:S119:331",
+    "date": "2025-06-30",
+    "question": "On the Decision of the Chair",
+    "result": "Decision of Chair Sustained",
+    "party_tally": {
+     "328": {
+      "yea": 0,
+      "nay": 2
+     },
+     "D": {
+      "yea": 0,
+      "nay": 45
+     },
+     "R": {
+      "yea": 53,
+      "nay": 0
+     }
+    },
+    "party_majority": {
+     "R": "yea",
+     "D": "nay"
+    },
+    "voted_against_own_party": [],
+    "voted_against_own_party_count": 0,
+    "from_dataset": "voteview_rollcalls"
+   },
+   {
+    "rollcall": "voteview_rollcalls:rollcall:S119:332",
+    "date": "2025-06-30",
+    "question": "On the Motion",
+    "result": "Motion Rejected",
+    "party_tally": {
+     "328": {
+      "yea": 2,
+      "nay": 0
+     },
+     "D": {
+      "yea": 45,
+      "nay": 0
+     },
+     "R": {
+      "yea": 0,
+      "nay": 53
+     }
+    },
+    "party_majority": {
+     "D": "yea",
+     "R": "nay"
+    },
+    "voted_against_own_party": [],
+    "voted_against_own_party_count": 0,
+    "from_dataset": "voteview_rollcalls"
+   },
+   {
+    "rollcall": "voteview_rollcalls:rollcall:S119:333",
+    "date": "2025-06-30",
+    "question": "On the Motion",
+    "result": "Motion Rejected",
+    "party_tally": {
+     "328": {
+      "yea": 2,
+      "nay": 0
+     },
+     "D": {
+      "yea": 45,
+      "nay": 0
+     },
+     "R": {
+      "yea": 2,
+      "nay": 51
+     }
+    },
+    "party_majority": {
+     "D": "yea",
+     "R": "nay"
+    },
+    "voted_against_own_party": [
+     {
+      "bioguide": "bioguide:M001153",
+      "label": "Lisa Murkowski",
+      "party": "R",
+      "state": "AK",
+      "chamber": "Senate",
+      "voted": "yea",
+      "party_majority": "nay"
+     },
+     {
+      "bioguide": "bioguide:C001035",
+      "label": "Susan M. Collins",
+      "party": "R",
+      "state": "ME",
+      "chamber": "Senate",
+      "voted": "yea",
+      "party_majority": "nay"
+     }
+    ],
+    "voted_against_own_party_count": 2,
+    "from_dataset": "voteview_rollcalls"
+   },
+   {
+    "rollcall": "voteview_rollcalls:rollcall:S119:334",
+    "date": "2025-06-30",
+    "question": "On the Motion",
+    "result": "Motion Agreed to",
+    "party_tally": {
+     "328": {
+      "yea": 0,
+      "nay": 2
+     },
+     "D": {
+      "yea": 0,
+      "nay": 45
+     },
+     "R": {
+      "yea": 51,
+      "nay": 1
+     }
+    },
+    "party_majority": {
+     "R": "yea",
+     "D": "nay"
+    },
+    "voted_against_own_party": [
+     {
+      "bioguide": "bioguide:M001153",
+      "label": "Lisa Murkowski",
+      "party": "R",
+      "state": "AK",
+      "chamber": "Senate",
+      "voted": "nay",
+      "party_majority": "yea"
+     }
+    ],
+    "voted_against_own_party_count": 1,
+    "from_dataset": "voteview_rollcalls"
+   },
+   {
+    "rollcall": "voteview_rollcalls:rollcall:S119:335",
+    "date": "2025-06-30",
+    "question": "On the Motion",
+    "result": "Motion Rejected",
+    "party_tally": {
+     "328": {
+      "yea": 2,
+      "nay": 0
+     },
+     "D": {
+      "yea": 45,
+      "nay": 0
+     },
+     "R": {
+      "yea": 0,
+      "nay": 53
+     }
+    },
+    "party_majority": {
+     "D": "yea",
+     "R": "nay"
+    },
+    "voted_against_own_party": [],
+    "voted_against_own_party_count": 0,
+    "from_dataset": "voteview_rollcalls"
+   },
+   {
+    "rollcall": "voteview_rollcalls:rollcall:S119:336",
+    "date": "2025-06-30",
+    "question": "On the Motion",
+    "result": "Motion Rejected",
+    "party_tally": {
+     "328": {
+      "yea": 2,
+      "nay": 0
+     },
+     "D": {
+      "yea": 45,
+      "nay": 0
+     },
+     "R": {
+      "yea": 1,
+      "nay": 52
+     }
+    },
+    "party_majority": {
+     "D": "yea",
+     "R": "nay"
+    },
+    "voted_against_own_party": [
+     {
+      "bioguide": "bioguide:M001153",
+      "label": "Lisa Murkowski",
+      "party": "R",
+      "state": "AK",
+      "chamber": "Senate",
+      "voted": "yea",
+      "party_majority": "nay"
+     }
+    ],
+    "voted_against_own_party_count": 1,
+    "from_dataset": "voteview_rollcalls"
+   },
+   {
+    "rollcall": "voteview_rollcalls:rollcall:S119:337",
+    "date": "2025-06-30",
+    "question": "On the Motion",
+    "result": "Motion Rejected",
+    "party_tally": {
+     "328": {
+      "yea": 2,
+      "nay": 0
+     },
+     "D": {
+      "yea": 45,
+      "nay": 0
+     },
+     "R": {
+      "yea": 2,
+      "nay": 51
+     }
+    },
+    "party_majority": {
+     "D": "yea",
+     "R": "nay"
+    },
+    "voted_against_own_party": [
+     {
+      "bioguide": "bioguide:M001153",
+      "label": "Lisa Murkowski",
+      "party": "R",
+      "state": "AK",
+      "chamber": "Senate",
+      "voted": "yea",
+      "party_majority": "nay"
+     },
+     {
+      "bioguide": "bioguide:S001198",
+      "label": "Dan Sullivan",
+      "party": "R",
+      "state": "AK",
+      "chamber": "Senate",
+      "voted": "yea",
+      "party_majority": "nay"
+     }
+    ],
+    "voted_against_own_party_count": 2,
+    "from_dataset": "voteview_rollcalls"
+   },
+   {
+    "rollcall": "voteview_rollcalls:rollcall:S119:338",
+    "date": "2025-06-30",
+    "question": "On the Motion",
+    "result": "Motion Rejected",
+    "party_tally": {
+     "328": {
+      "yea": 2,
+      "nay": 0
+     },
+     "D": {
+      "yea": 45,
+      "nay": 0
+     },
+     "R": {
+      "yea": 1,
+      "nay": 52
+     }
+    },
+    "party_majority": {
+     "D": "yea",
+     "R": "nay"
+    },
+    "voted_against_own_party": [
+     {
+      "bioguide": "bioguide:C001035",
+      "label": "Susan M. Collins",
+      "party": "R",
+      "state": "ME",
+      "chamber": "Senate",
+      "voted": "yea",
+      "party_majority": "nay"
+     }
+    ],
+    "voted_against_own_party_count": 1,
+    "from_dataset": "voteview_rollcalls"
+   },
+   {
+    "rollcall": "voteview_rollcalls:rollcall:S119:339",
+    "date": "2025-06-30",
+    "question": "On the Motion",
+    "result": "Motion Rejected",
+    "party_tally": {
+     "328": {
+      "yea": 2,
+      "nay": 0
+     },
+     "D": {
+      "yea": 45,
+      "nay": 0
+     },
+     "R": {
+      "yea": 0,
+      "nay": 53
+     }
+    },
+    "party_majority": {
+     "D": "yea",
+     "R": "nay"
+    },
+    "voted_against_own_party": [],
+    "voted_against_own_party_count": 0,
+    "from_dataset": "voteview_rollcalls"
+   },
+   {
+    "rollcall": "voteview_rollcalls:rollcall:S119:340",
+    "date": "2025-06-30",
+    "question": "On the Motion",
+    "result": "Motion Rejected",
+    "party_tally": {
+     "328": {
+      "yea": 2,
+      "nay": 0
+     },
+     "D": {
+      "yea": 45,
+      "nay": 0
+     },
+     "R": {
+      "yea": 1,
+      "nay": 52
+     }
+    },
+    "party_majority": {
+     "D": "yea",
+     "R": "nay"
+    },
+    "voted_against_own_party": [
+     {
+      "bioguide": "bioguide:C001035",
+      "label": "Susan M. Collins",
+      "party": "R",
+      "state": "ME",
+      "chamber": "Senate",
+      "voted": "yea",
+      "party_majority": "nay"
+     }
+    ],
+    "voted_against_own_party_count": 1,
+    "from_dataset": "voteview_rollcalls"
+   },
+   {
+    "rollcall": "voteview_rollcalls:rollcall:S119:341",
+    "date": "2025-06-30",
+    "question": "On the Motion",
+    "result": "Motion Rejected",
+    "party_tally": {
+     "328": {
+      "yea": 2,
+      "nay": 0
+     },
+     "D": {
+      "yea": 45,
+      "nay": 0
+     },
+     "R": {
+      "yea": 0,
+      "nay": 53
+     }
+    },
+    "party_majority": {
+     "D": "yea",
+     "R": "nay"
+    },
+    "voted_against_own_party": [],
+    "voted_against_own_party_count": 0,
+    "from_dataset": "voteview_rollcalls"
+   },
+   {
+    "rollcall": "voteview_rollcalls:rollcall:S119:342",
+    "date": "2025-06-30",
+    "question": "On the Motion",
+    "result": "Motion Rejected",
+    "party_tally": {
+     "328": {
+      "yea": 0,
+      "nay": 2
+     },
+     "D": {
+      "yea": 4,
+      "nay": 41
+     },
+     "R": {
+      "yea": 52,
+      "nay": 1
+     }
+    },
+    "party_majority": {
+     "R": "yea",
+     "D": "nay"
+    },
+    "voted_against_own_party": [
+     {
+      "bioguide": "bioguide:C001113",
+      "label": "Catherine Cortez Masto",
+      "party": "D",
+      "state": "NV",
+      "chamber": "Senate",
+      "voted": "yea",
+      "party_majority": "nay"
+     },
+     {
+      "bioguide": "bioguide:H001076",
+      "label": "Margaret Wood Hassan",
+      "party": "D",
+      "state": "NH",
+      "chamber": "Senate",
+      "voted": "yea",
+      "party_majority": "nay"
+     },
+     {
+      "bioguide": "bioguide:O000174",
+      "label": "Jon Ossoff",
+      "party": "D",
+      "state": "GA",
+      "chamber": "Senate",
+      "voted": "yea",
+      "party_majority": "nay"
+     },
+     {
+      "bioguide": "bioguide:W000790",
+      "label": "Raphael G. Warnock",
+      "party": "D",
+      "state": "GA",
+      "chamber": "Senate",
+      "voted": "yea",
+      "party_majority": "nay"
+     },
+     {
+      "bioguide": "bioguide:C001035",
+      "label": "Susan M. Collins",
+      "party": "R",
+      "state": "ME",
+      "chamber": "Senate",
+      "voted": "nay",
+      "party_majority": "yea"
+     }
+    ],
+    "voted_against_own_party_count": 5,
+    "from_dataset": "voteview_rollcalls"
+   },
+   {
+    "rollcall": "voteview_rollcalls:rollcall:S119:343",
+    "date": "2025-06-30",
+    "question": "On the Motion",
+    "result": "Motion Rejected",
+    "party_tally": {
+     "328": {
+      "yea": 2,
+      "nay": 0
+     },
+     "D": {
+      "yea": 45,
+      "nay": 0
+     },
+     "R": {
+      "yea": 0,
+      "nay": 53
+     }
+    },
+    "party_majority": {
+     "D": "yea",
+     "R": "nay"
+    },
+    "voted_against_own_party": [],
+    "voted_against_own_party_count": 0,
+    "from_dataset": "voteview_rollcalls"
+   },
+   {
+    "rollcall": "voteview_rollcalls:rollcall:S119:344",
+    "date": "2025-06-30",
+    "question": "On the Motion",
+    "result": "Motion Rejected",
+    "party_tally": {
+     "328": {
+      "yea": 2,
+      "nay": 0
+     },
+     "D": {
+      "yea": 45,
+      "nay": 0
+     },
+     "R": {
+      "yea": 2,
+      "nay": 51
+     }
+    },
+    "party_majority": {
+     "D": "yea",
+     "R": "nay"
+    },
+    "voted_against_own_party": [
+     {
+      "bioguide": "bioguide:M001153",
+      "label": "Lisa Murkowski",
+      "party": "R",
+      "state": "AK",
+      "chamber": "Senate",
+      "voted": "yea",
+      "party_majority": "nay"
+     },
+     {
+      "bioguide": "bioguide:C001035",
+      "label": "Susan M. Collins",
+      "party": "R",
+      "state": "ME",
+      "chamber": "Senate",
+      "voted": "yea",
+      "party_majority": "nay"
+     }
+    ],
+    "voted_against_own_party_count": 2,
+    "from_dataset": "voteview_rollcalls"
+   },
+   {
+    "rollcall": "voteview_rollcalls:rollcall:S119:345",
+    "date": "2025-06-30",
+    "question": "On the Motion",
+    "result": "Motion Rejected",
+    "party_tally": {
+     "328": {
+      "yea": 0,
+      "nay": 2
+     },
+     "D": {
+      "yea": 0,
+      "nay": 45
+     },
+     "R": {
+      "yea": 53,
+      "nay": 0
+     }
+    },
+    "party_majority": {
+     "R": "yea",
+     "D": "nay"
+    },
+    "voted_against_own_party": [],
+    "voted_against_own_party_count": 0,
+    "from_dataset": "voteview_rollcalls"
+   },
+   {
+    "rollcall": "voteview_rollcalls:rollcall:S119:346",
+    "date": "2025-06-30",
+    "question": "On the Motion",
+    "result": "Motion Rejected",
+    "party_tally": {
+     "328": {
+      "yea": 2,
+      "nay": 0
+     },
+     "D": {
+      "yea": 45,
+      "nay": 0
+     },
+     "R": {
+      "yea": 0,
+      "nay": 53
+     }
+    },
+    "party_majority": {
+     "D": "yea",
+     "R": "nay"
+    },
+    "voted_against_own_party": [],
+    "voted_against_own_party_count": 0,
+    "from_dataset": "voteview_rollcalls"
+   },
+   {
+    "rollcall": "voteview_rollcalls:rollcall:S119:347",
+    "date": "2025-06-30",
+    "question": "On the Motion",
+    "result": "Motion Rejected",
+    "party_tally": {
+     "328": {
+      "yea": 2,
+      "nay": 0
+     },
+     "D": {
+      "yea": 45,
+      "nay": 0
+     },
+     "R": {
+      "yea": 0,
+      "nay": 53
+     }
+    },
+    "party_majority": {
+     "D": "yea",
+     "R": "nay"
+    },
+    "voted_against_own_party": [],
+    "voted_against_own_party_count": 0,
+    "from_dataset": "voteview_rollcalls"
+   },
+   {
+    "rollcall": "voteview_rollcalls:rollcall:S119:348",
+    "date": "2025-06-30",
+    "question": "On the Motion",
+    "result": "Motion Rejected",
+    "party_tally": {
+     "328": {
+      "yea": 2,
+      "nay": 0
+     },
+     "D": {
+      "yea": 45,
+      "nay": 0
+     },
+     "R": {
+      "yea": 0,
+      "nay": 53
+     }
+    },
+    "party_majority": {
+     "D": "yea",
+     "R": "nay"
+    },
+    "voted_against_own_party": [],
+    "voted_against_own_party_count": 0,
+    "from_dataset": "voteview_rollcalls"
+   },
+   {
+    "rollcall": "voteview_rollcalls:rollcall:S119:349",
+    "date": "2025-06-30",
+    "question": "On the Motion",
+    "result": "Motion Rejected",
+    "party_tally": {
+     "328": {
+      "yea": 2,
+      "nay": 0
+     },
+     "D": {
+      "yea": 45,
+      "nay": 0
+     },
+     "R": {
+      "yea": 1,
+      "nay": 52
+     }
+    },
+    "party_majority": {
+     "D": "yea",
+     "R": "nay"
+    },
+    "voted_against_own_party": [
+     {
+      "bioguide": "bioguide:C001035",
+      "label": "Susan M. Collins",
+      "party": "R",
+      "state": "ME",
+      "chamber": "Senate",
+      "voted": "yea",
+      "party_majority": "nay"
+     }
+    ],
+    "voted_against_own_party_count": 1,
+    "from_dataset": "voteview_rollcalls"
+   },
+   {
+    "rollcall": "voteview_rollcalls:rollcall:S119:350",
+    "date": "2025-06-30",
+    "question": "On the Motion",
+    "result": "Motion Rejected",
+    "party_tally": {
+     "328": {
+      "yea": 2,
+      "nay": 0
+     },
+     "D": {
+      "yea": 45,
+      "nay": 0
+     },
+     "R": {
+      "yea": 2,
+      "nay": 51
+     }
+    },
+    "party_majority": {
+     "D": "yea",
+     "R": "nay"
+    },
+    "voted_against_own_party": [
+     {
+      "bioguide": "bioguide:M001153",
+      "label": "Lisa Murkowski",
+      "party": "R",
+      "state": "AK",
+      "chamber": "Senate",
+      "voted": "yea",
+      "party_majority": "nay"
+     },
+     {
+      "bioguide": "bioguide:S001198",
+      "label": "Dan Sullivan",
+      "party": "R",
+      "state": "AK",
+      "chamber": "Senate",
+      "voted": "yea",
+      "party_majority": "nay"
+     }
+    ],
+    "voted_against_own_party_count": 2,
+    "from_dataset": "voteview_rollcalls"
+   },
+   {
+    "rollcall": "voteview_rollcalls:rollcall:S119:351",
+    "date": "2025-06-30",
+    "question": "On the Motion",
+    "result": "Motion Rejected",
+    "party_tally": {
+     "328": {
+      "yea": 2,
+      "nay": 0
+     },
+     "D": {
+      "yea": 45,
+      "nay": 0
+     },
+     "R": {
+      "yea": 0,
+      "nay": 53
+     }
+    },
+    "party_majority": {
+     "D": "yea",
+     "R": "nay"
+    },
+    "voted_against_own_party": [],
+    "voted_against_own_party_count": 0,
+    "from_dataset": "voteview_rollcalls"
+   },
+   {
+    "rollcall": "voteview_rollcalls:rollcall:S119:352",
+    "date": "2025-06-30",
+    "question": "On the Motion",
+    "result": "Motion Rejected",
+    "party_tally": {
+     "328": {
+      "yea": 2,
+      "nay": 0
+     },
+     "D": {
+      "yea": 32,
+      "nay": 13
+     },
+     "R": {
+      "yea": 8,
+      "nay": 45
+     }
+    },
+    "party_majority": {
+     "R": "nay",
+     "D": "yea"
+    },
+    "voted_against_own_party": [
+     {
+      "bioguide": "bioguide:G000386",
+      "label": "Chuck Grassley",
+      "party": "R",
+      "state": "IA",
+      "chamber": "Senate",
+      "voted": "yea",
+      "party_majority": "nay"
+     },
+     {
+      "bioguide": "bioguide:M000355",
+      "label": "Mitch McConnell",
+      "party": "R",
+      "state": "KY",
+      "chamber": "Senate",
+      "voted": "yea",
+      "party_majority": "nay"
+     },
+     {
+      "bioguide": "bioguide:C001075",
+      "label": "Bill Cassidy",
+      "party": "R",
+      "state": "LA",
+      "chamber": "Senate",
+      "voted": "yea",
+      "party_majority": "nay"
+     },
+     {
+      "bioguide": "bioguide:M001153",
+      "label": "Lisa Murkowski",
+      "party": "R",
+      "state": "AK",
+      "chamber": "Senate",
+      "voted": "yea",
+      "party_majority": "nay"
+     },
+     {
+      "bioguide": "bioguide:P000603",
+      "label": "Rand Paul",
+      "party": "R",
+      "state": "KY",
+      "chamber": "Senate",
+      "voted": "yea",
+      "party_majority": "nay"
+     },
+     {
+      "bioguide": "bioguide:T000476",
+      "label": "Thom Tillis",
+      "party": "R",
+      "state": "NC",
+      "chamber": "Senate",
+      "voted": "yea",
+      "party_majority": "nay"
+     },
+     {
+      "bioguide": "bioguide:K000393",
+      "label": "John Kennedy",
+      "party": "R",
+      "state": "LA",
+      "chamber": "Senate",
+      "voted": "yea",
+      "party_majority": "nay"
+     },
+     {
+      "bioguide": "bioguide:C001035",
+      "label": "Susan M. Collins",
+      "party": "R",
+      "state": "ME",
+      "chamber": "Senate",
+      "voted": "yea",
+      "party_majority": "nay"
+     },
+     {
+      "bioguide": "bioguide:M000133",
+      "label": "Edward J. Markey",
+      "party": "D",
+      "state": "MA",
+      "chamber": "Senate",
+      "voted": "nay",
+      "party_majority": "yea"
+     },
+     {
+      "bioguide": "bioguide:H001042",
+      "label": "Mazie K. Hirono",
+      "party": "D",
+      "state": "HI",
+      "chamber": "Senate",
+      "voted": "nay",
+      "party_majority": "yea"
+     },
+     {
+      "bioguide": "bioguide:G000555",
+      "label": "Kirsten E. Gillibrand",
+      "party": "D",
+      "state": "NY",
+      "chamber": "Senate",
+      "voted": "nay",
+      "party_majority": "yea"
+     },
+     {
+      "bioguide": "bioguide:P000595",
+      "label": "Gary C. Peters",
+      "party": "D",
+      "state": "MI",
+      "chamber": "Senate",
+      "voted": "nay",
+      "party_majority": "yea"
+     },
+     {
+      "bioguide": "bioguide:D000622",
+      "label": "Tammy Duckworth",
+      "party": "D",
+      "state": "IL",
+      "chamber": "Senate",
+      "voted": "nay",
+      "party_majority": "yea"
+     },
+     {
+      "bioguide": "bioguide:R000608",
+      "label": "Jacky Rosen",
+      "party": "D",
+      "state": "NV",
+      "chamber": "Senate",
+      "voted": "nay",
+      "party_majority": "yea"
+     },
+     {
+      "bioguide": "bioguide:K000394",
+      "label": "Andy Kim",
+      "party": "D",
+      "state": "NJ",
+      "chamber": "Senate",
+      "voted": "nay",
+      "party_majority": "yea"
+     }
+    ],
+    "voted_against_own_party_count": 21,
+    "from_dataset": "voteview_rollcalls"
+   },
+   {
+    "rollcall": "voteview_rollcalls:rollcall:S119:353",
+    "date": "2025-06-30",
+    "question": "On the Motion",
+    "result": "Motion Rejected",
+    "party_tally": {
+     "328": {
+      "yea": 2,
+      "nay": 0
+     },
+     "D": {
+      "yea": 45,
+      "nay": 0
+     },
+     "R": {
+      "yea": 0,
+      "nay": 53
+     }
+    },
+    "party_majority": {
+     "D": "yea",
+     "R": "nay"
+    },
+    "voted_against_own_party": [],
+    "voted_against_own_party_count": 0,
+    "from_dataset": "voteview_rollcalls"
+   },
+   {
+    "rollcall": "voteview_rollcalls:rollcall:S119:354",
+    "date": "2025-07-01",
+    "question": "On the Motion",
+    "result": "Motion Rejected",
+    "party_tally": {
+     "328": {
+      "yea": 2,
+      "nay": 0
+     },
+     "D": {
+      "yea": 45,
+      "nay": 0
+     },
+     "R": {
+      "yea": 0,
+      "nay": 53
+     }
+    },
+    "party_majority": {
+     "D": "yea",
+     "R": "nay"
+    },
+    "voted_against_own_party": [],
+    "voted_against_own_party_count": 0,
+    "from_dataset": "voteview_rollcalls"
+   },
+   {
+    "rollcall": "voteview_rollcalls:rollcall:S119:355",
+    "date": "2025-07-01",
+    "question": "On the Motion",
+    "result": "Motion Rejected",
+    "party_tally": {
+     "328": {
+      "yea": 1,
+      "nay": 1
+     },
+     "D": {
+      "yea": 3,
+      "nay": 42
+     },
+     "R": {
+      "yea": 18,
+      "nay": 35
+     }
+    },
+    "party_majority": {
+     "R": "nay",
+     "D": "nay"
+    },
+    "voted_against_own_party": [
+     {
+      "bioguide": "bioguide:M000355",
+      "label": "Mitch McConnell",
+      "party": "R",
+      "state": "KY",
+      "chamber": "Senate",
+      "voted": "yea",
+      "party_majority": "nay"
+     },
+     {
+      "bioguide": "bioguide:C001047",
+      "label": "Shelley Moore Capito",
+      "party": "R",
+      "state": "WV",
+      "chamber": "Senate",
+      "voted": "yea",
+      "party_majority": "nay"
+     },
+     {
+      "bioguide": "bioguide:C001075",
+      "label": "Bill Cassidy",
+      "party": "R",
+      "state": "LA",
+      "chamber": "Senate",
+      "voted": "yea",
+      "party_majority": "nay"
+     },
+     {
+      "bioguide": "bioguide:Y000064",
+      "label": "Todd Young",
+      "party": "R",
+      "state": "IN",
+      "chamber": "Senate",
+      "voted": "yea",
+      "party_majority": "nay"
+     },
+     {
+      "bioguide": "bioguide:M001198",
+      "label": "Roger Marshall",
+      "party": "R",
+      "state": "KS",
+      "chamber": "Senate",
+      "voted": "yea",
+      "party_majority": "nay"
+     },
+     {
+      "bioguide": "bioguide:C001114",
+      "label": "John R. Curtis",
+      "party": "R",
+      "state": "UT",
+      "chamber": "Senate",
+      "voted": "yea",
+      "party_majority": "nay"
+     },
+     {
+      "bioguide": "bioguide:W000437",
+      "label": "Roger F. Wicker",
+      "party": "R",
+      "state": "MS",
+      "chamber": "Senate",
+      "voted": "yea",
+      "party_majority": "nay"
+     },
+     {
+      "bioguide": "bioguide:G000359",
+      "label": "Lindsey Graham",
+      "party": "R",
+      "state": "SC",
+      "chamber": "Senate",
+      "voted": "yea",
+      "party_majority": "nay"
+     },
+     {
+      "bioguide": "bioguide:M000934",
+      "label": "Jerry Moran",
+      "party": "R",
+      "state": "KS",
+      "chamber": "Senate",
+      "voted": "yea",
+      "party_majority": "nay"
+     },
+     {
+      "bioguide": "bioguide:M001153",
+      "label": "Lisa Murkowski",
+      "party": "R",
+      "state": "AK",
+      "chamber": "Senate",
+      "voted": "yea",
+      "party_majority": "nay"
+     },
+     {
+      "bioguide": "bioguide:W000805",
+      "label": "Mark R. Warner",
+      "party": "D",
+      "state": "VA",
+      "chamber": "Senate",
+      "voted": "yea",
+      "party_majority": "nay"
+     },
+     {
+      "bioguide": "bioguide:F000463",
+      "label": "Deb Fischer",
+      "party": "R",
+      "state": "NE",
+      "chamber": "Senate",
+      "voted": "yea",
+      "party_majority": "nay"
+     },
+     {
+      "bioguide": "bioguide:S001198",
+      "label": "Dan Sullivan",
+      "party": "R",
+      "state": "AK",
+      "chamber": "Senate",
+      "voted": "yea",
+      "party_majority": "nay"
+     },
+     {
+      "bioguide": "bioguide:K000393",
+      "label": "John Kennedy",
+      "party": "R",
+      "state": "LA",
+      "chamber": "Senate",
+      "voted": "yea",
+      "party_majority": "nay"
+     },
+     {
+      "bioguide": "bioguide:H001079",
+      "label": "Cindy Hyde-Smith",
+      "party": "R",
+      "state": "MS",
+      "chamber": "Senate",
+      "voted": "yea",
+      "party_majority": "nay"
+     }
+    ],
+    "voted_against_own_party_count": 21,
+    "from_dataset": "voteview_rollcalls"
+   },
+   {
+    "rollcall": "voteview_rollcalls:rollcall:S119:356",
+    "date": "2025-07-01",
+    "question": "On the Motion",
+    "result": "Motion Rejected",
+    "party_tally": {
+     "328": {
+      "yea": 1,
+      "nay": 1
+     },
+     "D": {
+      "yea": 0,
+      "nay": 45
+     },
+     "R": {
+      "yea": 53,
+      "nay": 0
+     }
+    },
+    "party_majority": {
+     "R": "yea",
+     "D": "nay"
+    },
+    "voted_against_own_party": [],
+    "voted_against_own_party_count": 0,
+    "from_dataset": "voteview_rollcalls"
+   },
+   {
+    "rollcall": "voteview_rollcalls:rollcall:S119:357",
+    "date": "2025-07-01",
+    "question": "On the Motion",
+    "result": "Motion Rejected",
+    "party_tally": {
+     "328": {
+      "yea": 2,
+      "nay": 0
+     },
+     "D": {
+      "yea": 45,
+      "nay": 0
+     },
+     "R": {
+      "yea": 0,
+      "nay": 53
+     }
+    },
+    "party_majority": {
+     "D": "yea",
+     "R": "nay"
+    },
+    "voted_against_own_party": [],
+    "voted_against_own_party_count": 0,
+    "from_dataset": "voteview_rollcalls"
+   },
+   {
+    "rollcall": "voteview_rollcalls:rollcall:S119:358",
+    "date": "2025-07-01",
+    "question": "On the Amendment",
+    "result": "Amendment Rejected",
+    "party_tally": {
+     "328": {
+      "yea": 2,
+      "nay": 0
+     },
+     "D": {
+      "yea": 45,
+      "nay": 0
+     },
+     "R": {
+      "yea": 3,
+      "nay": 50
+     }
+    },
+    "party_majority": {
+     "D": "yea",
+     "R": "nay"
+    },
+    "voted_against_own_party": [
+     {
+      "bioguide": "bioguide:M001153",
+      "label": "Lisa Murkowski",
+      "party": "R",
+      "state": "AK",
+      "chamber": "Senate",
+      "voted": "yea",
+      "party_majority": "nay"
+     },
+     {
+      "bioguide": "bioguide:F000463",
+      "label": "Deb Fischer",
+      "party": "R",
+      "state": "NE",
+      "chamber": "Senate",
+      "voted": "yea",
+      "party_majority": "nay"
+     },
+     {
+      "bioguide": "bioguide:C001035",
+      "label": "Susan M. Collins",
+      "party": "R",
+      "state": "ME",
+      "chamber": "Senate",
+      "voted": "yea",
+      "party_majority": "nay"
+     }
+    ],
+    "voted_against_own_party_count": 3,
+    "from_dataset": "voteview_rollcalls"
+   },
+   {
+    "rollcall": "voteview_rollcalls:rollcall:S119:359",
+    "date": "2025-07-01",
+    "question": "On the Motion",
+    "result": "Motion Rejected",
+    "party_tally": {
+     "328": {
+      "yea": 2,
+      "nay": 0
+     },
+     "D": {
+      "yea": 45,
+      "nay": 0
+     },
+     "R": {
+      "yea": 1,
+      "nay": 51
+     }
+    },
+    "party_majority": {
+     "D": "yea",
+     "R": "nay"
+    },
+    "voted_against_own_party": [
+     {
+      "bioguide": "bioguide:C001035",
+      "label": "Susan M. Collins",
+      "party": "R",
+      "state": "ME",
+      "chamber": "Senate",
+      "voted": "yea",
+      "party_majority": "nay"
+     }
+    ],
+    "voted_against_own_party_count": 1,
+    "from_dataset": "voteview_rollcalls"
+   },
+   {
+    "rollcall": "voteview_rollcalls:rollcall:S119:360",
+    "date": "2025-07-01",
+    "question": "On the Amendment",
+    "result": "Amendment Rejected",
+    "party_tally": {
+     "328": {
+      "yea": 0,
+      "nay": 2
+     },
+     "D": {
+      "yea": 0,
+      "nay": 45
+     },
+     "R": {
+      "yea": 21,
+      "nay": 32
+     }
+    },
+    "party_majority": {
+     "R": "nay",
+     "D": "nay"
+    },
+    "voted_against_own_party": [
+     {
+      "bioguide": "bioguide:B001243",
+      "label": "Marsha Blackburn",
+      "party": "R",
+      "state": "TN",
+      "chamber": "Senate",
+      "voted": "yea",
+      "party_majority": "nay"
+     },
+     {
+      "bioguide": "bioguide:L000571",
+      "label": "Cynthia M. Lummis",
+      "party": "R",
+      "state": "WY",
+      "chamber": "Senate",
+      "voted": "yea",
+      "party_majority": "nay"
+     },
+     {
+      "bioguide": "bioguide:L000575",
+      "label": "James Lankford",
+      "party": "R",
+      "state": "OK",
+      "chamber": "Senate",
+      "voted": "yea",
+      "party_majority": "nay"
+     },
+     {
+      "bioguide": "bioguide:B001299",
+      "label": "Jim Banks",
+      "party": "R",
+      "state": "IN",
+      "chamber": "Senate",
+      "voted": "yea",
+      "party_majority": "nay"
+     },
+     {
+      "bioguide": "bioguide:B001305",
+      "label": "Ted Budd",
+      "party": "R",
+      "state": "NC",
+      "chamber": "Senate",
+      "voted": "yea",
+      "party_majority": "nay"
+     },
+     {
+      "bioguide": "bioguide:C000880",
+      "label": "Mike Crapo",
+      "party": "R",
+      "state": "ID",
+      "chamber": "Senate",
+      "voted": "yea",
+      "party_majority": "nay"
+     },
+     {
+      "bioguide": "bioguide:C001056",
+      "label": "John Cornyn",
+      "party": "R",
+      "state": "TX",
+      "chamber": "Senate",
+      "voted": "yea",
+      "party_majority": "nay"
+     },
+     {
+      "bioguide": "bioguide:B001261",
+      "label": "John Barrasso",
+      "party": "R",
+      "state": "WY",
+      "chamber": "Senate",
+      "voted": "yea",
+      "party_majority": "nay"
+     },
+     {
+      "bioguide": "bioguide:R000584",
+      "label": "James E. Risch",
+      "party": "R",
+      "state": "ID",
+      "chamber": "Senate",
+      "voted": "yea",
+      "party_majority": "nay"
+     },
+     {
+      "bioguide": "bioguide:P000603",
+      "label": "Rand Paul",
+      "party": "R",
+      "state": "KY",
+      "chamber": "Senate",
+      "voted": "yea",
+      "party_majority": "nay"
+     },
+     {
+      "bioguide": "bioguide:L000577",
+      "label": "Mike Lee",
+      "party": "R",
+      "state": "UT",
+      "chamber": "Senate",
+      "voted": "yea",
+      "party_majority": "nay"
+     },
+     {
+      "bioguide": "bioguide:J000293",
+      "label": "Ron Johnson",
+      "party": "R",
+      "state": "WI",
+      "chamber": "Senate",
+      "voted": "yea",
+      "party_majority": "nay"
+     },
+     {
+      "bioguide": "bioguide:C001098",
+      "label": "Ted Cruz",
+      "party": "R",
+      "state": "TX",
+      "chamber": "Senate",
+      "voted": "yea",
+      "party_majority": "nay"
+     },
+     {
+      "bioguide": "bioguide:K000393",
+      "label": "John Kennedy",
+      "party": "R",
+      "state": "LA",
+      "chamber": "Senate",
+      "voted": "yea",
+      "party_majority": "nay"
+     },
+     {
+      "bioguide": "bioguide:H001089",
+      "label": "Josh Hawley",
+      "party": "R",
+      "state": "MO",
+      "chamber": "Senate",
+      "voted": "yea",
+      "party_majority": "nay"
+     }
+    ],
+    "voted_against_own_party_count": 21,
+    "from_dataset": "voteview_rollcalls"
+   },
+   {
+    "rollcall": "voteview_rollcalls:rollcall:S119:361",
+    "date": "2025-07-01",
+    "question": "On the Amendment",
+    "result": "Amendment Rejected",
+    "party_tally": {
+     "328": {
+      "yea": 2,
+      "nay": 0
+     },
+     "D": {
+      "yea": 45,
+      "nay": 0
+     },
+     "R": {
+      "yea": 1,
+      "nay": 52
+     }
+    },
+    "party_majority": {
+     "D": "yea",
+     "R": "nay"
+    },
+    "voted_against_own_party": [
+     {
+      "bioguide": "bioguide:M001153",
+      "label": "Lisa Murkowski",
+      "party": "R",
+      "state": "AK",
+      "chamber": "Senate",
+      "voted": "yea",
+      "party_majority": "nay"
+     }
+    ],
+    "voted_against_own_party_count": 1,
+    "from_dataset": "voteview_rollcalls"
+   },
+   {
+    "rollcall": "voteview_rollcalls:rollcall:S119:362",
+    "date": "2025-07-01",
+    "question": "On the Amendment",
+    "result": "Amendment Rejected",
+    "party_tally": {
+     "328": {
+      "yea": 2,
+      "nay": 0
+     },
+     "D": {
+      "yea": 45,
+      "nay": 0
+     },
+     "R": {
+      "yea": 0,
+      "nay": 53
+     }
+    },
+    "party_majority": {
+     "D": "yea",
+     "R": "nay"
+    },
+    "voted_against_own_party": [],
+    "voted_against_own_party_count": 0,
+    "from_dataset": "voteview_rollcalls"
+   },
+   {
+    "rollcall": "voteview_rollcalls:rollcall:S119:363",
+    "date": "2025-07-01",
+    "question": "On the Amendment",
+    "result": "Amendment Agreed to",
+    "party_tally": {
+     "328": {
+      "yea": 2,
+      "nay": 0
+     },
+     "D": {
+      "yea": 45,
+      "nay": 0
+     },
+     "R": {
+      "yea": 52,
+      "nay": 1
+     }
+    },
+    "party_majority": {
+     "R": "yea",
+     "D": "yea"
+    },
+    "voted_against_own_party": [
+     {
+      "bioguide": "bioguide:T000476",
+      "label": "Thom Tillis",
+      "party": "R",
+      "state": "NC",
+      "chamber": "Senate",
+      "voted": "nay",
+      "party_majority": "yea"
+     }
+    ],
+    "voted_against_own_party_count": 1,
+    "from_dataset": "voteview_rollcalls"
+   },
+   {
+    "rollcall": "voteview_rollcalls:rollcall:S119:364",
+    "date": "2025-07-01",
+    "question": "On the Amendment",
+    "result": "Amendment Rejected",
+    "party_tally": {
+     "328": {
+      "yea": 2,
+      "nay": 0
+     },
+     "D": {
+      "yea": 45,
+      "nay": 0
+     },
+     "R": {
+      "yea": 0,
+      "nay": 53
+     }
+    },
+    "party_majority": {
+     "D": "yea",
+     "R": "nay"
+    },
+    "voted_against_own_party": [],
+    "voted_against_own_party_count": 0,
+    "from_dataset": "voteview_rollcalls"
+   },
+   {
+    "rollcall": "voteview_rollcalls:rollcall:S119:365",
+    "date": "2025-07-01",
+    "question": "On the Amendment",
+    "result": "Amendment Rejected",
+    "party_tally": {
+     "328": {
+      "yea": 2,
+      "nay": 0
+     },
+     "D": {
+      "yea": 45,
+      "nay": 0
+     },
+     "R": {
+      "yea": 1,
+      "nay": 52
+     }
+    },
+    "party_majority": {
+     "D": "yea",
+     "R": "nay"
+    },
+    "voted_against_own_party": [
+     {
+      "bioguide": "bioguide:C001035",
+      "label": "Susan M. Collins",
+      "party": "R",
+      "state": "ME",
+      "chamber": "Senate",
+      "voted": "yea",
+      "party_majority": "nay"
+     }
+    ],
+    "voted_against_own_party_count": 1,
+    "from_dataset": "voteview_rollcalls"
+   },
+   {
+    "rollcall": "voteview_rollcalls:rollcall:S119:366",
+    "date": "2025-07-01",
+    "question": "On the Amendment",
+    "result": "Amendment Rejected",
+    "party_tally": {
+     "328": {
+      "yea": 2,
+      "nay": 0
+     },
+     "D": {
+      "yea": 45,
+      "nay": 0
+     },
+     "R": {
+      "yea": 2,
+      "nay": 51
+     }
+    },
+    "party_majority": {
+     "D": "yea",
+     "R": "nay"
+    },
+    "voted_against_own_party": [
+     {
+      "bioguide": "bioguide:M001153",
+      "label": "Lisa Murkowski",
+      "party": "R",
+      "state": "AK",
+      "chamber": "Senate",
+      "voted": "yea",
+      "party_majority": "nay"
+     },
+     {
+      "bioguide": "bioguide:C001035",
+      "label": "Susan M. Collins",
+      "party": "R",
+      "state": "ME",
+      "chamber": "Senate",
+      "voted": "yea",
+      "party_majority": "nay"
+     }
+    ],
+    "voted_against_own_party_count": 2,
+    "from_dataset": "voteview_rollcalls"
+   },
+   {
+    "rollcall": "voteview_rollcalls:rollcall:S119:367",
+    "date": "2025-07-01",
+    "question": "On the Amendment",
+    "result": "Amendment Rejected",
+    "party_tally": {
+     "328": {
+      "yea": 2,
+      "nay": 0
+     },
+     "D": {
+      "yea": 45,
+      "nay": 0
+     },
+     "R": {
+      "yea": 3,
+      "nay": 50
+     }
+    },
+    "party_majority": {
+     "D": "yea",
+     "R": "nay"
+    },
+    "voted_against_own_party": [
+     {
+      "bioguide": "bioguide:M000934",
+      "label": "Jerry Moran",
+      "party": "R",
+      "state": "KS",
+      "chamber": "Senate",
+      "voted": "yea",
+      "party_majority": "nay"
+     },
+     {
+      "bioguide": "bioguide:M001153",
+      "label": "Lisa Murkowski",
+      "party": "R",
+      "state": "AK",
+      "chamber": "Senate",
+      "voted": "yea",
+      "party_majority": "nay"
+     },
+     {
+      "bioguide": "bioguide:C001035",
+      "label": "Susan M. Collins",
+      "party": "R",
+      "state": "ME",
+      "chamber": "Senate",
+      "voted": "yea",
+      "party_majority": "nay"
+     }
+    ],
+    "voted_against_own_party_count": 3,
+    "from_dataset": "voteview_rollcalls"
+   },
+   {
+    "rollcall": "voteview_rollcalls:rollcall:S119:368",
+    "date": "2025-07-01",
+    "question": "On the Amendment",
+    "result": "Amendment Rejected",
+    "party_tally": {
+     "328": {
+      "yea": 2,
+      "nay": 0
+     },
+     "D": {
+      "yea": 45,
+      "nay": 0
+     },
+     "R": {
+      "yea": 3,
+      "nay": 50
+     }
+    },
+    "party_majority": {
+     "D": "yea",
+     "R": "nay"
+    },
+    "voted_against_own_party": [
+     {
+      "bioguide": "bioguide:M001153",
+      "label": "Lisa Murkowski",
+      "party": "R",
+      "state": "AK",
+      "chamber": "Senate",
+      "voted": "yea",
+      "party_majority": "nay"
+     },
+     {
+      "bioguide": "bioguide:P000603",
+      "label": "Rand Paul",
+      "party": "R",
+      "state": "KY",
+      "chamber": "Senate",
+      "voted": "yea",
+      "party_majority": "nay"
+     },
+     {
+      "bioguide": "bioguide:C001035",
+      "label": "Susan M. Collins",
+      "party": "R",
+      "state": "ME",
+      "chamber": "Senate",
+      "voted": "yea",
+      "party_majority": "nay"
+     }
+    ],
+    "voted_against_own_party_count": 3,
+    "from_dataset": "voteview_rollcalls"
+   },
+   {
+    "rollcall": "voteview_rollcalls:rollcall:S119:369",
+    "date": "2025-07-01",
+    "question": "On the Amendment",
+    "result": "Amendment Rejected",
+    "party_tally": {
+     "328": {
+      "yea": 2,
+      "nay": 0
+     },
+     "D": {
+      "yea": 41,
+      "nay": 4
+     },
+     "R": {
+      "yea": 2,
+      "nay": 51
+     }
+    },
+    "party_majority": {
+     "D": "yea",
+     "R": "nay"
+    },
+    "voted_against_own_party": [
+     {
+      "bioguide": "bioguide:P000603",
+      "label": "Rand Paul",
+      "party": "R",
+      "state": "KY",
+      "chamber": "Senate",
+      "voted": "yea",
+      "party_majority": "nay"
+     },
+     {
+      "bioguide": "bioguide:S001217",
+      "label": "Rick Scott",
+      "party": "R",
+      "state": "FL",
+      "chamber": "Senate",
+      "voted": "yea",
+      "party_majority": "nay"
+     },
+     {
+      "bioguide": "bioguide:H001046",
+      "label": "Martin Heinrich",
+      "party": "D",
+      "state": "NM",
+      "chamber": "Senate",
+      "voted": "nay",
+      "party_majority": "yea"
+     },
+     {
+      "bioguide": "bioguide:L000570",
+      "label": "Ben Ray Luján",
+      "party": "D",
+      "state": "NM",
+      "chamber": "Senate",
+      "voted": "nay",
+      "party_majority": "yea"
+     },
+     {
+      "bioguide": "bioguide:O000174",
+      "label": "Jon Ossoff",
+      "party": "D",
+      "state": "GA",
+      "chamber": "Senate",
+      "voted": "nay",
+      "party_majority": "yea"
+     },
+     {
+      "bioguide": "bioguide:W000790",
+      "label": "Raphael G. Warnock",
+      "party": "D",
+      "state": "GA",
+      "chamber": "Senate",
+      "voted": "nay",
+      "party_majority": "yea"
+     }
+    ],
+    "voted_against_own_party_count": 6,
+    "from_dataset": "voteview_rollcalls"
+   },
+   {
+    "rollcall": "voteview_rollcalls:rollcall:S119:370",
+    "date": "2025-07-01",
+    "question": "On the Amendment",
+    "result": "Amendment Agreed to",
+    "party_tally": {
+     "328": {
+      "yea": 0,
+      "nay": 2
+     },
+     "D": {
+      "yea": 0,
+      "nay": 45
+     },
+     "R": {
+      "yea": 50,
+      "nay": 3
+     }
+    },
+    "party_majority": {
+     "R": "yea",
+     "D": "nay"
+    },
+    "voted_against_own_party": [
+     {
+      "bioguide": "bioguide:P000603",
+      "label": "Rand Paul",
+      "party": "R",
+      "state": "KY",
+      "chamber": "Senate",
+      "voted": "nay",
+      "party_majority": "yea"
+     },
+     {
+      "bioguide": "bioguide:T000476",
+      "label": "Thom Tillis",
+      "party": "R",
+      "state": "NC",
+      "chamber": "Senate",
+      "voted": "nay",
+      "party_majority": "yea"
+     },
+     {
+      "bioguide": "bioguide:C001035",
+      "label": "Susan M. Collins",
+      "party": "R",
+      "state": "ME",
+      "chamber": "Senate",
+      "voted": "nay",
+      "party_majority": "yea"
+     }
+    ],
+    "voted_against_own_party_count": 3,
+    "from_dataset": "voteview_rollcalls"
+   },
+   {
+    "rollcall": "voteview_rollcalls:rollcall:S119:371",
+    "date": "2025-07-01",
+    "question": "On the Amendment",
+    "result": "Amendment Agreed to",
+    "party_tally": {
+     "328": {
+      "yea": 0,
+      "nay": 2
+     },
+     "D": {
+      "yea": 0,
+      "nay": 45
+     },
+     "R": {
+      "yea": 50,
+      "nay": 3
+     }
+    },
+    "party_majority": {
+     "R": "yea",
+     "D": "nay"
+    },
+    "voted_against_own_party": [
+     {
+      "bioguide": "bioguide:P000603",
+      "label": "Rand Paul",
+      "party": "R",
+      "state": "KY",
+      "chamber": "Senate",
+      "voted": "nay",
+      "party_majority": "yea"
+     },
+     {
+      "bioguide": "bioguide:T000476",
+      "label": "Thom Tillis",
+      "party": "R",
+      "state": "NC",
+      "chamber": "Senate",
+      "voted": "nay",
+      "party_majority": "yea"
+     },
+     {
+      "bioguide": "bioguide:C001035",
+      "label": "Susan M. Collins",
+      "party": "R",
+      "state": "ME",
+      "chamber": "Senate",
+      "voted": "nay",
+      "party_majority": "yea"
+     }
+    ],
+    "voted_against_own_party_count": 3,
+    "from_dataset": "voteview_rollcalls"
+   },
+   {
+    "rollcall": "voteview_rollcalls:rollcall:S119:372",
+    "date": "2025-07-01",
+    "question": "On Passage of the Bill",
+    "result": "Bill Passed",
+    "party_tally": {
+     "328": {
+      "yea": 0,
+      "nay": 2
+     },
+     "D": {
+      "yea": 0,
+      "nay": 45
+     },
+     "R": {
+      "yea": 50,
+      "nay": 3
+     },
+     "unlinked": {
+      "yea": 1,
+      "nay": 0
+     }
+    },
+    "party_majority": {
+     "R": "yea",
+     "D": "nay"
+    },
+    "voted_against_own_party": [
+     {
+      "bioguide": "bioguide:P000603",
+      "label": "Rand Paul",
+      "party": "R",
+      "state": "KY",
+      "chamber": "Senate",
+      "voted": "nay",
+      "party_majority": "yea"
+     },
+     {
+      "bioguide": "bioguide:T000476",
+      "label": "Thom Tillis",
+      "party": "R",
+      "state": "NC",
+      "chamber": "Senate",
+      "voted": "nay",
+      "party_majority": "yea"
+     },
+     {
+      "bioguide": "bioguide:C001035",
+      "label": "Susan M. Collins",
+      "party": "R",
+      "state": "ME",
+      "chamber": "Senate",
+      "voted": "nay",
+      "party_majority": "yea"
+     }
+    ],
+    "voted_against_own_party_count": 3,
+    "from_dataset": "voteview_rollcalls"
+   },
+   {
+    "rollcall": "voteview_rollcalls:rollcall:H119:189",
+    "date": "2025-07-03",
+    "question": "On Motion to Concur in the Senate Amendment",
+    "result": "Passed",
+    "party_tally": {
+     "D": {
+      "yea": 0,
+      "nay": 212
+     },
+     "R": {
+      "yea": 217,
+      "nay": 2
+     },
+     "mixed": {
+      "yea": 1,
+      "nay": 0
+     }
+    },
+    "party_majority": {
+     "R": "yea",
+     "D": "nay"
+    },
+    "voted_against_own_party": [
+     {
+      "bioguide": "bioguide:F000466",
+      "label": "Brian K. Fitzpatrick",
+      "party": "R",
+      "state": "PA",
+      "chamber": "House",
+      "voted": "nay",
+      "party_majority": "yea"
+     },
+     {
+      "bioguide": "bioguide:M001184",
+      "label": "Thomas Massie",
+      "party": "R",
+      "state": "KY",
+      "chamber": "House",
+      "voted": "nay",
+      "party_majority": "yea"
+     }
+    ],
+    "voted_against_own_party_count": 2,
+    "from_dataset": "voteview_rollcalls"
+   }
+  ],
+  "lobbying": {
+   "filings_citing_the_number": 8111,
+   "clients": 3216,
+   "registrants": 1399,
+   "issue_codes": {
+    "ACC": 5,
+    "ADV": 3,
+    "AER": 74,
+    "AGR": 452,
+    "ALC": 13,
+    "ANI": 34,
+    "APP": 6,
+    "ART": 3,
+    "AUT": 118,
+    "AVI": 173,
+    "BAN": 184,
+    "BEV": 2,
+    "BNK": 7,
+    "BUD": 2075,
+    "CAW": 107,
+    "CHM": 48,
+    "CIV": 94,
+    "COM": 34,
+    "CON": 13,
+    "CPI": 38,
+    "CPT": 146,
+    "CSP": 178,
+    "DEF": 590,
+    "DIS": 53,
+    "DOC": 16,
+    "ECN": 53,
+    "EDU": 609,
+    "ENG": 847,
+    "ENV": 423,
+    "FAM": 49,
+    "FIN": 337,
+    "FIR": 30,
+    "FOO": 74,
+    "FOR": 77,
+    "FUE": 94,
+    "GAM": 28,
+    "GOV": 238,
+    "HCR": 1322,
+    "HOM": 295,
+    "HOU": 197,
+    "IMM": 249,
+    "IND": 68,
+    "INS": 208,
+    "INT": 33,
+    "LAW": 124,
+    "LBR": 367,
+    "MAN": 121,
+    "MAR": 69,
+    "MED": 68,
+    "MIA": 3,
+    "MMM": 1228,
+    "MON": 10,
+    "NAT": 299,
+    "PHA": 148,
+    "POS": 36,
+    "REL": 7,
+    "RES": 46,
+    "RET": 109,
+    "ROD": 18,
+    "RRR": 27,
+    "SCI": 182,
+    "SMB": 89,
+    "SPO": 54,
+    "TAR": 29,
+    "TAX": 4194,
+    "TEC": 181,
+    "TOB": 23,
+    "TOR": 41,
+    "TOU": 47,
+    "TRA": 348,
+    "TRD": 383,
+    "TRU": 29,
+    "UNM": 8,
+    "URB": 56,
+    "UTI": 54,
+    "VET": 126,
+    "WAS": 14,
+    "WEL": 55
+   },
+   "attributed_usd": 448248721.7082127,
+   "congress_basis_of_citations": {
+    "inferred_from_filing_period": 7019,
+    "stated_in_text": 1092
+   },
+   "top_clients": [
+    {
+     "client": "lda:client:56181",
+     "client_label": "CALPORTLAND COMPANY",
+     "filings": 6,
+     "registrants": [
+      {
+       "registrant": "lda:registrant:401107675",
+       "label": "CALPORTLAND COMPANY"
+      }
+     ],
+     "attributed_usd": 1380000.0,
+     "issue_codes": [
+      "ENG",
+      "ENV"
+     ],
+     "from_dataset": "lda_lobbying"
+    },
+    {
+     "client": "lda:client:180773",
+     "client_label": "GENWORTH FINANCIAL, INC.",
+     "filings": 6,
+     "registrants": [
+      {
+       "registrant": "lda:registrant:302118",
+       "label": "GENWORTH FINANCIAL, INC."
+      }
+     ],
+     "attributed_usd": 1295027.5,
+     "issue_codes": [
+      "HOU",
+      "TAX"
+     ],
+     "from_dataset": "lda_lobbying"
+    },
+    {
+     "client": "lda:client:197319",
+     "client_label": "ABBVIE INC.",
+     "filings": 6,
+     "registrants": [
+      {
+       "registrant": "lda:registrant:401049961",
+       "label": "ABBVIE, INC."
+      }
+     ],
+     "attributed_usd": 1230714.29,
+     "issue_codes": [
+      "CPT",
+      "HCR",
+      "MMM",
+      "TAX"
+     ],
+     "from_dataset": "lda_lobbying"
+    },
+    {
+     "client": "lda:client:102667",
+     "client_label": "AMERICAN COLLEGE OF CARDIOLOGY",
+     "filings": 6,
+     "registrants": [
+      {
+       "registrant": "lda:registrant:1945",
+       "label": "AMERICAN COLLEGE OF CARDIOLOGY"
+      }
+     ],
+     "attributed_usd": 1163333.33,
+     "issue_codes": [
+      "MMM"
+     ],
+     "from_dataset": "lda_lobbying"
+    },
+    {
+     "client": "lda:client:128604",
+     "client_label": "NATIONAL VENTURE CAPITAL ASSOCIATION",
+     "filings": 6,
+     "registrants": [
+      {
+       "registrant": "lda:registrant:21687",
+       "label": "NATIONAL VENTURE CAPITAL ASSOCIATION"
+      }
+     ],
+     "attributed_usd": 363580.79,
+     "issue_codes": [
+      "AGR",
+      "BAN",
+      "ENG",
+      "HCR",
+      "HOM",
+      "LBR",
+      "SCI",
+      "SMB",
+      "TAX"
+     ],
+     "from_dataset": "lda_lobbying"
+    },
+    {
+     "client": "lda:client:147126",
+     "client_label": "INTERNATIONAL FRESH PRODUCE ASSOCIATION (FKA UNITED FRESH PRODUCE ASSOCIATION)",
+     "filings": 6,
+     "registrants": [
+      {
+       "registrant": "lda:registrant:39132",
+       "label": "INTERNATIONAL FRESH PRODUCE ASSOCIATION (FKA UNITED FRESH PRODUCE ASSOCIATION)"
+      }
+     ],
+     "attributed_usd": 153001.27,
+     "issue_codes": [
+      "AGR",
+      "BUD",
+      "ENV",
+      "LBR",
+      "TAX",
+      "TRA",
+      "TRD"
+     ],
+     "from_dataset": "lda_lobbying"
+    },
+    {
+     "client": "lda:client:153128",
+     "client_label": "FIRSTENERGY CORP",
+     "filings": 6,
+     "registrants": [
+      {
+       "registrant": "lda:registrant:43764",
+       "label": "FIRSTENERGY CORP"
+      }
+     ],
+     "attributed_usd": 116854.15,
+     "issue_codes": [
+      "BUD",
+      "ENG",
+      "ENV",
+      "HOM",
+      "TAX",
+      "TRA"
+     ],
+     "from_dataset": "lda_lobbying"
+    },
+    {
+     "client": "lda:client:196455",
+     "client_label": "ENBRIDGE (U.S.) INC",
+     "filings": 6,
+     "registrants": [
+      {
+       "registrant": "lda:registrant:400960770",
+       "label": "ENBRIDGE (U.S.) INC"
+      }
+     ],
+     "attributed_usd": 111714.29,
+     "issue_codes": [
+      "BUD",
+      "ENG",
+      "HOM",
+      "NAT",
+      "TAX",
+      "TRA"
+     ],
+     "from_dataset": "lda_lobbying"
+    },
+    {
+     "client": "lda:client:178350",
+     "client_label": "GEOSYNTHETIC MATERIALS ASSOCIATION - ATA (FORMERLY KNOWN AS GMA - IFAI)",
+     "filings": 6,
+     "registrants": [
+      {
+       "registrant": "lda:registrant:292892",
+       "label": "WHITMER & WORRALL, LLC"
+      }
+     ],
+     "attributed_usd": 83333.33,
+     "issue_codes": [
+      "ENG",
+      "ENV",
+      "TRA"
+     ],
+     "from_dataset": "lda_lobbying"
+    },
+    {
+     "client": "lda:client:61630",
+     "client_label": "FIRSTENERGY SERVICES COMPANY",
+     "filings": 6,
+     "registrants": [
+      {
+       "registrant": "lda:registrant:401057986",
+       "label": "SBL STRATEGIES, LLC"
+      }
+     ],
+     "attributed_usd": 61250.0,
+     "issue_codes": [
+      "ENG",
+      "ENV",
+      "TAX"
+     ],
+     "from_dataset": "lda_lobbying"
+    },
+    {
+     "client": "lda:client:191507",
+     "client_label": "TRUSTAGE",
+     "filings": 6,
+     "registrants": [
+      {
+       "registrant": "lda:registrant:400470324",
+       "label": "LARRY BLANCHARD"
+      }
+     ],
+     "attributed_usd": 54000.0,
+     "issue_codes": [
+      "FIN",
+      "INS",
+      "TAX"
+     ],
+     "from_dataset": "lda_lobbying"
+    },
+    {
+     "client": "lda:client:114100",
+     "client_label": "COMCAST CORPORATION",
+     "filings": 5,
+     "registrants": [
+      {
+       "registrant": "lda:registrant:10057",
+       "label": "COMCAST CORPORATION"
+      }
+     ],
+     "attributed_usd": 15470000.0,
+     "issue_codes": [
+      "BUD",
+      "TAX"
+     ],
+     "from_dataset": "lda_lobbying"
+    },
+    {
+     "client": "lda:client:200358",
+     "client_label": "ALIBABA GROUP HOLDING LIMITED",
+     "filings": 5,
+     "registrants": [
+      {
+       "registrant": "lda:registrant:401103900",
+       "label": "ALIBABA GROUP HOLDING LIMITED"
+      }
+     ],
+     "attributed_usd": 4560000.0,
+     "issue_codes": [
+      "ECN"
+     ],
+     "from_dataset": "lda_lobbying"
+    },
+    {
+     "client": "lda:client:159983",
+     "client_label": "HONEYWELL INTERNATIONAL",
+     "filings": 5,
+     "registrants": [
+      {
+       "registrant": "lda:registrant:57453",
+       "label": "HONEYWELL INTERNATIONAL"
+      }
+     ],
+     "attributed_usd": 3780000.0,
+     "issue_codes": [
+      "BUD",
+      "CSP",
+      "DEF",
+      "LAW",
+      "SCI",
+      "TAX"
+     ],
+     "from_dataset": "lda_lobbying"
+    },
+    {
+     "client": "lda:client:200992",
+     "client_label": "ALCOA CORP",
+     "filings": 5,
+     "registrants": [
+      {
+       "registrant": "lda:registrant:401104221",
+       "label": "ALCOA CORP"
+      }
+     ],
+     "attributed_usd": 3490000.0,
+     "issue_codes": [
+      "TAX"
+     ],
+     "from_dataset": "lda_lobbying"
+    }
+   ]
+  },
+  "money_to_positioned_members": {
+   "members": [
+    {
+     "bioguide": "bioguide:C001126",
+     "label": "Mike Carey",
+     "party": "R",
+     "state": "OH",
+     "chamber": "House",
+     "roles": [
+      "committee_of_referral"
+     ],
+     "cycle": 2026,
+     "total_receipts_usd": 3299678.5,
+     "other_committee_contributions_usd": 1742150.0,
+     "pac_direct_usd": 1761011.0,
+     "business_pac_direct_usd": 1329367.0,
+     "from_dataset": "fec"
+    },
+    {
+     "bioguide": "bioguide:P000613",
+     "label": "Jimmy Panetta",
+     "party": "D",
+     "state": "CA",
+     "chamber": "House",
+     "roles": [
+      "committee_of_referral"
+     ],
+     "cycle": 2026,
+     "total_receipts_usd": 2887609.62,
+     "other_committee_contributions_usd": 1559106.8,
+     "pac_direct_usd": 1637552.0,
+     "business_pac_direct_usd": 1263106.0,
+     "from_dataset": "fec"
+    },
+    {
+     "bioguide": "bioguide:M001213",
+     "label": "Blake D. Moore",
+     "party": "R",
+     "state": "UT",
+     "chamber": "House",
+     "roles": [
+      "committee_of_referral"
+     ],
+     "cycle": 2026,
+     "total_receipts_usd": 2536636.22,
+     "other_committee_contributions_usd": 1421500.0,
+     "pac_direct_usd": 1460494.0,
+     "business_pac_direct_usd": 1156500.0,
+     "from_dataset": "fec"
+    },
+    {
+     "bioguide": "bioguide:K000009",
+     "label": "Marcy Kaptur",
+     "party": "D",
+     "state": "OH",
+     "chamber": "House",
+     "roles": [
+      "committee_of_referral"
+     ],
+     "cycle": 2026,
+     "total_receipts_usd": 4303415.64,
+     "other_committee_contributions_usd": 1126724.8,
+     "pac_direct_usd": 1183749.0,
+     "business_pac_direct_usd": 382500.0,
+     "from_dataset": "fec"
+    },
+    {
+     "bioguide": "bioguide:P000608",
+     "label": "Scott H. Peters",
+     "party": "D",
+     "state": "CA",
+     "chamber": "House",
+     "roles": [
+      "committee_of_referral"
+     ],
+     "cycle": 2026,
+     "total_receipts_usd": 1810961.02,
+     "other_committee_contributions_usd": 1066750.0,
+     "pac_direct_usd": 1157494.0,
+     "business_pac_direct_usd": 976750.0,
+     "from_dataset": "fec"
+    },
+    {
+     "bioguide": "bioguide:E000298",
+     "label": "Ron Estes",
+     "party": "R",
+     "state": "KS",
+     "chamber": "House",
+     "roles": [
+      "committee_of_referral"
+     ],
+     "cycle": 2026,
+     "total_receipts_usd": 1855034.98,
+     "other_committee_contributions_usd": 1090100.0,
+     "pac_direct_usd": 1127328.0,
+     "business_pac_direct_usd": 864084.0,
+     "from_dataset": "fec"
+    },
+    {
+     "bioguide": "bioguide:H001093",
+     "label": "Erin Houchin",
+     "party": "R",
+     "state": "IN",
+     "chamber": "House",
+     "roles": [
+      "committee_of_referral"
+     ],
+     "cycle": 2026,
+     "total_receipts_usd": 1856572.42,
+     "other_committee_contributions_usd": 1041092.97,
+     "pac_direct_usd": 1034994.0,
+     "business_pac_direct_usd": 752000.0,
+     "from_dataset": "fec"
+    },
+    {
+     "bioguide": "bioguide:B001296",
+     "label": "Brendan F. Boyle",
+     "party": "D",
+     "state": "PA",
+     "chamber": "House",
+     "roles": [
+      "committee_of_referral"
+     ],
+     "cycle": 2026,
+     "total_receipts_usd": 2451957.76,
+     "other_committee_contributions_usd": 970785.0,
+     "pac_direct_usd": 1027821.0,
+     "business_pac_direct_usd": 641772.0,
+     "from_dataset": "fec"
+    },
+    {
+     "bioguide": "bioguide:O000019",
+     "label": "Jay Obernolte",
+     "party": "R",
+     "state": "CA",
+     "chamber": "House",
+     "roles": [
+      "committee_of_referral"
+     ],
+     "cycle": 2026,
+     "total_receipts_usd": 1455867.71,
+     "other_committee_contributions_usd": 863371.22,
+     "pac_direct_usd": 934518.0,
+     "business_pac_direct_usd": 697524.0,
+     "from_dataset": "fec"
+    },
+    {
+     "bioguide": "bioguide:S001199",
+     "label": "Lloyd Smucker",
+     "party": "R",
+     "state": "PA",
+     "chamber": "House",
+     "roles": [
+      "committee_of_referral"
+     ],
+     "cycle": 2026,
+     "total_receipts_usd": 1524161.47,
+     "other_committee_contributions_usd": 803667.21,
+     "pac_direct_usd": 827750.0,
+     "business_pac_direct_usd": 637506.0,
+     "from_dataset": "fec"
+    },
+    {
+     "bioguide": "bioguide:B001301",
+     "label": "Jack Bergman",
+     "party": "R",
+     "state": "MI",
+     "chamber": "House",
+     "roles": [
+      "committee_of_referral"
+     ],
+     "cycle": 2026,
+     "total_receipts_usd": 1917574.18,
+     "other_committee_contributions_usd": 756925.0,
+     "pac_direct_usd": 820169.0,
+     "business_pac_direct_usd": 503000.0,
+     "from_dataset": "fec"
+    },
+    {
+     "bioguide": "bioguide:T000469",
+     "label": "Paul Tonko",
+     "party": "D",
+     "state": "NY",
+     "chamber": "House",
+     "roles": [
+      "committee_of_referral"
+     ],
+     "cycle": 2026,
+     "total_receipts_usd": 957586.69,
+     "other_committee_contributions_usd": 616955.0,
+     "pac_direct_usd": 674051.0,
+     "business_pac_direct_usd": 393500.0,
+     "from_dataset": "fec"
+    },
+    {
+     "bioguide": "bioguide:C001118",
+     "label": "Ben Cline",
+     "party": "R",
+     "state": "VA",
+     "chamber": "House",
+     "roles": [
+      "committee_of_referral"
+     ],
+     "cycle": 2026,
+     "total_receipts_usd": 1441436.38,
+     "other_committee_contributions_usd": 597759.68,
+     "pac_direct_usd": 633770.0,
+     "business_pac_direct_usd": 445106.0,
+     "from_dataset": "fec"
+    },
+    {
+     "bioguide": "bioguide:A000380",
+     "label": "Gabe Amo",
+     "party": "D",
+     "state": "RI",
+     "chamber": "House",
+     "roles": [
+      "committee_of_referral"
+     ],
+     "cycle": 2026,
+     "total_receipts_usd": 1725081.41,
+     "other_committee_contributions_usd": 654421.85,
+     "pac_direct_usd": 626211.0,
+     "business_pac_direct_usd": 392129.0,
+     "from_dataset": "fec"
+    },
+    {
+     "bioguide": "bioguide:M001220",
+     "label": "Morgan McGarvey",
+     "party": "D",
+     "state": "KY",
+     "chamber": "House",
+     "roles": [
+      "committee_of_referral"
+     ],
+     "cycle": 2026,
+     "total_receipts_usd": 1633683.87,
+     "other_committee_contributions_usd": 538001.21,
+     "pac_direct_usd": 602138.0,
+     "business_pac_direct_usd": 382588.0,
+     "from_dataset": "fec"
+    }
+   ],
+   "pac_direct_by_interest_group_category_usd": {
+    "C (corporation)": 8631826.0,
+    "L (labor_organization)": 1838700.0,
+    "M (membership_organization)": 1941298.0,
+    "T (trade_association)": 4857225.0,
+    "V (cooperative)": 244000.0,
+    "W (corporation_without_capital_stock)": 321000.0
+   }
+  }
+ },
+ "counts": {
+  "members_in_congress": 555,
+  "roll_calls": 47,
+  "lda_filings_citing_the_number": 8111,
+  "committee_seats_on_referral_committees": 37,
+  "positioned_members": 37
+ },
+ "pinned_inputs": {
+  "influence_panel/panel": {
+   "dataset": "influence_panel",
+   "stage": "panel",
+   "version": "4562e7f9219e31b9673cc58d458d444f17de31b68fb7b3628ed633c8a6a77542"
+  },
+  "congress_people": {
+   "dataset": "congress_people",
+   "stage": "normalized",
+   "version": "79e40ffafc41469a07868f19c4daa3fba99a4efad78d89bcd957a973463e5e47"
+  },
+  "voteview_rollcalls": {
+   "dataset": "voteview_rollcalls",
+   "stage": "normalized",
+   "version": "fce7b7529e4bb480cf309342de6546f14ba19188b41f2b72430c17886a8051c9"
+  },
+  "govinfo_billstatus": {
+   "dataset": "govinfo_billstatus",
+   "stage": "normalized",
+   "version": "bd0448be2d4bf7725909116a6f14445641d7b4b1d2dd0e468e5e73fe0d277ca3"
+  },
+  "congress_gov_api": {
+   "dataset": "congress_gov_api",
+   "stage": "normalized",
+   "version": "44cd88fe3836a9f90762eea7d5bce897305a203fd3b6dc8b60a366d3b709ffce"
+  },
+  "lda_lobbying": {
+   "dataset": "lda_lobbying",
+   "stage": "normalized",
+   "version": "3eba146b167bdfe685e11fe547a3af2e745128dfa73db075cb20b41746023143"
+  },
+  "fec": {
+   "dataset": "fec",
+   "stage": "normalized",
+   "version": "93722c10f3b8383b0c5ee6c76d0e3dca593641282c6d9afbf1aa14512a0e2ed9"
+  },
+  "fec_candidates": {
+   "dataset": "fec_candidates",
+   "stage": "normalized",
+   "version": "a46824fd37e5cd7209332a632bef6ec2445d8c569f1972ddca59277025208b02"
+  },
+  "fec_individual_contributions": {
+   "dataset": "fec_individual_contributions",
+   "stage": "normalized",
+   "version": "4c5960d61b201b59c20cd62bf05d62339b9794bb6f3f484024a300e08ae572c7"
+  },
+  "fec_individual_contributions_2022": {
+   "dataset": "fec_individual_contributions_2022",
+   "stage": "normalized",
+   "version": "1f44d0ca202580cc6e5a9eb21ebc85073f446a2dbdd22d962bf3f993498567c8"
+  },
+  "fec_individual_contributions_2024": {
+   "dataset": "fec_individual_contributions_2024",
+   "stage": "normalized",
+   "version": "83a01f428920fd5381c11d7745ae809a6aed06d6c85c517194af8c4bb9fb7ca9"
+  },
+  "influence_panel/bills": {
+   "dataset": "influence_panel",
+   "stage": "bills",
+   "version": "878caedfd46493e49f1703575c4ab6eae8a98f7b10a3dea39339be21a8669ca5"
+  }
+ },
+ "datasets_used": [
+  "congress_people",
+  "fec",
+  "fec_candidates",
+  "govinfo_billstatus",
+  "influence_panel",
+  "lda_lobbying",
+  "voteview_rollcalls"
+ ],
+ "which_dataset_supplied_which_edge": {
+  "measure, sponsor, cosponsors, committees of referral": "govinfo_billstatus (via influence_panel/bills)",
+  "roll call -> measure": "voteview_rollcalls published bill_number (via influence_panel/bills)",
+  "member positions on those roll calls": "voteview_rollcalls roll_call_member_positions",
+  "icpsr -> bioguide": "voteview_rollcalls and congress_people same_as (via influence_panel/panel)",
+  "committee seats and titles": "congress_people committee-membership-current",
+  "LDA filing -> measure": "lda_lobbying specific-issue text citing the bill number; Congress inferred from the filing period unless stated (congress_basis)",
+  "LDA client and registrant": "lda_lobbying published IDs and labels",
+  "money received by each member": "fec weball and pas2 via congress_people fec same_as (via influence_panel/panel)"
+ },
+ "what_this_does_not_establish": [
+  "No influence and no causation. A filing that cites this bill says a registrant lobbied on it for a client; it does not say whom they met, what they asked for, which side they took, or that any member acted on it.",
+  "The money shown is everything a positioned member's campaign received from committees in the cycle, not money about this bill. No published crosswalk links an LDA client to an FEC committee, so lobbying and money are shown side by side and never joined.",
+  "The Congress of a cited bill number is inferred from the filing period for 7019 of 8111 citations; a filer citing an older bill with the same number is counted here.",
+  "Attributed dollars split each filing's reported income or expenses equally across the bills it cites; filings under $5,000 report no amount.",
+  "Committee seats come from the current membership file with no start dates; a seat may postdate the referral.",
+  "Voting against one's party majority on a roll call is a descriptive fact about that vote, not evidence about why.",
+  "LDA coverage is filing years 2025-2026 only (a partial acquisition), so lobbying on earlier Congresses is absent, not zero."
+ ]
+}
