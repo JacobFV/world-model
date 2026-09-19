@@ -515,15 +515,11 @@ class Graph:
             raise ValueError('hops must be 1..6 and limit 1..1000')
         from .model import identifier
         identifier(entity)
+        visited, frontier, claims = {entity}, {entity}, {}
+        truncated = False
         connection = self._connect()
         try:
             suffix, time_args, as_of = self._filters(connection, valid_at, known_at, include_unknown_publication)
-        except Exception:
-            connection.close()
-            raise
-        visited, frontier, claims = {entity}, {entity}, {}
-        truncated = False
-        try:
             for _ in range(hops):
                 next_frontier = set()
                 for node in sorted(frontier):

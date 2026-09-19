@@ -53,6 +53,17 @@ Queries on it are interactive: counting all records by kind takes 3.9 s (index-o
 Record bodies are stored deflated (`compress_bodies`). Record text dominates a catalog-scale index;
 `Graph._decode` reads either form, so indexes built before this change stay queryable.
 
+**As-of queries need graph schema 4, which this index predates.** `observed_at` is when a record was
+*ingested*, not when the fact became public, so filtering `--known-at` on it claimed a point-in-time
+view nobody had. Schema 4 adds `published_at` to `records` and `edges`, populated from the
+publisher's `dimensions.available_at`, an ALFRED `attributes.realtime_start`, or a declared
+dataset-level lag, and `NULL` — unknown — otherwise. `known_at` now filters on that column, excludes
+unknown-publication rows by default, and every result reports how many it dropped and from which
+datasets; `--include-unknown-publication` restores the old ingestion-time reading and labels it.
+Until the index is rebuilt, an as-of query against it is refused rather than answered from ingest
+time. [point-in-time-graph.md](point-in-time-graph.md) has the schema, the three sources, the
+measured coverage per dataset, and what a declared lag still does not establish.
+
 ## Scopes, and what each one costs
 
 Measured on this machine (20 cores, 121 GB RAM, NVMe, Python 3.12) on 2026-09-15, one process,
