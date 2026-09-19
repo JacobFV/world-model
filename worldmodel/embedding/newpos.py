@@ -177,7 +177,8 @@ def build_tasks(holdings, quarters, *, per_quarter, per_manager, k=12, history=4
         # competes as a probability rather than losing on level alone. Rank order is the entry rate's.
         base_security = np.full((S, 1), np.nan)
         rates = entry_rates[s_index]
-        average = np.nanmean(rates)
+        known = np.isfinite(rates)                # a quarter early enough to have no prior quarter has none
+        average = rates[known].mean() if known.any() else np.nan
         design_rate = 1.0 / (1.0 + negatives_per_positive)
         if np.isfinite(average) and average > 0:
             base_security[:, 0] = np.clip(rates * design_rate / average, 1e-4, 0.99)

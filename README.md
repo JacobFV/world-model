@@ -31,7 +31,7 @@ in the repository:
 | Current attempts that met every declared acceptance criterion | 9 of 35 |
 | **Registry processes that are validated** | **5 of 22 — `monetary_model`, `resource_inventory`, `elections_model`, `assets_model`, `legislative_model`** |
 | Model families declaring themselves validated | 0 of 11 (a family's descriptor never claims it; validation comes only from a passing report) |
-| World-state embedding attempts | 9 registered, 2 not run on compute budget; the 7 scored produced 11 reports (one per target) over 5 domains, none validated. One passes every criterion but skill (see [world-state embeddings](docs/world-state-embeddings.md)) |
+| World-state embedding attempts | 10 registered, 2 not run on compute budget; the 8 scored produced 12 reports (one per target) over 5 domains, none validated. The pre-declared stop rule fired on the last one (see [world-state embeddings](docs/world-state-embeddings.md)) |
 | Natural-experiment designs run | 8 across two waves; three identified nulls, no non-zero effect, and every design underpowered against its own registered effect (see [natural experiments](docs/natural-experiments.md)) |
 | Tests | 1,447 discovered; the 1,175 that run here pass, and 272 skip without the optional `agents` extra (`tensorcode`) or local data payloads |
 
@@ -51,7 +51,7 @@ python3 -m worldmodel catalog          # every declaration and its status
 python3 -m worldmodel budget           # download budget and per-dataset allocation
 python3 -m worldmodel models list      # the 11 model families and their validation state
 python3 -m worldmodel estimation-load  # which estimation components can load real data
-python3 -m unittest discover -s tests  # 1,268 tests; skips depend on extras and data; ~7 minutes
+python3 -m unittest discover -s tests  # 1,608 tests; skips depend on extras and data; ~7 minutes
 ```
 
 None of those touch the network. Acquired payloads, generated dashboards and runtime
@@ -69,7 +69,7 @@ What the layers added on 2026-09-18 do, and what each one concluded:
 | Layer | What it does | Where it ends |
 | --- | --- | --- |
 | [Evidence products](docs/products.md) | `wm dossier`, `wm screen`, `wm place-brief` and a read-only local API over the unified graph | Every edge names its dataset and its rights; a screen's silence is not clearance |
-| [World-state embeddings](docs/world-state-embeddings.md) | Embeds any dated subgraph; forecasts places and actors; `wm embed-query` finds the places nearest to one county's state now | Six scored attempts over five domains ([actor domains](docs/actor-domains.md)); beats naive baselines, beats a gradient-boosted model only on county employment; none validated |
+| [World-state embeddings](docs/world-state-embeddings.md) | Embeds any dated subgraph; forecasts places and actors; `wm embed-query` finds the places nearest to one county's state now | Eight scored attempts over five domains ([actor domains](docs/actor-domains.md)); beats naive baselines, beats a gradient-boosted model only on county employment; none validated, and the encoder line is now closed by its own stop rule -- the Student-t + conformal interval head is what continues |
 | [Natural experiments](docs/natural-experiments.md) | Event library of dated shocks, staggered difference-in-differences, placebo and power suites | Eight designs, three identified nulls, no identified effect, every design underpowered |
 | [Decision layer](docs/decision-layer.md) | Decision contracts, fragility search, policy learning gated on validated mechanisms | A learned policy wins in-sample and loses out-of-sample; no recommendation rests on an identified response |
 | [Identity coverage](docs/identity-coverage.md) | Every published bridge mined, misleading identifiers refused, coverage estimated | 3.66% of entities join across two datasets; the rest cannot be joined by asserted identity |

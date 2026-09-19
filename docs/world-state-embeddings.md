@@ -251,6 +251,7 @@ about; and a past match does not mean the query county will follow that county's
 | `actors.fec_repeat_contribution_v1` | **fail** | beats the base rate and the giver's own repeat rate; loses to LightGBM; misses the calibration criterion |
 | `places.county_realtime_population_v1` | **fail**, on skill alone | the first attempt to pass `no_revision_leakage`; loses to drift and LightGBM |
 | `actors.fdic_bank_distress_v1` | **fail** | the only actor domain where it edges LightGBM, and not significantly |
+| `actors.13f_new_position_v1` | **fail** | the link-prediction task built so a per-pair model has nothing to chew on; LightGBM still wins; see below |
 
 ## What the embedding is worth so far
 
@@ -267,6 +268,7 @@ the *same* subgraph, because that is the baseline that decides whether an embedd
 | Roll-call defection | yes, base rate and the member's own rate | no (p = 1.00) |
 | Repeat campaign contribution | yes, base rate and the giver's own repeat rate | no (p = 0.99) |
 | Bank distress | yes, base rate and the bank's own rate | ahead, but not significantly (p = 0.21) |
+| 13F new position (link prediction, empty query node) | yes, sampling base rate and the security's own entry rate | no (p = 1.00 pooled, 0.99 quarter-clustered) |
 
 Three things follow, and they are worth stating plainly because they are not what the design hoped
 for.
@@ -285,12 +287,70 @@ The one architectural claim that survives intact is the one about intervals: the
 split-conformal scales met its coverage criterion on every places target, in a repository where
 `interval_coverage` is the most common failure.
 
-The honest next tests are not bigger models. They are (a) real-time county vintages, which is the
-only way any places attempt can pass its declared criteria at all, and (b) domains where a
-neighbour-mean cannot express the structure: paths, cycles and multi-hop reachability rather than
-one-hop aggregates.
+Both of the honest next tests have now been run, and both went against the encoder. (a) Real-time
+county vintages -- `places.county_realtime_population_v1` -- removed the leakage that had made every
+places attempt undecidable, and the attempt then failed on skill alone. (b) A task a per-pair model
+cannot cheat -- `actors.13f_new_position_v1`, where the query pair has no history at all and only the
+surrounding structure separates a candidate from its alternatives -- was the design's best case, and
+LightGBM on hand-aggregated neighbour features still won it.
+
+**The decision rule declared with that attempt therefore fires.** It was written into the
+registration before the holdout was scored: *if neither the encoder nor the embedding-stacked model
+beats LightGBM here, I stop investing in the encoder and keep only the Student-t + conformal interval
+head, which has earned its place in every attempt.* Eight scored attempts, five domains, one narrow
+win on a revised panel that cannot be re-tested leak-free: that is enough evidence, and the rule is
+kept rather than renegotiated. What continues from this layer is the head, not the encoder --
+the Student-t likelihood with a learned degrees-of-freedom and split-conformal scale calibration,
+which met its coverage criterion on every places target and is reusable by any forecaster in the
+repository, including the gradient-boosted models that beat the encoder.
+
+What would reopen it is new evidence rather than a bigger model: a domain whose graph is genuinely
+multi-hop and irregular (ownership chains, supply routes, citation or litigation paths) where the
+one-hop aggregate a tabular model consumes is provably lossy. That is a new pre-registration, not a
+continuation of this one.
 
 ## Results
+
+### actors.13f_new_position_v1 -- the task built to favour the encoder, and it still loses
+
+Published `embedding_reports@5f0d8197`. Every earlier actor task hands the forecaster the query
+pair's own history, which is exactly what a tabular model consumes best. This one removes it: a
+sample is a (manager, security) pair the manager **does not hold**, and the label is whether the
+manager reports that security in its next original 13F-HR. The query position node is empty by
+construction, so what separates a candidate from its alternatives is the structure around it -- who
+else holds the security, what else the manager holds, and whether those two neighbourhoods meet
+through a two-hop path. If attention over a subgraph is worth more than fixed neighbour means
+anywhere in this catalog, it is worth more here.
+
+Candidates per positive: two securities from a two-hop co-holding walk (deliberately hard) and two
+drawn in proportion to holder count. 128,025 pairs over 16 test quarters (2021Q1-2024Q4), sampled
+base rate 0.2125, 1,624 seconds alone on the GB10's GPU.
+
+| Forecaster | Test Brier |
+| --- | ---: |
+| LightGBM + cross-fitted encoder logits (selected on validation) | 0.134887 |
+| LightGBM on the same subgraph features | **0.133457** |
+| the security's own entry rate, scaled to the design's base rate | 0.158966 |
+| the sampling base rate | 0.167320 |
+
+* Against both naive baselines: decisive, pooled and quarter-clustered DM p < 0.001; Brier skill
+  0.194 over the base rate.
+* Against LightGBM: worse by 0.0014 Brier, p = 1.00 pooled and 0.985 quarter-clustered.
+  `beats_gbdt_dm` fails, so the attempt is not validated.
+* Validation (2019Q1-2020Q4) ranked the three candidates encoder alone 0.12730, LightGBM + label-free
+  embedding 0.122907, LightGBM + cross-fitted encoder 0.122894. The two stacked candidates are
+  separated by 1.4e-5 -- effectively a tie -- and both beat the encoder alone, the same ordering as
+  every other actor attempt.
+* `expected_calibration_error_within_2pp` also fails, at 0.0557. Every probability bin over-predicts:
+  mean bias +0.056 for the selected model and +0.047 for plain LightGBM, while the two naive
+  baselines are near-unbiased (-0.0005 and -0.015). The sampled base rate is flat at 0.210-0.214
+  across all 46 quarters, so this is not drift in the design; both gradient-boosted candidates are
+  over-confident out of sample, and the assay fits a temperature only to the *encoder* candidate
+  (`worldmodel/embedding/actors_assay.py`), never to the stacked ones, whose LightGBM probabilities
+  go out raw. That is a gap in the harness rather than a finding about the graph, and it does not
+  touch the comparison the attempt turned on, which is a ranking test between two forecasters that
+  share the miscalibration. It does mean **no stacked probability from this assay should be read as
+  a probability** until a calibration step is added to that path.
 
 ### places.county_realtime_population_v1 — leakage removed, and it still loses
 
