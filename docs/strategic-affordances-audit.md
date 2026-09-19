@@ -234,7 +234,7 @@ one place and is excluded from Git by design.
 
 ### 8. Redistribution
 
-75 of 107 published datasets carry `redistribution_review_required`. At least 25 carry a
+81 of 111 published datasets carry `redistribution_review_required` (re-counted 2026-09-18). At least 25 carry a
 source term that restricts redistribution or commercial use outright — including
 OpenSanctions (non-commercial only), UN Comtrade (no bulk redistribution), WITS TRAINS
 (attribution required, no resale), Alpaca and Massive (personal/internal use), Nasdaq

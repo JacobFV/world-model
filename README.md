@@ -159,7 +159,7 @@ inputs. `wm rights DATASET` reports the inherited inventory. Unknown terms do no
 local computation, but the metadata does not grant redistribution rights or decide
 license compatibility. See [code and data rights](DATA_RIGHTS.md).
 
-This matters more now that the data is real and large. 75 of the 107 published datasets
+This matters more now that the data is real and large. 81 of the 111 published datasets
 carry `redistribution_review_required` in their manifest rights block. At least 25 carry
 a source term that restricts redistribution or commercial use outright, including
 OpenSanctions (non-commercial only), UN Comtrade (no bulk redistribution), WITS/UNCTAD
