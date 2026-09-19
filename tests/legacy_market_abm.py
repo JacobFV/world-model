@@ -1,3 +1,4 @@
+# Frozen pre-optimization reference (2026-09-18) used only by tests to prove the speed-ups preserve outputs exactly.
 """Agent-based price formation with fundamentalist, chartist and noise traders.
 
 Each agent chooses a target fraction theta of wealth held in the risky asset:
@@ -15,7 +16,7 @@ totals are checked after every step. Fundamental value follows a log random walk
 """
 from copy import deepcopy
 import math
-from .base import apply_cutoff, finite, fit_result, integer, merged_parameters, parameter, requirement, rng_from, validate_family
+from worldmodel.models.base import apply_cutoff, finite, fit_result, integer, merged_parameters, parameter, requirement, rng_from, validate_family
 
 FAMILY = validate_family({
     'id': 'market_abm',
@@ -101,37 +102,9 @@ def _allocate(total, weights):
     return base
 
 
-def _theta_function(agents, fundamental, returns, noise):
-    """``price -> [_theta(a, price, ...) for a in agents]`` with the price-free work done once.
-
-    Chartist and noise allocations do not depend on the candidate price, so they are
-    computed once per step by ``_theta`` itself; only fundamentalists are re-evaluated,
-    with ``math.log(fundamental / price)`` computed once per price instead of once per
-    agent. Every value is the same expression on the same operands as ``_theta``, so the
-    list is bit-identical (tested against tests/legacy_market_abm.py).
-    """
-    fixed = [None if a['type'] == 'fundamentalist' else _theta(a, None, fundamental, returns, noise) for a in agents]
-    fundamentalists = [(k, a['strength']) for k, a in enumerate(agents) if a['type'] == 'fundamentalist']
-    if not fundamentalists:
-        return lambda price: list(fixed)
-
-    def theta_at(price):
-        mispricing = math.log(fundamental / price)
-        out = list(fixed)
-        for k, strength in fundamentalists:
-            out[k] = min(1.0, max(0.0, 0.5 + strength * mispricing))
-        return out
-    return theta_at
-
-
 def _walrasian(agents, theta_at, last_price):
-    cash = [a['cash'] for a in agents]
-    shares = [a['shares'] for a in agents]
-
     def excess(price):
-        # Holdings do not change during the price search, so they are read once; the terms
-        # and their order are those of the per-agent expression, so the sum is unchanged.
-        return sum([t * (c + s * price) / price - s for t, c, s in zip(theta_at(price), cash, shares)])
+        return sum(t * (a['cash'] + a['shares'] * price) / price - a['shares'] for a, t in zip(agents, theta_at(price)))
 
     lo, hi = math.log(max(last_price / 20, 1)), math.log(last_price * 20)
     if excess(math.exp(hi)) > 0:
@@ -264,7 +237,7 @@ def simulate(config, mode='deterministic', seed=0):
             fundamental *= math.exp(rng.gauss(0, params['fundamental_volatility']))
         noise = {a['id']: rng.gauss(0, 1) for a in agents if a['type'] == 'noise'} if stochastic else {}
         if clearing == 'walrasian':
-            new_price, volume = _walrasian(agents, _theta_function(agents, fundamental, returns, noise), price)
+            new_price, volume = _walrasian(agents, lambda p: [_theta(a, p, fundamental, returns, noise) for a in agents], price)
         else:
             thetas = [_theta(a, price, fundamental, returns, noise) for a in agents]
             order = list(range(len(agents)))

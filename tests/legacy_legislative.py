@@ -1,3 +1,4 @@
+# Frozen pre-optimization reference (2026-09-18) used only by tests to prove the speed-ups preserve outputs exactly.
 """Legislative behavior: spatial ideal points, party discipline, committee gates and passage.
 
 Vote model (a logistic reduction of quadratic spatial utility, in the IDEAL/emIRT
@@ -13,7 +14,7 @@ are standardized each sweep; polarity is fixed by explicit anchors.
 """
 from copy import deepcopy
 import math
-from .base import (NUMPY, apply_cutoff, finite, fit_result, integer, logistic, merged_parameters,
+from worldmodel.models.base import (NUMPY, apply_cutoff, finite, fit_result, integer, logistic, merged_parameters,
                    parameter, poisson_binomial, requirement, rng_from, solve, validate_family)
 
 FAMILY = validate_family({
@@ -158,73 +159,9 @@ def _standardize(x, a, b, dims):
             b[j][d] *= sd
 
 
-def _step(hess, grad, theta):
-    step = solve(hess, grad)
-    biggest = max(abs(s) for s in step)
-    scale = 1.0 if biggest <= 1.0 else 1.0 / biggest
-    return [t + scale * s for t, s in zip(theta, step)]
-
-
-def _newton1(rows, theta, prior_precision):
-    """``_newton`` for one coefficient: the same floating-point operations in the same order.
-
-    ``sum(t * v for ...)`` over one term is ``0.0 + t * v`` exactly, and the logistic is
-    inlined verbatim, so every result is bit-identical to the general loop (tested
-    against a frozen copy in tests/legacy_legislative.py).
-    """
-    exp = math.exp
-    t0 = theta[0]
-    g0 = -prior_precision[0] * t0
-    h00 = prior_precision[0]
-    for z, y, offset in rows:
-        z0 = z[0]
-        eta = offset + (0.0 + t0 * z0)
-        if eta >= 0:
-            p = 1.0 / (1.0 + exp(-eta))
-        else:
-            e = exp(eta)
-            p = e / (1.0 + e)
-        w = p * (1 - p)
-        g0 += (y - p) * z0
-        h00 += (w * z0) * z0
-    return _step([[h00]], [g0], theta)
-
-
-def _newton2(rows, theta, prior_precision):
-    """``_newton`` for two coefficients, operation for operation (a two-term ``sum`` is
-    ``(0.0 + a) + b``: Python 3.12's compensated float sum adds an exactly-zero
-    correction for two terms, verified bit for bit in the tests)."""
-    exp = math.exp
-    t0, t1 = theta
-    g0, g1 = -prior_precision[0] * t0, -prior_precision[1] * t1
-    h00, h01, h10, h11 = prior_precision[0], 0.0, 0.0, prior_precision[1]
-    for z, y, offset in rows:
-        z0, z1 = z
-        eta = offset + ((0.0 + t0 * z0) + t1 * z1)
-        if eta >= 0:
-            p = 1.0 / (1.0 + exp(-eta))
-        else:
-            e = exp(eta)
-            p = e / (1.0 + e)
-        w = p * (1 - p)
-        residual = y - p
-        g0 += residual * z0
-        g1 += residual * z1
-        w0, w1 = w * z0, w * z1
-        h00 += w0 * z0
-        h01 += w0 * z1
-        h10 += w1 * z0
-        h11 += w1 * z1
-    return _step([[h00, h01], [h10, h11]], [g0, g1], theta)
-
-
 def _newton(rows, theta, prior_precision):
     """One Newton step for a logistic model sum over rows (z, y, offset) with Gaussian prior."""
     size = len(theta)
-    if size == 1:
-        return _newton1(rows, theta, prior_precision)
-    if size == 2:
-        return _newton2(rows, theta, prior_precision)
     grad = [-prior_precision[k] * theta[k] for k in range(size)]
     hess = [[prior_precision[r] if r == c else 0.0 for c in range(size)] for r in range(size)]
     for z, y, offset in rows:
@@ -302,7 +239,7 @@ def estimate_ideal_points(data, *, dims=1, cutoff=None, lop=0.025, min_votes=20,
     call_votes = {}
     for (m, c), v in votes.items():
         i, j = mi[m], ci[c]
-        p = logistic(a[j] + _dot(b[j], x[i]))
+        p = logistic(a[j] + sum(bb * xx for bb, xx in zip(b[j], x[i])))
         loglik += math.log(max(p if v else 1 - p, 1e-300))
         correct += int((p >= 0.5) == bool(v))
         total += 1
@@ -324,7 +261,7 @@ def _log_posterior(x, a, b, votes, mi, ci, xp, bp):
     total = 0.0
     for (m, c), v in votes.items():
         i, j = mi[m], ci[c]
-        eta = a[j] + _dot(b[j], x[i])
+        eta = a[j] + sum(bb * xx for bb, xx in zip(b[j], x[i]))
         total += v * eta - (eta + math.log1p(math.exp(-eta)) if eta > 0 else math.log1p(math.exp(eta)))
     total -= 0.5 * sum(xp[d] * row[d] ** 2 for row in x for d in range(len(xp)))
     total -= 0.5 * sum(bp[0] * aj ** 2 for aj in a) + 0.5 * sum(bp[1] * v ** 2 for row in b for v in row)
@@ -382,16 +319,6 @@ def _numpy_sweeps(x, a, b, by_member, n_calls, dims, x_precision, b_precision, m
     return X.tolist(), A.tolist(), B.tolist(), iteration, converged
 
 
-def _dot(b, x):
-    """``sum(bb * xx for bb, xx in zip(b, x))`` with the one- and two-term cases spelled out
-    (bit-identical: see ``_newton2``); longer vectors use ``sum`` itself."""
-    if len(b) == 1 and len(x) >= 1:
-        return 0.0 + b[0] * x[0]
-    if len(b) == 2 and len(x) >= 2:
-        return (0.0 + b[0] * x[0]) + b[1] * x[1]
-    return sum(bb * xx for bb, xx in zip(b, x))
-
-
 def estimate_discipline(votes, parties, ideal_points, bill_parameters, max_iter=50):
     """Logistic slope on the leave-one-out party-majority signal with the spatial prediction as offset."""
     tallies = {}
@@ -407,7 +334,7 @@ def estimate_discipline(votes, parties, ideal_points, bill_parameters, max_iter=
             continue
         signal = 1.0 if yes * 2 > count else -1.0 if yes * 2 < count else 0.0
         bill = bill_parameters[c]
-        offset = bill['a'] + _dot(bill['b'], ideal_points[m])
+        offset = bill['a'] + sum(bb * xx for bb, xx in zip(bill['b'], ideal_points[m]))
         rows.append(([signal], v, offset))
     if not rows or all(z[0] == 0 for z, _, _ in rows):
         return {'discipline': 0.0, 'standard_error': None, 'n': len(rows), 'identified': False}
@@ -418,12 +345,7 @@ def estimate_discipline(votes, parties, ideal_points, bill_parameters, max_iter=
             theta = new
             break
         theta = new
-    slope = theta[0]
-    terms = []
-    for z, _, o in rows:
-        p = logistic(o + slope * z[0])
-        terms.append(p * (1 - p) * z[0] ** 2)
-    info = sum(terms)
+    info = sum(logistic(o + theta[0] * z[0]) * (1 - logistic(o + theta[0] * z[0])) * z[0] ** 2 for z, _, o in rows)
     return {'discipline': theta[0], 'standard_error': 1 / math.sqrt(info) if info > 0 else None, 'n': len(rows),
             'identified': True, 'caveat': 'In-sample; conditional on ideal points that already absorb party-line voting.'}
 
@@ -710,7 +632,7 @@ def _holdout_forecast(parameters, history, rows, data, bill_prior_sd=5.0, max_it
                 break
         hess = [[precision[r] if r == c else 0.0 for c in range(dims + 1)] for r in range(dims + 1)]
         for z, _, offset in fitting:
-            p = logistic(offset + _dot(theta, z))
+            p = logistic(offset + sum(t * v for t, v in zip(theta, z)))
             for r in range(dims + 1):
                 for c in range(dims + 1):
                     hess[r][c] += p * (1 - p) * z[r] * z[c]
@@ -720,7 +642,7 @@ def _holdout_forecast(parameters, history, rows, data, bill_prior_sd=5.0, max_it
                 continue
             z = [1.0] + list(ideal[member])
             variance = sum(a * b for a, b in zip(z, solve(hess, z)))
-            mean = _dot(theta, z) + discipline * _party_signal(known, parties, member)
+            mean = sum(t * v for t, v in zip(theta, z)) + discipline * _party_signal(known, parties, member)
             p = logistic(mean / math.sqrt(1 + math.pi * variance / 8))
             out.append({'target': f'vote:{call}:{member}', 'actual': votes[member], 'mean': p, 'sd': math.sqrt(p * (1 - p)),
                         'history_values': past.get(member, []),
