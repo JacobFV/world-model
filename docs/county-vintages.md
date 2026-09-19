@@ -239,7 +239,7 @@ Per-month numbers for all 423 months, with counties-holding-any-value beside the
   counties and **on 2007-07-05** for the whole country (3,131 of 3,140 that day, all 3,140 by
   2008-05-07). The annual county panel's earliest all-family origin is the 2019-08-28 LAUS archive.
 * **A monthly county outcome can be scored from reference month 2005-04** for those 339 counties and
-  from **2007-05** nationally — 148 monthly observations per county before reference year 2019, the
+  from **2007-05** nationally — 140 monthly observations per county before reference year 2019, the
   first year `county_realtime_panel` can score LAUS at all, and enough history to cover the 2008-09
   recession as it was published.
 * It does **not** reach QCEW county employment or wages, which FRED does not carry at county level in

@@ -155,7 +155,7 @@ a vintage **after** the series' archive opened. Zeros are not gaps in the data: 
 present, but only as the opening snapshot of already-revised history, and a real-time panel must not
 read them as releases.
 
-The archive opens in three steps, and the middle one is the finding:
+The archive opens in steps, and the second one is the finding:
 
 | reference months | rate | labor force | published on | what it is |
 | --- | ---: | ---: | --- | --- |
@@ -172,7 +172,7 @@ published on the **fifth to eighth day of the second following month** (2007-05 
 2008-03 on 2008-05-07), which is the real publication lag a panel should use rather than a declared
 one.
 
-and then holds, losing only counties FRED discontinues:
+After 2008-03 the coverage holds, losing only counties FRED discontinues:
 
 | reference year | months with a first release | rate: counties (median month) | labor force: counties (median month) |
 | --- | ---: | ---: | ---: |
@@ -200,7 +200,7 @@ are in `coverage.json`.
   2008-05-07).
 * **A monthly county outcome can be scored from reference month 2005-04** for those 339 counties and
   from **2007-05** for 3,137 of 3,140. Against `county_realtime_panel`'s LAUS, which starts at
-  reference *year* 2019, that is **twelve more years and 148 more monthly observations per county**
+  reference *year* 2019, that is **twelve more years and 140 more monthly observations per county**
   before the first year the annual panel can score.
 * It does **not** reach QCEW employment, which FRED does not carry at county level in any form, or
   monthly employed/unemployed persons, which exist only in the structured ids from 2019-08-28.
