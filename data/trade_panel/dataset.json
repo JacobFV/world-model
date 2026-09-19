@@ -1,0 +1,112 @@
+{
+  "id": "trade_panel",
+  "schema_version": 2,
+  "kind": "derived",
+  "status": "built_from_published_inputs",
+  "description": "Bilateral merchandise trade panel from CEPII BACI (HS1992 1995-2024 and HS2017 2017-2024): one record per nomenclature x exporter x importer x year holding the HS6 values (thousand USD) and quantities (t), the importer's MFN applied tariff per product where WITS/TRAINS or the USITC HTS publishes it and the UNSD correlation table translates it exactly, and CEPII gravity covariates. Countries join on published ISO3 codes; every value carries a declared publication rule. See README.md for what it does not establish.",
+  "dependencies": [
+    "cepii_baci",
+    "cepii_baci_hs92",
+    "wits_trains_tariffs",
+    "usitc_hts_tariffs",
+    "cepii_gravity",
+    "trade_concordances"
+  ],
+  "entrypoint": "pipeline.py:panel",
+  "parameters": {
+    "builder": "worldmodel.panels.trade",
+    "nomenclatures": [
+      "hs92",
+      "hs17"
+    ],
+    "baci_release": "V202601",
+    "baci_release_published": "2026-01-31",
+    "baci_first_release_lag_years": 2,
+    "gravity_release": "V202211",
+    "gravity_release_published": "2022-11-30",
+    "gravity_first_year": 1995,
+    "eu_reporter": "wits:economy:918",
+    "eu_membership_carry_forward_through": 2024,
+    "tariff_metric": "mfn_applied_tariff_simple_avg",
+    "hts_general_rate_metric": "general_ad_valorem_rate",
+    "evidence_sample": 3
+  },
+  "sampling": {
+    "strategy": "derived",
+    "format": "jsonl",
+    "max_rows": 100,
+    "max_sample_bytes": 1048576,
+    "max_download_bytes": 1048576,
+    "max_uncompressed_bytes": 1048576,
+    "disk_budget_bytes": 67108864,
+    "criteria": "Sample an existing published panel only; never trigger upstream downloads or builds.",
+    "representative": false
+  },
+  "stages": [
+    {
+      "id": "concordance",
+      "entrypoint": "pipeline.py:concordance",
+      "depends_on": [],
+      "schema": {
+        "format": "jsonl",
+        "compression": "gzip",
+        "required": {
+          "id": "string",
+          "schema": "string",
+          "evidence": "array"
+        }
+      },
+      "validation": {
+        "allow_empty": false,
+        "max_rows": 100000
+      },
+      "cache": "content",
+      "retention": "retain"
+    },
+    {
+      "id": "tariffs",
+      "entrypoint": "pipeline.py:tariffs",
+      "depends_on": [
+        "concordance"
+      ],
+      "schema": {
+        "format": "jsonl",
+        "compression": "gzip",
+        "required": {
+          "id": "string",
+          "schema": "string",
+          "evidence": "array"
+        }
+      },
+      "validation": {
+        "allow_empty": false,
+        "max_rows": 100000
+      },
+      "cache": "content",
+      "retention": "retain"
+    },
+    {
+      "id": "panel",
+      "entrypoint": "pipeline.py:panel",
+      "depends_on": [
+        "tariffs"
+      ],
+      "schema": {
+        "format": "jsonl",
+        "compression": "gzip",
+        "required": {
+          "id": "string",
+          "schema": "string",
+          "evidence": "array"
+        }
+      },
+      "validation": {
+        "allow_empty": false,
+        "max_rows": 10000000
+      },
+      "cache": "content",
+      "retention": "retain"
+    }
+  ],
+  "output_stage": "panel"
+}
