@@ -1,0 +1,169 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "worldmodel.decision_contract/1",
+  "title": "Decision contract",
+  "description": "Who decides, what they control, at what cost, under which constraints, toward which weighted objectives, over which horizon, judged by which success criteria, and on what evidence each mechanism of the environment rests. Structural rules only; cross-field rules (weights sum to one, a validated mechanism cites a report, names match the compiled kernel) are enforced by worldmodel.decision.contract.validate_contract.",
+  "type": "object",
+  "required": ["schema", "id", "decision_maker", "environment", "actions", "objectives", "horizon", "success_criteria", "mechanisms"],
+  "additionalProperties": false,
+  "properties": {
+    "schema": {"const": "worldmodel.decision_contract/1"},
+    "id": {"type": "string", "pattern": "^[a-z0-9][a-z0-9_.-]{0,127}$"},
+    "title": {"type": "string", "maxLength": 200},
+    "description": {"type": "string", "maxLength": 4000},
+    "decision_maker": {
+      "type": "object",
+      "required": ["id", "role"],
+      "additionalProperties": false,
+      "properties": {
+        "id": {"type": "string", "minLength": 1, "maxLength": 200},
+        "role": {"type": "string", "minLength": 1, "maxLength": 400},
+        "description": {"type": "string", "maxLength": 4000}
+      }
+    },
+    "environment": {
+      "type": "object",
+      "required": ["kernel"],
+      "additionalProperties": false,
+      "properties": {
+        "kernel": {"type": "string", "minLength": 1},
+        "config": {"type": "object"}
+      }
+    },
+    "actions": {
+      "type": "object",
+      "minProperties": 1,
+      "maxProperties": 32,
+      "additionalProperties": {"$ref": "#/$defs/action"}
+    },
+    "budget": {
+      "type": "object",
+      "required": ["limit", "unit"],
+      "additionalProperties": false,
+      "properties": {
+        "limit": {"type": "number", "minimum": 0},
+        "unit": {"type": "string", "minLength": 1},
+        "description": {"type": "string"}
+      }
+    },
+    "constraints": {"type": "array", "maxItems": 64, "items": {"$ref": "#/$defs/criterion"}},
+    "objectives": {"type": "array", "minItems": 1, "maxItems": 32, "items": {"$ref": "#/$defs/objective"}},
+    "horizon": {
+      "type": "object",
+      "required": ["steps", "step"],
+      "additionalProperties": false,
+      "properties": {
+        "steps": {"type": "integer", "minimum": 1, "maximum": 10000},
+        "step": {"enum": ["day", "month", "quarter", "year"]}
+      }
+    },
+    "success_criteria": {"type": "array", "minItems": 1, "maxItems": 64, "items": {"$ref": "#/$defs/criterion"}},
+    "mechanisms": {
+      "type": "object",
+      "minProperties": 1,
+      "maxProperties": 64,
+      "additionalProperties": {"$ref": "#/$defs/mechanism"}
+    },
+    "uncertain_inputs": {"type": "object", "maxProperties": 64, "additionalProperties": {"$ref": "#/$defs/range"}},
+    "assumed_parameters": {"type": "object", "maxProperties": 64, "additionalProperties": {"$ref": "#/$defs/assumed_parameter"}},
+    "parameter_uncertainty": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "standard_errors": {"type": "number", "exclusiveMinimum": 0, "maximum": 10},
+        "shock_quantile_bound": {"type": "number", "minimum": 0, "maximum": 6}
+      }
+    },
+    "does_not_establish": {"type": "array", "maxItems": 64, "items": {"type": "string", "minLength": 1}}
+  },
+  "$defs": {
+    "action": {
+      "type": "object",
+      "required": ["type", "unit", "minimum", "maximum"],
+      "additionalProperties": false,
+      "properties": {
+        "type": {"enum": ["number"]},
+        "unit": {"type": "string", "minLength": 1},
+        "minimum": {"type": "number"},
+        "maximum": {"type": "number"},
+        "cost_per_unit": {"type": "number", "minimum": 0},
+        "cost_basis": {"enum": ["absolute", "positive_part", "value"]},
+        "cost_unit": {"type": "string"},
+        "description": {"type": "string"}
+      }
+    },
+    "criterion": {
+      "type": "object",
+      "required": ["id", "metric", "aggregate", "operator", "value"],
+      "additionalProperties": false,
+      "properties": {
+        "id": {"type": "string", "pattern": "^[a-z0-9][a-z0-9_]{0,63}$"},
+        "metric": {"type": "string", "minLength": 1},
+        "aggregate": {"enum": ["sum", "mean", "max", "min", "final"]},
+        "operator": {"enum": ["lte", "gte"]},
+        "value": {"type": "number"},
+        "scale": {"type": "number", "exclusiveMinimum": 0},
+        "description": {"type": "string"}
+      }
+    },
+    "objective": {
+      "type": "object",
+      "required": ["id", "metric", "aggregate", "direction", "weight", "scale"],
+      "additionalProperties": false,
+      "properties": {
+        "id": {"type": "string", "pattern": "^[a-z0-9][a-z0-9_]{0,63}$"},
+        "metric": {"type": "string", "minLength": 1},
+        "aggregate": {"enum": ["sum", "mean", "max", "min", "final"]},
+        "direction": {"enum": ["minimize", "maximize"]},
+        "weight": {"type": "number", "exclusiveMinimum": 0, "maximum": 1},
+        "scale": {"type": "number", "exclusiveMinimum": 0},
+        "description": {"type": "string"}
+      }
+    },
+    "mechanism": {
+      "type": "object",
+      "required": ["description", "evidence"],
+      "additionalProperties": false,
+      "properties": {
+        "description": {"type": "string", "minLength": 1},
+        "evidence": {
+          "type": "object",
+          "required": ["status"],
+          "additionalProperties": false,
+          "properties": {
+            "status": {"enum": ["validated", "estimated but not validated", "assumed"]},
+            "report_id": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+            "component": {"type": "string"},
+            "attempt": {"type": "string"},
+            "note": {"type": "string"}
+          }
+        }
+      }
+    },
+    "range": {
+      "type": "object",
+      "required": ["unit", "minimum", "maximum", "nominal"],
+      "additionalProperties": false,
+      "properties": {
+        "unit": {"type": "string", "minLength": 1},
+        "minimum": {"type": "number"},
+        "maximum": {"type": "number"},
+        "nominal": {"type": "number"},
+        "description": {"type": "string"}
+      }
+    },
+    "assumed_parameter": {
+      "type": "object",
+      "required": ["mechanism", "unit", "minimum", "maximum", "nominal"],
+      "additionalProperties": false,
+      "properties": {
+        "mechanism": {"type": "string", "minLength": 1},
+        "unit": {"type": "string", "minLength": 1},
+        "minimum": {"type": "number"},
+        "maximum": {"type": "number"},
+        "nominal": {"type": "number"},
+        "description": {"type": "string"}
+      }
+    }
+  }
+}

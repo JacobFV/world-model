@@ -1,0 +1,63 @@
+{
+  "schema": "worldmodel.decision_contract/1",
+  "id": "monetary-treasury-stress",
+  "title": "Treasury rate-reserve plan under the fitted real-time Taylor rule",
+  "description": "A fictional treasury with floating-rate debt indexed to the federal funds rate reserves, each quarter, interest at a planned rate. Candidate plans are policy-rate paths. The question is where the fitted real-time reaction function (monetary_model.fred_realtime_v2), run inside its estimated uncertainty, drives the realized rate far enough above the plan to break the treasury's tolerance. The treasury, its tolerance and its plans are invented; only the reaction function is estimated.",
+  "decision_maker": {
+    "id": "org:example-treasury",
+    "role": "Treasury of a floating-rate borrower; takes the policy rate as given",
+    "description": "Fictional. Its reserve decision does not move the policy rate, so the environment needs no response of the rate to the treasury's action."
+  },
+  "environment": {
+    "kernel": "monetary_policy_rate",
+    "config": {
+      "initial": {"policy_rate": 4.65, "inflation": 2.58, "output_gap": 1.81},
+      "drivers": {"source": "linear_paths"}
+    }
+  },
+  "actions": {
+    "reserve_margin": {
+      "type": "number", "unit": "percentage_points", "minimum": -3.0, "maximum": 3.0,
+      "cost_per_unit": 1.0, "cost_basis": "positive_part", "cost_unit": "pp-quarters of reserved liquidity",
+      "description": "Reserve next quarter's interest at the last observed quarterly policy rate plus this margin."
+    }
+  },
+  "budget": {"limit": 6.0, "unit": "pp-quarters of reserved liquidity", "description": "Liquidity set aside above the last observed rate, summed over the horizon."},
+  "constraints": [],
+  "objectives": [
+    {"id": "under_reserved", "metric": "shortfall", "aggregate": "sum", "direction": "minimize", "weight": 0.75, "scale": 1.0,
+     "description": "Percentage points of rate above the reserved rate, summed over quarters."},
+    {"id": "idle_reserve", "metric": "excess", "aggregate": "sum", "direction": "minimize", "weight": 0.25, "scale": 1.0,
+     "description": "Percentage points reserved but not needed, summed over quarters."}
+  ],
+  "horizon": {"steps": 8, "step": "quarter"},
+  "success_criteria": [
+    {"id": "worst_quarter_shortfall", "metric": "shortfall", "aggregate": "max", "operator": "lte", "value": 0.75, "scale": 0.25,
+     "description": "No quarter's realized rate exceeds the reserved rate by more than 75 bp."},
+    {"id": "total_shortfall", "metric": "shortfall", "aggregate": "sum", "operator": "lte", "value": 2.0, "scale": 0.5,
+     "description": "Cumulative under-reservation stays within 2 pp-quarters."}
+  ],
+  "mechanisms": {
+    "policy_rate_reaction": {
+      "description": "Quarterly smoothed Taylor rule fitted to first-release FEDFUNDS, CPI and CBO output gap (monetary family).",
+      "evidence": {
+        "status": "validated",
+        "report_id": "9b6457990c9388d18745e4cf3e692efafced7f552dbfa892795df91d76f927ef",
+        "component": "monetary_model_parameters",
+        "attempt": "monetary_model.fred_realtime_v2",
+        "note": "Passes all six criteria on the 2015-2024 holdout (DM p = 0.058 against persistence, 80% interval coverage 0.861). phi_pi = 0.38 does not satisfy the Taylor principle: the pass rests on forecast skill, not on credible structural coefficients."
+      }
+    }
+  },
+  "uncertain_inputs": {
+    "inflation_start": {"unit": "percent", "minimum": 1.5, "maximum": 4.5, "nominal": 2.6, "description": "Four-quarter CPI inflation in the first simulated quarter."},
+    "inflation_end": {"unit": "percent", "minimum": 0.5, "maximum": 6.0, "nominal": 2.2, "description": "Inflation in the eighth quarter; linear in between."},
+    "output_gap_start": {"unit": "percent", "minimum": -3.0, "maximum": 3.0, "nominal": 1.8, "description": "First-release output gap, first quarter."},
+    "output_gap_end": {"unit": "percent", "minimum": -6.0, "maximum": 3.0, "nominal": 0.5, "description": "Output gap in the eighth quarter; linear in between."}
+  },
+  "parameter_uncertainty": {"standard_errors": 2.0, "shock_quantile_bound": 1.2815515655446004},
+  "does_not_establish": [
+    "Inflation and output-gap paths are declared ranges, not forecasts; no validated mechanism forecasts them.",
+    "The initial state is the last first-release quarter in the fitted panel (2024Q4), not a live reading."
+  ]
+}
