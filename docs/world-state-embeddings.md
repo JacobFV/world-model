@@ -224,7 +224,7 @@ about; and a past match does not mean the query county will follow that county's
 | `places.county_root_readout_v2` | not run (compute budget) | shared the second GB10's GPU with the actors attempt; stopped after one validation origin, before any score |
 | `places.county_root_readout_v3` | **fail** (all three targets) | employment beats every baseline; all three fail the declared revision-leakage criterion; see below |
 | `actors.13f_exit_increase_v1` | **fail** (both tasks) | beats the base rate, loses to LightGBM; see below |
-| `actors.13f_exit_increase_v2` | queued | LightGBM plus the embedding, registered after v1's result |
+| `actors.13f_exit_increase_v2` | **fail** (both tasks) | the embedding adds nothing to LightGBM; see below |
 | `actors.votes_party_defection_v1` | queued | the same three candidates, on roll-call defections |
 | `actors.fec_repeat_contribution_v1` | queued | will a committee give to the same recipient again next cycle |
 | `actors.fdic_bank_distress_v1` | queued | will a bank's noncurrent ratio cross 3%, or deposits fall over 10% |
@@ -259,6 +259,28 @@ validation. Wall clock 64 minutes on the dedicated GB10, peak GPU 6.1 GiB.
   panel can pass, whatever its skill.
 * The graph helps: the seed-only encoder was worse on validation for every target
   (0.00386 against 0.00422 for employment).
+
+### actors.13f_exit_increase_v2 — does the embedding add signal?
+
+Published `embedding_reports@ff29521e` (exit) and `@9bf9e546` (increase). The question this attempt
+exists to answer: the encoder alone lost to LightGBM in v1, so is the *embedding* useful to a model
+that already sees the same inputs?
+
+On validation, both stacked candidates beat the encoder alone, and LightGBM plus the **label-free**
+embedding (32 principal components of a reconstruction-only encoder's state vectors) was selected
+for both tasks. On the untouched test window it does not beat plain LightGBM:
+
+| Task | LightGBM + embedding | LightGBM | Base rate | DM p (pooled / quarter-clustered) |
+| --- | ---: | ---: | ---: | --- |
+| exit | 0.088924 | **0.088763** | 0.105691 | 0.99 / 0.96 |
+| increase | 0.141645 | **0.141247** | 0.158212 | 1.00 / 0.96 |
+
+The differences are tiny (+0.0002 and +0.0004 Brier, the wrong way) and not significant either way.
+The honest reading: **on these two 13F tasks the world-state embedding carries no signal that the
+template's own tabular features do not already carry.** Both stacked candidates beat the encoder
+alone, so the encoder was the weaker consumer of the same graph, not a producer of new information.
+Calibration is good (expected calibration error 0.0044 and 0.0079), and every other criterion
+passes, including the manager's-own-rate baseline that v1's scoring defect had made unevaluable.
 
 ### actors.13f_exit_increase_v1
 
