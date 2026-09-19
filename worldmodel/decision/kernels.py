@@ -337,7 +337,8 @@ class MonetaryBound(Bound):
         self.history = None
         if self.drivers['source'] == 'historical_resample':
             if not history or not history.get('rows'):
-                raise ValueError('historical_resample drivers need the loaded first-release rows (history={"rows", "evidence"})')
+                raise ValueError('historical_resample drivers need the loaded first-release rows '
+                                 '(history={"rows", "evidence"})' + (f': {history["error"]}' if (history or {}).get('error') else ''))
             self.history = history
             self.blocks = self._blocks(history['rows'])
             if not self.blocks:

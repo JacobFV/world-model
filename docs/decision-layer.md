@@ -345,7 +345,7 @@ contract adds:
 | `worldmodel/decision/cli.py` | `wm decision-validate / -rollout / -stress / -optimize` |
 | `examples/decision/*.json` | the three contracts, their candidate policies and the optimization request |
 | `examples/decision/outputs/*.json` | the outputs quoted above |
-| `tests/test_decision_*.py` | 74 tests: schema and semantics, evidence lowering, binding coverage, replay determinism, search reproducibility, the gate and the refusals |
+| `tests/test_decision_*.py` | 75 tests: schema and semantics, evidence lowering, binding coverage, replay determinism, search reproducibility, the gate and the refusals |
 
 Related: [estimation and validation](estimation-and-validation.md),
 [calibration status](calibration-status.md) (which attempts pass, and on what),

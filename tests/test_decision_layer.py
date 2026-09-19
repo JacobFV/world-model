@@ -160,6 +160,16 @@ class BindingTests(unittest.TestCase):
         self.assertIn('multi-step skill was never tested', caveats)
         self.assertIn('scored conditional on realized inflation, output_gap', caveats)
 
+    def test_compile_from_store_falls_back_when_the_fitted_panel_is_not_in_the_store(self):
+        from worldmodel.decision.compile import compile_from_store
+        compiled = compile_from_store(monetary_contract('validated', self.fixture.good['report_id']), self.fixture.store,
+                                      index=self.index)
+        self.assertEqual(compiled.resolutions['policy_rate_reaction']['status'], 'validated')
+        self.assertEqual(compiled.bound.uncertainty['method'], 'independent_box')     # no covariance without the panel
+        with self.assertRaisesRegex(ValueError, 'historical_resample drivers need'):  # but drivers that need it say why
+            compile_from_store(monetary_contract('validated', self.fixture.good['report_id'],
+                                                 drivers={'source': 'historical_resample'}), self.fixture.store, index=self.index)
+
     def test_a_parameter_the_report_estimates_cannot_also_be_declared_assumed(self):
         contract = monetary_contract('validated', self.fixture.good['report_id'])
         contract['assumed_parameters'] = {'rho': {'mechanism': 'policy_rate_reaction', 'unit': 'per_quarter',

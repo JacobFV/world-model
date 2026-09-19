@@ -243,9 +243,16 @@ def compile_from_store(contract, store, *, index=None):
     history = None
     report_id = kernel.history_report(contract) if hasattr(kernel, 'history_report') else None
     if report_id is not None and index.get(report_id) is not None and index.get(report_id).get('attempt'):
-        loaded = load_attempt_data(store, index, report_id)
-        history = {'rows': kernel.history_rows(loaded['data']), 'evidence': loaded['evidence'], 'attempt': loaded['attempt'],
-                   'versions': loaded['versions']}
+        try:
+            loaded = load_attempt_data(store, index, report_id)
+        except (ValueError, OSError) as error:
+            # The store holds the report but not the panel it was fitted on: carry the reason, so a
+            # kernel that needs those rows says why, and one that only wanted the covariance falls
+            # back to its declared standard errors with that fallback on the record.
+            history = {'rows': None, 'error': str(error)}
+        else:
+            history = {'rows': kernel.history_rows(loaded['data']), 'evidence': loaded['evidence'],
+                       'attempt': loaded['attempt'], 'versions': loaded['versions']}
     return compile_contract(contract, index, history=history)
 
 

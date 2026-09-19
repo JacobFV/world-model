@@ -51,8 +51,10 @@ class EvidenceIndex:
     report's protocol and family diagnostics.
     """
 
-    def __init__(self, entries, *, validated_processes=(), source='supplied', dataset='calibration_reports', plan_attempts=0):
+    def __init__(self, entries, *, validated_processes=(), source='supplied', dataset='calibration_reports', plan_attempts=0,
+                 plan=None):
         self.entries = dict(entries)
+        self.plan = plan
         self.validated_processes = sorted(validated_processes)
         self.source = source
         self.dataset = dataset
@@ -90,7 +92,7 @@ class EvidenceIndex:
             entry['counted'] = newest.get(entry['label']) == entry['report_id']
         status = plan_status(store, plan, dataset=dataset)
         return cls(entries, validated_processes=status['validated_processes'], source='store', dataset=dataset,
-                   plan_attempts=len(attempts))
+                   plan_attempts=len(attempts), plan=plan)
 
     def get(self, report_id):
         return self.entries.get(report_id)
@@ -214,8 +216,11 @@ def load_attempt_data(store, index, report_id, *, plan=None):
     entry = index.get(report_id) if index is not None else None
     if entry is None or not entry.get('attempt'):
         raise ValueError(f'report {report_id[:12]}... is not filed under a pre-registered attempt in this store')
-    plan = plan if plan is not None else read_json(PLAN_PATH)
-    attempt = {a['id']: a for a in plan['attempts']}[entry['attempt']]
+    plan = plan if plan is not None else (index.plan if index.plan is not None else read_json(PLAN_PATH))
+    attempts = {a['id']: a for a in plan['attempts']}
+    if entry['attempt'] not in attempts:
+        raise ValueError(f'attempt {entry["attempt"]} is not in the supplied plan, so its loader is unknown')
+    attempt = attempts[entry['attempt']]
     loader = attempt.get('loader') or {}
     options = dict(loader.get('options') or {})
     versions = {item['dataset']: item['version'] for item in entry.get('data_inputs', []) if item.get('version')}
