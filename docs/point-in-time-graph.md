@@ -102,14 +102,17 @@ Every as-of result — `neighbors`, `observations`, `resolved_entity`, `neighbor
  "included_unknown_publication": 0,
  "unknown_publication_by_dataset": {"undated": 1},
  "excluded_by_dataset": {"undated": 1},
+ "counted_over": "the candidate rows of this query, before its limit",
  "disclosure": "1 candidate rows were excluded because no publication date could be established ..."}
 ```
 
-The counts are of **candidate** rows in the query's own scope, before any result limit: a `LIMIT`
-narrows what is returned, never what the policy withheld. For a traversal the count covers edges
-incident to the nodes the traversal actually reached — an edge reachable only *through* a withheld
-edge is not counted, because the traversal never got to its endpoint. That makes the traversal
-number a floor, and it says so.
+`counted_over` says what the count was taken over, because it is not the same for every query. For
+`neighbors`, `observations` and `resolved_entity` it is the candidate rows **before any result
+limit**: a `LIMIT` narrows what is returned, never what the policy withheld. For
+`degree_centrality`, `pagerank` and `flow_aggregate` it is every edge the query scans. For a
+traversal (`neighborhood`, `paths`) it is the edges incident to the nodes the traversal actually
+reached — an edge reachable only *through* a withheld edge is not counted, because the traversal
+never got to its endpoint, so that number is a floor and the field says so.
 
 **The named option.** `include_unknown_publication=True` (CLI: `--include-unknown-publication` on
 `neighbors`, `observations`, `graph-neighborhood`, `graph-paths`, `graph-centrality` and

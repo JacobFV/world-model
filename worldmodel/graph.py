@@ -189,8 +189,16 @@ class AsOf:
     """
     EXCLUDE, INCLUDE = 'exclude_unknown_publication', 'include_unknown_publication_as_ingested'
 
+    #: What the exclusion count was taken over, set by whichever query built this policy.
+    ROW_SCOPE = 'the candidate rows of this query, before its limit'
+    EDGE_SCOPE = 'every edge this query scans'
+    TRAVERSAL_SCOPE = ('edges incident to the nodes this traversal reached; an edge reachable only through a '
+                       'withheld edge is not counted, because the traversal never got to its endpoint, so this '
+                       'is a floor and not a total')
+
     def __init__(self, schema, valid_at, known_at, include_unknown_publication=False):
         self.schema = schema
+        self.counted_over = self.ROW_SCOPE
         self.valid_at = time_key(valid_at)
         self.known_at = time_key(known_at)
         self.include_unknown = bool(include_unknown_publication)
@@ -257,7 +265,8 @@ class AsOf:
                 'filtered_on': 'published_at' if self.dated else 'observed_at',
                 'excluded_unknown_publication': 0 if self.include_unknown else total,
                 'included_unknown_publication': total if self.include_unknown else 0,
-                'unknown_publication_by_dataset': by_dataset}
+                'unknown_publication_by_dataset': by_dataset,
+                'counted_over': self.counted_over}
         if not self.include_unknown:
             note['excluded_by_dataset'] = by_dataset
         if not self.dated:
@@ -708,6 +717,7 @@ class Graph:
         got to its endpoint, so the index cannot say what was on the other side. That is the
         honest bound, and it is why the count is a floor, not a total.
         """
+        as_of.counted_over = as_of.TRAVERSAL_SCOPE
         clause, drop_args = as_of.drop_clause()
         if clause is None:
             return
@@ -882,6 +892,7 @@ class Graph:
                      'GROUP BY node ORDER BY score DESC, node LIMIT ?')
             rows = [{'node': r['node'], 'score': r['score'], 'degree': r['degree']}
                     for r in connection.execute(query, [*params, limit])]
+            as_of.counted_over = as_of.EDGE_SCOPE
             self._count_drops(connection, as_of, 'edges', '1=1' + scope, scope_args)
             return {'rows': rows, 'publication': as_of.report()}
         finally:
@@ -914,6 +925,7 @@ class Graph:
                     out[a][b] = out[a].get(b, 0.0) + (max(row['weight'], 0.0) if weighted else 1.0)
             n = len(names)
             if not n:
+                as_of.counted_over = as_of.EDGE_SCOPE
                 self._count_drops(connection, as_of, 'edges', '1=1' + scope, scope_args)
                 return {'nodes': 0, 'edges': 0, 'ranks': [], 'iterations': 0, 'converged': True,
                         'publication': as_of.report()}
@@ -939,6 +951,7 @@ class Graph:
                     converged = True
                     break
             ranked = sorted(range(n), key=lambda i: (-rank[i], names[i]))[:limit]
+            as_of.counted_over = as_of.EDGE_SCOPE
             self._count_drops(connection, as_of, 'edges', '1=1' + scope, scope_args)
             return {'nodes': n, 'edges': total, 'iterations': iteration, 'converged': converged, 'damping': damping,
                     'ranks': [{'node': names[i], 'rank': rank[i]} for i in ranked], 'publication': as_of.report()}
@@ -962,6 +975,7 @@ class Graph:
             query = (f'SELECT {keys}, SUM(weight) AS total, COUNT(*) AS edges FROM edges e WHERE 1=1{suffix} '
                      f'GROUP BY {group} ORDER BY total DESC, {group} LIMIT ?')
             rows = [dict(r) for r in connection.execute(query, [*args, limit])]
+            as_of.counted_over = as_of.EDGE_SCOPE
             self._count_drops(connection, as_of, 'edges', '1=1' + scope, scope_args)
             return {'predicate': predicate, 'group_by': group_by, 'resolved': resolved, 'rows': rows,
                     'publication': as_of.report(),

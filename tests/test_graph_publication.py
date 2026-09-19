@@ -146,6 +146,7 @@ class AsOfQueryTests(unittest.TestCase):
         self.assertEqual(note['filtered_on'], 'published_at')
         self.assertEqual(note['excluded_unknown_publication'], 1)
         self.assertEqual(note['excluded_by_dataset'], {'undated': 1})
+        self.assertEqual(note['counted_over'], 'the candidate rows of this query, before its limit')
         self.assertIn('no publication date', note['disclosure'])
         # Nothing published after the horizon leaks in, and nothing is dated by its ingest time
         # even though every record here was ingested in 2026.
@@ -174,9 +175,12 @@ class AsOfQueryTests(unittest.TestCase):
         hood = self.graph.neighborhood('org:a', hops=1, known_at='2022-01-01')
         self.assertEqual([e['object'] for e in hood['edges']], ['org:b'])
         self.assertEqual(hood['publication']['excluded_by_dataset'], {'undated': 2})
+        # A traversal's count is a floor over the nodes it reached, and the result says which it is.
+        self.assertIn('floor', hood['publication']['counted_over'])
         flow = self.graph.flow_aggregate('owns', known_at='2022-01-01')
         self.assertEqual(flow['rows'], [{'subject': 'org:a', 'total': 1.0, 'edges': 1}])
         self.assertEqual(flow['publication']['excluded_by_dataset'], {'undated': 2})
+        self.assertEqual(flow['publication']['counted_over'], 'every edge this query scans')
         degree = self.graph.degree_centrality(known_at='2022-01-01')
         self.assertEqual({row['node'] for row in degree['rows']}, {'org:a', 'org:b'})
         self.assertEqual(degree['publication']['excluded_unknown_publication'], 2)

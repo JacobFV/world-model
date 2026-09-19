@@ -430,8 +430,9 @@ def unify(catalog, store, project=None, *, profile=DEFAULT_PROFILE, datasets=Non
         'index': {'path': str(index_path), 'records': built['records'], 'edges': built['edges'],
                   'bytes': index_path.stat().st_size},
         'publication_coverage': built.get('publication_coverage'),
-        'publication_rules': {name: PUBLICATION_RULES[name] for item in plan['selected']
-                              for name in [item['dataset']] if name in PUBLICATION_RULES},
+        'publication_rules': {name: PUBLICATION_RULES[name]
+                              for name in sorted({item['dataset'] for item in plan['selected']}
+                                                 & set(PUBLICATION_RULES))},
         'datasets': [stats[item['dataset']] for item in plan['selected'] if item['dataset'] in stats],
         'skipped': plan['skipped'],
         'inputs': [dict(item['ref']) for item in plan['selected']],
