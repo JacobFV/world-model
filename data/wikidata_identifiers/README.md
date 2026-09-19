@@ -106,8 +106,15 @@ property that published it:
 ```json
 {"kind": "assertion", "predicate": "external_identifier", "subject": "wikidata:Q102673",
  "value": {"property": "P1278", "property_label": "Legal Entity Identifier",
-           "namespace": "lei", "value": "213800FD9J2IHTA7YX78"}}
+           "value": "213800FD9J2IHTA7YX78"},
+ "attributes": {"rank": "truthy",
+                "basis": "Wikidata statement at truthy rank (deprecated ranks excluded)",
+                "validity_basis": "Wikidata does not date an external-identifier statement"}}
 ```
+
+The value carries the property, not a namespace: which namespace a property maps to is the
+resolution layer's decision, not this dataset's, and it lives in
+[worldmodel/resolution/wikidata.py](../../worldmodel/resolution/wikidata.py).
 
 The statements are **not** published as `identifier_assignment` rows. Wikidata is a wiki: its
 identifier statements are community assertions, not a registry's own assignment, so the resolution
@@ -116,6 +123,14 @@ layer reads them as *bridges*
 family is held to the 1:1 its mapping specification declares, values that break it are refused and
 counted, and `unify-resolve --no-bridges` turns the whole layer off. See
 [docs/wikidata-bridge.md](../../docs/wikidata-bridge.md).
+
+## What was acquired
+
+115 pages, 2 h 50 min, 43,169,561 raw bytes; **every one of the 31 properties came back at exactly
+the statement count measured against the service at declaration time**. The output is 941,219
+records: 425,289 entities and 515,930 statements, of which 396,695 become identity claims, 117,610
+are the four refused properties and 1,625 fail a shape or check digit. The measured before/after is
+in [docs/wikidata-bridge.md](../../docs/wikidata-bridge.md).
 
 ## Rights
 

@@ -48,7 +48,9 @@ Three properties of that query are what make it an acquisition rather than a scr
   "the property ended here" distinguishable from "this response was cut short".
 
 115 requests, 2 h 50 min at one request per five seconds with `Retry-After` honoured, 43,169,561
-bytes. The declaration asked for 250,000,000; the fair-share pool was never a constraint.
+bytes (43,361,124 on disk). The declaration asked for 250,000,000, which was the pre-acquisition
+estimate with ORCID headroom in it; the fair-share pool was never a constraint, and the next
+declaration should ask for the ~80 MB this actually needs.
 
 ### Why not a dump, and why the paging is not optional
 
@@ -460,10 +462,12 @@ become if it does not.
    more OpenCorporates statements are one query away, and each one carries a jurisdiction code and
    that register's own number. They become joins the moment this catalog acquires a second national
    company register.
-4. **The rights receipt.** The acquisition receipt records `license_status: CC0-1.0` and the
-   publisher, but predates the fuller `license_id` / `terms_url` / `redistribution` fields now in
-   the declaration, so `rights.terms_unspecified` is still true on the published output. The next
-   re-acquisition records them and clears it.
+4. **Two things the next re-acquisition fixes.** The acquisition receipt records
+   `license_status: CC0-1.0` and the publisher, but predates the fuller `license_id` / `terms_url`
+   / `redistribution` fields now in the declaration, so `rights.terms_unspecified` is still true on
+   the published output. And `acquisition.desired_bytes` is still the 250 MB pre-acquisition
+   estimate against 43 MB actually used. Both are declaration metadata and neither changes a
+   published record, so neither was worth invalidating the measured build for.
 5. **17,218 items are typed `entity`** because no `P31` class they carry maps to this ontology, and
    1,625 statements were refused on shape. Both are listed per property and per class in the
    pipeline and its generated class map; neither blocks a join, but both are where a reader should
