@@ -182,12 +182,14 @@ index:
 | `fred_state_employment_vintages` | 949,207 | 947,898 | 99.86% | `attributes.realtime_start` | structure only: 1,309 rows, 0 dated |
 | `openfema` | 2,801,582 | 393,168 | 14.03% | rule | **yes, all kinds** |
 | the seven small FRED anchor series | 101,415 | 101,386 | 99.97% | `attributes.realtime_start` | yes, all kinds (except `fred_deposit_rates`, which has 7 structure rows in scope and no observations) |
-| `bls_labor` | 60,872,022 | see below | | rule on observations; `realtime_start` **refused** | structure only: 307,387 rows, 0 dated |
+| `bls_labor` | 60,872,022 | 60,564,635 | 99.50% | rule (9 months); its `realtime_start` is **refused** | structure only: 307,387 rows, 0 dated |
 | `bls_prices` | 4,217,151 | 0 | 0.00% | `realtime_start` **refused** | structure only: 10,816 rows, 0 dated |
 
-Every other dataset in the catalog — the SEC filings, the trade flows, the sanctions lists, the
-registries, the legislature, the road graphs — carries no publication date in any of the three
-forms, and its records are `NULL`.
+Over every record of all 112 in-scope datasets regardless of kind — 1,140,033,558 records — that is
+**107,464,070 dated (9.43%)**: 87,327,116 from a declared rule, 13,865,385 from an ALFRED vintage and
+6,271,569 from `dimensions.available_at`. Every other dataset in the catalog — the SEC filings, the
+trade flows, the sanctions lists, the registries, the legislature, the road graphs — carries no
+publication date in any of the three forms, and its records are `NULL`.
 
 ### One trap the measurement caught
 
@@ -198,7 +200,12 @@ them — the original defect, restored through a field named after the fix. `pub
 `realtime_start` on a record marked with a retrieval vintage (`RETRIEVAL_VINTAGES`), counts it under
 `refused:current_at_retrieval` in the census, and leaves the record unknown. The declared `bls_labor`
 rule still applies to its observations, because that rule is anchored on the reference period rather
-than on the download.
+than on the download: 60,564,635 of `bls_labor`'s 60,872,022 records end up dated by the lag instead.
+`bls_prices` has no declared rule, so nothing rescues it and its 4,206,335 refusals are the whole
+story for that dataset. Note that the census names the source that *won*: a record whose
+`realtime_start` was refused and whose rule then fired is counted under `rule`, not under
+`refused:*`, so the refusal count in an index's census is a lower bound on how often the check
+mattered.
 
 ### Three panels the index cannot see at all
 
