@@ -80,6 +80,14 @@ class CoverageEstimatorTests(unittest.TestCase):
             declaration = json.loads((catalog_root / dataset / 'dataset.json').read_text())
             self.assertTrue(C.declared_count_supported(declaration, spec), name)
 
+    def test_an_exclude_rule_keeps_a_sibling_namespace_out_of_the_count(self):
+        self.fixture.publish('federal_register_documents', [
+            entity('federalregister:2021-00001', 'A rule'), entity('federalregister:2021-00002', 'A notice'),
+            entity('federalregister:agency:epa', 'EPA')])
+        row = self.estimate('federal_register_documents')
+        self.assertEqual(row['measured']['value'], 2)                 # the agency entity is not a document
+        self.assertIsNone(row['population_denominator'])
+
     def test_reference_populations(self):
         self.assertEqual(len(C.reference_members('us_counties_2020')), 3222)
         countries = C.reference_members('iso3166_1')
@@ -97,6 +105,88 @@ class CoverageEstimatorTests(unittest.TestCase):
         parsed = json.loads(output.stdout)
         self.assertEqual(parsed['estimates'][0]['population'], C.POPULATIONS['iso_mic_venues']['population'])
         self.assertNotIn('measured', parsed['estimates'][0])
+
+    def test_the_derived_category_names_its_inputs_and_invents_no_population(self):
+        self.fixture.declare('county_panel')
+        report = C.estimate_coverage(self.fixture.catalog, self.fixture.store,
+                                     datasets=['county_panel'], measure=False)
+        self.assertEqual([row['dataset'] for row in report['derived']], ['county_panel'])
+        row = report['derived'][0]
+        self.assertIn('bls_labor', row['derived_from'])
+        self.assertIn('inherited from its inputs', row['reason'])
+        self.assertNotIn('population', row)                          # a derived output states none
+        self.assertEqual(report['summary']['derived'], 1)
+        self.assertEqual(report['uncurated'], [])                    # and it is not reported as uncurated
+
+    def test_an_uncurated_declaration_says_what_is_missing(self):
+        self.fixture.declare('usgs_earthquakes')
+        report = C.estimate_coverage(self.fixture.catalog, self.fixture.store,
+                                     datasets=['usgs_earthquakes'], measure=False)
+        self.assertEqual([row['dataset'] for row in report['uncurated']], ['usgs_earthquakes'])
+        reason = report['uncurated'][0]['reason']
+        self.assertIn('no population statement curated', reason)     # the pre-existing sentence, unchanged
+        self.assertIn('emits no entity records', reason)             # plus the specific missing thing
+        self.assertEqual(report['summary']['uncurated'], 1)
+
+
+class CuratedStatementTests(unittest.TestCase):
+    """Invariants of the curated statements themselves, checked against the real declarations."""
+
+    catalog_root = Path(__file__).resolve().parents[1] / 'data'
+
+    def declaration(self, dataset):
+        return json.loads((self.catalog_root / dataset / 'dataset.json').read_text())
+
+    def test_every_population_entry_is_complete_and_names_a_real_dataset(self):
+        for name, spec in C.POPULATIONS.items():
+            dataset = spec.get('dataset', name)
+            self.assertTrue((self.catalog_root / dataset / 'dataset.json').is_file(), name)
+            self.assertIn(spec['kind'], ('register', 'subset', 'sample'), name)
+            for field in ('population', 'unit', 'not_covered'):
+                self.assertTrue(spec.get(field) and spec[field].strip(), '%s: %s' % (name, field))
+            prefix = spec['count']['prefix']
+            self.assertTrue(prefix, name)
+            for excluded in spec['count'].get('exclude', ()):
+                self.assertTrue(excluded.startswith(prefix), '%s excludes %s' % (name, excluded))
+            self.assertIn(spec['count'].get('key'), (None, 'suffix', 'symbol'), name)
+
+    def test_the_three_categories_are_disjoint_and_cover_every_declaration(self):
+        declared = {path.parent.name for path in self.catalog_root.glob('*/dataset.json')}
+        curated = {spec.get('dataset', name) for name, spec in C.POPULATIONS.items()}
+        derived, refused = set(C.DERIVED), set(C.UNCURATED_REASONS)
+        self.assertEqual(curated & derived, set())
+        self.assertEqual(curated & refused, set())
+        self.assertEqual(derived & refused, set())
+        # every declaration is either curated, derived, or refused with a stated reason: a new dataset
+        # has to be triaged rather than silently joining an anonymous "uncurated" pile
+        self.assertEqual(sorted(declared - curated - derived - refused), [])
+        self.assertEqual(sorted((curated | derived | refused) - declared), [])
+
+    def test_every_derived_entry_names_inputs_that_match_its_declaration(self):
+        for dataset, spec in C.DERIVED.items():
+            declaration = self.declaration(dataset)
+            self.assertTrue(spec['reason'].strip(), dataset)
+            dependencies = declaration.get('dependencies') or []
+            if dependencies:
+                self.assertEqual(spec['derived_from'], dependencies, dataset)
+            for source in spec['derived_from']:
+                self.assertTrue((self.catalog_root / source / 'dataset.json').is_file(),
+                                '%s <- %s' % (dataset, source))
+
+    def test_every_refusal_states_the_specific_missing_thing(self):
+        for dataset, reason in C.UNCURATED_REASONS.items():
+            self.assertTrue((self.catalog_root / dataset / 'dataset.json').is_file(), dataset)
+            self.assertGreater(len(reason), 40, dataset)             # a reason, not a label
+
+    def test_a_declared_count_is_only_cited_from_a_field_that_holds_it(self):
+        for name, spec in C.POPULATIONS.items():
+            declared = spec.get('declared')
+            if not declared:
+                continue
+            declaration = self.declaration(spec.get('dataset', name))
+            self.assertTrue(C.declared_count_supported(declaration, spec), name)
+            section = declared['field'].partition('.')[0]
+            self.assertIn(section, declaration, name)
 
 
 if __name__ == '__main__':

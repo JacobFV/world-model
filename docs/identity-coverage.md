@@ -136,18 +136,28 @@ mass**. Neither is an extraction gap that better matching would close.
 "3.66% joined" is a property of this index, not of the world. `wm coverage-estimate` answers the
 other half: what population does each dataset claim, and how much of it is held.
 
-`wm coverage-estimate` states a curated population for **47 estimates over 44 datasets** (the
-other 81 declarations are listed as uncurated, with their declared scope, rather than guessed at)
-and measures two fractions:
+`wm coverage-estimate` states a curated population for **111 estimates over 106 datasets**
+(2026-09-19; it was 47 over 44). The other 29 declarations are not guessed at: **18** are reported
+under `derived`, because their content is produced inside this repository and their coverage is a
+property of the inputs they name, and **11** stay under `uncurated`, each naming the specific thing
+missing - four have acquired nothing, and seven publish no entity records for an entity-key rule to
+select. For the 111 it measures two fractions:
 
 - **`measured_over_declared`** - the entities the published output holds over the count the
   dataset's own `dataset.json` states. An acquisition check.
 - **`covered_of_population`** - members of an independently sourced population list that the
   dataset holds. The lists are the dated Census county table and the ISO 3166-1 table shipped in
   `worldmodel/reference` (both with validity dates), TIGER tracts from `census_geography`, and the
-  Nasdaq Trader directory from `nasdaq_listings`. **29 of the 47 estimates get one.**
+  Nasdaq Trader directory from `nasdaq_listings`. **39 of the 111 estimates get one**, and 15 cite a
+  declared count.
 
-Measured over the whole catalog (14 min 7 s, 832 MiB peak RSS, one pass per measured dataset):
+Measured over the whole catalog before the 2026-09-19 curation pass (14 min 7 s, 832 MiB peak RSS,
+one pass per measured dataset). The rows below are from that run and cover the original 47
+estimates only. Of the 64 entries added on 2026-09-19, **60 were measured one dataset at a time**
+to check that their entity-key rule selects the records they claim; the four largest published
+outputs (`cepii_baci_hs92`, `sec_financial_statements`, `usaspending`, `usaspending_assistance`)
+were checked against a head sample of their output and their pipeline source rather than a full
+pass, so their counts are not measured yet. None of the 64 is re-tabulated here:
 
 | Dataset | Population it claims | Measured | Of declared | Of population |
 | --- | --- | ---: | ---: | ---: |
