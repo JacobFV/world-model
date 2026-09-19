@@ -40,9 +40,12 @@ Graph schema **4**. Schema 2 and 3 indexes stay readable.
 `worldmodel.graph.publication(record, rule)` returns `(date, source)` and takes the first that
 applies. There is no fourth branch: what is left is `NULL`.
 
-1. **`dimensions.available_at`** — the publisher's own availability date, where the adapter emits
-   one. This is the strongest of the three, because it is a date somebody recorded rather than a
-   date something implies. `county_panel` and `county_realtime_panel` emit it on every observation.
+1. **`dimensions.available_at`** — the availability date the adapter itself established for that
+   value. It is taken first because the adapter knows more about the value than the index does, but
+   it inherits whatever the adapter did: `county_realtime_panel` derives it from an ALFRED
+   `realtime_start`, so it is measured, while `county_panel` derives it from the *same declared lags*
+   this file restates, so it is a rule wearing a different field's name. A date from this source is
+   not automatically a recorded one.
 2. **`attributes.realtime_start`** — the ALFRED vintage date of a real-time-vintaged row. A
    *measured* publication date: the archive records when that number was actually on the wire.
 3. **A declared dataset-level rule** — `worldmodel.graph.PUBLICATION_RULES`, in the same shape
@@ -218,8 +221,10 @@ this section is the record of what the number was before it.
 - **A declared lag is not a measured release.** `PUBLICATION_RULES` states when a publisher's release
   calendar implies a value was out. It is not a record of the release. Where a publisher was late,
   or early, or restated a series off-calendar, the rule is wrong by exactly that amount, and nothing
-  in the index detects it. Only `attributes.realtime_start` and a publisher's own
-  `dimensions.available_at` are dates somebody actually recorded.
+  in the index detects it. `attributes.realtime_start` is a recorded date - the archive says so.
+  `dimensions.available_at` is recorded only when the adapter that emitted it had a recorded date to
+  emit: `county_realtime_panel`'s comes from an ALFRED vintage, `county_panel`'s comes from the same
+  declared lags, so the strongest-looking source is not uniformly the strongest.
 - **A null is not evidence of lateness.** `published_at IS NULL` means *this index cannot date this
   record*, not *this record was not public*. An excluded row may have been public for decades. The
   exclusion is a statement about the index's knowledge, which is why every result reports the count
