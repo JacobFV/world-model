@@ -103,8 +103,12 @@ def evaluate_criterion(report, criterion):
         value = model.get('brier_skill')
         return _result(criterion, _finite(value) and value >= criterion['minimum'], value, criterion['minimum'])
     if kind == 'calibration_error':
-        value = model.get('calibration', {}).get('max_abs_deviation')
-        return _result(criterion, _finite(value) and value <= criterion['maximum'], value, criterion['maximum'])
+        # ``measure`` defaults to the worst bin; 'expected_calibration_error' weighs bins by their counts,
+        # which does not let a bin holding a handful of forecasts decide the verdict.
+        measure = criterion.get('measure', 'max_abs_deviation')
+        value = model.get('calibration', {}).get(measure)
+        return _result(criterion, _finite(value) and value <= criterion['maximum'], value,
+                       {'maximum': criterion['maximum'], 'measure': measure})
     if kind == 'vintage_modes':
         modes = sorted(report.get('test', {}).get('leakage_audit', {}).get('vintage_modes', []))
         allowed = set(criterion['allowed'])

@@ -43,6 +43,39 @@ def load_plan():
     return json.loads(PLAN.read_text())
 
 
+def code_commit():
+    """The checkout's git commit and whether its tracked files are modified (None outside a git checkout)."""
+    import subprocess
+    root = Path(__file__).resolve().parents[2]
+    try:
+        head = subprocess.run(['git', '-C', str(root), 'rev-parse', 'HEAD'], capture_output=True, text=True, check=True).stdout.strip()
+        dirty = subprocess.run(['git', '-C', str(root), 'status', '--porcelain', '--untracked-files=no', '--', 'worldmodel'],
+                               capture_output=True, text=True, check=True).stdout.strip()
+        return {'commit': head, 'worldmodel_modified': bool(dirty)}
+    except (OSError, subprocess.CalledProcessError):
+        return None
+
+
+def save_reports(path, reports):
+    """Write unpublished reports with what publication needs (inputs, parameters, entrypoint)."""
+    Path(path).write_text(json.dumps([{'target': r['target'], 'report': r['report'], 'publication': r['publication']}
+                                      for r in reports]))
+
+
+def publish_saved(store, path):
+    """Publish reports saved on a compute host. The report id is re-derived before anything is written."""
+    from ..artifacts import publish_report
+    out = []
+    for item in json.loads(Path(path).read_text()):
+        report, publication = item['report'], item['publication']
+        if report['report_id'] != digest({k: v for k, v in report.items() if k != 'report_id'}):
+            raise ValueError(f'Report for {item["target"]} does not match its report_id')
+        ref = publish_report(store, REPORTS, report, publication['parameters'], inputs=publication['inputs'],
+                             entrypoint=publication['entrypoint'])
+        out.append({'target': item['target'], 'ref': ref, 'validated': report['validated']})
+    return out
+
+
 def attempt_spec(attempt_id):
     for attempt in load_plan()['attempts']:
         if attempt['id'] == attempt_id:
@@ -265,7 +298,8 @@ def run_attempt(store, attempt_id, *, log=print, publish=True, device=None, spec
                                               for b in attempt['baselines']}}
                                   for y, v in sorted(_by(test_rows, 'year').items())}},
             'final_estimate': {'data_audit': {'series': series, 'max_available_by_origin': leakage['max_available_by_origin']},
-                               'diagnostics': {'fits': fits, 'config': config, 'checkpoints': checkpoints}, 'bounds_check': {}},
+                               'diagnostics': {'fits': fits, 'config': config, 'checkpoints': checkpoints,
+                                               'code': code_commit()}, 'bounds_check': {}},
             'data_inputs': [dict(panel_ref)], 'causally_identified': False,
             'limitations': ['Out-of-sample skill does not establish the response of any place to an intervention.',
                             'The panel is the current vintage: sources that revise leak their revisions into the '
@@ -277,12 +311,14 @@ def run_attempt(store, attempt_id, *, log=print, publish=True, device=None, spec
         report['validated'] = bool(report['acceptance']['passed'])
         canonical(report)
         report['report_id'] = digest({k: v for k, v in report.items() if k != 'report_id'})
+        publication = {'parameters': {'attempt': attempt_id, 'target': feature}, 'inputs': [dict(panel_ref)],
+                       'entrypoint': ENTRYPOINT}
         ref = None
         if publish:
             from ..artifacts import publish_report
-            ref = publish_report(store, REPORTS, report, {'attempt': attempt_id, 'target': feature},
-                                 inputs=[panel_ref], entrypoint=ENTRYPOINT)
-        reports.append({'target': feature, 'ref': ref, 'report': report})
+            ref = publish_report(store, REPORTS, report, publication['parameters'], inputs=publication['inputs'],
+                                 entrypoint=ENTRYPOINT)
+        reports.append({'target': feature, 'ref': ref, 'report': report, 'publication': publication})
         log(f'  {feature}: selected={selected} validated={report["validated"]} '
             + ' '.join(f'{r["id"]}={"pass" if r["passed"] else "FAIL"}' for r in report['acceptance']['results']))
     log(f'{attempt_id}: {round(time.time() - started)}s')

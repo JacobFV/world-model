@@ -6,7 +6,7 @@ is affected.
 """
 from pathlib import Path
 
-COMMANDS = {'embed-panel', 'embed-assay', 'embed-query'}
+COMMANDS = {'embed-panel', 'embed-assay', 'embed-query', 'embed-publish'}
 INSTALL_HINT = 'The embedding assay needs the optional extra: pip install "worldmodel-substrate[embed]"'
 
 
@@ -18,7 +18,11 @@ def add_commands(sub):
     assay = sub.add_parser('embed-assay', help='Run a pre-registered world-state encoder attempt (worldmodel/embedding/plan.json)')
     assay.add_argument('attempt', nargs='?', help='Attempt id; omit to list the plan')
     assay.add_argument('--no-publish', action='store_true', help='Score without publishing reports')
+    assay.add_argument('--save', type=Path, help='Write the unpublished reports to this JSON file (implies --no-publish), '
+                                                 'for runs on a compute host that publish elsewhere with embed-publish')
     assay.add_argument('--device', help='torch device (default cuda when available)')
+    publish = sub.add_parser('embed-publish', help='Publish reports saved by embed-assay --save (verifies each report id)')
+    publish.add_argument('reports', type=Path)
     query = sub.add_parser('embed-query', help='Places whose embedded state, as known then, is nearest to a county as known now')
     query.add_argument('county', help='County id, e.g. geo:US:county:48453')
     query.add_argument('--as-of', type=int, required=True, help='Origin year of the query county (state as of YYYY-12-31)')
@@ -42,13 +46,21 @@ def execute(args, catalog, store, project, reference):
         import torch  # noqa: F401
     except ImportError as error:
         raise RuntimeError(INSTALL_HINT) from error
+    if args.command == 'embed-publish':
+        from .embedding.assay import publish_saved
+        return publish_saved(store, args.reports)
     if args.command == 'embed-assay':
-        from .embedding.assay import load_plan, run_attempt
+        from .embedding.assay import load_plan, run_attempt, save_reports
         if not args.attempt:
             return {'plan': [{'id': a['id'], 'targets': a['targets'], 'protocol': a['protocol']} for a in load_plan()['attempts']]}
         import sys
-        reports = run_attempt(store, args.attempt, publish=not args.no_publish, device=args.device,
+        if args.attempt.startswith('actors.'):
+            from .embedding.actors_assay import run_attempt
+        publish = not (args.no_publish or args.save)
+        reports = run_attempt(store, args.attempt, publish=publish, device=args.device,
                               log=lambda message: print(message, file=sys.stderr, flush=True))
+        if args.save:
+            save_reports(args.save, reports)
         return [{'target': r['target'], 'ref': r['ref'], 'validated': r['report']['validated'],
                  'acceptance': [{k: x[k] for k in ('id', 'passed', 'observed')} for x in r['report']['acceptance']['results']],
                  'year_clustered_dm': {b: v.get('pvalue') for b, v in r['report']['test']['year_clustered_dm'].items()}}
