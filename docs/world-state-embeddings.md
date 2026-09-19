@@ -249,16 +249,18 @@ about; and a past match does not mean the query county will follow that county's
 | `actors.13f_exit_increase_v2` | **fail** (both tasks) | the embedding adds nothing to LightGBM; see below |
 | `actors.votes_party_defection_v1` | **fail** | same pattern as 13F: beats the base rate and the member's own rate, does not beat LightGBM |
 | `actors.fec_repeat_contribution_v1` | **fail** | beats the base rate and the giver's own repeat rate; loses to LightGBM; misses the calibration criterion |
+| `places.county_realtime_population_v1` | **fail**, on skill alone | the first attempt to pass `no_revision_leakage`; loses to drift and LightGBM |
 | `actors.fdic_bank_distress_v1` | **fail** | the only actor domain where it edges LightGBM, and not significantly |
 
 ## What the embedding is worth so far
 
-Seven scored attempts across five domains, every one of them against a gradient-boosted model given
+Eight scored attempts across five domains, every one of them against a gradient-boosted model given
 the *same* subgraph, because that is the baseline that decides whether an embedding is worth having.
 
 | Domain and target | Beats the naive baseline | Beats LightGBM on the same inputs |
 | --- | --- | --- |
-| County employment (next year) | yes, persistence and drift | **yes** (pooled DM p < 0.001; per-year p = 0.25, not significant) |
+| County employment (next year) | yes, persistence and drift | **yes** (pooled DM p < 0.001; per-year p = 0.25, not significant), but on a revised panel, and no real-time county employment exists to re-test it |
+| County population, first-release panel | beats persistence | no: drift and LightGBM are better, with no leakage left to blame |
 | County establishments | yes | no (tie, p = 0.24) |
 | County population | beats persistence | no: drift and LightGBM are better |
 | 13F exit, 13F increase | yes, base rate and the manager's own rate | no (p = 0.99, 1.00), and adding the embedding to LightGBM does not help either |
@@ -289,6 +291,37 @@ neighbour-mean cannot express the structure: paths, cycles and multi-hop reachab
 one-hop aggregates.
 
 ## Results
+
+### places.county_realtime_population_v1 — leakage removed, and it still loses
+
+Published `embedding_reports@e5ac1b80`. The same encoder, candidates, baselines and criteria as v3,
+on `county_realtime_panel`, where every value and the target are first releases. 15,642 county-year
+forecasts, test origins 2020-2024, 275 seconds on the dedicated GPU.
+
+| | MSE of log population |
+| --- | ---: |
+| encoder (selected over seed-only on validation) | 0.0014091 |
+| LightGBM on the same subgraph | **0.0013590** |
+| drift | 0.0014417 |
+| persistence | 0.0015123 |
+
+| Criterion | |
+| --- | --- |
+| `no_revision_leakage` | **passes** -- the first attempt in this layer that does |
+| `beats_persistence_dm` | passes (p < 0.001) |
+| `beats_drift_dm` | fails (p = 0.24; per-year 0.33) |
+| `beats_gbdt_dm` | fails (p = 1.00) |
+| `interval_coverage` | passes (0.776 against a nominal 0.80) |
+
+This is the attempt the whole panel exercise was for, and it settles the question it was built to
+ask. Removing revision leakage does not make the encoder better; it moves the failure from the
+plumbing to the skill, where it belongs. County population is close to a smooth trend, drift
+extrapolates that, and a gradient-boosted model on the same subgraph does slightly better still.
+
+Two limits bound what this result can mean. FRED archives **no** QCEW county employment or wages, so
+the one target the encoder won on in v3 has no real-time counterpart and cannot be tested this way
+at all. And the real-time feature panel is thin before 2013 and only reaches full width in 2019, so
+early origins train on a narrower graph than late ones.
 
 ### places.county_root_readout_v3
 
