@@ -227,11 +227,11 @@ about; and a past match does not mean the query county will follow that county's
 | `actors.13f_exit_increase_v2` | **fail** (both tasks) | the embedding adds nothing to LightGBM; see below |
 | `actors.votes_party_defection_v1` | **fail** | same pattern as 13F: beats the base rate and the member's own rate, does not beat LightGBM |
 | `actors.fec_repeat_contribution_v1` | **fail** | beats the base rate and the giver's own repeat rate; loses to LightGBM; misses the calibration criterion |
-| `actors.fdic_bank_distress_v1` | queued | will a bank's noncurrent ratio cross 3%, or deposits fall over 10% |
+| `actors.fdic_bank_distress_v1` | **fail** | the only actor domain where it edges LightGBM, and not significantly |
 
 ## What the embedding is worth so far
 
-Four scored attempts across three domains, every one of them against a gradient-boosted model given
+Seven scored attempts across five domains, every one of them against a gradient-boosted model given
 the *same* subgraph, because that is the baseline that decides whether an embedding is worth having.
 
 | Domain and target | Beats the naive baseline | Beats LightGBM on the same inputs |
@@ -241,6 +241,8 @@ the *same* subgraph, because that is the baseline that decides whether an embedd
 | County population | beats persistence | no: drift and LightGBM are better |
 | 13F exit, 13F increase | yes, base rate and the manager's own rate | no (p = 0.99, 1.00), and adding the embedding to LightGBM does not help either |
 | Roll-call defection | yes, base rate and the member's own rate | no (p = 1.00) |
+| Repeat campaign contribution | yes, base rate and the giver's own repeat rate | no (p = 0.99) |
+| Bank distress | yes, base rate and the bank's own rate | ahead, but not significantly (p = 0.21) |
 
 Three things follow, and they are worth stating plainly because they are not what the design hoped
 for.
@@ -248,9 +250,10 @@ for.
 1. **The graph carries signal.** In every attempt the encoder on the full subgraph beat the same
    encoder on the seed alone, on validation, before any holdout was touched. Neighbours matter.
 2. **A gradient-boosted model on hand-aggregated neighbour features extracts that signal at least as
-   well**, everywhere except county employment. The encoder's advantage is not "it sees the graph";
-   both see the graph. What is left for the encoder is what the aggregation throws away, and on
-   quarterly filings and roll calls that appears to be very little.
+   well**, everywhere except county employment (and bank distress, where the embedding is ahead by
+   less than the noise). The encoder's advantage is not "it sees the graph"; both see the graph. What
+   is left for the encoder is what the aggregation throws away, and on quarterly filings, roll calls
+   and contribution histories that appears to be very little.
 3. **Where the encoder does win, the win is small and the evidence is thin.** County employment is
    one target, on six test years, significant pooled and not significant year by year.
 
@@ -293,6 +296,24 @@ validation. Wall clock 64 minutes on the dedicated GB10, peak GPU 6.1 GiB.
   panel can pass, whatever its skill.
 * The graph helps: the seed-only encoder was worse on validation for every target
   (0.00386 against 0.00422 for employment).
+
+### actors.fdic_bank_distress_v1
+
+Published `embedding_reports@eff4681d`. 74,411 bank-quarters in 2021-2024; the label is a noncurrent
+loan ratio crossing 3% or deposits falling more than 10% in a quarter, base rate 2.22%.
+
+| | Brier |
+| --- | ---: |
+| LightGBM + label-free embedding (selected) | **0.019509** |
+| LightGBM | 0.019558 |
+| the bank's own distress rate | 0.022471 |
+| training base rate | 0.021758 |
+
+This is the only actor domain where the embedding is ahead of LightGBM, and the margin is not
+significant (p = 0.21 pooled, 0.24 quarter-clustered), so `beats_gbdt_dm` still fails. Brier skill
+0.103, expected calibration error 0.0039, and the bank's own past distress rate is beaten
+decisively. `no_revision_leakage` fails: the FDIC API serves one value per bank, date and field with
+no filing date or amendment flag, so amended call reports cannot be excluded.
 
 ### actors.fec_repeat_contribution_v1
 
