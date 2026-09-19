@@ -24,8 +24,12 @@ which is why the measured build below pins 96 inputs and 1,312,082,952 catalog r
                        51,517,125 observations
                        16,653,240 events
  26,409,127 edges       (entity-to-entity assertions, weighted, bitemporal)
-     62,815 resolved entity IDs in 28,008 asserted-identity clusters
+    109,801 resolved entity IDs in 49,705 asserted-identity clusters
 ```
+
+Of the index's 8,590,782 distinct entity IDs, **314,178 (3.66%)** have entity records from two or
+more datasets; [identity-coverage.md](identity-coverage.md) measures that before and after, by
+dataset, domain and entity type, and says what blocks the rest.
 
 The ten largest edge predicates: `reported_holding` 10,416,598, `issuer_security` 2,291,868,
 `supports_candidate` 1,935,688, `cosponsored_measure` 1,283,245, `holds_position` 996,250,
@@ -180,34 +184,69 @@ python3 -m worldmodel unify-resolve --workdir /tmp/resolve
 python3 -m worldmodel graph-neighborhood ofac:party:20314 --hops 2 --resolved
 ```
 
-`unify-resolve` attaches **only asserted identity**, from three sources:
+`unify-resolve` attaches **only asserted identity**, from four sources:
 
 1. **Published `same_as` assertions** - for example `congress_people` publishing the
    congress-legislators ID lists that link a `bioguide:` person to `icpsr:` and `fec:candidate:`.
-2. **Shared unique identifiers** - entities from different sources carrying the same value in a
+2. **Published link predicates** (`worldmodel.resolution.bridges.LINK_PREDICATES`) - an assertion a
+   publisher uses to say two of its records are one listed party, with the field it derives it
+   from. One today: `same_designation_as`, which `other_sanctions_lists` publishes because the
+   Consolidated Screening List's `entity_number` *is* the OFAC profile ID and the UK list prints
+   the UN reference number of the designation it implements. **20,774 rows** (19,776 `us_csl` ↔
+   `ofac:party`, 998 `uk:sanctions` ↔ `un:sanctions`).
+3. **Shared unique identifiers** - entities from different sources carrying the same value in a
    namespace that names one thing at a time, via
    `worldmodel.resolution.shared_identifier_links`. Three published predicate shapes are read:
    `identifier_assignment` (`{namespace, value}`, the registries), `identifier` (`{id, value}`, the
    sanctions datasets) and `identified_by` (a `ns:value` literal, the transport datasets). A
    namespaced entity ID is itself treated as a published identifier claim, which is what lets an
-   OpenSanctions record that publishes an LEI meet the GLEIF entity whose ID *is* that LEI.
-3. **Published crosswalk fields** (`worldmodel.resolution.bridges`) - an identifier a source prints
-   in a field that is not an identifier assertion. Three, each naming the published field it reads
-   and the `MAPPING_SPECS` entry that says what a row means:
+   OpenSanctions record that publishes an LEI meet the GLEIF entity whose ID *is* that LEI, and
+   (since this rebuild) a `transport` airport keyed on `iata:` meet the OurAirports entity that
+   publishes that IATA code, and `crossref_research` researchers and institutions keyed on
+   `orcid:` / `ror:` meet the OpenAlex records that publish those identifiers. `bic` is read as
+   `swift`: GLEIF's BIC-to-LEI map and the sanctions lists publish the same ISO 9362 code under two
+   names, and an eight-character BIC is the eleven-character form with branch code `XXX`.
+4. **Published crosswalk fields** (`worldmodel.resolution.bridges`) - an identifier a source prints
+   in a field that is not an identifier assertion. Each names the published field it reads and the
+   `MAPPING_SPECS` entry that says what a row means:
 
-   | Bridge | Published field | Rows on this catalog |
-   | --- | --- | ---: |
-   | `gleif_sec_cik` | GLEIF LEI-CDF `Entity.RegistrationAuthority` where the authority is `RA000665` (the US SEC) and its entity ID is decimal, i.e. an EDGAR CIK | 4,971 |
-   | `gleif_companies_house` | the same fields where the authority is `RA000585` (Companies House) | 112,177 |
-   | `gleif_isin_cusip` | `issuer_security` edges to `isin:<US ISIN>`: by ISO 6166 the nine-character NSIN is the CUSIP, so the GLEIF mapping and a 13F information table name one security | 2,291,868 |
+   | Bridge | Published field | Rows | Met another publisher |
+   | --- | --- | ---: | ---: |
+   | `gleif_sec_cik` | GLEIF LEI-CDF `Entity.RegistrationAuthority` where the authority is `RA000665` (the US SEC) and its entity ID is decimal, i.e. an EDGAR CIK | 4,971 | 592 |
+   | `gleif_companies_house` | the same fields where the authority is `RA000585` (Companies House) | 112,177 | 5 |
+   | `gleif_isin_cusip` | `issuer_security` edges to `isin:<US ISIN>`: by ISO 6166 the nine-character NSIN is the CUSIP, so the GLEIF mapping and a 13F information table name one security | 2,291,868 | 9,288 |
+   | `sanctions_register_number` | OFAC / CSL identity documents whose `scheme` **and** `issuing_country` name a register - "Tax ID No."+RUS is the INN, "Registration Number"+RUS the OGRN, "Company Number"+GBR a Companies House number - with the register's check digits recomputed | 13,898 | 13,721 |
+   | `labelled_register_number` | the UK list's free-text `Business Registration Number`, where the text labels the register (`OGRN 1027700035769INN 7708004767 OKPO 00044434`, LUKOIL). An unlabelled number, or a label for a register the catalog cannot type (OKPO, KPP, CIN, PAN), is left as text | 342 | 210 |
+   | `opensanctions_wikidata` | OpenSanctions entity IDs that *are* Wikidata QIDs (`opensanctions:Q672671`) | 486,342 | 2,008 |
+   | `opensanctions_uei` | `uniqueEntityId` - the US SAM Unique Entity ID - in OpenSanctions identifier values | 27,513 | 0 (its partner `usaspending` is outside the default scope) |
 
-   Two rules stop a bridge manufacturing identity. **The authority code decides the namespace, never
-   the value shape**: a numeric registration-authority entity ID under a *state* registry is not a
-   CIK, and 2,851 of RA000063's 30,074 numeric IDs collide with real CIKs by coincidence. And a
-   bridge row is held to **the cardinality its specification declares**: 15 CIKs and 169 UK company
-   numbers are each printed by more than one LEI, and those 184 values are refused and reported in
-   `bridge_conflicts` rather than merging two legal entities. `unify-resolve --no-bridges` turns the
-   whole layer off.
+   Rules stop a bridge manufacturing identity. **The authority or the label decides the namespace,
+   never the value shape**: a numeric registration-authority entity ID under a *state* registry is
+   not a CIK, and 2,851 of RA000063's 30,074 numeric IDs collide with real CIKs by coincidence. A
+   bridge row is held to **the cardinality its specification declares, within one publisher** (two
+   publishers printing one number is agreement, not a conflict): **7,325** rows are refused and
+   reported in `bridge_conflicts` - 7,115 UEIs (OpenSanctions prints several for one record), 169
+   UK company numbers, 24 register numbers, 15 CIKs, 2 labelled numbers.
+   `unify-resolve --no-bridges` turns the whole layer off.
+
+Three further refusals apply to every claim, not only to bridges, and each is counted in the
+report:
+
+- a value its **own publisher flags as fraudulently used** (`"validity": "Fraudulent"` on an OFAC
+  identity document) is not identity evidence for the party that used it - a fraudulent MMSI
+  belongs to another hull. 91 claims, plus the 91 copies of them the CSL republishes without the
+  flag, are refused through the `same_designation_as` link;
+- **IMO issues two seven-digit series**, ship numbers and company numbers. A claim on a subject its
+  publisher types as an organisation is retyped `imo_company` (3,825 rows), so a ship manager never
+  meets a vessel;
+- a **code one dataset prints for two of its own records** is refused for that dataset in the
+  namespaces where the repeat means two different things: 518 INN and 337 OGRN values in
+  `opensanctions_graph` (mostly different organisations - "Gazprom Dobycha Krasnodar" and "Gazprom
+  Dobycha Vuktyl", a company and a person), 36 BICs, 28 UN/LOCODEs on two World Port Index ports,
+  MMSIs on two hulls (2,322 rows in total). Where a repeat means *one* thing with two records - a
+  hull re-flagged under a second MMSI keeps its IMO number - it is reported and kept. INN and OGRN
+  values are also held to the register check digit wherever they appear, which rejects 61 INNs, 188
+  OGRNs and the placeholder `ru_ogrn:0000000000000`.
 
 Values are normalized before grouping (`sec_cik` `1750` and `0000001750` are one filer), identifier
 rows spill to a SQLite work file so peak memory does not scale with the catalog, and only values
@@ -218,48 +257,59 @@ name-based matcher would add, against held-out published LEIs.
 
 ### Measured over the whole default scope
 
-`python3 -m worldmodel unify-resolve --workdir /tmp/resolve --exclude epa_aqs_daily`, one process:
+`python3 -m worldmodel unify-resolve --workdir /tmp/resolve --exclude census_aspep,epa_aqs_daily,`
+`fred_deposit_rates,fred_state_employment_vintages,market_corporate_actions,opm_fedscope` (the six
+datasets published since this index was built), one process, on 2026-09-18:
 
-| | |
-| --- | ---: |
-| wall time | 1,666.9 s (27.8 min) |
-| peak RSS | 595 MiB |
-| identifier claims read | 9,826,983 |
-| of those, read by a published-crosswalk bridge | 2,409,016 |
-| published `same_as` assertions read | 26,793 |
-| identifier values colliding across distinct entity IDs | 31,107 |
-| `same_as` links from shared identifiers | 34,469 |
-| entities holding two concurrent values in one unique namespace (reported, not linked) | 324 |
-| bridge rows refused for breaking their declared cardinality | 184 |
-| clusters | 28,008 |
-| entity IDs resolved | 62,815 |
-| largest cluster | 22 |
-| oversized components dropped | 0 |
+| | attached before | attached now |
+| --- | ---: | ---: |
+| wall time | 1,666.9 s (27.8 min) | 3,108.5 s (51.8 min) |
+| peak RSS | 595 MiB | 590 MiB |
+| identifier claims read | 9,826,983 | 10,342,875 |
+| of those, read by a published-crosswalk bridge | 2,409,016 | 2,937,111 |
+| published `same_as` assertions read | 26,793 | 26,793 |
+| published link-predicate rows read (`same_designation_as`) | - | 20,774 |
+| identifier values colliding across distinct entity IDs | 31,107 | 41,314 |
+| `same_as` links from shared identifiers | 34,469 | 51,358 |
+| entities holding two concurrent values in one unique namespace (reported, not linked) | 324 | 197 |
+| bridge rows refused for breaking their declared cardinality | 184 | 7,325 |
+| claims refused as fraudulent / retyped `imo_company` / duplicate codes / bad check digits | - | 182 / 3,825 / 2,322 / 249 |
+| **clusters** | 28,008 | **49,705** |
+| **entity IDs resolved** | 62,815 | **109,801** |
+| largest cluster | 22 | 36 |
+| oversized components dropped | 0 | 0 |
 
-The claim count is up 2,576,355 on the pre-bridge run: 2,409,016 bridge rows plus 130,745 `cusip:`
-entity IDs, which are now read as the identifier claims they are. Peak memory is **unchanged** at
-595 MiB, because the rows spill to the same work file; wall time is 357 s longer, on a catalog that
-also gained `mit_election_returns` returns and rebuilt `bls_labor` since that run. Of the bridge
-claims, 9,288 `gleif_isin_cusip` rows and 592 `gleif_sec_cik` rows met another publisher's entity.
-`gleif_companies_house` contributed **0** here, because `companies_house_uk` is a bulk dataset
-outside the default scope - add `--datasets companies_house_uk,sec_gleif` and 95,562 of its numbers
-are a company in the published register.
+Wall time is longer because the run reads the whole scope again on a catalog that has grown, and
+peak memory is unchanged: the rows spill to the same work file. `gleif_companies_house` still
+contributes only 5 links here, because `companies_house_uk` is a bulk dataset outside the default
+scope - add `--datasets companies_house_uk,sec_gleif` and 95,562 of its numbers are a company in
+the published register. How much of the index this actually joins, and what blocks the rest, is
+measured in [identity-coverage.md](identity-coverage.md): **3.17% → 3.66%** of entity IDs.
 
-What those clusters actually join (top shapes):
+What those clusters actually join (top shapes, with the previous run for comparison):
 
-| Clusters | Joins | Example |
-| ---: | --- | --- |
-| 10,696 | `bioguide` ↔ `icpsr` | `bioguide:A000001` ↔ `icpsr:1` |
-| 9,288 | `cusip` ↔ `isin` | `cusip:00032Q104` ↔ `isin:US00032Q1040` - **new**, the ISO 6166 bridge |
-| 1,828 | `ofac:party` ↔ `opensanctions` ↔ `us_csl` | one designated party on three lists |
-| 1,634 | `lei` ↔ `opensanctions` | `lei:06ZODLC132CY1O2Y7D77` ↔ `opensanctions:NK-SgXwijobPzasWcTxShpXGL` |
-| 1,475 | `bioguide` ↔ `fec:candidate` ↔ `icpsr` ↔ `opensanctions` | a legislator and their OpenSanctions PEP record |
-| **617** | `lei` ↔ `sec:cik` | `lei:07Q4EPZRU8XATVYVY545` ↔ `sec:cik:0001472215` - **was 25** before the GLEIF registration-authority bridge |
-| 350 | `opensanctions` ↔ `uk:sanctions` | the same party on the OpenSanctions and UK lists |
-| 315 | `mmsi` ↔ `mmsi` | two radio identities for one hull, joined by a shared IMO number |
-| 244 | `lei` ↔ `ofac:party` ↔ `opensanctions` ↔ `us_csl` | a designated legal entity and its LEI |
-| 51 | `geo:US:state` ↔ `iso3166-2` | `geo:US:state:01` ↔ `iso3166-2:US-AL` |
-| 50 | `mmsi` ↔ `opensanctions` | a sanctioned vessel and its AIS identity |
+| Clusters | was | Joins | Example |
+| ---: | ---: | --- | --- |
+| **13,937** | 56 | `ofac:party` ↔ `us_csl` | the CSL's copy of an SDN entry, joined by its published OFAC profile ID |
+| 10,696 | 10,696 | `bioguide` ↔ `icpsr` | `bioguide:A000001` ↔ `icpsr:1` |
+| 9,288 | 9,288 | `cusip` ↔ `isin` | `cusip:00032Q104` ↔ `isin:US00032Q1040` (the ISO 6166 bridge) |
+| **5,184** | 1,828 | `ofac:party` ↔ `opensanctions` ↔ `us_csl` | one designated party on three lists |
+| **3,395** | 0 | `iata` ↔ `ourairports` | `iata:AAE` ↔ `ourairports:2060` - the transport airport reference meets the OurAirports entity |
+| 1,553 | 1,634 | `lei` ↔ `opensanctions` | `lei:06ZODLC132CY1O2Y7D77` ↔ `opensanctions:NK-SgXwijobPzasWcTxShpXGL` (81 fewer: the refused INN/OGRN merges) |
+| 1,475 | 1,475 | `bioguide` ↔ `fec:candidate` ↔ `icpsr` ↔ `opensanctions` | a legislator and their OpenSanctions PEP record |
+| **996** | 0 | `uk:sanctions` ↔ `un:sanctions` | a UK listing and the UN designation it implements |
+| 617 | 617 | `lei` ↔ `sec:cik` | `lei:07Q4EPZRU8XATVYVY545` ↔ `sec:cik:0001472215` |
+| **458** | 350 | `opensanctions` ↔ `uk:sanctions` | the same party on the OpenSanctions and UK lists |
+| 322 | 244 | `lei` ↔ `ofac:party` ↔ `opensanctions` ↔ `us_csl` | a designated legal entity and its LEI |
+| 315 | 315 | `mmsi` ↔ `mmsi` | two radio identities for one hull, joined by a shared IMO number |
+| **243** | 0 | `openalex` ↔ `orcid` | an OpenAlex author and the Crossref researcher keyed on the same ORCID iD |
+| **51** | 0 | `openalex` ↔ `ror` | an OpenAlex institution and the Crossref institution keyed on the same ROR ID |
+| 51 | 51 | `geo:US:state` ↔ `iso3166-2` | `geo:US:state:01` ↔ `iso3166-2:US-AL` |
+| **13** | 0 | `lei` ↔ `opensanctions` ↔ `uk:sanctions` | a UK listing whose free-text OGRN/INN reached the LEI |
+
+Two shapes **shrank**, and both are refusals rather than losses: `opensanctions`-only clusters fall
+from 583 to 122 and the `wpi` port pairs from 28 to 0, because those merges came from INN, OGRN and
+UN/LOCODE values one publisher prints for different things.
 
 ### The sanctions-to-SEC join: what was missing, and what is genuinely absent
 
@@ -352,12 +402,22 @@ graph as evidence:
   Bank Northeast", closed 2001), both carrying `rssd` 736943. The specification and the data
   disagree, so we do not merge on it.
 
-Individual **values** are refused the same way, per bridge, against the cardinality its mapping
-specification declares. On this catalog `unify-resolve` refuses **184**: 15 CIKs printed as the SEC
-registration-authority entity ID by two different LEIs, and 169 UK company numbers printed by two
-(for example `gb_company_number` `00032743` under both `lei:213800XQNGMW2ST7FQ03` and
-`lei:549300WUNTT0B3TVIT69`). Each appears in the report's `bridge_conflicts` with the identifiers it
-collided with, so a refused link is attributable rather than silent.
+Individual **values** are refused the same way, per bridge and per publishing dataset, against the
+cardinality its mapping specification declares. On this catalog `unify-resolve` refuses **7,325**:
+7,115 SAM UEIs (OpenSanctions prints more than one for a record), 169 UK company numbers printed by
+two LEIs (for example `gb_company_number` `00032743` under both `lei:213800XQNGMW2ST7FQ03` and
+`lei:549300WUNTT0B3TVIT69`), 24 sanctions register numbers, 15 CIKs and 2 labelled numbers. Each
+appears in the report's `bridge_conflicts` with the identifiers it collided with, so a refused link
+is attributable rather than silent.
+
+Three namespaces are not excluded outright but are refused **per dataset** where one publisher
+prints one value for two of its own records, because there the repeat means two different things:
+`ru_inn` and `ru_ogrn` (518 and 337 values in `opensanctions_graph`, plus 71 and 52 in the CSL),
+`swift` (36 BICs mapped to two LEIs in GLEIF's own map), `unlocode` (28 codes on two World Port
+Index ports), `mmsi`, `iata` and `icao`. `worldmodel.unify.REFUSE_DUPLICATES_WITHIN_A_DATASET`
+carries the list and the measurement behind it; the report's `within_dataset_duplicates` names
+every namespace and dataset where a repeat occurs, including the ones that are kept because there
+the repeat is one thing with two records (317 IMO numbers in `marine_ais`: a re-flagged hull).
 
 ## Six questions no single dataset can answer
 
@@ -377,10 +437,13 @@ what the catalog actually supports today, including where it stops.
 `q1_sanctioned_to_listed_holders.py` - datasets: ofac_sanctions, other_sanctions_lists,
 opensanctions(_graph), sec_gleif, gleif_parent_relationships, sec_ownership_datasets.
 
-**This chain now completes.** `ofac:party:17248`, `us_csl:17248` and
-`opensanctions:NK-T3oRNWY3XhL72vfsVMcXzX` - all three labelled "LUKOIL OAO" - and GLEIF's
-`lei:549300LCJ1UJXHYBWI24` (`Публичное акционерное общество "Нефтяная компания "ЛУКОЙЛ"`) are **one
-asserted-identity cluster**, because all four publishers print the same LEI. From there:
+**This chain now completes.** `ofac:party:17248`, `us_csl:17248`,
+`opensanctions:NK-T3oRNWY3XhL72vfsVMcXzX` - all labelled "LUKOIL OAO" - GLEIF's
+`lei:549300LCJ1UJXHYBWI24` (`Публичное акционерное общество "Нефтяная компания "ЛУКОЙЛ"`) and,
+since the free-text register bridge, the UK listing `uk:sanctions:RUS3094` ("PJSC Oil Company
+LUKOIL", which prints `OGRN 1027700035769INN 7708004767` in one text field) are **one
+asserted-identity cluster**: four publishers print the same LEI and the fifth prints the same
+Russian registration numbers. From there:
 
 | Edge | Dataset |
 | --- | --- |
@@ -393,9 +456,10 @@ An OFAC-designated issuer to the institutional managers reporting a position in 
 every hop a published identifier. That was the hop that used to be missing.
 
 **Where the evidence still runs out, quantified.** The holder leg fires through the *security*, not
-through the filer. 1,880 clusters join a sanctions listing to a GLEIF LEI, and **175** of those LEIs
-issue a security the 13F tables also name; 246 of the clusters carry a listing from an actual
-designation list and **2** of those reach such a security (LUKOIL is one). The **filer** leg still
+through the filer. 1,894 clusters join a sanctions listing to a GLEIF LEI, and **170** of those LEIs
+issue a security the 13F tables also name; **341** of the clusters carry a listing from an actual
+designation list - up from 246, because the CSL and UK links now travel with the LEI - and **3** of
+those reach such a security (LUKOIL is one). The **filer** leg still
 does not fire: 617 clusters join an LEI to an SEC CIK - up from 25 - but **0 join all three**, and
 that is a true finding rather than an extraction gap. Zero of the 1,928 sanctions-published LEIs
 carry an SEC EDGAR registration-authority entity ID, and for the 183 LEIs on the designation lists
@@ -498,6 +562,10 @@ OFAC adds `VESSEL TYPE: Chemical/Oil Tanker`, `Vessel Year of Build: 2011`.
 `mmsi:636023226` + `mmsi:636090799`), joined only by the shared IMO number - a re-flagged ship, which
 is exactly the case a name or MMSI join gets wrong.
 
+The count is 89 rather than 90 because OFAC publishes **91 identifiers it marks as fraudulently
+used** (56 IMO numbers, 34 MMSIs, one other), and those are now refused - on the flagged record and
+on the CSL copy that drops the flag. A vessel that spoofed another hull's MMSI is not that hull.
+
 Transport reference and networks: 150 `usace:port:`, 400 `wpi:` and 18 `marad:strategic_seaport:`
 port entities; `usace:waterway_node:` 6,853 edges and `ntad:rail_node:` 302,771 edges.
 
@@ -549,6 +617,10 @@ facts need `--datasets sec_financial_statements`.
   identifiers and published crosswalk fields, and a bridge fires only where the publisher names the
   register the value belongs to. Where only a name matches - the FDIC-to-SEC leg of query 6 - the
   result says `INFERRED, not asserted`.
+- **Being in the index is not being joined.** 3.66% of the index's entity IDs have entity records
+  from two datasets, and 2.44% from two publishers;
+  [identity-coverage.md](identity-coverage.md) measures that per dataset, domain and entity type
+  and says which populations no published identifier reaches.
 - **A missing edge is either a scope gap or a real absence, and the two are distinguished by
   measurement.** The diagnosis table above states, for each join that does not exist, which of the
   two it is and the counts behind that verdict. Where it is a real absence - a sanctioned party that
