@@ -31,8 +31,8 @@ in the repository:
 | Current attempts that met every declared acceptance criterion | 9 of 35 |
 | **Registry processes that are validated** | **5 of 22 — `monetary_model`, `resource_inventory`, `elections_model`, `assets_model`, `legislative_model`** |
 | Model families declaring themselves validated | 0 of 11 (a family's descriptor never claims it; validation comes only from a passing report) |
-| World-state embedding attempts | 8 registered, 2 not run on compute budget; 5 scored, none validated (see [world-state embeddings](docs/world-state-embeddings.md)) |
-| Natural-experiment designs run | 4; none identified an effect (see [natural experiments](docs/natural-experiments.md)) |
+| World-state embedding attempts | 8 registered, 2 not run on compute budget; the 6 scored produced 10 reports (one per target) over 5 domains, none validated (see [world-state embeddings](docs/world-state-embeddings.md)) |
+| Natural-experiment designs run | 8 across two waves; three identified nulls, no non-zero effect, and every design underpowered against its own registered effect (see [natural experiments](docs/natural-experiments.md)) |
 | Tests | 1,447 discovered; the 1,175 that run here pass, and 272 skip without the optional `agents` extra (`tensorcode`) or local data payloads |
 
 The validation rows are the ones that matter. This system can acquire, version, join and
