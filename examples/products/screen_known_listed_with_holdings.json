@@ -2090,8 +2090,8 @@
  },
  "timings_s": {
   "open": 0.0003,
-  "resolve": 0.0006,
-  "screen": 1.8061,
-  "total": 1.8081
+  "resolve": 0.0023,
+  "screen": 4.6172,
+  "total": 4.6222
  }
 }

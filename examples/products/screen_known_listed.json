@@ -1134,9 +1134,9 @@
   "resolution_view_digest_at_build": "f8a3169623beec055a0d2f64a5a5d2baa05e21e865204b3699195bb30ef20214"
  },
  "timings_s": {
-  "open": 0.0003,
-  "resolve": 0.0007,
-  "screen": 0.037,
-  "total": 0.0391
+  "open": 0.0005,
+  "resolve": 0.0019,
+  "screen": 0.1384,
+  "total": 0.1423
  }
 }

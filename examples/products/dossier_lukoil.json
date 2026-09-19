@@ -3703,7 +3703,13 @@
     "mic_operating_venue",
     "index_constituent"
    ],
-   "per_node_edge_bound": 200
+   "per_node_edge_bound": 200,
+   "hop_1_edges_capped": [
+    {
+     "entity_id": "opensanctions:NK-T3oRNWY3XhL72vfsVMcXzX",
+     "direction": "out"
+    }
+   ]
   },
   "counts": {
    "members": 4,
@@ -3721,6 +3727,7 @@
  "where_the_evidence_runs_out": [
   "The entity was chosen by a name match. 9 other label-matching clusters were not merged with it, because no publisher asserts they are the same.",
   "Counterparties were truncated to the most-connected 10 at hop 1 and 10 at hop 2 (of 196 and 66 seen).",
+  "Hop-1 counterparties were read from the first 200 non-reference edges of opensanctions:NK-T3oRNWY3XhL72vfsVMcXzX (out); the edge counts above are exact, the counterparty list is not.",
   "Nothing beyond two hops was examined, and classifications, places, lists and programmes were not expanded. For a longer chain use \"wm serve\" /graph/paths or \"python3 -m worldmodel graph-paths\".",
   "Events are found here only where the publisher anchors the event on this ID as its subject. Events that name the entity only among their participants (storm events, disaster declarations, AIS reports) are not reachable from an entity ID in this index.",
   "No asserted SEC filer identity: neither sec_issuer_reference nor GLEIF's SEC registration authority (RA000665) links this LEI to a CIK.",
@@ -4009,14 +4016,14 @@
   "resolution_view_digest_at_build": "f8a3169623beec055a0d2f64a5a5d2baa05e21e865204b3699195bb30ef20214"
  },
  "timings_s": {
-  "open": 0.0008,
-  "resolve": 0.0172,
-  "cluster": 0.0006,
-  "identifiers": 0.0052,
-  "edges": 0.0033,
-  "observations_and_events": 0.0008,
-  "counterparties": 0.0091,
-  "labels": 0.0019,
-  "total": 0.0437
+  "open": 0.0013,
+  "resolve": 0.0241,
+  "cluster": 0.0005,
+  "identifiers": 0.0048,
+  "edges": 0.0024,
+  "observations_and_events": 0.0065,
+  "counterparties": 0.0667,
+  "labels": 0.0026,
+  "total": 0.1162
  }
 }
