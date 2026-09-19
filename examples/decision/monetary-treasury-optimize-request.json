@@ -1,0 +1,24 @@
+{
+  "actions": [
+    {"reserve_margin": -0.25}, {"reserve_margin": 0.0}, {"reserve_margin": 0.25},
+    {"reserve_margin": 0.5}, {"reserve_margin": 0.75}, {"reserve_margin": 1.0}
+  ],
+  "encoder_bins": {
+    "policy_rate": [1.0, 3.0, 5.0],
+    "inflation": [1.5, 2.5, 3.5],
+    "output_gap": [-2.0, 0.0, 1.5]
+  },
+  "training_seeds": {"start": 0, "count": 6000},
+  "evaluation_seeds": {"start": 1000000, "count": 2000},
+  "alpha": 0.05,
+  "gamma": 0.0,
+  "epsilon": 0.2,
+  "seed": 11,
+  "fallback_action": 1,
+  "baselines": {
+    "persistence_no_margin": {"kind": "constant", "actions": {"reserve_margin": 0.0}},
+    "fixed_margin_25bp": {"kind": "constant", "actions": {"reserve_margin": 0.25}},
+    "fixed_margin_50bp": {"kind": "constant", "actions": {"reserve_margin": 0.5}},
+    "fitted_rule_q75": {"kind": "fitted_rule_quantile", "quantile": 0.75}
+  }
+}

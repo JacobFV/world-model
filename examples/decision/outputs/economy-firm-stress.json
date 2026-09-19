@@ -1,0 +1,799 @@
+{
+  "claim_type": "fragility",
+  "comparison": [
+    {
+      "drivers": [
+        "input.household_demand",
+        "input.unit_cost_multiplier"
+      ],
+      "nominal_success": true,
+      "policy": "cautious",
+      "random_failure_rate": 0.17725752508361203,
+      "worst_severity": 0.39740000000000003
+    },
+    {
+      "drivers": [
+        "input.household_demand",
+        "input.unit_cost_multiplier"
+      ],
+      "nominal_success": true,
+      "policy": "steady",
+      "random_failure_rate": 0.44481605351170567,
+      "worst_severity": 1.196
+    },
+    {
+      "drivers": [
+        "input.household_demand",
+        "input.unit_cost_multiplier"
+      ],
+      "nominal_success": false,
+      "policy": "aggressive",
+      "random_failure_rate": 0.8729096989966555,
+      "worst_severity": 2.9981999999999998
+    }
+  ],
+  "contract": "economy-firm-stress",
+  "decision_maker": "firm",
+  "dimensions": [
+    {
+      "high": 2.0,
+      "kind": "uncertain_input",
+      "low": 0.8,
+      "name": "input.unit_cost_multiplier",
+      "nominal": 1.0,
+      "source": "declared range"
+    },
+    {
+      "high": 8,
+      "kind": "uncertain_input",
+      "low": 1,
+      "name": "input.household_demand",
+      "nominal": 4,
+      "source": "declared range"
+    },
+    {
+      "high": 0.1,
+      "kind": "uncertain_input",
+      "low": -0.02,
+      "name": "input.inflation",
+      "nominal": 0.02,
+      "source": "declared range"
+    },
+    {
+      "high": 0.03,
+      "kind": "uncertain_input",
+      "low": -0.05,
+      "name": "input.output_gap",
+      "nominal": 0.0,
+      "source": "declared range"
+    },
+    {
+      "high": 0.3,
+      "kind": "uncertain_input",
+      "low": -0.1,
+      "name": "input.expected_rate_change",
+      "nominal": 0.0,
+      "source": "declared range"
+    },
+    {
+      "high": 2.5,
+      "kind": "assumed_parameter",
+      "low": 0.2,
+      "name": "param.demand_elasticity",
+      "nominal": 1.0,
+      "source": "declared range"
+    },
+    {
+      "high": 0.6,
+      "kind": "assumed_parameter",
+      "low": 0.05,
+      "name": "param.price_adjustment",
+      "nominal": 0.25,
+      "source": "declared range"
+    },
+    {
+      "high": 2.0,
+      "kind": "assumed_parameter",
+      "low": 0.0,
+      "name": "param.rate_response",
+      "nominal": 1.0,
+      "source": "declared range"
+    },
+    {
+      "high": 0.5,
+      "kind": "assumed_parameter",
+      "low": 0.0,
+      "name": "param.unmet_demand_response",
+      "nominal": 0.1,
+      "source": "declared range"
+    }
+  ],
+  "does_not_establish": [
+    "Holdout forecast skill does not identify an intervention response: a validated mechanism forecast well on data it had not seen, conditional on realized inputs; it was never tested on what happens when someone intervenes.",
+    "No mechanism here is causally identified; estimates are reduced-form and labelled as such by their reports.",
+    "Declared bounds on uncertain inputs and assumed parameters are author statements, not probabilities or confidence sets.",
+    "A policy that does well under this environment is optimal (or robust) only for the environment's assumptions.",
+    "The economy has one firm, one household and two banks; its money, goods and prices are fictional.",
+    "A rate estimated on monthly US prime and federal funds data is applied to a fictional daily loan; the transfer is itself an assumption.",
+    "This is a fragility claim, not an optimality claim: it reports where supplied policies fail inside a declared box. It does not say any policy is best, and finding no failure is not evidence that none exists.",
+    "Failure rates are shares of uniform draws over declared bounds. The bounds are not a probability distribution, so a rate is not the chance of failure in the world."
+  ],
+  "failure_rates_are_not_probabilities": "Failure rates are shares of uniform draws over declared bounds. The bounds are not a probability distribution, so a rate is not the chance of failure in the world.",
+  "kernel": "coupled_economy_firm",
+  "label": {
+    "by_status": {
+      "assumed": [
+        "demand_response",
+        "price_adjustment"
+      ],
+      "estimated but not validated": [
+        "policy_rate_rule"
+      ],
+      "validated": [
+        "loan_rate_pass_through"
+      ]
+    },
+    "label": "rests_on_unvalidated_mechanisms",
+    "text": "UNVALIDATED: this rests on demand_response (assumed), policy_rate_rule (estimated but not validated), price_adjustment (assumed). It is optimal, robust or fragile only under those assumptions, and says nothing about the world beyond them.",
+    "unvalidated_mechanisms": [
+      "demand_response",
+      "policy_rate_rule",
+      "price_adjustment"
+    ]
+  },
+  "mechanisms": {
+    "demand_response": {
+      "attempt": null,
+      "binding": {
+        "assumed": [
+          "elasticity",
+          "rate_response",
+          "energy_response"
+        ],
+        "bound_from_report": []
+      },
+      "caveats": [],
+      "component": null,
+      "declared_status": "assumed",
+      "mechanism": "demand_response",
+      "reasons": [
+        "declared assumed: its values are written in the contract or kernel configuration"
+      ],
+      "report_id": null,
+      "scope": null,
+      "status": "assumed",
+      "steps_used": 30,
+      "verified": true
+    },
+    "loan_rate_pass_through": {
+      "attempt": "interest_pass_through.fred_realtime_v2",
+      "binding": {
+        "assumed": [],
+        "bound_from_report": [
+          "spread",
+          "pass_through",
+          "adjustment_speed",
+          "impact_pass_through"
+        ]
+      },
+      "caveats": [
+        "component interest_pass_through is validated on its own, but its process coupled_economy is not",
+        "scored at horizon 1 (monthly steps); rollouts iterate it for 30 days, and multi-step skill was never tested",
+        "scored conditional on realized policy_rate; here they are scenario inputs, and forecasting them was never tested",
+        "holdout after 2017-12-31 through cutoff 2024-12-31; nothing says the fitted conduct persists outside that window"
+      ],
+      "component": "interest_pass_through",
+      "declared_status": "validated",
+      "mechanism": "loan_rate_pass_through",
+      "reasons": [
+        "report re-verified and passes every declared criterion; attempt interest_pass_through.fred_realtime_v2 is current"
+      ],
+      "report_id": "0ab6414b3656c052228d20850439b44eabc70f7c759f0a6b56057ea895bf5d4e",
+      "scope": {
+        "attempt": "interest_pass_through.fred_realtime_v2",
+        "conditional_inputs": [
+          "policy_rate"
+        ],
+        "cutoff": "2024-12-31",
+        "data_inputs": [
+          {
+            "dataset": "fred_macro_panel",
+            "stage": "normalized",
+            "version": "7dcce89cb6e95530779f76504e0c29230b965310ce4e98180e8de3e4ec27f678"
+          },
+          {
+            "dataset": "fred_policy_rate",
+            "stage": "normalized",
+            "version": "966a00996df4bcca5c91c712b9703e21d607905f4e71bf0deba416a2fd039b58"
+          }
+        ],
+        "frequency": "monthly",
+        "horizon": 1,
+        "interval_level": 0.8,
+        "train_end": "2012-12-31",
+        "validation_end": "2017-12-31"
+      },
+      "status": "validated",
+      "steps_used": 30,
+      "verified": true,
+      "version": "60dda0c3334bb8b77e73bac0b0d2ab88d5472ec0d43eded0b6a914e50e7a67ac"
+    },
+    "policy_rate_rule": {
+      "attempt": "policy_rule.fred_realtime_v3",
+      "binding": {
+        "assumed": [],
+        "bound_from_report": [
+          "reference_rate",
+          "inflation_target",
+          "inflation_response",
+          "output_response",
+          "smoothing"
+        ]
+      },
+      "caveats": [
+        "component policy_rule is validated on its own, but its process coupled_economy is not",
+        "scored at horizon 1 (quarterly steps); rollouts iterate it for 30 days, and multi-step skill was never tested",
+        "scored conditional on realized price_index, real_gdp, potential_gdp; here they are scenario inputs, and forecasting them was never tested",
+        "holdout after 2012-12-31 through cutoff 2024-12-31; nothing says the fitted conduct persists outside that window"
+      ],
+      "component": "policy_rule",
+      "declared_status": "estimated but not validated",
+      "mechanism": "policy_rate_rule",
+      "reasons": [
+        "estimated: parameters come from the cited report, which fails beats_persistence_dm"
+      ],
+      "report_id": "f188e4198071718485505af6edc2eb7a489a973178cfd20bb11ea620f306fe0e",
+      "scope": {
+        "attempt": "policy_rule.fred_realtime_v3",
+        "conditional_inputs": [
+          "price_index",
+          "real_gdp",
+          "potential_gdp"
+        ],
+        "cutoff": "2024-12-31",
+        "data_inputs": [
+          {
+            "dataset": "fred_macro_panel",
+            "stage": "normalized",
+            "version": "7dcce89cb6e95530779f76504e0c29230b965310ce4e98180e8de3e4ec27f678"
+          }
+        ],
+        "frequency": "quarterly",
+        "horizon": 1,
+        "interval_level": 0.8,
+        "train_end": "2004-12-31",
+        "validation_end": "2012-12-31"
+      },
+      "status": "estimated but not validated",
+      "steps_used": 30,
+      "verified": true,
+      "version": "785c14227627ade106674c1a1294dcd5631748ffac4624253d379dcfc007f0a4"
+    },
+    "price_adjustment": {
+      "attempt": null,
+      "binding": {
+        "assumed": [
+          "adjustment",
+          "unmet_demand_response"
+        ],
+        "bound_from_report": []
+      },
+      "caveats": [],
+      "component": null,
+      "declared_status": "assumed",
+      "mechanism": "price_adjustment",
+      "reasons": [
+        "declared assumed: its values are written in the contract or kernel configuration"
+      ],
+      "report_id": null,
+      "scope": null,
+      "status": "assumed",
+      "steps_used": 30,
+      "verified": true
+    }
+  },
+  "not_an_optimality_claim": "This is a fragility claim, not an optimality claim: it reports where supplied policies fail inside a declared box. It does not say any policy is best, and finding no failure is not evidence that none exists.",
+  "parameter_uncertainty": null,
+  "policies": {
+    "aggressive": {
+      "claim": "aggressive: fails in 261 of 299 random draws (87%; never_bankrupt 3, solvent_at_end 258). It breaks when input.household_demand in [1, 3.33] and input.unit_cost_multiplier in [1.6, 2]: 41 of 41 draws there fail (100%). It holds best when input.household_demand in [5.67, 8] and input.unit_cost_multiplier in [0.8, 1.2] (29% fail). The refined worst case violates solvent_at_end by 3 scales.",
+      "nominal": {
+        "failed": [
+          "solvent_at_end"
+        ],
+        "observed": {
+          "debt_ceiling": 150.0,
+          "never_bankrupt": 0.0,
+          "solvent_at_end": -119.43
+        },
+        "severity": 2.3886000000000003,
+        "success": false
+      },
+      "random": {
+        "draws": 299,
+        "failure_rate": 0.8729096989966555,
+        "failures": 261
+      },
+      "refinement": {
+        "evaluations": 300,
+        "found_failure": true,
+        "worst_severity": 2.9981999999999998
+      },
+      "regions": {
+        "driver_directions": {
+          "input.household_demand": "lower",
+          "input.unit_cost_multiplier": "higher"
+        },
+        "drivers": [
+          "input.household_demand",
+          "input.unit_cost_multiplier"
+        ],
+        "failure_rate": 0.8729096989966555,
+        "failures": 261,
+        "failures_by_criterion": {
+          "never_bankrupt": 3,
+          "solvent_at_end": 258
+        },
+        "per_dimension": [
+          {
+            "bins": null,
+            "dimension": "input.household_demand",
+            "fails_more_when": "lower",
+            "kind": "uncertain_input",
+            "spread": 0.34782608695652173
+          },
+          {
+            "bins": null,
+            "dimension": "input.unit_cost_multiplier",
+            "fails_more_when": "higher",
+            "kind": "uncertain_input",
+            "spread": 0.34285714285714286
+          },
+          {
+            "bins": null,
+            "dimension": "param.demand_elasticity",
+            "fails_more_when": "lower",
+            "kind": "assumed_parameter",
+            "spread": 0.19290123456790131
+          },
+          {
+            "bins": null,
+            "dimension": "input.inflation",
+            "fails_more_when": "higher",
+            "kind": "uncertain_input",
+            "spread": 0.14121212121212123
+          },
+          {
+            "bins": null,
+            "dimension": "input.expected_rate_change",
+            "fails_more_when": "higher",
+            "kind": "uncertain_input",
+            "spread": 0.12634408602150538
+          },
+          {
+            "bins": null,
+            "dimension": "input.output_gap",
+            "fails_more_when": "lower",
+            "kind": "uncertain_input",
+            "spread": 0.09269102990033218
+          }
+        ],
+        "safest_cell": {
+          "dimensions": {
+            "input.household_demand": [
+              5.666666666666667,
+              8.0
+            ],
+            "input.unit_cost_multiplier": [
+              0.8,
+              1.2
+            ]
+          },
+          "failure_rate": 0.2857142857142857,
+          "failures": 8,
+          "samples": 28
+        },
+        "samples": 299,
+        "worst_cell": {
+          "dimensions": {
+            "input.household_demand": [
+              1.0,
+              3.3333333333333335
+            ],
+            "input.unit_cost_multiplier": [
+              1.6,
+              2.0
+            ]
+          },
+          "failure_rate": 1.0,
+          "failures": 41,
+          "samples": 41
+        }
+      },
+      "worst_cases": [
+        {
+          "at_bounds": {},
+          "failed": [
+            "solvent_at_end"
+          ],
+          "observed": {
+            "debt_ceiling": 149.96,
+            "never_bankrupt": 0.0,
+            "solvent_at_end": -149.91
+          },
+          "point": {
+            "input.expected_rate_change": -0.06165307751813409,
+            "input.household_demand": 3.0443059034821967,
+            "input.inflation": 0.0921034452481141,
+            "input.output_gap": -0.03523316747401405,
+            "input.unit_cost_multiplier": 1.9043658468273181,
+            "param.demand_elasticity": 1.8614252265287705,
+            "param.price_adjustment": 0.21186357048852,
+            "param.rate_response": 0.9139135340059756,
+            "param.unmet_demand_response": 0.3196256252828885
+          },
+          "severity": 2.9981999999999998
+        },
+        {
+          "at_bounds": {},
+          "failed": [
+            "solvent_at_end"
+          ],
+          "observed": {
+            "debt_ceiling": 149.89,
+            "never_bankrupt": 0.0,
+            "solvent_at_end": -149.72
+          },
+          "point": {
+            "input.expected_rate_change": 0.09114420215643723,
+            "input.household_demand": 2.9767468574864475,
+            "input.inflation": 0.09603187942522248,
+            "input.output_gap": -0.013767758530454706,
+            "input.unit_cost_multiplier": 1.6118330381687405,
+            "param.demand_elasticity": 1.4222906039199577,
+            "param.price_adjustment": 0.5311954751367524,
+            "param.rate_response": 1.9730619582581939,
+            "param.unmet_demand_response": 0.2642396931392607
+          },
+          "severity": 2.9944
+        }
+      ]
+    },
+    "cautious": {
+      "claim": "cautious: fails in 53 of 299 random draws (18%; solvent_at_end 53). It breaks when input.household_demand in [1, 3.33] and input.unit_cost_multiplier in [1.6, 2]: 30 of 41 draws there fail (73%). It holds best when input.household_demand in [5.67, 8] and input.unit_cost_multiplier in [1.6, 2] (0% fail). The refined worst case violates solvent_at_end by 0.397 scales.",
+      "nominal": {
+        "failed": [],
+        "observed": {
+          "debt_ceiling": 0.0,
+          "never_bankrupt": 0.0,
+          "solvent_at_end": 219.81
+        },
+        "severity": 0.0,
+        "success": true
+      },
+      "random": {
+        "draws": 299,
+        "failure_rate": 0.17725752508361203,
+        "failures": 53
+      },
+      "refinement": {
+        "evaluations": 300,
+        "found_failure": true,
+        "worst_severity": 0.39740000000000003
+      },
+      "regions": {
+        "driver_directions": {
+          "input.household_demand": "lower",
+          "input.unit_cost_multiplier": "higher"
+        },
+        "drivers": [
+          "input.household_demand",
+          "input.unit_cost_multiplier"
+        ],
+        "failure_rate": 0.17725752508361203,
+        "failures": 53,
+        "failures_by_criterion": {
+          "solvent_at_end": 53
+        },
+        "per_dimension": [
+          {
+            "bins": null,
+            "dimension": "input.household_demand",
+            "fails_more_when": "lower",
+            "kind": "uncertain_input",
+            "spread": 0.5822784810126582
+          },
+          {
+            "bins": null,
+            "dimension": "input.unit_cost_multiplier",
+            "fails_more_when": "higher",
+            "kind": "uncertain_input",
+            "spread": 0.20410958904109588
+          },
+          {
+            "bins": null,
+            "dimension": "input.output_gap",
+            "fails_more_when": "higher",
+            "kind": "uncertain_input",
+            "spread": 0.14241001564945227
+          },
+          {
+            "bins": null,
+            "dimension": "input.expected_rate_change",
+            "fails_more_when": "higher",
+            "kind": "uncertain_input",
+            "spread": 0.13763440860215054
+          },
+          {
+            "bins": null,
+            "dimension": "param.price_adjustment",
+            "fails_more_when": "higher",
+            "kind": "assumed_parameter",
+            "spread": 0.1262206148282098
+          },
+          {
+            "bins": null,
+            "dimension": "input.inflation",
+            "fails_more_when": "higher",
+            "kind": "uncertain_input",
+            "spread": 0.12007575757575756
+          }
+        ],
+        "safest_cell": {
+          "dimensions": {
+            "input.household_demand": [
+              5.666666666666667,
+              8.0
+            ],
+            "input.unit_cost_multiplier": [
+              1.6,
+              2.0
+            ]
+          },
+          "failure_rate": 0.0,
+          "failures": 0,
+          "samples": 35
+        },
+        "samples": 299,
+        "worst_cell": {
+          "dimensions": {
+            "input.household_demand": [
+              1.0,
+              3.3333333333333335
+            ],
+            "input.unit_cost_multiplier": [
+              1.6,
+              2.0
+            ]
+          },
+          "failure_rate": 0.7317073170731707,
+          "failures": 30,
+          "samples": 41
+        }
+      },
+      "worst_cases": [
+        {
+          "at_bounds": {
+            "param.demand_elasticity": "maximum"
+          },
+          "failed": [
+            "solvent_at_end"
+          ],
+          "observed": {
+            "debt_ceiling": 19.87,
+            "never_bankrupt": 0.0,
+            "solvent_at_end": -19.87
+          },
+          "point": {
+            "input.expected_rate_change": 0.21686342337302808,
+            "input.household_demand": 2.0932602314326068,
+            "input.inflation": 0.021237068744017904,
+            "input.output_gap": 0.029062522841959704,
+            "input.unit_cost_multiplier": 1.8247446405568892,
+            "param.demand_elasticity": 2.5,
+            "param.price_adjustment": 0.09166667474072782,
+            "param.rate_response": 1.7035565104099564,
+            "param.unmet_demand_response": 0.20004037662760643
+          },
+          "severity": 0.39740000000000003
+        },
+        {
+          "at_bounds": {},
+          "failed": [
+            "solvent_at_end"
+          ],
+          "observed": {
+            "debt_ceiling": 19.94,
+            "never_bankrupt": 0.0,
+            "solvent_at_end": -19.830000000000002
+          },
+          "point": {
+            "input.expected_rate_change": 0.2463360589193349,
+            "input.household_demand": 2.1562167350835795,
+            "input.inflation": 0.07928597516244444,
+            "input.output_gap": 0.016667859706776186,
+            "input.unit_cost_multiplier": 1.8603971351971058,
+            "param.demand_elasticity": 2.2125,
+            "param.price_adjustment": 0.2656263683046185,
+            "param.rate_response": 0.6627662536147396,
+            "param.unmet_demand_response": 0.3264218088461892
+          },
+          "severity": 0.39660000000000006
+        }
+      ]
+    },
+    "steady": {
+      "claim": "steady: fails in 133 of 299 random draws (44%; never_bankrupt 3, solvent_at_end 130). It breaks when input.household_demand in [1, 3.33] and input.unit_cost_multiplier in [1.6, 2]: 41 of 41 draws there fail (100%). It holds best when input.household_demand in [5.67, 8] and input.unit_cost_multiplier in [0.8, 1.2] (0% fail). The refined worst case violates solvent_at_end by 1.2 scales.",
+      "nominal": {
+        "failed": [],
+        "observed": {
+          "debt_ceiling": 0.0,
+          "never_bankrupt": 0.0,
+          "solvent_at_end": 213.63
+        },
+        "severity": 0.0,
+        "success": true
+      },
+      "random": {
+        "draws": 299,
+        "failure_rate": 0.44481605351170567,
+        "failures": 133
+      },
+      "refinement": {
+        "evaluations": 300,
+        "found_failure": true,
+        "worst_severity": 1.196
+      },
+      "regions": {
+        "driver_directions": {
+          "input.household_demand": "lower",
+          "input.unit_cost_multiplier": "higher"
+        },
+        "drivers": [
+          "input.household_demand",
+          "input.unit_cost_multiplier"
+        ],
+        "failure_rate": 0.44481605351170567,
+        "failures": 133,
+        "failures_by_criterion": {
+          "never_bankrupt": 3,
+          "solvent_at_end": 130
+        },
+        "per_dimension": [
+          {
+            "bins": null,
+            "dimension": "input.household_demand",
+            "fails_more_when": "lower",
+            "kind": "uncertain_input",
+            "spread": 0.9095578792882041
+          },
+          {
+            "bins": null,
+            "dimension": "input.unit_cost_multiplier",
+            "fails_more_when": "higher",
+            "kind": "uncertain_input",
+            "spread": 0.32857142857142857
+          },
+          {
+            "bins": null,
+            "dimension": "param.price_adjustment",
+            "fails_more_when": "higher",
+            "kind": "assumed_parameter",
+            "spread": 0.19203457857363382
+          },
+          {
+            "bins": null,
+            "dimension": "input.inflation",
+            "fails_more_when": "higher",
+            "kind": "uncertain_input",
+            "spread": 0.16564102564102567
+          },
+          {
+            "bins": null,
+            "dimension": "input.output_gap",
+            "fails_more_when": "higher",
+            "kind": "uncertain_input",
+            "spread": 0.16358148893360164
+          },
+          {
+            "bins": null,
+            "dimension": "param.rate_response",
+            "fails_more_when": "higher",
+            "kind": "assumed_parameter",
+            "spread": 0.1501369863013699
+          }
+        ],
+        "safest_cell": {
+          "dimensions": {
+            "input.household_demand": [
+              5.666666666666667,
+              8.0
+            ],
+            "input.unit_cost_multiplier": [
+              0.8,
+              1.2
+            ]
+          },
+          "failure_rate": 0.0,
+          "failures": 0,
+          "samples": 28
+        },
+        "samples": 299,
+        "worst_cell": {
+          "dimensions": {
+            "input.household_demand": [
+              1.0,
+              3.3333333333333335
+            ],
+            "input.unit_cost_multiplier": [
+              1.6,
+              2.0
+            ]
+          },
+          "failure_rate": 1.0,
+          "failures": 41,
+          "samples": 41
+        }
+      },
+      "worst_cases": [
+        {
+          "at_bounds": {},
+          "failed": [
+            "solvent_at_end"
+          ],
+          "observed": {
+            "debt_ceiling": 59.97,
+            "never_bankrupt": 0.0,
+            "solvent_at_end": -59.8
+          },
+          "point": {
+            "input.expected_rate_change": 0.034555337467226194,
+            "input.household_demand": 1.7572572494020886,
+            "input.inflation": 0.01420898819533611,
+            "input.output_gap": 0.02460713788497844,
+            "input.unit_cost_multiplier": 1.4534521332370027,
+            "param.demand_elasticity": 1.284332362691097,
+            "param.price_adjustment": 0.5302016666940264,
+            "param.rate_response": 1.3707916603358505,
+            "param.unmet_demand_response": 0.3953589085307434
+          },
+          "severity": 1.196
+        },
+        {
+          "at_bounds": {},
+          "failed": [
+            "solvent_at_end"
+          ],
+          "observed": {
+            "debt_ceiling": 60.0,
+            "never_bankrupt": 0.0,
+            "solvent_at_end": -59.73
+          },
+          "point": {
+            "input.expected_rate_change": 0.01670535515584208,
+            "input.household_demand": 1.1639779122603886,
+            "input.inflation": -0.008882920207820114,
+            "input.output_gap": 0.016714331456274448,
+            "input.unit_cost_multiplier": 1.7497621190449375,
+            "param.demand_elasticity": 1.02032049477414,
+            "param.price_adjustment": 0.3691650253068778,
+            "param.rate_response": 1.3510147234297103,
+            "param.unmet_demand_response": 0.0034418479702776894
+          },
+          "severity": 1.1945999999999999
+        }
+      ]
+    }
+  },
+  "schema": "worldmodel.decision_fragility/1",
+  "search": {
+    "bins": 4,
+    "evaluations_per_policy": 600,
+    "method": "uniform random search plus coordinate pattern search from the worst draws",
+    "min_bin_samples": 8,
+    "random_draws": 299,
+    "refinement_budget": 300,
+    "refinement_starts": 4,
+    "seed": 3
+  }
+}

@@ -1,0 +1,974 @@
+{
+  "algorithm": {
+    "actions": [
+      {
+        "reserve_margin": -0.25
+      },
+      {
+        "reserve_margin": 0.0
+      },
+      {
+        "reserve_margin": 0.25
+      },
+      {
+        "reserve_margin": 0.5
+      },
+      {
+        "reserve_margin": 0.75
+      },
+      {
+        "reserve_margin": 1.0
+      }
+    ],
+    "alpha": 0.05,
+    "encoder_bins": {
+      "inflation": [
+        1.5,
+        2.5,
+        3.5
+      ],
+      "output_gap": [
+        -2.0,
+        0.0,
+        1.5
+      ],
+      "policy_rate": [
+        1.0,
+        3.0,
+        5.0
+      ]
+    },
+    "epsilon": 0.2,
+    "evaluation_episodes": 2000,
+    "fallback_action": {
+      "reserve_margin": 0.0
+    },
+    "gamma": 0.0,
+    "method": "tabular Q-learning (worldmodel.rl.train_tabular), epsilon-greedy, frozen greedy policy",
+    "seed": 11,
+    "states_visited": 41,
+    "training_episodes": 6000,
+    "transitions": 80000
+  },
+  "baselines": {
+    "fitted_rule_q75": {
+      "action": "reserve_margin",
+      "coefficients": {
+        "inflation": 0.201059460088426,
+        "output_gap": 0.15117037489309226,
+        "policy_rate": -0.14528774954506163
+      },
+      "intercept": 0.2325916133297976,
+      "kind": "linear_rule"
+    },
+    "fixed_margin_25bp": {
+      "actions": {
+        "reserve_margin": 0.25
+      },
+      "kind": "constant"
+    },
+    "fixed_margin_50bp": {
+      "actions": {
+        "reserve_margin": 0.5
+      },
+      "kind": "constant"
+    },
+    "persistence_no_margin": {
+      "actions": {
+        "reserve_margin": 0.0
+      },
+      "kind": "constant"
+    }
+  },
+  "conditional_on_fitted_dynamics": "Validated forecast skill is not validated counterfactual response. This policy is optimal, at best, for the fitted dynamics and the resampled scenarios; it is conditional on both.",
+  "contract": "monetary-treasury-optimize",
+  "decision_maker": "org:example-treasury",
+  "does_not_establish": [
+    "Holdout forecast skill does not identify an intervention response: a validated mechanism forecast well on data it had not seen, conditional on realized inputs; it was never tested on what happens when someone intervenes.",
+    "No mechanism here is causally identified; estimates are reduced-form and labelled as such by their reports.",
+    "Declared bounds on uncertain inputs and assumed parameters are author statements, not probabilities or confidence sets.",
+    "A policy that does well under this environment is optimal (or robust) only for the environment's assumptions.",
+    "Training and evaluation episodes resample the same 1995-2024 first-release quarters the mechanism was fitted on; held-out seeds are held-out draws, not held-out history.",
+    "Resampling history assumes the next two years look like a block of the last thirty.",
+    "Validated forecast skill is not validated counterfactual response. This policy is optimal, at best, for the fitted dynamics and the resampled scenarios; it is conditional on both."
+  ],
+  "evaluations": {
+    "held_out_history": {
+      "best_mean_weighted_score": "fixed_margin_50bp",
+      "comparison": {
+        "fitted_rule_q75": {
+          "episodes": 2000,
+          "feasible_rate": 0.8595,
+          "mean_environment_return": -1.7293278629878894,
+          "mean_idle_reserve": 2.2022801615178493,
+          "mean_under_reserved": 1.5716770968112361,
+          "mean_weighted_score": -1.7293278629878894,
+          "success_rate": 0.331
+        },
+        "fixed_margin_25bp": {
+          "episodes": 2000,
+          "feasible_rate": 1.0,
+          "mean_environment_return": -1.8546141599303176,
+          "mean_idle_reserve": 2.0787161342557554,
+          "mean_under_reserved": 1.7799135018218384,
+          "mean_weighted_score": -1.8546141599303176,
+          "success_rate": 0.5005
+        },
+        "fixed_margin_50bp": {
+          "episodes": 2000,
+          "feasible_rate": 1.0,
+          "mean_environment_return": -1.6348991616084854,
+          "mean_idle_reserve": 3.3590011359339234,
+          "mean_under_reserved": 1.060198503500006,
+          "mean_weighted_score": -1.6348991616084854,
+          "success_rate": 0.655
+        },
+        "learned": {
+          "episodes": 2000,
+          "feasible_rate": 1.0,
+          "mean_environment_return": -1.9218960976801396,
+          "mean_idle_reserve": 1.8527480720055773,
+          "mean_under_reserved": 1.94494543957166,
+          "mean_weighted_score": -1.9218960976801396,
+          "success_rate": 0.483
+        },
+        "persistence_no_margin": {
+          "episodes": 2000,
+          "feasible_rate": 1.0,
+          "mean_environment_return": -2.3587229116262205,
+          "mean_idle_reserve": 1.0828248859516587,
+          "mean_under_reserved": 2.7840222535177412,
+          "mean_weighted_score": -2.3587229116262205,
+          "success_rate": 0.327
+        }
+      },
+      "description": "held-out seeds on blocks of history the learner never trained on",
+      "learned_minus_baseline": {
+        "fitted_rule_q75": {
+          "interval_95": [
+            -0.24073969990308827,
+            -0.1443967694814118
+          ],
+          "learned_better_share": 0.5545,
+          "mean_difference": -0.19256823469225004,
+          "standard_error": 0.02457727816879502
+        },
+        "fixed_margin_25bp": {
+          "interval_95": [
+            -0.08454335516019316,
+            -0.050020520339450716
+          ],
+          "learned_better_share": 0.419,
+          "mean_difference": -0.06728193774982194,
+          "standard_error": 0.008806845617536339
+        },
+        "fixed_margin_50bp": {
+          "interval_95": [
+            -0.315927898783249,
+            -0.2580659733600591
+          ],
+          "learned_better_share": 0.3755,
+          "mean_difference": -0.28699693607165405,
+          "standard_error": 0.014760695261017831
+        },
+        "persistence_no_margin": {
+          "interval_95": [
+            0.41353678094246593,
+            0.4601168469496968
+          ],
+          "learned_better_share": 0.6935,
+          "mean_difference": 0.43682681394608136,
+          "standard_error": 0.011882669899803803
+        }
+      },
+      "unseen_state_visits": 2087
+    },
+    "training_history": {
+      "best_mean_weighted_score": "learned",
+      "comparison": {
+        "fitted_rule_q75": {
+          "episodes": 2000,
+          "feasible_rate": 1.0,
+          "mean_environment_return": -1.302207385499468,
+          "mean_idle_reserve": 2.6626019899037967,
+          "mean_under_reserved": 0.8487425173646919,
+          "mean_weighted_score": -1.302207385499468,
+          "success_rate": 0.856
+        },
+        "fixed_margin_25bp": {
+          "episodes": 2000,
+          "feasible_rate": 1.0,
+          "mean_environment_return": -1.2178275627038968,
+          "mean_idle_reserve": 3.4708771816393424,
+          "mean_under_reserved": 0.46681102305874816,
+          "mean_weighted_score": -1.2178275627038968,
+          "success_rate": 0.911
+        },
+        "fixed_margin_50bp": {
+          "episodes": 2000,
+          "feasible_rate": 1.0,
+          "mean_environment_return": -1.4361865533752993,
+          "mean_idle_reserve": 5.189236172310745,
+          "mean_under_reserved": 0.18517001373015088,
+          "mean_weighted_score": -1.4361865533752993,
+          "success_rate": 0.974
+        },
+        "learned": {
+          "episodes": 2000,
+          "feasible_rate": 1.0,
+          "mean_environment_return": -1.1021465464465992,
+          "mean_idle_reserve": 2.700633665382045,
+          "mean_under_reserved": 0.5693175068014504,
+          "mean_weighted_score": -1.1021465464465992,
+          "success_rate": 0.8855
+        },
+        "persistence_no_margin": {
+          "episodes": 2000,
+          "feasible_rate": 1.0,
+          "mean_environment_return": -1.2493293841618587,
+          "mean_idle_reserve": 2.002379003097304,
+          "mean_under_reserved": 0.9983128445167099,
+          "mean_weighted_score": -1.2493293841618587,
+          "success_rate": 0.737
+        }
+      },
+      "description": "held-out seeds on the blocks the learner trained on (fresh shocks only)",
+      "learned_minus_baseline": {
+        "fitted_rule_q75": {
+          "interval_95": [
+            0.17538400881615146,
+            0.2247376692895865
+          ],
+          "learned_better_share": 0.533,
+          "mean_difference": 0.20006083905286898,
+          "standard_error": 0.012590219508529349
+        },
+        "fixed_margin_25bp": {
+          "interval_95": [
+            0.1032706703406863,
+            0.1280913621739091
+          ],
+          "learned_better_share": 0.645,
+          "mean_difference": 0.1156810162572977,
+          "standard_error": 0.006331809141128264
+        },
+        "fixed_margin_50bp": {
+          "interval_95": [
+            0.31638466001958626,
+            0.35169535383781453
+          ],
+          "learned_better_share": 0.814,
+          "mean_difference": 0.3340400069287004,
+          "standard_error": 0.009007830055670484
+        },
+        "persistence_no_margin": {
+          "interval_95": [
+            0.13269560628854438,
+            0.16167006914197452
+          ],
+          "learned_better_share": 0.5405,
+          "mean_difference": 0.14718283771525945,
+          "standard_error": 0.007391444605466866
+        }
+      },
+      "unseen_state_visits": 0
+    }
+  },
+  "gate": {
+    "allowed": true,
+    "evidence_index": {
+      "dataset": "calibration_reports",
+      "plan_attempts": 63,
+      "reports": 75,
+      "source": "store",
+      "validated_processes": [
+        "assets_model",
+        "elections_model",
+        "legislative_model",
+        "monetary_model",
+        "resource_inventory"
+      ]
+    },
+    "mechanisms": {
+      "policy_rate_reaction": {
+        "declared_status": "validated",
+        "reasons": [
+          "report re-verified and passes every declared criterion; attempt monetary_model.fred_realtime_v2 is current"
+        ],
+        "report_id": "9b6457990c9388d18745e4cf3e692efafced7f552dbfa892795df91d76f927ef",
+        "status": "validated"
+      }
+    },
+    "reasons": [],
+    "training_source": {
+      "blocks": 51,
+      "evidence": {
+        "distinct_record_ids": 728,
+        "inputs": [
+          {
+            "dataset": "fred_macro_panel",
+            "stage": "normalized",
+            "version": "7dcce89cb6e95530779f76504e0c29230b965310ce4e98180e8de3e4ec27f678"
+          },
+          {
+            "dataset": "fred_cpi",
+            "stage": "normalized",
+            "version": "34fe03f554da0743957878c02ee54b3460ce00f86082dc4e136589df507de2eb"
+          }
+        ],
+        "record_count": 742,
+        "record_ids_digest": "0edf036aae4c3b62d5df9d242f2ee59573b8357d4678e1f8639b589ba97301a4",
+        "schema": "worldmodel.estimation.loaders/1",
+        "series_counts": {
+          "inflation": 106,
+          "inflation_base": 106,
+          "policy_rate": 318,
+          "potential_gdp:base_1987": 3,
+          "potential_gdp:base_1992": 14,
+          "potential_gdp:base_1996": 16,
+          "potential_gdp:base_2000": 19,
+          "potential_gdp:base_2005": 14,
+          "potential_gdp:base_2009": 17,
+          "potential_gdp:base_2012": 19,
+          "potential_gdp:base_2017": 4,
+          "real_gdp:base_1987": 3,
+          "real_gdp:base_1992": 14,
+          "real_gdp:base_1996": 16,
+          "real_gdp:base_2000": 19,
+          "real_gdp:base_2005": 14,
+          "real_gdp:base_2009": 17,
+          "real_gdp:base_2012": 19,
+          "real_gdp:base_2017": 4
+        }
+      },
+      "observed": true,
+      "shocks": "Gaussian with the fitted residual sd (the predictive distribution the report validated)",
+      "source": "historical_resample",
+      "split": {
+        "evaluate": {
+          "blocks": 16,
+          "first_start": "2015-01-01",
+          "last_end": "2023-04-01"
+        },
+        "train": {
+          "blocks": 31,
+          "first_start": "1996-01-01",
+          "last_end": "2013-01-01"
+        }
+      },
+      "window": [
+        "1995-01-01",
+        "2024-10-01"
+      ]
+    }
+  },
+  "label": {
+    "by_status": {
+      "assumed": [],
+      "estimated but not validated": [],
+      "validated": [
+        "policy_rate_reaction"
+      ]
+    },
+    "label": "conditional_on_validated_fitted_dynamics",
+    "text": "Validated forecast skill is not a validated counterfactual response. Every mechanism used passed its pre-registered holdout criteria, so the result is conditional on the fitted dynamics being right about responses they were only ever scored on forecasting.",
+    "unvalidated_mechanisms": []
+  },
+  "learned_policy": {
+    "[0,0,0]": {
+      "action": {
+        "reserve_margin": 0.0
+      },
+      "q": [
+        -0.22006623867604838,
+        -0.008534529542200903,
+        -0.06629271722952051,
+        -0.12101417019842475,
+        -0.1807340719796267,
+        -0.24430041781179357
+      ]
+    },
+    "[0,0,1]": {
+      "action": {
+        "reserve_margin": 0.0
+      },
+      "q": [
+        -0.010500708599845499,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    "[0,1,0]": {
+      "action": {
+        "reserve_margin": 0.75
+      },
+      "q": [
+        -0.05087455385044026,
+        -0.05413048501834766,
+        -0.059839961811419075,
+        -0.07554837179152152,
+        -0.04991782462651257,
+        -0.054204751235818756
+      ]
+    },
+    "[0,1,1]": {
+      "action": {
+        "reserve_margin": 0.0
+      },
+      "q": [
+        -0.22319705137794915,
+        -0.19087880375341806,
+        -0.20862011124269111,
+        -0.20290930659653383,
+        -0.22896054521949946,
+        -0.2588693943784331
+      ]
+    },
+    "[0,1,2]": {
+      "action": {
+        "reserve_margin": -0.25
+      },
+      "q": [
+        -0.16189876695054373,
+        -0.1924871679652667,
+        -0.21524079745340108,
+        -0.24989869178486449,
+        -0.28653245009273076,
+        -0.34453543703842965
+      ]
+    },
+    "[0,1,3]": {
+      "action": {
+        "reserve_margin": -0.25
+      },
+      "q": [
+        -0.16121209641289508,
+        -0.1847344330672615,
+        -0.2022370519309724,
+        -0.18336730158952416,
+        -0.21451868152186548,
+        -0.22125017219304977
+      ]
+    },
+    "[0,3,2]": {
+      "action": {
+        "reserve_margin": 0.75
+      },
+      "q": [
+        -0.1536553365556408,
+        -0.14429921116779867,
+        -0.1340817522087841,
+        -0.13184900451011625,
+        -0.13123910589221288,
+        -0.1323219892200262
+      ]
+    },
+    "[0,3,3]": {
+      "action": {
+        "reserve_margin": 0.25
+      },
+      "q": [
+        -0.16903777139135073,
+        -0.17774939222533923,
+        -0.14520459233536406,
+        -0.15645216144018984,
+        -0.1671760998828275,
+        -0.15115937929110235
+      ]
+    },
+    "[1,0,0]": {
+      "action": {
+        "reserve_margin": 0.0
+      },
+      "q": [
+        -0.18094305356123397,
+        -0.011612417339988542,
+        -0.07225851913245683,
+        -0.12987883901222677,
+        -0.1853519133275885,
+        -0.24958775573987274
+      ]
+    },
+    "[1,0,1]": {
+      "action": {
+        "reserve_margin": 0.0
+      },
+      "q": [
+        -0.1566563832731167,
+        -0.13375366964734542,
+        -0.13504969504958655,
+        -0.14861164957982195,
+        -0.14454755620625437,
+        -0.1401050161183653
+      ]
+    },
+    "[1,0,2]": {
+      "action": {
+        "reserve_margin": -0.25
+      },
+      "q": [
+        -0.12946198769107417,
+        -0.19229698045370197,
+        -0.18391549160573098,
+        -0.21833291631355137,
+        -0.26769948170556424,
+        -0.28292373575370994
+      ]
+    },
+    "[1,0,3]": {
+      "action": {
+        "reserve_margin": -0.25
+      },
+      "q": [
+        -0.143373839682996,
+        -0.1753204125957197,
+        -0.19328554703350587,
+        -0.19434525775795125,
+        -0.21731259173457468,
+        -0.2518507821546497
+      ]
+    },
+    "[1,1,0]": {
+      "action": {
+        "reserve_margin": 0.5
+      },
+      "q": [
+        -0.101561441166406,
+        -0.11490429565168114,
+        -0.11706093427752823,
+        -0.10032075724891858,
+        -0.10814388032966274,
+        -0.10266919271851604
+      ]
+    },
+    "[1,1,1]": {
+      "action": {
+        "reserve_margin": 0.5
+      },
+      "q": [
+        -0.26020459496008086,
+        -0.19429019308335632,
+        -0.1876949024777727,
+        -0.13374810498341316,
+        -0.20724455282976706,
+        -0.26895175793857495
+      ]
+    },
+    "[1,1,2]": {
+      "action": {
+        "reserve_margin": 0.25
+      },
+      "q": [
+        -0.21104171732948063,
+        -0.18186155034102092,
+        -0.17224121907056855,
+        -0.20854232906273001,
+        -0.2558137141251727,
+        -0.3106970443080558
+      ]
+    },
+    "[1,1,3]": {
+      "action": {
+        "reserve_margin": 0.0
+      },
+      "q": [
+        -0.18179294209639968,
+        -0.1519547567587967,
+        -0.18931634976382855,
+        -0.18457528109751292,
+        -0.21509035057438894,
+        -0.21942932580477154
+      ]
+    },
+    "[1,3,1]": {
+      "action": {
+        "reserve_margin": 0.0
+      },
+      "q": [
+        -0.07087810811369549,
+        -0.054354111813738455,
+        -0.05646258937331637,
+        -0.05952252470808725,
+        -0.06515867483244524,
+        -0.07275103810455978
+      ]
+    },
+    "[1,3,2]": {
+      "action": {
+        "reserve_margin": 0.5
+      },
+      "q": [
+        -0.3116589918227703,
+        -0.24105831007299922,
+        -0.20564306012559164,
+        -0.13485183450951718,
+        -0.1848586331350075,
+        -0.22145563777811889
+      ]
+    },
+    "[1,3,3]": {
+      "action": {
+        "reserve_margin": 0.25
+      },
+      "q": [
+        -0.20953655827198633,
+        -0.1866323019703996,
+        -0.16221657805418266,
+        -0.19150324164254995,
+        -0.26072224386983484,
+        -0.28234675862763964
+      ]
+    },
+    "[2,0,0]": {
+      "action": {
+        "reserve_margin": 0.0
+      },
+      "q": [
+        -0.18907446888293325,
+        -0.016971739130161843,
+        -0.09460229469473881,
+        -0.1282758232565202,
+        -0.19137875037243737,
+        -0.234548597101126
+      ]
+    },
+    "[2,0,1]": {
+      "action": {
+        "reserve_margin": 0.25
+      },
+      "q": [
+        -0.22462059864296355,
+        -0.20578998278387564,
+        -0.16553904897995683,
+        -0.202290219333828,
+        -0.1800933907987019,
+        -0.23358738943426507
+      ]
+    },
+    "[2,0,2]": {
+      "action": {
+        "reserve_margin": 1.0
+      },
+      "q": [
+        -0.11859044786907916,
+        -0.09626710485059692,
+        -0.05664382096133707,
+        -0.061963916868231696,
+        -0.06313261562165248,
+        -0.055996278999250894
+      ]
+    },
+    "[2,1,0]": {
+      "action": {
+        "reserve_margin": 1.0
+      },
+      "q": [
+        -0.17630576396926448,
+        -0.16310540332387966,
+        -0.18304192133959324,
+        -0.1537174307227563,
+        -0.15340042115192015,
+        -0.14882262412655406
+      ]
+    },
+    "[2,1,1]": {
+      "action": {
+        "reserve_margin": 0.25
+      },
+      "q": [
+        -0.2741741552620317,
+        -0.22689162119245912,
+        -0.17910538789720643,
+        -0.18712717701633452,
+        -0.20340087704909343,
+        -0.26927446864351245
+      ]
+    },
+    "[2,1,2]": {
+      "action": {
+        "reserve_margin": 0.0
+      },
+      "q": [
+        -0.209692980371833,
+        -0.14070811590307028,
+        -0.2092781660438245,
+        -0.23910511453887853,
+        -0.2795790356711821,
+        -0.3143292810946203
+      ]
+    },
+    "[2,1,3]": {
+      "action": {
+        "reserve_margin": -0.25
+      },
+      "q": [
+        -0.174041116103023,
+        -0.23144212643776702,
+        -0.2501837765445873,
+        -0.26264843758398,
+        -0.30825894766434375,
+        -0.3810154695621851
+      ]
+    },
+    "[2,2,1]": {
+      "action": {
+        "reserve_margin": 0.0
+      },
+      "q": [
+        -0.040893526466892,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        -0.010556815071156923
+      ]
+    },
+    "[2,2,2]": {
+      "action": {
+        "reserve_margin": 0.5
+      },
+      "q": [
+        -0.2612831951753128,
+        -0.1939157266284184,
+        -0.20189951663151012,
+        -0.16500704728445836,
+        -0.21418821883363454,
+        -0.24384555441549888
+      ]
+    },
+    "[2,2,3]": {
+      "action": {
+        "reserve_margin": 0.0
+      },
+      "q": [
+        -0.2197724246990137,
+        -0.13731816025964158,
+        -0.20884264387411555,
+        -0.24121672889222878,
+        -0.2763760085820748,
+        -0.3121744741941588
+      ]
+    },
+    "[2,3,2]": {
+      "action": {
+        "reserve_margin": 0.5
+      },
+      "q": [
+        -0.05481602469736101,
+        -0.06591579309783384,
+        -0.05846204407153607,
+        -0.03944736228176674,
+        -0.060291153058733664,
+        -0.051981206187796766
+      ]
+    },
+    "[2,3,3]": {
+      "action": {
+        "reserve_margin": 0.5
+      },
+      "q": [
+        -0.4346095987109332,
+        -0.2175762193036854,
+        -0.17957088840038823,
+        -0.15964391000619693,
+        -0.2143830711770218,
+        -0.20727709074756406
+      ]
+    },
+    "[3,0,0]": {
+      "action": {
+        "reserve_margin": 0.0
+      },
+      "q": [
+        -0.21765822391609363,
+        -0.05692315566118076,
+        -0.0971124184929827,
+        -0.11869787984574064,
+        -0.16890978049430275,
+        -0.24004365094586588
+      ]
+    },
+    "[3,0,1]": {
+      "action": {
+        "reserve_margin": 0.5
+      },
+      "q": [
+        -0.22096786659373963,
+        -0.2538698676912029,
+        -0.22109191391669195,
+        -0.21375980732416702,
+        -0.22988150883642702,
+        -0.21864776985139137
+      ]
+    },
+    "[3,0,2]": {
+      "action": {
+        "reserve_margin": 0.25
+      },
+      "q": [
+        -0.2686532412491095,
+        -0.2645766808463113,
+        -0.195840782750286,
+        -0.2710278518387139,
+        -0.26165052086366175,
+        -0.3596652684708422
+      ]
+    },
+    "[3,0,3]": {
+      "action": {
+        "reserve_margin": 0.0
+      },
+      "q": [
+        -0.10882443362324784,
+        -0.10705034791048267,
+        -0.10945071991454124,
+        -0.13394406388163868,
+        -0.13267504540257027,
+        -0.11382996740220638
+      ]
+    },
+    "[3,1,0]": {
+      "action": {
+        "reserve_margin": 1.0
+      },
+      "q": [
+        -0.09658894231550325,
+        -0.08548295441694256,
+        -0.09036074191959471,
+        -0.07413344061674636,
+        -0.07860179151455586,
+        -0.06460968200173614
+      ]
+    },
+    "[3,1,1]": {
+      "action": {
+        "reserve_margin": 0.25
+      },
+      "q": [
+        -0.36628077953908117,
+        -0.18061020986412146,
+        -0.15756527756159996,
+        -0.18922344659438228,
+        -0.18489439882812964,
+        -0.23530277922868167
+      ]
+    },
+    "[3,1,2]": {
+      "action": {
+        "reserve_margin": 0.0
+      },
+      "q": [
+        -0.26767791328607204,
+        -0.18783019694185368,
+        -0.19850634634755426,
+        -0.20396420510122448,
+        -0.2279730170454164,
+        -0.25584323844271095
+      ]
+    },
+    "[3,1,3]": {
+      "action": {
+        "reserve_margin": -0.25
+      },
+      "q": [
+        -0.16607271891547315,
+        -0.1931276390324327,
+        -0.20203518288476965,
+        -0.21633576551747383,
+        -0.2241459465399152,
+        -0.20517937995760427
+      ]
+    },
+    "[3,3,2]": {
+      "action": {
+        "reserve_margin": 0.5
+      },
+      "q": [
+        -0.06127964600949737,
+        -0.02272072232847294,
+        -0.03374207492247645,
+        -0.0149155247619625,
+        -0.024307196980899583,
+        -0.020861554360247538
+      ]
+    },
+    "[3,3,3]": {
+      "action": {
+        "reserve_margin": 0.25
+      },
+      "q": [
+        -0.22388276349869501,
+        -0.1918126468942577,
+        -0.17395693782610994,
+        -0.21496711508316171,
+        -0.20946675692017494,
+        -0.29406349075035454
+      ]
+    }
+  },
+  "mechanisms": {
+    "policy_rate_reaction": {
+      "attempt": "monetary_model.fred_realtime_v2",
+      "binding": {
+        "assumed": [],
+        "bound_from_report": [
+          "elb",
+          "inflation_target",
+          "phi_pi",
+          "phi_y",
+          "policy_shock_sd",
+          "r_star",
+          "rho"
+        ]
+      },
+      "caveats": [
+        "current attempt monetary_model.cpi_okun_proxy_v2 on the same component fails beats_persistence_dm, no_revision_leakage (a different specification or series)",
+        "current attempt monetary_model.okun_unrate_realtime_v2 on the same component fails beats_persistence_dm, parameters_within_declared_bounds (a different specification or series)",
+        "scored at horizon 1 (native steps); rollouts iterate it for 8 quarters, and multi-step skill was never tested",
+        "scored conditional on realized inflation, output_gap; here they are scenario inputs, and forecasting them was never tested",
+        "holdout after 2014-12-31 through cutoff 2024-12-31; nothing says the fitted conduct persists outside that window"
+      ],
+      "component": "monetary_model_parameters",
+      "declared_status": "validated",
+      "mechanism": "policy_rate_reaction",
+      "reasons": [
+        "report re-verified and passes every declared criterion; attempt monetary_model.fred_realtime_v2 is current"
+      ],
+      "report_id": "9b6457990c9388d18745e4cf3e692efafced7f552dbfa892795df91d76f927ef",
+      "scope": {
+        "attempt": "monetary_model.fred_realtime_v2",
+        "conditional_inputs": [
+          "inflation",
+          "output_gap"
+        ],
+        "cutoff": "2024-12-31",
+        "data_inputs": [
+          {
+            "dataset": "fred_macro_panel",
+            "stage": "normalized",
+            "version": "7dcce89cb6e95530779f76504e0c29230b965310ce4e98180e8de3e4ec27f678"
+          },
+          {
+            "dataset": "fred_cpi",
+            "stage": "normalized",
+            "version": "34fe03f554da0743957878c02ee54b3460ce00f86082dc4e136589df507de2eb"
+          }
+        ],
+        "frequency": null,
+        "horizon": 1,
+        "interval_level": 0.8,
+        "train_end": "2007-12-31",
+        "validation_end": "2014-12-31"
+      },
+      "status": "validated",
+      "steps_used": 8,
+      "verified": true,
+      "version": "4b7e1066d4f43aceb644c8996f8145cab13d1ed17a6b5b7aaebd718917159e68"
+    }
+  },
+  "schema": "worldmodel.decision_optimization/1",
+  "validated_is_not_counterfactual": "Validated forecast skill is not a validated counterfactual response. Every mechanism used passed its pre-registered holdout criteria, so the result is conditional on the fitted dynamics being right about responses they were only ever scored on forecasting."
+}
