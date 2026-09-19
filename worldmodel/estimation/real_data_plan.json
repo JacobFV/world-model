@@ -1919,6 +1919,78 @@
       "rationale": "Identical splits, vintage policy, design, declared unemployment (UNRATE) and policy-rate (DFF) series and acceptance criteria to default_hazard.fred_primary_realtime; the delinquency series is the only change, declared as a substitution. The declared credit-card attempt keeps its failing verdict and stays current beside this one.",
       "expected_limits": "unemployment_sensitivity is statistically indistinguishable from zero on the full sample and after 2010, so even a pass would bind a weakly identified unemployment channel; the business-loan rate is the delinquency of bank C&I borrowers, not the default hazard of all firms.",
       "run_note": "2026-09-18, after scoring. FAIL on interval_coverage alone. Report 61bea0ac3c3b..., artifact d0f5cc649b79.... 23 holdout quarters (2020Q1-2025Q3), 0 skipped origins, 31.7 s wall clock. minimum_test_forecasts PASS (23 >= 12); beats_persistence_dm PASS (p = 0.0545, MAE 0.0521 against persistence 0.0604); parameters_within_declared_bounds PASS (not blind, see disclosure: persistence 0.9542 (0.0136), unemployment_sensitivity +0.490 (0.718), rate_sensitivity +1.090 (0.331), hazard_intercept -0.248 (0.092)); no_timing_leakage PASS; no_revision_leakage PASS (strict, ALFRED vintages); interval_coverage FAIL at 1.000 (mean 80% width 0.552pp against an MAE of 0.052pp). The Gaussian in-sample scale is set by the 1990-91 and 2008-09 business-loan delinquency cycles and is far too wide for 2020-2025. This was not re-specified: choosing an interval now would be choosing it on this holdout. The substitution does not validate the declared credit-card series, and the unemployment channel it estimates is not distinguishable from zero."
+    },
+    {
+      "id": "legislative_model.voteview",
+      "kind": "family",
+      "target": "legislative",
+      "process_id": "legislative_model",
+      "loader": {
+        "function": "legislative_data",
+        "options": {
+          "congress": 117,
+          "chamber": "Senate",
+          "dimensions": 1
+        }
+      },
+      "data": "voteview_rollcalls@fce7b752 (roll_call_member_positions: 949 Senate roll calls of the 117th Congress, 2021-01-06..2022-12-22, 91,623 yea/nay positions; congressional_service for party codes)",
+      "protocol": {
+        "train_end": "2021-12-02",
+        "validation_end": "2022-04-26",
+        "cutoff": "2022-12-22",
+        "vintage_policy": "family_rows",
+        "refit_every": 1,
+        "horizon": 1
+      },
+      "entity_rule": "The Senate of the 117th Congress: the chamber-Congress the not_run record named when the attempt was first declared (949 roll calls), which is also the Senate with the most roll calls among the Congresses voteview_rollcalls publishes member positions for (110-119; 119 is still in session). Counted from roll_call_member_positions events only; no fit or forecast was run before this was frozen. One chamber is scored because the family fits one chamber-Congress at a time; the House is not attempted here.",
+      "split_rule": "Coverage only. Roll calls are ordered by (date, rollnumber); train_end is the date of the roll call at the 50th percentile of the 949 (2021-12-02), validation_end the date at the 70th percentile (2022-04-26) and cutoff the last roll-call date (2022-12-22). The holdout is therefore every roll call after 2022-04-26 (about 30% of the Congress), refit at every roll-call date.",
+      "model_options": "Family defaults, unmodified: one dimension, lopsided threshold 0.025, minimum 20 scaled votes, prior sd 1, bill prior sd 5, no anchors (predicted probabilities do not depend on the polarity of the scale), revealed members = every third member by ICPSR id (legislative.revealed_members), backend auto (numpy sweeps when numpy is importable; the backend is recorded in each estimate).",
+      "rationale": "The family forecasts held-out roll-call votes of unrevealed members given the origin ideal points and the revealed members' votes on the same roll call, and is scored against the member yea rate and the revealed yea share. Voteview position groups map onto the family's coding exactly as legislative.from_voteview does (yea/paired_yea/announced_yea = 1; nay/paired_nay/announced_nay = 0; present, not_voting and not_member are missing). Roll-call dates are the dates of the recorded votes; a recorded position is final when the vote closes, so the rows are declared revisions none (Voteview transcription corrections are possible and unmeasured).",
+      "expected_limits": "The conditional input is strong: the new roll call's (a, b) are fit to one third of the chamber's votes on that same roll call, so the revealed-share baseline is demanding and the member-base-rate baseline is weak. Two voters have no Senate service assertion for this Congress (vice-presidential tie-breaking votes); they are kept with no party and the minimum-vote screen decides whether they are scaled. Pooled DM tests across members and roll calls ignore their dependence.",
+      "compute_budget": "Measured before registration on a synthetic fixture of this attempt's size (104 senators, 949 roll calls on 252 dates, 95,715 positions, the same 50/70/100% date splits; numpy backend): the whole validate_process takes 75.1 s with the frozen pre-change module and 61.7 s after the speed-up, peak RSS 177 MB, and both produce the same report_id (fcf65265e257...). Per refit, cProfile attributes 55% of the time to estimate_discipline's one-coefficient Newton loop in pure Python and 30% to estimate_ideal_points; the speed-up removes most of the former. The not_run record's claim that the per-origin refit exceeds 30 minutes was not a measurement: on this size the unmodified code already fits the budget. Loading Senate 117 from voteview_rollcalls takes 1 s. Budget: 30 minutes wall clock, unchanged.",
+      "run_note": "2026-09-18 (UTC 2026-09-19T01:10-01:11), after scoring. Ran inside the budget: 70.2 s wall clock including the load, peak RSS 190 MB, 0 skipped origins, run from a frozen copy of the code at commit 6cf509d. PASS on all eight declared criteria, so legislative_model is VALIDATED: minimum_test_forecasts 18,725 (>= 200); Brier skill against the member base rate 0.794 (>= 0.05); DM against the revealed yea share p < 1e-15, mean squared-loss difference -0.170; DM against persistence p < 1e-15; calibration maximum absolute deviation 0.082 (<= 0.15, in the 0.7-0.8 bin, where the model under-predicts yeas); parameters within bounds (discipline 0.0277); no timing leakage; no revision leakage (rows declared revisions none). Brier 0.0436. Report 7f567c06342f..., artifact calibration_reports@73ccbd12b0b9 (estimate artifact fa9fa8d9cac9). Caveats that belong next to the pass: the forecast conditions on one third of the chamber's votes on the same roll call, which is the declared contract but a strong input; the DM p-values pool 18,725 member-votes that share roll calls, so they overstate the evidence; and no_revision_leakage passes by the loader's declaration that recorded positions are not revised."
+    },
+    {
+      "id": "market_abm_model.alpaca",
+      "kind": "family",
+      "target": "market_abm",
+      "process_id": "market_abm_model",
+      "loader": {
+        "function": "market_abm_data",
+        "options": {
+          "symbol": "SPY",
+          "start": "2016-01-04",
+          "end": "2024-12-31",
+          "window_length": 21,
+          "grid": {
+            "chartist_strength": [
+              0.0,
+              20.0,
+              40.0,
+              80.0
+            ]
+          },
+          "seed": 1000,
+          "holdout_seed": 2000,
+          "holdout_simulation_runs": 10
+        }
+      },
+      "data": "alpaca_daily_bars@ce41ae57 (SPY total-return adjusted daily closes, 2016-01-04..2024-12-31, 2,264 bars; 107 non-overlapping 21-return windows)",
+      "protocol": {
+        "train_end": "2021-12-31",
+        "validation_end": "2023-06-30",
+        "cutoff": "2024-12-31",
+        "vintage_policy": "family_rows",
+        "refit_every": 1,
+        "horizon": 1
+      },
+      "entity_rule": "SPY only, the broad-market series of the universe assets_model.alpaca_daily declared in advance (its market factor). The family simulates one aggregate market price, so the market index is the series it describes; the five single-name issuers are not attempted. Chosen by declaration, with no fit run.",
+      "split_rule": "The same train_end, validation_end and cutoff as assets_model.alpaca_daily on the same bars, so the two families are scored over the same calendar; windows are 21 returns (one trading month) counted from the first bar, and a window is a target when its end date falls in the scored interval.",
+      "model_options": "The family's declared example configuration, unmodified (market_abm.example_config: 20 fundamentalist, 20 chartist and 20 noise traders, Walrasian clearing, fundamentalist_strength 2, chartist_strength 20, noise_sd 0.1, fundamental_volatility 0.01, initial price 10,000 cents), the family synthetic grid chartist_strength in {0, 20, 40, 80}, SMM seed 1000, holdout seeds 2000..2009 (10 runs), no burn-in. simulation_horizon_steps is the full sample (2,263 steps), so each configuration is simulated once and every origin reads a prefix of the same path; paths are prefix-consistent (tested), so this changes no value.",
+      "rationale": "The primary target is the return sd of the next non-overlapping window, scored against the previous window and the mean of past windows; absolute-return autocorrelation and excess kurtosis are secondary. Only the return moments are matched, so the price level of the stylized market is immaterial.",
+      "expected_limits": "Total-return adjusted closes are restated by later distributions, so revisions are declared minor and no_revision_leakage is expected to fail, as it does for assets_model.alpaca_daily. The SMM distance matches four moments with a one-parameter grid, so the fitted model can reproduce at most the volatility level, not its clustering; beating the previous-window baseline on window sd is not expected. Alpaca bars are personal/internal use only, so the report stays local.",
+      "compute_budget": "Measured before registration on a synthetic fixture of this attempt's size (2,264 daily closes, 107 windows of 21 returns, the same splits and SMM configuration): the whole validate_process takes 69.0 s with the frozen pre-change module and 29.3 s after the speed-up, peak RSS 35 MB, same report_id (2707d66a958c...). cProfile puts 97% of the time in the Walrasian price search, where _theta was re-evaluated for every agent at every one of ~102 bisection prices per step although only fundamentalist allocations depend on the price. simulation_horizon_steps (set by the loader to the full sample) makes each configuration a single simulated path shared by every origin, so the grid SMM refit at each window origin costs moments over cached prefixes, not new simulations. Loading SPY from alpaca_daily_bars takes 27 s (a streaming scan of the 3.8 GB dataset). Budget: 30 minutes wall clock, unchanged.",
+      "run_note": "2026-09-18 (UTC 2026-09-19T01:11-01:13), after scoring. Ran inside the budget: 106.3 s wall clock including the 27 s scan of alpaca_daily_bars, peak RSS 77 MB, 0 skipped origins, run from a frozen copy of the code at commit 6cf509d. FAIL on four criteria: beats_persistence_dm (p = 0.819), beats_historical_mean_dm (p = 0.998), interval_coverage 0.222 against 0.80 +/- 0.20, and no_revision_leakage (adjusted closes, as expected). minimum_test_forecasts (18 windows >= 10), parameter bounds and timing leakage pass. The SMM selects chartist_strength 0 at the final cutoff; the simulated window sd is biased up by 0.0033 (MAE 0.0035 against persistence 0.0023) and its 10-run spread is narrow (mean 80% width 0.0041), so the intervals miss from above. Report 1f9fadd315a2..., artifact calibration_reports@0e7bd72c9f17 (estimate artifact f4c6f5924ac8)."
     }
   ],
   "not_run": [
@@ -1926,13 +1998,17 @@
       "id": "legislative_model.voteview",
       "target": "legislative",
       "reason": "compute_budget",
-      "note": "voteview_rollcalls publishes roll_call_member_positions for Congresses 110-119 (e.g. Senate 117: 949 roll calls), so the data exist. The ideal-point MAP refit at every holdout origin exceeds the declared 30-minute budget per attempt."
+      "note": "voteview_rollcalls publishes roll_call_member_positions for Congresses 110-119 (e.g. Senate 117: 949 roll calls), so the data exist. The ideal-point MAP refit at every holdout origin exceeds the declared 30-minute budget per attempt.",
+      "reattempted_by": "legislative_model.voteview",
+      "reattempt_note": "Kept as recorded. Re-attempted under the same id in the not_run wave (2026-09-18) after the code was profiled and made faster without changing any output; see not_run_wave and the attempt of the same id at the end of attempts."
     },
     {
       "id": "market_abm_model.alpaca",
       "target": "market_abm",
       "reason": "compute_budget",
-      "note": "Daily closes are available; the grid SMM fit at every window origin exceeds the declared budget."
+      "note": "Daily closes are available; the grid SMM fit at every window origin exceeds the declared budget.",
+      "reattempted_by": "market_abm_model.alpaca",
+      "reattempt_note": "Kept as recorded. Re-attempted under the same id in the not_run wave (2026-09-18) after the code was profiled and made faster without changing any output; see not_run_wave and the attempt of the same id at the end of attempts."
     }
   ],
   "blocked_on_data": "See worldmodel.estimation.loaders.availability(): BLOCKED_COMPONENTS and BLOCKED_FAMILIES name the exact missing series and the dataset that must publish them. As of the fifth wave the elections family is no longer blocked (mit_election_returns published House district returns) and regional has a long panel (bls_labor QCEW). What remains blocked is field_diffusion_transport (epa_aqs_daily), bilateral_flow_gravity (freight FAF5), trade (cepii_baci) and influence (no unit-period exposure panel).",
@@ -1945,5 +2021,6 @@
   "sixth_wave": "2026-09-17, WS-E. interval_coverage blocked 16 of the 35 attempts, more than any other criterion, and needs no new data. Each of the 16 was diagnosed separately into one of two causes the record already distinguishes: a SCORING BUG (a real-time forecast graded against a later vintage, as credit_growth was) or GENUINE MISCALIBRATION (the predictive distribution is the wrong shape or the wrong width for the right reason). One new scoring bug was found and fixed in the code: the backtest handed a declared conditional input's value at the target period from the evaluation vintage while its own lag in the same design row came from the origin's vintage, so labor_demand's output-growth regressor was the INDPRO rebasing factor (-0.2177) rather than realized growth (+0.0005). Components now declare conditional_rebase per input; only labor_demand declares one, and the other six conditional inputs were measured and left unchanged. The regional family gains per_unit_year_draw, which pairs per_unit_year_mean's per-region within-year scale with the fresh-draw common term the default already used, because between/Y is the predictive variance of a year effect treated as a fixed level and the forecast error contains next year's own draw. Every candidate interval method was compared on the SELECTION window under a declared rule of lowest CRPS -- a proper score, blind to coverage -- and no threshold was relaxed. Attempts with no principled fix are recorded as still failing: see docs/research-log/ws-e-interval-coverage.md for the count and the reason for each.",
   "seventh_wave": "2026-09-17, WS-B. The first regional attempts whose rows are publication-dated. The earlier conclusion that no published employment source carries vintages was wrong about the world: ALFRED archives the BLS CES State and Area state-by-supersector series with 229 vintages from 2007-06-19, and fred_state_employment_vintages publishes them. regional_model.ces_sae_realtime and _v2 are the two attempts, differing only in the declared interval method, and both were registered before either ran. The audit of every source checked, with URLs and HTTP statuses, is docs/research-log/ws-b-employment-vintages.md.",
   "interval_wave": "2026-09-18 (validation track, interval wave). Gaussian intervals from an in-sample residual scale are too narrow (or too wide) for fat-tailed forecast errors, and interval_coverage blocked 7 of the 30 current attempts on 2026-09-17. Three methods that admit fat tails and use only information available before each origin were added to worldmodel/estimation/intervals.py and tested on synthetic data with known coverage (tests/test_intervals_fat_tails.py): student_t_mle, empirical_quantile and conformal_rolling (rolling split-conformal on pre-origin out-of-sample errors). Every current attempt failing interval_coverage is re-registered once, as <id>_fat_tails, with four declared candidates -- its own predictive as the incumbent plus the three methods -- and the record's existing validation-window rule (lowest validation CRPS, now computed by validate_process over common rows; incumbent kept below 8 common validation periods). All seven registrations, every candidate and every conformal window were written and committed before any of them was run. Rejected candidates are scored on the holdout after the selection is frozen and recorded for the record only. The seven base attempts are superseded by their re-runs and stay in the record with their reports. Attempts: cash_balance.sec_companyfacts_fat_tails, regional_model.cbp_state_sectors_v3_fat_tails, population_growth_rate.census_pep_v2_fat_tails, population_growth_rate.fred_popthm_fat_tails, deposit_rate_pass_through.fred_realtime_v2_fat_tails, deposit_rate_pass_through.m2own_substitute_fat_tails, labor_demand.fred_realtime_v4_fat_tails.",
-  "default_hazard_respecification": "2026-09-18 (validation track). The default_hazard sign disagreement was diagnosed (docs/research-log/default-hazard-sign.md): it is the definition of the delinquency series, not units, lags or the sample window. One re-specification is registered, default_hazard.fred_business_loans_realtime, on the business-loan delinquency rate requirements.json already names as an alternative, because the simulator mechanism draws firm defaults. It was registered after in-sample diagnostics on data through 2025 and says so in its disclosure field."
+  "default_hazard_respecification": "2026-09-18 (validation track). The default_hazard sign disagreement was diagnosed (docs/research-log/default-hazard-sign.md): it is the definition of the delinquency series, not units, lags or the sample window. One re-specification is registered, default_hazard.fred_business_loans_realtime, on the business-loan delinquency rate requirements.json already names as an alternative, because the simulator mechanism draws firm defaults. It was registered after in-sample diagnostics on data through 2025 and says so in its disclosure field.",
+  "not_run_wave": "2026-09-18. The two attempts recorded not_run for compute budget are re-attempted. Nothing about either model changed: the legislative and market_abm modules were profiled on fixtures of the real sizes and made faster only by removing repeated work (a one- and two-coefficient Newton step and dot products written out operation for operation; chartist and noise allocations computed once per step instead of once per bisection evaluation), and tests/test_estimation_not_run_speed.py proves every fit, forecast, simulated path and whole validation report bit-identical to frozen copies of the pre-change modules (tests/legacy_legislative.py, tests/legacy_market_abm.py). Both families gained catalog loaders (legislative_data, market_abm_data) and left BLOCKED_FAMILIES. The 30-minute per-attempt budget is unchanged; an attempt that exceeds it is recorded not_run again with the measurement. Profiles, measurements and verdicts: docs/research-log/not-run-profiling.md."
 }
