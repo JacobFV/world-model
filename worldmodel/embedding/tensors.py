@@ -24,9 +24,11 @@ from .county_panel import COUNTY, TARGETS, state_of
 
 NODE_TYPES = ('county', 'state', 'nation')
 RELATIONS = ('in_state', 'state_has', 'in_nation', 'nation_has', 'near', 'migration_out', 'migration_in', 'same_cbsa')
-IDENTITY_FEATURES = ('laus:unemployment_rate', 'geography:latitude', 'geography:longitude')
+IDENTITY_FEATURES = ('laus:unemployment_rate', 'geography:latitude', 'geography:longitude',
+                     'rt:laus_unemployment_rate')
 INTENSIVE_PREFIXES = ('climdiv:', 'geography:', 'laus:unemployment_rate', 'qcew:average_annual_pay',
-                      'bea:per_capita_personal_income')
+                      'bea:per_capita_personal_income', 'rt:laus_unemployment_rate',
+                      'rt:per_capita_personal_income')
 NATION = 'geo:US'
 
 
@@ -71,10 +73,12 @@ class Snapshot:
 class Panel:
     """The published county panel, indexed for as-of snapshots."""
 
-    def __init__(self, values, available, units, edges, *, history=10, features=None):
+    def __init__(self, values, available, units, edges, *, history=10, features=None, node_feature=None):
+        """``node_feature`` is the feature whose coverage defines the county node set (default: the dated
+        panel's first target). A first-release panel names its own, since its features are different."""
         self.history = history
         self.values, self.available, self.units = values, available, units
-        self.counties = sorted({c for (c, f, y) in values if f == TARGETS[0]})
+        self.counties = sorted({c for (c, f, y) in values if f == (node_feature or TARGETS[0])})
         county_set = set(self.counties)
         self.states = sorted({state_of(c) for c in self.counties})
         self.nodes = self.counties + self.states + [NATION]

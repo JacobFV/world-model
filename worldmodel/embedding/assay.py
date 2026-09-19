@@ -70,20 +70,32 @@ def attempt_spec(attempt_id):
     raise ValueError(f'No attempt {attempt_id!r} in {PLAN}')
 
 
-def load_panel(store, *, history, ref=None):
-    """The published panel as a :class:`Panel`, cached per version in the dataset's scratch area."""
-    ref = ref or store.latest(PANEL_DATASET)
-    cache = Path(store.root) / PANEL_DATASET / 'scratch' / f'panel-{ref["version"]}.pkl'
+def _panel_records(store, ref):
+    """Values, availability, units and edges of one published panel version, cached beside it."""
+    cache = Path(store.root) / ref['dataset'] / 'scratch' / f'panel-{ref["version"]}.pkl'
     if cache.exists():
         with cache.open('rb') as handle:
-            values, available, units, edges = pickle.load(handle)
-    else:
-        store.verify(ref)
-        _, values, available, units, edges = load_panel_records(store, ref)
-        cache.parent.mkdir(parents=True, exist_ok=True)
-        with cache.open('wb') as handle:
-            pickle.dump((values, available, units, edges), handle, protocol=pickle.HIGHEST_PROTOCOL)
-    return ref, Panel(values, available, units, edges, history=history)
+            return pickle.load(handle)
+    store.verify(ref)
+    _, values, available, units, edges = load_panel_records(store, ref)
+    cache.parent.mkdir(parents=True, exist_ok=True)
+    with cache.open('wb') as handle:
+        pickle.dump((values, available, units, edges), handle, protocol=pickle.HIGHEST_PROTOCOL)
+    return values, available, units, edges
+
+
+def load_panel(store, *, history, ref=None, edges_ref=None, node_feature=None):
+    """The published panel as a :class:`Panel`.
+
+    ``edges_ref`` takes the dated county edges (migration flows, CBSA membership) from another
+    published panel: a first-release panel of vintaged series carries no edges of its own, and those
+    edges are dated assertions that are never revised.
+    """
+    ref = ref or store.latest(PANEL_DATASET)
+    values, available, units, edges = _panel_records(store, ref)
+    if edges_ref is not None:
+        edges = _panel_records(store, edges_ref)[3]
+    return ref, Panel(values, available, units, edges, history=history, node_feature=node_feature)
 
 
 # ----------------------------------------------------------------------------- gradient-boosted baseline
@@ -163,7 +175,8 @@ def run_attempt(store, attempt_id, *, log=print, publish=True, device=None, spec
     attempt = json.loads(json.dumps(spec)) if spec is not None else attempt_spec(attempt_id)
     protocol, config = attempt['protocol'], attempt['config']
     targets = attempt['targets']
-    panel_ref, panel = load_panel(store, history=protocol['history'], ref=attempt.get('panel'))
+    panel_ref, panel = load_panel(store, history=protocol['history'], ref=attempt.get('panel'),
+                                 edges_ref=attempt.get('edges_from'), node_feature=attempt.get('node_feature'))
     panel.fit_standardization(protocol['standardize_through'])
     validation = list(range(protocol['validation_origins'][0], protocol['validation_origins'][1] + 1))
     test = list(range(protocol['test_origins'][0], protocol['test_origins'][1] + 1))
@@ -250,11 +263,14 @@ def run_attempt(store, attempt_id, *, log=print, publish=True, device=None, spec
                 attempt.setdefault('_validation_scores', {})[feature] = scores
             log(f'  selection: {attempt["_selected"]}')
 
-    series = {source: {'series': source, 'revisions': spec['revisions'], 'vintage_modes': ['valid_time_rows'],
-                       'revision_leakage_possible': spec['revisions'] not in ('none', 'static')}
-              for source, spec in SOURCES.items() if source not in ('migration', 'cbsa')}
-    series.update({source: {'series': source, 'revisions': 'none', 'vintage_modes': ['valid_time_rows'],
-                            'revision_leakage_possible': False} for source in ('migration', 'cbsa')})
+    # An attempt on another panel declares its own data audit; the dated panel's sources are the default.
+    series = attempt.get('series')
+    if series is None:
+        series = {source: {'series': source, 'revisions': spec['revisions'], 'vintage_modes': ['valid_time_rows'],
+                           'revision_leakage_possible': spec['revisions'] not in ('none', 'static')}
+                  for source, spec in SOURCES.items() if source not in ('migration', 'cbsa')}
+        series.update({source: {'series': source, 'revisions': 'none', 'vintage_modes': ['valid_time_rows'],
+                                'revision_leakage_possible': False} for source in ('migration', 'cbsa')})
     reports = []
     for j, feature in enumerate(targets):
         selected = attempt['_selected'][feature]

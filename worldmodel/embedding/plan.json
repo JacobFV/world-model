@@ -1119,6 +1119,163 @@
       },
       "rationale": "A fourth actor domain, on the same runner, the same three candidates and the same question as actors v2. A sample is one (bank, quarter); the label is a declared distress marker in the next quarter's call report -- a noncurrent-loan ratio crossing 3% from at-or-below, or deposits falling more than 10% in a quarter. The marker is a crossing rather than a level, so an already-impaired bank does not carry a label of 1 forever, and the two components fire at roughly 1.6% and 1.2% of bank-quarters. The subgraph is the bank, up to eight other banks chartered in its state (the largest by assets) and up to eight banks nationally nearest to it in log assets, with the size ratio as the edge weight: a peer structure a per-bank model cannot see. The bank's own marker rate over the previous eight quarters is a declared baseline, because it is what anyone would use.",
       "expected_limits": "The distress marker is a declared label, not a supervisory determination: it is not a failure, a closure, a consent order or a CAMELS downgrade, and no result here says anything about those. bank_net_loans is net of the allowance for credit losses, so the noncurrent ratio runs slightly above a gross-loan ratio and the 3% threshold is declared against the published quantity. The deposit component is seasonal (first-quarter rates run highest), which a model can exploit without knowing anything about banks. Coverage begins at 2010Q1, so the 2008-2009 failures are outside the panel entirely and nothing here is evidence about a crisis. Amended call reports cannot be distinguished from original ones in this release, so a quarter may be represented by a restatement published after its origin: no_revision_leakage carries an explicit allowance for that, and a pass on it is not evidence that no revision entered. Samples are conditioned on the bank filing again next quarter, so a charter that disappears between quarters -- through failure or merger -- leaves no sample, which removes the most severe outcome from the target. Ratios whose denominator can be near zero are clipped at 10,000 before the half-precision cast. The pooled Diebold-Mariano test treats thousands of banks within a quarter as independent; test.quarter_clustered_dm over 16 test quarters is the conservative check beside it. Compute budget 120 minutes, declared before running. The registration originally allowed an exemption on no_revision_leakage because neither publisher marks amendments; the exemption was removed before the attempt ran, so this attempt simply fails that criterion, as the places attempts do."
+    },
+    {
+      "id": "places.county_realtime_population_v1",
+      "north_star": "Places, with the leakage removed: can the encoder beat persistence, drift and a gradient-boosted model on a panel that is never revised, and so pass every declared criterion?",
+      "targets": [
+        "rt:population"
+      ],
+      "protocol": {
+        "history": 10,
+        "first_origin": 2010,
+        "standardize_through": 2016,
+        "validation_origins": [
+          2017,
+          2019
+        ],
+        "test_origins": [
+          2020,
+          2024
+        ],
+        "cutoff": "2026-09-18"
+      },
+      "candidates": {
+        "root_readout": {
+          "seed_only": false
+        },
+        "seed_only": {
+          "seed_only": true
+        }
+      },
+      "gbdt_subgraph_from": "root_readout",
+      "baselines": [
+        "persistence",
+        "drift",
+        "gbdt"
+      ],
+      "config": {
+        "d": 128,
+        "layers": 3,
+        "slots": 16,
+        "passes": 12,
+        "top_k": 16,
+        "out_dim": 1024,
+        "max_nodes": 64,
+        "epochs": 4,
+        "batch": 256,
+        "lr": 0.001,
+        "weight_decay": 0.0001,
+        "dense_fraction": 0.3,
+        "gumbel": 0.5,
+        "mask_rate": 0.15,
+        "recon_weight": 0.3,
+        "calibration_years": 2,
+        "seed": 0
+      },
+      "gbdt": {
+        "n_estimators": 600,
+        "learning_rate": 0.03,
+        "num_leaves": 63,
+        "min_child_samples": 50,
+        "subsample": 0.8,
+        "subsample_freq": 1,
+        "colsample_bytree": 0.5,
+        "n_jobs": 8,
+        "random_state": 0,
+        "verbose": -1
+      },
+      "criteria": [
+        {
+          "id": "minimum_test_forecasts",
+          "type": "min_forecasts",
+          "minimum": 12
+        },
+        {
+          "id": "beats_persistence_dm",
+          "type": "diebold_mariano",
+          "baseline": "persistence",
+          "loss": "squared",
+          "max_pvalue": 0.1,
+          "require_lower_loss": true
+        },
+        {
+          "id": "beats_drift_dm",
+          "type": "diebold_mariano",
+          "baseline": "drift",
+          "loss": "squared",
+          "max_pvalue": 0.1,
+          "require_lower_loss": true
+        },
+        {
+          "id": "beats_gbdt_dm",
+          "type": "diebold_mariano",
+          "baseline": "gbdt",
+          "loss": "squared",
+          "max_pvalue": 0.1,
+          "require_lower_loss": true
+        },
+        {
+          "id": "interval_coverage",
+          "type": "interval_coverage",
+          "tolerance": 0.15
+        },
+        {
+          "id": "no_timing_leakage",
+          "type": "leakage_audit"
+        },
+        {
+          "id": "no_revision_leakage",
+          "type": "revision_leakage"
+        }
+      ],
+      "rationale": "places v1-v3 all fail no_revision_leakage by declaration, because county_panel carries the current vintage of every value. This attempt runs the identical encoder, candidates, baselines and criteria on county_realtime_panel, where every value is the first release ALFRED holds and the target is a first release too, so the criterion can pass and the attempt is decided on skill alone. The target is population because it is the only county family with a deep real-time history (first releases from reference year 2004); BEA income begins in 2013, QCEW private establishments in 2016 and LAUS annual averages in 2019, and they enter only as features.",
+      "expected_limits": "FRED archives no QCEW county employment or wages, so the one target places v3 won on cannot be tested here at all; this attempt tests population, which v3 lost on, to drift and to LightGBM. Expect that to be the binding difficulty rather than leakage: county population is close to a smooth trend, which is what drift extrapolates. The feature panel is thin before 2013 (population and static geography only) and only reaches its full width in 2019, so early origins train on a narrower graph than late ones. A first release is what the agency published then, not its best current estimate. Migration and CBSA edges come from the dated panel; both are published assertions that are not revised. Compute budget 60 minutes, alone on the GPU of gb10-direct.",
+      "panel": {
+        "dataset": "county_realtime_panel",
+        "version": "869fcf1a2ac7cb472f6ca4c1a9e29384db532252424ad3ac24de67456dc48f9c"
+      },
+      "host": "gb10-direct, alone on its GPU",
+      "edges_from": {
+        "dataset": "county_panel",
+        "version": "1d6071311f9bfa69bf0352eb815d621bbdcf375c25968b0fd8a781c259641973"
+      },
+      "node_feature": "rt:population",
+      "series": {
+        "fred_county_vintages": {
+          "series": "fred_county_vintages",
+          "revisions": "none",
+          "vintage_modes": [
+            "first_release"
+          ],
+          "revision_leakage_possible": false,
+          "note": "Each value is the earliest vintage ALFRED holds for its period and never changes afterwards; the target is a first release too."
+        },
+        "county_panel_geography": {
+          "series": "county_panel_geography",
+          "revisions": "static",
+          "vintage_modes": [
+            "static_geography"
+          ],
+          "revision_leakage_possible": false
+        },
+        "migration": {
+          "series": "migration",
+          "revisions": "none",
+          "vintage_modes": [
+            "published_flow"
+          ],
+          "revision_leakage_possible": false
+        },
+        "cbsa": {
+          "series": "cbsa",
+          "revisions": "none",
+          "vintage_modes": [
+            "delineation_bulletin"
+          ],
+          "revision_leakage_possible": false
+        }
+      }
     }
   ],
   "not_run": [
