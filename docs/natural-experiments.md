@@ -275,7 +275,9 @@ registered diagnostics, not a licence to pick one. The establishment outcome pas
 criterion and is a **null**: heavy damage does not move establishment counts by more than about
 2.7% down or 2.0% up over five years, under the listed assumptions. That interval is wider than
 the effect the design called plausible - its minimum detectable effect is 0.033 log points against
-a plausible 0.02 (see [the power suite](#4-power-and-negative-controls-for-every-design)).
+a plausible 0.02 (the power suite measures the registered primary outcome, employment; the
+establishment standard error, 0.0123, is almost the same, see
+[the power suite](#4-power-and-negative-controls-for-every-design)).
 Event-time estimates decay
 (e = 0 +0.004 to e = +4 -0.014), so nothing rules out a small effect appearing later than e = 4.
 The unmatched variant (strata = disaster only, non-gating) gives -0.003 (-0.023, +0.018) for
@@ -319,7 +321,8 @@ outcome (units with a full quantity record) passes every criterion and is a **nu
 -0.009, with an interval (-0.090, +0.072) far wider than the 5% the elasticity literature would
 predict. **The symmetric design does not rescue the tariff question: cutting a tariff by 2 pp or
 more is not shown to move imports, and the design is not powered to show it** - its minimum
-detectable effect is 0.069 log points against a plausible 0.05.
+detectable effect is 0.069 log points against a plausible 0.05 on the value outcome, and the
+quantity outcome's standard error is larger still (0.041 against 0.025).
 
 ### 3. OFAC country-programme waves -> trade with the United States
 
