@@ -291,11 +291,27 @@ between the terms of two inputs that were joined.
 
 ### Storage durability
 
-90.0 GiB of acquired raw data and 48.5 GiB of normalized output exist in exactly one
-place, on one machine, excluded from Git by design. There is no second copy, no backup
-policy and no storage lifecycle management. The fair-share pool is 100 GiB and 90.0 GiB
-of it is spent, so the next large acquisition displaces an existing one; there is no
-tiering or eviction policy to decide which.
+**Partly closed on 2026-09-19.** There are now two external copies, both verified rather
+than assumed:
+
+* `Backup-1` (500 GB) holds `world-model-2026-09-18`, 124 GiB: raw receipts, manifests and
+  derived artifacts, deliberately without the unified graph index.
+* `Portable2TB` holds `world-model-full-2026-09-19`, 318 GiB: the **entire** `data/` tree,
+  index included, plus a git bundle of every branch. `git bundle verify` reports a complete
+  history; an `rsync --dry-run` over `data/` finds nothing missing that existed when the copy
+  ran; a 120-file random sample was compared by sha256 with 0 mismatches and 0 absent.
+
+What that still does not establish. The sample is 120 files, so byte equality is established
+for the sample and, for everything else, only size and mtime agree. Both drives sit in the same
+room as the machine, so this is redundancy against disk failure, not against loss of the site.
+The copy is a snapshot, not a policy: everything published after it -- currently the monthly
+LAUS vintages, the OpenFIGI shards and seven embedding reports -- exists in one place again
+until the next run. And the destination filesystem does not preserve Unix modes, so a restore
+carries the bytes and not the permissions.
+
+The local tree is 173 GiB outside the index and 126 GiB of index. The fair-share pool is
+100 GiB and 90.0 GiB of it is spent, so the next large acquisition displaces an existing one;
+there is still no tiering or eviction policy to decide which.
 
 ### Scale limits and measured performance
 
