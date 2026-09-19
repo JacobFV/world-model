@@ -1,0 +1,68 @@
+{
+  "schema": "worldmodel.causal_registration/1",
+  "study_id": "tariff_mfn_increases_imports",
+  "registered_at": "2026-09-18",
+  "question": "When an importer raises its MFN applied tariff on an HS6 product by at least 2 percentage points, how does the value of its imports of that product (from all exporters) change over the following years, relative to the same importer's products whose MFN rate has not yet changed?",
+  "identification_strategy": "staggered_difference_in_differences",
+  "treatment": {
+    "source": "event_library: library_type tariff_mfn_increase / tariff_mfn_decrease with hs_revision HS2017 (both reporting years in HS2017)",
+    "definition": "cohort g = reporting year of the unit's first MFN change of at least 0.5 pp in absolute value, when that first change is an increase of at least 2.0 pp",
+    "excluded_units": "units whose first change of at least 0.5 pp is a decrease or an increase below 2.0 pp",
+    "never_treated": "units with an HS2017 MFN rate reported in 2018 and no change of at least 0.5 pp between any consecutive HS2017 reporting years",
+    "estimated_cohorts": [2019, 2022],
+    "absorbing": "later changes to a treated unit are part of its post-period treatment path",
+    "censoring": "tariff status is observed only while the reporter reports in HS2017 (to 2021 for most, 2022-2023 for some); a never-treated unit may have changed after its reporter switched to HS2022"
+  },
+  "units": {
+    "definition": "importer (WITS/TRAINS reporter with an ISO3 code that is also a BACI importer; the EU aggregate is excluded) x HS6 product (HS2017)",
+    "sample": "units with BACI import value > 0 in both 2017 and 2018 (pre-treatment for every cohort)",
+    "strata": "importer: every comparison is within the importing country, absorbing importer-year shocks (exchange rates, aggregate demand)"
+  },
+  "windows": {"e_min": -3, "e_max": 3, "post": [0, 1, 2, 3], "calendar_years": [2017, 2024], "reference_event_time": -1},
+  "controls": {
+    "control_group": "not_yet_treated",
+    "definition": "same-importer HS6 products never treated or first treated after max(t, g-1)"
+  },
+  "outcomes": {
+    "primary": {"id": "baci_log_import_value", "label": "log import value from all exporters (BACI, thousand current USD)", "unit": "log points", "source": "cepii_baci bilateral_trade_value summed over exporters"},
+    "secondary": [
+      {"id": "baci_log_import_quantity", "label": "log import quantity from all exporters (BACI, metric tons; cells with any flow lacking quantity dropped)", "unit": "log points", "source": "cepii_baci attributes.quantity_t summed over exporters"}
+    ],
+    "transform": "natural log of positive values; a zero or missing post-period value drops that cell, and the share of treated units with any post-period zero is reported as an extensive-margin diagnostic"
+  },
+  "estimator": {
+    "primary": "callaway_santanna_unconditional_within_importer",
+    "estimand": "ATT: equal-weight mean over event times 0..3 of treated-count-weighted ATT(g, g+e)",
+    "anticipation": 0,
+    "balance": null,
+    "robustness": ["stacked_did", "twfe_static", "never_treated_controls"]
+  },
+  "inference": {"cluster": "importer x HS2 chapter", "bootstrap": 999, "bootstrap_weights": "rademacher multiplier on cluster influence functions", "seed": 20260918, "alpha": 0.05},
+  "placebo_tests": {
+    "placebo_date": {"shift": 2, "definition": "treated units keep only years before g; placebo cohort g-2; placebo effect averaged over placebo event times 0..1"},
+    "placebo_unit": {"replications": 100, "seed": 11, "min_never_treated": 20, "definition": "real treated units removed; never-treated units get cohorts drawn from their importer's real cohorts at the importer's real treated share"}
+  },
+  "acceptance_criteria": [
+    {"id": "enough_treated_units", "type": "min_treated_units", "value": 200},
+    {"id": "enough_clusters", "type": "min_clusters", "value": 50},
+    {"id": "no_pre_trends", "type": "pre_trend_wald_p_min", "value": 0.05},
+    {"id": "placebo_date_null", "type": "placebo_date_p_min", "value": 0.05},
+    {"id": "placebo_unit_size", "type": "placebo_unit_rejection_rate_max", "value": 0.10},
+    {"id": "stacked_agrees", "type": "robustness_ci_overlap", "against": "stacked_ci"}
+  ],
+  "assumptions": [
+    "Within an importer, which products get an MFN increase first is unrelated to product-specific import trends (a safeguard or protection-for-sale motive that responds to import surges would violate this and should show in the leads).",
+    "No anticipation: announced increases do not move imports before the reporting year of the new rate. Front-running in year g-1 would inflate the base year and bias the estimate toward a larger decline; the placebo-date test, not the e=-1 lead, is the check on this.",
+    "MFN rates bind: preferential partners paying lower rates dilute the effect toward zero; the estimate is the effect on total imports, not on MFN-rate imports.",
+    "No interference: substitution into neighbouring HS6 products of the same importer (possible comparison units) is small.",
+    "BACI reconciled mirror values measure the importer's imports of the product with error unrelated to the tariff change."
+  ],
+  "data": {
+    "inputs": [
+      {"dataset": "event_library", "stage": "events", "version": "dbf0c37f15cb15933ddf2452ae00cf196981aef02045a2b642d1582643b2819a"},
+      {"dataset": "wits_trains_tariffs", "stage": "normalized", "version": "dfa67e7ff86a26db08175897e52f161f8f9c8922669ddd190ca316fb3ffa977e"},
+      {"dataset": "cepii_baci", "stage": "normalized", "version": "0e2f1e6d47d21824270a48c6cff770b392b279f9dc12b2f321383ece1d83e2c8"}
+    ]
+  },
+  "outcome_data_examined_before_registration": "None. Design-stage checks used only tariff data (counts of MFN changes by direction, threshold, year and HS revision) and the BACI README and two sample rows (2017 values of two Algerian flows, read to learn the record format). No importer-product import series was computed or read before this registration was committed."
+}
