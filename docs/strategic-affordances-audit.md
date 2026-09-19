@@ -96,7 +96,12 @@ and `lda_lobbying` (`partial_acquisition_in_progress`).
 | Estimate parameters from data | OLS/WLS/2SLS with robust SEs, AR/ARIMA-lite/VAR, error-correction pass-through, hazard/logit, growth, PPML gravity, Kalman local level, SMM/ABC over existing simulators, block bootstrap | Reduced-form. Conditional forecasts use realized drivers; holdout skill does not identify an intervention response |
 | Validate a fit honestly | Pre-registered splits, knowledge cutoffs with vintage policy and leakage audits, rolling-origin backtests against naive baselines, proper scoring rules, Diebold-Mariano tests on a frozen holdout, immutable reports | 24 of 33 current attempts fail. `calibration-status` re-derives the verdict rather than trusting the stored flag — and it should be used that way; `--all` re-verifies all 93 published validation reports and derives the headline counts. Handed one of the 93 *estimate* artifacts it returns an explicit "received an estimate" error |
 | Simulate | Coupled bank/firm/household economy, fields and transport, exposure clearing, routing, lifecycle, 11 political/market/geopolitical families and a multi-actor game layer | Parameters are assumptions unless a calibration report says otherwise, and for seven of eleven families none does (`assets`, `elections`, `legislative` and `monetary` have passing reports on the series they declared) |
-| Run at national synthetic scale | Named configurable limits (`worldmodel/limits.py`), optional numpy backend, measured wall time and peak RSS in [scale-benchmarks.md](scale-benchmarks.md) | Single process, single machine. No distributed or out-of-core execution, no GPU backend. Long-horizon figures are extrapolated from measured per-step throughput |
+| Run at national synthetic scale | Named configurable limits (`worldmodel/limits.py`), optional numpy backend, measured wall time and peak RSS in [scale-benchmarks.md](scale-benchmarks.md) | Single process, single machine. No distributed or out-of-core execution; the simulation kernels have no GPU backend. Long-horizon figures are extrapolated from measured per-step throughput |
+| Answer a question about one entity or place | `wm dossier`, `wm screen`, `wm place-brief` and a read-only local API assemble everything the index holds about an entity, sanctions and ownership proximity for a supplied list, and a county's economy, hazards and assistance, each edge naming its dataset and its rights ([products](products.md)) | Dossiers stop at two hops with per-node caps; a screen's silence is not clearance; county assistance totals rest on a name match and say so |
+| Embed a dated subgraph as a state vector | The root-readout encoder ([world-state embeddings](world-state-embeddings.md)) embeds any as-of subgraph; `wm embed-query` ranks the places whose past state is nearest to one county's state now | Measured worth so far: it beats persistence, drift and a gradient-boosted model on county employment (pooled test; not significant year-clustered), and adds nothing to that model on the 13F tasks. Nothing it produces is validated |
+| State a decision and stress it | Decision contracts declare decider, actions, costs, budget, objectives, horizon and the evidence status of every mechanism; fragility search finds where a supplied policy breaks; policy optimization refuses to run on any mechanism that is not validated ([decision layer](decision-layer.md)) | A fragility finding is not a probability, and an optimized policy is optimal for the fitted dynamics, not for the world |
+| Identify an effect from a natural experiment | Staggered difference-in-differences with not-yet-treated controls, event-study leads, clustered errors, pre-trend, placebo-date and placebo-unit tests over a published event library of 255,012 dated shocks ([natural experiments](natural-experiments.md)) | Of four pre-registered designs, none passed its diagnostics; the engine is validated on synthetic panels, the designs are not |
+| Join a dated panel across sources | Published derived panels: influence (legislator x Congress), county (county x feature x year), firm (issuer x period, with restatements kept as vintages), trade (reporter x partner x HS6 x year) | Each is only as joined as the identifiers allow: 0.58% of panel issuers carry an LEI, 1.7% of 13F holdings reach an issuer, and no published crosswalk links federal contract recipients to issuers |
 
 ## Strategic questions and current coverage
 
@@ -161,11 +166,15 @@ most cross-domain questions in the table above.
 
 ### 3. A decision contract
 
-Unchanged from the previous audit. There is still no structured representation of a
-decision-maker, controllable actions, action cost, budget, constraints, objectives,
-horizon or success criteria that is validated end to end. The policy-comparison and game
-layers rank supplied candidates under supplied assumptions; they do not elicit or check
-the decision itself.
+**Closed as a contract, open as a validation.** `worldmodel/decision/` now states a decision-maker,
+controllable actions with costs and bounds, budget, constraints, weighted objectives, horizon and
+success criteria, compiles them into a materialization environment, and attaches to every rollout
+the evidence status of each mechanism it used, lowered automatically when a report does not bind all
+of a mechanism's parameters. What is still missing is the validation *of a decision*: the fragility
+search reports where supplied policies break, and the gated learner refuses environments containing
+an assumed mechanism, but on the one process where it is allowed to run it beats its baselines on
+the history it trained on and loses to fixed rules on held-out history. No recommendation this
+repository can make is backed by an identified response.
 
 ### 4. Causal identification
 
@@ -199,10 +208,17 @@ Any intervention claim made with this repository is still an assumption.
 
 ### 5. Coverage that is known rather than assumed
 
-There is no coverage estimator that says what fraction of a population a dataset
-represents. Record counts are not coverage: 52 million Companies House rows are complete
-for the UK and say nothing about anywhere else; 78.9 million 13F rows cover one reporting
-regime.
+**Partly closed.** `wm coverage-estimate` publishes 47 coverage estimates, 29 of them against a
+sourced denominator, and it found two real gaps (`sec_company_assets` holds 0.837 of its declared
+companyfacts CIKs; `openalex_people` publishes 1.258x its declared scope). The other 81 declarations
+are listed as uncurated and still need a population statement. Record counts are still not coverage.
+
+Identity coverage is now measured rather than assumed, and the measurement is the finding: after
+mining every published bridge, 3.66% of 8.59 million entities are joined across two or more
+datasets and 2.44% across two or more publishers ([identity coverage](identity-coverage.md)). By
+type, jurisdictions are 78% joined, business entities 10.9%, people 8.1%, organizations 1.0%. A
+quarter of the graph cannot be joined by asserted identity at all: 2.3 million of its entities are
+records-as-entities that no second publisher describes.
 
 ### 6. Value of information
 
