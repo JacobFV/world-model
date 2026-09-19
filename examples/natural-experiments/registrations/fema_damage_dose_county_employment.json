@@ -1,0 +1,92 @@
+{
+  "schema": "worldmodel.causal_registration/1",
+  "study_id": "fema_damage_dose_county_employment",
+  "registered_at": "2026-09-18",
+  "wave": 2,
+  "question": "Among US counties declared in the same FEMA major disaster (severe storm, flood or tornado), how does covered employment change over the following four years in counties where NOAA recorded heavy damage (at least $100 per resident) relative to declared counties where it recorded almost none (under $1 per resident), comparing counties that were on similar employment paths beforehand?",
+  "identification_strategy": "staggered_difference_in_differences",
+  "relation_to_wave_1": {
+    "wave_1_result": "fema_disasters_county_employment (natural_experiment_reports@8c6c9050...): did_failed_diagnostics. Leads rose steadily (e=-5 -0.022 to e=-2 -0.009; pre-trend Wald p = 0.032, placebo-date p = 0.013): counties first hit after a quiet period were on a different growth path from same-state counties hit later.",
+    "what_changes": [
+      "The comparison is inside one declaration: treated and control counties were declared in the same disaster, so they share the declaration, its timing, its state and the federal programmes it opened. Only the physical damage differs.",
+      "Treated and control counties are matched on their own employment growth over g-8..g-5 (exact matching on the above/below-median half within the disaster), which targets the diverging paths wave 1 found. The matching window ends before every tested lead (e = -4..-2), so the pre-trend test is not mechanically passed.",
+      "Dose from an independent source (NOAA storm events, county-coded) rather than the first declaration after a quiet period."
+    ],
+    "overlap_disclosed": "Not a fresh sample. Wave 1 read QCEW annual county employment and establishments for 1990-2024 and published aggregate estimates; the same outcome values enter here. This within-disaster high-versus-low-damage contrast was never computed, and no estimate from it has been seen. The result must not be presented as an out-of-sample replication."
+  },
+  "treatment": {
+    "source": "event_library: library_type fema_major_disaster_declaration (county rows, 50 states + DC); dose from noaa_storm_events county-coded damage; population from bea_national_regional CAINC1",
+    "dose_incident_types": ["Severe Storm", "Severe Storm(s)", "Flood", "Tornado"],
+    "dose_incident_types_reason": "NOAA records these hazards (thunderstorm wind, hail, tornado, flash flood, flood) against counties. Hurricane, tropical-storm, winter and heat damage is recorded against NWS forecast zones (85,424 zone-coded damage rows), which cannot be attributed to a county, so a 'zero-damage' control in a hurricane declaration could be heavily damaged.",
+    "dose": "sum of NOAA storm_damage_property + storm_damage_crops (nominal USD) over county-coded storm events in the declared county whose begin date falls in [incident_begin_date, incident_end_date], divided by the county's BEA population in year g-1",
+    "dose_timing": "Damage is estimated by NWS offices from the physical event within weeks; it is a property of the shock, measured after it (ex post in the event library's sense) but before any annual outcome it could be confused with. It does not depend on the employment outcome. This is a deliberate, disclosed use of an ex-post intensity: the assumption that damage is not predicted by the county's employment trend is tested by the leads.",
+    "treated_min_usd_per_capita": 100.0,
+    "control_max_usd_per_capita": 1.0,
+    "middle_doses": "declared counties with dose in [$1, $100) per capita are excluded",
+    "timing": "g = calendar year of the disaster's incident_begin_date",
+    "incident_years": [1998, 2020],
+    "estimated_cohorts": [1998, 2020],
+    "quiet_years": 3,
+    "quiet_period_incident_types": ["Hurricane", "Severe Storm", "Severe Storm(s)", "Flood", "Tornado", "Fire", "Snowstorm", "Severe Ice Storm", "Winter Storm", "Earthquake", "Tropical Storm", "Coastal Storm", "Typhoon", "Straight-Line Winds", "Mud/Landslide", "Dam/Levee Break", "Tsunami", "Volcanic Eruption", "Freezing"],
+    "quiet_period_rule": "a (disaster, county) pair is dropped when the county has another qualifying DR (wave-1 physical-hazard list) with incident beginning in g-3..g-1; other disasters in the same year or later are part of the post-period path",
+    "match_window": [-8, -5],
+    "absorbing": "a stack's treated county stays treated; later disasters are part of its post-period path",
+    "design_stage_counts": "15,697 (disaster, county) pairs of the four types in 1998-2020; 10,034 dropped for another disaster in g-3..g-1; 45 without BEA population; 583 treated, 3,371 control, 1,664 middle. 154 disasters have both a treated and a control county: 476 treated and 1,377 controls in 36 states before the QCEW and matching-window requirements. Treated dose quartiles $157, $306, $843 per capita."
+  },
+  "units": {
+    "definition": "(disaster, county) pairs: each disaster is a stack holding its treated and control counties; a county may appear in several stacks",
+    "strata": "disaster x pre-growth half: comparisons are only within the same disaster and the same half of log employment growth from g-8 to g-5 (split at the median of the disaster's treated and control counties by (growth, id) rank)",
+    "sample": "units need QCEW employment in g-8 and g-5; others are dropped from the primary and the robustness panel alike",
+    "notes": "County definitional changes are not bridged."
+  },
+  "windows": {"e_min": -4, "e_max": 4, "post": [0, 1, 2, 3, 4], "calendar_years": [1990, 2024], "reference_event_time": -1},
+  "controls": {
+    "control_group": "never_treated",
+    "definition": "counties declared in the same disaster with NOAA damage under $1 per capita, in the same pre-growth half; they are never treated within their stack"
+  },
+  "outcomes": {
+    "primary": {"id": "qcew_log_employment", "label": "log QCEW annual-average covered employment (county, total covered, all ownerships)", "unit": "log points", "source": "bls_labor QCEW agglvl_code 70 metric employment"},
+    "secondary": [
+      {"id": "qcew_log_establishments", "label": "log QCEW annual-average establishment count", "unit": "log points", "source": "bls_labor QCEW agglvl_code 70 metric establishment_count (matching still uses employment growth)"}
+    ],
+    "transform": "natural log of positive values; suppressed or missing values dropped"
+  },
+  "estimator": {
+    "primary": "callaway_santanna_unconditional_within_disaster_and_growth_half",
+    "estimand": "ATT: equal-weight mean over event times 0..4 of treated-count-weighted ATT(g, g+e), for heavy-damage declared counties relative to negligible-damage counties of the same declaration",
+    "anticipation": 0,
+    "balance": null,
+    "robustness": ["stacked_did", "twfe_static"],
+    "non_gating_robustness": ["unmatched_strata_disaster_only: same units, strata = disaster (no growth matching)"]
+  },
+  "inference": {"cluster": "state", "bootstrap": 999, "bootstrap_weights": "rademacher multiplier on state influence functions", "seed": 20260918, "alpha": 0.05},
+  "placebo_tests": {
+    "placebo_date": {"shift": 2, "definition": "treated units keep only years before g; placebo cohort g-2; placebo effect averaged over placebo event times 0..1"},
+    "placebo_unit": {"replications": 100, "seed": 13, "min_never_treated": 20, "definition": "real treated units removed; control counties receive cohorts drawn from their stratum's real cohorts at the stratum's real treated share"}
+  },
+  "acceptance_criteria": [
+    {"id": "enough_treated_counties", "type": "min_treated_units", "value": 150},
+    {"id": "enough_state_clusters", "type": "min_clusters", "value": 20},
+    {"id": "no_pre_trends", "type": "pre_trend_wald_p_min", "value": 0.05},
+    {"id": "placebo_date_null", "type": "placebo_date_p_min", "value": 0.05},
+    {"id": "placebo_unit_size", "type": "placebo_unit_rejection_rate_max", "value": 0.10},
+    {"id": "stacked_agrees", "type": "robustness_ci_overlap", "against": "stacked_ci"}
+  ],
+  "assumptions": [
+    "Within a declaration and a pre-growth half, which counties NOAA records as heavily damaged is unrelated to their employment trend: storm paths, not local economic conditions, decide where damage falls.",
+    "NOAA county-coded damage measures the physical damage with error unrelated to the employment path; unreported damage in 'control' counties biases the estimate toward zero.",
+    "Nominal damage thresholds are applied across 1998-2020 without deflation (prices rose about 60%), so the treated group in later years includes relatively smaller real damage.",
+    "BEA population in g-1 is the per-capita denominator.",
+    "Spillovers from heavily damaged to lightly damaged counties of the same disaster (commuting, reconstruction demand) are small; they would bias the estimate toward zero.",
+    "The estimand is the effect of heavy relative to negligible damage given a declaration; it is not the effect of the declaration or of federal aid."
+  ],
+  "data": {
+    "inputs": [
+      {"dataset": "event_library", "stage": "events", "version": "dbf0c37f15cb15933ddf2452ae00cf196981aef02045a2b642d1582643b2819a"},
+      {"dataset": "noaa_storm_events", "stage": "normalized", "version": "7d19dd57135ac4cf628d790add0d6bb250ac74504598e5d2687cb1ddda10d927"},
+      {"dataset": "bea_national_regional", "stage": "normalized", "version": "5fdb83db0ff92858d40cfa9f36961ccd0fb0013f4afaa3ab7b349ce771758e8e"},
+      {"dataset": "bls_labor", "stage": "normalized", "version": "ffd7f43a2761e2f4bc85cd9765ba9bce61cf089cd26b8b5d12e428337546e267"}
+    ]
+  },
+  "outcome_data_examined_before_registration": "None for this design. Design-stage checks used only treatment-side data: event-library DR declarations, NOAA county-coded damage (dose distribution and the counts above) and BEA county population (the dose denominator, not an outcome). The QCEW values in bls_labor were read by wave 1 for a different contrast (see relation_to_wave_1); no QCEW value was read or tabulated for this design before this registration was committed. Monthly QCEW exists only for 2023-2025 (within quarters), too short for these cohorts, so the annual series is used."
+}

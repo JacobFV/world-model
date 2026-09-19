@@ -1,0 +1,114 @@
+{
+  "schema": "worldmodel.causal_registration/1",
+  "study_id": "sanctions_programme_waves_us_trade",
+  "registered_at": "2026-09-18",
+  "wave": 2,
+  "question": "When OFAC begins designating parties under a sanctions programme aimed at a country, how does that country's trade with the United States change relative to its trade with the rest of the world, product chapter by product chapter, compared with countries not (yet) targeted?",
+  "identification_strategy": "staggered_difference_in_differences",
+  "relation_to_wave_1": {
+    "wave_1_result": "sanctions_designations_institutional_holdings (natural_experiment_reports@2ce5d28f...): not_estimable. Only 7 of 19,776 OFAC-designated parties carry an identifier naming a 13F-reportable security (gate 30); no 13F row was read.",
+    "wave_1_rejection_answered": "Wave 1 rejected country designation waves -> bilateral trade because waves coincide with the events that motivate them (wars, coups, crackdowns), which move a country's trade with everyone. This design answers that by differencing within the country-chapter-year: the outcome is log(exports to the US) - log(exports to all other destinations), so shocks to the target's supply or to its trade with the world in general cancel. What remains is the US-specific change, which is what US sanctions act on. US-specific shocks that coincide with a programme (other US trade measures, diplomatic breaks) are not removed and are a stated threat.",
+    "outcome_the_parties_have": "Designated parties are overwhelmingly outside every firm-level outcome the repository holds (the 13F gate above; zero SEC registrants within two ownership hops, docs/unified-graph.md). The programme's target country does have an outcome: its bilateral trade by product in BACI."
+  },
+  "treatment": {
+    "source": "event_library: library_type sanctions_designation from ofac_sanctions (SDN and non-SDN lists, earliest entry date per party)",
+    "programme_targets": {
+      "IRN": ["IRAN", "IRAN-CON-ARMS-EO", "IRAN-EO13846", "IRAN-EO13871", "IRAN-EO13876", "IRAN-EO13902", "IRAN-TRA", "IFSR", "IRGC", "CAATSA - IRAN"],
+      "RUS": ["RUSSIA-EO14024", "UKRAINE-EO13661", "UKRAINE-EO13662", "CAATSA - RUSSIA", "PEESA-EO14039"],
+      "UKR": ["UKRAINE-EO13660", "UKRAINE-EO13685", "RUSSIA-EO14065"],
+      "BLR": ["BELARUS", "BELARUS-EO14038"],
+      "MMR": ["BURMA-EO14014"],
+      "CUB": ["CUBA", "CUBA-EO14404"],
+      "PRK": ["DPRK", "DPRK2", "DPRK3", "DPRK4", "DPRK-NKSPEA"],
+      "VEN": ["VENEZUELA", "VENEZUELA-EO13850", "VENEZUELA-EO13884"],
+      "IRQ": ["IRAQ2", "IRAQ3"],
+      "LBY": ["LIBYA2", "LIBYA3"],
+      "SDN": ["SUDAN-EO14098", "DARFUR"],
+      "SSD": ["SOUTH SUDAN"],
+      "CAF": ["CAR"],
+      "COD": ["DRCONGO"],
+      "SOM": ["SOMALIA"],
+      "YEM": ["YEMEN"],
+      "LBN": ["LEBANON"],
+      "MLI": ["MALI-EO13882"],
+      "ETH": ["ETHIOPIA-EO14046"],
+      "NIC": ["NICARAGUA", "NICARAGUA-NHRAA"],
+      "HKG": ["HKAA"],
+      "CHN": ["CMIC-EO13959"],
+      "SYR": ["SSIDES"]
+    },
+    "programmes_not_mapped": "thematic programmes (SDGT, SDNT, SDNTK, NPWMD, TCO, CYBER*, ILLICIT-DRUGS*, FTO, ELECTION*, HOSTAGES*, ICC*, GLOMAG, NS-PLC, PAIPA, IFCA), human-rights programmes aimed at officials (MAGNIT, HRIT-IR, HRIT-SY, IRAN-HR, UHRPA) and multi-country BALKANS programmes. The Russia-targeting UKRAINE-EO13661/13662 (Russian officials and sectors) map to RUS; UKRAINE-EO13660/13685 and RUSSIA-EO14065 (persons in Ukraine, Crimea, the occupied oblasts) map to UKR.",
+    "min_designations_per_year": 5,
+    "definition": "cohort g = first calendar year with at least 5 OFAC designations under the target's programmes (a party counts in the year of its earliest entry event; parties under several of one target's programmes count once)",
+    "estimated_cohorts": [2000, 2021],
+    "earlier_targets": "targets whose first wave precedes 2000 (Cuba, 1986) are dropped: no pre-period",
+    "later_targets": "Sudan 2023, Lebanon 2023, Hong Kong 2026 serve as not-yet-treated comparisons until their wave",
+    "never_treated": "every other country in BACI (the United States itself excluded)",
+    "absorbing": "later designations are part of the post-period path",
+    "gate_numbers": "16 targets have a first wave in 2000-2021: IRQ 2003; IRN, COD, BLR 2006; SOM, PRK 2010; LBY 2011; RUS, UKR 2014; CAF, VEN 2015; SSD 2017; NIC 2019; CHN 2020; MMR, ETH 2021. Gate: at least 10 of them must have a chapter with positive exports both to the US and to others in the panel, else the study is not estimable.",
+    "survivorship": "The lists are current. Parties delisted before retrieval are absent: terminated programmes (Syria 2025, Zimbabwe 2024, Liberia, Cote d'Ivoire, Balkans in part) look untreated here and sit among the comparisons, which biases the estimate toward zero; surviving programmes may be dated late when their first-wave parties were later delisted."
+  },
+  "units": {
+    "definition": "exporting country (BACI ISO3; statistical areas and the United States excluded) x HS1992 chapter (2-digit)",
+    "strata": "HS chapter: every comparison is to other countries' exports of the same chapter",
+    "clusters": "country (treatment is assigned to whole countries)"
+  },
+  "windows": {"e_min": -5, "e_max": 3, "post": [0, 1, 2, 3], "calendar_years": [1995, 2024], "reference_event_time": -1},
+  "controls": {
+    "control_group": "not_yet_treated",
+    "definition": "same-chapter units of countries never targeted or first targeted after max(t, g-1)"
+  },
+  "outcomes": {
+    "primary": {"id": "log_us_share_ratio_exports", "label": "log(country's exports to the US) - log(its exports to all other importers), by HS1992 chapter (BACI, thousand USD)", "unit": "log points", "source": "cepii_baci_hs92 bilateral_trade_value"},
+    "secondary": [
+      {"id": "log_us_share_ratio_imports", "label": "log(country's imports from the US) - log(its imports from all other exporters), by HS1992 chapter", "unit": "log points", "source": "cepii_baci_hs92 bilateral_trade_value"}
+    ],
+    "transform": "a year enters only when both flows are positive"
+  },
+  "estimator": {
+    "primary": "callaway_santanna_unconditional_within_chapter",
+    "estimand": "ATT: equal-weight mean over event times 0..3 of treated-count-weighted ATT(g, g+e) on the log US-versus-rest ratio; a value of -0.1 means the target's trade with the US fell about 10% relative to its trade with everyone else",
+    "anticipation": 0,
+    "balance": null,
+    "robustness": ["stacked_did", "twfe_static", "never_treated_controls"]
+  },
+  "inference": {"cluster": "country", "bootstrap": 999, "bootstrap_weights": "rademacher multiplier on country influence functions", "seed": 20260918, "alpha": 0.05},
+  "placebo_tests": {
+    "placebo_date": {"shift": 2, "definition": "treated units keep only years before g; placebo cohort g-2; placebo effect averaged over placebo event times 0..1"},
+    "placebo_cluster": {"replications": 100, "seed": 19, "min_never_treated_clusters": 20, "definition": "treated countries removed; in each replication as many never-targeted countries as there are treated countries receive a cohort drawn from the real cohorts, applied to all their chapters (placebo_unit would assign chapters independently, overstating the effective sample for a country-level treatment)"}
+  },
+  "acceptance_criteria": [
+    {"id": "gate_treated_countries", "type": "min_events", "value": 10},
+    {"id": "enough_treated_units", "type": "min_treated_units", "value": 200},
+    {"id": "enough_country_clusters", "type": "min_clusters", "value": 100},
+    {"id": "no_pre_trends", "type": "pre_trend_wald_p_min", "value": 0.05},
+    {"id": "placebo_date_null", "type": "placebo_date_p_min", "value": 0.05},
+    {"id": "placebo_cluster_size", "type": "placebo_cluster_rejection_rate_max", "value": 0.10},
+    {"id": "stacked_agrees", "type": "robustness_ci_overlap", "against": "stacked_ci"}
+  ],
+  "assumptions": [
+    "Absent the programme, the target's US-versus-rest trade ratio in a chapter would have moved like that of not-yet-targeted countries in the same chapter.",
+    "Shocks that coincide with a programme move the target's trade with the US and with others proportionally; US-specific shocks (other US trade measures, diplomatic ruptures) are not removed.",
+    "The first year with 5 programme designations dates the programme's economic bite; programmes that began with an executive order but few listings are dated at their first sizeable listing year.",
+    "BACI's reconciled mirror flows measure trade with the US with error unrelated to the programme (sanctioned trade may be misreported or rerouted through third countries, which the outcome would read as a fall).",
+    "Survivorship of the current lists biases toward zero (see treatment.survivorship)."
+  ],
+  "alternatives_considered": [
+    {"design": "vessel designations -> AIS activity of the designated vessels (marine_ais)", "rejected_because": "Gate numbers: 2,094 OFAC parties carry an IMO number; 390 were first designated between 2025-02-01 and 2025-11-30, i.e. with a marine_ais month (2025-01, 2025-07, 2025-12) before and after; only 5 of those 390 IMO numbers appear anywhere in marine_ais (24 of all 2,098 OFAC IMO numbers do). Gate: 30. Not estimable; no AIS activity value was read."},
+    {"design": "OFAC designation -> 13F holdings", "rejected_because": "wave 1: 7 of 19,776 parties map to a 13F security (gate 30)"},
+    {"design": "Global Fishing Watch port visits and encounters", "rejected_because": "the dataset is deferred awaiting a credential; no records"},
+    {"design": "designations of parties located in a country (rather than programmes aimed at it) -> that country's trade", "rejected_because": "location waves are dominated by third-country facilitators of Iran, Russia and Venezuela evasion networks (UAE, UK, Germany, Cyprus, Malta, Panama, Colombia) and by counter-narcotics and counter-terrorism listings, none of which is aimed at the location's trade"},
+    {"design": "OpenSanctions listings", "rejected_because": "crawler first-seen times, not designation dates"}
+  ],
+  "data": {
+    "inputs": [
+      {"dataset": "event_library", "stage": "events", "version": "dbf0c37f15cb15933ddf2452ae00cf196981aef02045a2b642d1582643b2819a"},
+      {"dataset": "cepii_baci_hs92", "stage": "normalized", "version": "742e33f360ef9da1b3bda340a8df406c735e639a2f011b39c0e8843b2b5828ca"}
+    ],
+    "gate_inputs_not_used_in_estimation": [
+      {"dataset": "ofac_sanctions", "stage": "normalized", "version": "5680c4449455ad96dc270f4f4d9c21778c820617c2e3f30f677406ad9542dc0d"},
+      {"dataset": "marine_ais", "stage": "normalized", "version": "2c13728e2f8712805ebadd395d83c65dc8798d33bb66d78f7d9d1a226cfad69a"}
+    ]
+  },
+  "outcome_data_examined_before_registration": "None. Design-stage checks used only treatment data: OFAC designation counts by programme target, by party location and by year (event library), OFAC IMO identifiers and their designation dates, and the set of IMO numbers present in marine_ais vessel records (presence only, to state the AIS gate; no track, hours or distance value was read). No BACI HS1992 flow was aggregated or read beyond two format lines of 1995."
+}

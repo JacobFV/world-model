@@ -1,0 +1,91 @@
+{
+  "schema": "worldmodel.causal_registration/1",
+  "study_id": "tariff_mfn_decreases_imports",
+  "registered_at": "2026-09-18",
+  "wave": 2,
+  "question": "When an importer cuts its MFN applied tariff on an HS6 product by at least 2 percentage points, how does the value of its imports of that product (from all exporters) change over the following years, relative to the same importer's products that were on similar import paths and whose MFN rate had not yet changed, allowing one year of anticipation?",
+  "identification_strategy": "staggered_difference_in_differences",
+  "relation_to_wave_1": {
+    "wave_1_result": "tariff_mfn_increases_imports (natural_experiment_reports@151a9472...): did_failed_diagnostics. ATT -0.087, but imports of treated products were already falling before the increase (lead e=-3 +0.085 relative to e=-1; placebo-date effect -0.068, p = 0.046).",
+    "what_changes": [
+      "Treatment is the symmetric event, a first MFN decrease of at least 2 pp (10,509 units before the outcome requirements, against 4,233 increases). Decreases in this sample are dominated by broad schedule reforms (China 2019, Pakistan 2020 and 2022, Sri Lanka 2021, the UK Global Tariff 2021, Kazakhstan, Ecuador) that apply rules across many lines, which should be less responsive to one product's import trend than a protective increase.",
+      "One year of anticipation: the base period is g-2, so announced cuts that delay imports into year g, or front-running in g-1, do not contaminate the base; e = -1 is reported as the anticipation period.",
+      "Units are matched on their own import growth from 2009 to 2013 (exact matching on terciles within importer), which targets the falling-before pattern wave 1 found. The matching window ends before every tested lead (the earliest lead year is 2014 for cohort 2019).",
+      "The UN HS2022-HS2017 correlation (one-to-one codes only) lets 2021-2022 and 2022-2023 changes of reporters that switched to HS2022 be dated: 1,123 decrease units fall in 2022-2023 cohorts that the HS2017-only rule could not use.",
+      "Outcomes come from BACI in HS1992 (1995-2024), through the UN HS2017-HS1992 correlation (one-to-one codes only), so the pre-period starts in 2009 instead of 2017."
+    ],
+    "overlap_disclosed": "The treated units are new: wave 1 excluded every unit whose first change was a decrease before building its panel, so no import series of a decrease unit was computed. The comparison pool overlaps: wave 1 read BACI HS2017 imports 2017-2024 of never-changed units. BACI HS1992 has never been read by any study. The calendar window 2017-2024 overlaps wave 1's; this is not a fresh time window."
+  },
+  "treatment": {
+    "source": "wits_trains_tariffs MFN simple-average applied rates (not the event library, which keeps only same-revision changes), mapped to HS2017 codes",
+    "hs2022_to_hs2017_crosswalk": "un_hs22_hs17_correlation",
+    "concordance_rule": "HS2022 reporting years enter only for HS2022 codes that correspond one-to-one, in both directions, to an HS2017 code in the UN correlation table (4,097 codes); when a reporter publishes both revisions for a year the HS2017 rate is used",
+    "min_change_pp": 0.5,
+    "max_decrease_pp": -2.0,
+    "definition": "cohort g = reporting year of the unit's first MFN change of at least 0.5 pp in absolute value between consecutive reported years, when that first change is a decrease of at least 2.0 pp",
+    "excluded_units": "units whose first change is an increase or a decrease under 2.0 pp, and units whose first change spans a gap in the reporter's reporting years (timing unknown)",
+    "never_treated": "units with an HS2017 rate reported for 2018 and no change of at least 0.5 pp between any consecutive reported years (censored when the reporter stops reporting or a code has no one-to-one HS2022 counterpart)",
+    "estimated_cohorts": [2019, 2023],
+    "absorbing": "later changes are part of the post-period path",
+    "design_stage_counts": "Universe 264,038 reporter x HS2017 units with a 2018 rate (49 reporters): 238,631 never changed, 10,509 first changes are decreases of at least 2 pp, 12,460 other first changes, 2,438 first changes span a reporting gap. With a one-to-one HS1992 code: 6,520 decrease units (2019: 1,961; 2020: 1,582; 2021: 2,173; 2022: 569; 2023: 235) and 147,920 never-changed units, before the positive-import requirements. Largest reporters of decrease units: PAK 1,252, CHN 1,123, LKA 925, GBR 655, ECU 447, KAZ 397."
+  },
+  "units": {
+    "definition": "importer (WITS reporter with an ISO3 code that is a BACI importer) x HS2017 HS6 product with a one-to-one HS1992 code",
+    "sample": "positive BACI HS1992 import value in 2009, 2013 and 2017",
+    "positive_import_years": [2009, 2013, 2017],
+    "growth_window": [2009, 2013],
+    "strata": "importer x tercile of log import growth 2009-2013 (terciles within importer by (growth, id) rank): every comparison is within the importing country and growth tercile",
+    "clusters": "importer x HS2017 chapter"
+  },
+  "windows": {"e_min": -5, "e_max": 3, "post": [0, 1, 2, 3], "calendar_years": [2009, 2024], "reference_event_time": -2},
+  "controls": {
+    "control_group": "not_yet_treated",
+    "definition": "same-importer, same-tercile units never treated or first treated after max(t, g-2) + 1"
+  },
+  "outcomes": {
+    "primary": {"id": "baci92_log_import_value", "label": "log import value from all exporters (BACI HS1992, thousand current USD)", "unit": "log points", "source": "cepii_baci_hs92 bilateral_trade_value summed over exporters"},
+    "secondary": [
+      {"id": "baci92_log_import_quantity", "label": "log import quantity from all exporters (BACI HS1992, metric tons; cells with any flow lacking quantity dropped)", "unit": "log points", "source": "cepii_baci_hs92 attributes.quantity_t summed over exporters"}
+    ],
+    "hs2017_to_hs1992_crosswalk": "un_hs17_hs92_correlation",
+    "transform": "natural log of positive values; a zero or missing value drops that cell"
+  },
+  "estimator": {
+    "primary": "callaway_santanna_unconditional_within_importer_and_growth_tercile",
+    "estimand": "ATT: equal-weight mean over event times 0..3 of treated-count-weighted ATT(g, g+e), base period g-2",
+    "anticipation": 1,
+    "balance": null,
+    "robustness": ["stacked_did", "twfe_static", "never_treated_controls"],
+    "non_gating_robustness": ["unmatched_strata_importer_only: same units, strata = importer (wave-1 style)"],
+    "stacked_note": "the stacked estimator requires every event time -5..3, so it uses cohorts 2019-2021 only"
+  },
+  "inference": {"cluster": "importer x HS2017 chapter", "bootstrap": 999, "bootstrap_weights": "rademacher multiplier on cluster influence functions", "seed": 20260918, "alpha": 0.05},
+  "placebo_tests": {
+    "placebo_date": {"shift": 3, "definition": "treated units keep only years before g-1; placebo cohort g-3 (base g-5); placebo effect averaged over placebo event times 0..1"},
+    "placebo_unit": {"replications": 100, "seed": 17, "min_never_treated": 20, "definition": "real treated units removed; never-treated units get cohorts drawn from their stratum's real cohorts at the stratum's real treated share"}
+  },
+  "acceptance_criteria": [
+    {"id": "enough_treated_units", "type": "min_treated_units", "value": 500},
+    {"id": "enough_clusters", "type": "min_clusters", "value": 50},
+    {"id": "no_pre_trends", "type": "pre_trend_wald_p_min", "value": 0.05},
+    {"id": "placebo_date_null", "type": "placebo_date_p_min", "value": 0.05},
+    {"id": "placebo_unit_size", "type": "placebo_unit_rejection_rate_max", "value": 0.10},
+    {"id": "stacked_agrees", "type": "robustness_ci_overlap", "against": "stacked_ci"}
+  ],
+  "assumptions": [
+    "Within an importer and a 2009-2013 import-growth tercile, which products receive an MFN cut first is unrelated to product-specific import trends after 2013.",
+    "Anticipation lasts at most one year: imports before g-1 do not respond to the cut.",
+    "MFN rates bind for a material share of imports; preferential partners dilute the effect toward zero. The estimate is on total imports.",
+    "One-to-one concordance codes measure the same goods in HS2017, HS2022 and HS1992; restricting to them selects products whose definitions did not change, which may not represent all products.",
+    "No interference: substitution into neighbouring comparison products of the same importer is small.",
+    "Reporters that stop reporting censor treatment; a unit recorded as never treated may have changed later."
+  ],
+  "data": {
+    "inputs": [
+      {"dataset": "wits_trains_tariffs", "stage": "normalized", "version": "dfa67e7ff86a26db08175897e52f161f8f9c8922669ddd190ca316fb3ffa977e"},
+      {"dataset": "trade_concordances", "stage": "normalized", "version": "4dbe3795ad4fe8ef5c2bc60dd8ef040acf71ebbf7927e2c46168432406452ede"},
+      {"dataset": "cepii_baci_hs92", "stage": "normalized", "version": "742e33f360ef9da1b3bda340a8df406c735e639a2f011b39c0e8843b2b5828ca"}
+    ]
+  },
+  "outcome_data_examined_before_registration": "None of BACI HS1992. Design-stage checks used WITS rates (first changes by direction, size, year and reporter), the UN correlation tables (one-to-one counts) and two BACI HS1992 lines of 1995 read to learn the record format (an entity line and one Australia-Singapore flow). Wave 1 read BACI HS2017 imports of the never-changed comparison units; that disclosure is in relation_to_wave_1."
+}
