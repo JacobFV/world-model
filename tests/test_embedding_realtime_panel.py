@@ -21,7 +21,8 @@ class FakeStore:
 def write(directory, rows):
     with gzip.open(Path(directory) / 'records.jsonl.gz', 'wt', encoding='utf-8') as stream:
         for row in rows:
-            stream.write(json.dumps(row) + '\n')
+            # Canonical JSON, as published records use: the builder's line prefilter depends on it.
+            stream.write(json.dumps(row, sort_keys=True, separators=(',', ':')) + '\n')
 
 
 def observation(subject, year, value, realtime_start, series='POP'):
