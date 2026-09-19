@@ -185,6 +185,28 @@ python3 -m worldmodel embed-publish run.json      # at home, from a checkout at 
 whether `worldmodel/` was modified when it ran. A GPU memory fraction (`WM_EMBED_GPU_GB`) is not a
 host-memory cap on a GB10: CPU and GPU share one pool, which is why the cgroup is required.
 
+## The real-time panel, and why it is the next step
+
+Every places attempt fails one criterion, `no_revision_leakage`, and it fails by declaration rather
+than by accident: `county_panel` carries the current vintage of each value with a declared
+publication lag, so an origin in 2012 sees 2011 employment as it was later revised. No amount of
+model work changes that.
+
+`worldmodel/embedding/realtime_panel.py` is the answer, and it is built and tested. Given an
+ALFRED-vintaged dataset it keeps, for each period, the row with the earliest `realtime_start`: the
+value the agency first published, dated by its own publication date rather than by a rule. Such a
+value never changes afterwards, so `revisions` is `none`, an as-of view carries no revision leakage,
+and the forecast target is what was published rather than a later revision of it. Measured on the
+state employment vintages already in the catalog: 51 units, 24,836 first releases from 1990, with
+48,431 later vintages dropped.
+
+What it costs is stated on every record: a first-release panel is a panel of what was known, not of
+what was true, and later vintages are more accurate.
+
+The county-level vintages (population, LAUS and per-capita income from ALFRED) are being acquired.
+When they land, a places v4 on a first-release county panel is the first attempt in this layer that
+can pass all of its declared criteria rather than being blocked by one of them.
+
 ## The places query
 
 `wm embed-query` embeds every county at every origin with a saved encoder and ranks the states
