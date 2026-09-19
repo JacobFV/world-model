@@ -50,6 +50,8 @@ def parser():
     from .society_cli import add_commands as add_society; add_society(sub)
     from .embedding_cli import add_commands as add_embedding; add_embedding(sub)
     from .products.cli import add_commands as add_products; add_products(sub)
+    from .panels.firm_cli import add_commands as add_firm_panel; add_firm_panel(sub)
+    from .panels.trade_cli import add_commands as add_trade_panel; add_trade_panel(sub)
     sub.add_parser('catalog', help='List declarations and readiness')
     sub.add_parser('ontology', help='Describe typed entities, relations and variables')
     sub.add_parser('processes', help='Describe process contracts and registered implementations')
@@ -157,6 +159,10 @@ def execute(args):
     if command in EMBEDDING_COMMANDS: return embedding_execute(args, catalog, store, PROJECT, reference)
     from .products.cli import COMMANDS as PRODUCT_COMMANDS, execute as products_execute
     if command in PRODUCT_COMMANDS: return products_execute(args, catalog, store, PROJECT, reference)
+    from .panels.firm_cli import COMMANDS as FIRM_PANEL_COMMANDS, execute as firm_panel_execute
+    if command in FIRM_PANEL_COMMANDS: return firm_panel_execute(args, catalog, store, PROJECT, reference)
+    from .panels.trade_cli import COMMANDS as TRADE_PANEL_COMMANDS, execute as trade_panel_execute
+    if command in TRADE_PANEL_COMMANDS: return trade_panel_execute(args, catalog, store, PROJECT, reference)
     if command in ('materialize', 'view'):
         from .materialize import materialize, load_view
         ref = reference(args.reference, store)
