@@ -273,9 +273,12 @@ class MonetaryBound(Bound):
                                  'that holds it (not --no-store)')
             params = entry['record']['parameters']
             missing = [p for p in MONETARY_STRUCTURAL if not isinstance(params.get(p), (int, float))]
-            if missing:
-                lower(resolution, 'assumed', f'the report does not set {missing}')
-            self.parameters = {p: float(params[p]) for p in MONETARY_STRUCTURAL if p in params}
+            self.parameters = {p: float(params[p]) for p in MONETARY_STRUCTURAL if isinstance(params.get(p), (int, float))}
+            if missing:                                   # binding coverage: the report does not set every parameter
+                from ..models.monetary import FAMILY
+                self.parameters.update({p: FAMILY['parameters'][p]['value'] for p in missing})
+                lower(resolution, 'assumed', f'binding coverage: the report does not set {missing}, so the family defaults '
+                                             'stand in and the mechanism as run is assumed')
             collisions = sorted(set(contract['assumed_parameters']) & set(self.parameters))
             if collisions:
                 raise ValueError(f'assumed parameters {collisions} are estimated by report {resolution["report_id"][:12]}...; '
@@ -312,7 +315,7 @@ class MonetaryBound(Bound):
                 if name == 'rho':
                     low, high = max(0.0, low), min(0.999, high)
                 self._add(f'coef.{name}', low, high, value, 'estimated_uncertainty', source)
-            resolution['binding'] = {'bound_from_report': sorted(self.parameters), 'assumed': []}
+            resolution['binding'] = {'bound_from_report': sorted(set(self.parameters) - set(missing)), 'assumed': sorted(missing)}
         else:
             assumed = contract['assumed_parameters']
             self.parameters = {name: assumed[name]['nominal'] for name in self.kernel.assumable}

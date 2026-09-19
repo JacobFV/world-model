@@ -142,6 +142,18 @@ class BindingTests(unittest.TestCase):
         distance = math.sqrt(sum(d[i] * inverse[i][j] * d[j] for i in range(4) for j in range(4)))
         self.assertLessEqual(distance, uncertainty['radius'] + 1e-9)
 
+    def test_a_report_that_sets_only_some_parameters_lowers_the_mechanism(self):
+        from worldmodel.decision.evidence import EvidenceIndex
+        report_id = self.fixture.good['report_id']
+        entry = deepcopy(self.index.get(report_id))
+        del entry['record']['parameters']['policy_shock_sd']
+        partial = EvidenceIndex({report_id: entry}, validated_processes=['monetary_model'], source='store')
+        compiled = compile_contract(monetary_contract('validated', report_id), partial)
+        resolution = compiled.resolutions['policy_rate_reaction']
+        self.assertEqual(resolution['status'], 'assumed')
+        self.assertEqual(resolution['binding']['assumed'], ['policy_shock_sd'])
+        self.assertEqual(compiled.bound.parameters['policy_shock_sd'], 0.25)      # the family default stands in
+
     def test_scope_caveats_state_what_the_holdout_did_and_did_not_cover(self):
         compiled = compile_contract(monetary_contract('validated', self.fixture.good['report_id']), self.index)
         caveats = ' | '.join(compiled.resolutions['policy_rate_reaction']['caveats'])
