@@ -1,0 +1,5 @@
+{
+  "cautious": {"kind": "constant", "actions": {"production": 2, "credit_limit": 20}},
+  "steady": {"kind": "constant", "actions": {"production": 4, "credit_limit": 60}},
+  "aggressive": {"kind": "constant", "actions": {"production": 9, "credit_limit": 150}}
+}
