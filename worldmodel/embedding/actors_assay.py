@@ -50,13 +50,14 @@ def _batch(torch, gpu, idx, edges, node_type, seed_only):
             'src': src[keep], 'dst': dst[keep], 'rel': rel[keep], 'weight': weight[keep]}
 
 
-def fit_encoder(torch, gpu, edges, node_type, y, train, calibrate, cfg, *, seed_only, log=None, forecast_weight=1.0):
+def fit_encoder(torch, gpu, edges, node_type, y, train, calibrate, cfg, *, seed_only, log=None, forecast_weight=1.0,
+                dims=(len(actors.NODE_TYPES), len(actors.RELATIONS))):
     """``forecast_weight=0`` trains on masked reconstruction alone: a task-agnostic, label-free embedding."""
     from .model import WorldStateEncoder
     torch.manual_seed(cfg['seed'])
     device = gpu['x'].device
     F, H = gpu['x'].shape[2], gpu['x'].shape[3]
-    model = WorldStateEncoder(F, len(actors.NODE_TYPES), len(actors.RELATIONS), H, d=cfg['d'], layers=cfg['layers'],
+    model = WorldStateEncoder(F, dims[0], dims[1], H, d=cfg['d'], layers=cfg['layers'],
                               slots=cfg['slots'], passes=cfg['passes'], top_k=cfg['top_k'], out_dim=cfg['out_dim'],
                               n_targets=y.shape[1]).to(device)
     optimizer = torch.optim.AdamW(model.parameters(), lr=cfg['lr'], weight_decay=cfg['weight_decay'])
@@ -173,14 +174,88 @@ def _temperature(logits, labels):
     return (a + b) / 2
 
 
-def gbdt_features(tasks, k):
+def gbdt_features(tasks, singles, groups):
+    """Each single node's features as they are, and the mean of each group of neighbour nodes."""
     x = np.where(tasks.m.astype(bool), tasks.x.astype(np.float32), np.nan)
     S = x.shape[0]
-    blocks = [x[:, 0], x[:, 1], x[:, 2]]
+    blocks = [x[:, i] for i in singles]
     with np.errstate(all='ignore'):
-        for lo, hi in ((3, 3 + k), (3 + k, 3 + 2 * k), (3 + 2 * k, 3 + 3 * k)):
+        for lo, hi in groups:
             blocks.append(np.nanmean(x[:, lo:hi], axis=1))
     return np.concatenate([b.reshape(S, -1) for b in blocks], axis=1)
+
+
+def _prepare_13f(store, attempt, protocol, config, log):
+    source_ref = attempt['input']
+    path, meta = holdings_module.build(store, source_ref, log=log)
+    arrays, _ = holdings_module.load(path)
+    log(f'{attempt["id"]}: holdings {meta["counts"]["holdings"]:,} rows, {meta["managers"]:,} managers, '
+        f'{meta["securities"]:,} securities')
+    data = actors.Holdings13F(arrays, top=protocol['k'] + 1)
+    del arrays
+    q_of = {quarter_end(q): q for q in range(data.n_quarters)}
+    first = q_of[protocol['first_origin_quarter']]
+    blocks = [[q_of[a], q_of[b]] for a, b in protocol['blocks']]
+    tasks = actors.build_tasks(data, range(first, blocks[-1][1] + 1), per_quarter=protocol['per_quarter'],
+                               per_manager=protocol['per_manager'], k=protocol['k'], history=protocol['history'],
+                               seed=config['seed'])
+    k = protocol['k']
+    deadline_day = lambda q: actors.day_number(actors.deadline(q))
+    return {'tasks': tasks, 'q_of': q_of, 'first': first, 'blocks': blocks, 'period_end': quarter_end,
+            'origin_day': deadline_day, 'label_public_by': lambda label_day, origin: label_day <= origin,
+            'feature_leakage': lambda q: int(tasks.max_feature_filed[q] > deadline_day(q)),
+            'template': actors.template(k), 'dims': (len(actors.NODE_TYPES), len(actors.RELATIONS)),
+            'targets': list(actors.TARGETS), 'own_rate': 'manager_rate',
+            'gbdt_nodes': ((0, 1, 2), ((3, 3 + k), (3 + k, 3 + 2 * k), (3 + 2 * k, 3 + 3 * k))),
+            'inputs': [dict(source_ref)], 'component': '13f', 'target_suffix': 'next_quarter',
+            'series': {'sec_13f_history': {
+                'series': 'sec_13f_history', 'revisions': 'none', 'vintage_modes': ['original_filing'],
+                'revision_leakage_possible': False,
+                'note': 'Original 13F-HR filings only; amendments (13F-HR/A) are excluded, so no later restatement enters.'}},
+            'audit_extra': {'input': dict(source_ref), 'holdings_meta': meta},
+            'origin_text': 'quarter end + 45 days (13F deadline)', 'vintage_policy': 'original_13F-HR_filings_only',
+            'actuals': 'original 13F-HR filing for the next quarter',
+            'limitations': [
+                'Samples are conditioned on the manager filing again next quarter.',
+                '13F covers long US-listed equity positions of managers above the reporting threshold; exits may be '
+                'sales below the threshold, transfers or reclassifications, not trades.']}
+
+
+def _prepare_votes(store, attempt, protocol, config, log):
+    from . import votes
+    from datetime import date
+    refs = attempt['inputs']
+    data = votes.load(store, refs=refs, log=log)
+    q_of = {votes.quarter_end(q): q for q in range(0, 120)}
+    first = q_of[protocol['first_origin_quarter']]
+    blocks = [[q_of[a], q_of[b]] for a, b in protocol['blocks']]
+    tasks = votes.build_tasks(data, first_quarter=first, last_quarter=blocks[-1][1], per_quarter=protocol['per_quarter'],
+                              per_member=protocol['per_member'], history=protocol['history'], seed=config['seed'], log=log)
+    start_day = lambda q: votes.day_number(date.fromordinal(votes.quarter_start_ordinal(q)))
+    K = votes.K
+    return {'tasks': tasks, 'q_of': q_of, 'first': first, 'blocks': blocks, 'period_end': votes.quarter_end,
+            'origin_day': start_day, 'label_public_by': lambda label_day, origin: label_day < origin,
+            'feature_leakage': lambda q: 0,
+            'template': votes.template(), 'dims': (len(votes.NODE_TYPES), len(votes.RELATIONS)),
+            'targets': list(votes.TARGETS), 'own_rate': votes.OWN_RATE,
+            'gbdt_nodes': ((0, 1, 2, 3), ((4, 4 + K), (4 + K, 4 + 2 * K))),
+            'inputs': [dict(refs['voteview_rollcalls']), dict(refs['influence_bills'])], 'component': 'votes',
+            'target_suffix': 'on_party_unity_vote',
+            'series': {'voteview_rollcalls': {'series': 'voteview_rollcalls', 'revisions': 'none',
+                                              'vintage_modes': ['recorded_vote'], 'revision_leakage_possible': False,
+                                              'note': 'Recorded votes are final. NOMINATE scores, which are re-estimated '
+                                                      'from later votes, are not used.'},
+                       'influence_bills': {'series': 'influence_bills', 'revisions': 'none',
+                                           'vintage_modes': ['sponsor_at_introduction'], 'revision_leakage_possible': False,
+                                           'note': 'Only the sponsor and introduction date are used; undated cosponsor '
+                                                   'lists are not.'}},
+            'audit_extra': {'inputs': refs, 'structural_leakage_check': 'feature windows end the day before each vote',
+                            'leakage_violations_counted_in_build': int(tasks.leakage_violations)},
+            'origin_text': 'the day of the roll call; features from roll calls strictly before it',
+            'vintage_policy': 'recorded_votes', 'actuals': 'the recorded vote',
+            'limitations': ['Party-unity votes only; a member who abstains has no sample.',
+                            'Defection is relative to the party majority on that roll call, which is determined by the '
+                            'same roll call (a definition, not a feature).']}
 
 
 def quarter_clustered_dm(rows, baseline):
@@ -213,37 +288,28 @@ def run_attempt(store, attempt_id, *, log=print, publish=True, device=None, spec
         raise ValueError('An attempt that is not in plan.json cannot be published')
     attempt = spec if spec is not None else attempt_spec(attempt_id)
     protocol, config = attempt['protocol'], attempt['config']
-    source_ref = attempt['input']
-    path, meta = holdings_module.build(store, source_ref, log=log)
-    arrays, _ = holdings_module.load(path)
-    log(f'{attempt_id}: holdings {meta["counts"]["holdings"]:,} rows, {meta["managers"]:,} managers, '
-        f'{meta["securities"]:,} securities')
-    data = actors.Holdings13F(arrays, top=protocol['k'] + 1)
-    del arrays
-    q_of = {quarter_end(q): q for q in range(data.n_quarters)}
-    first = q_of[protocol['first_origin_quarter']]
-    blocks = [[q_of[a], q_of[b]] for a, b in protocol['blocks']]
+    prepare = {'13f': _prepare_13f, 'votes': _prepare_votes}[attempt.get('domain', '13f')]
+    dom = prepare(store, attempt, protocol, config, log)
+    tasks, q_of, first, blocks = dom['tasks'], dom['q_of'], dom['first'], dom['blocks']
+    quarter_end_ = dom['period_end']
     last = blocks[-1][1]
-    tasks = actors.build_tasks(data, range(first, last + 1), per_quarter=protocol['per_quarter'],
-                               per_manager=protocol['per_manager'], k=protocol['k'], history=protocol['history'],
-                               seed=config['seed'])
-    log(f'  samples {len(tasks.quarter):,} over quarters {first}..{last}')
+    log(f'  samples {len(tasks.quarter):,} over periods {first}..{last}')
     standard_rows = tasks.quarter <= q_of[protocol['standardize_through']]
     mean, std = actors.standardize(tasks, standard_rows)
     device = torch.device(device or ('cuda' if torch.cuda.is_available() else 'cpu'))
     gpu = {'x': torch.as_tensor(tasks.x, device=device), 'm': torch.as_tensor(tasks.m, device=device),
            'valid': torch.as_tensor(tasks.node_valid, device=device), 'w': torch.as_tensor(tasks.weights, device=device)}
-    n_nodes, edges_np, node_type_np = actors.template(protocol['k'])
+    n_nodes, edges_np, node_type_np = dom['template']
     edges, node_type = torch.as_tensor(edges_np, device=device), torch.as_tensor(node_type_np, device=device)
-    features = gbdt_features(tasks, protocol['k'])
-    targets = list(actors.TARGETS)
+    features = gbdt_features(tasks, *dom['gbdt_nodes'])
+    targets = dom['targets']
     forecasts = {name: {j: [] for j in range(len(targets))} for name in attempt['candidates']}
     fits, selected, validation_scores = [], {}, {}
     leakage = {'origins_checked': 0, 'violations': 0}
     for block_index, (lo, hi) in enumerate(blocks):
         stage = 'validation' if block_index == 0 else 'test'
-        origin = actors.day_number(actors.deadline(lo))
-        usable = (tasks.label_filed <= origin) & (tasks.quarter < lo)
+        origin = dom['origin_day'](lo)
+        usable = dom['label_public_by'](tasks.label_filed, origin) & (tasks.quarter < lo)
         usable_quarters = np.unique(tasks.quarter[usable])
         calibration_quarters = usable_quarters[-config['calibration_quarters']:]
         calibrate = usable & np.isin(tasks.quarter, calibration_quarters)
@@ -252,9 +318,9 @@ def run_attempt(store, attempt_id, *, log=print, publish=True, device=None, spec
         evaluate = np.flatnonzero((tasks.quarter >= lo) & (tasks.quarter <= hi))
         for q in range(lo, hi + 1):
             leakage['origins_checked'] += 1
-            leakage['violations'] += int(tasks.max_feature_filed[q] > actors.day_number(actors.deadline(q)))
+            leakage['violations'] += dom['feature_leakage'](q)
         # Leakage of labels into the fit: every training label was public by the fit origin (by construction).
-        leakage['violations'] += int((tasks.label_filed[train] > origin).sum())
+        leakage['violations'] += int((~dom['label_public_by'](tasks.label_filed[train], origin)).sum())
         base_rate = np.nanmean(y_fit[train], axis=0)
         gbdt = []
         for j in range(len(targets)):
@@ -266,10 +332,10 @@ def run_attempt(store, attempt_id, *, log=print, publish=True, device=None, spec
             if stage == 'test' and name not in selected.values():
                 continue
             kind = candidate.get('kind', 'encoder')
-            block = [quarter_end(lo), quarter_end(hi)]
+            block = [quarter_end_(lo), quarter_end_(hi)]
             if kind == 'encoder':
                 model, temperature, diag = fit_encoder(torch, gpu, edges, node_type, y_fit, train, calibrate, config,
-                                                       seed_only=candidate['seed_only'], log=log)
+                                                       seed_only=candidate['seed_only'], log=log, dims=dom['dims'])
                 logits = predict_logits(torch, model, gpu, edges, node_type, evaluate, candidate['seed_only'])
                 probability = 1 / (1 + np.exp(-logits / temperature[None]))
                 fits.append({'block': block, 'stage': stage, 'candidate': name, **diag})
@@ -278,7 +344,7 @@ def run_attempt(store, attempt_id, *, log=print, publish=True, device=None, spec
                 # Label-free: reconstruction only, on every row whose features were public before the block.
                 seen = train | calibrate
                 model, _, diag = fit_encoder(torch, gpu, edges, node_type, y_fit, seen, np.zeros_like(seen), config,
-                                             seed_only=False, log=log, forecast_weight=0.0)
+                                             seed_only=False, log=log, forecast_weight=0.0, dims=dom['dims'])
                 train_rows = np.flatnonzero(train)
                 states_train = predict_logits(torch, model, gpu, edges, node_type, train_rows, False, state=True)
                 states_eval = predict_logits(torch, model, gpu, edges, node_type, evaluate, False, state=True)
@@ -297,7 +363,7 @@ def run_attempt(store, attempt_id, *, log=print, publish=True, device=None, spec
                 eval_logits, diags = np.zeros((len(evaluate), len(targets))), []
                 for f in (0, 1):
                     model, _, diag = fit_encoder(torch, gpu, edges, node_type, y_fit, train & (fold != f),
-                                                 np.zeros_like(train), config, seed_only=False, log=log)
+                                                 np.zeros_like(train), config, seed_only=False, log=log, dims=dom['dims'])
                     held = np.flatnonzero(train & (fold == f))
                     extra[held] = predict_logits(torch, model, gpu, edges, node_type, held, False)
                     eval_logits += predict_logits(torch, model, gpu, edges, node_type, evaluate, False) / 2
@@ -316,9 +382,9 @@ def run_attempt(store, attempt_id, *, log=print, publish=True, device=None, spec
                     baselines = {'historical_mean': {'mean': float(base_rate[j]), 'sd': 0.0},
                                  'gbdt': {'mean': float(gbdt[j][k_]), 'sd': 0.0}}
                     if j == 0 and np.isfinite(tasks.base_manager[i, 0]):
-                        baselines['manager_rate'] = {'mean': float(tasks.base_manager[i, 0]), 'sd': 0.0}
+                        baselines[dom['own_rate']] = {'mean': float(tasks.base_manager[i, 0]), 'sd': 0.0}
                     forecasts[name][j].append({'target': f'{targets[j]}:{int(tasks.manager[i])}:{int(tasks.security[i])}',
-                                               'quarter': quarter_end(int(tasks.quarter[i])), 'actual': float(tasks.y[i, j]),
+                                               'quarter': quarter_end_(int(tasks.quarter[i])), 'actual': float(tasks.y[i, j]),
                                                'mean': float(probability[k_, j]), 'baselines': baselines})
             if device.type == 'cuda':
                 torch.cuda.empty_cache()
@@ -329,7 +395,7 @@ def run_attempt(store, attempt_id, *, log=print, publish=True, device=None, spec
                 selected[target] = min(scores, key=lambda n: (scores[n], list(attempt['candidates']).index(n)))
             log(f'  selection: {selected}')
     reports = []
-    validation_quarters = {quarter_end(q) for q in range(blocks[0][0], blocks[0][1] + 1)}
+    validation_quarters = {quarter_end_(q) for q in range(blocks[0][0], blocks[0][1] + 1)}
     for j, target in enumerate(targets):
         chosen = selected[target]
         test_rows = [f for f in forecasts[chosen][j] if f['quarter'] not in validation_quarters]
@@ -342,37 +408,30 @@ def run_attempt(store, attempt_id, *, log=print, publish=True, device=None, spec
         selection['selection_hash'] = digest(selection)
         report = {
             'schema': 'worldmodel.validation_report/1', 'attempt': attempt_id, 'process_id': 'actors_model',
-            'component': f'actors_embedding:13f_{target}', 'targets': [f'13f_{target}_next_quarter'],
+            'component': f'actors_embedding:{dom["component"]}_{target}',
+            'targets': [f'{dom["component"]}_{target}_{dom["target_suffix"]}'],
             'estimator': f'WorldStateEncoder[{chosen}]',
-            'protocol': {**protocol, 'origin': 'quarter end + 45 days (13F deadline)', 'interval_level': None,
-                         'baselines': baselines, 'vintage_policy': 'original_13F-HR_filings_only',
-                         'actuals': 'original 13F-HR filing for the next quarter'},
+            'protocol': {**protocol, 'origin': dom['origin_text'], 'interval_level': None,
+                         'baselines': baselines, 'vintage_policy': dom['vintage_policy'], 'actuals': dom['actuals']},
             'selection': selection,
             'test': {**scored, 'forecast_count': len(test_rows),
-                     'leakage_audit': {**leakage, 'vintage_modes': ['original_filing']},
+                     'leakage_audit': {**leakage, 'vintage_modes': [m for v in dom['series'].values() for m in v['vintage_modes']]},
                      'quarter_clustered_dm': {b: quarter_clustered_dm(test_rows, b) for b in baselines},
                      'base_rate_test': float(np.mean([f['actual'] for f in test_rows])) if test_rows else None},
-            'final_estimate': {'data_audit': {'series': {'sec_13f_history': {
-                'series': 'sec_13f_history', 'revisions': 'none', 'vintage_modes': ['original_filing'],
-                'revision_leakage_possible': False,
-                'note': 'Original 13F-HR filings only; amendments (13F-HR/A) are excluded, so no later restatement enters.'}},
-                'input': dict(source_ref), 'holdings_meta': meta},
-                'diagnostics': {'fits': fits, 'config': config, 'code': code,
-                                'standardization': {'mean': mean.tolist(), 'std': std.tolist()}},
-                'bounds_check': {}},
-            'data_inputs': [dict(source_ref)], 'causally_identified': False,
-            'limitations': [
-                'Samples are conditioned on the manager filing again next quarter.',
-                '13F covers long US-listed equity positions of managers above the reporting threshold; exits may be '
-                'sales below the threshold, transfers or reclassifications, not trades.',
-                'Pooled Diebold-Mariano tests treat positions as independent; test.quarter_clustered_dm is the '
+            'final_estimate': {'data_audit': {'series': dom['series'], **dom['audit_extra']},
+                               'diagnostics': {'fits': fits, 'config': config, 'code': code,
+                                               'standardization': {'mean': mean.tolist(), 'std': std.tolist()}},
+                               'bounds_check': {}},
+            'data_inputs': dom['inputs'], 'causally_identified': False,
+            'limitations': dom['limitations'] + [
+                'Pooled Diebold-Mariano tests treat samples as independent; test.quarter_clustered_dm is the '
                 'conservative check under common quarterly shocks.',
                 'Out-of-sample skill is predictive association, not a response to any intervention.']}
         report['acceptance'] = evaluate_criteria(report, attempt['criteria'] + attempt.get('extra_criteria', {}).get(target, []))
         report['validated'] = bool(report['acceptance']['passed'])
         canonical(report)
         report['report_id'] = digest({k: v for k, v in report.items() if k != 'report_id'})
-        publication = {'parameters': {'attempt': attempt_id, 'target': target}, 'inputs': [dict(source_ref)],
+        publication = {'parameters': {'attempt': attempt_id, 'target': target}, 'inputs': dom['inputs'],
                        'entrypoint': ENTRYPOINT}
         ref = None
         if publish:

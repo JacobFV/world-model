@@ -344,9 +344,10 @@ def build_tasks(holdings, quarters, *, per_quarter, per_manager, k=12, history=4
 def standardize(tasks, train_rows):
     """Per-feature mean/std over available training values; applied in place."""
     x, m = tasks.x.astype(np.float32), tasks.m.astype(bool)
-    mean = np.zeros(len(FEATURES))
-    std = np.ones(len(FEATURES))
-    for j in range(len(FEATURES)):
+    n_features = tasks.x.shape[2]
+    mean = np.zeros(n_features)
+    std = np.ones(n_features)
+    for j in range(n_features):
         values = x[train_rows][:, :, j][m[train_rows][:, :, j]]
         if values.size:
             mean[j], std[j] = float(values.mean()), float(values.std()) or 1.0
