@@ -33,10 +33,14 @@ zero records to this index. The agent therefore believes *who* supported it and 
 1. only entities within ``hops`` of its own resolved identity cluster in the edge index;
 2. only the predicates and observation metrics its role declares (a legislator cannot see
    13F holdings or road topology, though they sit in the same file);
-3. only records already observed (``observed_at <= known_at``) when the caller pins a
-   knowledge horizon. Note that ``observed_at`` here is the *ingest* wall clock of the
-   unify run, not the real-world event time, so ``known_at`` defaults to ``None`` (no
-   filter) and real time is carried by ``valid_from``/``valid_to``;
+3. only records already **public** (``published_at <= known_at``) when the caller pins a
+   knowledge horizon. A record whose publication date is unknown is withheld rather than
+   dated by the unify run's ingest wall clock; :attr:`EdgeIndex.publication_policy` says
+   which rule was in force, and ``include_unknown_publication=True`` restores the old
+   ingest-time reading and labels it. On an index built before graph schema 4 there is no
+   publication date at all, and a pinned ``known_at`` is refused rather than answered from
+   ingest time. ``known_at`` still defaults to ``None`` (no filter); real time is carried
+   by ``valid_from``/``valid_to``. See ``docs/point-in-time-graph.md``;
 4. dated assertions only inside the tick's window; undated ones as standing condition;
 5. at most ``edge_scan`` index rows fetched, ranked by salience, then truncated to
    ``per_tick`` (default 24, the civ sim's 12-30 band). :class:`Perception` reports how
@@ -60,6 +64,8 @@ tc = load_tensorcode()
 UTC = _dt.timezone.utc
 #: Mirrors ``worldmodel.graph.READABLE_SCHEMAS``: the resolved/edge shape this module reads.
 REQUIRED_SCHEMA = '3'
+#: Schema that carries ``published_at``. Below it, a pinned ``known_at`` cannot be honoured.
+PUBLICATION_SCHEMA = '4'
 
 
 def default_index_path(data_root=None):
@@ -117,7 +123,7 @@ class EvidenceIndex:
     connection with a page cache, so a tick does not pay connection setup per query.
     """
 
-    def __init__(self, path=None, *, cache_mb=64, data_root=None):
+    def __init__(self, path=None, *, cache_mb=64, data_root=None, include_unknown_publication=False):
         self.path = Path(path) if path is not None else default_index_path(data_root)
         if not self.path.is_file():
             raise ValueError('Graph index missing at %s; run `wm unify` (or `wm graph-build`) first' % self.path)
@@ -131,6 +137,8 @@ class EvidenceIndex:
             self._connection.close()
             raise ValueError('Grounded agents need graph schema %s; run `wm unify` to rebuild' % REQUIRED_SCHEMA)
         self.schema_version = row['value']
+        self.include_unknown_publication = bool(include_unknown_publication)
+        self.publication_dates = row['value'] >= PUBLICATION_SCHEMA
         self._graph = None
         self._entity_cache = {}
 
@@ -152,6 +160,32 @@ class EvidenceIndex:
             self._graph = Graph(self.path)
         return self._graph
 
+    # -- the knowledge horizon ----------------------------------------------------------
+    def _known_clause(self, known_at):
+        """The ``known_at`` filter: publication date where the index has one, never ingest time."""
+        if known_at is None:
+            return '', []
+        key = _time_key(known_at)
+        if not self.publication_dates:
+            if not self.include_unknown_publication:
+                raise ValueError(
+                    'This index is graph schema %s and carries no publication dates, so a knowledge horizon would be '
+                    'the unify run\'s ingest clock, not what was public. Rebuild at schema %s (`wm unify`), or '
+                    'construct EdgeIndex(include_unknown_publication=True) to accept ingest time knowingly.'
+                    % (self.schema_version, PUBLICATION_SCHEMA))
+            return ' AND observed_at <= ?', [key]
+        if self.include_unknown_publication:
+            return ' AND (published_at <= ? OR (published_at IS NULL AND observed_at <= ?))', [key, key]
+        return ' AND published_at IS NOT NULL AND published_at <= ?', [key]
+
+    @property
+    def publication_policy(self):
+        """What a pinned ``known_at`` means on this index, for the agent's own report."""
+        return {'graph_schema': self.schema_version, 'publication_dates_available': self.publication_dates,
+                'policy': 'include_unknown_publication_as_ingested' if self.include_unknown_publication
+                          else 'exclude_unknown_publication',
+                'filtered_on': 'published_at' if self.publication_dates else 'observed_at'}
+
     # -- identity -----------------------------------------------------------------------
     def canonical(self, entity_id):
         row = self._connection.execute('SELECT canonical_id FROM resolved WHERE entity_id=?', (entity_id,)).fetchone()
@@ -171,9 +205,7 @@ class EvidenceIndex:
         key = (entity_id, _time_key(known_at))
         if key in self._entity_cache:
             return self._entity_cache[key]
-        clause, args = ('', [])
-        if known_at is not None:
-            clause, args = (' AND observed_at <= ?', [_time_key(known_at)])
+        clause, args = self._known_clause(known_at)
         row = self._connection.execute(
             "SELECT * FROM records WHERE kind='entity' AND entity_id=?" + clause
             + ' ORDER BY observed_at DESC LIMIT 1', [entity_id, *args]).fetchone()
@@ -192,7 +224,7 @@ class EvidenceIndex:
 
         ``since``/``until`` form a half-open window on ``valid_from``; rows with no
         ``valid_from`` are *standing* and are returned only when no window is given.
-        ``known_at`` caps ``observed_at``. Served by ``edge_subject_idx``/``edge_object_idx``,
+        ``known_at`` caps the **publication** date (see :meth:`_known_clause`). Served by ``edge_subject_idx``/``edge_object_idx``,
         so the cost is the agent's own degree on that predicate, never the table.
         """
         column = 'subject' if direction == 'out' else 'object'
@@ -205,10 +237,10 @@ class EvidenceIndex:
             if until is not None:
                 clauses.append('valid_from < ?')
                 args.append(_time_key(until))
-        if known_at is not None:
-            clauses.append('observed_at <= ?')
-            args.append(_time_key(known_at))
         suffix = ''.join(' AND ' + clause for clause in clauses)
+        known_clause, known_args = self._known_clause(known_at)
+        suffix += known_clause
+        args.extend(known_args)
         out, budget = [], int(limit)
         for entity_id in entity_ids:
             if budget <= 0:
@@ -244,9 +276,7 @@ class EvidenceIndex:
 
     def observations(self, entity_ids, metric, *, known_at=None, limit=8):
         """The most recent published observations of ``metric`` about any of ``entity_ids``."""
-        clause, args = ('', [])
-        if known_at is not None:
-            clause, args = (' AND observed_at <= ?', [_time_key(known_at)])
+        clause, args = self._known_clause(known_at)
         out = []
         for entity_id in entity_ids:
             if len(out) >= limit:
@@ -875,6 +905,9 @@ class SeedReport:
     datasets: tuple = ()
     record_ids: tuple = ()
     label: str = None
+    #: What a pinned ``known_at`` meant here: which date the horizon filtered on, and under
+    #: which policy. ``None`` when the caller pinned no knowledge horizon.
+    publication: dict = None
 
     @property
     def unknown(self):
@@ -888,7 +921,7 @@ class SeedReport:
         return {'entity_id': self.entity_id, 'canonical_id': self.canonical_id, 'label': self.label,
                 'cluster': list(self.cluster), 'claims': self.claims, 'facets': dict(sorted(self.facets.items())),
                 'unknown': list(self.unknown), 'datasets': list(self.datasets),
-                'records_cited': len(self.record_ids)}
+                'records_cited': len(self.record_ids), 'publication': self.publication}
 
 
 @dataclass
@@ -958,7 +991,8 @@ def ground(index, entity_id, *, horizon=LEGISLATOR, known_at=None):
     cluster = index.cluster(entity_id) if horizon.resolved else (entity_id,)
     record = index.entity(entity_id, known_at=known_at)
     report = SeedReport(entity_id=entity_id, canonical_id=index.canonical(entity_id), cluster=cluster,
-                        label=_label(record, None))
+                        label=_label(record, None),
+                        publication=dict(index.publication_policy, known_at=_time_key(known_at)) if known_at else None)
     return Grounding(entity_id=entity_id, canonical_id=report.canonical_id, cluster=cluster,
                      horizon=horizon, me=tc.Ref(entity_id), report=report, index=index)
 

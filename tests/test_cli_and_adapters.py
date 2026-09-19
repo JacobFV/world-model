@@ -87,8 +87,10 @@ class AdapterTests(unittest.TestCase):
             self.assertEqual(len(lineage['artifacts']), 2)
             self.assertEqual(cli('verify', 'world_graph')['verified'], True)
             self.assertEqual(len(cli('neighbors', 'org:acme')['assertions']), 2)
-            self.assertEqual({r['dimensions']['country']: r['value'] for r in
-                              cli('observations', 'rando_joes_happiness_index')}, {'AA': 65, 'BB': 50})
+            observed = cli('observations', 'rando_joes_happiness_index')
+            self.assertEqual({r['dimensions']['country']: r['value'] for r in observed['records']},
+                             {'AA': 65, 'BB': 50})
+            self.assertEqual(observed['publication']['policy'], 'no as-of filter')
 
 
 if __name__ == '__main__':

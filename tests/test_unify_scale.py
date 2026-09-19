@@ -186,7 +186,34 @@ class BuildTests(unittest.TestCase):
         graph = Graph(self.index)
         self.assertEqual({n['id'] for n in graph.neighborhood('geo:US:state:06', hops=1)['nodes']},
                          {'geo:US:state:06', 'geo:US:county:06001', 'lei:5493001KJTIIGC8Y1R12'})
-        self.assertEqual(graph.observations('population')[0]['value'], 1682353.0)
+        self.assertEqual(graph.observations('population')['records'][0]['value'], 1682353.0)
+
+    def test_the_build_censuses_publication_dates_and_applies_the_declared_rules(self):
+        """Nothing in these fixtures publishes an availability date, so the census says 0 - and the
+        one dataset a declared rule covers is dated from its own reference period, not from ingest."""
+        result = self.build(publish=False)
+        coverage = result['publication_coverage']
+        self.assertEqual(coverage['totals']['records'], result['index']['records'])
+        self.assertEqual(coverage['totals']['records_published'], 0)
+        self.assertEqual(coverage['totals']['sources'], {})
+        self.assertEqual(sorted(row['dataset'] for row in coverage['datasets']), ['census_geography', 'sec_gleif'])
+        self.assertEqual(Graph(self.index).publication_coverage()['coverage'], coverage)
+
+        self.fixture.publish('noaa_climdiv', [
+            {**observation('5', 'geo:US:county:06001', metric='temperature'),
+             'valid_from': '1990-01-01', 'valid_to': '1991-01-01'},
+            observation('6', 'geo:US:county:06001', metric='temperature')])
+        dated = self.build(publish=False, datasets=['noaa_climdiv'])
+        self.assertEqual(dated['publication_coverage']['totals'],
+                         {'records': 2, 'records_published': 1, 'edges': 0, 'edges_published': 0,
+                          'records_share': 0.5, 'edges_share': None, 'sources': {'rule': 1}})
+        self.assertEqual(dated['publication_rules']['noaa_climdiv']['lag_months'], 1)
+        # The dated row is visible as-of 1991-02-01 and not before; the undated one never is.
+        graph = Graph(self.index)
+        self.assertEqual(len(graph.observations('temperature', known_at='1991-06-01')['records']), 1)
+        self.assertEqual(graph.observations('temperature', known_at='1991-01-15')['records'], [])
+        note = graph.observations('temperature', known_at='1991-06-01')['publication']
+        self.assertEqual(note['excluded_by_dataset'], {'noaa_climdiv': 1})
 
     def test_kind_filter_is_confirmed_after_parsing(self):
         """A record whose text merely contains another kind's tag is still filtered out."""

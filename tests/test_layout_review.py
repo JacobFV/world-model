@@ -79,7 +79,7 @@ class LayoutStageConsumerReviewTests(unittest.TestCase):
             atomic_json(staging/'manifest.json',{**identity,'version':ref['version']})
             staging.rename(store.version_dir(ref))
             graph=Graph(root/'graph.sqlite');graph.build(store,[ref])
-            provenance=graph.observations('count')[0]['_provenance']['input']
+            provenance=graph.observations('count')['records'][0]['_provenance']['input']
             self.assertEqual(provenance,ref)
             self.assertTrue(store.verify(provenance))
 

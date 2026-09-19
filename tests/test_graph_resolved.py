@@ -46,7 +46,9 @@ class ResolvedGraphTests(unittest.TestCase):
         self.assertEqual(len(self.graph.neighborhood('org:a', hops=3, predicates=['owns'], min_weight=0.5)['edges']), 2)
         self.assertEqual(self.graph.neighborhood('org:a', hops=1, direction='in')['edges'], [])
         self.assertTrue(self.graph.neighborhood('org:c', hops=2, limit=1)['truncated'])
-        old = self.graph.neighborhood('org:c', hops=1, known_at='2022-01-01')
+        # These fixtures carry no publication date, so an as-of query excludes them by default;
+        # the ingestion-time reading is the named option, and tests/test_graph_publication.py owns it.
+        old = self.graph.neighborhood('org:c', hops=1, known_at='2022-01-01', include_unknown_publication=True)
         self.assertNotIn('org:d', {n['id'] for n in old['nodes']})
         records = self.graph.edge_records(result['edges'])
         self.assertEqual(records[0]['_provenance']['input'], REF)
@@ -62,9 +64,9 @@ class ResolvedGraphTests(unittest.TestCase):
         self.assertEqual(self.graph.paths('org:a', 'org:d', max_hops=3, direction='out')['paths'], [])
         self.assertEqual(self.graph.paths('org:a', 'org:d', max_hops=3)['length'], 3)
         degree = self.graph.degree_centrality(limit=2)
-        self.assertEqual(degree[0]['node'], 'org:b')
+        self.assertEqual(degree['rows'][0]['node'], 'org:b')
         weighted = self.graph.degree_centrality(weighted=True, predicates=['supplied_by'], direction='in', limit=5)
-        self.assertEqual(weighted[0], {'node': 'org:d', 'score': 5.0, 'degree': 1})
+        self.assertEqual(weighted['rows'][0], {'node': 'org:d', 'score': 5.0, 'degree': 1})
         ranks = self.graph.pagerank(predicates=['owns'])
         self.assertTrue(ranks['converged'])
         self.assertEqual(ranks['ranks'][0]['node'], 'org:c')
@@ -98,7 +100,7 @@ class ResolvedGraphTests(unittest.TestCase):
                 CREATE TABLE metadata (key TEXT PRIMARY KEY, value TEXT);
                 INSERT INTO metadata VALUES ('schema_version', '2');''')
         legacy = Graph(path)
-        self.assertEqual(legacy.observations('count'), [])
+        self.assertEqual(legacy.observations('count')['records'], [])
         with self.assertRaisesRegex(ValueError, 'rebuild'):
             legacy.neighborhood('org:a')
 

@@ -90,6 +90,9 @@ def add_commands(sub):
         command.add_argument('--index', type=Path)
         command.add_argument('--valid-at')
         command.add_argument('--known-at')
+        command.add_argument('--include-unknown-publication', action='store_true',
+                             help='With --known-at: also include rows whose publication date is unknown, dated by '
+                                  'when they were ingested. The result discloses it; it is not point-in-time.')
         command.add_argument('--limit', type=int, default=100)
         command.add_argument('--resolved', action='store_true')
     attach = sub.add_parser('graph-attach-resolution', help='Attach a resolve-entities result to a graph index')
@@ -254,7 +257,8 @@ def execute(args, catalog, store, project, reference):
         view = _json_file(args.workdir / 'view.json', dict)
         clusters = (json.loads(line) for line in (args.workdir / 'clusters.jsonl').read_text(encoding='utf-8').splitlines() if line.strip())
         return graph.attach_resolution(clusters, view=view)
-    filters = {'valid_at': args.valid_at, 'known_at': args.known_at, 'resolved': args.resolved}
+    filters = {'valid_at': args.valid_at, 'known_at': args.known_at, 'resolved': args.resolved,
+               'include_unknown_publication': args.include_unknown_publication}
     if command == 'graph-neighborhood':
         return graph.neighborhood(args.entity, hops=args.hops, limit=args.limit, predicates=args.predicate,
                                   direction=args.direction, min_weight=args.min_weight, **filters)

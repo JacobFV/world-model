@@ -31,7 +31,7 @@ import sys
 import time
 import uuid
 
-from .graph import Graph
+from .graph import PUBLICATION_RULES, PUBLICATION_SCHEMA, READABLE_SCHEMAS, Graph
 from .resolution.bridges import (BRIDGE_TAGS, BRIDGES, IMO_SHIP_ENTITY_TYPES, LINK_PREDICATES, NAMESPACE_ALIASES,
                                  REGISTER_VALIDATORS,
                                  cardinality as bridge_cardinality, flagged_fraudulent, normalize_value, record_claims)
@@ -422,12 +422,17 @@ def unify(catalog, store, project=None, *, profile=DEFAULT_PROFILE, datasets=Non
         print('unify: profile %s, %d datasets, %s published records in scope -> %s'
               % (profile, len(groups), f"{plan['selected_rows']:,}", index_path), file=sys.stderr, flush=True)
     built = Graph(index_path).build_from_records(groups, batch_size=batch_size, validate=validate,
-                                                 cache_mb=cache_mb, compress_bodies=compress)
+                                                 cache_mb=cache_mb, compress_bodies=compress,
+                                                 publication_rules=PUBLICATION_RULES)
     elapsed = time.time() - started
     summary = {
         'scope': _scope_report(plan),
         'index': {'path': str(index_path), 'records': built['records'], 'edges': built['edges'],
                   'bytes': index_path.stat().st_size},
+        'publication_coverage': built.get('publication_coverage'),
+        'publication_rules': {name: PUBLICATION_RULES[name]
+                              for name in sorted({item['dataset'] for item in plan['selected']}
+                                                 & set(PUBLICATION_RULES))},
         'datasets': [stats[item['dataset']] for item in plan['selected'] if item['dataset'] in stats],
         'skipped': plan['skipped'],
         'inputs': [dict(item['ref']) for item in plan['selected']],
@@ -442,7 +447,12 @@ def unify(catalog, store, project=None, *, profile=DEFAULT_PROFILE, datasets=Non
             'A scope narrower than --all indexes a documented subset: an absent edge may mean out of scope, '
             'not absent from the evidence.',
             'Raw acquisition payloads are not re-hashed by unify; run "wm verify <dataset>" for the full '
-            'recursive lineage check.'],
+            'recursive lineage check.',
+            'A record carries a publication date only where the publisher emits one (dimensions.available_at), '
+            'where the row is ALFRED-vintaged (attributes.realtime_start), or where a declared dataset rule in '
+            'worldmodel.graph.PUBLICATION_RULES can date it. Everything else is NULL, which means unknown, and is '
+            'excluded from --known-at queries by default. "publication_coverage" reports the share per dataset; '
+            'docs/point-in-time-graph.md says what a declared lag does and does not establish.'],
     }
     if publish:
         parameters = {'profile': profile, 'datasets': sorted(datasets or ()), 'domains': sorted(domains or ()),
@@ -980,10 +990,12 @@ def index_summary(index_path):
     connection = sqlite3.connect(index_path.resolve().as_uri() + '?mode=ro', uri=True)
     try:
         version = connection.execute("SELECT value FROM metadata WHERE key='schema_version'").fetchone()
-        if not version or version[0] not in ('2', '3'):
+        if not version or version[0] not in READABLE_SCHEMAS:
             raise ValueError('Index schema is not readable; rebuild with unify')
         pinned = connection.execute("SELECT value FROM metadata WHERE key='inputs'").fetchone()
         inputs = json.loads(pinned[0]) if pinned else []
+        census = connection.execute("SELECT value FROM metadata WHERE key='publication_coverage'").fetchone()
+        coverage = json.loads(census[0]) if census else None
         counts = {}
         for dataset, stage, ref_version, kind, total in connection.execute(
                 'SELECT dataset, stage, version, kind, COUNT(*) FROM records GROUP BY 1, 2, 3, 4'):
@@ -1002,6 +1014,7 @@ def index_summary(index_path):
                          'events': row['event']})
     return {'index': {'path': str(index_path), 'records': records, 'edges': edges,
                       'resolved_entities': resolved, 'bytes': index_path.stat().st_size},
+            'publication_coverage': coverage,
             'datasets': datasets, 'inputs': inputs,
             'totals': {'records_indexed': sum(d['records_indexed'] for d in datasets),
                        **{key: sum(d[key] for d in datasets)
@@ -1010,7 +1023,10 @@ def index_summary(index_path):
             'limitations': ['Recomputed from the index: records read and per-dataset timings are not '
                             'recoverable, only records indexed.',
                             'Records are copied verbatim from each dataset\'s published output stage; nothing '
-                            'is merged, deduplicated or reconciled by this build.']}
+                            'is merged, deduplicated or reconciled by this build.']
+            + ([] if coverage else ['This index predates graph schema %s and carries no publication dates, so it '
+                                    'cannot answer a --known-at query; see docs/point-in-time-graph.md.'
+                                    % PUBLICATION_SCHEMA])}
 
 
 def publish_existing_index(store, index_path, *, output_dataset='world_evidence', parameters=None):

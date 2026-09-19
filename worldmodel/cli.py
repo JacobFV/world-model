@@ -107,6 +107,9 @@ def parser():
         command.add_argument('--index', type=Path)
         command.add_argument('--valid-at')
         command.add_argument('--known-at')
+        command.add_argument('--include-unknown-publication', action='store_true',
+                             help='With --known-at: also return records whose publication date is unknown, dated by '
+                                  'when they were ingested. The result says so; it is not a point-in-time view.')
         command.add_argument('--limit', type=int, default=100)
         if name == 'neighbors':
             command.add_argument('--hops', type=int, default=1)
@@ -264,7 +267,8 @@ def execute(args):
         return {'output': ref, 'graph': graph.build(store, [ref]), 'fictional_data': True}
     if command == 'graph-build':
         return graph.build(store, [reference(value, store) for value in args.references])
-    filters = {'limit': args.limit, 'valid_at': args.valid_at, 'known_at': args.known_at}
+    filters = {'limit': args.limit, 'valid_at': args.valid_at, 'known_at': args.known_at,
+               'include_unknown_publication': args.include_unknown_publication}
     if command == 'neighbors':
         return graph.neighbors(args.entity, hops=args.hops, **filters)
     return graph.observations(args.metric, **filters)
