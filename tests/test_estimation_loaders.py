@@ -655,7 +655,20 @@ class RebasedVintageTests(unittest.TestCase):
         self.assertEqual(shared, ['2012'])        # the 2017 GDP vintage is ignored until potential follows
 
 
-@unittest.skipUnless((DATA_ROOT / 'census_population' / 'manifests' / 'latest.json').exists(),
+def _local_build(dataset):
+    """True when the latest build's payload is present, not only its committed manifest.
+
+    A git worktree carries ``manifests/`` (tracked) but no ``artifacts/`` (ignored), so the
+    manifest alone does not mean the data are here.
+    """
+    latest = DATA_ROOT / dataset / 'manifests' / 'latest.json'
+    if not latest.exists():
+        return False
+    ref = json.loads(latest.read_text(encoding='utf-8'))
+    return (DATA_ROOT / dataset / 'artifacts' / ref.get('stage', 'normalized') / ref['version'] / 'manifest.json').exists()
+
+
+@unittest.skipUnless(_local_build('census_population'),
                      'No local census_population build; skipping the real-data smoke test')
 class RealDataSmokeTests(unittest.TestCase):
     """Loads one small real slice: national PEP population, which is a few dozen records."""

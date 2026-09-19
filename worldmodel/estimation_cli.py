@@ -292,10 +292,7 @@ def execute(args, catalog, store, project, reference):
         return load_requirements() if args.full else requirements_summary(args.process)
     if args.command == 'calibration-status' and args.all:
         from .estimation.status import plan_status
-        summary = plan_status(store, load_plan(args.plan), dataset=args.dataset)
-        for row in summary['attempts']:
-            row.pop('record', None)
-        return summary
+        return plan_status(store, load_plan(args.plan), dataset=args.dataset)
     if args.command == 'calibration-status':
         if not args.reports:
             raise ValueError('calibration-status needs report references, or --all')

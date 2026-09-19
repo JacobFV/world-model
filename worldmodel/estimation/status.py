@@ -20,6 +20,7 @@ published one counts and the others are listed.
 from pathlib import Path
 
 from ..util import read_json
+from .families import load_requirements
 from .registry import calibration_record, required_components
 
 
@@ -104,6 +105,16 @@ def plan_status(store, plan, *, dataset='calibration_reports'):
         processes[process_id] = {'required_components': required,
                                  'passing_components': sorted(have & set(required)),
                                  'validated': bool(required) and set(required) <= have}
+    # Processes that declare another process's component (taylor_rule_policy_rate requires
+    # monetary_model_parameters): calibrate-all attaches a record only to its own process, so
+    # these are reported beside the count rather than inside it.
+    anywhere = set().union(*passing_components.values()) if passing_components else set()
+    linked = []
+    for process_id in sorted(load_requirements()['processes']):
+        required = set(required_components(process_id))
+        if process_id not in processes or not processes[process_id]['validated']:
+            if required and required <= anywhere:
+                linked.append(process_id)
     return {'registered': len(attempts), 'current': sum(1 for r in rows if r['current']),
             'superseded': sum(1 for r in rows if not r['current']),
             'without_report': [r['attempt'] for r in rows if r['verdict'] == 'no_report'],
@@ -113,6 +124,7 @@ def plan_status(store, plan, *, dataset='calibration_reports'):
             'superseded_pass': sum(1 for r in scored if not r['current'] and r['verdict'] == 'pass'),
             'failing_criteria': dict(sorted(criteria.items(), key=lambda item: (-item[1], item[0]))),
             'validated_processes': sorted(p for p, state in processes.items() if state['validated']),
+            'validated_through_linked_components': linked,
             'processes': processes, 'reports': len(runs), 'unmatched_reports': unmatched,
             'duplicate_labels': duplicates,
             'attempts': rows}
