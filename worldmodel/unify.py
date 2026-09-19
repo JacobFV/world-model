@@ -951,7 +951,8 @@ def resolve_identities(catalog, store, *, workdir, index=None, profile=DEFAULT_P
         coverage = scope_join_coverage(Path(workdir) / 'identity.sqlite', workdir=Path(workdir) / 'coverage',
                                        clusters=Path(workdir) / 'clusters.jsonl',
                                        families=publisher_families(catalog.root), top=15)
-        report['join_coverage'] = {key: coverage[key] for key in ('totals', 'by_domain', 'top_dataset_combinations')}
+        report['join_coverage'] = {key: coverage[key] for key in ('totals', 'by_domain', 'by_entity_type',
+                                                                   'top_dataset_combinations')}
     if attach:
         if index_path.is_file():  # the resolution being replaced stays re-attachable
             from .resolution.history import export_resolution

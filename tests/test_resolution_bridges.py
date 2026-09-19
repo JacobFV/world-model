@@ -177,6 +177,8 @@ class PublishedCrosswalkTests(unittest.TestCase):
     def test_join_coverage_counts_datasets_behind_each_entity(self):
         report, _ = self.resolve()
         scope = report['join_coverage']['totals']
+        types = {row['entity_type']: row for row in report['join_coverage']['by_entity_type']}
+        self.assertEqual(types['airport']['joined'], 2)                           # iata:UTK + ourairports:1
         index = join_coverage(self.index, workdir=Path(self.tmp.name) / 'jc', mentions=True,
                               families={'ofac_sanctions': 'Treasury', 'other_sanctions_lists': 'Treasury'})
         # the scope measurement (from the resolve work database) and the index measurement agree

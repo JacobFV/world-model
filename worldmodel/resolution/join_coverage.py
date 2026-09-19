@@ -348,6 +348,17 @@ def scope_join_coverage(identity_database, *, workdir, clusters, domain_of=None,
         source = _load_clusters(work, clusters)
         report = _measure(work, mentions=False, families=families, domain_of=domain_of, top=top)
         report['totals']['entity_records'] = records
+        # The work database also knows each entity's published type, which separates real-world
+        # actors (organisations, people, vessels) from records-as-entities (series, filings, flows).
+        work.executescript('CREATE TABLE ety AS SELECT entity_id, MIN(entity_type) AS entity_type FROM src.entities '
+                           'WHERE entity_id IS NOT NULL GROUP BY entity_id;'
+                           'CREATE INDEX ety_id ON ety(entity_id);')
+        report['by_entity_type'] = [
+            {'entity_type': kind, 'entities': n, 'joined': joined, 'joined_fraction': round(joined / n, 6),
+             'joined_independent': independent}
+            for kind, n, joined, independent in work.execute(
+                'SELECT t.entity_type, COUNT(*), SUM(gn.n >= 2), SUM(gn.f >= 2) FROM grp JOIN gn ON gn.g = grp.g '
+                'JOIN ety t ON t.entity_id = grp.entity_id GROUP BY t.entity_type ORDER BY 2 DESC LIMIT ?', (top,))]
         return {'scope': 'resolution scope', 'identity_database': str(identity_database), 'resolution': source,
                 'measures': ['joined', 'joined_independent'], **report,
                 'what_this_does_not_establish': WHAT_THIS_DOES_NOT_ESTABLISH,
