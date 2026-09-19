@@ -56,7 +56,8 @@ Rebuild command with every dependency pinned:
 
 Reading: `wm firm-panel lookup 0000036104`, `wm firm-panel lookup <LEI> --as-of 2020-06-30`,
 `wm firm-panel coverage`, `wm firm-panel status`. `--as-of` drops rows that were not yet filed and
-reports each value at its latest vintage on that date.
+reports each value at its latest vintage on that date. A lookup streams the panel and takes about
+25 seconds; `coverage` reads all of it and takes a few minutes.
 
 ## Row counts and what was dropped
 
@@ -127,8 +128,9 @@ two linked LEIs. Because the linked CIKs are mostly funds and bond-issuing entit
 is dominated by debt: one CIK (Federal Agricultural Mortgage) alone carries 9,338 CUSIPs.
 
 **13F.** The information table publishes the CUSIP, a free-text issuer name and no issuer CIK
-(`identity_basis` on every 13F security entity says so), so the GLEIF chain above is the only
-published way in. Of 87,357,054 holding rows read, 1,511,440 (1.7%) are in a CUSIP that chain ties
+(`identity_basis` on every 13F security entity says so). `sec_issuer_reference` publishes the
+issuer's tickers (`issuer_listing` to `ticker:<MIC>:<symbol>`) and EIN but no CUSIP, and no other
+dataset here ties a CUSIP to an issuer, so the GLEIF chain above is the only published way in. Of 87,357,054 holding rows read, 1,511,440 (1.7%) are in a CUSIP that chain ties
 to a CIK; 75,972,597 are in CUSIPs it does not. Positions excluded before linking: 4,537,033 put/call
 options, 705,832 principal-amount (`PRN`) rows, 4,629,436 rows of filings superseded by a later
 report. The aggregate covers **393 issuers and 14,841 issuer-quarters**; 371 of those issuers file no
