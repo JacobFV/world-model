@@ -225,7 +225,7 @@ about; and a past match does not mean the query county will follow that county's
 | `places.county_root_readout_v3` | **fail** (all three targets) | employment beats every baseline; all three fail the declared revision-leakage criterion; see below |
 | `actors.13f_exit_increase_v1` | **fail** (both tasks) | beats the base rate, loses to LightGBM; see below |
 | `actors.13f_exit_increase_v2` | **fail** (both tasks) | the embedding adds nothing to LightGBM; see below |
-| `actors.votes_party_defection_v1` | queued | the same three candidates, on roll-call defections |
+| `actors.votes_party_defection_v1` | **fail** | same pattern as 13F: beats the base rate and the member's own rate, does not beat LightGBM |
 | `actors.fec_repeat_contribution_v1` | queued | will a committee give to the same recipient again next cycle |
 | `actors.fdic_bank_distress_v1` | queued | will a bank's noncurrent ratio cross 3%, or deposits fall over 10% |
 
@@ -259,6 +259,26 @@ validation. Wall clock 64 minutes on the dedicated GB10, peak GPU 6.1 GiB.
   panel can pass, whatever its skill.
 * The graph helps: the seed-only encoder was worse on validation for every target
   (0.00386 against 0.00422 for employment).
+
+### actors.votes_party_defection_v1
+
+Published `embedding_reports@26ca05a8`. 128,000 member-votes on party-unity roll calls in the
+117th-118th Congresses, refit each year, base rate 4.65%.
+
+| | Brier |
+| --- | ---: |
+| LightGBM + label-free embedding (selected) | 0.03715 |
+| LightGBM | **0.03687** |
+| member's own defection rate (previous year) | 0.04038 |
+| training base rate | 0.04439 |
+
+Brier skill 0.163 over the base rate, expected calibration error 0.0062, and it beats the member's
+own rate decisively (p < 0.001, pooled and quarter-clustered). Against LightGBM on the same features
+it is again a hair worse (p = 1.00). Every criterion passes except `beats_gbdt_dm`, so the attempt
+is not validated.
+
+The same three candidates were compared as on 13F and the same one won validation: the label-free
+embedding stacked into LightGBM, ahead of the encoder alone and of the cross-fitted encoder.
 
 ### actors.13f_exit_increase_v2 — does the embedding add signal?
 
