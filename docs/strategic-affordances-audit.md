@@ -1,9 +1,11 @@
 # Strategic affordances audit
 
-Audited 2026-09-15 against the working tree: `wm catalog`, `wm budget`, the published
-stage manifests under `data/*/manifests/`, `docs/calibration-status.md`, `wm models list`
-and `wm estimation-load`. Every number below was re-derived from those sources, not
-carried over from the previous audit.
+Audited 2026-09-15 against the working tree; **re-verified 2026-09-18**, when the "Verified
+state" table and every body statement that quotes a count were re-derived from `wm catalog`,
+`wm budget`, the latest normalized manifests under `data/*/manifests/`, `wm estimation-load`,
+and the published validation reports via `wm calibration-status --all` (not from
+`docs/calibration-status.md`). The 2026-09-15 table said one validated process while the body
+said three; both now say five, from the same source.
 
 > **Supersedes** [strategic-affordances-audit-2026-09-15-pre-acquisition.md](strategic-affordances-audit-2026-09-15-pre-acquisition.md),
 > which is kept unedited. That audit reported 18 dataset declarations, 11 sampled source
@@ -19,14 +21,16 @@ carried over from the previous audit.
 The evidence gap it identified is largely closed; the **validation** gap is not, and it
 is now the binding constraint.
 
-We hold roughly 1.31 billion normalized records across 107 published datasets and can
+We hold roughly 1.56 billion normalized records across 113 published datasets and can
 acquire, version, verify, join, convert, resolve and query them with provenance intact.
 We have an estimation and validation layer, and we have run it on that real data. The
-result is that **one** of 22 declared processes meets its own pre-registered acceptance
-criteria. Two of 24 attempt runs pass, one of them only on a substituted series that
-contradicts its declared one. Eleven model families remain `validated: false` by their own
-descriptors. More data will not fix this; the bottleneck moved from acquisition to
-specification, identification and measurement.
+result is that **five** of 22 declared processes meet their own pre-registered acceptance
+criteria (`monetary_model`, `resource_inventory`, `elections_model`, `assets_model`,
+`legislative_model`), each narrowly and on the specification it declared. Nine of 33 current
+attempts pass; 24 fail, fifteen of them because the model does not beat a persistence
+baseline. Eleven model families remain `validated: false` by their own descriptors. More data
+will not fix this; the bottleneck moved from acquisition to specification, identification and
+measurement.
 
 The previous audit's core distinction still holds and should still be read literally:
 a place to store a law, a confidence value or a process type does not implement legal
@@ -35,25 +39,30 @@ trade rows does not implement a trade model that forecasts anything.
 
 ### Verified state
 
+Every row re-derived on **2026-09-18**.
+
 | Quantity | Value | How it was derived |
 | --- | --- | --- |
-| Dataset declarations | 121 (116 source, 5 derived) | `wm catalog` |
-| Declarations with a published normalized stage | 107 | `data/*/manifests/stages/normalized/latest.json` |
-| Normalized records | 1,312,082,961 | sum of `outputs[*].rows` in each latest normalized manifest |
-| Normalized output on disk | 36.9 GiB gzipped | sum of `outputs[*].bytes` |
-| Raw acquired bytes | 94,196,568,082 (87.7 GiB) | `wm budget` → `totals.used` |
+| Dataset declarations | 125 (120 source, 5 derived) | `wm catalog` |
+| Declarations with a published normalized stage | 113 | `data/*/manifests/stages/normalized/latest.json` |
+| Normalized records | 1,555,432,204 | sum of `outputs[*].rows` in each latest normalized manifest |
+| Normalized output on disk | 48.5 GiB gzipped | sum of `outputs[*].bytes` |
+| Raw acquired bytes | 96,627,904,893 (90.0 GiB) | `wm budget` → `totals.used` |
 | Fair-share pool | 107,374,182,400 (100 GiB), max 5% per dataset | `wm budget` → `total`, `max_share` |
-| Pre-registered estimation attempts | 24 | `docs/calibration-status.md` summary table |
-| Attempt runs that pass every declared criterion | 2 (plus 1 superseded) | same |
-| Registry processes validated | 1 of 22 (`monetary_model`) | `wm estimation-requirements`, `docs/calibration-status.md` |
-| Published calibration artifacts | 100 (50 validation reports, 50 estimates) | `data/calibration_reports/artifacts/final/` |
+| Pre-registered estimation attempts | 61 registered: 33 current, 28 superseded and kept | `wm calibration-status --all` (reports joined to `real_data_plan.json`) |
+| Current attempts that pass every declared criterion | 9 of 33 (2 superseded attempts also passed) | same |
+| Registry processes validated | 5 of 22 (`monetary_model`, `resource_inventory`, `elections_model`, `assets_model`, `legislative_model`) | same; the 22 are the processes in `requirements.json` |
+| Published calibration artifacts | 186 (93 validation reports, 93 estimates, including reruns and two reports registered on another branch) | `data/calibration_reports/artifacts/final/` |
 | Estimation components loadable / blocked | 13 / 2 | `wm estimation-load` |
-| Model families loadable / blocked / non-estimable | 5 / 5 / 1 | `wm estimation-load` |
+| Model families loadable / blocked / non-estimable | 8 / 2 / 1 | `wm estimation-load` |
 | Model families declaring themselves validated | 0 of 11 | `wm models list` |
-| Tests | 839 discovered | `unittest` discovery over `tests/` |
-| Datasets whose rights metadata requires redistribution review | 75 of 107 | `rights.redistribution_review_required` in each manifest |
+| Tests | 1,268 discovered; 1,005 pass and 263 skip without the optional `agents` extra (`tensorcode`) and local payloads | `python3 -m unittest discover -s tests` in a worktree |
+| Datasets whose rights metadata requires redistribution review | 81 of 113 | `rights.redistribution_review_required` in each manifest |
 
-The 14 declarations with no published normalized stage, and why:
+The 12 declarations with no published normalized stage on 2026-09-18, and why. (The
+2026-09-15 version of this table listed sixteen names under a heading that said fourteen;
+`epa_aqs_daily`, `market_corporate_actions`, `demo_countries` and `demo_graph` publish one now.
+The four declarations added since all publish one.)
 
 | Declaration | Status | Blocker |
 | --- | --- | --- |
@@ -61,17 +70,16 @@ The 14 declarations with no published normalized stage, and why:
 | `global_fishing_watch` | `awaiting_credentials` | account approval |
 | `wto_timeseries` | `awaiting_credentials` | optional API key not held |
 | `bts_airline_t100` | `manual_download_required` | interactive form download |
-| `epa_aqs_daily` | `full_acquisition_configured` | download in flight |
-| `market_corporate_actions` | `full_acquisition_configured` | download in flight |
 | `contract_candidates`, `reviewed_obligations`, `market_obligations` | `ready_for_authorized_file_import` | require a supplied, authorized file; nothing is inferred |
 | `calibration_reports` | `published_by_estimation_layer` | published as `final`, not `normalized` |
-| `demo_countries`, `demo_graph`, `rando_joes_happiness_index`, `world_graph` | `offline_example` | fictional fixtures, deliberately tiny |
+| `rando_joes_happiness_index`, `world_graph` | `offline_example` | fictional fixtures, deliberately tiny |
 | `strategic_scenarios` | `synthetic_example` | fictional scenario carriers |
-| `world_evidence` | `sample_only` | superseded by the unified-graph rebuild in progress |
+| `world_evidence` | `complete` | declared complete but publishes no normalized stage; superseded by the unified-graph rebuild |
 
 Two further declarations are published but incomplete by their own status:
-`mit_election_returns` (`partial_manual_download_required`: statewide president and
-senate only; House and county returns sit behind a guestbook-gated Dataverse download)
+`mit_election_returns` (`partial_manual_download_required` by its declared status, which predates the
+House district returns it now publishes and `elections_model` validates on; county returns remain
+behind a guestbook-gated Dataverse download)
 and `lda_lobbying` (`partial_acquisition_in_progress`).
 
 ## Working affordances
@@ -79,15 +87,15 @@ and `lda_lobbying` (`partial_acquisition_in_progress`).
 | Affordance | What can actually be done | Boundary |
 | --- | --- | --- |
 | Acquire evidence at scale | `wm acquire` downloads complete sources — paged APIs, URL lists and bulk files — with resume, `Retry-After` handling, per-host rate limits, credentials read from `.env`, and sharded immutable raw artifacts | A stopped run publishes `complete: false` with a stop reason; three sources are blocked on account approval and two on interactive download. Budget exhaustion is a real outcome, not an error |
-| Budget the disk | One weighted max-min fair-share pool (`wm budget`), 5% ceiling per dataset, reconcilable against on-disk reality | 87.7 of 100 GiB is spent. The next large source displaces an existing one; there is no tiering or eviction policy |
-| Normalize into one ontology | 107 datasets publish typed entities, observations, assertions and events with units, dimensions, valid time and observed time | Normalization is per-dataset adapter code. Cross-source semantic equivalence of a metric name is an assertion by the adapter author, not a checked property |
+| Budget the disk | One weighted max-min fair-share pool (`wm budget`), 5% ceiling per dataset, reconcilable against on-disk reality | 90.0 of 100 GiB is spent. The next large source displaces an existing one; there is no tiering or eviction policy |
+| Normalize into one ontology | 113 datasets publish typed entities, observations, assertions and events with units, dimensions, valid time and observed time | Normalization is per-dataset adapter code. Cross-source semantic equivalence of a metric name is an assertion by the adapter author, not a checked property |
 | Audit claims and calculations | Exact input versions, raw artifact references, record locators, code snapshots, parameters and output checksums; `wm verify DATASET/stage` re-reads payload bytes | Verification proves bytes and references, never that an adapter's mapping is scientifically right |
 | Join across sources | Dated country/county/NAICS codes, total-conserving crosswalk apportionment, unit and currency conversion with dated rate/deflator series, deterministic identifier links and Fellegi-Sunter resolution with reviewable match assertions | Probabilistic match quality has only been measured on fictional data. Several crosswalk weight tables are acquisition declarations, not acquired files |
 | Keep conflicting accounts | Multiple descriptions of one entity coexist; beliefs carry retraction, staleness and unknown-versus-false | Source reliability priors are policy inputs, not calibrated posteriors |
 | Query the graph | Resolved neighborhoods, paths, degree centrality, PageRank and flow aggregation over an indexed projection | The unified graph is being rebuilt in this session; see [the unified graph guide](unified-graph.md) for its current contents and limits. Do not quote pre-rebuild edge counts |
 | Estimate parameters from data | OLS/WLS/2SLS with robust SEs, AR/ARIMA-lite/VAR, error-correction pass-through, hazard/logit, growth, PPML gravity, Kalman local level, SMM/ABC over existing simulators, block bootstrap | Reduced-form. Conditional forecasts use realized drivers; holdout skill does not identify an intervention response |
-| Validate a fit honestly | Pre-registered splits, knowledge cutoffs with vintage policy and leakage audits, rolling-origin backtests against naive baselines, proper scoring rules, Diebold-Mariano tests on a frozen holdout, immutable reports | 22 of 24 attempts fail. `calibration-status` re-derives the verdict rather than trusting the stored flag — and it should be used that way. All 50 validation reports re-verify; handed one of the 50 *estimate* artifacts it returns a misleading `does not match report_id` error |
-| Simulate | Coupled bank/firm/household economy, fields and transport, exposure clearing, routing, lifecycle, 11 political/market/geopolitical families and a multi-actor game layer | Parameters are assumptions unless a calibration report says otherwise, and for ten of eleven families none does |
+| Validate a fit honestly | Pre-registered splits, knowledge cutoffs with vintage policy and leakage audits, rolling-origin backtests against naive baselines, proper scoring rules, Diebold-Mariano tests on a frozen holdout, immutable reports | 24 of 33 current attempts fail. `calibration-status` re-derives the verdict rather than trusting the stored flag — and it should be used that way; `--all` re-verifies all 93 published validation reports and derives the headline counts. Handed one of the 93 *estimate* artifacts it returns an explicit "received an estimate" error |
+| Simulate | Coupled bank/firm/household economy, fields and transport, exposure clearing, routing, lifecycle, 11 political/market/geopolitical families and a multi-actor game layer | Parameters are assumptions unless a calibration report says otherwise, and for seven of eleven families none does (`assets`, `elections`, `legislative` and `monetary` have passing reports on the series they declared) |
 | Run at national synthetic scale | Named configurable limits (`worldmodel/limits.py`), optional numpy backend, measured wall time and peak RSS in [scale-benchmarks.md](scale-benchmarks.md) | Single process, single machine. No distributed or out-of-core execution, no GPU backend. Long-horizon figures are extrapolated from measured per-step throughput |
 
 ## Strategic questions and current coverage
@@ -111,30 +119,37 @@ into one consistent state, or that any model over them has been validated.
 | Mineral resource strategy | USGS MRDS and related (2.1M) | Legacy inventory; active operations, reserves, grades and permits are not in it |
 | Agriculture / food exposure | USDA NASS crops (7.5M), FAS PSD (919k), FAOSTAT (52.8M), Aqueduct | No field-level yields or input dependencies; water risk is a basin-level index |
 | Public procurement opportunity | USAspending contracts (107.0M) and assistance (76.2M), Federal Register (809k) | Solicitations, evaluation criteria and win models are absent; transaction records are not an opportunity pipeline |
-| Capital allocation / financing | SEC statements (50.9M), companyfacts (16.6M), market prices (11.5M), Alpaca daily bars (35.9M), FDIC call reports (8.1M), FRED/ALFRED panel (7.6M) | `assets_model` and `cash_balance` both fail their holdouts. Several price sources are licensed for internal use only |
-| Political / institutional exposure | Congress members (314k), Voteview roll calls (515k), BILLSTATUS (2.5M), congress.gov (31k), FEC master and itemized contributions (~16.2M), LDA lobbying (2.1M, partial), ParlGov, V-Dem (951k) | No influence panel is built; `legislative_model` and `market_abm_model` are declared but unrun on compute grounds; House district returns are gated |
+| Capital allocation / financing | SEC statements (50.9M), companyfacts (16.6M), market prices (11.5M), Alpaca daily bars (35.9M), FDIC call reports (8.1M), FRED/ALFRED panel (7.6M) | `assets_model` validates on real-time FX rates but fails on the Alpaca equity bars; `cash_balance` fails on all five issuers. Several price sources are licensed for internal use only |
+| Political / institutional exposure | Congress members (314k), Voteview roll calls (515k), BILLSTATUS (2.5M), congress.gov (31k), FEC master and itemized contributions (~16.2M), LDA lobbying (2.1M, partial), ParlGov, V-Dem (951k) | No influence panel is built on this branch; `legislative_model` validates on the 117th Senate (conditioning on a third of each roll call's votes) and `market_abm_model` fails on SPY |
 | Legal / regulatory feasibility | Federal Register (809k), HTS (63k), WITS TRAINS (1.8M), OFAC (228k), OpenSanctions (792k + 7.2M graph), other lists (355k) | Sanctions determination is declared non-estimable: it is a legal-rule question, not a fitted one. Permits, taxes and enforcement are absent |
-| International / geopolitical exposure | BACI, CEPII gravity (1.5M), WDI (9.0M), IMF (3.4M), OECD (1.5M), BIS (4.5M), ECB/Eurostat (16.4M), UCDP GED (575k), GDELT (17.0M), COW/NMC reference (129k) | `conflict_model` fails on all three criteria including revision leakage; `trade_model` is blocked on consecutive-year bilateral coverage; WTO awaits a key |
+| International / geopolitical exposure | BACI, CEPII gravity (1.5M), WDI (9.0M), IMF (3.4M), OECD (1.5M), BIS (4.5M), ECB/Eurostat (16.4M), UCDP GED (575k), GDELT (17.0M), COW/NMC reference (129k) | `conflict_model` fails on skill and revision leakage (its coverage was fixed in WS-E); `trade_model` is blocked on consecutive-year bilateral coverage; WTO awaits a key |
 | Environmental / physical-risk exposure | FEMA NRI (5.8M), NOAA storm events (5.7M) and nClimDiv (6.8M), GHCN daily (13.1M) and monthly (48.9M), IBTrACS (2.5M), USGS earthquakes (4.4M), OpenFEMA (2.8M) | EPA AQS is still downloading, so `field_diffusion_transport` cannot be estimated; hazard-to-asset vulnerability functions are absent |
 | Technology / innovation strategy | Crossref DoD-funded works (282k), OpenAlex institutions (192k), NASA feed (601) | No patents, assignments or adoption data |
 | Infrastructure / housing investment | ACS tables, Census geography, TIGER transport, OSM | No building or land inventory, condition, or project economics |
-| Macro consistency / calibration | FRED/ALFRED panel (7.6M, full real-time vintages), BEA NIPA (13.7M), BEA IO, Treasury debt (1.3M), WDI, IMF | `monetary_model` was the first validated process, joined on 2026-09-16 by `resource_inventory` and `elections_model`; its pass rests on forecast skill and interval calibration, not on credible structural coefficients (`phi_pi` = 0.38 does not satisfy the Taylor principle) |
+| Macro consistency / calibration | FRED/ALFRED panel (7.6M, full real-time vintages), BEA NIPA (13.7M), BEA IO, Treasury debt (1.3M), WDI, IMF | `monetary_model` was the first validated process, joined by `resource_inventory`, `elections_model`, `assets_model` and `legislative_model`; its pass rests on forecast skill and interval calibration, not on credible structural coefficients (`phi_pi` = 0.38 does not satisfy the Taylor principle) |
 
 ## What is still missing
 
 ### 1. Validation, not evidence
 
-Twenty-two of twenty-four pre-registered attempts fail. The failures are not a
-bookkeeping problem; they are the finding. `coupled_economy` needs nine components:
-seven fail and two have not been re-run against the corrected panel. Four components have
-no forecast skill at all against persistence. Interval coverage fails repeatedly because Gaussian intervals from
-in-sample residual scale are too narrow for fat-tailed series. `default_hazard` passes on
-a substitute series and fails on its declared primary series with the **opposite sign** on
-unemployment sensitivity — two attempts that disagree about the direction of a mechanism,
-which is a reason to trust neither.
+Twenty-four of the 33 current pre-registered attempts fail. The failures are not a
+bookkeeping problem; they are the finding. `coupled_economy` needs nine components and
+three pass, one only on a substituted series. **Fifteen current attempts have no
+demonstrated forecast skill against persistence**, which is now the most common failure.
+Interval coverage fails on nine, and it is no longer plausible that fat tails are the general
+reason: Student-t, empirical-quantile and split-conformal predictive distributions were
+pre-registered against every attempt failing coverage on 2026-09-18 and resolved none — the
+validation windows were too short to choose between them, or their regime reversed on the
+holdout, or the interval was wide because the point forecast was poor. `default_hazard` still
+passes only on a substitute series; its **opposite sign** on the declared credit-card series is
+now explained by what each delinquency series measures, not by units, lags or the sample
+window, and that explanation is a reason to re-think the declared series, not to trust either
+fit.
 
-Nothing in this repository should be described as a calibrated world model. One process
-meets its own criteria on one family of macro series.
+Nothing in this repository should be described as a calibrated world model. Five processes
+meet their own criteria: one monetary policy rule, one crude-inventory balance, one House
+election model, one FX daily-return model and one roll-call vote model — each on the one
+specification and series it declared.
 
 ### 2. A coherent joined state
 
@@ -175,7 +190,7 @@ author estimates, not measured value.
 ### 7. Operational scale and redundancy
 
 Single machine, single process. No scheduler, no incremental release management, no
-storage lifecycle policy, no second copy. 87.7 GiB of acquired raw data exists in exactly
+storage lifecycle policy, no second copy. 90.0 GiB of acquired raw data exists in exactly
 one place and is excluded from Git by design.
 
 ### 8. Redistribution
@@ -193,11 +208,17 @@ authorises republishing the acquired data.
 1. **Build one cross-domain panel that is currently blocked only on assembly.** The
    influence panel (LDA + FEC + Voteview) is the clearest case: every input is published
    locally and the component is blocked on the join, not on data.
-2. **Fix the interval problem before adding models.** Interval coverage is the single
-   most common failing criterion. Fat-tailed residuals need a distribution that admits
-   them, not another mechanism.
-3. **Resolve the `default_hazard` sign contradiction.** Re-specify, pre-register, and
-   keep both prior attempts visible.
+2. **Fix the selection protocol, not the interval family.** *(Revised 2026-09-18.)* This item
+   said to fix intervals with fat-tailed distributions; that was tried on every attempt failing
+   coverage and resolved none. The recurring failure is that a validation window's volatility
+   regime differs from the holdout's (`labor_demand` twice, `regional_model` once). Pre-register
+   a validation design that spans regimes, or a rule that penalizes validation-to-holdout
+   instability measured on earlier waves, before adding models.
+3. **Settle what `default_hazard` is meant to measure.** *(Revised 2026-09-18.)* The sign
+   contradiction is diagnosed (the delinquency series' definitions) and a business-loan attempt
+   was pre-registered and run; it fails on coverage. The declared credit-card series does not
+   match the firm-default mechanism the simulator hook implements, and that is a declaration
+   to revisit, openly, as a new registration.
 4. **Measure resolution quality on labelled real data.** Until then, every
    cross-source join through probabilistic matching carries unmeasured error.
 5. **Publish coverage statements per dataset** so a record count stops being read as
@@ -207,7 +228,8 @@ authorises republishing the acquired data.
 
 The first meaningful milestone remains a reproducible answer to a narrowly specified real
 decision, with evidence and limitations attached. The evidence bookkeeping for that is now
-genuinely in place. The validated behavioural content is one monetary policy rule.
+genuinely in place. The validated behavioural content is five narrow fits, each on its own
+declared series.
 
 ## Audit references
 

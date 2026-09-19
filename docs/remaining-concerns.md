@@ -1,8 +1,8 @@
 # Implementation and remaining empirical limits
 
 An experimental evidence and simulation substrate. Tests establish software contracts,
-not world coverage or predictive validity: the suite is 839 tests with 8 skips, and it
-passes while 22 of 24 estimation attempts fail their acceptance criteria.
+not world coverage or predictive validity: the suite is 1,268 tests (263 of them skip without the optional `agents` extra and local data payloads), and it passes while 24
+of the 33 current estimation attempts fail their acceptance criteria (verified 2026-09-18).
 
 [handoff-completion.md](handoff-completion.md) and [RESUME-PLAN.md](RESUME-PLAN.md) are
 historical records of the pre-acquisition state and are no longer current. The current
@@ -10,12 +10,16 @@ audit is [strategic-affordances-audit.md](strategic-affordances-audit.md).
 
 ## The main concern
 
-**Almost nothing here is empirically validated.** One of 22 registry processes
-(`monetary_model`) meets its own pre-registered acceptance criteria on real data. All
-eleven model families declare `validated: false`. `coupled_economy` needs nine
-components: seven fail and two have not been re-run against the panel. Four components
-have no forecast skill against a persistence baseline at all. See
-[calibration-status.md](calibration-status.md) for each attempt and its reason.
+**Almost nothing here is empirically validated.** Five of the 22 processes declared in
+`requirements.json` — `monetary_model`, `resource_inventory`, `elections_model`,
+`assets_model` and `legislative_model` — meet their own pre-registered acceptance criteria on
+real data, each on the specification and series it declared. Nine of 33 current attempts pass.
+All eleven model families' descriptors still say `validated: false`; validation comes only from
+a passing report. `coupled_economy` needs nine components and three pass, one only on a
+substituted series. Fifteen current attempts have no demonstrated forecast skill against a
+persistence baseline. See [calibration-status.md](calibration-status.md) for each attempt and
+its reason; the counts were re-derived from the published reports on 2026-09-18 with
+`wm calibration-status --all`.
 
 That is the honest recorded result, not an interim state waiting to be cleaned up. A
 simulation kernel that runs, conserves mass and reproduces its own reference
@@ -62,8 +66,9 @@ institution's legal lifecycle are distinct contracts.
 
 ## Evidence and coverage
 
-107 of 121 declarations publish a normalized stage, totalling about 1.31 billion records
-(36.9 GiB gzipped) built from 87.7 GiB of acquired raw data. All dataset-specific
+113 of 125 declarations publish a normalized stage, totalling about 1.56 billion records
+(48.5 GiB gzipped) built from 90.0 GiB of acquired raw data (re-counted 2026-09-18 from the
+latest normalized manifests and `wm budget`). All dataset-specific
 transformations live in each dataset directory; shared code provides parsing, provenance,
 graph and execution mechanics. Acquired artifacts are ignored by Git; tracked code and
 compact manifests make the work reproducible. Observations, source claims, reviewed
@@ -175,39 +180,51 @@ declared acceptance criteria pass for every required component.
 `estimation/requirements.json` lists the exact public series each component needs.
 
 This layer has now been run against the real catalog. [calibration-status.md](calibration-status.md)
-records 24 pre-registered attempts and 100 immutable report artifacts.
+records 61 pre-registered attempts (33 current, 28 superseded and kept) and
+`data/calibration_reports/` holds 186 immutable artifacts: 93 validation reports and 93
+estimates, including reruns and two reports from a track whose registrations are on another
+branch (counted 2026-09-18).
 
 Remaining limits:
 
-- **One validated process.** `monetary_model` passes every declared criterion;
-  `coupled_economy` needs nine components, seven of which fail and two of which have not
-  been re-run against the corrected panel. Everything else is
-  unvalidated. The passing monetary fit rests on forecast skill against persistence
-  (p = 0.059, against a 0.10 threshold) and well-calibrated intervals — **not** on
-  credible structural coefficients. Its fitted `phi_pi` of 0.38 does not satisfy the
-  Taylor principle.
-- **`default_hazard` contradicts itself.** The FDIC/LAUS substitute passes with
-  `unemployment_sensitivity` = +2.19; the declared primary FRED series fails with −1.26
-  and a persistence parameter of 1.0038 outside its declared [0, 1] bound. Two attempts
-  disagree about the sign of a mechanism. Neither should be trusted until the
-  specification is revisited, and the substitute's pass must not be read as validating
-  the declared component.
-- **Interval coverage is the most common failure.** Gaussian intervals built from
-  in-sample residual scale are too narrow for fat-tailed series. This is a specification
-  problem, not a data problem, and more data will not fix it.
-- **Two components and five families remain blocked on data** (`wm estimation-load`):
-  county PM2.5 with a topology (`epa_aqs_daily`, in flight), FAF OD distances, several
-  consecutive years of bilateral flows, House district returns, and an unbuilt
-  lobbying/contribution/roll-call panel. `sanctions_model` is non-estimable by
-  declaration: it is a legal-rule determination.
-- **Two attempts were never run** (`legislative_model.voteview`, `market_abm_model.alpaca`)
-  because the refit at every holdout origin exceeds the declared 30-minute budget. The
-  data for both is published locally.
-- **Many estimated parameters have no simulator hook yet** (pass-through speed,
-  default hazard, deposit/credit growth, labor elasticity, policy smoothing,
-  field sources/sinks, gravity demand). Their `hooks` entries in
-  `requirements.json` specify the change; none is implemented. An estimate with no hook
-  cannot influence a simulation even if it were validated.
+- **Five validated processes, each narrowly.** `monetary_model`, `resource_inventory`,
+  `elections_model`, `assets_model` and `legislative_model` pass every declared criterion on
+  the specification and series they declared; several have failing attempts beside them that
+  stay on the record. The passing monetary fit rests on forecast skill against persistence
+  (p = 0.059, against a 0.10 threshold) and well-calibrated intervals — **not** on credible
+  structural coefficients. The legislative pass conditions on a third of the chamber's votes on
+  the same roll call and pools member-votes that share roll calls. `coupled_economy` needs nine
+  components and three pass, one only on a substitute. Everything else is unvalidated.
+- **Skill, not intervals, is now the most common failure.** Fifteen of the 24 failing current
+  attempts do not beat persistence. Interval coverage fails on nine. Fat-tailed predictive
+  distributions — Student-t by maximum likelihood, empirical residual quantiles and rolling
+  split-conformal on pre-origin out-of-sample errors — were pre-registered against every attempt
+  failing coverage on 2026-09-18 and resolved none: where the tails were the issue, the
+  validation windows were too short to choose between methods, or the validation window's
+  regime reversed on the holdout (`labor_demand`, for the second time), and where they were not,
+  the interval was wide because the point forecast was poor. **Selection on a validation window
+  is only as good as that window's coverage of the holdout's regimes**; that is the protocol
+  finding to act on, and no rule that fixes it has been pre-registered yet.
+- **`default_hazard` still does not validate, and the sign flip is explained.** The FDIC
+  substitute passes with `unemployment_sensitivity` = +2.12/+2.19; the declared credit-card
+  series fails with −1.26 and persistence 1.0038. Units, lags and the sample window were ruled
+  out; the cause is what each series measures (card delinquency is purged by charge-off and
+  falls while unemployment is high; the FDIC noncurrent stock tracks its level). A business-loan
+  re-specification, closer to the firm-default mechanism the hook implements, beats persistence
+  and fails on coverage. See [research-log/default-hazard-sign.md](research-log/default-hazard-sign.md).
+- **Two components and two families remain blocked on data** (`wm estimation-load`):
+  county PM2.5 with a topology (`epa_aqs_daily`), FAF OD distances, several consecutive years of
+  bilateral flows (`trade`), and an unbuilt lobbying/contribution/roll-call panel (`influence`,
+  being built on another track). `sanctions_model` is non-estimable by declaration: it is a
+  legal-rule determination.
+- **The two attempts recorded `not_run` have run.** The compute-budget reason was never
+  measured — neither family had a loader. `legislative_model.voteview` ran in 70 s and passes;
+  `market_abm_model.alpaca` ran in 106 s and fails four criteria.
+- **Simulator hooks bind estimates by declared assumption.** Every component with a `hooks`
+  entry in `requirements.json` (ten) now declares `hook_status: implemented`, so an estimate can
+  reach a simulation, but the mapping from quarterly or monthly coefficients to daily mechanisms
+  is an assumption (`period_days` cadences), and binding an estimate that failed its holdout is
+  not prevented by the hook — only by `registry.calibrated_parameters(require_validated=True)`.
 - **Estimates are reduced-form.** Conditional forecasts use realized drivers, and
   holdout skill does not identify intervention responses. Identification labels
   (`correlational`, `predictive_association`, `descriptive_time_series`) are part of the
@@ -229,7 +246,7 @@ through provenance; a derived artifact does not erase upstream obligations. Whee
 bundle declarations, transformation code and fictional fixtures, not acquired data
 or credentials. Standalone views make no hidden network requests.
 
-**Redistribution is restricted and the restriction now has teeth.** 75 of the 107
+**Redistribution is restricted and the restriction now has teeth.** 81 of the 113
 published datasets carry `redistribution_review_required` in their manifest rights block.
 At least 25 carry a source term that restricts redistribution or commercial use outright:
 
@@ -250,9 +267,9 @@ between the terms of two inputs that were joined.
 
 ### Storage durability
 
-87.7 GiB of acquired raw data and 36.9 GiB of normalized output exist in exactly one
+90.0 GiB of acquired raw data and 48.5 GiB of normalized output exist in exactly one
 place, on one machine, excluded from Git by design. There is no second copy, no backup
-policy and no storage lifecycle management. The fair-share pool is 100 GiB and 87.7 GiB
+policy and no storage lifecycle management. The fair-share pool is 100 GiB and 90.0 GiB
 of it is spent, so the next large acquisition displaces an existing one; there is no
 tiering or eviction policy to decide which.
 
@@ -300,7 +317,7 @@ Remaining scale concerns:
   retry queue, no incremental release management and no way to resume a partially built
   catalog other than rerunning `wm acquire ... --resume` per dataset.
 * Building a dataset re-reads and re-hashes bytes at several pipeline boundaries. A full
-  rebuild of the catalog is an I/O-bound operation on ~88 GiB of raw input and has not
+  rebuild of the catalog is an I/O-bound operation on ~90 GiB of raw input and has not
   been timed end to end.
 
 ## Grounded cognitive agents
