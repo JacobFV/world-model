@@ -268,9 +268,16 @@ GEO_ENTITY_IDS = (
 )
 
 
+GEO_PREFIXES = ('geo:', 'iso3:', 'iso3166-2:')
+
+
 def geo_entity_id_claim(entity_id):
-    """The ``(namespace, value)`` a geographic entity ID publishes, or ``None``."""
-    if not isinstance(entity_id, str):
+    """The ``(namespace, value)`` a geographic entity ID publishes, or ``None``.
+
+    The prefix test comes first because this runs on every entity record of every dataset, and
+    all but a few hundred thousand of the catalog's ten million of them fail it immediately.
+    """
+    if not isinstance(entity_id, str) or not entity_id.startswith(GEO_PREFIXES):
         return None
     for namespace, pattern in GEO_ENTITY_IDS:
         match = pattern.fullmatch(entity_id)
