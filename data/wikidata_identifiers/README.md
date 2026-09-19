@@ -126,7 +126,7 @@ counted, and `unify-resolve --no-bridges` turns the whole layer off. See
 
 ## What was acquired
 
-115 pages, 2 h 50 min, 43,169,561 raw bytes; **every one of the 31 properties came back at exactly
+115 pages, 1 h 51 min, 43,169,561 raw bytes; **every one of the 31 properties came back at exactly
 the statement count measured against the service at declaration time**. The output is 941,219
 records: 425,289 entities and 515,930 statements, of which 396,695 become identity claims, 117,610
 are the four refused properties and 1,625 fail a shape or check digit. The measured before/after is

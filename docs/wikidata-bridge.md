@@ -47,7 +47,7 @@ Three properties of that query are what make it an acquisition rather than a scr
 * Every property is followed by at least one deliberately **empty page**, which is what makes
   "the property ended here" distinguishable from "this response was cut short".
 
-115 requests, 2 h 50 min at one request per five seconds with `Retry-After` honoured, 43,169,561
+115 requests, 1 h 51 min at one request per five seconds with `Retry-After` honoured, 43,169,561
 bytes (43,361,124 on disk). The declaration asked for 250,000,000, which was the pre-acquisition
 estimate with ORCID headroom in it; the fair-share pool was never a constraint, and the next
 declaration should ask for the ~80 MB this actually needs.
