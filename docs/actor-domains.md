@@ -150,10 +150,26 @@ than LightGBM's but not significantly so, which is the same shape as the actors 
 
 ## Registered attempts
 
-| Attempt | Domain | Test blocks | Own-rate baseline | Status |
+| Attempt | Domain | Test blocks | Own-rate baseline | Result |
 | --- | --- | --- | --- | --- |
-| `actors.fec_repeat_contribution_v1` | fec | 2016, 2018, 2020, 2022 cycles | `giver_repeat_rate` | ready to queue |
-| `actors.fdic_bank_distress_v1` | fdic | 2021–2024, by year | `bank_rate` | ready to queue |
+| `actors.fec_repeat_contribution_v1` | fec | 2016, 2018, 2020, 2022 cycles | `giver_repeat_rate` | **fail**, `embedding_reports@21cde180` |
+| `actors.fdic_bank_distress_v1` | fdic | 2021–2024, by year | `bank_rate` | **fail**, `embedding_reports@eff4681d` |
+
+Both ran on 2026-09-18 and neither is validated
+([world-state embeddings](world-state-embeddings.md#results) has the numbers):
+
+* **Contributions**, 32,000 pairs, base rate 0.433: Brier 0.18774 against 0.24587 for the base rate
+  and 0.23040 for the giver's own repeat rate, and 0.18704 for LightGBM on the same features.
+  `beats_gbdt_dm` fails (p = 0.99), the expected calibration error is 0.0335 against a declared
+  0.02, and `no_revision_leakage` fails.
+* **Bank distress**, 74,411 bank-quarters, base rate 0.0222: Brier 0.019509 against 0.021758 for the
+  base rate, 0.022471 for the bank's own rate and 0.019558 for LightGBM. This is the one actor
+  domain where the embedding is *ahead* of LightGBM, and not significantly (p = 0.21), so
+  `beats_gbdt_dm` still fails; `no_revision_leakage` fails too.
+
+The registrations originally carried an `allow_series` exemption on `no_revision_leakage`, since
+neither publisher marks amendments. The exemption was removed before either attempt ran: an attempt
+does not weaken a criterion, it fails it and says why.
 
 Both use the same three candidates as `actors.13f_exit_increase_v2` — `root_readout`,
 `gbdt_plus_self_supervised_embedding`, `gbdt_plus_crossfit_encoder` — the same criteria plus the
