@@ -28,9 +28,9 @@
  },
  "acquisition": {
   "strategy": "url_list",
-  "description": "One FRED API series/observations request per configured county series (31,452: population 3,139; per_capita_personal_income 3,134; personal_income 3,134; gdp 3,113; real_gdp 3,113; private_establishments 3,142; laus_unemployment_rate 3,233; laus_unemployed 3,148; laus_employed 3,148; laus_labor_force 3,148), each over the full real-time window 1776-07-04..9999-12-31 so every ALFRED vintage comes back as [realtime_start, realtime_end] spans. Series and their county codes are discovered by build_config.py from FRED release catalogues and GeoFRED; the series_id list here must equal config.json (build_config.py --emit-parameters regenerates it). A series FRED does not archive answers 400 \"does not exist in ALFRED\" and is recorded as skipped. desired_bytes is the sampled size estimate plus 25% margin.",
+  "description": "One FRED API series/observations request per configured county series (31,452: population 3,139; per_capita_personal_income 3,134; personal_income 3,134; gdp 3,113; real_gdp 3,113; private_establishments 3,142; laus_unemployment_rate 3,233; laus_unemployed 3,148; laus_employed 3,148; laus_labor_force 3,148), each over the full real-time window 1776-07-04..9999-12-31 so every ALFRED vintage comes back as [realtime_start, realtime_end] spans. Series and their county codes are discovered by build_config.py from FRED release catalogues and GeoFRED; the series_id list here must equal config.json (build_config.py --emit-parameters regenerates it). A series FRED does not archive answers 400 \"does not exist in ALFRED\" and is recorded as skipped. desired_bytes is 800 MiB: the sampled size estimate is 500 MiB and the first 1,863 shards measured 21.4 KiB each, which extrapolates to 642 MiB.",
   "documentation": "https://fred.stlouisfed.org/docs/api/fred/series_observations.html",
-  "desired_bytes": 671088640,
+  "desired_bytes": 838860800,
   "min_bytes": 0,
   "priority": 3.0,
   "url_template": "https://api.stlouisfed.org/fred/series/observations?series_id={series_id}&realtime_start=1776-07-04&realtime_end=9999-12-31&file_type=json&limit=100000&sort_order=asc&offset=0",
