@@ -2,8 +2,8 @@
   "id": "mit_election_returns",
   "schema_version": 2,
   "kind": "source",
-  "status": "partial_manual_download_required",
-  "description": "MIT Election Data + Science Lab returns: state-level U.S. President and U.S. Senate 1976-2024 (scripted); county presidential 2000-2024 and U.S. House 1976-2024 require a Dataverse guestbook response and are manual imports",
+  "status": "complete_partial_scope",
+  "description": "MIT Election Data + Science Lab returns: U.S. President 1976-2024 and U.S. Senate 1976-2024 at state level, U.S. House 1976-2024 at district level, and county presidential returns 1976-2024 (measured 2026-09-19: 119,829 county records, 54,979 state records). The Dataverse guestbook files that once blocked the House and county returns have been acquired; what remains out of scope is anything MEDSL publishes below county level.",
   "source": {
     "publisher": "MIT Election Data and Science Lab (Harvard Dataverse)",
     "documentation": "https://electionlab.mit.edu/data",

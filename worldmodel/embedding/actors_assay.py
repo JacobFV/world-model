@@ -179,9 +179,14 @@ def gbdt_features(tasks, singles, groups):
     x = np.where(tasks.m.astype(bool), tasks.x.astype(np.float32), np.nan)
     S = x.shape[0]
     blocks = [x[:, i] for i in singles]
-    with np.errstate(all='ignore'):
-        for lo, hi in groups:
-            blocks.append(np.nanmean(x[:, lo:hi], axis=1))
+    for lo, hi in groups:
+        # A sample whose whole neighbour group is absent has no mean; nanmean would warn and return nan,
+        # which is what LightGBM should see, so compute it without the warning.
+        group = x[:, lo:hi]
+        present = np.isfinite(group)
+        count = present.sum(axis=1)
+        total = np.where(present, group, 0.0).sum(axis=1)
+        blocks.append(np.where(count > 0, total / np.maximum(count, 1), np.nan))
     return np.concatenate([b.reshape(S, -1) for b in blocks], axis=1)
 
 
