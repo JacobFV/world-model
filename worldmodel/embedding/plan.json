@@ -1276,6 +1276,154 @@
           "revision_leakage_possible": false
         }
       }
+    },
+    {
+      "id": "actors.13f_new_position_v1",
+      "north_star": "Actors, on the task a per-pair model cannot cheat: does the encoder beat a gradient-boosted model when the query pair has no history and only graph structure separates candidates?",
+      "input": {
+        "dataset": "sec_13f_history",
+        "stage": "normalized",
+        "version": "94be7bc75fe7bd35c8b212eb9bc64e31832c8616a5061b6c0471037986d32cdc"
+      },
+      "targets": [
+        "opens"
+      ],
+      "protocol": {
+        "history": 4,
+        "k": 12,
+        "per_quarter": 8000,
+        "per_manager": 8,
+        "first_origin_quarter": "2014-03-31",
+        "standardize_through": "2018-12-31",
+        "blocks": [
+          [
+            "2019-03-31",
+            "2020-12-31"
+          ],
+          [
+            "2021-03-31",
+            "2021-12-31"
+          ],
+          [
+            "2022-03-31",
+            "2022-12-31"
+          ],
+          [
+            "2023-03-31",
+            "2023-12-31"
+          ],
+          [
+            "2024-03-31",
+            "2024-12-31"
+          ]
+        ]
+      },
+      "candidates": {
+        "root_readout": {
+          "seed_only": false
+        },
+        "gbdt_plus_self_supervised_embedding": {
+          "kind": "gbdt_plus_self_supervised_embedding",
+          "components": 32
+        },
+        "gbdt_plus_crossfit_encoder": {
+          "kind": "gbdt_plus_crossfit_encoder"
+        }
+      },
+      "baselines": [
+        "historical_mean",
+        "security_entry_rate",
+        "gbdt"
+      ],
+      "config": {
+        "d": 128,
+        "layers": 3,
+        "slots": 16,
+        "passes": 12,
+        "top_k": 16,
+        "out_dim": 1024,
+        "epochs": 3,
+        "batch": 512,
+        "lr": 0.001,
+        "weight_decay": 0.0001,
+        "dense_fraction": 0.3,
+        "gumbel": 0.5,
+        "mask_rate": 0.15,
+        "recon_weight": 0.3,
+        "calibration_quarters": 2,
+        "seed": 0
+      },
+      "gbdt": {
+        "n_estimators": 600,
+        "learning_rate": 0.03,
+        "num_leaves": 63,
+        "min_child_samples": 100,
+        "subsample": 0.8,
+        "subsample_freq": 1,
+        "colsample_bytree": 0.5,
+        "n_jobs": 8,
+        "random_state": 0,
+        "verbose": -1
+      },
+      "criteria": [
+        {
+          "id": "minimum_test_forecasts",
+          "type": "min_forecasts",
+          "minimum": 12
+        },
+        {
+          "id": "beats_base_rate_dm",
+          "type": "diebold_mariano",
+          "baseline": "historical_mean",
+          "loss": "squared",
+          "max_pvalue": 0.1,
+          "require_lower_loss": true
+        },
+        {
+          "id": "beats_gbdt_dm",
+          "type": "diebold_mariano",
+          "baseline": "gbdt",
+          "loss": "squared",
+          "max_pvalue": 0.1,
+          "require_lower_loss": true
+        },
+        {
+          "id": "brier_skill_positive",
+          "type": "brier_skill",
+          "minimum": 0.0
+        },
+        {
+          "id": "expected_calibration_error_within_2pp",
+          "type": "calibration_error",
+          "measure": "expected_calibration_error",
+          "maximum": 0.02
+        },
+        {
+          "id": "no_timing_leakage",
+          "type": "leakage_audit"
+        },
+        {
+          "id": "no_revision_leakage",
+          "type": "revision_leakage"
+        }
+      ],
+      "extra_criteria": {
+        "opens": [
+          {
+            "id": "beats_security_entry_rate_dm",
+            "type": "diebold_mariano",
+            "baseline": "security_entry_rate",
+            "loss": "squared",
+            "max_pvalue": 0.1,
+            "require_lower_loss": true
+          }
+        ]
+      },
+      "rationale": "Six scored attempts say a gradient-boosted model on the same subgraph matches or beats the encoder, and that adding the embedding to it does not help. Every one of those tasks hands the forecaster the query pair's own history, which is exactly what a tabular model consumes best. This attempt removes it: the sample is a (manager, security) pair the manager does not hold, so the query node is empty and the only thing separating a candidate from its alternatives is the structure around it -- who holds the security, what the manager holds, and whether those two neighbourhoods meet through a two-hop path. If attention over a subgraph is worth more than fixed neighbour means anywhere in this catalog, it is worth more here. The same three candidates and the same criteria as actors.13f_exit_increase_v2 are used so the two are directly comparable.",
+      "expected_limits": "The base rate is a property of the declared candidate sampling (four negatives per positive, half from a two-hop co-holding walk and half drawn by popularity), measured at 0.21; it is not the rate at which managers open positions in the world, and a different negative pool would move every score. Negatives from the co-holding walk are deliberately hard, which lowers every forecaster's skill and is the point. A 13F opening is not necessarily a purchase: a position can cross the reporting threshold, be transferred, or be reclassified. Samples are conditioned on the manager filing again next quarter. Compute budget 120 minutes, alone on the GPU.",
+      "compute_budget_minutes": 120,
+      "domain": "13f_link",
+      "host": "gb10-direct, alone on its GPU"
     }
   ],
   "not_run": [
