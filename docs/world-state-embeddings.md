@@ -226,7 +226,7 @@ about; and a past match does not mean the query county will follow that county's
 | `actors.13f_exit_increase_v1` | **fail** (both tasks) | beats the base rate, loses to LightGBM; see below |
 | `actors.13f_exit_increase_v2` | **fail** (both tasks) | the embedding adds nothing to LightGBM; see below |
 | `actors.votes_party_defection_v1` | **fail** | same pattern as 13F: beats the base rate and the member's own rate, does not beat LightGBM |
-| `actors.fec_repeat_contribution_v1` | queued | will a committee give to the same recipient again next cycle |
+| `actors.fec_repeat_contribution_v1` | **fail** | beats the base rate and the giver's own repeat rate; loses to LightGBM; misses the calibration criterion |
 | `actors.fdic_bank_distress_v1` | queued | will a bank's noncurrent ratio cross 3%, or deposits fall over 10% |
 
 ## What the embedding is worth so far
@@ -293,6 +293,25 @@ validation. Wall clock 64 minutes on the dedicated GB10, peak GPU 6.1 GiB.
   panel can pass, whatever its skill.
 * The graph helps: the seed-only encoder was worse on validation for every target
   (0.00386 against 0.00422 for employment).
+
+### actors.fec_repeat_contribution_v1
+
+Published `embedding_reports@21cde180`. 32,000 (giver, recipient, cycle) pairs in the 2016-2022
+cycles, base rate 0.433.
+
+| | Brier |
+| --- | ---: |
+| LightGBM + cross-fitted encoder (selected) | 0.18774 |
+| LightGBM | **0.18704** |
+| the giver's own repeat rate | 0.23040 |
+| training base rate | 0.24587 |
+
+Brier skill 0.236 over the base rate and a decisive win over the giver's own repeat rate, and again
+no win over LightGBM (p = 0.99). Two further criteria fail: expected calibration error 0.0335
+against the declared 0.02, and `no_revision_leakage`, because the FEC bulk release carries no
+per-transaction filing date, so same-cycle amendments cannot be excluded. That failure is now
+recorded rather than excused: the registration's original exemption for it was removed before the
+attempt ran.
 
 ### actors.votes_party_defection_v1
 
