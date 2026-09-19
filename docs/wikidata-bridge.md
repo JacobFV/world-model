@@ -562,9 +562,23 @@ become if it does not.
    provenance for a fifth of a point. It is reopened only if the publisher's own service becomes
    able to page P496, or if a second `orcid:`-keyed publisher enters the catalog and makes the
    partner side worth more than 20,334.
-2. **Rebuild the index and attach.** The scope measurement is only realised once
-   `data/world_evidence/index.sqlite` holds the new entity records; until then the bridge is worth
-   the +5,386 in the index measurement rather than the +215,062 in the scope measurement.
+2. **Rebuild the index and attach - done 2026-09-19, and the scope measurement was right.** The
+   index was rebuilt over 112 datasets (1,138,520,492 records read, 126,880,144 indexed, 139 GB,
+   86 minutes) and `unify-resolve` attached over the whole of it in 48.4 minutes at 1.24 GiB peak
+   RSS. Measured on the index's own resolved table, entities joined across two datasets go from
+   **3.66% to 5.806%** and across two publishers from **2.44% to 4.69%**; **116,677** of this
+   dataset's 425,289 entity records (27.4%) meet a second publisher, and `sec_gleif` +
+   `wikidata_identifiers` is now the third-largest cluster shape in the catalog at 50,336 groups,
+   with `openalex_people` + `wikidata_identifiers` adding 11,881. The +5,386 figure is superseded:
+   it measured a bridge whose data the index did not hold. See
+   [identity-coverage.md](identity-coverage.md#measured-again-on-the-rebuilt-index-2026-09-19).
+
+   One consequence needs reading with care rather than celebrating. The sanctions -> LEI -> SEC
+   filer leg of graph query 1, zero in every previous run, is now **99** clusters - and **all 99**
+   hold together only because a `wikidata:` member bridges the LEI to the CIK, while **1** of them
+   carries an actual designation rather than an ownership or politically-exposed-person record.
+   GLEIF still publishes no SEC registration authority for any of the 1,928 sanctions-published
+   LEIs. The query prints both breakdowns now, because 99 without them is a claim nobody checked.
 3. **The `gb`-only OpenCorporates restriction is a register question, not a Wikidata one.** 570,000
    more OpenCorporates statements are one query away, and each one carries a jurisdiction code and
    that register's own number. They become joins the moment this catalog acquires a second national

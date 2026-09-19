@@ -43,8 +43,13 @@ Three layers added on 2026-09-18 each end in the same place, and each says so in
   five failed diagnostics, and a power suite showing every design underpowered against its own
   registered plausible effect. No intervention response is identified anywhere in this repository.
 * **Identity.** Mining every published bridge moved cross-source joins from 3.17% to 3.66% of
-  entities ([identity coverage](identity-coverage.md)). The ceiling is structural: 2.3 million
-  entities are records-as-entities that no second publisher describes.
+  entities; acquiring Wikidata's identifier statements and rebuilding the index over them moved it
+  to **5.81%** of 9.18 million, and 4.69% across two publishers
+  ([identity coverage](identity-coverage.md)). That is the largest single move the number has made
+  and it is still a fourteenth of the 25% the north star asks for. The ceiling is structural: 2.3
+  million entities are records-as-entities that no second publisher describes, and the hub that
+  produced the gain carries 27.4% of its own records into the joined set while leaving 94% of the
+  graph single-sourced.
 
 The decision layer ([decision layer](decision-layer.md)) makes the consequence explicit: its policy
 learner refuses to run on any mechanism that is not validated, and on the one process where it is

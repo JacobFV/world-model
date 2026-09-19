@@ -54,7 +54,8 @@
    "ofac:party:17248",
    "opensanctions:NK-T3oRNWY3XhL72vfsVMcXzX",
    "uk:sanctions:RUS3094",
-   "us_csl:17248"
+   "us_csl:17248",
+   "wikidata:Q329347"
   ],
   "corporate_group_edges": [
    {
@@ -691,10 +692,12 @@
   ]
  },
  "counts": {
-  "clusters_joining_a_sanctions_listing_to_an_lei": 1894,
-  "clusters_joining_an_lei_to_an_sec_cik": 617,
-  "clusters_joining_all_three": 0,
-  "sanctions_linked_leis_reaching_a_13f_named_security": 170,
+  "clusters_joining_a_sanctions_listing_to_an_lei": 1897,
+  "clusters_joining_an_lei_to_an_sec_cik": 2315,
+  "clusters_joining_all_three": 99,
+  "all_three_clusters_whose_listing_is_a_designation": 1,
+  "all_three_clusters_holding_together_through_wikidata": 99,
+  "sanctions_linked_leis_reaching_a_13f_named_security": 169,
   "clusters_whose_listing_is_on_a_designation_list": 341,
   "designation_list_leis_reaching_a_13f_named_security": 3,
   "issuers_whose_securities_bridged_isin_to_cusip": 6085,
@@ -702,7 +705,7 @@
   "securities_issued": 7,
   "holdings_found": 24
  },
- "where_the_evidence_runs_out": "The holder leg fires through the *security*, not through the filer. 1894 clusters join a sanctions listing to a GLEIF LEI and 170 of those LEIs issue a security that the 13F information tables also name (GLEIF publishes the ISIN, the 13F tables publish the CUSIP, and ISO 6166 makes them the same instrument), so institutional holdings are reachable. The filer leg does not fire: 617 clusters join an LEI to an SEC CIK and 0 join all three. That is not an extraction gap. Measured on the published golden copy, the LEIs that sanctions publishers name and the LEIs whose GLEIF registration authority is the SEC are two disjoint populations: zero of 1,928 sanctions-published LEIs carry an SEC EDGAR registration-authority entity ID, because a US entity on a sanctions or ownership list is a state-registered company (546 of 1,927 are Russian, 139 carry a Delaware file number) rather than an SEC registrant. Sharper still: 341 of these clusters carry a listing from an actual designation list (OFAC SDN, the UK and UN lists, the US Consolidated Screening List) and 3 of those reach a security the 13F tables name, so the anchor chosen above is an ownership or politically-exposed-person record rather than a designation.",
+ "where_the_evidence_runs_out": "The holder leg fires through the *security*, not through the filer. 1897 clusters join a sanctions listing to a GLEIF LEI and 169 of those LEIs issue a security that the 13F information tables also name (GLEIF publishes the ISIN, the 13F tables publish the CUSIP, and ISO 6166 makes them the same instrument), so institutional holdings are reachable. The filer leg: 2315 clusters join an LEI to an SEC CIK and 99 join all three. It is no longer empty, and the breakdown is what the number means: 1 of the 99 carry a listing from an actual designation list rather than an ownership or politically-exposed-person record, and 99 hold together only because a wikidata: member bridges the LEI to the CIK -- a community assertion, not a registration authority. GLEIF itself still publishes no SEC EDGAR registration-authority entity ID for any of the 1,928 sanctions-published LEIs. Sharper still: 341 of the listing-to-LEI clusters carry a listing from an actual designation list (OFAC SDN, the UK and UN lists, the US Consolidated Screening List) and 3 of those reach a security the 13F tables name.",
  "which_dataset_supplied_which_edge": {
   "sanctions listing and its published LEI": "ofac_sanctions / other_sanctions_lists / opensanctions",
   "listing <-> LEI identity": "asserted: both sides publish the same LEI value (unify-resolve)",

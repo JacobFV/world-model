@@ -1,15 +1,18 @@
 # Identity coverage: how much of the graph is joined, and why not more
 
-The unified index holds 9,925,686 entity records under **8,590,782 distinct entity IDs**. A
+The unified index holds 10,687,168 entity records under **9,177,244 distinct entity IDs**. A
 cross-domain query, the influence panel or a graph-embedding model can use an entity as a bridge
 only if evidence about it comes from **more than one dataset**. This page measures that share
 before and after mining every asserted crosswalk the published records carry, says where the joins
 come from, and says what blocks the rest.
 
 The north-star target was **at least 25% of entities joined across at least two sources**.
-Asserted identity does not reach it: the measured answer is **3.17% before and 3.66% after**, and
-the sections below show exactly which populations the remaining 96% are and why no published
-identifier joins them.
+Asserted identity does not reach it. The measured answer moved twice: **3.17%** before any bridge
+was mined, **3.66%** after mining every published bridge, and **5.81%** once the index was rebuilt
+so that it holds the Wikidata identifier records the bridge reads
+([the rebuilt-index measurement](#measured-again-on-the-rebuilt-index-2026-09-19)). The sections
+below show exactly which populations the remaining 94% are and why no published identifier joins
+them.
 
 > Everything here is **asserted identity**: published `same_as` rows, identifiers a publisher
 > printed, and published crosswalk fields. No name is matched. Name matching was measured
@@ -81,6 +84,62 @@ The last row is the shape of the problem: 2.3M of the index's entities are *reco
 an EIA series, a Federal Register document, an IRS county-to-county flow, an MRDS occurrence, a
 lobbying filing, a rail node. No second publisher describes them, and none ever will.
 
+## Measured again on the rebuilt index (2026-09-19)
+
+The two measurements above were taken on an index built before the Wikidata identifier dataset
+existed, so the bridge could read Wikidata's claims but the index held none of its entity records.
+`wikidata-bridge.md` filed that as follow-up #2: until the index was rebuilt, the bridge was worth
+the +5,386 it moved *in the index* rather than the +215,062 it moved over the resolution's scope.
+The index was rebuilt on 2026-09-19 — 112 datasets selected, 1,138,520,492 records read,
+**126,880,144 indexed** (10,687,168 entity records, 34,471,880 assertions, 62,719,625 observations,
+19,001,471 events), 139 GB, 86 minutes — and `unify-resolve` then attached over the whole of it in
+**48.4 minutes at 1.24 GiB peak RSS**, reading 11,393,472 identifier claims. The six datasets that
+earlier runs had to pass `--exclude` for are in the index now, so this is the first measurement over
+the default scope with nothing excluded.
+
+| | before any bridge | after mining bridges (old index) | **rebuilt index** |
+| --- | ---: | ---: | ---: |
+| distinct entity IDs | 8,590,782 | 8,590,782 | **9,177,244** |
+| clusters | 28,008 | 49,705 | **148,123** |
+| entity IDs in a cluster | 53,507 | 100,488 | **318,851** |
+| **joined across ≥2 datasets** | 272,127 (3.17%) | 314,178 (3.66%) | **532,823 (5.81%)** |
+| of which joined by a shared entity ID alone | 233,568 (2.72%) | 233,568 (2.72%) | 239,722 (2.61%) |
+| joined across ≥2 **publishers** | 163,726 (1.91%) | 209,335 (2.44%) | **430,551 (4.69%)** |
+| joined counting *mentions* | 2,150,200 (25.03%) | 2,174,915 (25.32%) | 2,369,981 (25.82%) |
+| mentions, ≥2 publishers | 194,601 (2.27%) | 222,894 (2.59%) | **453,530 (4.94%)** |
+
+**Read the denominator before reading the gain.** The entity population grew by 586,462 because the
+index now holds datasets it did not hold before, 425,289 of them Wikidata's own entity records. Of
+the +218,645 newly joined entities, **116,677 are Wikidata's own** — 27.4% of the records that
+dataset published, every one of them joined to a second *publisher*. The rest are entities that
+already existed and now meet a second dataset, mixed with whatever the newly indexed datasets
+brought; those two are not separated here, and this page does not claim a split it did not measure.
+
+What the number does establish is that the two routes to it now agree. Measuring the index's
+resolved table gives **5.806%** over 9,177,244 entity IDs; a `unify-resolve --no-attach` pass over
+the dataset records, run a few hours earlier with the six then-unindexed datasets excluded, gave
+**5.821%** over 9,048,525. The gap follow-up #2 named — a bridge worth +5,386 in the index against
++215,062 over the resolution's scope — is closed, and the index is worth what the scope measurement
+said it was.
+
+By domain, the spread is as wide as ever, and it is the same story as before — places join, firms
+and people do not:
+
+| Domain | entities | joined | share |
+| --- | ---: | ---: | ---: |
+| `macro` | 132,150 | 95,069 | **71.9%** |
+| `demographics` | 1,064,485 | 345,974 | **32.5%** |
+| `energy_trade` | 2,590,330 | 219,804 | 8.5% |
+| `companies` | 3,944,093 | 177,460 | 4.5% |
+| `transport` | 630,206 | 26,843 | 4.3% |
+| `politics` | 731,100 | 27,738 | 3.8% |
+
+The pairs that carry the gain are visible in the top cluster shapes: `sec_gleif` + `wikidata_identifiers`
+is now the third-largest at **50,336** groups, and `openalex_people` + `wikidata_identifiers` adds
+**11,881** — the two joins the bridge was acquired for. The largest shape is still four Census-family
+datasets over the same county (83,059 groups), which is agreement between products of one publisher,
+not independent confirmation.
+
 ## The bridges, and what each one is read from
 
 Every row is a field a publisher prints. `unify-resolve --no-bridges` turns the whole layer off.
@@ -113,9 +172,11 @@ The previous resolution merged on those INN and OGRN values; the new one does no
 `opensanctions`-only clusters fall from 583 to 122 and `lei`+`opensanctions` from 1,634 to 1,553.
 Those were wrong merges, not lost joins.
 
-## What blocks the remaining 96%
+## What blocks the remaining 94%
 
-The unjoined 8,276,604 entity IDs are not a backlog of unmined crosswalks. Measured:
+The unjoined 8,644,421 entity IDs are not a backlog of unmined crosswalks. The table below was
+measured on the pre-rebuild index, where the unjoined count was 8,276,604; the rebuild moved the
+total and the shares above, and changed none of these blockers. Measured:
 
 | Blocker | Entities | Evidence |
 | --- | ---: | --- |
@@ -126,10 +187,13 @@ The unjoined 8,276,604 entity IDs are not a backlog of unmined crosswalks. Measu
 | **No published crosswalk exists** | 104k FDIC entities, 152k 13F CIK/CUSIP entities, 70k AIS vessels, 30k HTS codes | Measured in [unified-graph.md](unified-graph.md): no GLEIF registration authority is the Federal Reserve (best numeric overlap 646 of 31,564, coincidence), and no FDIC certificate maps to a CIK or LEI anywhere in the catalog |
 | **The publisher names no register** | 29,128 OpenSanctions `registrationNumber` and 121,134 `taxNumber` values with no country | Typing a bare number by guessing its register is inference, not a published identifier. The UK list's *labelled* free text is read precisely because the label names the register |
 
-What would actually move the number: a **person and company register with global coverage**
-(Wikidata's QIDs are the only cross-domain identifier in the catalog, and only 2,008 of 486,342 of
-them meet a second publisher), or **indexing the bulk registers and accepting their own unjoined
-mass**. Neither is an extraction gap that better matching would close.
+What would actually move the number: a **person and company register with global coverage**, or
+**indexing the bulk registers and accepting their own unjoined mass**. Neither is an extraction gap
+that better matching would close. The first of those was then acted on and is the largest single
+move this number has ever made: acquiring Wikidata's identifier statements as a dataset took joins
+from 3.66% to 5.81%, and 116,677 of Wikidata's own 425,289 entity records meet a second publisher.
+It is also the shape of the ceiling — a hub that carries 27.4% of itself into the joined set still
+leaves 94% of the graph single-sourced.
 
 ## Coverage of a population, which is a different question
 
@@ -213,6 +277,35 @@ Both example suites were re-run against the attached index and their saved outpu
   entities the name matcher would merge. It reads published records rather than the resolved table,
   so the rebuilt clusters cannot move it; only its timings differ (1,361.0 s against 1,364.7 s).
   Asserted identity going from 3.17% to 3.66% does not make name matching any more attractive.
+
+### The 2026-09-19 rebuild, and the one answer it changed
+
+The six graph queries were re-run against the rebuilt index. Five are unchanged in substance: the
+Wikidata records join into existing clusters (a `wikidata:` member appears beside the OpenSanctions
+and US CSL IDs in q1, q4 and q5) without changing what those queries can reach. q6 picked a
+different anchor bank — Truist rather than US Bancorp — because the cluster it ranks first now
+carries an FDIC certificate alongside the LEI and CIK.
+
+**q1 is the one that changed, and it needs reading carefully.** The sanctions → LEI → SEC-filer leg
+had been **zero** in every previous run, and this page and `unified-graph.md` both recorded it as
+genuinely absent. It is now **99**. Before that is read as "sanctioned issuers are publicly listed",
+here is the breakdown the query now prints, which is why it prints it:
+
+| | count |
+| --- | ---: |
+| clusters joining a sanctions listing to an LEI | 1,897 |
+| clusters joining an LEI to an SEC CIK | 2,315 (was 617) |
+| clusters joining all three | **99** (was 0) |
+| of those 99, whose listing is an actual **designation** | **1** |
+| of those 99, holding together only through a `wikidata:` member | **99** |
+
+So every one of the 99 exists because a Wikidata editor asserted that an item carries both an LEI
+and a CIK, and 98 of them anchor on an ownership or politically-exposed-person record rather than a
+designation. GLEIF itself still publishes no SEC EDGAR registration-authority entity ID for any of
+the 1,928 sanctions-published LEIs — the finding that made this absent in the first place is
+unchanged. The query's prose used to assert "the filer leg does not fire" as a fact; it now reports
+what it measured and carries both breakdowns, because a count of 99 with no breakdown is exactly
+the kind of number that turns into a claim nobody checked.
 
 ## Limits
 

@@ -16,7 +16,8 @@
     "members": [
      "mmsi:477732100",
      "mmsi:563302200",
-     "opensanctions:NK-a2fJJB9GEksyn4BRmLaeo2"
+     "opensanctions:NK-a2fJJB9GEksyn4BRmLaeo2",
+     "wikidata:Q117028232"
     ],
     "datasets_describing_the_vessel": [
      "marine_ais"
@@ -34,7 +35,8 @@
     "members": [
      "mmsi:636023226",
      "mmsi:636090799",
-     "opensanctions:NK-kWU63AbFDGyPXMvmXU3cjM"
+     "opensanctions:NK-kWU63AbFDGyPXMvmXU3cjM",
+     "wikidata:Q84260595"
     ],
     "datasets_describing_the_vessel": [
      "marine_ais"
@@ -55,7 +57,8 @@
     "mmsi:215193000",
     "ofac:party:58121",
     "opensanctions:NK-8fSPGSst7ThBkX5Q7kduoM",
-    "us_csl:58121"
+    "us_csl:58121",
+    "wikidata:Q83640151"
    ],
    "datasets_describing_the_vessel": [
     "marine_ais"

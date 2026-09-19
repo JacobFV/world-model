@@ -14,7 +14,8 @@
    "bioguide:A000055",
    "fec:candidate:H6AL04098",
    "icpsr:29701",
-   "opensanctions:Q672671"
+   "opensanctions:Q672671",
+   "wikidata:Q672671"
   ],
   "edges_by_dataset": {
    "congress_people": {
@@ -157,7 +158,7 @@
  "counts": {
   "edges_on_the_resolved_person": 3000,
   "datasets_contributing_edges": 4,
-  "cluster_members": 4
+  "cluster_members": 5
  },
  "which_dataset_supplied_which_edge": {
   "person, terms, party, committee assignment": "congress_people",

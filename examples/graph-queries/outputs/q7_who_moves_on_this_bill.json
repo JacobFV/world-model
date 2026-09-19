@@ -1104,6 +1104,60 @@
       "chamber": "Senate",
       "voted": "nay",
       "party_majority": "yea"
+     },
+     {
+      "bioguide": "bioguide:S001208",
+      "label": "Elissa Slotkin",
+      "party": "D",
+      "state": "MI",
+      "chamber": "Senate",
+      "voted": "nay",
+      "party_majority": "yea"
+     },
+     {
+      "bioguide": "bioguide:W000802",
+      "label": "Sheldon Whitehouse",
+      "party": "D",
+      "state": "RI",
+      "chamber": "Senate",
+      "voted": "nay",
+      "party_majority": "yea"
+     },
+     {
+      "bioguide": "bioguide:B001277",
+      "label": "Richard Blumenthal",
+      "party": "D",
+      "state": "CT",
+      "chamber": "Senate",
+      "voted": "nay",
+      "party_majority": "yea"
+     },
+     {
+      "bioguide": "bioguide:S001194",
+      "label": "Brian Schatz",
+      "party": "D",
+      "state": "HI",
+      "chamber": "Senate",
+      "voted": "nay",
+      "party_majority": "yea"
+     },
+     {
+      "bioguide": "bioguide:W000817",
+      "label": "Elizabeth Warren",
+      "party": "D",
+      "state": "MA",
+      "chamber": "Senate",
+      "voted": "nay",
+      "party_majority": "yea"
+     },
+     {
+      "bioguide": "bioguide:K000377",
+      "label": "Mark Kelly",
+      "party": "D",
+      "state": "AZ",
+      "chamber": "Senate",
+      "voted": "nay",
+      "party_majority": "yea"
      }
     ],
     "voted_against_own_party_count": 21,
@@ -1318,6 +1372,60 @@
       "label": "Cindy Hyde-Smith",
       "party": "R",
       "state": "MS",
+      "chamber": "Senate",
+      "voted": "yea",
+      "party_majority": "nay"
+     },
+     {
+      "bioguide": "bioguide:H001089",
+      "label": "Josh Hawley",
+      "party": "R",
+      "state": "MO",
+      "chamber": "Senate",
+      "voted": "yea",
+      "party_majority": "nay"
+     },
+     {
+      "bioguide": "bioguide:O000174",
+      "label": "Jon Ossoff",
+      "party": "D",
+      "state": "GA",
+      "chamber": "Senate",
+      "voted": "yea",
+      "party_majority": "nay"
+     },
+     {
+      "bioguide": "bioguide:W000790",
+      "label": "Raphael G. Warnock",
+      "party": "D",
+      "state": "GA",
+      "chamber": "Senate",
+      "voted": "yea",
+      "party_majority": "nay"
+     },
+     {
+      "bioguide": "bioguide:M001242",
+      "label": "Bernie Moreno",
+      "party": "R",
+      "state": "OH",
+      "chamber": "Senate",
+      "voted": "yea",
+      "party_majority": "nay"
+     },
+     {
+      "bioguide": "bioguide:H001104",
+      "label": "Jon Husted",
+      "party": "R",
+      "state": "OH",
+      "chamber": "Senate",
+      "voted": "yea",
+      "party_majority": "nay"
+     },
+     {
+      "bioguide": "bioguide:C001035",
+      "label": "Susan M. Collins",
+      "party": "R",
+      "state": "ME",
       "chamber": "Senate",
       "voted": "yea",
       "party_majority": "nay"
@@ -1627,6 +1735,60 @@
       "label": "Josh Hawley",
       "party": "R",
       "state": "MO",
+      "chamber": "Senate",
+      "voted": "yea",
+      "party_majority": "nay"
+     },
+     {
+      "bioguide": "bioguide:S001217",
+      "label": "Rick Scott",
+      "party": "R",
+      "state": "FL",
+      "chamber": "Senate",
+      "voted": "yea",
+      "party_majority": "nay"
+     },
+     {
+      "bioguide": "bioguide:H000601",
+      "label": "Bill Hagerty",
+      "party": "R",
+      "state": "TN",
+      "chamber": "Senate",
+      "voted": "yea",
+      "party_majority": "nay"
+     },
+     {
+      "bioguide": "bioguide:T000278",
+      "label": "Tommy Tuberville",
+      "party": "R",
+      "state": "AL",
+      "chamber": "Senate",
+      "voted": "yea",
+      "party_majority": "nay"
+     },
+     {
+      "bioguide": "bioguide:B001319",
+      "label": "Katie Boyd Britt",
+      "party": "R",
+      "state": "AL",
+      "chamber": "Senate",
+      "voted": "yea",
+      "party_majority": "nay"
+     },
+     {
+      "bioguide": "bioguide:S001227",
+      "label": "Eric Schmitt",
+      "party": "R",
+      "state": "MO",
+      "chamber": "Senate",
+      "voted": "yea",
+      "party_majority": "nay"
+     },
+     {
+      "bioguide": "bioguide:M001242",
+      "label": "Bernie Moreno",
+      "party": "R",
+      "state": "OH",
       "chamber": "Senate",
       "voted": "yea",
       "party_majority": "nay"
@@ -2624,6 +2786,184 @@
       "TAX"
      ],
      "from_dataset": "lda_lobbying"
+    },
+    {
+     "client": "lda:client:203141",
+     "client_label": "NUTRIEN US LLC (FORMERLY KNOWN AS AGRIUM U.S. INC.) (A NUTRIEN LTD SUBSIDIARY)",
+     "filings": 5,
+     "registrants": [
+      {
+       "registrant": "lda:registrant:401105074",
+       "label": "NUTRIEN US LLC (FORMERLY KNOWN AS AGRIUM U.S. INC.) (A NUTRIEN LTD SUBSIDIARY)."
+      }
+     ],
+     "attributed_usd": 3360000.0,
+     "issue_codes": [
+      "TAX"
+     ],
+     "from_dataset": "lda_lobbying"
+    },
+    {
+     "client": "lda:client:199441",
+     "client_label": "THE CAPITAL GROUP COMPANIES, INC. AND ITS AFFILIATES",
+     "filings": 5,
+     "registrants": [
+      {
+       "registrant": "lda:registrant:401103539",
+       "label": "THE CAPITAL GROUP COMPANIES, INC. AND ITS AFFILIATES"
+      }
+     ],
+     "attributed_usd": 3050000.0,
+     "issue_codes": [
+      "FIN"
+     ],
+     "from_dataset": "lda_lobbying"
+    },
+    {
+     "client": "lda:client:59822",
+     "client_label": "SK AMERICAS, INC.",
+     "filings": 5,
+     "registrants": [
+      {
+       "registrant": "lda:registrant:401108411",
+       "label": "SK AMERICAS, INC."
+      }
+     ],
+     "attributed_usd": 2854166.67,
+     "issue_codes": [
+      "TAX",
+      "TRA",
+      "TRD"
+     ],
+     "from_dataset": "lda_lobbying"
+    },
+    {
+     "client": "lda:client:103755",
+     "client_label": "ACCENTURE LLP",
+     "filings": 5,
+     "registrants": [
+      {
+       "registrant": "lda:registrant:3960",
+       "label": "ACCENTURE, LLP"
+      }
+     ],
+     "attributed_usd": 2550000.0,
+     "issue_codes": [
+      "HCR",
+      "TAX"
+     ],
+     "from_dataset": "lda_lobbying"
+    },
+    {
+     "client": "lda:client:134255",
+     "client_label": "NATIONAL ASSOCIATION OF REALTORS",
+     "filings": 5,
+     "registrants": [
+      {
+       "registrant": "lda:registrant:27070",
+       "label": "NATIONAL ASSOCIATION OF REALTORS"
+      }
+     ],
+     "attributed_usd": 2228536.83,
+     "issue_codes": [
+      "BAN",
+      "CSP",
+      "ENV",
+      "HOU",
+      "IMM",
+      "INS",
+      "LBR",
+      "TAX"
+     ],
+     "from_dataset": "lda_lobbying"
+    },
+    {
+     "client": "lda:client:182455",
+     "client_label": "AVANGRID INC",
+     "filings": 5,
+     "registrants": [
+      {
+       "registrant": "lda:registrant:307353",
+       "label": "AVANGRID, INC."
+      }
+     ],
+     "attributed_usd": 2135000.0,
+     "issue_codes": [
+      "TAX",
+      "TRA"
+     ],
+     "from_dataset": "lda_lobbying"
+    },
+    {
+     "client": "lda:client:118766",
+     "client_label": "ECOLAB INC",
+     "filings": 5,
+     "registrants": [
+      {
+       "registrant": "lda:registrant:13084",
+       "label": "ECOLAB INC."
+      }
+     ],
+     "attributed_usd": 2020000.0,
+     "issue_codes": [
+      "ENV",
+      "TAX"
+     ],
+     "from_dataset": "lda_lobbying"
+    },
+    {
+     "client": "lda:client:134204",
+     "client_label": "NATIONAL ALLIANCE FOR CARE AT HOME (FORMERLY NATL ASSN FOR HOME CARE & HOSPICE)",
+     "filings": 5,
+     "registrants": [
+      {
+       "registrant": "lda:registrant:26570",
+       "label": "NATIONAL ALLIANCE FOR CARE AT HOME (FORMERLY NATIONAL ASSOCIATION FOR HOME CARE & HOSPICE)"
+      }
+     ],
+     "attributed_usd": 1999166.67,
+     "issue_codes": [
+      "HCR",
+      "MMM",
+      "VET"
+     ],
+     "from_dataset": "lda_lobbying"
+    },
+    {
+     "client": "lda:client:183572",
+     "client_label": "RIO TINTO SERVICES, INC.",
+     "filings": 5,
+     "registrants": [
+      {
+       "registrant": "lda:registrant:310335",
+       "label": "RIO TINTO SERVICES, INC."
+      }
+     ],
+     "attributed_usd": 1840000.0,
+     "issue_codes": [
+      "TAX"
+     ],
+     "from_dataset": "lda_lobbying"
+    },
+    {
+     "client": "lda:client:103565",
+     "client_label": "AMERICAN HEALTH CARE ASSOCIATION",
+     "filings": 5,
+     "registrants": [
+      {
+       "registrant": "lda:registrant:2491",
+       "label": "AMERICAN HEALTH CARE ASSOCIATION"
+      }
+     ],
+     "attributed_usd": 1728857.14,
+     "issue_codes": [
+      "HCR",
+      "HOU",
+      "IMM",
+      "MMM",
+      "VET"
+     ],
+     "from_dataset": "lda_lobbying"
     }
    ]
   },
@@ -2867,6 +3207,167 @@
      "other_committee_contributions_usd": 538001.21,
      "pac_direct_usd": 602138.0,
      "business_pac_direct_usd": 382588.0,
+     "from_dataset": "fec"
+    },
+    {
+     "bioguide": "bioguide:A000375",
+     "label": "Jodey C. Arrington",
+     "party": "R",
+     "state": "TX",
+     "chamber": "House",
+     "roles": [
+      "committee_of_referral",
+      "sponsor"
+     ],
+     "cycle": 2026,
+     "total_receipts_usd": 1682093.8,
+     "other_committee_contributions_usd": 622500.0,
+     "pac_direct_usd": 572994.0,
+     "business_pac_direct_usd": 506000.0,
+     "from_dataset": "fec"
+    },
+    {
+     "bioguide": "bioguide:C001103",
+     "label": "Earl L. \"Buddy\" Carter",
+     "party": "R",
+     "state": "GA",
+     "chamber": "House",
+     "roles": [
+      "committee_of_referral"
+     ],
+     "cycle": 2026,
+     "total_receipts_usd": 7300242.83,
+     "other_committee_contributions_usd": 1098775.0,
+     "pac_direct_usd": 569975.0,
+     "business_pac_direct_usd": 376500.0,
+     "from_dataset": "fec"
+    },
+    {
+     "bioguide": "bioguide:M001240",
+     "label": "Addison P. McDowell",
+     "party": "R",
+     "state": "NC",
+     "chamber": "House",
+     "roles": [
+      "committee_of_referral"
+     ],
+     "cycle": 2026,
+     "total_receipts_usd": 1226407.96,
+     "other_committee_contributions_usd": 515505.0,
+     "pac_direct_usd": 545494.0,
+     "business_pac_direct_usd": 325500.0,
+     "from_dataset": "fec"
+    },
+    {
+     "bioguide": "bioguide:M001236",
+     "label": "Tim Moore",
+     "party": "R",
+     "state": "NC",
+     "chamber": "House",
+     "roles": [
+      "committee_of_referral"
+     ],
+     "cycle": 2026,
+     "total_receipts_usd": 1538952.2,
+     "other_committee_contributions_usd": 435700.0,
+     "pac_direct_usd": 462244.0,
+     "business_pac_direct_usd": 336500.0,
+     "from_dataset": "fec"
+    },
+    {
+     "bioguide": "bioguide:G000603",
+     "label": "Brandon Gill",
+     "party": "R",
+     "state": "TX",
+     "chamber": "House",
+     "roles": [
+      "committee_of_referral"
+     ],
+     "cycle": 2026,
+     "total_receipts_usd": 4217213.29,
+     "other_committee_contributions_usd": 376086.1,
+     "pac_direct_usd": 418344.0,
+     "business_pac_direct_usd": 175500.0,
+     "from_dataset": "fec"
+    },
+    {
+     "bioguide": "bioguide:E000299",
+     "label": "Veronica Escobar",
+     "party": "D",
+     "state": "TX",
+     "chamber": "House",
+     "roles": [
+      "committee_of_referral"
+     ],
+     "cycle": 2026,
+     "total_receipts_usd": 858766.28,
+     "other_committee_contributions_usd": 366368.43,
+     "pac_direct_usd": 403996.0,
+     "business_pac_direct_usd": 229100.0,
+     "from_dataset": "fec"
+    },
+    {
+     "bioguide": "bioguide:C001080",
+     "label": "Judy Chu",
+     "party": "D",
+     "state": "CA",
+     "chamber": "House",
+     "roles": [
+      "committee_of_referral"
+     ],
+     "cycle": 2026,
+     "total_receipts_usd": 930123.25,
+     "other_committee_contributions_usd": 379775.0,
+     "pac_direct_usd": 397500.0,
+     "business_pac_direct_usd": 189000.0,
+     "from_dataset": "fec"
+    },
+    {
+     "bioguide": "bioguide:E000246",
+     "label": "Chuck Edwards",
+     "party": "R",
+     "state": "NC",
+     "chamber": "House",
+     "roles": [
+      "committee_of_referral"
+     ],
+     "cycle": 2026,
+     "total_receipts_usd": 939984.83,
+     "other_committee_contributions_usd": 367750.0,
+     "pac_direct_usd": 363744.0,
+     "business_pac_direct_usd": 164000.0,
+     "from_dataset": "fec"
+    },
+    {
+     "bioguide": "bioguide:G000576",
+     "label": "Glenn Grothman",
+     "party": "R",
+     "state": "WI",
+     "chamber": "House",
+     "roles": [
+      "committee_of_referral"
+     ],
+     "cycle": 2026,
+     "total_receipts_usd": 929019.7,
+     "other_committee_contributions_usd": 277500.0,
+     "pac_direct_usd": 306994.0,
+     "business_pac_direct_usd": 192500.0,
+     "from_dataset": "fec"
+    },
+    {
+     "bioguide": "bioguide:S000185",
+     "label": "Robert C. \"Bobby\" Scott",
+     "party": "D",
+     "state": "VA",
+     "chamber": "House",
+     "roles": [
+      "committee_of_referral"
+     ],
+     "cycle": 2026,
+     "total_receipts_usd": 688200.26,
+     "other_committee_contributions_usd": 305380.91,
+     "pac_direct_usd": 298700.0,
+     "business_pac_direct_usd": 161200.0,
      "from_dataset": "fec"
     }
    ],
