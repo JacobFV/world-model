@@ -210,13 +210,13 @@
   "sec_gleif"
  ],
  "timings": {
-  "add_records": 16.574721484001202,
-  "candidate_pairs": 1269.308954401,
-  "compare": 26.279953435994685,
-  "estimate": 4.705865818999882,
-  "cluster": 11.402401247003581
+  "add_records": 15.066178385000967,
+  "candidate_pairs": 1264.6233474809997,
+  "compare": 27.292191849999654,
+  "estimate": 4.870850115999929,
+  "cluster": 11.795469716998923
  },
- "seconds": 1364.7,
+ "seconds": 1361.0,
  "interpretation": [
   "These matches are INFERRED from names and addresses. unify-resolve does not attach them; only published same_as rows and shared unique identifiers are attached to the index.",
   "Recall is bounded by blocking: a pair whose names share no blocking key is never compared.",

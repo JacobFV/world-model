@@ -41,10 +41,18 @@ python3 examples/graph-queries/resolution_evaluation.py --workdir /tmp/resolve-e
 - **Every edge names its dataset.** Results carry `from_dataset` on each edge and observation, and
   a `which_dataset_supplied_which_edge` map. `datasets_used` is derived, not hand-written.
 - **Asserted and inferred are never mixed.** Identity links come from published `same_as` rows,
-  shared unique identifiers, and published crosswalk fields (`worldmodel.resolution.bridges`: the
-  GLEIF registration-authority entity ID, the CUSIP inside a US ISIN). Where a script has to fall
-  back on a name string (the FDIC leg of `q6`), the result labels that field `INFERRED, not
-  asserted` and the limitations say so.
+  published link predicates (`same_designation_as`), shared unique identifiers, and published
+  crosswalk fields (`worldmodel.resolution.bridges`: the GLEIF registration-authority entity ID,
+  the CUSIP inside a US ISIN, register numbers a sanctions list names by scheme and country or
+  labels in free text, OpenSanctions QIDs and SAM UEIs). Identifiers a publisher flags as
+  fraudulent, IMO company numbers on the ship-number side, and codes one publisher prints for two
+  of its own records are refused and counted. Where a script has to fall back on a name string (the
+  FDIC leg of `q6`), the result labels that field `INFERRED, not asserted` and the limitations say
+  so.
+- **Being in the index is not being joined.** `python3 -m worldmodel identity-coverage --workdir
+  /tmp/jc --mentions` measures the share of the index's entities whose evidence comes from two
+  datasets (3.66%, or 2.44% from two publishers); see
+  [docs/identity-coverage.md](../../docs/identity-coverage.md).
 - **Every result carries `what_this_does_not_establish`.** Vintage mismatches, reported-versus-
   measured distinctions, out-of-scope datasets and missing crosswalks are stated, not implied.
 - **Anchors are discovered, not hardcoded.** Each script searches the index for the best-supported

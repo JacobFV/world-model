@@ -116,10 +116,190 @@ def cusip_from_isin(isin):
     return match.group(2)
 
 
+# -- register numbers a sanctions list prints with the scheme *and* the issuing country ----------
+#
+# OFAC's SDN_ADVANCED and the Consolidated Screening List print an identity document as
+# ``{scheme, issuing_country, number}``. Where the scheme and the country together name one
+# national register, the number is that register's identifier: OFAC's "Tax ID No." issued by RUS is
+# the Russian taxpayer number (INN), its "Registration Number" issued by RUS is the primary state
+# registration number (OGRN), and "Company Number" issued by GBR is a Companies House number. Each
+# value is then held to the register's own check digit, so a mistyped or non-register number is
+# refused rather than guessed at. A number whose publisher names no register (OpenSanctions'
+# ``registrationNumber``, OFAC's "Registration ID" without a country) is never read.
+
+def _digits(value):
+    text = str(value or '').replace(' ', '').replace('-', '')
+    return text if text.isascii() and text.isdigit() else None
+
+
+def ru_inn(value):
+    """A Russian INN (10 digits for an organisation, 12 for a person) whose check digits hold."""
+    digits = _digits(value)
+    if digits is None or len(digits) not in (10, 12):
+        return None
+    d = [int(c) for c in digits]
+
+    def check(weights, count):
+        return sum(w * x for w, x in zip(weights, d[:count])) % 11 % 10
+
+    if len(d) == 10:
+        return digits if check((2, 4, 10, 3, 5, 9, 4, 6, 8), 9) == d[9] else None
+    if check((7, 2, 4, 10, 3, 5, 9, 4, 6, 8), 10) != d[10] or check((3, 7, 2, 4, 10, 3, 5, 9, 4, 6, 8), 11) != d[11]:
+        return None
+    return digits
+
+
+def ru_ogrn(value):
+    """A Russian OGRN (13 digits, first 1 or 5) or OGRNIP (15 digits, first 3) whose check digit holds."""
+    digits = _digits(value)
+    if digits is None:
+        return None
+    if len(digits) == 13 and digits[0] in '15' and int(digits[:12]) % 11 % 10 == int(digits[12]):
+        return digits
+    if len(digits) == 15 and digits[0] == '3' and int(digits[:14]) % 13 % 10 == int(digits[14]):
+        return digits
+    return None
+
+
+_GB_COMPANY = re.compile(r'([A-Z]{2})?0*([0-9]{1,8})')
+
+
+def gb_company_number(value):
+    """A Companies House number, re-padded to its eight-character form."""
+    match = _GB_COMPANY.fullmatch(str(value or '').strip().upper().replace(' ', ''))
+    if match is None:
+        return None
+    prefix, digits = match.group(1), match.group(2)
+    if prefix:
+        return prefix + digits.zfill(6) if len(digits) <= 6 else None
+    return digits.zfill(8)
+
+
+# Check-digit validators applied to *every* claim in these namespaces, typed or bridged: a typed
+# ``ru_ogrn:0000000000000`` (which OpenSanctions prints for more than one organisation) is a
+# placeholder, not a registration.
+REGISTER_VALIDATORS = {'ru_inn': ru_inn, 'ru_ogrn': ru_ogrn}
+
+# (scheme as printed, issuing country as printed) -> (namespace, validator). Only pairs that name a
+# register are listed. "Registration ID" and "Government Gazette Number" under RUS are left out:
+# OFAC uses the first for more than one Russian register and the second is the OKPO statistical code.
+REGISTER_SCHEMES = {
+    ('tax id no.', 'RUS'): ('ru_inn', ru_inn),
+    ('registration number', 'RUS'): ('ru_ogrn', ru_ogrn),
+    ('business registration number', 'RUS'): ('ru_ogrn', ru_ogrn),
+    ('company number', 'GBR'): ('gb_company_number', gb_company_number),
+}
+
+
+def register_number_claim(value):
+    """The (namespace, value) a sanctions-list identity document names by scheme and country, or None."""
+    if not isinstance(value, dict) or value.get('id') or flagged_fraudulent(value):
+        return None  # a typed ``id`` is already read as an identifier claim
+    key = (str(value.get('scheme') or '').strip().lower(), str(value.get('issuing_country') or '').strip().upper())
+    rule = REGISTER_SCHEMES.get(key)
+    if rule is None:
+        return None
+    namespace, validate = rule
+    normalized = validate(value.get('number', value.get('value')))
+    return None if normalized is None else (namespace, normalized)
+
+
+# The UK sanctions list prints registration numbers as free text inside one "Business Registration
+# Number" field, with the register named by a label in the text: "OGRN 1027700035769INN 7708004767
+# OKPO 00044434" (LUKOIL), "OGRN: 1247700291200KPP: 770701001INN: 9707028663", "UK Company no.
+# 06527449". A number is read only where its own label names the register and it passes that
+# register's check digits; an unlabelled number ("7810938831") and a label for a register this
+# catalog cannot type (OKPO, KPP, India CIN) are never read.
+_NOT_LETTER = r'(?<![A-Za-zЀ-ӿ])'
+_LABELLED = (
+    ('ru_ogrn', re.compile(_NOT_LETTER + r'(?:OGRN|ОГРН)\s*[:#№.\-–]?\s*(\d{15}|\d{13})(?!\d)'), ru_ogrn),
+    ('ru_inn', re.compile(_NOT_LETTER + r'(?:INN|ИНН)\s*[:#№.\-–]?\s*(\d{12}|\d{10})(?!\d)'), ru_inn),
+    ('gb_company_number', re.compile(r'UK Company (?:no\.?|number)\s*[:\-–]?\s*([A-Z]{2}\d{6}|\d{6,8})(?![\dA-Z])',
+                                     re.IGNORECASE), gb_company_number),
+)
+
+
+def labelled_register_numbers(text):
+    """(namespace, value) pairs a free-text registration field labels by register, check digits held."""
+    if not isinstance(text, str):
+        return []
+    found = []
+    for namespace, pattern, validate in _LABELLED:
+        for match in pattern.finditer(text):
+            value = validate(match.group(1))
+            if value is not None and (namespace, value) not in found:
+                found.append((namespace, value))
+    return found
+
+
+# FollowTheMoney's ``uniqueEntityId`` property is the US System for Award Management Unique Entity
+# ID: twelve characters, letters and digits, never an O or I, never starting with 0.
+_UEI = re.compile(r'[A-HJ-NP-Z1-9][A-HJ-NP-Z0-9]{11}')
+
+
+def uei(value):
+    text = str(value or '').strip().upper()
+    return text if _UEI.fullmatch(text) else None
+
+
+# OpenSanctions gives an entity the Wikidata QID as its canonical ID when it has linked it to
+# Wikidata (``opensanctions:Q672671``). The ID *is* the published link, as a GLEIF entity ID is its LEI.
+_OPENSANCTIONS_QID = re.compile(r'opensanctions:(Q[1-9][0-9]*)')
+
+# Assertions a publisher uses to say two of its records are one listed party, with the published
+# field the link is derived from. ``unify-resolve`` reads them as source-asserted ``same_as`` edges.
+LINK_PREDICATES = {
+    'same_designation_as': {
+        'reads': 'other_sanctions_lists same_designation_as assertions',
+        'published_basis': ('the Consolidated Screening List prints, for every entry it republishes from '
+                            'OFAC, the OFAC Sanctions List Service profile ID as its entity_number; the UK '
+                            'sanctions list prints the UN reference number of a UN designation it implements'),
+        'does_not_assert': ('that two listings impose the same measures. It joins the listed party, not the '
+                            'legal effect of each designation.'),
+    },
+}
+
+# A value a designating authority marks as fraudulently used ("validity": "Fraudulent" on an OFAC
+# identity document) is not identity evidence for the party that used it: a fraudulent MMSI or IMO
+# number belongs to some other vessel. ``unify-resolve`` refuses the claim, and the same claim on a
+# record that a LINK_PREDICATES row makes the same designation (the CSL copy drops the flag).
+def flagged_fraudulent(value):
+    return isinstance(value, dict) and str(value.get('validity') or '').strip().lower() == 'fraudulent'
+
+
+# IMO issues two independent seven-digit series: ship identification numbers, and company and
+# registered-owner identification numbers. The sanctions publishers print both under ``imo`` - OFAC
+# as "Vessel Registration Identification" on a vessel and "Identification Number" or "Company
+# Number" on an organisation, OpenSanctions as ``imoNumber`` on a Vessel and on a Company. The
+# publisher's own entity type is what says which series a number is from, so ``unify-resolve``
+# types an ``imo`` claim on a subject that is not a vessel as ``imo_company``.
+IMO_SHIP_ENTITY_TYPES = frozenset({'vessel'})
+
+
+# Two names for one published code system. GLEIF's BIC-to-LEI mapping publishes ISO 9362 business
+# identifier codes as ``bic``; the sanctions lists publish the same codes as ``swift`` ("SWIFT/BIC").
+NAMESPACE_ALIASES = {'bic': 'swift'}
+
+
+def normalize_value(namespace, value):
+    """Case and form rules for namespaces :func:`worldmodel.identity._normalize` does not know."""
+    if namespace in ('iata', 'icao', 'orcid', 'cusip', 'figi', 'uei', 'gb_company_number'):
+        return value.upper()
+    if namespace == 'ror':
+        return value.lower().rsplit('/', 1)[-1]
+    if namespace == 'swift':
+        # ISO 9362: an eight-character BIC is the primary office, which is the eleven-character
+        # form with branch code XXX. Any other branch code names a branch and stays distinct.
+        value = value.upper().replace(' ', '')
+        return value[:8] if len(value) == 11 and value.endswith('XXX') else value
+    return value
+
+
 # Byte tags unify's raw-line prefilter must keep for these bridges to see their records. They are
-# deliberately narrow: ``registration_authority`` appears only in GLEIF entity attributes and
-# ``issuer_security`` only on issuer-to-security edges.
-BRIDGE_TAGS = (b'"registration_authority"', b'"predicate":"issuer_security"')
+# deliberately narrow: ``registration_authority`` appears only in GLEIF entity attributes,
+# ``issuer_security`` only on issuer-to-security edges. Identity documents and uniqueEntityId values
+# travel on ``identifier`` assertions, which the prefilter already keeps.
+BRIDGE_TAGS = (b'"registration_authority"', b'"predicate":"issuer_security"', b'"predicate":"same_designation_as"')
 
 BRIDGES = {
     'gleif_sec_cik': {
@@ -148,6 +328,42 @@ BRIDGES = {
                             'so that a GLEIF issuer_security edge and a 13F CUSIP holding meet; the '
                             'issuer identity still has to come from a published issuer identifier.'),
     },
+    'sanctions_register_number': {
+        'spec': 'sanctions_register_number', 'namespace': 'ru_inn / ru_ogrn / gb_company_number',
+        'reads': ('ofac_sanctions and other_sanctions_lists identity documents that print a scheme and an issuing '
+                  'country and no typed id'),
+        'published_basis': ('OFAC SDN_ADVANCED identity documents: the document type and issuing country name the '
+                            'register ("Tax ID No." + RUS is the INN, "Registration Number" + RUS the OGRN, '
+                            '"Company Number" + GBR a Companies House number), and each value passes that '
+                            "register's check digit"),
+        'does_not_assert': ('anything about a number whose publisher names no register: OpenSanctions '
+                            'registrationNumber and taxNumber carry no country and are not read. One dataset '
+                            'printing one number for two parties (a Russian branch shares its parent\'s INN) is '
+                            'refused, not merged'),
+    },
+    'labelled_register_number': {
+        'spec': 'sanctions_register_number', 'namespace': 'ru_ogrn / ru_inn / gb_company_number',
+        'reads': 'free-text "Business Registration Number" identifier values (the UK sanctions list)',
+        'published_basis': ('the text labels the register next to the number ("OGRN 1027700035769", "INN '
+                            '7708004767", "UK Company no. 06527449"), and each value passes that register\'s '
+                            'check digits'),
+        'does_not_assert': ('anything about an unlabelled number or a register this catalog cannot type (OKPO, '
+                            'KPP, CIN, PAN); those stay text'),
+    },
+    'opensanctions_uei': {
+        'spec': 'opensanctions_uei', 'namespace': 'uei',
+        'reads': 'opensanctions_graph identifier values with scheme uniqueEntityId',
+        'published_basis': ('FollowTheMoney LegalEntity.uniqueEntityId is the US SAM Unique Entity ID; the value '
+                            'must have the twelve-character UEI shape'),
+        'does_not_assert': 'SAM registration status or award eligibility; a UEI names the registrant only',
+    },
+    'opensanctions_wikidata': {
+        'spec': 'opensanctions_wikidata', 'namespace': 'wikidata',
+        'reads': 'opensanctions entity IDs of the form opensanctions:Q<digits>',
+        'published_basis': ('OpenSanctions uses the Wikidata QID as the canonical ID of an entity it has linked '
+                            'to Wikidata'),
+        'does_not_assert': 'that Wikidata is right about the person, only that OpenSanctions linked this record to it',
+    },
 }
 
 
@@ -160,6 +376,9 @@ def record_claims(record):
     kind = record.get('kind')
     if kind == 'entity':
         subject = record.get('entity_id', record.get('id'))
+        if isinstance(subject, str) and subject.startswith('opensanctions:Q'):
+            match = _OPENSANCTIONS_QID.fullmatch(subject)
+            return [(subject, 'wikidata', match.group(1), None, 'opensanctions_wikidata')] if match else []
         if not isinstance(subject, str) or not subject.startswith('lei:'):
             return []
         claim = gleif_registration_authority_claim(record.get('attributes'))
@@ -178,6 +397,20 @@ def record_claims(record):
         # The subject of the claim is the *security*, never the issuer: this bridge says
         # "isin:US14149Y1082 and cusip:14149Y108 are one security", nothing about the issuer.
         return [(obj, 'cusip', cusip, None, 'gleif_isin_cusip')]
+    if kind == 'assertion' and record.get('predicate') == 'identifier':
+        value, subject = record.get('value'), record.get('subject')
+        if not isinstance(value, dict) or not isinstance(subject, str):
+            return []
+        if value.get('scheme') == 'uniqueEntityId' and not value.get('id'):
+            code = uei(value.get('value'))
+            return [(subject, 'uei', code, None, 'opensanctions_uei')] if code else []
+        claim = register_number_claim(value)
+        if claim is not None:
+            return [(subject, claim[0], claim[1], None, 'sanctions_register_number')]
+        if (value.get('scheme') == 'Business Registration Number' and not value.get('id')
+                and not flagged_fraudulent(value)):
+            return [(subject, namespace, number, None, 'labelled_register_number')
+                    for namespace, number in labelled_register_numbers(value.get('value', value.get('number')))]
     return []
 
 
