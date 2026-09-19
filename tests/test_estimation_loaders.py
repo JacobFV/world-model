@@ -572,6 +572,27 @@ class RebasedVintageTests(unittest.TestCase):
             growth = [b / a for a, b in zip(series.values, series.values[1:])]
             self.assertTrue(all(abs(g - 1.04) < 1e-9 for g in growth), 'growth must be base-invariant')
 
+    def test_default_hazard_business_loan_substitute_keeps_the_declared_drivers(self):
+        from worldmodel.estimation.loaders import default_hazard_series_data
+        records = []
+        for series, metric in (('DRBLACBS', 'business_loan_delinquency_rate'), ('DRCCLACBS', 'credit_card_delinquency_rate'),
+                               ('UNRATE', 'unemployment_rate')):
+            records.append(self._fred(series, metric, 'percent', None, '2015-01-01', '2015-05-20', 1.5))
+        self.store.write('fred_macro_panel', records)
+        self.store.write('fred_policy_rate', [observation(
+            id='dff:2015-01-01', metric='policy_rate', unit='percent', subject='geo:US', value=0.1,
+            valid_from='2015-01-01', valid_to='2015-01-02', attributes={'realtime_start': '2015-01-02'})])
+        override = {'delinquency_rate': {'metric': 'business_loan_delinquency_rate', 'source_series': 'DRBLACBS'}}
+        estimator = estimator_for('default_hazard', overrides=override)
+        data, evidence, policy = default_hazard_series_data(self.store, series_id='DRBLACBS', estimator=estimator)
+        self.assertEqual(policy, 'strict')
+        delinquency = [r for r in data.records if r['metric'] == 'business_loan_delinquency_rate']
+        self.assertEqual(len(delinquency), 1)
+        self.assertNotIn('credit_card_delinquency_rate', {r['metric'] for r in data.records})
+        self.assertEqual(set(evidence['series_counts']), {'delinquency_rate', 'unemployment_rate', 'policy_rate'})
+        with self.assertRaises(MissingData):
+            default_hazard_series_data(self.store, series_id='CORCCACBS')
+
     def test_monetary_gap_uses_the_2012_pair_when_2017_potential_is_missing(self):
         from worldmodel.estimation.loaders import _bases
         items = [('2020-04-15', 20100.0, 'a', '2012'), ('2020-05-01', 23115.0, 'b', '2017')]

@@ -353,6 +353,30 @@ DEPOSIT_RATE_SUBSTITUTES = {
 }
 
 
+DEFAULT_HAZARD_SUBSTITUTES = {
+    # requirements.json names this as the business-loan alternative to DRCCLACBS. The simulator
+    # hook the component binds to draws FIRM defaults, and this is the one FRED delinquency
+    # series on business borrowers; it carries ALFRED vintages from 2011-05 like DRCCLACBS.
+    'DRBLACBS': 'business_loan_delinquency_rate',
+}
+
+
+def default_hazard_series_data(store, *, series_id, versions=None, estimator=None):
+    """``default_hazard`` with a different real-time FRED delinquency series in place of DRCCLACBS.
+
+    Unemployment (UNRATE) and the policy rate (DFF) are the declared series. The delinquency
+    series is a *different estimand* from the declared credit-card rate, and the attempt that
+    uses it declares that in its overrides, as the FDIC substitution did.
+    """
+    if series_id not in DEFAULT_HAZARD_SUBSTITUTES:
+        raise MissingData(f'Unknown default_hazard delinquency substitute {series_id!r}; '
+                          f'known: {sorted(DEFAULT_HAZARD_SUBSTITUTES)}')
+    declared = {source.requirement: source for source in COMPONENT_SOURCES['default_hazard']}
+    sources = (panel('delinquency_rate', series_id, DEFAULT_HAZARD_SUBSTITUTES[series_id], 'percent'),
+               declared['unemployment_rate'], declared['policy_rate'])
+    return observation_set('default_hazard', store, sources=sources, versions=versions, estimator=estimator)
+
+
 def population_popthm_data(store, *, versions=None, estimator=None):
     """``population_growth_rate`` on FRED POPTHM instead of the Census PEP vintage files."""
     return observation_set('population_growth_rate', store, sources=POPULATION_POPTHM, versions=versions,
@@ -1871,7 +1895,8 @@ LOADER_FUNCTIONS.update({'observation_set': observation_set, 'cash_balance_data'
                          'assets_fred_realtime_data': assets_fred_realtime_data,
                          'monetary_okun_realtime_data': monetary_okun_realtime_data,
                          'population_popthm_data': population_popthm_data,
-                         'deposit_rate_substitute_data': deposit_rate_substitute_data})
+                         'deposit_rate_substitute_data': deposit_rate_substitute_data,
+                         'default_hazard_series_data': default_hazard_series_data})
 
 
 def availability():
