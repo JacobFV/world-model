@@ -24,7 +24,7 @@ import random
 from .did import event_study
 from .panel import Panel
 from .placebo import placebo_date_test
-from .stats import mean, normal_ppf
+from .stats import mean, normal_ppf, solve
 
 SHRINK = 5.0  # pseudo-observations pulling a unit's innovation variance toward the pooled value
 RHO_BOUNDS = (-0.9, 0.98)
@@ -150,7 +150,7 @@ def calibrate(panel, *, anticipation=0):
 
 
 def calibration_summary(params):
-    return {k: v for k, v in params.items() if k != 'unit_innovation_var'}
+    return {k: v for k, v in params.items() if k not in ('unit_innovation_var', 'unit_scale')}
 
 
 # -- simulation ------------------------------------------------------------------------------------------
@@ -169,6 +169,8 @@ def _ar1_path(rng, periods, rho, innovation_sd):
 
 def simulate_null_panel(panel, params, seed):
     """A panel with the real structure and calibrated noise: no effect, parallel trends by construction."""
+    if params.get('model') == 'variogram':
+        return simulate_variogram_panel(panel, params, seed)
     rng = random.Random(seed)
     rho = params['rho']
     periods = panel.periods
@@ -182,6 +184,159 @@ def simulate_null_panel(panel, params, seed):
         series = panel.outcomes[u]
         ts = sorted(series)
         path = _ar1_path(rng, ts, rho, math.sqrt(params['unit_innovation_var'][u]))
+        c = shocks.get(panel.clusters[u])
+        outcomes[u] = {t: path[t] + (c[t] if c else 0.0) for t in ts}
+    return panel.replace(outcomes=outcomes)
+
+
+# -- amendment 1: variogram-fitted noise ------------------------------------------------------------------
+#
+# The registered model is a stationary AR(1) in levels, whose differences can only be negatively
+# autocorrelated. Real panels here (county log employment) have positively autocorrelated growth, so the
+# fitted rho hits its bound and the synthetic panels come out too smooth. This model instead fits the
+# untreated cells' empirical variogram - gamma(k), half the mean squared k-period change, which is what a
+# difference-in-differences standard error depends on - with three non-negative components:
+#
+#     gamma(k) = a (1 - rho^k)        stationary AR(1) noise (a is its variance; rho = 0 is white noise)
+#              + b k                  a random walk (innovation variance 2b)
+#              + c k^2                a unit-specific random trend (slope variance 2c)
+#
+# Fitting is a grid over rho with non-negative least squares (all subsets) on the pair-count-weighted
+# empirical variogram of untreated cells. Nothing post-treatment enters.
+
+VARIOGRAM_RHO_GRID = [0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 0.95]
+
+
+def _nnls_small(columns, y, weights):
+    """Non-negative least squares by enumerating active sets (at most three columns)."""
+    best = (float('inf'), [0.0] * len(columns))
+    for mask in range(1, 1 << len(columns)):
+        use = [j for j in range(len(columns)) if mask >> j & 1]
+        a = [[math.fsum(w * columns[i][t] * columns[j][t] for t, w in enumerate(weights)) for j in use] for i in use]
+        rhs = [math.fsum(w * columns[i][t] * y[t] for t, w in enumerate(weights)) for i in use]
+        try:
+            beta = solve(a, rhs)
+        except ValueError:
+            continue
+        if any(v < 0 for v in beta):
+            continue
+        full = [0.0] * len(columns)
+        for i, j in enumerate(use):
+            full[j] = beta[i]
+        sse = math.fsum(w * (y[t] - math.fsum(full[j] * columns[j][t] for j in range(len(columns)))) ** 2
+                        for t, w in enumerate(weights))
+        if sse < best[0]:
+            best = (sse, full)
+    return best[1], best[0]
+
+
+def fit_variogram(gamma, weights):
+    """Fit ``a (1 - rho^k) + b k + c k^2`` to an empirical variogram ``{lag: value}``."""
+    lags = sorted(gamma)
+    y = [gamma[k] for k in lags]
+    w = [weights.get(k, 1.0) for k in lags]
+    best = None
+    for rho in VARIOGRAM_RHO_GRID:
+        columns = [[1.0 - rho ** k for k in lags], [float(k) for k in lags], [float(k * k) for k in lags]]
+        beta, sse = _nnls_small(columns, y, w)
+        if best is None or sse < best[0]:
+            best = (sse, rho, beta)
+    sse, rho, (a, b, c) = best
+    total = math.fsum(w[i] * y[i] * y[i] for i in range(len(y)))
+    return {'ar1_variance': a, 'ar1_rho': rho, 'random_walk_innovation_variance': 2.0 * b,
+            'trend_slope_variance': 2.0 * c, 'weighted_sse': sse,
+            'weighted_r_squared': None if total <= 0 else 1.0 - sse / total,
+            'lags': lags, 'fitted': [a * (1 - rho ** k) + b * k + c * k * k for k in lags], 'empirical': y}
+
+
+def _variogram(series, max_lag):
+    """Pair-count-weighted empirical variogram of a collection of ``{period: value}`` series."""
+    total, count = {}, {}
+    for s in series:
+        ts = sorted(s)
+        for i, t in enumerate(ts):
+            for u in ts[i + 1:]:
+                k = u - t
+                if k > max_lag:
+                    break
+                total[k] = total.get(k, 0.0) + 0.5 * (s[u] - s[t]) ** 2
+                count[k] = count.get(k, 0) + 1
+    return {k: total[k] / count[k] for k in total}, count
+
+
+def calibrate_variogram(panel, *, anticipation=0, max_lag=12):
+    """Calibration by fitting the untreated cells' variogram (amendment 1; see the comment above)."""
+    cells = untreated_cells(panel, anticipation)
+    resid = _two_way_residuals(cells, panel.strata)
+    by_kt = {}
+    for u, s in resid.items():
+        k = panel.clusters[u]
+        for t, v in s.items():
+            by_kt.setdefault((k, t), []).append((u, v))
+    means, sizes, dev = {}, {}, {}
+    shared = False
+    for (k, t), members in by_kt.items():
+        n = len(members)
+        m = math.fsum(v for _, v in members) / n
+        if n >= 2:
+            shared = True
+            means.setdefault(k, {})[t] = m
+            sizes[(k, t)] = n
+            scale = math.sqrt(n / (n - 1))
+            for u, v in members:
+                dev.setdefault(u, {})[t] = (v - m) * scale
+        else:
+            for u, v in members:
+                dev.setdefault(u, {})[t] = v
+    gamma_e, pairs_e = _variogram(dev.values(), max_lag)
+    unit = fit_variogram(gamma_e, {k: float(n) for k, n in pairs_e.items()})
+    cluster = None
+    if shared and means:
+        gamma_m, pairs_m = _variogram(means.values(), max_lag)
+        share = mean(1.0 / n for n in sizes.values())
+        gamma_c = {k: max(0.0, v - share * gamma_e.get(k, 0.0)) for k, v in gamma_m.items()}
+        cluster = fit_variogram(gamma_c, {k: float(n) for k, n in pairs_m.items()})
+    lag1 = gamma_e.get(1, 0.0)
+    unit_scale = {}
+    for u in panel.units:
+        d = dev.get(u, {})
+        ts = sorted(d)
+        pairs = [(d[b] - d[a]) ** 2 for a, b in zip(ts, ts[1:]) if b - a == 1]
+        s2 = (math.fsum(pairs) / 2.0 + SHRINK * lag1) / (len(pairs) + SHRINK) if lag1 > 0 else 1.0
+        unit_scale[u] = s2 / lag1 if lag1 > 0 else 1.0
+    return {'model': 'variogram', 'unit': unit, 'cluster': cluster, 'unit_scale': unit_scale,
+            'untreated_cells': sum(len(s) for s in cells.values()), 'max_lag': max_lag,
+            'cluster_periods_with_two_or_more': len(sizes)}
+
+
+def _variogram_path(rng, periods, fit, scale):
+    lo, hi = periods[0], periods[-1]
+    ar_sd = math.sqrt(fit['ar1_variance'] * scale)
+    rw_sd = math.sqrt(fit['random_walk_innovation_variance'] * scale)
+    slope = rng.gauss(0.0, math.sqrt(fit['trend_slope_variance'] * scale))
+    rho = fit['ar1_rho']
+    x = rng.gauss(0.0, ar_sd)
+    walk = 0.0
+    out = {}
+    for t in range(lo, hi + 1):
+        if t > lo:
+            x = (rho * x + rng.gauss(0.0, ar_sd * math.sqrt(1 - rho * rho))) if rho else rng.gauss(0.0, ar_sd)
+            walk += rng.gauss(0.0, rw_sd)
+        out[t] = x + walk + slope * (t - lo)
+    return out
+
+
+def simulate_variogram_panel(panel, params, seed):
+    """Synthetic null panel under the amended model."""
+    rng = random.Random(seed)
+    shocks = {}
+    if params.get('cluster'):
+        for k in sorted({panel.clusters[u] for u in panel.units}, key=str):
+            shocks[k] = _variogram_path(rng, panel.periods, params['cluster'], 1.0)
+    outcomes = {}
+    for u in panel.units:
+        ts = sorted(panel.outcomes[u])
+        path = _variogram_path(rng, ts, params['unit'], params['unit_scale'].get(u, 1.0))
         c = shocks.get(panel.clusters[u])
         outcomes[u] = {t: path[t] + (c[t] if c else 0.0) for t in ts}
     return panel.replace(outcomes=outcomes)

@@ -305,6 +305,46 @@ class PowerTests(unittest.TestCase):
         sd = statistics.pstdev(d['att'] for d in draws)
         self.assertAlmostEqual(se / sd, 1.0, delta=0.35)
 
+    def _integrated_panel(self, n=300, trend_sd=0.0, walk_sd=0.05, noise_sd=0.02, seed=0):
+        """Levels with a random walk, an optional unit trend and white noise (fictional)."""
+        rng = random.Random(seed)
+        outcomes, cohorts = {}, {}
+        for i in range(n):
+            slope, walk = rng.gauss(0, trend_sd), 0.0
+            series = {}
+            for t in range(2000, 2016):
+                if t > 2000:
+                    walk += rng.gauss(0, walk_sd)
+                series[t] = walk + slope * (t - 2000) + rng.gauss(0, noise_sd)
+            outcomes[f'u{i}'], cohorts[f'u{i}'] = series, (2008 if i % 3 == 0 else None)
+        return Panel(outcomes, cohorts)
+
+    def test_variogram_calibration_recovers_components(self):
+        from worldmodel.causal.power import calibrate_variogram
+        params = calibrate_variogram(self._integrated_panel(walk_sd=0.05, noise_sd=0.02, trend_sd=0.0, seed=1))
+        fit = params['unit']
+        self.assertAlmostEqual(math.sqrt(fit['random_walk_innovation_variance']), 0.05, delta=0.012)
+        self.assertAlmostEqual(math.sqrt(fit['ar1_variance']), 0.02, delta=0.012)
+        self.assertLess(math.sqrt(fit['trend_slope_variance']), 0.01)
+        self.assertGreater(fit['weighted_r_squared'], 0.97)
+        with_trend = calibrate_variogram(self._integrated_panel(walk_sd=0.0, noise_sd=0.01, trend_sd=0.02, seed=2))
+        self.assertAlmostEqual(math.sqrt(with_trend['unit']['trend_slope_variance']), 0.02, delta=0.006)
+
+    def test_variogram_simulation_reproduces_long_differences(self):
+        from worldmodel.causal.power import calibrate_variogram
+        panel = self._integrated_panel(walk_sd=0.05, noise_sd=0.02, trend_sd=0.01, seed=3)
+        params = calibrate_variogram(panel)
+        sim = simulate_null_panel(panel, params, seed=9)
+        self.assertEqual(sorted(sim.outcomes['u0']), sorted(panel.outcomes['u0']))
+        self.assertEqual(sim.digest(), simulate_null_panel(panel, params, seed=9).digest())
+
+        def spread(p, lag):
+            vals = [s[t + lag] - s[t] for s in p.outcomes.values() for t in s if t + lag in s]
+            return statistics.pstdev(vals)
+
+        for lag in (1, 5, 10):
+            self.assertAlmostEqual(spread(sim, lag) / spread(panel, lag), 1.0, delta=0.25)
+
     def test_ranking_power(self):
         rng = random.Random(3)
         diffs = [rng.gauss(0.0, 0.1) for _ in range(40)]

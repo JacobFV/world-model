@@ -23,10 +23,13 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT))
 
-from worldmodel.causal.power import calibrate, null_draws, panel_from_dict, panel_to_dict, summarize_draws  # noqa: E402
+from worldmodel.causal.power import (calibrate, calibrate_variogram, null_draws, panel_from_dict,  # noqa: E402
+                                     panel_to_dict, summarize_draws)
 from worldmodel.causal.power_designs import (BUILDERS, _with_cohorts, design_spec, exposure_power, power_record,  # noqa: E402
                                              real_standard_error)
 from worldmodel.causal.registration import load_registration  # noqa: E402
+
+MODELS = {'registered': calibrate, 'amended_variogram': calibrate_variogram}
 
 REGISTRATIONS = ROOT / 'examples/natural-experiments/registrations'
 RESULTS = ROOT / 'examples/natural-experiments/results'
@@ -68,11 +71,12 @@ def cmd_export(args):
         expected = next(c for c in power_reg['designs'] if c['study_id'] == sid).get('expected_panel_digest')
         if expected and expected != item['digest']:
             raise SystemExit(f'{sid}: panel digest {item["digest"]} differs from the registered {expected}')
-        params = calibrate(item['panel'], anticipation=item['spec']['anticipation'])
+        params = {name: fn(item['panel'], anticipation=item['spec']['anticipation']) for name, fn in MODELS.items()}
         exported[sid] = {'panel': panel_to_dict(item['panel']), 'digest': item['digest'], 'spec': item['spec'],
                          'calibration': params, 'real_se': real_standard_error(item['panel'], item['spec'])}
         print(json.dumps({'design': sid, 'real_se': exported[sid]['real_se'],
-                          'calibration': {k: v for k, v in params.items() if k != 'unit_innovation_var'}}), flush=True)
+                          'calibration': {m: {k: v for k, v in c.items() if k not in ('unit_innovation_var', 'unit_scale')}
+                                          for m, c in params.items()}}, default=str), flush=True)
     Path(args.dir).mkdir(parents=True, exist_ok=True)
     with gzip.open(Path(args.dir) / 'panels.json.gz', 'wt') as f:
         json.dump(exported, f)
@@ -94,10 +98,12 @@ def cmd_simulate(args):
         if panel.digest() != item['digest']:
             raise SystemExit(f'{sid}: exported panel does not match its digest')
         started = time.time()
-        draws = null_draws(panel, item['spec'], item['calibration'], replications=sim['replications'],
-                           seed=sim['seed'] + index, workers=args.workers)
+        models = {}
+        for offset, name in enumerate(MODELS):
+            models[name] = null_draws(panel, item['spec'], item['calibration'][name], replications=sim['replications'],
+                                      seed=sim['seed'] + index + 1000 * offset, workers=args.workers)
         done[sid] = {'digest': item['digest'], 'seed': sim['seed'] + index, 'replications': sim['replications'],
-                     'seconds': round(time.time() - started, 1), 'draws': draws}
+                     'seconds': round(time.time() - started, 1), 'models': models}
         out_path.write_text(json.dumps(done))
         print(json.dumps({'design': sid, 'seconds': done[sid]['seconds']}), flush=True)
 
@@ -128,24 +134,32 @@ def cmd_assemble(args):
         item = built[sid]
         if not (item['digest'] == exported[sid]['digest'] == draws[sid]['digest']):
             raise SystemExit(f'{sid}: rebuilt panel, exported panel and draws disagree')
-        params = calibrate(item['panel'], anticipation=item['spec']['anticipation'])
+        params = {name: fn(item['panel'], anticipation=item['spec']['anticipation']) for name, fn in MODELS.items()}
         if json.dumps(params, sort_keys=True) != json.dumps(exported[sid]['calibration'], sort_keys=True):
             raise SystemExit(f'{sid}: calibration differs from the exported one')
         if draws[sid]['seed'] != sim['seed'] + index or draws[sid]['replications'] != sim['replications']:
             raise SystemExit(f'{sid}: draws were not produced with the registered seed and replications')
         real_se = real_standard_error(item['panel'], item['spec'])
-        summary = summarize_draws(draws[sid]['draws'], alpha=item['spec']['alpha'], power=sim['power'], real_se=real_se,
-                                  plausible=cfg['plausible_effect'])
+        summaries = {}
+        for name in MODELS:
+            summaries[name] = summarize_draws(draws[sid]['models'][name], alpha=item['spec']['alpha'],
+                                              power=sim['power'], real_se=real_se, plausible=cfg['plausible_effect'])
+            summaries[name]['noise_model'] = name
+            summaries[name]['null_draws'] = [{k: d.get(k) for k in ('att', 'se', 'pre_trend_p', 'placebo_date_p')}
+                                             for d in draws[sid]['models'][name]]
+        summary = summaries['registered']
         summary['plausible_effect_rationale'] = cfg['plausible_rationale']
-        summary['null_draws'] = [{k: d.get(k) for k in ('att', 'se', 'pre_trend_p', 'placebo_date_p')}
-                                 for d in draws[sid]['draws']]
+        summary['amended_variogram_model'] = summaries['amended_variogram']
         for ref in item['inputs']:
             if ref not in inputs:
                 inputs.append(ref)
         results.append(power_record(power_registration=power_reg, status=status, design=sid, summary=summary,
-                                    calibration=params, panel_summary=item['panel'].summary(), panel_digest=item['digest'],
+                                    calibration=params['registered'], panel_summary=item['panel'].summary(),
+                                    panel_digest=item['digest'],
                                     data={'inputs': item['inputs'], 'design_registration': item['registration'],
-                                          'design_spec': item['spec'], 'simulation_seconds': draws[sid]['seconds']}))
+                                          'design_spec': item['spec'], 'simulation_seconds': draws[sid]['seconds'],
+                                          'amended_calibration': {k: v for k, v in params['amended_variogram'].items()
+                                                                  if k != 'unit_scale'}}))
     report = {'schema': 'worldmodel.natural_experiment_report/1', 'study_id': STUDY, 'registration': status,
               'results': results, 'seconds': round(time.time() - started, 1)}
     RESULTS.mkdir(parents=True, exist_ok=True)
