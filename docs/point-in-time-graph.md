@@ -178,7 +178,7 @@ index:
 | `county_realtime_panel` | 1,257,175 | 1,257,175 | 100.00% | `dimensions.available_at` | no rows in scope at all |
 | `fred_state_employment_vintages` | 949,207 | 947,898 | 99.86% | `attributes.realtime_start` | structure only: 1,309 rows, 0 dated |
 | `openfema` | 2,801,582 | 393,168 | 14.03% | rule | **yes, all kinds** |
-| the seven small FRED anchor series | 100,415 | 100,386 | 99.97% | `attributes.realtime_start` | yes (six of them) |
+| the seven small FRED anchor series | 101,415 | 101,386 | 99.97% | `attributes.realtime_start` | yes, all kinds (except `fred_deposit_rates`, which has 7 structure rows in scope and no observations) |
 | `bls_labor` | 60,872,022 | see below | | rule on observations; `realtime_start` **refused** | structure only: 307,387 rows, 0 dated |
 | `bls_prices` | 4,217,151 | 0 | 0.00% | `realtime_start` **refused** | structure only: 10,816 rows, 0 dated |
 
@@ -240,10 +240,12 @@ this section is the record of what the number was before it.
 - **91.40% of the default index is `NULL`, and the three biggest wins are not in the index yet.**
   The measurement above is a statement about `worldmodel.unify.OBSERVATION_DATASETS`, not only about
   the publishers: the records that carry a real availability date are observations, and the default
-  profile indexes observations for 60 datasets, none of them the dated panels or the deep ALFRED
-  vintages. Adding `county_panel`, `county_realtime_panel`, `fred_county_vintages`,
-  `fred_macro_panel`, `fred_state_employment_vintages`, `bea_national_regional` and
-  `irs_soi_migration` to that set would add roughly 36M dated records. That is a scope decision about
+  profile indexes observations for the 54 in-scope members of `OBSERVATION_DATASETS`, none of them
+  the dated panels or the deep ALFRED vintages. Adding `county_panel`, `county_realtime_panel`,
+  `fred_county_vintages`, `fred_macro_panel`, `fred_state_employment_vintages`,
+  `bea_national_regional` and `irs_soi_migration` to that set would add about 36.0M dated records
+  (13.7M + 7.6M + 5.3M + 5.0M + 2.2M + 1.3M + 0.9M), taking the dated share of the default scope from
+  8.60% to roughly 29% - at the cost of about 36M more indexed rows. That is a scope decision about
   what the index is for, not a defect in this column, and it is not taken here.
 - **The reference period is not always the publication anchor.** A rule anchored on `valid_to` assumes
   the record's period end is what the publisher's calendar counts from. For an annual county series
