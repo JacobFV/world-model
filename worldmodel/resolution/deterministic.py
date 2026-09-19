@@ -16,7 +16,14 @@ UNIQUE_NAMESPACES = {'lei', 'sec_cik', 'bioguide', 'icpsr', 'fec_candidate', 'fe
                      'rssd', 'figi', 'isin', 'ofac_sdn', 'opensanctions', 'eia_plant', 'imo', 'mmsi', 'wikidata', 'mic',
                      # ORCID iDs and ROR IDs are issued one per researcher / organisation; imo_company is IMO's
                      # company and registered-owner number series (see resolution.bridges)
-                     'orcid', 'ror', 'imo_company'}
+                     'orcid', 'ror', 'imo_company',
+                     # Namespaces the Wikidata bridge introduces (resolution.wikidata.NEW_UNIQUE_NAMESPACES).
+                     # Each issuer assigns one value per thing: GovTrack, Vote Smart and OpenSecrets one per
+                     # person, EIA one per utility, and an ISO 3166 or FIPS code names one jurisdiction in one
+                     # vintage. The vintage is why they are still held to 1:1 and refused when broken -
+                     # Connecticut's planning regions took new FIPS county codes in 2022.
+                     'govtrack', 'votesmart', 'opensecrets', 'eia_utility', 'iso3166_1_alpha2',
+                     'iso3166_1_alpha3', 'iso3166_1_numeric', 'iso3166_2', 'fips_county', 'fips_state'}
 
 MAPPING_SPECS = {
     'gleif_sec_cik': {'left': 'lei', 'right': 'sec_cik', 'relation': 'same_as', 'cardinality': '1:1',
@@ -64,6 +71,25 @@ MAPPING_SPECS = {
                        'source': 'FDIC BankFind institutions FED_RSSD field'},
     'figi_ticker': {'left': 'figi', 'right': 'ticker', 'relation': 'listed_as', 'cardinality': '1:1', 'right_scope': 'mic',
                     'dated': True, 'source': 'OpenFIGI mapping responses (exchange-level FIGI)'},
+    'wikidata_identifier': {'left': 'wikidata', 'right': 'external_identifier', 'relation': 'same_as',
+                            'cardinality': '1:1',
+                            'source': 'Wikidata external-identifier statements at truthy rank, read through the '
+                                      'property that published them (resolution.wikidata.PROPERTIES)',
+                            'note': 'one item, one value, and one value on one item. Wikidata is a wiki: two items '
+                                    'carrying one LEI, or one item carrying two, is an editing conflict there and '
+                                    'would be a wrong merge here, so both are refused and counted'},
+    'wikidata_identifier_series': {'left': 'wikidata', 'right': 'external_identifier', 'relation': 'same_as',
+                                   'cardinality': '1:n',
+                                   'source': 'Wikidata external-identifier statements whose issuer assigns several '
+                                             'values to one thing (ISIN, MIC segment codes, FEC committees)',
+                                   'note': 'one item may publish several values, but a value published by two items '
+                                           'is still refused'},
+    'geo_entity_id': {'left': 'geocode', 'right': 'entity', 'relation': 'same_as', 'cardinality': '1:1',
+                      'source': 'catalog entity IDs that are geographic codes: geo:US:county:<FIPS 6-4>, '
+                                'geo:US:state:<FIPS 5-2>, iso3:<ISO 3166-1 alpha-3>, geo:<ISO 3166-1 alpha-2>, '
+                                'iso3166-2:<ISO 3166-2>',
+                      'note': 'held per publishing dataset, so the six Census products that key a county on the '
+                              'same GEOID are agreement, not a conflict'},
 }
 
 

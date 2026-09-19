@@ -1,0 +1,1015 @@
+{
+  "id": "wikidata_identifiers",
+  "schema_version": 2,
+  "dependencies": [],
+  "kind": "source",
+  "status": "complete",
+  "description": "Wikidata items and the external identifiers they carry, one published statement per Wikidata property: LEI, SEC CIK, Bioguide, GovTrack, Vote Smart, OpenSecrets, Ballotpedia, FEC committee, ISIN, IMO, MMSI, ROR, IATA, ICAO, MIC, ISO 9362 BIC, PermID, Companies House, FDIC certificate, EIA plant and utility, D-U-N-S, EIN, UN/LOCODE, OpenCorporates (gb), ISO 3166-1/-2 and FIPS",
+  "source": {
+    "publisher": "Wikidata / Wikimedia Foundation",
+    "documentation": "https://www.wikidata.org/wiki/Wikidata:SPARQL_query_service",
+    "terms_url": "https://www.wikidata.org/wiki/Wikidata:Licensing",
+    "license": "Creative Commons CC0 1.0 Universal Public Domain Dedication",
+    "license_id": "CC0-1.0",
+    "license_status": "CC0-1.0",
+    "attribution": "Not required. Wikidata content is dedicated to the public domain under CC0 1.0; the publisher and the retrieval date are recorded in every record's evidence anyway.",
+    "redistribution": true,
+    "license_notes": "Wikidata content is released under CC0 1.0 Universal (public domain dedication); https://www.wikidata.org/wiki/Wikidata:Licensing. The query service is used under the Wikimedia user-agent policy: a contact User-Agent is sent, requests are rate limited to one every five seconds, and Retry-After is honoured by the runner.",
+    "authority": "collaborative_knowledge_base"
+  },
+  "expected_outputs": [
+    "entity",
+    "external_identifier"
+  ],
+  "entrypoint": "pipeline.py:run",
+  "parameters": {
+    "properties": [
+      {
+        "property": "P1278",
+        "property_label": "Legal Entity Identifier",
+        "namespace": "lei",
+        "statements_counted_2026_09_19": 53403,
+        "value_filter": ""
+      },
+      {
+        "property": "P5531",
+        "property_label": "Central Index Key",
+        "namespace": "sec_cik",
+        "statements_counted_2026_09_19": 3693,
+        "value_filter": ""
+      },
+      {
+        "property": "P1157",
+        "property_label": "US Congress Bio ID",
+        "namespace": "bioguide",
+        "statements_counted_2026_09_19": 13059,
+        "value_filter": ""
+      },
+      {
+        "property": "P12644",
+        "property_label": "GovTrack person ID",
+        "namespace": "govtrack",
+        "statements_counted_2026_09_19": 64,
+        "value_filter": ""
+      },
+      {
+        "property": "P3344",
+        "property_label": "Vote Smart candidate ID",
+        "namespace": "votesmart",
+        "statements_counted_2026_09_19": 5357,
+        "value_filter": ""
+      },
+      {
+        "property": "P2686",
+        "property_label": "OpenSecrets people ID",
+        "namespace": "opensecrets",
+        "statements_counted_2026_09_19": 729,
+        "value_filter": ""
+      },
+      {
+        "property": "P2390",
+        "property_label": "Ballotpedia ID",
+        "namespace": "ballotpedia",
+        "statements_counted_2026_09_19": 16444,
+        "value_filter": ""
+      },
+      {
+        "property": "P7057",
+        "property_label": "FEC Campaign Committee ID",
+        "namespace": "fec_committee",
+        "statements_counted_2026_09_19": 99,
+        "value_filter": ""
+      },
+      {
+        "property": "P946",
+        "property_label": "ISIN",
+        "namespace": "isin",
+        "statements_counted_2026_09_19": 10272,
+        "value_filter": ""
+      },
+      {
+        "property": "P458",
+        "property_label": "IMO ship number",
+        "namespace": "imo",
+        "statements_counted_2026_09_19": 96525,
+        "value_filter": ""
+      },
+      {
+        "property": "P587",
+        "property_label": "MMSI",
+        "namespace": "mmsi",
+        "statements_counted_2026_09_19": 38198,
+        "value_filter": ""
+      },
+      {
+        "property": "P6782",
+        "property_label": "ROR ID",
+        "namespace": "ror",
+        "statements_counted_2026_09_19": 135973,
+        "value_filter": ""
+      },
+      {
+        "property": "P238",
+        "property_label": "IATA airport code",
+        "namespace": "iata",
+        "statements_counted_2026_09_19": 9352,
+        "value_filter": ""
+      },
+      {
+        "property": "P239",
+        "property_label": "ICAO airport code",
+        "namespace": "icao",
+        "statements_counted_2026_09_19": 20610,
+        "value_filter": ""
+      },
+      {
+        "property": "P7534",
+        "property_label": "MIC market code",
+        "namespace": "mic",
+        "statements_counted_2026_09_19": 1932,
+        "value_filter": ""
+      },
+      {
+        "property": "P2627",
+        "property_label": "ISO 9362 SWIFT/BIC code",
+        "namespace": "swift",
+        "statements_counted_2026_09_19": 2565,
+        "value_filter": ""
+      },
+      {
+        "property": "P3347",
+        "property_label": "PermID",
+        "namespace": "permid",
+        "statements_counted_2026_09_19": 6110,
+        "value_filter": ""
+      },
+      {
+        "property": "P2622",
+        "property_label": "Companies House company ID",
+        "namespace": "gb_company_number",
+        "statements_counted_2026_09_19": 8175,
+        "value_filter": ""
+      },
+      {
+        "property": "P11175",
+        "property_label": "FDIC Certificate ID",
+        "namespace": "fdic_cert",
+        "statements_counted_2026_09_19": 117,
+        "value_filter": ""
+      },
+      {
+        "property": "P10682",
+        "property_label": "EIA plant ID",
+        "namespace": "eia_plant",
+        "statements_counted_2026_09_19": 11929,
+        "value_filter": ""
+      },
+      {
+        "property": "P10712",
+        "property_label": "EIA utility ID",
+        "namespace": "eia_utility",
+        "statements_counted_2026_09_19": 9,
+        "value_filter": ""
+      },
+      {
+        "property": "P2771",
+        "property_label": "D-U-N-S number",
+        "namespace": "duns",
+        "statements_counted_2026_09_19": 628,
+        "value_filter": ""
+      },
+      {
+        "property": "P1297",
+        "property_label": "IRS Employer Identification Number",
+        "namespace": "ein",
+        "statements_counted_2026_09_19": 17260,
+        "value_filter": ""
+      },
+      {
+        "property": "P1937",
+        "property_label": "UN/LOCODE",
+        "namespace": "unlocode",
+        "statements_counted_2026_09_19": 45717,
+        "value_filter": ""
+      },
+      {
+        "property": "P1320",
+        "property_label": "OpenCorporates organization ID",
+        "namespace": "opencorporates",
+        "statements_counted_2026_09_19": 7609,
+        "value_filter": "FILTER(STRSTARTS(?value,\"gb/\"))"
+      },
+      {
+        "property": "P297",
+        "property_label": "ISO 3166-1 alpha-2 code",
+        "namespace": "iso3166_1_alpha2",
+        "statements_counted_2026_09_19": 262,
+        "value_filter": ""
+      },
+      {
+        "property": "P298",
+        "property_label": "ISO 3166-1 alpha-3 code",
+        "namespace": "iso3166_1_alpha3",
+        "statements_counted_2026_09_19": 274,
+        "value_filter": ""
+      },
+      {
+        "property": "P299",
+        "property_label": "ISO 3166-1 numeric code",
+        "namespace": "iso3166_1_numeric",
+        "statements_counted_2026_09_19": 270,
+        "value_filter": ""
+      },
+      {
+        "property": "P300",
+        "property_label": "ISO 3166-2 code",
+        "namespace": "iso3166_2",
+        "statements_counted_2026_09_19": 5459,
+        "value_filter": ""
+      },
+      {
+        "property": "P882",
+        "property_label": "FIPS 6-4 ID",
+        "namespace": "fips_county",
+        "statements_counted_2026_09_19": 3793,
+        "value_filter": ""
+      },
+      {
+        "property": "P5087",
+        "property_label": "FIPS 5-2 numeric code (US states)",
+        "namespace": "fips_state",
+        "statements_counted_2026_09_19": 69,
+        "value_filter": ""
+      }
+    ],
+    "page_rows": 10000,
+    "opencorporates_page_rows": 5000
+  },
+  "sampling": {
+    "strategy": "download",
+    "max_rows": 100,
+    "max_sample_bytes": 1048576,
+    "max_download_bytes": 1048576,
+    "max_uncompressed_bytes": 1048576,
+    "disk_budget_bytes": 67108864,
+    "timeout_seconds": 180,
+    "total_timeout_seconds": 360,
+    "format": "csv",
+    "representative": false,
+    "url": "https://query.wikidata.org/sparql?query=SELECT%20%3Fitem%20%3Flabel%20%3Fvalue%20WHERE%20%7B%20%3Fitem%20wdt%3AP1278%20%3Fvalue%20.%20SERVICE%20wikibase%3Alabel%20%7B%20bd%3AserviceParam%20wikibase%3Alanguage%20%22en%22.%20%3Fitem%20rdfs%3Alabel%20%3Flabel.%20%7D%20%7D%20ORDER%20BY%20%3Fitem%20%3Fvalue%20LIMIT%20100",
+    "criteria": "First 100 Legal Entity Identifier statements in (item, value) order. Ordered by the query, not by the service; no representativeness claimed over the other properties.",
+    "documentation": "https://www.wikidata.org/wiki/Wikidata:SPARQL_query_service"
+  },
+  "coverage": {
+    "representative": false,
+    "completeness": "complete_for_declared_scope",
+    "scope": "every Wikidata item carrying one of the 31 declared external-identifier properties, at truthy rank; OpenCorporates restricted to the gb jurisdiction. Not a Wikidata dump: properties outside the list (ORCID, GeoNames, OpenStreetMap, VIAF, ISNI, GND, SIREN, the non-gb OpenCorporates jurisdictions) are not acquired"
+  },
+  "access": {
+    "probe": "Wikidata Query Service reachable and paging verified 2026-09-19",
+    "credentials": "None; anonymous, contact User-Agent required by the Wikimedia user-agent policy",
+    "blockers": [
+      "WDQS returns HTTP 200 with a silently truncated body when a query exceeds its server-side time limit, so every page is held to its declared row count"
+    ]
+  },
+  "normalization": {
+    "input_format": "full_acquisition_shards (SPARQL CSV results, one shard per page)",
+    "raw_fields": "item IRI, English label, value, pipe-joined P31 class QIDs",
+    "identity": "Only identifiers Wikidata publishes as statements of the declared property. Labels are names, never merge evidence. Entity IDs are the QID.",
+    "temporal_scope": "Wikidata does not date an external-identifier statement; none is dated here",
+    "coverage": "the 31 declared properties at truthy rank"
+  },
+  "stages": [
+    {
+      "id": "normalized",
+      "entrypoint": "pipeline.py:run",
+      "depends_on": [],
+      "schema": {
+        "format": "evidence_jsonl",
+        "compression": "gzip"
+      },
+      "validation": {
+        "allow_empty": false,
+        "max_rows": 3000000
+      },
+      "cache": "content",
+      "retention": "retain"
+    }
+  ],
+  "output_stage": "normalized",
+  "acquisition": {
+    "strategy": "url_list",
+    "description": "One SPARQL request per (property, page). The inner subquery orders by (item, value) and takes LIMIT/OFFSET over that total order, so the pages of a property are a complete, disjoint partition and each page is independently re-runnable. Each property is followed by at least one empty page, which is what lets the pipeline tell \"the property ended here\" from \"this response was truncated\".",
+    "documentation": "https://www.wikidata.org/wiki/Wikidata:SPARQL_query_service/queries",
+    "desired_bytes": 250000000,
+    "priority": 1.0,
+    "url_template": "https://query.wikidata.org/sparql?query=SELECT%20%3Fitem%20%3Flabel%20%3Fvalue%20%28GROUP_CONCAT%28DISTINCT%20%3Ft%3BSEPARATOR%3D%22%7C%22%29%20AS%20%3Ftypes%29%20WHERE%20%7B%0A%20%20%7B%20SELECT%20%3Fitem%20%3Fvalue%20WHERE%20%7B%20%3Fitem%20wdt%3A{property}%20%3Fvalue%20.%20{filter}%20%7D%0A%20%20%20%20ORDER%20BY%20%3Fitem%20%3Fvalue%20LIMIT%20{limit}%20OFFSET%20{offset}%20%7D%0A%20%20OPTIONAL%20%7B%20%3Fitem%20wdt%3AP31%20%3Fc%20.%20BIND%28STRAFTER%28STR%28%3Fc%29%2C%22%2Fentity%2F%22%29%20AS%20%3Ft%29%20%7D%0A%20%20SERVICE%20wikibase%3Alabel%20%7B%20bd%3AserviceParam%20wikibase%3Alanguage%20%22en%2Cmul%22.%20%3Fitem%20rdfs%3Alabel%20%3Flabel.%20%7D%0A%7D%20GROUP%20BY%20%3Fitem%20%3Flabel%20%3Fvalue",
+    "combinations": [
+      {
+        "property": "P1278",
+        "filter": "",
+        "limit": 10000,
+        "offset": 0
+      },
+      {
+        "property": "P1278",
+        "filter": "",
+        "limit": 10000,
+        "offset": 10000
+      },
+      {
+        "property": "P1278",
+        "filter": "",
+        "limit": 10000,
+        "offset": 20000
+      },
+      {
+        "property": "P1278",
+        "filter": "",
+        "limit": 10000,
+        "offset": 30000
+      },
+      {
+        "property": "P1278",
+        "filter": "",
+        "limit": 10000,
+        "offset": 40000
+      },
+      {
+        "property": "P1278",
+        "filter": "",
+        "limit": 10000,
+        "offset": 50000
+      },
+      {
+        "property": "P1278",
+        "filter": "",
+        "limit": 10000,
+        "offset": 60000
+      },
+      {
+        "property": "P1278",
+        "filter": "",
+        "limit": 10000,
+        "offset": 70000
+      },
+      {
+        "property": "P5531",
+        "filter": "",
+        "limit": 10000,
+        "offset": 0
+      },
+      {
+        "property": "P5531",
+        "filter": "",
+        "limit": 10000,
+        "offset": 10000
+      },
+      {
+        "property": "P1157",
+        "filter": "",
+        "limit": 10000,
+        "offset": 0
+      },
+      {
+        "property": "P1157",
+        "filter": "",
+        "limit": 10000,
+        "offset": 10000
+      },
+      {
+        "property": "P1157",
+        "filter": "",
+        "limit": 10000,
+        "offset": 20000
+      },
+      {
+        "property": "P12644",
+        "filter": "",
+        "limit": 10000,
+        "offset": 0
+      },
+      {
+        "property": "P12644",
+        "filter": "",
+        "limit": 10000,
+        "offset": 10000
+      },
+      {
+        "property": "P3344",
+        "filter": "",
+        "limit": 10000,
+        "offset": 0
+      },
+      {
+        "property": "P3344",
+        "filter": "",
+        "limit": 10000,
+        "offset": 10000
+      },
+      {
+        "property": "P2686",
+        "filter": "",
+        "limit": 10000,
+        "offset": 0
+      },
+      {
+        "property": "P2686",
+        "filter": "",
+        "limit": 10000,
+        "offset": 10000
+      },
+      {
+        "property": "P2390",
+        "filter": "",
+        "limit": 10000,
+        "offset": 0
+      },
+      {
+        "property": "P2390",
+        "filter": "",
+        "limit": 10000,
+        "offset": 10000
+      },
+      {
+        "property": "P2390",
+        "filter": "",
+        "limit": 10000,
+        "offset": 20000
+      },
+      {
+        "property": "P7057",
+        "filter": "",
+        "limit": 10000,
+        "offset": 0
+      },
+      {
+        "property": "P7057",
+        "filter": "",
+        "limit": 10000,
+        "offset": 10000
+      },
+      {
+        "property": "P946",
+        "filter": "",
+        "limit": 10000,
+        "offset": 0
+      },
+      {
+        "property": "P946",
+        "filter": "",
+        "limit": 10000,
+        "offset": 10000
+      },
+      {
+        "property": "P946",
+        "filter": "",
+        "limit": 10000,
+        "offset": 20000
+      },
+      {
+        "property": "P458",
+        "filter": "",
+        "limit": 10000,
+        "offset": 0
+      },
+      {
+        "property": "P458",
+        "filter": "",
+        "limit": 10000,
+        "offset": 10000
+      },
+      {
+        "property": "P458",
+        "filter": "",
+        "limit": 10000,
+        "offset": 20000
+      },
+      {
+        "property": "P458",
+        "filter": "",
+        "limit": 10000,
+        "offset": 30000
+      },
+      {
+        "property": "P458",
+        "filter": "",
+        "limit": 10000,
+        "offset": 40000
+      },
+      {
+        "property": "P458",
+        "filter": "",
+        "limit": 10000,
+        "offset": 50000
+      },
+      {
+        "property": "P458",
+        "filter": "",
+        "limit": 10000,
+        "offset": 60000
+      },
+      {
+        "property": "P458",
+        "filter": "",
+        "limit": 10000,
+        "offset": 70000
+      },
+      {
+        "property": "P458",
+        "filter": "",
+        "limit": 10000,
+        "offset": 80000
+      },
+      {
+        "property": "P458",
+        "filter": "",
+        "limit": 10000,
+        "offset": 90000
+      },
+      {
+        "property": "P458",
+        "filter": "",
+        "limit": 10000,
+        "offset": 100000
+      },
+      {
+        "property": "P458",
+        "filter": "",
+        "limit": 10000,
+        "offset": 110000
+      },
+      {
+        "property": "P458",
+        "filter": "",
+        "limit": 10000,
+        "offset": 120000
+      },
+      {
+        "property": "P587",
+        "filter": "",
+        "limit": 10000,
+        "offset": 0
+      },
+      {
+        "property": "P587",
+        "filter": "",
+        "limit": 10000,
+        "offset": 10000
+      },
+      {
+        "property": "P587",
+        "filter": "",
+        "limit": 10000,
+        "offset": 20000
+      },
+      {
+        "property": "P587",
+        "filter": "",
+        "limit": 10000,
+        "offset": 30000
+      },
+      {
+        "property": "P587",
+        "filter": "",
+        "limit": 10000,
+        "offset": 40000
+      },
+      {
+        "property": "P587",
+        "filter": "",
+        "limit": 10000,
+        "offset": 50000
+      },
+      {
+        "property": "P6782",
+        "filter": "",
+        "limit": 10000,
+        "offset": 0
+      },
+      {
+        "property": "P6782",
+        "filter": "",
+        "limit": 10000,
+        "offset": 10000
+      },
+      {
+        "property": "P6782",
+        "filter": "",
+        "limit": 10000,
+        "offset": 20000
+      },
+      {
+        "property": "P6782",
+        "filter": "",
+        "limit": 10000,
+        "offset": 30000
+      },
+      {
+        "property": "P6782",
+        "filter": "",
+        "limit": 10000,
+        "offset": 40000
+      },
+      {
+        "property": "P6782",
+        "filter": "",
+        "limit": 10000,
+        "offset": 50000
+      },
+      {
+        "property": "P6782",
+        "filter": "",
+        "limit": 10000,
+        "offset": 60000
+      },
+      {
+        "property": "P6782",
+        "filter": "",
+        "limit": 10000,
+        "offset": 70000
+      },
+      {
+        "property": "P6782",
+        "filter": "",
+        "limit": 10000,
+        "offset": 80000
+      },
+      {
+        "property": "P6782",
+        "filter": "",
+        "limit": 10000,
+        "offset": 90000
+      },
+      {
+        "property": "P6782",
+        "filter": "",
+        "limit": 10000,
+        "offset": 100000
+      },
+      {
+        "property": "P6782",
+        "filter": "",
+        "limit": 10000,
+        "offset": 110000
+      },
+      {
+        "property": "P6782",
+        "filter": "",
+        "limit": 10000,
+        "offset": 120000
+      },
+      {
+        "property": "P6782",
+        "filter": "",
+        "limit": 10000,
+        "offset": 130000
+      },
+      {
+        "property": "P6782",
+        "filter": "",
+        "limit": 10000,
+        "offset": 140000
+      },
+      {
+        "property": "P6782",
+        "filter": "",
+        "limit": 10000,
+        "offset": 150000
+      },
+      {
+        "property": "P6782",
+        "filter": "",
+        "limit": 10000,
+        "offset": 160000
+      },
+      {
+        "property": "P238",
+        "filter": "",
+        "limit": 10000,
+        "offset": 0
+      },
+      {
+        "property": "P238",
+        "filter": "",
+        "limit": 10000,
+        "offset": 10000
+      },
+      {
+        "property": "P238",
+        "filter": "",
+        "limit": 10000,
+        "offset": 20000
+      },
+      {
+        "property": "P239",
+        "filter": "",
+        "limit": 10000,
+        "offset": 0
+      },
+      {
+        "property": "P239",
+        "filter": "",
+        "limit": 10000,
+        "offset": 10000
+      },
+      {
+        "property": "P239",
+        "filter": "",
+        "limit": 10000,
+        "offset": 20000
+      },
+      {
+        "property": "P239",
+        "filter": "",
+        "limit": 10000,
+        "offset": 30000
+      },
+      {
+        "property": "P7534",
+        "filter": "",
+        "limit": 10000,
+        "offset": 0
+      },
+      {
+        "property": "P7534",
+        "filter": "",
+        "limit": 10000,
+        "offset": 10000
+      },
+      {
+        "property": "P2627",
+        "filter": "",
+        "limit": 10000,
+        "offset": 0
+      },
+      {
+        "property": "P2627",
+        "filter": "",
+        "limit": 10000,
+        "offset": 10000
+      },
+      {
+        "property": "P3347",
+        "filter": "",
+        "limit": 10000,
+        "offset": 0
+      },
+      {
+        "property": "P3347",
+        "filter": "",
+        "limit": 10000,
+        "offset": 10000
+      },
+      {
+        "property": "P2622",
+        "filter": "",
+        "limit": 10000,
+        "offset": 0
+      },
+      {
+        "property": "P2622",
+        "filter": "",
+        "limit": 10000,
+        "offset": 10000
+      },
+      {
+        "property": "P11175",
+        "filter": "",
+        "limit": 10000,
+        "offset": 0
+      },
+      {
+        "property": "P11175",
+        "filter": "",
+        "limit": 10000,
+        "offset": 10000
+      },
+      {
+        "property": "P10682",
+        "filter": "",
+        "limit": 10000,
+        "offset": 0
+      },
+      {
+        "property": "P10682",
+        "filter": "",
+        "limit": 10000,
+        "offset": 10000
+      },
+      {
+        "property": "P10682",
+        "filter": "",
+        "limit": 10000,
+        "offset": 20000
+      },
+      {
+        "property": "P10712",
+        "filter": "",
+        "limit": 10000,
+        "offset": 0
+      },
+      {
+        "property": "P10712",
+        "filter": "",
+        "limit": 10000,
+        "offset": 10000
+      },
+      {
+        "property": "P2771",
+        "filter": "",
+        "limit": 10000,
+        "offset": 0
+      },
+      {
+        "property": "P2771",
+        "filter": "",
+        "limit": 10000,
+        "offset": 10000
+      },
+      {
+        "property": "P1297",
+        "filter": "",
+        "limit": 10000,
+        "offset": 0
+      },
+      {
+        "property": "P1297",
+        "filter": "",
+        "limit": 10000,
+        "offset": 10000
+      },
+      {
+        "property": "P1297",
+        "filter": "",
+        "limit": 10000,
+        "offset": 20000
+      },
+      {
+        "property": "P1937",
+        "filter": "",
+        "limit": 10000,
+        "offset": 0
+      },
+      {
+        "property": "P1937",
+        "filter": "",
+        "limit": 10000,
+        "offset": 10000
+      },
+      {
+        "property": "P1937",
+        "filter": "",
+        "limit": 10000,
+        "offset": 20000
+      },
+      {
+        "property": "P1937",
+        "filter": "",
+        "limit": 10000,
+        "offset": 30000
+      },
+      {
+        "property": "P1937",
+        "filter": "",
+        "limit": 10000,
+        "offset": 40000
+      },
+      {
+        "property": "P1937",
+        "filter": "",
+        "limit": 10000,
+        "offset": 50000
+      },
+      {
+        "property": "P1937",
+        "filter": "",
+        "limit": 10000,
+        "offset": 60000
+      },
+      {
+        "property": "P1320",
+        "filter": "FILTER(STRSTARTS(?value,\"gb/\"))",
+        "limit": 5000,
+        "offset": 0
+      },
+      {
+        "property": "P1320",
+        "filter": "FILTER(STRSTARTS(?value,\"gb/\"))",
+        "limit": 5000,
+        "offset": 5000
+      },
+      {
+        "property": "P1320",
+        "filter": "FILTER(STRSTARTS(?value,\"gb/\"))",
+        "limit": 5000,
+        "offset": 10000
+      },
+      {
+        "property": "P1320",
+        "filter": "FILTER(STRSTARTS(?value,\"gb/\"))",
+        "limit": 5000,
+        "offset": 15000
+      },
+      {
+        "property": "P1320",
+        "filter": "FILTER(STRSTARTS(?value,\"gb/\"))",
+        "limit": 5000,
+        "offset": 20000
+      },
+      {
+        "property": "P1320",
+        "filter": "FILTER(STRSTARTS(?value,\"gb/\"))",
+        "limit": 5000,
+        "offset": 25000
+      },
+      {
+        "property": "P297",
+        "filter": "",
+        "limit": 10000,
+        "offset": 0
+      },
+      {
+        "property": "P297",
+        "filter": "",
+        "limit": 10000,
+        "offset": 10000
+      },
+      {
+        "property": "P298",
+        "filter": "",
+        "limit": 10000,
+        "offset": 0
+      },
+      {
+        "property": "P298",
+        "filter": "",
+        "limit": 10000,
+        "offset": 10000
+      },
+      {
+        "property": "P299",
+        "filter": "",
+        "limit": 10000,
+        "offset": 0
+      },
+      {
+        "property": "P299",
+        "filter": "",
+        "limit": 10000,
+        "offset": 10000
+      },
+      {
+        "property": "P300",
+        "filter": "",
+        "limit": 10000,
+        "offset": 0
+      },
+      {
+        "property": "P300",
+        "filter": "",
+        "limit": 10000,
+        "offset": 10000
+      },
+      {
+        "property": "P882",
+        "filter": "",
+        "limit": 10000,
+        "offset": 0
+      },
+      {
+        "property": "P882",
+        "filter": "",
+        "limit": 10000,
+        "offset": 10000
+      },
+      {
+        "property": "P5087",
+        "filter": "",
+        "limit": 10000,
+        "offset": 0
+      },
+      {
+        "property": "P5087",
+        "filter": "",
+        "limit": 10000,
+        "offset": 10000
+      }
+    ],
+    "method": "GET",
+    "user_agent": "world-model-substrate/0.3 (https://github.com/; jacobspam0123456789@gmail.com) full-acquisition",
+    "headers": {
+      "Accept": "text/csv"
+    },
+    "rate_limit": {
+      "requests_per_second": 0.2
+    },
+    "timeout_seconds": 180,
+    "retries": 8,
+    "backoff_seconds": 5.0,
+    "max_backoff_seconds": 300,
+    "reader": {
+      "format": "csv"
+    }
+  }
+}

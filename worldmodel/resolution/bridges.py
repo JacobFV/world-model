@@ -21,6 +21,7 @@ number belongs to. A bridge fires only where the publisher names the register.
 import re
 
 from .deterministic import MAPPING_SPECS
+from .wikidata import geo_entity_id_claim, statement_claim
 
 # GLEIF LEI-CDF 3.1 publishes, for every LEI, the business register that registered the entity
 # (``Entity.RegistrationAuthority.RegistrationAuthorityID``, a GLEIF RA code) and that register's
@@ -299,7 +300,8 @@ def normalize_value(namespace, value):
 # deliberately narrow: ``registration_authority`` appears only in GLEIF entity attributes,
 # ``issuer_security`` only on issuer-to-security edges. Identity documents and uniqueEntityId values
 # travel on ``identifier`` assertions, which the prefilter already keeps.
-BRIDGE_TAGS = (b'"registration_authority"', b'"predicate":"issuer_security"', b'"predicate":"same_designation_as"')
+BRIDGE_TAGS = (b'"registration_authority"', b'"predicate":"issuer_security"', b'"predicate":"same_designation_as"',
+               b'"predicate":"external_identifier"')
 
 BRIDGES = {
     'gleif_sec_cik': {
@@ -357,6 +359,38 @@ BRIDGES = {
                             'must have the twelve-character UEI shape'),
         'does_not_assert': 'SAM registration status or award eligibility; a UEI names the registrant only',
     },
+    'wikidata_identifier': {
+        'spec': 'wikidata_identifier', 'namespace': 'lei / sec_cik / bioguide / imo / ror / iata / icao / swift / '
+                                                    'permid / gb_company_number / fdic_cert / eia_plant / duns / '
+                                                    'govtrack / votesmart / opensecrets / eia_utility / iso3166_* / fips_*',
+        'reads': 'wikidata_identifiers external_identifier assertions, through the property that published them',
+        'published_basis': ('a Wikidata statement of an external-identifier property at truthy rank, so a '
+                            'deprecated-rank statement is never read; the value is held to the shape or check '
+                            'digit its own standard defines (ISO 17442, ISO 6166, the IMO weighting, the fixed '
+                            'shapes of a Bioguide ID, a CIK, an IATA/ICAO code, a MIC, a BIC, FIPS, ISO 3166)'),
+        'does_not_assert': ('that Wikidata is right. It says a Wikidata editor published this identifier against '
+                            'this item; an item carrying two values of a 1:1 family, or a value carried by two '
+                            'items, is refused rather than merged. Nothing is read from a label.'),
+    },
+    'wikidata_identifier_series': {
+        'spec': 'wikidata_identifier_series', 'namespace': 'isin / mic / fec_committee',
+        'reads': 'wikidata_identifiers external_identifier assertions for the families whose issuer assigns several',
+        'published_basis': ('the same statements, for the families where one thing legitimately holds several '
+                            'values: a company has an ISIN per share class, an exchange a MIC per segment, a '
+                            'candidate several authorized committees'),
+        'does_not_assert': ('that the item is the security. An ISIN statement on a company item is the company '
+                            'publishing its instrument, which is why the value meets a GLEIF ISIN and not an issuer'),
+    },
+    'geo_entity_id': {
+        'spec': 'geo_entity_id', 'namespace': 'fips_county / fips_state / iso3166_1_alpha2 / iso3166_1_alpha3 / iso3166_2',
+        'reads': 'entity IDs of the form geo:US:county:NNNNN, geo:US:state:NN, iso3:XXX, geo:XX, iso3166-2:XX-YYY',
+        'published_basis': ('a source that keys a county on its five-digit FIPS code has published that code, the '
+                            'same way transport keys an airport on iata: and crossref keys an institution on ror:. '
+                            'Only those five exact shapes are read; the rest of the geo: tree is left alone'),
+        'does_not_assert': ('anything about a vintage. A FIPS county code is reassigned - Connecticut replaced its '
+                            'eight counties with planning regions in 2022 - so this joins codes, and the catalog\'s '
+                            'own vintage reference table is what says which year a code belongs to'),
+    },
     'opensanctions_wikidata': {
         'spec': 'opensanctions_wikidata', 'namespace': 'wikidata',
         'reads': 'opensanctions entity IDs of the form opensanctions:Q<digits>',
@@ -376,6 +410,9 @@ def record_claims(record):
     kind = record.get('kind')
     if kind == 'entity':
         subject = record.get('entity_id', record.get('id'))
+        geocode = geo_entity_id_claim(subject)
+        if geocode is not None:
+            return [(subject, geocode[0], geocode[1], None, 'geo_entity_id')]
         if isinstance(subject, str) and subject.startswith('opensanctions:Q'):
             match = _OPENSANCTIONS_QID.fullmatch(subject)
             return [(subject, 'wikidata', match.group(1), None, 'opensanctions_wikidata')] if match else []
@@ -397,6 +434,12 @@ def record_claims(record):
         # The subject of the claim is the *security*, never the issuer: this bridge says
         # "isin:US14149Y1082 and cusip:14149Y108 are one security", nothing about the issuer.
         return [(obj, 'cusip', cusip, None, 'gleif_isin_cusip')]
+    if kind == 'assertion' and record.get('predicate') == 'external_identifier':
+        subject, claim = record.get('subject'), statement_claim(record.get('value'))
+        if claim is None or not isinstance(subject, str):
+            return []
+        namespace, value, spec = claim
+        return [(subject, namespace, value, None, spec)]
     if kind == 'assertion' and record.get('predicate') == 'identifier':
         value, subject = record.get('value'), record.get('subject')
         if not isinstance(value, dict) or not isinstance(subject, str):
