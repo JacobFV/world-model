@@ -358,19 +358,28 @@ def null_draw(panel, spec, params, seed):
     return out
 
 
-def _draw_worker(args):
-    panel_dict, spec, params, seed = args
-    return null_draw(panel_from_dict(panel_dict), spec, params, seed)
+_WORKER = {}
+
+
+def _draw_worker(seed):
+    return null_draw(_WORKER['panel'], _WORKER['spec'], _WORKER['params'], seed)
 
 
 def null_draws(panel, spec, params, *, replications, seed, workers=1):
+    """Replications of ``null_draw``; each seed gives the same draw however many workers run it.
+
+    Workers are forked after the panel is in memory and inherit it, so no panel is pickled per task.
+    """
     seeds = [seed * 100003 + r for r in range(replications)]
     if workers <= 1:
         return [null_draw(panel, spec, params, s) for s in seeds]
     import multiprocessing
-    payload = panel_to_dict(panel)
-    with multiprocessing.get_context('fork').Pool(workers) as pool:
-        return pool.map(_draw_worker, [(payload, spec, params, s) for s in seeds], chunksize=1)
+    _WORKER.update(panel=panel, spec=spec, params=params)
+    try:
+        with multiprocessing.get_context('fork').Pool(workers) as pool:
+            return pool.map(_draw_worker, seeds, chunksize=1)
+    finally:
+        _WORKER.clear()
 
 
 # -- power and minimum detectable effect ------------------------------------------------------------------
