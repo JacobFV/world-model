@@ -1,0 +1,1142 @@
+{
+ "product": "screen",
+ "product_schema": 1,
+ "query": {
+  "entries": [
+   "ofac:party:17248",
+   "mmsi:215193000",
+   "lei:213800FXBZXOXNXKWP95",
+   "sec:cik:0001050470",
+   "lei:N1GZ7BBF3NP8GI976H15",
+   "Sovcomflot"
+  ]
+ },
+ "index": {
+  "path": "/home/brandonin/Documents/world-model/data/world_evidence/index.sqlite",
+  "schema_version": "3",
+  "inputs": 96,
+  "inputs_digest": "571dce5d9bac9463ad2a142e490afbcae651f1f2638f3968c15f2a2510826eff",
+  "resolution_view_digest": "f8a3169623beec055a0d2f64a5a5d2baa05e21e865204b3699195bb30ef20214",
+  "resolution_policy": {
+   "bridges": [
+    "gleif_companies_house",
+    "gleif_isin_cusip",
+    "gleif_sec_cik"
+   ],
+   "inferred_matches_attached": false,
+   "links": "published same_as assertions, shared unique identifiers and published crosswalk fields (resolution.bridges) only",
+   "max_cluster_size": 5000,
+   "namespaces": [
+    "bioguide",
+    "cusip",
+    "duns",
+    "eia_plant",
+    "fdic_cert",
+    "fec_candidate",
+    "fec_committee",
+    "figi",
+    "gb_company_number",
+    "iata",
+    "icao",
+    "icpsr",
+    "imo",
+    "isin",
+    "lei",
+    "mic",
+    "mmsi",
+    "ofac_sdn",
+    "opensanctions",
+    "permid",
+    "ru_inn",
+    "ru_ogrn",
+    "sec_cik",
+    "swift",
+    "uei",
+    "unlocode",
+    "wikidata"
+   ]
+  }
+ },
+ "answer": {
+  "results": [
+   {
+    "input": "ofac:party:17248",
+    "input_kind": "id",
+    "status": "listed",
+    "absence_of_a_path_is_not_clearance": true,
+    "screened": [
+     {
+      "entity_id": "ofac:party:17248",
+      "canonical_id": "lei:549300LCJ1UJXHYBWI24",
+      "label": "Публичное акционерное общество \"Нефтяная компания \"ЛУКОЙЛ\"",
+      "label_from": "sec_gleif",
+      "match_basis": "exact entity ID supplied by the caller",
+      "asserted_identity_cluster": [
+       "lei:549300LCJ1UJXHYBWI24",
+       "ofac:party:17248",
+       "opensanctions:NK-T3oRNWY3XhL72vfsVMcXzX",
+       "us_csl:17248"
+      ],
+      "status": "listed",
+      "hops": 0,
+      "own_listings": [
+       {
+        "entity_id": "ofac:party:17248",
+        "label": "LUKOIL OAO",
+        "from_dataset": "ofac_sanctions",
+        "record_id": "ofac:8c059340144c0992daa79354a1220ef5c265d5ade2cd3c37c67798ec89f6e85c",
+        "list": "OFAC Specially Designated Nationals (SDN) List",
+        "category": "sanctions designation",
+        "list_publication_date": "2026-09-14"
+       },
+       {
+        "entity_id": "opensanctions:NK-T3oRNWY3XhL72vfsVMcXzX",
+        "label": "LUKOIL OAO",
+        "from_dataset": "opensanctions_graph",
+        "record_id": "osgraph:f15ae605263b70572272310a38d89242f2ca5847d4da69a9c37e83cfa311a306",
+        "list": "OpenSanctions target with topic \"sanction\"",
+        "category": "sanctions designation",
+        "opensanctions_sanctions_sources": [
+         "ua_nsdc_sanctions",
+         "nz_russia_sanctions",
+         "ca_dfatd_sema_sanctions",
+         "au_dfat_sanctions",
+         "ua_war_sanctions",
+         "us_ofac_sdn"
+        ],
+        "opensanctions_sources": [
+         "ua_nsdc_sanctions",
+         "nz_russia_sanctions",
+         "ca_dfatd_sema_sanctions",
+         "au_dfat_sanctions",
+         "ua_war_sanctions",
+         "us_ofac_sdn",
+         "ir_uani_business_registry",
+         "gb_coh_disqualified",
+         "ext_iso9362_bic",
+         "tw_shtc",
+         "ext_gleif",
+         "ext_gb_fca_firds",
+         "gem_energy_ownership",
+         "eu_esma_saris",
+         "ru_nsd_isin",
+         "us_trade_csl",
+         "permid",
+         "ext_eu_esma_firds"
+        ]
+       },
+       {
+        "entity_id": "us_csl:17248",
+        "label": "LUKOIL OAO",
+        "from_dataset": "other_sanctions_lists",
+        "record_id": "sanctions:5a5e00411fc48ece31b68a41a9c7ae41c8dccf2ab0ca2703b0d8a6a6a21f334e",
+        "list": "Sectoral Sanctions Identifications List (SSI) - Treasury Department",
+        "category": "sanctions designation"
+       }
+      ],
+      "own_flags": [],
+      "nearest_listings": []
+     }
+    ]
+   },
+   {
+    "input": "mmsi:215193000",
+    "input_kind": "id",
+    "status": "listed",
+    "absence_of_a_path_is_not_clearance": true,
+    "screened": [
+     {
+      "entity_id": "mmsi:215193000",
+      "canonical_id": "mmsi:215193000",
+      "label": "PS AUGUSTA",
+      "label_from": "marine_ais",
+      "match_basis": "exact entity ID supplied by the caller",
+      "asserted_identity_cluster": [
+       "mmsi:215193000",
+       "ofac:party:58121",
+       "opensanctions:NK-8fSPGSst7ThBkX5Q7kduoM",
+       "us_csl:58121"
+      ],
+      "status": "listed",
+      "hops": 0,
+      "own_listings": [
+       {
+        "entity_id": "ofac:party:58121",
+        "label": "DARIKA",
+        "from_dataset": "ofac_sanctions",
+        "record_id": "ofac:1655c3a735fcde480e99305820837979429b88f1e2f5f23789a0767b4d8d8ec2",
+        "list": "OFAC Specially Designated Nationals (SDN) List",
+        "category": "sanctions designation",
+        "list_publication_date": "2026-09-14"
+       },
+       {
+        "entity_id": "opensanctions:NK-8fSPGSst7ThBkX5Q7kduoM",
+        "label": "DARIKA",
+        "from_dataset": "opensanctions_graph",
+        "record_id": "osgraph:022d7c357ed0a999fd1f26abc82bfd3f565f9a7312d4bf17f5ec6e0f7066e925",
+        "list": "OpenSanctions target with topic \"sanction\"",
+        "category": "sanctions designation",
+        "opensanctions_sanctions_sources": [
+         "us_ofac_sdn"
+        ],
+        "opensanctions_sources": [
+         "us_ofac_sdn",
+         "ext_us_ofac_press_releases",
+         "us_trade_csl"
+        ]
+       },
+       {
+        "entity_id": "us_csl:58121",
+        "label": "DARIKA",
+        "from_dataset": "other_sanctions_lists",
+        "record_id": "sanctions:c74e9c895cbeb8bf7669268a3a79909acc72734e7606f8b439dc295408ec593a",
+        "list": "Specially Designated Nationals (SDN) - Treasury Department",
+        "category": "sanctions designation"
+       }
+      ],
+      "own_flags": [],
+      "nearest_listings": []
+     }
+    ]
+   },
+   {
+    "input": "lei:213800FXBZXOXNXKWP95",
+    "input_kind": "id",
+    "status": "path_found",
+    "absence_of_a_path_is_not_clearance": true,
+    "screened": [
+     {
+      "entity_id": "lei:213800FXBZXOXNXKWP95",
+      "canonical_id": "lei:213800FXBZXOXNXKWP95",
+      "label": "LUKOIL SECURITIES LIMITED",
+      "label_from": "sec_gleif",
+      "match_basis": "exact entity ID supplied by the caller",
+      "asserted_identity_cluster": [
+       "lei:213800FXBZXOXNXKWP95",
+       "opensanctions:NK-6BzaPQdz7x94fa6j4qRvcE"
+      ],
+      "own_flags": [
+       {
+        "entity_id": "opensanctions:NK-6BzaPQdz7x94fa6j4qRvcE",
+        "label": "LUKOIL SECURITIES LIMITED",
+        "from_dataset": "opensanctions_graph",
+        "record_id": "osgraph:c6b5128b463de1b221512b7b57a47153aafbda71b0df25db3d5a3c6758e01996",
+        "topic": "export.control.linked",
+        "meaning": "an OpenSanctions topic, not a designation of this entity"
+       },
+       {
+        "entity_id": "opensanctions:NK-6BzaPQdz7x94fa6j4qRvcE",
+        "label": "LUKOIL SECURITIES LIMITED",
+        "from_dataset": "opensanctions_graph",
+        "record_id": "osgraph:c6b5128b463de1b221512b7b57a47153aafbda71b0df25db3d5a3c6758e01996",
+        "topic": "sanction.control",
+        "meaning": "an OpenSanctions topic, not a designation of this entity"
+       },
+       {
+        "entity_id": "opensanctions:NK-6BzaPQdz7x94fa6j4qRvcE",
+        "label": "LUKOIL SECURITIES LIMITED",
+        "from_dataset": "opensanctions_graph",
+        "record_id": "osgraph:c6b5128b463de1b221512b7b57a47153aafbda71b0df25db3d5a3c6758e01996",
+        "topic": "sanction.linked",
+        "meaning": "an OpenSanctions topic, not a designation of this entity"
+       }
+      ],
+      "nearest_listings": [
+       {
+        "listed_cluster": "lei:549300LCJ1UJXHYBWI24",
+        "hops": 1,
+        "listings": [
+         {
+          "entity_id": "ofac:party:17248",
+          "label": "LUKOIL OAO",
+          "from_dataset": "ofac_sanctions",
+          "record_id": "ofac:8c059340144c0992daa79354a1220ef5c265d5ade2cd3c37c67798ec89f6e85c",
+          "list": "OFAC Specially Designated Nationals (SDN) List",
+          "category": "sanctions designation",
+          "list_publication_date": "2026-09-14"
+         },
+         {
+          "entity_id": "opensanctions:NK-T3oRNWY3XhL72vfsVMcXzX",
+          "label": "LUKOIL OAO",
+          "from_dataset": "opensanctions_graph",
+          "record_id": "osgraph:f15ae605263b70572272310a38d89242f2ca5847d4da69a9c37e83cfa311a306",
+          "list": "OpenSanctions target with topic \"sanction\"",
+          "category": "sanctions designation",
+          "opensanctions_sanctions_sources": [
+           "ua_nsdc_sanctions",
+           "nz_russia_sanctions",
+           "ca_dfatd_sema_sanctions",
+           "au_dfat_sanctions",
+           "ua_war_sanctions",
+           "us_ofac_sdn"
+          ],
+          "opensanctions_sources": [
+           "ua_nsdc_sanctions",
+           "nz_russia_sanctions",
+           "ca_dfatd_sema_sanctions",
+           "au_dfat_sanctions",
+           "ua_war_sanctions",
+           "us_ofac_sdn",
+           "ir_uani_business_registry",
+           "gb_coh_disqualified",
+           "ext_iso9362_bic",
+           "tw_shtc",
+           "ext_gleif",
+           "ext_gb_fca_firds",
+           "gem_energy_ownership",
+           "eu_esma_saris",
+           "ru_nsd_isin",
+           "us_trade_csl",
+           "permid",
+           "ext_eu_esma_firds"
+          ]
+         },
+         {
+          "entity_id": "us_csl:17248",
+          "label": "LUKOIL OAO",
+          "from_dataset": "other_sanctions_lists",
+          "record_id": "sanctions:5a5e00411fc48ece31b68a41a9c7ae41c8dccf2ab0ca2703b0d8a6a6a21f334e",
+          "list": "Sectoral Sanctions Identifications List (SSI) - Treasury Department",
+          "category": "sanctions designation"
+         }
+        ],
+        "flags": [],
+        "paths": [
+         {
+          "hops": 1,
+          "steps": [
+           {
+            "hop": 1,
+            "from": "lei:213800FXBZXOXNXKWP95",
+            "from_label": "LUKOIL SECURITIES LIMITED",
+            "predicate": "directly_consolidated_by",
+            "direction": "forward",
+            "to": "lei:549300LCJ1UJXHYBWI24",
+            "to_label": "Публичное акционерное общество \"Нефтяная компания \"ЛУКОЙЛ\"",
+            "from_dataset": "gleif_parent_relationships",
+            "record_id": "gleif_rr:lei:213800FXBZXOXNXKWP95:directly_consolidated_by:lei:549300LCJ1UJXHYBWI24"
+           }
+          ]
+         },
+         {
+          "hops": 1,
+          "steps": [
+           {
+            "hop": 1,
+            "from": "lei:213800FXBZXOXNXKWP95",
+            "from_label": "LUKOIL SECURITIES LIMITED",
+            "predicate": "ultimately_consolidated_by",
+            "direction": "forward",
+            "to": "lei:549300LCJ1UJXHYBWI24",
+            "to_label": "Публичное акционерное общество \"Нефтяная компания \"ЛУКОЙЛ\"",
+            "from_dataset": "gleif_parent_relationships",
+            "record_id": "gleif_rr:lei:213800FXBZXOXNXKWP95:ultimately_consolidated_by:lei:549300LCJ1UJXHYBWI24"
+           }
+          ]
+         },
+         {
+          "hops": 1,
+          "steps": [
+           {
+            "hop": 1,
+            "from": "lei:213800FXBZXOXNXKWP95",
+            "from_label": "LUKOIL SECURITIES LIMITED",
+            "predicate": "owns",
+            "direction": "reverse",
+            "to": "lei:549300LCJ1UJXHYBWI24",
+            "to_label": "Публичное акционерное общество \"Нефтяная компания \"ЛУКОЙЛ\"",
+            "from_dataset": "opensanctions_graph",
+            "record_id": "osgraph:8fb6c2d8838ae98a439a93356e2a0f1cfccf7f3278b9d0bda997401ecbc1df56"
+           }
+          ]
+         }
+        ],
+        "more_paths_of_this_length": false
+       },
+       {
+        "listed_cluster": "opensanctions:NK-RNqxeebzQ8Tw6XWyDzbaJg",
+        "hops": 2,
+        "listings": [
+         {
+          "entity_id": "opensanctions:NK-RNqxeebzQ8Tw6XWyDzbaJg",
+          "label": "2ГІС Локал Серч Лімітед",
+          "from_dataset": "opensanctions_graph",
+          "record_id": "osgraph:c4d7d657c3a23b64d1fb13f3912b153b07e0479cb3bd8e70228eec79512858c3",
+          "list": "OpenSanctions target with topic \"sanction\"",
+          "category": "sanctions designation",
+          "opensanctions_sanctions_sources": [
+           "ua_nsdc_sanctions"
+          ],
+          "opensanctions_sources": [
+           "ua_nsdc_sanctions",
+           "ext_cy_companies"
+          ]
+         }
+        ],
+        "flags": [],
+        "paths": [
+         {
+          "hops": 2,
+          "steps": [
+           {
+            "hop": 1,
+            "from": "lei:213800FXBZXOXNXKWP95",
+            "from_label": "LUKOIL SECURITIES LIMITED",
+            "predicate": "director_of",
+            "direction": "reverse",
+            "to": "opensanctions:NK-cL9eNSffoDnHqq3wmA7MB6",
+            "to_label": "CYMANCO SERVICES LIMITED",
+            "from_dataset": "opensanctions_graph",
+            "record_id": "osgraph:4362d20b0b16f0088a837d925a1c52c950481d83d94234acf269f6ae98afac98"
+           },
+           {
+            "hop": 2,
+            "from": "opensanctions:NK-cL9eNSffoDnHqq3wmA7MB6",
+            "from_label": "CYMANCO SERVICES LIMITED",
+            "predicate": "director_of",
+            "direction": "forward",
+            "to": "opensanctions:NK-RNqxeebzQ8Tw6XWyDzbaJg",
+            "to_label": "2ГІС Локал Серч Лімітед",
+            "from_dataset": "opensanctions_graph",
+            "record_id": "osgraph:c541280e44d678bde212ae1445e5c248dcfa9ca2df915f3586f292fc34c6cfcf"
+           }
+          ]
+         }
+        ],
+        "more_paths_of_this_length": false
+       }
+      ],
+      "listed_clusters_reached": 2,
+      "listed_clusters_by_hops": {
+       "1": 1,
+       "2": 1
+      },
+      "search": {
+       "nodes_reached": 6,
+       "edges_examined": 13,
+       "truncated": false,
+       "nodes_with_capped_expansion": [],
+       "listed_clusters_are_endpoints": "the search does not continue through a listed cluster"
+      },
+      "status": "path_found",
+      "hops": 1
+     }
+    ]
+   },
+   {
+    "input": "sec:cik:0001050470",
+    "input_kind": "id",
+    "status": "no_path_within_bound",
+    "absence_of_a_path_is_not_clearance": true,
+    "screened": [
+     {
+      "entity_id": "sec:cik:0001050470",
+      "canonical_id": "sec:cik:0001050470",
+      "label": "LSV ASSET MANAGEMENT",
+      "label_from": "sec_ownership_datasets",
+      "match_basis": "exact entity ID supplied by the caller",
+      "asserted_identity_cluster": [
+       "sec:cik:0001050470"
+      ],
+      "own_flags": [],
+      "nearest_listings": [],
+      "listed_clusters_reached": 0,
+      "listed_clusters_by_hops": {},
+      "search": {
+       "nodes_reached": 0,
+       "edges_examined": 0,
+       "truncated": false,
+       "nodes_with_capped_expansion": [],
+       "listed_clusters_are_endpoints": "the search does not continue through a listed cluster"
+      },
+      "status": "no_path_within_bound",
+      "hops": null
+     }
+    ]
+   },
+   {
+    "input": "lei:N1GZ7BBF3NP8GI976H15",
+    "input_kind": "id",
+    "status": "no_path_within_bound",
+    "absence_of_a_path_is_not_clearance": true,
+    "screened": [
+     {
+      "entity_id": "lei:N1GZ7BBF3NP8GI976H15",
+      "canonical_id": "lei:N1GZ7BBF3NP8GI976H15",
+      "label": "U.S. BANCORP",
+      "label_from": "sec_gleif",
+      "match_basis": "exact entity ID supplied by the caller",
+      "asserted_identity_cluster": [
+       "lei:N1GZ7BBF3NP8GI976H15",
+       "sec:cik:0000036104"
+      ],
+      "own_flags": [],
+      "nearest_listings": [],
+      "listed_clusters_reached": 0,
+      "listed_clusters_by_hops": {},
+      "search": {
+       "nodes_reached": 557,
+       "edges_examined": 3067,
+       "truncated": false,
+       "nodes_with_capped_expansion": [],
+       "listed_clusters_are_endpoints": "the search does not continue through a listed cluster"
+      },
+      "status": "no_path_within_bound",
+      "hops": null
+     }
+    ]
+   },
+   {
+    "input": "Sovcomflot",
+    "input_kind": "name",
+    "status": "listed",
+    "absence_of_a_path_is_not_clearance": true,
+    "screened": [
+     {
+      "entity_id": "lei:253400DYLWR5A6YAWJ69",
+      "canonical_id": "lei:253400DYLWR5A6YAWJ69",
+      "label": "публичное акционерное общество \"Современный коммерческий флот\"",
+      "label_from": "sec_gleif",
+      "match_basis": "exact label match on published label text - INFERRED, not asserted",
+      "asserted_identity_cluster": [
+       "lei:253400DYLWR5A6YAWJ69",
+       "ofac:party:34741",
+       "opensanctions:NK-VDEKGF5ZgHAkye4kGuUXs3",
+       "us_csl:34741"
+      ],
+      "status": "listed",
+      "hops": 0,
+      "own_listings": [
+       {
+        "entity_id": "ofac:party:34741",
+        "label": "JOINT STOCK COMPANY SOVCOMFLOT",
+        "from_dataset": "ofac_sanctions",
+        "record_id": "ofac:25f9667acf87a3e7ead3f597408c91e480141a5a9d6f33c33556c7c494819125",
+        "list": "OFAC Specially Designated Nationals (SDN) List",
+        "category": "sanctions designation",
+        "list_publication_date": "2026-09-14"
+       },
+       {
+        "entity_id": "opensanctions:NK-VDEKGF5ZgHAkye4kGuUXs3",
+        "label": "Sovcomflot",
+        "from_dataset": "opensanctions_graph",
+        "record_id": "osgraph:92c7598b1572c94e38611647940c018d887c845571e163d70d563c16a6644327",
+        "list": "OpenSanctions target with topic \"sanction\"",
+        "category": "sanctions designation",
+        "opensanctions_sanctions_sources": [
+         "ua_nsdc_sanctions",
+         "nz_russia_sanctions",
+         "ca_dfatd_sema_sanctions",
+         "be_fod_sanctions",
+         "au_dfat_sanctions",
+         "ua_war_sanctions",
+         "eu_sanctions_map",
+         "us_ofac_sdn",
+         "gb_fcdo_sanctions",
+         "ch_seco_sanctions"
+        ],
+        "opensanctions_sources": [
+         "ua_nsdc_sanctions",
+         "nz_russia_sanctions",
+         "ca_dfatd_sema_sanctions",
+         "be_fod_sanctions",
+         "au_dfat_sanctions",
+         "ua_war_sanctions",
+         "eu_sanctions_map",
+         "us_ofac_sdn",
+         "gb_fcdo_sanctions",
+         "ch_seco_sanctions",
+         "gb_coh_disqualified",
+         "ext_gleif",
+         "fr_tresor_gels_avoir",
+         "eu_fsf",
+         "ru_nsd_isin",
+         "us_trade_csl",
+         "permid",
+         "mc_fund_freezes",
+         "ext_ru_egrul",
+         "ext_us_ofac_press_releases"
+        ]
+       },
+       {
+        "entity_id": "us_csl:34741",
+        "label": "JOINT STOCK COMPANY SOVCOMFLOT",
+        "from_dataset": "other_sanctions_lists",
+        "record_id": "sanctions:3b366f7f600047d13f4a018bb5fb177e1e4eee07fd494ebf75257d38ed48af5b",
+        "list": "Specially Designated Nationals (SDN) - Treasury Department",
+        "category": "sanctions designation"
+       }
+      ],
+      "own_flags": [
+       {
+        "entity_id": "opensanctions:NK-VDEKGF5ZgHAkye4kGuUXs3",
+        "label": "Sovcomflot",
+        "from_dataset": "opensanctions_graph",
+        "record_id": "osgraph:92c7598b1572c94e38611647940c018d887c845571e163d70d563c16a6644327",
+        "topic": "poi",
+        "meaning": "an OpenSanctions topic, not a designation of this entity"
+       }
+      ],
+      "nearest_listings": []
+     },
+     {
+      "entity_id": "lei:89450003E1QO0BQ8WF75",
+      "canonical_id": "lei:89450003E1QO0BQ8WF75",
+      "label": "SOVCOMFLOT (UK) LTD",
+      "label_from": "sec_gleif",
+      "match_basis": "label tokens match on published label text - INFERRED, not asserted",
+      "asserted_identity_cluster": [
+       "lei:89450003E1QO0BQ8WF75",
+       "opensanctions:NK-XKgoMPr8KFU5eRmsd8e9Xc"
+      ],
+      "own_flags": [
+       {
+        "entity_id": "opensanctions:NK-XKgoMPr8KFU5eRmsd8e9Xc",
+        "label": "Sovcomflot (UK) Ltd",
+        "from_dataset": "opensanctions_graph",
+        "record_id": "osgraph:9c91b3d25ac26edfd8affbab543f4f4f900699bc76940765a0262fac7047e24b",
+        "topic": "sanction.control",
+        "meaning": "an OpenSanctions topic, not a designation of this entity"
+       },
+       {
+        "entity_id": "opensanctions:NK-XKgoMPr8KFU5eRmsd8e9Xc",
+        "label": "Sovcomflot (UK) Ltd",
+        "from_dataset": "opensanctions_graph",
+        "record_id": "osgraph:9c91b3d25ac26edfd8affbab543f4f4f900699bc76940765a0262fac7047e24b",
+        "topic": "sanction.linked",
+        "meaning": "an OpenSanctions topic, not a designation of this entity"
+       }
+      ],
+      "nearest_listings": [
+       {
+        "listed_cluster": "lei:253400DYLWR5A6YAWJ69",
+        "hops": 1,
+        "listings": [
+         {
+          "entity_id": "ofac:party:34741",
+          "label": "JOINT STOCK COMPANY SOVCOMFLOT",
+          "from_dataset": "ofac_sanctions",
+          "record_id": "ofac:25f9667acf87a3e7ead3f597408c91e480141a5a9d6f33c33556c7c494819125",
+          "list": "OFAC Specially Designated Nationals (SDN) List",
+          "category": "sanctions designation",
+          "list_publication_date": "2026-09-14"
+         },
+         {
+          "entity_id": "opensanctions:NK-VDEKGF5ZgHAkye4kGuUXs3",
+          "label": "Sovcomflot",
+          "from_dataset": "opensanctions_graph",
+          "record_id": "osgraph:92c7598b1572c94e38611647940c018d887c845571e163d70d563c16a6644327",
+          "list": "OpenSanctions target with topic \"sanction\"",
+          "category": "sanctions designation",
+          "opensanctions_sanctions_sources": [
+           "ua_nsdc_sanctions",
+           "nz_russia_sanctions",
+           "ca_dfatd_sema_sanctions",
+           "be_fod_sanctions",
+           "au_dfat_sanctions",
+           "ua_war_sanctions",
+           "eu_sanctions_map",
+           "us_ofac_sdn",
+           "gb_fcdo_sanctions",
+           "ch_seco_sanctions"
+          ],
+          "opensanctions_sources": [
+           "ua_nsdc_sanctions",
+           "nz_russia_sanctions",
+           "ca_dfatd_sema_sanctions",
+           "be_fod_sanctions",
+           "au_dfat_sanctions",
+           "ua_war_sanctions",
+           "eu_sanctions_map",
+           "us_ofac_sdn",
+           "gb_fcdo_sanctions",
+           "ch_seco_sanctions",
+           "gb_coh_disqualified",
+           "ext_gleif",
+           "fr_tresor_gels_avoir",
+           "eu_fsf",
+           "ru_nsd_isin",
+           "us_trade_csl",
+           "permid",
+           "mc_fund_freezes",
+           "ext_ru_egrul",
+           "ext_us_ofac_press_releases"
+          ]
+         },
+         {
+          "entity_id": "us_csl:34741",
+          "label": "JOINT STOCK COMPANY SOVCOMFLOT",
+          "from_dataset": "other_sanctions_lists",
+          "record_id": "sanctions:3b366f7f600047d13f4a018bb5fb177e1e4eee07fd494ebf75257d38ed48af5b",
+          "list": "Specially Designated Nationals (SDN) - Treasury Department",
+          "category": "sanctions designation"
+         }
+        ],
+        "flags": [
+         {
+          "entity_id": "opensanctions:NK-VDEKGF5ZgHAkye4kGuUXs3",
+          "label": "Sovcomflot",
+          "from_dataset": "opensanctions_graph",
+          "record_id": "osgraph:92c7598b1572c94e38611647940c018d887c845571e163d70d563c16a6644327",
+          "topic": "poi",
+          "meaning": "an OpenSanctions topic, not a designation of this entity"
+         }
+        ],
+        "paths": [
+         {
+          "hops": 1,
+          "steps": [
+           {
+            "hop": 1,
+            "from": "lei:89450003E1QO0BQ8WF75",
+            "from_label": "SOVCOMFLOT (UK) LTD",
+            "predicate": "owns",
+            "direction": "reverse",
+            "to": "lei:253400DYLWR5A6YAWJ69",
+            "to_label": "публичное акционерное общество \"Современный коммерческий флот\"",
+            "from_dataset": "opensanctions_graph",
+            "record_id": "osgraph:82e17fd8a6d53fbe193f44e55d7f2a009cab71b628f3ad1dab4bb16c78e5d419"
+           }
+          ]
+         }
+        ],
+        "more_paths_of_this_length": false
+       }
+      ],
+      "listed_clusters_reached": 1,
+      "listed_clusters_by_hops": {
+       "1": 1
+      },
+      "search": {
+       "nodes_reached": 1,
+       "edges_examined": 1,
+       "truncated": false,
+       "nodes_with_capped_expansion": [],
+       "listed_clusters_are_endpoints": "the search does not continue through a listed cluster"
+      },
+      "status": "path_found",
+      "hops": 1
+     },
+     {
+      "entity_id": "uk:sanctions:RUS1097",
+      "canonical_id": "uk:sanctions:RUS1097",
+      "label": "PUBLIC JOINT STOCK COMPANY SOVCOMFLOT",
+      "label_from": "other_sanctions_lists",
+      "match_basis": "label tokens match on published label text - INFERRED, not asserted",
+      "asserted_identity_cluster": [
+       "uk:sanctions:RUS1097"
+      ],
+      "status": "listed",
+      "hops": 0,
+      "own_listings": [
+       {
+        "entity_id": "uk:sanctions:RUS1097",
+        "label": "PUBLIC JOINT STOCK COMPANY SOVCOMFLOT",
+        "from_dataset": "other_sanctions_lists",
+        "record_id": "sanctions:911167b83a79d91cef7176023dafe4991b20d0fc9e691f1f66cb812445628808",
+        "list": "UK Sanctions List",
+        "category": "sanctions designation",
+        "last_updated": "2025-04-09"
+       }
+      ],
+      "own_flags": [],
+      "nearest_listings": []
+     }
+    ],
+    "name_match_note": "The input is a name. Each of the 3 best label-matching clusters was screened separately; none of them is asserted to be the entity you meant."
+   }
+  ],
+  "summary_by_status": {
+   "listed": 3,
+   "path_found": 1,
+   "no_path_within_bound": 2
+  },
+  "search": {
+   "hops": 3,
+   "predicate_groups": [
+    "ownership",
+    "control"
+   ],
+   "predicates": [
+    "acts_for_or_on_behalf_of",
+    "branch_of",
+    "controls",
+    "directly_consolidated_by",
+    "director_of",
+    "feeder_fund_of",
+    "fund_managed_by",
+    "insider_of",
+    "international_branch_of",
+    "leader_or_official_of",
+    "owns",
+    "parent_reporting_exception",
+    "principal_executive_officer_of",
+    "property_in_interest_of",
+    "regulatory_high_holder",
+    "significant_control_over",
+    "significant_role_in",
+    "subfund_of",
+    "ultimately_consolidated_by"
+   ],
+   "directions": {
+    "acts_for_or_on_behalf_of": [
+     "forward",
+     "reverse"
+    ],
+    "branch_of": [
+     "forward",
+     "reverse"
+    ],
+    "controls": [
+     "forward",
+     "reverse"
+    ],
+    "directly_consolidated_by": [
+     "forward",
+     "reverse"
+    ],
+    "director_of": [
+     "forward",
+     "reverse"
+    ],
+    "feeder_fund_of": [
+     "forward",
+     "reverse"
+    ],
+    "fund_managed_by": [
+     "forward",
+     "reverse"
+    ],
+    "insider_of": [
+     "forward",
+     "reverse"
+    ],
+    "international_branch_of": [
+     "forward",
+     "reverse"
+    ],
+    "leader_or_official_of": [
+     "forward",
+     "reverse"
+    ],
+    "owns": [
+     "forward",
+     "reverse"
+    ],
+    "parent_reporting_exception": [
+     "forward",
+     "reverse"
+    ],
+    "principal_executive_officer_of": [
+     "forward",
+     "reverse"
+    ],
+    "property_in_interest_of": [
+     "forward",
+     "reverse"
+    ],
+    "regulatory_high_holder": [
+     "forward",
+     "reverse"
+    ],
+    "significant_control_over": [
+     "forward",
+     "reverse"
+    ],
+    "significant_role_in": [
+     "forward",
+     "reverse"
+    ],
+    "subfund_of": [
+     "forward",
+     "reverse"
+    ],
+    "ultimately_consolidated_by": [
+     "forward",
+     "reverse"
+    ]
+   },
+   "edge_limit_per_input": 20000,
+   "identity": "asserted clusters (resolved=True)"
+  },
+  "status_meanings": {
+   "listed": "the input's own asserted cluster contains a restrictive-list entry (hop 0)",
+   "path_found": "a chain of the selected predicates reaches a listed cluster within the hop bound",
+   "inconclusive_search_truncated": "no listed cluster was reached before the edge limit; the search did not finish, so nothing can be said about longer or wider chains",
+   "no_path_within_bound": "the bounded search finished without reaching a listed cluster. NOT clearance",
+   "not_resolved": "the input is not an ID or a label in this index. NOT clearance"
+  },
+  "coverage_gaps": [
+   "Absence of a path is not clearance. It means no chain of the selected published predicates, within the hop bound, joins this input to a listed entity in this index.",
+   "No beneficial ownership below reporting thresholds: 13D/13G ownership is reported at 5%, UK persons with significant control at 25%, 13F only by managers with over USD 100M in Section 13(f) securities, and nominee or trust arrangements are not visible at all.",
+   "13F is long-only US equity: a quarter-end snapshot of Section 13(f) securities, with no shorts, derivatives, bonds, private holdings or non-US listings.",
+   "OpenSanctions (opensanctions, opensanctions_graph) is licensed CC BY-NC 4.0: non-commercial use only. A commercial deployment needs an OpenSanctions data licence before relying on these paths.",
+   "GLEIF Level 2 is accounting consolidation, and only for entities that hold an LEI and report parents.",
+   "Identity is asserted only. An input given as a name is matched on published label text - INFERRED, not asserted - and a true match whose publishers share no identifier will not be linked to its listing.",
+   "The lists are as of the versions this index pins. Lists change daily; delistings and new designations after that are not reflected.",
+   "OpenSanctions aggregates many jurisdictions' lists, including counter-sanctions (for example China's and Iran's lists naming US defence firms). Every OpenSanctions listing names its source lists; read them before treating a path as relevant to your jurisdiction.",
+   "The default index scope excludes companies_house_uk (UK persons with significant control), sec_13f_history and the USAspending transactions."
+  ],
+  "lists_consulted": [
+   {
+    "dataset": "ofac_sanctions",
+    "stage": "normalized",
+    "version": "5680c4449455ad96dc270f4f4d9c21778c820617c2e3f30f677406ad9542dc0d",
+    "note": "consulted for every input: a result, including no path, rests on it"
+   },
+   {
+    "dataset": "other_sanctions_lists",
+    "stage": "normalized",
+    "version": "9bf1ca292beb66c0c98dbacaf5dfdced364aa55bca427fe4fd83839e8373426a",
+    "note": "consulted for every input: a result, including no path, rests on it"
+   },
+   {
+    "dataset": "opensanctions",
+    "stage": "normalized",
+    "version": "c3376e0b059852dd1e2d9dd7ea44cad7df5be2dc4cdc567e4133d2f885d9faca",
+    "note": "consulted for every input: a result, including no path, rests on it"
+   },
+   {
+    "dataset": "opensanctions_graph",
+    "stage": "normalized",
+    "version": "190fe27804ed020f78d545cf5ecd1702c9c57fe63e7a943986fabd7e558fde4b",
+    "note": "consulted for every input: a result, including no path, rests on it"
+   }
+  ]
+ },
+ "where_the_evidence_runs_out": [
+  "Only these predicates were traversed: acts_for_or_on_behalf_of, branch_of, controls, directly_consolidated_by, director_of, feeder_fund_of, fund_managed_by, insider_of, international_branch_of, leader_or_official_of, owns, parent_reporting_exception, principal_executive_officer_of, property_in_interest_of, regulatory_high_holder, significant_control_over, significant_role_in, subfund_of, ultimately_consolidated_by. A relationship published under any other predicate, or not published, is invisible to this screen.",
+  "Paths are shown for at most 5 listed clusters per input and 3 paths each; counts of every listed cluster reached are in listed_clusters_reached."
+ ],
+ "what_this_does_not_establish": [
+  "Not a sanctions determination and not legal advice. A listing applies to the named party on the named list; ownership or control proximity does not transfer it, although some regimes (for example OFAC's 50 percent rule) extend restrictions to owned entities by rule, which this screen does not evaluate.",
+  "A path is a chain of published claims, each as of its own date; the chain as a whole may never have held at one time.",
+  "Absence of a path is not clearance.",
+  "Absence of an edge, observation or event here is absence of published evidence in this index scope, not absence in the world. The index pins one version of each input dataset.",
+  "Nothing is merged: records are the publishers' own claims, copied verbatim, and contradictory claims stay side by side.",
+  "Identity is asserted only (published same_as links, shared unique identifiers, published crosswalk fields). Entities whose names merely look alike are never joined; where a product had to use a name, it says INFERRED, not asserted.",
+  "Rights and use-policy metadata are an inventory, not a legal determination, and nothing here authorises republishing the acquired data."
+ ],
+ "datasets_used": [
+  "gleif_parent_relationships",
+  "ofac_sanctions",
+  "opensanctions",
+  "opensanctions_graph",
+  "other_sanctions_lists"
+ ],
+ "rights": {
+  "declared_purpose": "commercial",
+  "datasets": [
+   {
+    "dataset": "gleif_parent_relationships",
+    "stage": "normalized",
+    "version": "49a78461a71ad16a5f9fa22f19e36dd8ad7b7d0b0a8781b8c8468be04dfef09c",
+    "rights_metadata_from": "compact manifest of the pinned version",
+    "publisher": [
+     "GLEIF (Global Legal Entity Identifier Foundation)"
+    ],
+    "license_id": [],
+    "license": [],
+    "license_status": [
+     "CC0-1.0"
+    ],
+    "redistribution": [],
+    "attribution": [],
+    "terms_url": [],
+    "non_commercial_only": false,
+    "redistribution_review_required": true,
+    "identified_persons": {
+     "policy": "prohibited",
+     "condition": null,
+     "authority": null,
+     "declared_purpose": "commercial",
+     "identified_persons_retained": false
+    }
+   },
+   {
+    "dataset": "ofac_sanctions",
+    "stage": "normalized",
+    "version": "5680c4449455ad96dc270f4f4d9c21778c820617c2e3f30f677406ad9542dc0d",
+    "rights_metadata_from": "compact manifest of the pinned version",
+    "publisher": [
+     "U.S. Department of the Treasury, Office of Foreign Assets Control (OFAC)"
+    ],
+    "license_id": [
+     "US-Government-Public-Domain"
+    ],
+    "license": [
+     "U.S. federal government work (public domain, 17 U.S.C. 105)"
+    ],
+    "license_status": [
+     "public_domain_us_federal"
+    ],
+    "redistribution": [
+     "True"
+    ],
+    "attribution": [
+     "U.S. Treasury OFAC Sanctions List Service"
+    ],
+    "terms_url": [
+     "https://ofac.treasury.gov/sanctions-list-service"
+    ],
+    "non_commercial_only": false,
+    "redistribution_review_required": false,
+    "identified_persons": {
+     "policy": "prohibited",
+     "condition": null,
+     "authority": null,
+     "declared_purpose": "commercial",
+     "identified_persons_retained": false
+    }
+   },
+   {
+    "dataset": "opensanctions",
+    "stage": "normalized",
+    "version": "c3376e0b059852dd1e2d9dd7ea44cad7df5be2dc4cdc567e4133d2f885d9faca",
+    "rights_metadata_from": "compact manifest of the pinned version",
+    "publisher": [
+     "OpenSanctions Datenbanken GmbH"
+    ],
+    "license_id": [
+     "CC-BY-NC-4.0"
+    ],
+    "license": [
+     "CC BY-NC 4.0 (non-commercial use only; commercial use requires an OpenSanctions data licence)"
+    ],
+    "license_status": [
+     "non_commercial_only"
+    ],
+    "redistribution": [
+     "restricted"
+    ],
+    "attribution": [
+     "OpenSanctions (https://www.opensanctions.org), CC BY-NC 4.0"
+    ],
+    "terms_url": [
+     "https://www.opensanctions.org/licensing/"
+    ],
+    "non_commercial_only": true,
+    "redistribution_review_required": true,
+    "identified_persons": {
+     "policy": "prohibited",
+     "condition": null,
+     "authority": null,
+     "declared_purpose": "commercial",
+     "identified_persons_retained": false
+    }
+   },
+   {
+    "dataset": "opensanctions_graph",
+    "stage": "normalized",
+    "version": "190fe27804ed020f78d545cf5ecd1702c9c57fe63e7a943986fabd7e558fde4b",
+    "rights_metadata_from": "compact manifest of the pinned version",
+    "publisher": [
+     "OpenSanctions Datenbanken GmbH"
+    ],
+    "license_id": [
+     "CC-BY-NC-4.0"
+    ],
+    "license": [
+     "CC BY-NC 4.0 (non-commercial use only; commercial use requires an OpenSanctions data licence)"
+    ],
+    "license_status": [
+     "non_commercial_only"
+    ],
+    "redistribution": [
+     "restricted"
+    ],
+    "attribution": [
+     "OpenSanctions (https://www.opensanctions.org), CC BY-NC 4.0"
+    ],
+    "terms_url": [
+     "https://www.opensanctions.org/licensing/"
+    ],
+    "non_commercial_only": true,
+    "redistribution_review_required": true,
+    "identified_persons": {
+     "policy": "prohibited",
+     "condition": null,
+     "authority": null,
+     "declared_purpose": "commercial",
+     "identified_persons_retained": false
+    }
+   },
+   {
+    "dataset": "other_sanctions_lists",
+    "stage": "normalized",
+    "version": "9bf1ca292beb66c0c98dbacaf5dfdced364aa55bca427fe4fd83839e8373426a",
+    "rights_metadata_from": "compact manifest of the pinned version",
+    "publisher": [
+     "UN Security Council; UK Foreign, Commonwealth & Development Office; U.S. International Trade Administration"
+    ],
+    "license_id": [
+     "mixed: UN-terms / OGL-UK-3.0 / US-Government-Public-Domain"
+    ],
+    "license": [
+     "UN: public UN document (UN terms of use); UK: Open Government Licence v3.0; CSL: U.S. federal government work (public domain)"
+    ],
+    "license_status": [
+     "public_or_open_licence_with_attribution"
+    ],
+    "redistribution": [
+     "True"
+    ],
+    "attribution": [
+     "Contains public sector information licensed under the Open Government Licence v3.0 (UK Sanctions List, FCDO); United Nations Security Council Consolidated List; U.S. Consolidated Screening List (trade.gov)"
+    ],
+    "terms_url": [
+     "https://www.un.org/en/about-us/terms-of-use ; https://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/"
+    ],
+    "non_commercial_only": false,
+    "redistribution_review_required": false,
+    "identified_persons": {
+     "policy": "prohibited",
+     "condition": null,
+     "authority": null,
+     "declared_purpose": "commercial",
+     "identified_persons_retained": false
+    }
+   }
+  ],
+  "non_commercial_only": [
+   "opensanctions",
+   "opensanctions_graph"
+  ],
+  "redistribution_restricted": [
+   "opensanctions",
+   "opensanctions_graph"
+  ],
+  "redistribution_review_required": [
+   "gleif_parent_relationships",
+   "opensanctions",
+   "opensanctions_graph"
+  ],
+  "notices": [
+   "opensanctions, opensanctions_graph are licensed for non-commercial use only. This deployment's declared purpose is commercial (WM_COMMERCIAL_USE; unset means commercial). The products do not gate on it: they carry the terms so the reader can decide.",
+   "Redistribution review is required before sharing evidence from: gleif_parent_relationships, opensanctions, opensanctions_graph."
+  ],
+  "computation_policy": "metadata_only_no_local_execution_gate",
+  "interpretation": "Source metadata inventory; compatibility and derivative-work obligations are not automatically adjudicated. See DATA_RIGHTS.md and docs/use-policy.md."
+ },
+ "products_index": {
+  "available": true,
+  "built_at": "2026-09-19T02:28:06Z",
+  "counts": {
+   "labels": 9812370,
+   "entity_records_read": 9925686,
+   "aliases": 306119,
+   "storm_events_with_a_county": 1303048,
+   "storm_events_on_a_forecast_zone": 763671,
+   "disaster_declarations_with_a_county": 68792,
+   "fema_named_county_observations": 2697024,
+   "fema_named_county_groups": 144538
+  },
+  "resolution_view_digest_at_build": "f8a3169623beec055a0d2f64a5a5d2baa05e21e865204b3699195bb30ef20214"
+ },
+ "timings_s": {
+  "open": 0.0003,
+  "resolve": 0.0007,
+  "screen": 0.037,
+  "total": 0.0391
+ }
+}

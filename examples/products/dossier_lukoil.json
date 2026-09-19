@@ -1,0 +1,4022 @@
+{
+ "product": "dossier",
+ "product_schema": 1,
+ "query": {
+  "query": "LUKOIL",
+  "pick": 0
+ },
+ "index": {
+  "path": "/home/brandonin/Documents/world-model/data/world_evidence/index.sqlite",
+  "schema_version": "3",
+  "inputs": 96,
+  "inputs_digest": "571dce5d9bac9463ad2a142e490afbcae651f1f2638f3968c15f2a2510826eff",
+  "resolution_view_digest": "f8a3169623beec055a0d2f64a5a5d2baa05e21e865204b3699195bb30ef20214",
+  "resolution_policy": {
+   "bridges": [
+    "gleif_companies_house",
+    "gleif_isin_cusip",
+    "gleif_sec_cik"
+   ],
+   "inferred_matches_attached": false,
+   "links": "published same_as assertions, shared unique identifiers and published crosswalk fields (resolution.bridges) only",
+   "max_cluster_size": 5000,
+   "namespaces": [
+    "bioguide",
+    "cusip",
+    "duns",
+    "eia_plant",
+    "fdic_cert",
+    "fec_candidate",
+    "fec_committee",
+    "figi",
+    "gb_company_number",
+    "iata",
+    "icao",
+    "icpsr",
+    "imo",
+    "isin",
+    "lei",
+    "mic",
+    "mmsi",
+    "ofac_sdn",
+    "opensanctions",
+    "permid",
+    "ru_inn",
+    "ru_ogrn",
+    "sec_cik",
+    "swift",
+    "uei",
+    "unlocode",
+    "wikidata"
+   ]
+  }
+ },
+ "answer": {
+  "entity": {
+   "query": "LUKOIL",
+   "selected": "lei:549300LCJ1UJXHYBWI24",
+   "selection": {
+    "basis": "the input is a name. The dossier is about candidate 0 of 10, chosen by a text match on published labels and aliases - INFERRED, not asserted. It may not be the entity you meant; pass --pick N or an entity ID.",
+    "candidates": [
+     {
+      "canonical_id": "lei:549300LCJ1UJXHYBWI24",
+      "asserted_cluster": true,
+      "match": "exact label",
+      "match_basis": "published label or alias text match - INFERRED, not asserted",
+      "matched": [
+       {
+        "entity_id": "ofac:party:17248",
+        "label": "Lukoil",
+        "from_dataset": "ofac_sanctions",
+        "entity_type": null,
+        "matched_on": "alias:sanctions_alias"
+       },
+       {
+        "entity_id": "ofac:party:17248",
+        "label": "LUKOIL OAO",
+        "from_dataset": "ofac_sanctions",
+        "entity_type": "organization",
+        "matched_on": "label"
+       },
+       {
+        "entity_id": "ofac:party:17248",
+        "label": "Lukoil Oil Company",
+        "from_dataset": "ofac_sanctions",
+        "entity_type": null,
+        "matched_on": "alias:sanctions_alias"
+       },
+       {
+        "entity_id": "ofac:party:17248",
+        "label": "NK Lukoil OAO",
+        "from_dataset": "ofac_sanctions",
+        "entity_type": null,
+        "matched_on": "alias:sanctions_alias"
+       },
+       {
+        "entity_id": "us_csl:17248",
+        "label": "Lukoil",
+        "from_dataset": "other_sanctions_lists",
+        "entity_type": null,
+        "matched_on": "alias:sanctions_alias"
+       },
+       {
+        "entity_id": "us_csl:17248",
+        "label": "LUKOIL",
+        "from_dataset": "other_sanctions_lists",
+        "entity_type": null,
+        "matched_on": "alias:sanctions_alias"
+       },
+       {
+        "entity_id": "us_csl:17248",
+        "label": "LUKOIL OAO",
+        "from_dataset": "other_sanctions_lists",
+        "entity_type": "organization",
+        "matched_on": "label"
+       },
+       {
+        "entity_id": "us_csl:17248",
+        "label": "Lukoil Oil Company",
+        "from_dataset": "other_sanctions_lists",
+        "entity_type": null,
+        "matched_on": "alias:sanctions_alias"
+       }
+      ]
+     },
+     {
+      "canonical_id": "uk:sanctions:RUS3094",
+      "asserted_cluster": false,
+      "match": "exact label",
+      "match_basis": "published label or alias text match - INFERRED, not asserted",
+      "matched": [
+       {
+        "entity_id": "uk:sanctions:RUS3094",
+        "label": "LUKOIL",
+        "from_dataset": "other_sanctions_lists",
+        "entity_type": null,
+        "matched_on": "alias:sanctions_alias"
+       },
+       {
+        "entity_id": "uk:sanctions:RUS3094",
+        "label": "PJSC Oil Company LUKOIL",
+        "from_dataset": "other_sanctions_lists",
+        "entity_type": "organization",
+        "matched_on": "label"
+       },
+       {
+        "entity_id": "uk:sanctions:RUS3094",
+        "label": "JSC 'Oil Company 'LUKOIL'",
+        "from_dataset": "other_sanctions_lists",
+        "entity_type": null,
+        "matched_on": "alias:sanctions_alias"
+       }
+      ]
+     },
+     {
+      "canonical_id": "us_csl:11bf9788d98ee5e2d246eb7fcce7b803c33e4e806700581a79642d60",
+      "asserted_cluster": false,
+      "match": "exact label",
+      "match_basis": "published label or alias text match - INFERRED, not asserted",
+      "matched": [
+       {
+        "entity_id": "us_csl:11bf9788d98ee5e2d246eb7fcce7b803c33e4e806700581a79642d60",
+        "label": "Lukoil",
+        "from_dataset": "other_sanctions_lists",
+        "entity_type": null,
+        "matched_on": "alias:sanctions_alias"
+       },
+       {
+        "entity_id": "us_csl:11bf9788d98ee5e2d246eb7fcce7b803c33e4e806700581a79642d60",
+        "label": "Lukoil, OAO",
+        "from_dataset": "other_sanctions_lists",
+        "entity_type": "organization",
+        "matched_on": "label"
+       },
+       {
+        "entity_id": "us_csl:11bf9788d98ee5e2d246eb7fcce7b803c33e4e806700581a79642d60",
+        "label": "Lukoil Oil Company",
+        "from_dataset": "other_sanctions_lists",
+        "entity_type": null,
+        "matched_on": "alias:sanctions_alias"
+       },
+       {
+        "entity_id": "us_csl:11bf9788d98ee5e2d246eb7fcce7b803c33e4e806700581a79642d60",
+        "label": "NK Lukoil OAO",
+        "from_dataset": "other_sanctions_lists",
+        "entity_type": null,
+        "matched_on": "alias:sanctions_alias"
+       }
+      ]
+     },
+     {
+      "canonical_id": "opensanctions:NK-D2RrPZjjmXFWtApXDaPP6v",
+      "asserted_cluster": false,
+      "match": "label tokens",
+      "match_basis": "published label or alias text match - INFERRED, not asserted",
+      "matched": [
+       {
+        "entity_id": "opensanctions:NK-D2RrPZjjmXFWtApXDaPP6v",
+        "label": "LUKOIL KALININGRADMORNEFT",
+        "from_dataset": "opensanctions",
+        "entity_type": "organization",
+        "matched_on": "label"
+       },
+       {
+        "entity_id": "opensanctions:NK-D2RrPZjjmXFWtApXDaPP6v",
+        "label": "Lukoil Kaliningradmorneft",
+        "from_dataset": "opensanctions_graph",
+        "entity_type": "business",
+        "matched_on": "label"
+       },
+       {
+        "entity_id": "opensanctions:NK-D2RrPZjjmXFWtApXDaPP6v",
+        "label": "Lukoil KMN",
+        "from_dataset": "opensanctions",
+        "entity_type": null,
+        "matched_on": "alias:sanctions_alias"
+       },
+       {
+        "entity_id": "opensanctions:NK-D2RrPZjjmXFWtApXDaPP6v",
+        "label": "LIMITED LIABILITY COMPANY LUKOIL KALININGRADMORNEFT",
+        "from_dataset": "opensanctions",
+        "entity_type": null,
+        "matched_on": "alias:sanctions_alias"
+       }
+      ]
+     },
+     {
+      "canonical_id": "opensanctions:NK-QYZMmDbpcFxM7z2dqWJ5wa",
+      "asserted_cluster": false,
+      "match": "label tokens",
+      "match_basis": "published label or alias text match - INFERRED, not asserted",
+      "matched": [
+       {
+        "entity_id": "opensanctions:NK-QYZMmDbpcFxM7z2dqWJ5wa",
+        "label": "LUKOIL BUNKER",
+        "from_dataset": "opensanctions",
+        "entity_type": "business",
+        "matched_on": "label"
+       },
+       {
+        "entity_id": "opensanctions:NK-QYZMmDbpcFxM7z2dqWJ5wa",
+        "label": "LUKOIL BUNKER",
+        "from_dataset": "opensanctions_graph",
+        "entity_type": "business",
+        "matched_on": "label"
+       },
+       {
+        "entity_id": "opensanctions:NK-QYZMmDbpcFxM7z2dqWJ5wa",
+        "label": "Limited Liability Company ‘Lukoil-Western Siberia’",
+        "from_dataset": "opensanctions",
+        "entity_type": null,
+        "matched_on": "alias:sanctions_alias"
+       },
+       {
+        "entity_id": "opensanctions:NK-QYZMmDbpcFxM7z2dqWJ5wa",
+        "label": "Limited Liability Company “Lukoil-Western Siberia”",
+        "from_dataset": "opensanctions",
+        "entity_type": null,
+        "matched_on": "alias:sanctions_alias"
+       }
+      ]
+     },
+     {
+      "canonical_id": "opensanctions:NK-SjAxUQkZNAVdUVxUChbTyG",
+      "asserted_cluster": false,
+      "match": "label tokens",
+      "match_basis": "published label or alias text match - INFERRED, not asserted",
+      "matched": [
+       {
+        "entity_id": "opensanctions:NK-SjAxUQkZNAVdUVxUChbTyG",
+        "label": "Lukoil AIK",
+        "from_dataset": "opensanctions",
+        "entity_type": null,
+        "matched_on": "alias:sanctions_alias"
+       },
+       {
+        "entity_id": "opensanctions:NK-SjAxUQkZNAVdUVxUChbTyG",
+        "label": "Limited Liability Company «Lukoil-Aik»",
+        "from_dataset": "opensanctions",
+        "entity_type": null,
+        "matched_on": "alias:sanctions_alias"
+       },
+       {
+        "entity_id": "opensanctions:NK-SjAxUQkZNAVdUVxUChbTyG",
+        "label": "LUKOIL AIK A LIMITED LIABILITY COMPANY",
+        "from_dataset": "opensanctions",
+        "entity_type": "organization",
+        "matched_on": "label"
+       },
+       {
+        "entity_id": "opensanctions:NK-SjAxUQkZNAVdUVxUChbTyG",
+        "label": "Lukoil Aik A Limited Liability Company",
+        "from_dataset": "opensanctions_graph",
+        "entity_type": "business",
+        "matched_on": "label"
+       }
+      ]
+     },
+     {
+      "canonical_id": "opensanctions:NK-ZE2fe4MzXCdm4BUeb9puMp",
+      "asserted_cluster": false,
+      "match": "label tokens",
+      "match_basis": "published label or alias text match - INFERRED, not asserted",
+      "matched": [
+       {
+        "entity_id": "opensanctions:NK-ZE2fe4MzXCdm4BUeb9puMp",
+        "label": "Lukoil Perm",
+        "from_dataset": "opensanctions",
+        "entity_type": null,
+        "matched_on": "alias:sanctions_alias"
+       },
+       {
+        "entity_id": "opensanctions:NK-ZE2fe4MzXCdm4BUeb9puMp",
+        "label": "LIMITED LIABILITY COMPANY LUKOIL PERM",
+        "from_dataset": "opensanctions",
+        "entity_type": "organization",
+        "matched_on": "label"
+       },
+       {
+        "entity_id": "opensanctions:NK-ZE2fe4MzXCdm4BUeb9puMp",
+        "label": "Limited Liability Company Lukoil Perm",
+        "from_dataset": "opensanctions_graph",
+        "entity_type": "business",
+        "matched_on": "label"
+       },
+       {
+        "entity_id": "opensanctions:NK-ZE2fe4MzXCdm4BUeb9puMp",
+        "label": "Limited Liability Company «Lukoil–Perm»",
+        "from_dataset": "opensanctions",
+        "entity_type": null,
+        "matched_on": "alias:sanctions_alias"
+       }
+      ]
+     },
+     {
+      "canonical_id": "opensanctions:NK-gJj3Ty9LsEpvmCdqd2y5Mb",
+      "asserted_cluster": false,
+      "match": "label tokens",
+      "match_basis": "published label or alias text match - INFERRED, not asserted",
+      "matched": [
+       {
+        "entity_id": "opensanctions:NK-gJj3Ty9LsEpvmCdqd2y5Mb",
+        "label": "LUKOIL–NIZHNEVOLZHSKNEFT",
+        "from_dataset": "opensanctions",
+        "entity_type": "business",
+        "matched_on": "label"
+       },
+       {
+        "entity_id": "opensanctions:NK-gJj3Ty9LsEpvmCdqd2y5Mb",
+        "label": "LUKOIL–NIZHNEVOLZHSKNEFT",
+        "from_dataset": "opensanctions_graph",
+        "entity_type": "business",
+        "matched_on": "label"
+       },
+       {
+        "entity_id": "opensanctions:NK-gJj3Ty9LsEpvmCdqd2y5Mb",
+        "label": "LUKOIL– NIZHNEVOLZHSKNEFT",
+        "from_dataset": "opensanctions",
+        "entity_type": null,
+        "matched_on": "alias:sanctions_alias"
+       },
+       {
+        "entity_id": "opensanctions:NK-gJj3Ty9LsEpvmCdqd2y5Mb",
+        "label": "Limited Liability Company «Lukoil-Nizhnevolzhskneft»",
+        "from_dataset": "opensanctions",
+        "entity_type": null,
+        "matched_on": "alias:sanctions_alias"
+       }
+      ]
+     },
+     {
+      "canonical_id": "opensanctions:NK-k3ECJyMuNWbfYQt5MTCXcG",
+      "asserted_cluster": false,
+      "match": "label tokens",
+      "match_basis": "published label or alias text match - INFERRED, not asserted",
+      "matched": [
+       {
+        "entity_id": "opensanctions:NK-k3ECJyMuNWbfYQt5MTCXcG",
+        "label": "LUKOIL- Ukhtaniefierierierobateka",
+        "from_dataset": "opensanctions",
+        "entity_type": null,
+        "matched_on": "alias:sanctions_alias"
+       },
+       {
+        "entity_id": "opensanctions:NK-k3ECJyMuNWbfYQt5MTCXcG",
+        "label": "LUKOIL-Ukhtaniefierierierobateka",
+        "from_dataset": "opensanctions",
+        "entity_type": null,
+        "matched_on": "alias:sanctions_alias"
+       },
+       {
+        "entity_id": "opensanctions:NK-k3ECJyMuNWbfYQt5MTCXcG",
+        "label": "LUKOIL-Ukhtaneftepererabotka LLC",
+        "from_dataset": "opensanctions",
+        "entity_type": "business",
+        "matched_on": "label"
+       },
+       {
+        "entity_id": "opensanctions:NK-k3ECJyMuNWbfYQt5MTCXcG",
+        "label": "LUKOIL-Ukhtaneftepererabotka LLC",
+        "from_dataset": "opensanctions_graph",
+        "entity_type": "business",
+        "matched_on": "label"
+       }
+      ]
+     },
+     {
+      "canonical_id": "lei:213800FXBZXOXNXKWP95",
+      "asserted_cluster": true,
+      "match": "label tokens",
+      "match_basis": "published label or alias text match - INFERRED, not asserted",
+      "matched": [
+       {
+        "entity_id": "opensanctions:NK-6BzaPQdz7x94fa6j4qRvcE",
+        "label": "LUKOIL SECURITIES LIMITED",
+        "from_dataset": "opensanctions_graph",
+        "entity_type": "business",
+        "matched_on": "label"
+       },
+       {
+        "entity_id": "lei:213800FXBZXOXNXKWP95",
+        "label": "LUKOIL SECURITIES LIMITED",
+        "from_dataset": "sec_gleif",
+        "entity_type": "organization",
+        "matched_on": "label"
+       }
+      ]
+     }
+    ]
+   },
+   "canonical_id": "lei:549300LCJ1UJXHYBWI24",
+   "label": "Публичное акционерное общество \"Нефтяная компания \"ЛУКОЙЛ\"",
+   "label_from": "sec_gleif",
+   "entity_type": "organization"
+  },
+  "asserted_identity_cluster": {
+   "members": [
+    "lei:549300LCJ1UJXHYBWI24",
+    "ofac:party:17248",
+    "opensanctions:NK-T3oRNWY3XhL72vfsVMcXzX",
+    "us_csl:17248"
+   ],
+   "asserted": true,
+   "size": 4,
+   "identity_basis": {
+    "shared_identifier_values": [
+     {
+      "identifier": "Government Gazette Number=00044434",
+      "carried_by": [
+       "ofac:party:17248",
+       "us_csl:17248"
+      ]
+     },
+     {
+      "identifier": "Legal Entity Number=549300LCJ1UJXHYBWI24",
+      "carried_by": [
+       "ofac:party:17248",
+       "us_csl:17248"
+      ]
+     },
+     {
+      "identifier": "Registration ID=1027700035769",
+      "carried_by": [
+       "ofac:party:17248",
+       "us_csl:17248"
+      ]
+     },
+     {
+      "identifier": "Tax ID No.=7708004767",
+      "carried_by": [
+       "ofac:party:17248",
+       "us_csl:17248"
+      ]
+     },
+     {
+      "identifier": "lei:549300LCJ1UJXHYBWI24",
+      "carried_by": [
+       "lei:549300LCJ1UJXHYBWI24",
+       "ofac:party:17248",
+       "opensanctions:NK-T3oRNWY3XhL72vfsVMcXzX",
+       "us_csl:17248"
+      ]
+     }
+    ],
+    "published_links_between_members": [
+     {
+      "subject": "us_csl:17248",
+      "predicate": "same_designation_as",
+      "object": "ofac:party:17248",
+      "weight": 1.0,
+      "valid_from": null,
+      "valid_to": null,
+      "from_dataset": "other_sanctions_lists",
+      "record_id": "sanctions:b5f0afbfd4b0176e40ee713cabeffefbf1f3a549b44d6ea7086f4b585608187f"
+     }
+    ],
+    "note": "Clusters are attached by \"unify-resolve\" from published same_as links, shared unique identifier values and published crosswalk fields (GLEIF registration authority, the CUSIP inside a US ISIN). The values above are the ones visible on the members' own records; a link made by a crosswalk field on a third record may not appear here."
+   }
+  },
+  "descriptions": [
+   {
+    "entity_id": "lei:549300LCJ1UJXHYBWI24",
+    "label": "Публичное акционерное общество \"Нефтяная компания \"ЛУКОЙЛ\"",
+    "entity_type": "organization",
+    "from_dataset": "sec_gleif",
+    "record_id": "gleif_lei:549300LCJ1UJXHYBWI24",
+    "attributes": {
+     "category": "GENERAL",
+     "entity_created": "1993-04-22",
+     "entity_status": "ACTIVE",
+     "hq_country": "RU",
+     "hq_region": "RU-MOW",
+     "initial_registration": "2017-08-10",
+     "jurisdiction": "RU",
+     "last_update": "2025-09-15",
+     "legal_city": "Москва",
+     "legal_country": "RU",
+     "legal_form": "4TYO",
+     "legal_region": "RU-MOW",
+     "managing_lou": "253400M18U5TB02TW421",
+     "next_renewal": "2024-11-16",
+     "registration_authority": "RA000499",
+     "registration_authority_entity_id": "1027700035769",
+     "registration_status": "LAPSED",
+     "validation_sources": "FULLY_CORROBORATED"
+    }
+   },
+   {
+    "entity_id": "ofac:party:17248",
+    "label": "LUKOIL OAO",
+    "entity_type": "organization",
+    "from_dataset": "ofac_sanctions",
+    "record_id": "ofac:8c059340144c0992daa79354a1220ef5c265d5ade2cd3c37c67798ec89f6e85c",
+    "attributes": {
+     "comment": "For more information on directives, please visit the following link: http://www.treasury.gov/resource-center/sanctions/Programs/Pages/ukraine.aspx#directives.",
+     "fixed_ref": "17248",
+     "list_publication_date": "2026-09-14",
+     "party_sub_type": "Unknown",
+     "party_type": "Entity",
+     "source_dataset": "ofac_sanctions",
+     "source_file": "SDN_ADVANCED"
+    }
+   },
+   {
+    "entity_id": "opensanctions:NK-T3oRNWY3XhL72vfsVMcXzX",
+    "label": "LUKOIL OAO",
+    "entity_type": "organization",
+    "from_dataset": "opensanctions",
+    "record_id": "opensanctions:b48b25ee4ebf2fe42925d0283a27bb118cf4e420e3caaa13ae92dc8bd46a5810",
+    "attributes": {
+     "last_change": "2026-07-10T06:02:01+00:00",
+     "last_seen": "2026-09-15T12:53:02+00:00",
+     "licence": "CC BY-NC 4.0 (non-commercial)",
+     "schema": "Organization",
+     "source_dataset": "opensanctions",
+     "source_datasets": [
+      "Australian Sanctions Consolidated List",
+      "Canadian Consolidated Autonomous Sanctions List",
+      "EU ESMA Suspensions and Removals",
+      "New Zealand Russia Sanctions",
+      "Taiwan Strategic High-Tech Commodities Entity List",
+      "UK FCDO Sanctions List",
+      "US OFAC Consolidated (non-SDN) List",
+      "US OFAC Specially Designated Nationals (SDN) List",
+      "US Trade Consolidated Screening List (CSL)",
+      "Ukraine NSDC State Register of Sanctions"
+     ]
+    }
+   },
+   {
+    "entity_id": "opensanctions:NK-T3oRNWY3XhL72vfsVMcXzX",
+    "label": "LUKOIL OAO",
+    "entity_type": "business",
+    "from_dataset": "opensanctions_graph",
+    "record_id": "osgraph:f15ae605263b70572272310a38d89242f2ca5847d4da69a9c37e83cfa311a306",
+    "attributes": {
+     "dataset_count": 24,
+     "datasets": [
+      "ua_nsdc_sanctions",
+      "ir_uani_business_registry",
+      "gb_coh_disqualified",
+      "ext_iso9362_bic",
+      "tw_shtc",
+      "ext_gleif",
+      "nz_russia_sanctions",
+      "ca_dfatd_sema_sanctions",
+      "ext_gb_fca_firds",
+      "au_dfat_sanctions",
+      "gem_energy_ownership",
+      "eu_esma_saris",
+      "ru_nsd_isin",
+      "us_trade_csl",
+      "permid",
+      "ua_war_sanctions",
+      "us_ofac_sdn",
+      "ext_eu_esma_firds",
+      "ext_gb_coh_psc",
+      "ext_ru_egrul"
+     ],
+     "first_seen": "2023-04-20T10:56:14",
+     "ftm_schema": "Company",
+     "last_seen": "2026-09-15T12:43:01",
+     "scope": "seed",
+     "source_dataset": "opensanctions_graph",
+     "target": true,
+     "topics": [
+      "sanction",
+      "export.risk",
+      "export.control",
+      "debarment",
+      "corp.public",
+      "corp.disqual"
+     ]
+    }
+   },
+   {
+    "entity_id": "us_csl:17248",
+    "label": "LUKOIL OAO",
+    "entity_type": "organization",
+    "from_dataset": "other_sanctions_lists",
+    "record_id": "sanctions:5a5e00411fc48ece31b68a41a9c7ae41c8dccf2ab0ca2703b0d8a6a6a21f334e",
+    "attributes": {
+     "csl_id": "17248",
+     "entity_number": "17248",
+     "record_type": "Entity",
+     "source_dataset": "other_sanctions_lists",
+     "source_list": "Sectoral Sanctions Identifications List (SSI) - Treasury Department"
+    }
+   }
+  ],
+  "identifiers": [
+   {
+    "subject": "lei:549300LCJ1UJXHYBWI24",
+    "predicate": "identifier_assignment",
+    "value": {
+     "namespace": "bic",
+     "value": "LUKORUMMXXX"
+    },
+    "from_dataset": "sec_gleif",
+    "record_id": "gleif_bic:549300LCJ1UJXHYBWI24:LUKORUMMXXX",
+    "identifier_values": [
+     "bic:LUKORUMMXXX"
+    ],
+    "records": 1
+   },
+   {
+    "subject": "ofac:party:17248",
+    "predicate": "identifier",
+    "value": {
+     "document_id": "9662",
+     "issuing_country": "RUS",
+     "number": "00044434",
+     "scheme": "Government Gazette Number",
+     "validity": "Valid"
+    },
+    "from_dataset": "ofac_sanctions",
+    "record_id": "ofac:6e590d4495c2149e49937a14f00519f5cc4c26383b225b54bedbbd974c5bf619",
+    "identifier_values": [
+     "Government Gazette Number=00044434"
+    ],
+    "records": 2
+   },
+   {
+    "subject": "ofac:party:17248",
+    "predicate": "identifier",
+    "value": {
+     "document_id": "9663",
+     "issuing_country": "RUS",
+     "number": "7708004767",
+     "scheme": "Tax ID No.",
+     "validity": "Valid"
+    },
+    "from_dataset": "ofac_sanctions",
+    "record_id": "ofac:02321bfdb9295003a235e7890fa4100ddfe9ebf3b2c68f4c6256bc35418df528",
+    "identifier_values": [
+     "Tax ID No.=7708004767"
+    ],
+    "records": 2
+   },
+   {
+    "subject": "ofac:party:17248",
+    "predicate": "identifier",
+    "value": {
+     "document_id": "9664",
+     "issuing_country": "RUS",
+     "number": "1027700035769",
+     "scheme": "Registration ID",
+     "validity": "Valid"
+    },
+    "from_dataset": "ofac_sanctions",
+    "record_id": "ofac:59dbbc1bb730f522215bc06ba43ff0e58541a476f75906b324ae04c4cf722019",
+    "identifier_values": [
+     "Registration ID=1027700035769"
+    ],
+    "records": 2
+   },
+   {
+    "subject": "ofac:party:17248",
+    "predicate": "identifier",
+    "value": {
+     "document_id": "47969",
+     "id": "lei:549300LCJ1UJXHYBWI24",
+     "number": "549300LCJ1UJXHYBWI24",
+     "scheme": "Legal Entity Number",
+     "validity": "Valid"
+    },
+    "from_dataset": "ofac_sanctions",
+    "record_id": "ofac:003215022a257503fe6fb1f3e629ff3f9e6072acd67d7712ab74269789de04be",
+    "identifier_values": [
+     "Legal Entity Number=549300LCJ1UJXHYBWI24",
+     "lei:549300LCJ1UJXHYBWI24"
+    ],
+    "records": 2
+   },
+   {
+    "subject": "opensanctions:NK-T3oRNWY3XhL72vfsVMcXzX",
+    "predicate": "identifier",
+    "value": {
+     "value": "00044434"
+    },
+    "from_dataset": "opensanctions",
+    "record_id": "opensanctions:b51ab754dd1b617d540fc7482494323d748a4515c1d347924146da0655cda4f9",
+    "identifier_values": [
+     "unnamed scheme=00044434"
+    ],
+    "records": 1
+   },
+   {
+    "subject": "opensanctions:NK-T3oRNWY3XhL72vfsVMcXzX",
+    "predicate": "identifier",
+    "value": {
+     "value": "1027700035769"
+    },
+    "from_dataset": "opensanctions",
+    "record_id": "opensanctions:09022feb4adca02a41512cc2f6d7242db641313e7f28850cd3b34e81a2c91fe8",
+    "identifier_values": [
+     "unnamed scheme=1027700035769"
+    ],
+    "records": 1
+   },
+   {
+    "subject": "opensanctions:NK-T3oRNWY3XhL72vfsVMcXzX",
+    "predicate": "identifier",
+    "value": {
+     "value": "549300LCJ1UJXHYBWI24"
+    },
+    "from_dataset": "opensanctions",
+    "record_id": "opensanctions:8a2a285d521f60df5631c8629a9af8b9464021378ce62de3a73c386d23987e6c",
+    "identifier_values": [
+     "unnamed scheme=549300LCJ1UJXHYBWI24"
+    ],
+    "records": 1
+   },
+   {
+    "subject": "opensanctions:NK-T3oRNWY3XhL72vfsVMcXzX",
+    "predicate": "identifier",
+    "value": {
+     "value": "7708004767"
+    },
+    "from_dataset": "opensanctions",
+    "record_id": "opensanctions:9c245d73f6d19d090fcfbcc07143b1ae95bd3246422b364b78082b61410061c4",
+    "identifier_values": [
+     "unnamed scheme=7708004767"
+    ],
+    "records": 1
+   },
+   {
+    "subject": "opensanctions:NK-T3oRNWY3XhL72vfsVMcXzX",
+    "predicate": "identifier",
+    "value": {
+     "id": "lei:549300LCJ1UJXHYBWI24",
+     "scheme": "leiCode",
+     "value": "549300LCJ1UJXHYBWI24"
+    },
+    "from_dataset": "opensanctions_graph",
+    "record_id": "osgraph:fab69ce9c3fcfeba5f4d298c3b519f8136856597c24550a725b73b79f4f4f268",
+    "identifier_values": [
+     "lei:549300LCJ1UJXHYBWI24",
+     "leiCode=549300LCJ1UJXHYBWI24"
+    ],
+    "records": 1
+   },
+   {
+    "subject": "opensanctions:NK-T3oRNWY3XhL72vfsVMcXzX",
+    "predicate": "identifier",
+    "value": {
+     "id": "swift:LUKORUMM",
+     "scheme": "swiftBic",
+     "value": "LUKORUMM"
+    },
+    "from_dataset": "opensanctions_graph",
+    "record_id": "osgraph:03f0e202a8290fd6baa70643d00788e7b10e45caae2d43f33c3fa310bc8203c2",
+    "identifier_values": [
+     "swift:LUKORUMM",
+     "swiftBic=LUKORUMM"
+    ],
+    "records": 1
+   },
+   {
+    "subject": "opensanctions:NK-T3oRNWY3XhL72vfsVMcXzX",
+    "predicate": "identifier",
+    "value": {
+     "id": "ru_inn:7708004767",
+     "scheme": "innCode",
+     "value": "7708004767"
+    },
+    "from_dataset": "opensanctions_graph",
+    "record_id": "osgraph:a6b2c57a82ca857f3d0e253dd3f01b8a5fb1a46c184a514c5a6ad3eac3a1440f",
+    "identifier_values": [
+     "innCode=7708004767",
+     "ru_inn:7708004767"
+    ],
+    "records": 1
+   },
+   {
+    "subject": "opensanctions:NK-T3oRNWY3XhL72vfsVMcXzX",
+    "predicate": "identifier",
+    "value": {
+     "id": "ru_inn:7700800476",
+     "scheme": "innCode",
+     "value": "7700800476"
+    },
+    "from_dataset": "opensanctions_graph",
+    "record_id": "osgraph:38e29acd3d8e57de6847f65aebf6bc26599e0f45f9fc61d84d1e4b536bdc3c93",
+    "identifier_values": [
+     "innCode=7700800476",
+     "ru_inn:7700800476"
+    ],
+    "records": 1
+   },
+   {
+    "subject": "opensanctions:NK-T3oRNWY3XhL72vfsVMcXzX",
+    "predicate": "identifier",
+    "value": {
+     "id": "ru_ogrn:1027700035769",
+     "scheme": "ogrnCode",
+     "value": "1027700035769"
+    },
+    "from_dataset": "opensanctions_graph",
+    "record_id": "osgraph:bcee648ee078fd3c42e60647557858134e80155be6c4f995ca10db722db481bc",
+    "identifier_values": [
+     "ogrnCode=1027700035769",
+     "ru_ogrn:1027700035769"
+    ],
+    "records": 1
+   },
+   {
+    "subject": "opensanctions:NK-T3oRNWY3XhL72vfsVMcXzX",
+    "predicate": "identifier",
+    "value": {
+     "id": "permid:4295887034",
+     "scheme": "permId",
+     "value": "4295887034"
+    },
+    "from_dataset": "opensanctions_graph",
+    "record_id": "osgraph:d93753b0fda31f0b21b60681e223b78e03c87905c65c9095f13274e1b6d23bb6",
+    "identifier_values": [
+     "permId=4295887034",
+     "permid:4295887034"
+    ],
+    "records": 1
+   },
+   {
+    "subject": "opensanctions:NK-T3oRNWY3XhL72vfsVMcXzX",
+    "predicate": "identifier",
+    "value": {
+     "scheme": "registrationNumber",
+     "value": "1027700035769"
+    },
+    "from_dataset": "opensanctions_graph",
+    "record_id": "osgraph:c243a178a92f44219636e378be619272c86a0d94be8a305c90fdd6846952163c",
+    "identifier_values": [
+     "registrationNumber=1027700035769"
+    ],
+    "records": 1
+   },
+   {
+    "subject": "opensanctions:NK-T3oRNWY3XhL72vfsVMcXzX",
+    "predicate": "identifier",
+    "value": {
+     "scheme": "taxNumber",
+     "value": "7708004767"
+    },
+    "from_dataset": "opensanctions_graph",
+    "record_id": "osgraph:b371553a62cebe9b75fb1fefe04870aba3cb66e57cbb8e77e7570bf3893b5564",
+    "identifier_values": [
+     "taxNumber=7708004767"
+    ],
+    "records": 1
+   },
+   {
+    "subject": "opensanctions:NK-T3oRNWY3XhL72vfsVMcXzX",
+    "predicate": "identifier",
+    "value": {
+     "scheme": "idNumber",
+     "value": "00044434"
+    },
+    "from_dataset": "opensanctions_graph",
+    "record_id": "osgraph:474d67478380c7442d7ddd1890d39f34ee968490d6d271136f37ac5939cd990f",
+    "identifier_values": [
+     "idNumber=00044434"
+    ],
+    "records": 1
+   },
+   {
+    "subject": "opensanctions:NK-T3oRNWY3XhL72vfsVMcXzX",
+    "predicate": "identifier",
+    "value": {
+     "scheme": "uniqueEntityId",
+     "value": "LGTCGNSW1PM6"
+    },
+    "from_dataset": "opensanctions_graph",
+    "record_id": "osgraph:6dc893e1f1ef726c711f2833ffd90d96180435542426093e1ff65cd309d1758a",
+    "identifier_values": [
+     "uniqueEntityId=LGTCGNSW1PM6"
+    ],
+    "records": 1
+   },
+   {
+    "subject": "opensanctions:NK-T3oRNWY3XhL72vfsVMcXzX",
+    "predicate": "identifier",
+    "value": {
+     "scheme": "uniqueEntityId",
+     "value": "MV8LYHHJWGD4"
+    },
+    "from_dataset": "opensanctions_graph",
+    "record_id": "osgraph:b3bc2c4b2989ff6a48ff7d44121b79255d075d162e6fc1aeb192bf07e3e2a4fa",
+    "identifier_values": [
+     "uniqueEntityId=MV8LYHHJWGD4"
+    ],
+    "records": 1
+   },
+   {
+    "subject": "opensanctions:NK-T3oRNWY3XhL72vfsVMcXzX",
+    "predicate": "identifier",
+    "value": {
+     "scheme": "uniqueEntityId",
+     "value": "SW8RLKXFL467"
+    },
+    "from_dataset": "opensanctions_graph",
+    "record_id": "osgraph:0323d8b5b4873c1d2df69185b511b89bc9d7a8119ed1b04250e59b8a391ddfef",
+    "identifier_values": [
+     "uniqueEntityId=SW8RLKXFL467"
+    ],
+    "records": 1
+   },
+   {
+    "subject": "opensanctions:NK-T3oRNWY3XhL72vfsVMcXzX",
+    "predicate": "identifier",
+    "value": {
+     "scheme": "uniqueEntityId",
+     "value": "DV8NJWK99UV8"
+    },
+    "from_dataset": "opensanctions_graph",
+    "record_id": "osgraph:7dcef8bb97dd18226134f4fdcbbde863133d114e7fe62e8536b1d482b19fa411",
+    "identifier_values": [
+     "uniqueEntityId=DV8NJWK99UV8"
+    ],
+    "records": 1
+   },
+   {
+    "subject": "opensanctions:NK-T3oRNWY3XhL72vfsVMcXzX",
+    "predicate": "identifier",
+    "value": {
+     "scheme": "uniqueEntityId",
+     "value": "MHH8WTW1F588"
+    },
+    "from_dataset": "opensanctions_graph",
+    "record_id": "osgraph:94d8b95fba75ab3beac46bf9d18e1939b0a325649c0a00a87347d35a0734e74f",
+    "identifier_values": [
+     "uniqueEntityId=MHH8WTW1F588"
+    ],
+    "records": 1
+   },
+   {
+    "subject": "opensanctions:NK-T3oRNWY3XhL72vfsVMcXzX",
+    "predicate": "identifier",
+    "value": {
+     "scheme": "uniqueEntityId",
+     "value": "LKL3PMZMHJT9"
+    },
+    "from_dataset": "opensanctions_graph",
+    "record_id": "osgraph:9415664e90d5a4b781a586d6d3f23ce5ae527f09b6f64fe7c7d25cc7accdeec1",
+    "identifier_values": [
+     "uniqueEntityId=LKL3PMZMHJT9"
+    ],
+    "records": 1
+   },
+   {
+    "subject": "opensanctions:NK-T3oRNWY3XhL72vfsVMcXzX",
+    "predicate": "identifier",
+    "value": {
+     "scheme": "uniqueEntityId",
+     "value": "PTZ3ALELCA43"
+    },
+    "from_dataset": "opensanctions_graph",
+    "record_id": "osgraph:ab2e48817726e2c71f44238fac20faf320895629d0594bfc48b0e2c7a83924d1",
+    "identifier_values": [
+     "uniqueEntityId=PTZ3ALELCA43"
+    ],
+    "records": 1
+   },
+   {
+    "subject": "opensanctions:NK-T3oRNWY3XhL72vfsVMcXzX",
+    "predicate": "identifier",
+    "value": {
+     "scheme": "ticker",
+     "value": "LKOH"
+    },
+    "from_dataset": "opensanctions_graph",
+    "record_id": "osgraph:cdd10807dc40049714749a0e5db68883074cc8c74a3172e6f4bdfbe22e49e7db",
+    "identifier_values": [
+     "ticker=LKOH"
+    ],
+    "records": 1
+   },
+   {
+    "subject": "opensanctions:NK-T3oRNWY3XhL72vfsVMcXzX",
+    "predicate": "identifier",
+    "value": {
+     "scheme": "ticker",
+     "value": "MCX: LKOH"
+    },
+    "from_dataset": "opensanctions_graph",
+    "record_id": "osgraph:bca83f0840b0c233d3e6f7107e90a56e81f7ab894383a13d8e872b8a9882259f",
+    "identifier_values": [
+     "ticker=MCX: LKOH"
+    ],
+    "records": 1
+   },
+   {
+    "subject": "us_csl:17248",
+    "predicate": "identifier",
+    "value": {
+     "issuing_country": "RUS",
+     "scheme": "Government Gazette Number",
+     "value": "00044434"
+    },
+    "from_dataset": "other_sanctions_lists",
+    "record_id": "sanctions:d5499c5830cb09641c220372439758a1e17cbd2ff297320a2b19610c95543a60",
+    "identifier_values": [
+     "Government Gazette Number=00044434"
+    ],
+    "records": 1
+   },
+   {
+    "subject": "us_csl:17248",
+    "predicate": "identifier",
+    "value": {
+     "issuing_country": "RUS",
+     "scheme": "Tax ID No.",
+     "value": "7708004767"
+    },
+    "from_dataset": "other_sanctions_lists",
+    "record_id": "sanctions:183ffc09d55a4427ccc971f9bb78900fd4e388923148f17a96af97d32bb52d52",
+    "identifier_values": [
+     "Tax ID No.=7708004767"
+    ],
+    "records": 1
+   },
+   {
+    "subject": "us_csl:17248",
+    "predicate": "identifier",
+    "value": {
+     "issuing_country": "RUS",
+     "scheme": "Registration ID",
+     "value": "1027700035769"
+    },
+    "from_dataset": "other_sanctions_lists",
+    "record_id": "sanctions:fd20823b1525a764190ce4c8920d65d911ca6b75ed56ce1bb6aee75be8478d21",
+    "identifier_values": [
+     "Registration ID=1027700035769"
+    ],
+    "records": 1
+   },
+   {
+    "subject": "us_csl:17248",
+    "predicate": "identifier",
+    "value": {
+     "id": "lei:549300LCJ1UJXHYBWI24",
+     "scheme": "Legal Entity Number",
+     "value": "549300LCJ1UJXHYBWI24"
+    },
+    "from_dataset": "other_sanctions_lists",
+    "record_id": "sanctions:9e4f9ac31919b3b10c2f2c752ce1611c05cf9e39bb8983ac863ff6e33b6994a0",
+    "identifier_values": [
+     "Legal Entity Number=549300LCJ1UJXHYBWI24",
+     "lei:549300LCJ1UJXHYBWI24"
+    ],
+    "records": 1
+   },
+   {
+    "subject": "us_csl:17248",
+    "predicate": "identifier",
+    "value": {
+     "scheme": "Email Address",
+     "value": "info@lukoil.ru"
+    },
+    "from_dataset": "other_sanctions_lists",
+    "record_id": "sanctions:f93c130cc8cf379dd29c81b69f6fb9b84445f784cf88ea1b124070aa4f8b7b7d",
+    "identifier_values": [
+     "Email Address=info@lukoil.ru"
+    ],
+    "records": 1
+   },
+   {
+    "subject": "us_csl:17248",
+    "predicate": "identifier",
+    "value": {
+     "scheme": "Website",
+     "value": "www.lukoil.ru"
+    },
+    "from_dataset": "other_sanctions_lists",
+    "record_id": "sanctions:1e9f75c704747a23c5f38fa2592bdbb570004e2f28dcf28d50aade7e2fe25740",
+    "identifier_values": [
+     "Website=www.lukoil.ru"
+    ],
+    "records": 1
+   },
+   {
+    "subject": "us_csl:17248",
+    "predicate": "identifier",
+    "value": {
+     "scheme": "Executive Order 13662 Directive Determination -",
+     "value": "Subject to Directive 4"
+    },
+    "from_dataset": "other_sanctions_lists",
+    "record_id": "sanctions:fcc28a9074763b3ac800b62c4a4ad0215033d301f9f2c4a7eddc87c4ff555341",
+    "identifier_values": [
+     "Executive Order 13662 Directive Determination -=Subject to Directive 4"
+    ],
+    "records": 1
+   },
+   {
+    "subject": "us_csl:17248",
+    "predicate": "identifier",
+    "value": {
+     "scheme": "Secondary sanctions risk:",
+     "value": "Ukraine-/Russia-Related Sanctions Regulations, 31 CFR 589.201 and/or 589.209"
+    },
+    "from_dataset": "other_sanctions_lists",
+    "record_id": "sanctions:f0bec9a1a7a180d6f4404d8e407eeb774acd4c4ec6e9b2d87e3902b0d23b9f9e",
+    "identifier_values": [
+     "Secondary sanctions risk:=Ukraine-/Russia-Related Sanctions Regulations, 31 CFR 589.201 and/or 589.209"
+    ],
+    "records": 1
+   },
+   {
+    "subject": "us_csl:17248",
+    "predicate": "identifier",
+    "value": {
+     "scheme": "Secondary sanctions risk:",
+     "value": "See Section 11 of Executive Order 14024."
+    },
+    "from_dataset": "other_sanctions_lists",
+    "record_id": "sanctions:b98dfb78eceb1d767128c11689c69da3e7b505f6cf326d8f069c04b0a898b09b",
+    "identifier_values": [
+     "Secondary sanctions risk:=See Section 11 of Executive Order 14024."
+    ],
+    "records": 1
+   }
+  ],
+  "aliases": [
+   {
+    "subject": "ofac:party:17248",
+    "value": {
+     "alias_type": "A.K.A.",
+     "name": "Lukoil Oil Company",
+     "script": "Latin",
+     "status": "Others"
+    },
+    "from_dataset": "ofac_sanctions",
+    "record_id": "ofac:0a6c09fa98378ba6db5218eea8eff242732d3167d3a884bbbb9d534b80d429ac"
+   },
+   {
+    "subject": "ofac:party:17248",
+    "value": {
+     "alias_type": "A.K.A.",
+     "name": "Lukoil",
+     "script": "Latin",
+     "status": "Others"
+    },
+    "from_dataset": "ofac_sanctions",
+    "record_id": "ofac:7616e4811200d2db59acc3b7268fe35e67ff399c399b2509d0385b8161cd9ff0"
+   },
+   {
+    "subject": "ofac:party:17248",
+    "value": {
+     "alias_type": "A.K.A.",
+     "name": "ЛУКОЙЛ",
+     "script": "Cyrillic",
+     "status": "Others"
+    },
+    "from_dataset": "ofac_sanctions",
+    "record_id": "ofac:b4290579124048f5f35c52fb68696676f0331fd2838328d2edee83218fc6e1f6"
+   },
+   {
+    "subject": "ofac:party:17248",
+    "value": {
+     "alias_type": "A.K.A.",
+     "name": "NK Lukoil OAO",
+     "script": "Latin",
+     "status": "Others"
+    },
+    "from_dataset": "ofac_sanctions",
+    "record_id": "ofac:1024dca9b73144e5bd770b05cd9d9ea76ff4dfb081eb5d53cd97b38c45bacb7b"
+   },
+   {
+    "subject": "ofac:party:17248",
+    "value": {
+     "alias_type": "A.K.A.",
+     "name": "Neftyanaya Kompaniya Lukoil OOO",
+     "script": "Latin",
+     "status": "Others"
+    },
+    "from_dataset": "ofac_sanctions",
+    "record_id": "ofac:aaccb233714a2e70dddc8a7e55e2649c25c0e49a3401bb5a46c4eca2894add89"
+   },
+   {
+    "subject": "ofac:party:17248",
+    "value": {
+     "alias_type": "A.K.A.",
+     "name": "PUBLIC JOINT-STOCK COMPANY OIL COMPANY LUKOIL",
+     "script": "Latin",
+     "status": "Others"
+    },
+    "from_dataset": "ofac_sanctions",
+    "record_id": "ofac:3149db5b78ea7e89cfed74932a5a7db7dd3f7193b7e13ae764bcfa9b80030374"
+   },
+   {
+    "subject": "ofac:party:17248",
+    "value": {
+     "alias_type": "A.K.A.",
+     "name": "ПУБЛИЧНОЕ АКЦИОНЕРНОЕ ОБЩЕСТВО НЕФТЯНАЯ КОМПАНИЯ ЛУКОЙЛ",
+     "script": "Cyrillic",
+     "status": "Others"
+    },
+    "from_dataset": "ofac_sanctions",
+    "record_id": "ofac:6c9df8a69dc54aaae352c4038748ed9a00aa2b4ced2e6914f21cc05fff2e2bd0"
+   },
+   {
+    "subject": "ofac:party:17248",
+    "value": {
+     "alias_type": "A.K.A.",
+     "name": "Lukoil Oil Company",
+     "script": "Latin",
+     "status": "Others"
+    },
+    "from_dataset": "ofac_sanctions",
+    "record_id": "ofac:a92df252e9d31d51e23222baa7a8a78b024fda6422f8bcfd5546b4958d88d9d1"
+   },
+   {
+    "subject": "ofac:party:17248",
+    "value": {
+     "alias_type": "A.K.A.",
+     "name": "Lukoil",
+     "script": "Latin",
+     "status": "Others"
+    },
+    "from_dataset": "ofac_sanctions",
+    "record_id": "ofac:ddb7d2007d1972b036b43096732d002eb170e0fde106432d1d480e5b402aac9f"
+   },
+   {
+    "subject": "ofac:party:17248",
+    "value": {
+     "alias_type": "A.K.A.",
+     "name": "ЛУКОЙЛ",
+     "script": "Cyrillic",
+     "status": "Others"
+    },
+    "from_dataset": "ofac_sanctions",
+    "record_id": "ofac:544c2dbabde897ed6afa579b863a9e96c137e1ae4c1a48dbc78d9929e4c2516e"
+   },
+   {
+    "subject": "ofac:party:17248",
+    "value": {
+     "alias_type": "A.K.A.",
+     "name": "NK Lukoil OAO",
+     "script": "Latin",
+     "status": "Others"
+    },
+    "from_dataset": "ofac_sanctions",
+    "record_id": "ofac:0c6d668fac986506239807f5fab64a992ca0d23b033951d142b2de42d5cd5950"
+   },
+   {
+    "subject": "ofac:party:17248",
+    "value": {
+     "alias_type": "A.K.A.",
+     "name": "Neftyanaya Kompaniya Lukoil OOO",
+     "script": "Latin",
+     "status": "Others"
+    },
+    "from_dataset": "ofac_sanctions",
+    "record_id": "ofac:43873da114498130c35934554c5c2813601de1b307148804f3e3c686372167c5"
+   },
+   {
+    "subject": "ofac:party:17248",
+    "value": {
+     "alias_type": "A.K.A.",
+     "name": "PUBLIC JOINT-STOCK COMPANY OIL COMPANY LUKOIL",
+     "script": "Latin",
+     "status": "Others"
+    },
+    "from_dataset": "ofac_sanctions",
+    "record_id": "ofac:3d237267324135c0fc44a37f5fb02816d4e8799be27f41942eeff4a038f4a978"
+   },
+   {
+    "subject": "ofac:party:17248",
+    "value": {
+     "alias_type": "A.K.A.",
+     "name": "ПУБЛИЧНОЕ АКЦИОНЕРНОЕ ОБЩЕСТВО НЕФТЯНАЯ КОМПАНИЯ ЛУКОЙЛ",
+     "script": "Cyrillic",
+     "status": "Others"
+    },
+    "from_dataset": "ofac_sanctions",
+    "record_id": "ofac:08e1fd05dad82b625989c7802d47a6b91288b4151b57a39556c2d0cadfa3c3b8"
+   },
+   {
+    "subject": "opensanctions:NK-T3oRNWY3XhL72vfsVMcXzX",
+    "value": {
+     "name": "\"JSC \"\"Oil Company \"\"LUKOIL\"\"\""
+    },
+    "from_dataset": "opensanctions",
+    "record_id": "opensanctions:15a7da8f1b856656a7fdf792aaa528602fe9c9d9ca6edee7444e400ba67764cf"
+   },
+   {
+    "subject": "opensanctions:NK-T3oRNWY3XhL72vfsVMcXzX",
+    "value": {
+     "name": "JSC 'Oil Company 'LUKOIL'"
+    },
+    "from_dataset": "opensanctions",
+    "record_id": "opensanctions:3321197a191744ca66f09319a6170a37906e94d70a17bcd3963f3bb9dc05dda6"
+   },
+   {
+    "subject": "opensanctions:NK-T3oRNWY3XhL72vfsVMcXzX",
+    "value": {
+     "name": "LUKOIL"
+    },
+    "from_dataset": "opensanctions",
+    "record_id": "opensanctions:e565b9f70dcbe82e87892e854918af59d44ec47add06be1aa0a0102d2f41ff66"
+   },
+   {
+    "subject": "opensanctions:NK-T3oRNWY3XhL72vfsVMcXzX",
+    "value": {
+     "name": "Lukoil"
+    },
+    "from_dataset": "opensanctions",
+    "record_id": "opensanctions:2b0e0195cc652b889d981faaf4e814c2cb2c8f7459a642f0eaad7c97d6b0327d"
+   },
+   {
+    "subject": "opensanctions:NK-T3oRNWY3XhL72vfsVMcXzX",
+    "value": {
+     "name": "Lukoil Oil Company"
+    },
+    "from_dataset": "opensanctions",
+    "record_id": "opensanctions:d69807907497a0767b4c0a5c54ee0bbfba9fceffaaf89d429cd15ea3cb27c996"
+   },
+   {
+    "subject": "opensanctions:NK-T3oRNWY3XhL72vfsVMcXzX",
+    "value": {
+     "name": "Lukoil Oil Company Public Joint Stock Company"
+    },
+    "from_dataset": "opensanctions",
+    "record_id": "opensanctions:cf5f30c6e623a02fd52e228333c8ef044872760e67ac6a17d03af73cb38188be"
+   },
+   {
+    "subject": "opensanctions:NK-T3oRNWY3XhL72vfsVMcXzX",
+    "value": {
+     "name": "Lukoil PJSC"
+    },
+    "from_dataset": "opensanctions",
+    "record_id": "opensanctions:57243d71db5abce9a938d6c4e26d7c78bf9ade1387e593fbc8f489f10ca1f303"
+   },
+   {
+    "subject": "opensanctions:NK-T3oRNWY3XhL72vfsVMcXzX",
+    "value": {
+     "name": "Lukoil Public Joint Stock Company"
+    },
+    "from_dataset": "opensanctions",
+    "record_id": "opensanctions:09320ba41a7502fc3c4c7560b446b600839f711d2410642f245b059531c7c1c1"
+   },
+   {
+    "subject": "opensanctions:NK-T3oRNWY3XhL72vfsVMcXzX",
+    "value": {
+     "name": "Lukoil, OAO"
+    },
+    "from_dataset": "opensanctions",
+    "record_id": "opensanctions:8d117eee5d173c2172c1e7bb997b9723831812e7588eb9da38458a14d5b82dde"
+   },
+   {
+    "subject": "opensanctions:NK-T3oRNWY3XhL72vfsVMcXzX",
+    "value": {
+     "name": "NK Lukoil OAO"
+    },
+    "from_dataset": "opensanctions",
+    "record_id": "opensanctions:dc7171585a1f5c2c046d8e20a0f44b62bfa612e1027d95fea9697224dc594faf"
+   },
+   {
+    "subject": "opensanctions:NK-T3oRNWY3XhL72vfsVMcXzX",
+    "value": {
+     "name": "Neftyanaya Kompaniya Lukoil OOO"
+    },
+    "from_dataset": "opensanctions",
+    "record_id": "opensanctions:5797996e30789b43e88736bdf9e78b110bc26be22770519d4bc87b2f57e02829"
+   },
+   {
+    "subject": "opensanctions:NK-T3oRNWY3XhL72vfsVMcXzX",
+    "value": {
+     "name": "PJSC LUKOIL"
+    },
+    "from_dataset": "opensanctions",
+    "record_id": "opensanctions:d331981841cede114152fc46bfd6f3df157351db63cc936063a1619e4f2a1e9a"
+   },
+   {
+    "subject": "opensanctions:NK-T3oRNWY3XhL72vfsVMcXzX",
+    "value": {
+     "name": "PJSC Oil Company LUKOIL"
+    },
+    "from_dataset": "opensanctions",
+    "record_id": "opensanctions:aa4cbd08dcb2f98440d703ed0ad61fc93264bdfc9592309d2a7aa5c21f4d009f"
+   },
+   {
+    "subject": "opensanctions:NK-T3oRNWY3XhL72vfsVMcXzX",
+    "value": {
+     "name": "PUBLIC JOINT-STOCK COMPANY OIL COMPANY LUKOIL"
+    },
+    "from_dataset": "opensanctions",
+    "record_id": "opensanctions:ca67b516f0744c89268666da9c269519383bc2bdb00b6f98da108c199c2861a1"
+   },
+   {
+    "subject": "opensanctions:NK-T3oRNWY3XhL72vfsVMcXzX",
+    "value": {
+     "name": "Public Joint Stock Company Lukoil Oil Company"
+    },
+    "from_dataset": "opensanctions",
+    "record_id": "opensanctions:31602392287c1a6a3d18f4c193e498c317ccd10f74b31d3c6c29315d398f1452"
+   },
+   {
+    "subject": "opensanctions:NK-T3oRNWY3XhL72vfsVMcXzX",
+    "value": {
+     "name": "\"Public Joint-Stock Company \"\"Lukoil Oil Company\"\"\""
+    },
+    "from_dataset": "opensanctions",
+    "record_id": "opensanctions:be633da325301b6b0ef953e1667d63ddf78952b8de3176a4196de16d94cae548"
+   },
+   {
+    "subject": "opensanctions:NK-T3oRNWY3XhL72vfsVMcXzX",
+    "value": {
+     "name": "\"Publichne aktsionerne tovarystvo \"\"Naftova Kompaniia \"\"Lukoil\"\"\""
+    },
+    "from_dataset": "opensanctions",
+    "record_id": "opensanctions:2d93c3e9a66e42cf99031f35d80a310005c1bf895fedebcd25a5adc5b8c31d3d"
+   },
+   {
+    "subject": "opensanctions:NK-T3oRNWY3XhL72vfsVMcXzX",
+    "value": {
+     "name": "ЛУКОЙЛ"
+    },
+    "from_dataset": "opensanctions",
+    "record_id": "opensanctions:4f611661f9891231581ae5a17e28338247b4ee4bc12eb397a11f93ebdabe6815"
+   },
+   {
+    "subject": "opensanctions:NK-T3oRNWY3XhL72vfsVMcXzX",
+    "value": {
+     "name": "ПАО Нефтяная компания ЛУКОЙЛ"
+    },
+    "from_dataset": "opensanctions",
+    "record_id": "opensanctions:b5dde46df423d71ca5ca69edf7d51c479373c4fbac0de05dc87d52d431057320"
+   },
+   {
+    "subject": "opensanctions:NK-T3oRNWY3XhL72vfsVMcXzX",
+    "value": {
+     "name": "\"ПУБЛИЧНОЕ АКЦИОНЕРНОЕ ОБЩЕСТВО \"\"НЕФТЯНАЯ КОМПАНИЯ \"\"ЛУКОЙЛ\"\"/ ЛУКОЙЛ\""
+    },
+    "from_dataset": "opensanctions",
+    "record_id": "opensanctions:adbc55347a376463daf2f24b23e1698d677e7c68b795d572d1ac9b1dc7315341"
+   },
+   {
+    "subject": "opensanctions:NK-T3oRNWY3XhL72vfsVMcXzX",
+    "value": {
+     "name": "ПУБЛИЧНОЕ АКЦИОНЕРНОЕ ОБЩЕСТВО НЕФТЯНАЯ КОМПАНИЯ ЛУКОЙЛ"
+    },
+    "from_dataset": "opensanctions",
+    "record_id": "opensanctions:9f701b9b74e7ce5d752a1f2830e0fba9e6e5c7f3fee2511eb299dda2572680f8"
+   },
+   {
+    "subject": "opensanctions:NK-T3oRNWY3XhL72vfsVMcXzX",
+    "value": {
+     "name": "\"Публичное акционерное общество \"\"Нефтяная Компания \"\"Лукойл\"\"\""
+    },
+    "from_dataset": "opensanctions",
+    "record_id": "opensanctions:3086c86cc1e26b845d1017df9e6585e3b2984d1f1dcf6c7970217d154c89339e"
+   },
+   {
+    "subject": "opensanctions:NK-T3oRNWY3XhL72vfsVMcXzX",
+    "value": {
+     "name": "\"Публічне акціонерне товариство \"\"Нафтова Компанія \"\"Лукойл\"\"\""
+    },
+    "from_dataset": "opensanctions",
+    "record_id": "opensanctions:238a0f792b69a638658cfa89547666411ec2cb4405b2742c32f5784109a636c2"
+   },
+   {
+    "subject": "opensanctions:NK-T3oRNWY3XhL72vfsVMcXzX",
+    "value": {
+     "name": "ПУБЛИЧНОЕ АКЦИОНЕРНОЕ ОБЩЕСТВО НЕФТЯНАЯ КОМПАНИЯ \"ЛУКОЙЛ\""
+    },
+    "from_dataset": "opensanctions_graph",
+    "record_id": "osgraph:313fc47cc81547ae2e1ab0662ac8ef11b4c5946c4d33c72b2ecea9de7e837707"
+   },
+   {
+    "subject": "opensanctions:NK-T3oRNWY3XhL72vfsVMcXzX",
+    "value": {
+     "name": "NEFTYANAYA KOMPANIYA LUKOIL OOO"
+    },
+    "from_dataset": "opensanctions_graph",
+    "record_id": "osgraph:50b8aa72956edd0935aa1ad3704cb8ab37058110f7686bc091ce4af8f0e98301"
+   },
+   {
+    "subject": "opensanctions:NK-T3oRNWY3XhL72vfsVMcXzX",
+    "value": {
+     "name": "ОТКРЫТОЕ АКЦИОНЕРНОЕ ОБЩЕСТВО \"НЕФТЯНАЯ КОСПАНИЯ \"ЛУКОЙЛ\""
+    },
+    "from_dataset": "opensanctions_graph",
+    "record_id": "osgraph:ada7f261ae41c121ed9fbf4ab5228d9858c3f1f0139408171bcd7e433b4f992f"
+   },
+   {
+    "subject": "opensanctions:NK-T3oRNWY3XhL72vfsVMcXzX",
+    "value": {
+     "name": "Lukoil, OAO"
+    },
+    "from_dataset": "opensanctions_graph",
+    "record_id": "osgraph:3899ed82d051b8d12d6817d8e11602802fe459a321a3c109ebc9d98907066642"
+   },
+   {
+    "subject": "opensanctions:NK-T3oRNWY3XhL72vfsVMcXzX",
+    "value": {
+     "name": "Pjsc Lukoil"
+    },
+    "from_dataset": "opensanctions_graph",
+    "record_id": "osgraph:c0c5742160056c8f7d4bad2ca91a12e493f5c693de356183ca1fadead31907af"
+   },
+   {
+    "subject": "opensanctions:NK-T3oRNWY3XhL72vfsVMcXzX",
+    "value": {
+     "name": "Публичное акционерное общество \"Нефтяная Компания \"Лукойл\""
+    },
+    "from_dataset": "opensanctions_graph",
+    "record_id": "osgraph:965444c47c64339949f815532cd656d81189116455fe878992f0461a4a9d93d9"
+   },
+   {
+    "subject": "opensanctions:NK-T3oRNWY3XhL72vfsVMcXzX",
+    "value": {
+     "name": "Lukoil Public Joint Stock Company"
+    },
+    "from_dataset": "opensanctions_graph",
+    "record_id": "osgraph:dcc70cf4c4308308b372c2e4f418668f90c0274e6bcf2c3dc9c1d7d8d00d8722"
+   },
+   {
+    "subject": "opensanctions:NK-T3oRNWY3XhL72vfsVMcXzX",
+    "value": {
+     "name": "ЗАО ЛУКОЙЛ-ИНФОРМ"
+    },
+    "from_dataset": "opensanctions_graph",
+    "record_id": "osgraph:5098b8a7456d011f124e468e40d605806602f32e472d811cbabd512f57e7758c"
+   },
+   {
+    "subject": "opensanctions:NK-T3oRNWY3XhL72vfsVMcXzX",
+    "value": {
+     "name": "LUKOIL OIL COMPANY PUBLIC JOINT-STOCK COMPANY"
+    },
+    "from_dataset": "opensanctions_graph",
+    "record_id": "osgraph:085e567d8e7a7d8bd3f0276a4275a7a1ace69cb6ef5cc99d06dfc1034ec5e815"
+   },
+   {
+    "subject": "opensanctions:NK-T3oRNWY3XhL72vfsVMcXzX",
+    "value": {
+     "name": "ОТКРЫТОЕ АКЦИОНЕРНОЕ ОБЩЕСТВО \" НЕФТЯНАЯ КОМПАНИЯ \"ЛУКОЙЛ \""
+    },
+    "from_dataset": "opensanctions_graph",
+    "record_id": "osgraph:59c393a210ca73741d0a3d4eccc192db14f8adff0bde8f7987fb042842a4da06"
+   },
+   {
+    "subject": "opensanctions:NK-T3oRNWY3XhL72vfsVMcXzX",
+    "value": {
+     "name": "NK LUKOIL OAO"
+    },
+    "from_dataset": "opensanctions_graph",
+    "record_id": "osgraph:b2a1d4a5c0ec4b271f44b06d8be30a5071e6a05e1cc80a24f02b93073481cf7a"
+   },
+   {
+    "subject": "opensanctions:NK-T3oRNWY3XhL72vfsVMcXzX",
+    "value": {
+     "name": "ОТКРЫТОЕ АКЦИОНЕРНОЕ ОБЩЕСТВО НЕФТЯНАЯ КОМПАНИЯ \"ЛУКОЙЛ\""
+    },
+    "from_dataset": "opensanctions_graph",
+    "record_id": "osgraph:5f67b9139ba094f0d5017ea92ccb48e3cd097118054777eb94962ed68a35993b"
+   },
+   {
+    "subject": "opensanctions:NK-T3oRNWY3XhL72vfsVMcXzX",
+    "value": {
+     "name": "НЕФТЯНАЯ КОМПАНИЯ \"ЛУКОЙЛ"
+    },
+    "from_dataset": "opensanctions_graph",
+    "record_id": "osgraph:b5f82199305230be255590339d88334f15d2ed970f3b5b693135e51cf1acf4e5"
+   },
+   {
+    "subject": "opensanctions:NK-T3oRNWY3XhL72vfsVMcXzX",
+    "value": {
+     "name": "Public Joint-Stock Company Oil Company Lukoil"
+    },
+    "from_dataset": "opensanctions_graph",
+    "record_id": "osgraph:0fefbb99a672db1109ae308e4c6b334ac17a4c8f7bdc721e0683ebc7915d27b5"
+   },
+   {
+    "subject": "opensanctions:NK-T3oRNWY3XhL72vfsVMcXzX",
+    "value": {
+     "name": "NK Lukoil PAO"
+    },
+    "from_dataset": "opensanctions_graph",
+    "record_id": "osgraph:053aef81243152b68c7b42b0e5acca4eccc46395dbecbce0f27c7ad691f6e773"
+   },
+   {
+    "subject": "opensanctions:NK-T3oRNWY3XhL72vfsVMcXzX",
+    "value": {
+     "name": "ОТКРЫТОЕ АКЦИОНЕРНОЕ ОБЩЕСТВО \"НЕФТЯНАЯКОМПАНИЯ ЛУКОЙЛ\""
+    },
+    "from_dataset": "opensanctions_graph",
+    "record_id": "osgraph:5ad3a8a77b9443590088fc251d2ab1fad7ada7535393daaabea2745f7b40ada4"
+   },
+   {
+    "subject": "opensanctions:NK-T3oRNWY3XhL72vfsVMcXzX",
+    "value": {
+     "name": "PJSC Oil Company LUKOIL"
+    },
+    "from_dataset": "opensanctions_graph",
+    "record_id": "osgraph:26e3bd3d633f1dfee131dfa56c0463e802c4ade43c79f3f4aecbf903a38f3990"
+   },
+   {
+    "subject": "opensanctions:NK-T3oRNWY3XhL72vfsVMcXzX",
+    "value": {
+     "name": "LUKOIL OIL COMPANY"
+    },
+    "from_dataset": "opensanctions_graph",
+    "record_id": "osgraph:2aad2efa3c54cd598f46da48b5d44a80ac4e86225e377d5348b15235916c191a"
+   },
+   {
+    "subject": "opensanctions:NK-T3oRNWY3XhL72vfsVMcXzX",
+    "value": {
+     "name": "Lukoil PJSC"
+    },
+    "from_dataset": "opensanctions_graph",
+    "record_id": "osgraph:6ff764509c664cfd91cbbec16622703f7468fbf95839326efc03079afb7ea64d"
+   },
+   {
+    "subject": "opensanctions:NK-T3oRNWY3XhL72vfsVMcXzX",
+    "value": {
+     "name": "Публічне акціонерне товариство \"Нафтова Компанія \"Лукойл\""
+    },
+    "from_dataset": "opensanctions_graph",
+    "record_id": "osgraph:e739f6acdb2bed6e961d4c8d9bc352403cb6dd45c0fc3311d804331801407154"
+   },
+   {
+    "subject": "us_csl:17248",
+    "value": {
+     "alias_type": "alt_name",
+     "name": "Lukoil Oil Company"
+    },
+    "from_dataset": "other_sanctions_lists",
+    "record_id": "sanctions:8957c2f1594b191dfdeb034f858c1dcd9ad0212f07d8ca081042bfff0a8b4c04"
+   },
+   {
+    "subject": "us_csl:17248",
+    "value": {
+     "alias_type": "alt_name",
+     "name": "Lukoil"
+    },
+    "from_dataset": "other_sanctions_lists",
+    "record_id": "sanctions:bd8471626772303383be1d0839c96a8f7a59a6c58704f0575bb429505bb4ef8d"
+   },
+   {
+    "subject": "us_csl:17248",
+    "value": {
+     "alias_type": "alt_name",
+     "name": "NK Lukoil OAO"
+    },
+    "from_dataset": "other_sanctions_lists",
+    "record_id": "sanctions:e75293984e0504c10a7b1b8d17292d3a349ba80ec1c78f0a4cf0e08668f59852"
+   },
+   {
+    "subject": "us_csl:17248",
+    "value": {
+     "alias_type": "alt_name",
+     "name": "Neftyanaya Kompaniya Lukoil OOO"
+    },
+    "from_dataset": "other_sanctions_lists",
+    "record_id": "sanctions:dc241065f5832bd9e6716c7e44256ae0f50671d64d068dddde069ee92cf8b458"
+   },
+   {
+    "subject": "us_csl:17248",
+    "value": {
+     "alias_type": "alt_name",
+     "name": "PUBLIC JOINT-STOCK COMPANY OIL COMPANY LUKOIL"
+    },
+    "from_dataset": "other_sanctions_lists",
+    "record_id": "sanctions:0da5f685430071098e087f4e6631c1cb102d3e2aa2fff1c5b1b10b9c790b28f8"
+   },
+   {
+    "subject": "us_csl:17248",
+    "value": {
+     "alias_type": "alt_name",
+     "name": "LUKOIL OIL COMPANY"
+    },
+    "from_dataset": "other_sanctions_lists",
+    "record_id": "sanctions:7b97d16140b45711f85d863eb6570c96ef0f359eca45c8bf68703b3ff0b7c2f2"
+   },
+   {
+    "subject": "us_csl:17248",
+    "value": {
+     "alias_type": "alt_name",
+     "name": "LUKOIL"
+    },
+    "from_dataset": "other_sanctions_lists",
+    "record_id": "sanctions:71ebe5109ad0b0f9ddcd95e7691310d8b38684d2c2c8d1ac2ce9e648906c33d4"
+   },
+   {
+    "subject": "us_csl:17248",
+    "value": {
+     "alias_type": "alt_name",
+     "name": "NK LUKOIL OAO"
+    },
+    "from_dataset": "other_sanctions_lists",
+    "record_id": "sanctions:b41e1c94c6e6fc963a0cdf6e7b6aa0654191381a03fd8864ffc2e56b3201d2a9"
+   },
+   {
+    "subject": "us_csl:17248",
+    "value": {
+     "alias_type": "alt_name",
+     "name": "NEFTYANAYA KOMPANIYA LUKOIL OOO"
+    },
+    "from_dataset": "other_sanctions_lists",
+    "record_id": "sanctions:894154881a09701a55bc090edc5a2f5c4b2212ba4b5d96c8da2540bfa86f210e"
+   }
+  ],
+  "other_literal_claims": [
+   {
+    "predicate": "sanctions_feature",
+    "from_dataset": "ofac_sanctions",
+    "assertions": 6,
+    "examples": [
+     {
+      "subject": "ofac:party:17248",
+      "value": {
+       "type": "Executive Order 13662 Directive Determination",
+       "value": "Subject to Directive 4"
+      },
+      "record_id": "ofac:5c417bd8e56a62aac68b8af35585e1d0fb3e33e44e01d5a91286c52cc83b3cb5"
+     },
+     {
+      "subject": "ofac:party:17248",
+      "value": {
+       "type": "Secondary sanctions risk",
+       "value": "Ukraine-/Russia-Related Sanctions Regulations, 31 CFR 589.201 and/or 589.209"
+      },
+      "record_id": "ofac:1beb001e6e1800c7a8c444b56155ed3ae5357f9920d1dddbd83e412a02b704e8"
+     },
+     {
+      "subject": "ofac:party:17248",
+      "value": {
+       "type": "Secondary sanctions risk",
+       "value": "See Section 11 of Executive Order 14024."
+      },
+      "record_id": "ofac:b610c78d9d499511b5c09cda52f24f1b1b5f33b6abcd0aa5c52bb28be372a537"
+     }
+    ]
+   },
+   {
+    "predicate": "address",
+    "from_dataset": "opensanctions",
+    "assertions": 5,
+    "examples": [
+     {
+      "subject": "opensanctions:NK-T3oRNWY3XhL72vfsVMcXzX",
+      "value": {
+       "text": "11 Sretenski boulevard Moscow 101000 Russia"
+      },
+      "record_id": "opensanctions:39be1df3cbe459db8e2efe8afa6873ab473e22fa18bb87bb1c36c4de7705cb2f"
+     },
+     {
+      "subject": "opensanctions:NK-T3oRNWY3XhL72vfsVMcXzX",
+      "value": {
+       "text": "11 Sretenski boulevard, Moscow, 101000"
+      },
+      "record_id": "opensanctions:20ccad5c3e9ba95087ec852360ef1e326c8133bb6507ce3724e92b97c5b552ea"
+     },
+     {
+      "subject": "opensanctions:NK-T3oRNWY3XhL72vfsVMcXzX",
+      "value": {
+       "text": "11 Sretensky Boulevard, Moscow, Russia, 101000"
+      },
+      "record_id": "opensanctions:9601ba0834f18cff45a676e4bdea8d70f2f75e03492841c6dbb6ddd913041599"
+     }
+    ]
+   },
+   {
+    "predicate": "contact",
+    "from_dataset": "opensanctions",
+    "assertions": 5,
+    "examples": [
+     {
+      "subject": "opensanctions:NK-T3oRNWY3XhL72vfsVMcXzX",
+      "value": {
+       "type": "phone",
+       "value": "+74956274444"
+      },
+      "record_id": "opensanctions:ea198d3e89df85f34ae9b2c6157408e5b5c5d84a6c059c3d74106378a20b065d"
+     },
+     {
+      "subject": "opensanctions:NK-T3oRNWY3XhL72vfsVMcXzX",
+      "value": {
+       "type": "phone",
+       "value": "+74956289841"
+      },
+      "record_id": "opensanctions:bbcb8b7c5e4ce3b6c84b8ad67a9d5a697f3da974026a2b2577ffb0381b04f9a5"
+     },
+     {
+      "subject": "opensanctions:NK-T3oRNWY3XhL72vfsVMcXzX",
+      "value": {
+       "type": "email",
+       "value": "info@lukoil.ru"
+      },
+      "record_id": "opensanctions:b26d13353ed09894b955a3b7b8757835502944dfdd3c2698ba3c83e7a6fdc30e"
+     }
+    ]
+   },
+   {
+    "predicate": "contact",
+    "from_dataset": "ofac_sanctions",
+    "assertions": 4,
+    "examples": [
+     {
+      "subject": "ofac:party:17248",
+      "value": {
+       "type": "Email Address",
+       "value": "info@lukoil.ru"
+      },
+      "record_id": "ofac:3d27ff4904f114bbf2cc8c1db3128afe0c87f015b9f3864ac0390ede9306643d"
+     },
+     {
+      "subject": "ofac:party:17248",
+      "value": {
+       "type": "Website",
+       "value": "www.lukoil.ru"
+      },
+      "record_id": "ofac:39572fe01d0e3f0930d994fd7aeafc2b90f209bd13145d9226e60246e0a59e80"
+     },
+     {
+      "subject": "ofac:party:17248",
+      "value": {
+       "type": "Email Address",
+       "value": "info@lukoil.ru"
+      },
+      "record_id": "ofac:cfda2eabd9898424d5dd4d7817e20d7a6379b1cf1c9c763fd0adb3cc34f1bbcb"
+     }
+    ]
+   },
+   {
+    "predicate": "sanctions_listing",
+    "from_dataset": "opensanctions_graph",
+    "assertions": 3,
+    "examples": [
+     {
+      "subject": "opensanctions:NK-T3oRNWY3XhL72vfsVMcXzX",
+      "value": {
+       "authority": "Office of Foreign Assets Control",
+       "country": [
+        "us"
+       ],
+       "datasets": [
+        "us_ofac_cons"
+       ],
+       "date_semantics": "Sanction startDate (else listingDate/date) as published by the source list",
+       "program": "UKRAINE-EO13662",
+       "program_ids": [
+        "US-SSI"
+       ],
+       "provisions": [
+        "Block",
+        "13662 Sectoral Directive 4",
+        "RUSSIA-EO14024",
+        "UKRAINE-EO13662"
+       ],
+       "reason": "Executive Order 14024 (Russia) Executive Order 13662 (Ukraine)",
+       "sanction_id": "opensanctions:ofac-ce6e1bfe1f004cc59c504174ce519a03f7e0330b",
+       "source_url": "https://www.treasury.gov/resource-center/sanctions/Pages/default.aspx"
+      },
+      "record_id": "osgraph:dc3da8e42a29664973ab7bf5e289301a18ac04eb5ecdaaa363158f1bc49f0414"
+     },
+     {
+      "subject": "opensanctions:NK-T3oRNWY3XhL72vfsVMcXzX",
+      "value": {
+       "authority": "Office of Foreign Assets Control",
+       "country": [
+        "us"
+       ],
+       "datasets": [
+        "us_ofac_sdn"
+       ],
+       "date_semantics": "Sanction startDate (else listingDate/date) as published by the source list",
+       "program": "UKRAINE-EO13662",
+       "program_ids": [
+        "US-UKRRUS-REL"
+       ],
+       "provisions": [
+        "Block",
+        "13662 Sectoral Directive 4",
+        "RUSSIA-EO14024",
+        "UKRAINE-EO13662"
+       ],
+       "reason": "Executive Order 14024 (Russia) Executive Order 13662 (Ukraine)",
+       "sanction_id": "opensanctions:ofac-e995392d9bc357c2fc151bb09e8670d1b69e90af",
+       "source_url": "https://www.treasury.gov/resource-center/sanctions/Pages/default.aspx"
+      },
+      "record_id": "osgraph:06f759032564d3ff8677e59e2e31f147a10f0a300b5bae020ef67c2e16208b95"
+     },
+     {
+      "subject": "opensanctions:NK-T3oRNWY3XhL72vfsVMcXzX",
+      "value": {
+       "authority": "ГУР МО України",
+       "country": [
+        "ua"
+       ],
+       "datasets": [
+        "ua_war_sanctions"
+       ],
+       "date_semantics": "Sanction startDate (else listingDate/date) as published by the source list",
+       "sanction_id": "opensanctions:ua-ws-0baf9d6dd9768cd278a5e3d1aabd683a2558a443",
+       "source_url": "https://war-sanctions.gur.gov.ua/en"
+      },
+      "record_id": "osgraph:e94379dec37ae7946355414d9d140be68c6a4f00c3569849acae8dd62dba1df7"
+     }
+    ]
+   },
+   {
+    "predicate": "address",
+    "from_dataset": "ofac_sanctions",
+    "assertions": 2,
+    "examples": [
+     {
+      "subject": "ofac:party:17248",
+      "value": {
+       "address1": "11 Sretenski boulevard",
+       "city": "Moscow",
+       "country": "Russia",
+       "country_iso3": "RUS",
+       "postal_code": "101000"
+      },
+      "record_id": "ofac:6c1e48793bc3fe3334ab9a74073eb355bddf0b2c385c25817ae0d8d5804e0d34"
+     },
+     {
+      "subject": "ofac:party:17248",
+      "value": {
+       "address1": "11 Sretenski boulevard",
+       "city": "Moscow",
+       "country": "Russia",
+       "country_iso3": "RUS",
+       "postal_code": "101000"
+      },
+      "record_id": "ofac:f0a834702fecf32c31d1349678e5efeee96c76819a03307443b260809c7b6821"
+     }
+    ]
+   },
+   {
+    "predicate": "incorporation_date",
+    "from_dataset": "opensanctions_graph",
+    "assertions": 2,
+    "examples": [
+     {
+      "subject": "opensanctions:NK-T3oRNWY3XhL72vfsVMcXzX",
+      "value": "1993-04-22",
+      "record_id": "osgraph:265501060e169d6ab13f050cad90fa1b20ddeef3294c320e48b279101e09fec5"
+     },
+     {
+      "subject": "opensanctions:NK-T3oRNWY3XhL72vfsVMcXzX",
+      "value": "2002-07-17",
+      "record_id": "osgraph:1777841cd68d8bec26797b7e30cb0a1e7b25678c4c8aca2e20425dfe08c15c23"
+     }
+    ]
+   },
+   {
+    "predicate": "sanctions_listing",
+    "from_dataset": "other_sanctions_lists",
+    "assertions": 2,
+    "examples": [
+     {
+      "subject": "us_csl:17248",
+      "value": {
+       "date_semantics": "CSL start_date (effective/listing date as published by the list owner)",
+       "end_date": null,
+       "federal_register_notice": null,
+       "license_policy": null,
+       "license_requirement": null,
+       "list": "Sectoral Sanctions Identifications List (SSI) - Treasury Department",
+       "programs": [
+        "UKRAINE-EO13662",
+        "RUSSIA-EO14024"
+       ],
+       "remarks": "For more information on directives, please visit the following link: http://www.treasury.gov/resource-center/sanctions/Programs/Pages/ukraine.aspx#directives.",
+       "standard_order": null
+      },
+      "record_id": "sanctions:0f18944cedebeba7dfe31b336bb095ce2f0ee022a60780117f2f23338774ace0"
+     },
+     {
+      "subject": "us_csl:17248",
+      "value": {
+       "date_semantics": "CSL start_date (effective/listing date as published by the list owner)",
+       "end_date": null,
+       "federal_register_notice": null,
+       "license_policy": null,
+       "license_requirement": null,
+       "list": "Specially Designated Nationals (SDN) - Treasury Department",
+       "programs": [
+        "UKRAINE-EO13662",
+        "RUSSIA-EO14024"
+       ],
+       "remarks": "For more information on directives, please visit the following link: http://www.treasury.gov/resource-center/sanctions/Programs/Pages/ukraine.aspx#directives.",
+       "standard_order": null
+      },
+      "record_id": "sanctions:07cda4da54ab34ee7ead31f2f1ab9b0ef81e299494ab030ef53147735ea3c72d"
+     }
+    ]
+   },
+   {
+    "predicate": "sanctions_summary",
+    "from_dataset": "opensanctions",
+    "assertions": 1,
+    "examples": [
+     {
+      "subject": "opensanctions:NK-T3oRNWY3XhL72vfsVMcXzX",
+      "value": {
+       "text": "126/2018 - updated - 2018-05-14 - 2021-05-14;176/2018 - expired - 2018-06-21 - 2021-06-21;266/2021 - expired - 2021-06-24 - 2024-06-24;376/2024 - вчинення іноземною державою, іноземною юридичною особою, юридичною особою, яка знаходиться під контролем іноземної юридичної особи чи фізичної особи-нерезидента, іноземцем, особою без громадянства, а також суб’єктами, які здійснюють терористичну діяльність, дій, зазначених у пункті 1 частини першої цієї статті, стосовно іншої іноземної держави, громадян чи юридичних осіб останньої - active - 2024-06-24 - 2034-06-24;Autonomous (Russia) - 2023-02-24;Entity List (EL) - Bureau of Industry and Security - For all items subject to the EAR when used in projects specified in § 746.8(a)(4) of the EAR - 2014-09-17;Entity of strategic or economic significance to Russia - Sanctioned - 2022-11-22;Russia / Russie - 1, Part 2;\"The Russia (Sanctions) (EU Exit) Regulations 2019 - PJSC Oil Company LUKOIL (hereafter LUKOIL) is an involved person under the Russia (Sanctions) (EU Exit) Regulations 2019 based on the following grounds: 1) LUKOIL is or has been involved in obtaining a benefit from or supporting the Government of Russia by carrying on business in a sector of strategic significance to the Government of Russia, namely the Russian energy sector; and 2) LUKOIL is or has been involved in obtaining a benefit from or supporting the Government of Russia by carrying on business of economic significance to the Government of Russia. - 2025-10-15\";UKRAINE-EO13662 - Executive Order 13662 (Ukraine) - Executive Order 14024 (Russia)",
+       "truncated": false
+      },
+      "record_id": "opensanctions:bed125bdaf23694c929994abe190fee2c5182de9c94a7cc65f790cb8b64068ec"
+     }
+    ]
+   },
+   {
+    "predicate": "address",
+    "from_dataset": "other_sanctions_lists",
+    "assertions": 1,
+    "examples": [
+     {
+      "subject": "us_csl:17248",
+      "value": {
+       "country_iso3": "RUS",
+       "text": "11 Sretenski boulevard, Moscow, 101000, RU"
+      },
+      "record_id": "sanctions:a63883fdd5e9945d67db0c649e649098fae8cc8ca6fadc5553db02f0193cd210"
+     }
+    ]
+   }
+  ],
+  "edges_by_predicate_and_dataset": [
+   {
+    "direction": "out",
+    "predicate": "owns",
+    "edges": 246,
+    "by_dataset": {
+     "opensanctions_graph": 246
+    },
+    "dataset_counts_exact": true,
+    "examples": [
+     {
+      "subject": "opensanctions:NK-T3oRNWY3XhL72vfsVMcXzX",
+      "predicate": "owns",
+      "object": "opensanctions:NK-DYJ4XwGnzjPR2Loxq5iDSN",
+      "weight": 1.0,
+      "valid_from": null,
+      "valid_to": null,
+      "from_dataset": "opensanctions_graph",
+      "record_id": "osgraph:e6443fef14417bc4e366112261793fdab324e5e7ac688bf0712f73c17244ccce",
+      "other_label": "VDK-Energo"
+     },
+     {
+      "subject": "opensanctions:NK-T3oRNWY3XhL72vfsVMcXzX",
+      "predicate": "owns",
+      "object": "opensanctions:NK-VPHwA2jQwEt3v8Fz6QHdCM",
+      "weight": 1.0,
+      "valid_from": null,
+      "valid_to": null,
+      "from_dataset": "opensanctions_graph",
+      "record_id": "osgraph:e6fc60aefae9db512997913240f2b020f00dd7e5ea0f6931a99320e43066bb8f",
+      "other_label": "PETROTEL-LUKOIL SA"
+     },
+     {
+      "subject": "opensanctions:NK-T3oRNWY3XhL72vfsVMcXzX",
+      "predicate": "owns",
+      "object": "opensanctions:NK-DQnc2sByXpae7QZyQpKER8",
+      "weight": 1.0,
+      "valid_from": null,
+      "valid_to": null,
+      "from_dataset": "opensanctions_graph",
+      "record_id": "osgraph:62ff5adb1bbab45d941decbeb5f6524eac906025d1cf6f62286471949d446700",
+      "other_label": "LUKOIL International Finance B.V."
+     },
+     {
+      "subject": "opensanctions:NK-T3oRNWY3XhL72vfsVMcXzX",
+      "predicate": "owns",
+      "object": "opensanctions:NK-EVBmy53PZisnNzEfSb4oTz",
+      "weight": 1.0,
+      "valid_from": null,
+      "valid_to": null,
+      "from_dataset": "opensanctions_graph",
+      "record_id": "osgraph:d6e9cf59195a46766ca1ddda41bc3033b2c3e856af7b628c7d84389b5e949928",
+      "other_label": "LUKOIL Netherlands B.V."
+     },
+     {
+      "subject": "opensanctions:NK-T3oRNWY3XhL72vfsVMcXzX",
+      "predicate": "owns",
+      "object": "opensanctions:NK-3joLEnFMhL83s5eweNs7Rp",
+      "weight": 1.0,
+      "valid_from": null,
+      "valid_to": null,
+      "from_dataset": "opensanctions_graph",
+      "record_id": "osgraph:f1bc39fe4ad162e39091be4f768846b425a4e9cf23ff399553b9208408ec521c",
+      "other_label": "LUKOIL Securities B.V."
+     }
+    ]
+   },
+   {
+    "direction": "out",
+    "predicate": "subject_to_sanctions_program",
+    "edges": 20,
+    "by_dataset": {
+     "ofac_sanctions": 2,
+     "opensanctions": 8,
+     "opensanctions_graph": 8,
+     "other_sanctions_lists": 2
+    },
+    "dataset_counts_exact": true,
+    "examples": [
+     {
+      "subject": "ofac:party:17248",
+      "predicate": "subject_to_sanctions_program",
+      "object": "ofac:program:UKRAINE-EO13662",
+      "weight": 1.0,
+      "valid_from": null,
+      "valid_to": null,
+      "from_dataset": "ofac_sanctions",
+      "record_id": "ofac:be5f5d42e9cb307edd74289fb639d91d5df617b63532db6edc2e42ebc885b340",
+      "other_label": "UKRAINE-EO13662"
+     },
+     {
+      "subject": "ofac:party:17248",
+      "predicate": "subject_to_sanctions_program",
+      "object": "ofac:program:RUSSIA-EO14024",
+      "weight": 1.0,
+      "valid_from": null,
+      "valid_to": null,
+      "from_dataset": "ofac_sanctions",
+      "record_id": "ofac:cbb25427d55d661abd3df090a24cde211f427813e0412e2ad0708572a42b4baf",
+      "other_label": "RUSSIA-EO14024"
+     },
+     {
+      "subject": "opensanctions:NK-T3oRNWY3XhL72vfsVMcXzX",
+      "predicate": "subject_to_sanctions_program",
+      "object": "opensanctions:program:AU-RUSSIA",
+      "weight": 1.0,
+      "valid_from": null,
+      "valid_to": null,
+      "from_dataset": "opensanctions",
+      "record_id": "opensanctions:c615e990cc4e66f95c66d13dfaa728520964ff48b3afc962e4a757d5d72ed6d1",
+      "other_label": "AU-RUSSIA"
+     },
+     {
+      "subject": "opensanctions:NK-T3oRNWY3XhL72vfsVMcXzX",
+      "predicate": "subject_to_sanctions_program",
+      "object": "opensanctions:program:CA-SEMA",
+      "weight": 1.0,
+      "valid_from": null,
+      "valid_to": null,
+      "from_dataset": "opensanctions",
+      "record_id": "opensanctions:1e9665f27a0ac5a9a00739bcda34ddd4230cf5ea0787b6a9209246ba35a96ab0",
+      "other_label": "CA-SEMA"
+     },
+     {
+      "subject": "opensanctions:NK-T3oRNWY3XhL72vfsVMcXzX",
+      "predicate": "subject_to_sanctions_program",
+      "object": "opensanctions:program:GB-RUS",
+      "weight": 1.0,
+      "valid_from": null,
+      "valid_to": null,
+      "from_dataset": "opensanctions",
+      "record_id": "opensanctions:afc42fc48ab861773a63d0aed60e08935918c17f58741e89ed87801d7c5ea6e6",
+      "other_label": "GB-RUS"
+     }
+    ]
+   },
+   {
+    "direction": "in",
+    "predicate": "ultimately_consolidated_by",
+    "edges": 17,
+    "by_dataset": {
+     "gleif_parent_relationships": 17
+    },
+    "dataset_counts_exact": true,
+    "examples": [
+     {
+      "subject": "lei:213800FXBZXOXNXKWP95",
+      "predicate": "ultimately_consolidated_by",
+      "object": "lei:549300LCJ1UJXHYBWI24",
+      "weight": 1.0,
+      "valid_from": "2018-07-25T00:00:00+00:00",
+      "valid_to": null,
+      "from_dataset": "gleif_parent_relationships",
+      "record_id": "gleif_rr:lei:213800FXBZXOXNXKWP95:ultimately_consolidated_by:lei:549300LCJ1UJXHYBWI24",
+      "other_label": "LUKOIL SECURITIES LIMITED"
+     },
+     {
+      "subject": "lei:2534008CRS9Q4TCJ0Q32",
+      "predicate": "ultimately_consolidated_by",
+      "object": "lei:549300LCJ1UJXHYBWI24",
+      "weight": 1.0,
+      "valid_from": "2016-12-08T00:00:00+00:00",
+      "valid_to": null,
+      "from_dataset": "gleif_parent_relationships",
+      "record_id": "gleif_rr:lei:2534008CRS9Q4TCJ0Q32:ultimately_consolidated_by:lei:549300LCJ1UJXHYBWI24",
+      "other_label": "Общество с ограниченной ответственностью \"ЛУКОЙЛ-Резервнефтепродукт-Трейдинг\""
+     },
+     {
+      "subject": "lei:2549005D4COOXVIAJQ13",
+      "predicate": "ultimately_consolidated_by",
+      "object": "lei:549300LCJ1UJXHYBWI24",
+      "weight": 1.0,
+      "valid_from": "2021-09-21T00:00:00+00:00",
+      "valid_to": null,
+      "from_dataset": "gleif_parent_relationships",
+      "record_id": "gleif_rr:lei:2549005D4COOXVIAJQ13:ultimately_consolidated_by:lei:549300LCJ1UJXHYBWI24",
+      "other_label": "TSP FINANCE COMPANY LTD"
+     },
+     {
+      "subject": "lei:5299007PQV6X4DPL9Y20",
+      "predicate": "ultimately_consolidated_by",
+      "object": "lei:549300LCJ1UJXHYBWI24",
+      "weight": 1.0,
+      "valid_from": "2017-09-05T00:00:00+00:00",
+      "valid_to": null,
+      "from_dataset": "gleif_parent_relationships",
+      "record_id": "gleif_rr:lei:5299007PQV6X4DPL9Y20:ultimately_consolidated_by:lei:549300LCJ1UJXHYBWI24",
+      "other_label": "LUKOIL INTERNATIONAL GmbH"
+     },
+     {
+      "subject": "lei:5493007XYP6TMCO8L243",
+      "predicate": "ultimately_consolidated_by",
+      "object": "lei:549300LCJ1UJXHYBWI24",
+      "weight": 1.0,
+      "valid_from": "2021-09-01T00:00:00+00:00",
+      "valid_to": null,
+      "from_dataset": "gleif_parent_relationships",
+      "record_id": "gleif_rr:lei:5493007XYP6TMCO8L243:ultimately_consolidated_by:lei:549300LCJ1UJXHYBWI24",
+      "other_label": "إل إم إي تريدينغ م.د.م.س"
+     }
+    ]
+   },
+   {
+    "direction": "in",
+    "predicate": "directly_consolidated_by",
+    "edges": 7,
+    "by_dataset": {
+     "gleif_parent_relationships": 7
+    },
+    "dataset_counts_exact": true,
+    "examples": [
+     {
+      "subject": "lei:213800FXBZXOXNXKWP95",
+      "predicate": "directly_consolidated_by",
+      "object": "lei:549300LCJ1UJXHYBWI24",
+      "weight": 1.0,
+      "valid_from": "2018-07-25T00:00:00+00:00",
+      "valid_to": null,
+      "from_dataset": "gleif_parent_relationships",
+      "record_id": "gleif_rr:lei:213800FXBZXOXNXKWP95:directly_consolidated_by:lei:549300LCJ1UJXHYBWI24",
+      "other_label": "LUKOIL SECURITIES LIMITED"
+     },
+     {
+      "subject": "lei:2534008CRS9Q4TCJ0Q32",
+      "predicate": "directly_consolidated_by",
+      "object": "lei:549300LCJ1UJXHYBWI24",
+      "weight": 1.0,
+      "valid_from": "2016-12-08T00:00:00+00:00",
+      "valid_to": null,
+      "from_dataset": "gleif_parent_relationships",
+      "record_id": "gleif_rr:lei:2534008CRS9Q4TCJ0Q32:directly_consolidated_by:lei:549300LCJ1UJXHYBWI24",
+      "other_label": "Общество с ограниченной ответственностью \"ЛУКОЙЛ-Резервнефтепродукт-Трейдинг\""
+     },
+     {
+      "subject": "lei:5299007PQV6X4DPL9Y20",
+      "predicate": "directly_consolidated_by",
+      "object": "lei:549300LCJ1UJXHYBWI24",
+      "weight": 1.0,
+      "valid_from": "2017-09-05T00:00:00+00:00",
+      "valid_to": null,
+      "from_dataset": "gleif_parent_relationships",
+      "record_id": "gleif_rr:lei:5299007PQV6X4DPL9Y20:directly_consolidated_by:lei:549300LCJ1UJXHYBWI24",
+      "other_label": "LUKOIL INTERNATIONAL GmbH"
+     },
+     {
+      "subject": "lei:5493007XYP6TMCO8L243",
+      "predicate": "directly_consolidated_by",
+      "object": "lei:549300LCJ1UJXHYBWI24",
+      "weight": 1.0,
+      "valid_from": "2021-09-01T00:00:00+00:00",
+      "valid_to": null,
+      "from_dataset": "gleif_parent_relationships",
+      "record_id": "gleif_rr:lei:5493007XYP6TMCO8L243:directly_consolidated_by:lei:549300LCJ1UJXHYBWI24",
+      "other_label": "إل إم إي تريدينغ م.د.م.س"
+     },
+     {
+      "subject": "lei:724500IVNQ6LF8OFIO42",
+      "predicate": "directly_consolidated_by",
+      "object": "lei:549300LCJ1UJXHYBWI24",
+      "weight": 1.0,
+      "valid_from": "2020-02-07T00:00:00+00:00",
+      "valid_to": null,
+      "from_dataset": "gleif_parent_relationships",
+      "record_id": "gleif_rr:lei:724500IVNQ6LF8OFIO42:directly_consolidated_by:lei:549300LCJ1UJXHYBWI24",
+      "other_label": "LUKOIL Securities B.V."
+     }
+    ]
+   },
+   {
+    "direction": "out",
+    "predicate": "issuer_security",
+    "edges": 7,
+    "by_dataset": {
+     "sec_gleif": 7
+    },
+    "dataset_counts_exact": true,
+    "examples": [
+     {
+      "subject": "lei:549300LCJ1UJXHYBWI24",
+      "predicate": "issuer_security",
+      "object": "isin:US69343P1057",
+      "weight": 1.0,
+      "valid_from": null,
+      "valid_to": null,
+      "from_dataset": "sec_gleif",
+      "record_id": "gleif_isin:US69343P1057:549300LCJ1UJXHYBWI24",
+      "other_label": null
+     },
+     {
+      "subject": "lei:549300LCJ1UJXHYBWI24",
+      "predicate": "issuer_security",
+      "object": "isin:US69343P2048",
+      "weight": 1.0,
+      "valid_from": null,
+      "valid_to": null,
+      "from_dataset": "sec_gleif",
+      "record_id": "gleif_isin:US69343P2048:549300LCJ1UJXHYBWI24",
+      "other_label": null
+     },
+     {
+      "subject": "lei:549300LCJ1UJXHYBWI24",
+      "predicate": "issuer_security",
+      "object": "isin:US69343P3038",
+      "weight": 1.0,
+      "valid_from": null,
+      "valid_to": null,
+      "from_dataset": "sec_gleif",
+      "record_id": "gleif_isin:US69343P3038:549300LCJ1UJXHYBWI24",
+      "other_label": null
+     },
+     {
+      "subject": "lei:549300LCJ1UJXHYBWI24",
+      "predicate": "issuer_security",
+      "object": "isin:US69343P4028",
+      "weight": 1.0,
+      "valid_from": null,
+      "valid_to": null,
+      "from_dataset": "sec_gleif",
+      "record_id": "gleif_isin:US69343P4028:549300LCJ1UJXHYBWI24",
+      "other_label": null
+     },
+     {
+      "subject": "lei:549300LCJ1UJXHYBWI24",
+      "predicate": "issuer_security",
+      "object": "isin:US69343P5017",
+      "weight": 1.0,
+      "valid_from": null,
+      "valid_to": null,
+      "from_dataset": "sec_gleif",
+      "record_id": "gleif_isin:US69343P5017:549300LCJ1UJXHYBWI24",
+      "other_label": null
+     }
+    ]
+   },
+   {
+    "direction": "in",
+    "predicate": "director_of",
+    "edges": 3,
+    "by_dataset": {
+     "opensanctions_graph": 3
+    },
+    "dataset_counts_exact": true,
+    "examples": [
+     {
+      "subject": "opensanctions:NK-RMmoVMjWv9JLaoxhEgrB5G",
+      "predicate": "director_of",
+      "object": "opensanctions:NK-T3oRNWY3XhL72vfsVMcXzX",
+      "weight": 1.0,
+      "valid_from": null,
+      "valid_to": null,
+      "from_dataset": "opensanctions_graph",
+      "record_id": "osgraph:488d1f2b30013dd49fccde99c5a74a8956c23bdf3a3996bcc28fd17d5b5ec93d",
+      "other_label": "Vadim Nikolaevich Vorobyev"
+     },
+     {
+      "subject": "opensanctions:Q451455",
+      "predicate": "director_of",
+      "object": "opensanctions:NK-T3oRNWY3XhL72vfsVMcXzX",
+      "weight": 1.0,
+      "valid_from": null,
+      "valid_to": null,
+      "from_dataset": "opensanctions_graph",
+      "record_id": "osgraph:d4799b234e49ec4791c08d6cd6a304b8dd2159bd39e3e7a9a037cad4c236c66a",
+      "other_label": "Vagit Yusufovich ALEKPEROV"
+     },
+     {
+      "subject": "opensanctions:ru-inn-860800608302",
+      "predicate": "director_of",
+      "object": "opensanctions:NK-T3oRNWY3XhL72vfsVMcXzX",
+      "weight": 1.0,
+      "valid_from": null,
+      "valid_to": null,
+      "from_dataset": "opensanctions_graph",
+      "record_id": "osgraph:e79249a778efe5b27a619a7259ee11999043712cedc8c56ac5e3e7d2c5c6c48f",
+      "other_label": "СЕРГЕЙ АЛЕКСЕЕВИЧ КОЧКУРОВ"
+     }
+    ]
+   },
+   {
+    "direction": "out",
+    "predicate": "associated_country",
+    "edges": 2,
+    "by_dataset": {
+     "opensanctions": 1,
+     "opensanctions_graph": 1
+    },
+    "dataset_counts_exact": true,
+    "examples": [
+     {
+      "subject": "opensanctions:NK-T3oRNWY3XhL72vfsVMcXzX",
+      "predicate": "associated_country",
+      "object": "iso3:RUS",
+      "weight": 1.0,
+      "valid_from": null,
+      "valid_to": null,
+      "from_dataset": "opensanctions",
+      "record_id": "opensanctions:5cc2e7c59c1513c986be0e57a004a9737dc827ac21140721d055f7cf8f1ceef4",
+      "other_label": "Russia"
+     },
+     {
+      "subject": "opensanctions:NK-T3oRNWY3XhL72vfsVMcXzX",
+      "predicate": "associated_country",
+      "object": "iso3:RUS",
+      "weight": 1.0,
+      "valid_from": null,
+      "valid_to": null,
+      "from_dataset": "opensanctions_graph",
+      "record_id": "osgraph:688350fe89f644bb3df812049cdfd829217bfaf8a7e3f2328f6ba69a63e77173",
+      "other_label": "Russia"
+     }
+    ]
+   },
+   {
+    "direction": "out",
+    "predicate": "listed_on",
+    "edges": 2,
+    "by_dataset": {
+     "other_sanctions_lists": 2
+    },
+    "dataset_counts_exact": true,
+    "examples": [
+     {
+      "subject": "us_csl:17248",
+      "predicate": "listed_on",
+      "object": "us_csl:list:ssi",
+      "weight": 1.0,
+      "valid_from": null,
+      "valid_to": null,
+      "from_dataset": "other_sanctions_lists",
+      "record_id": "sanctions:a86a82c13662a3faa23d5893dbd38e8c045eac8b75b7ff83ee568aa57e96fc10",
+      "other_label": "Sectoral Sanctions Identifications List (SSI) - Treasury Department"
+     },
+     {
+      "subject": "us_csl:17248",
+      "predicate": "listed_on",
+      "object": "us_csl:list:sdn",
+      "weight": 1.0,
+      "valid_from": null,
+      "valid_to": null,
+      "from_dataset": "other_sanctions_lists",
+      "record_id": "sanctions:be215892300863f33d4c444e424f73db2f5e78bdcc5b47592078b536061ce530",
+      "other_label": "Specially Designated Nationals (SDN) - Treasury Department"
+     }
+    ]
+   },
+   {
+    "direction": "out",
+    "predicate": "located_in",
+    "edges": 2,
+    "by_dataset": {
+     "ofac_sanctions": 1,
+     "other_sanctions_lists": 1
+    },
+    "dataset_counts_exact": true,
+    "examples": [
+     {
+      "subject": "ofac:party:17248",
+      "predicate": "located_in",
+      "object": "iso3:RUS",
+      "weight": 1.0,
+      "valid_from": null,
+      "valid_to": null,
+      "from_dataset": "ofac_sanctions",
+      "record_id": "ofac:18dd085989f9fa4a7e58f288c1e96b84c4c4a1601ab94d69d7f76152cceb899e",
+      "other_label": "Russia"
+     },
+     {
+      "subject": "us_csl:17248",
+      "predicate": "located_in",
+      "object": "iso3:RUS",
+      "weight": 1.0,
+      "valid_from": null,
+      "valid_to": null,
+      "from_dataset": "other_sanctions_lists",
+      "record_id": "sanctions:f2b7a6bfa01c271786fc0dd9fde62575c5b067ff37092c7c05863a6f63ed8108",
+      "other_label": "Russia"
+     }
+    ]
+   },
+   {
+    "direction": "in",
+    "predicate": "linked_to",
+    "edges": 1,
+    "by_dataset": {
+     "opensanctions_graph": 1
+    },
+    "dataset_counts_exact": true,
+    "examples": [
+     {
+      "subject": "opensanctions:ir-br-co-0cac38720b874f2f2e9538d7ea3c2c191ddbf012",
+      "predicate": "linked_to",
+      "object": "opensanctions:NK-T3oRNWY3XhL72vfsVMcXzX",
+      "weight": 1.0,
+      "valid_from": null,
+      "valid_to": null,
+      "from_dataset": "opensanctions_graph",
+      "record_id": "osgraph:12a291359c5d475ffb6ace1a80e919d11954f3a01d267b76db1a9d1972713af2",
+      "other_label": "LITASCO"
+     }
+    ]
+   },
+   {
+    "direction": "in",
+    "predicate": "same_designation_as",
+    "edges": 1,
+    "by_dataset": {
+     "other_sanctions_lists": 1
+    },
+    "dataset_counts_exact": true,
+    "examples": [
+     {
+      "subject": "us_csl:17248",
+      "predicate": "same_designation_as",
+      "object": "ofac:party:17248",
+      "weight": 1.0,
+      "valid_from": null,
+      "valid_to": null,
+      "from_dataset": "other_sanctions_lists",
+      "record_id": "sanctions:b5f0afbfd4b0176e40ee713cabeffefbf1f3a549b44d6ea7086f4b585608187f",
+      "other_label": null
+     }
+    ]
+   },
+   {
+    "direction": "out",
+    "predicate": "registered_in",
+    "edges": 1,
+    "by_dataset": {
+     "opensanctions_graph": 1
+    },
+    "dataset_counts_exact": true,
+    "examples": [
+     {
+      "subject": "opensanctions:NK-T3oRNWY3XhL72vfsVMcXzX",
+      "predicate": "registered_in",
+      "object": "iso3:RUS",
+      "weight": 1.0,
+      "valid_from": null,
+      "valid_to": null,
+      "from_dataset": "opensanctions_graph",
+      "record_id": "osgraph:b3a65cc38c23735f62d3b268c60bc896e79f1255da74c30ab1abb63a4b3e91f6",
+      "other_label": "Russia"
+     }
+    ]
+   },
+   {
+    "direction": "out",
+    "predicate": "same_designation_as",
+    "edges": 1,
+    "by_dataset": {
+     "other_sanctions_lists": 1
+    },
+    "dataset_counts_exact": true,
+    "examples": [
+     {
+      "subject": "us_csl:17248",
+      "predicate": "same_designation_as",
+      "object": "ofac:party:17248",
+      "weight": 1.0,
+      "valid_from": null,
+      "valid_to": null,
+      "from_dataset": "other_sanctions_lists",
+      "record_id": "sanctions:b5f0afbfd4b0176e40ee713cabeffefbf1f3a549b44d6ea7086f4b585608187f",
+      "other_label": null
+     }
+    ]
+   }
+  ],
+  "observations": [],
+  "events": [],
+  "counterparties": {
+   "hop_1": [
+    {
+     "entity_id": "opensanctions:ru-inn-7701285928",
+     "label": "ОБЩЕСТВО С ОГРАНИЧЕННОЙ ОТВЕТСТВЕННОСТЬЮ \"ЛУКОЙЛ-ЦЕНТРНЕФТЕПРОДУКТ\"",
+     "label_from": "opensanctions_graph",
+     "entity_type": "business",
+     "depth": 1,
+     "connecting_edges": 4,
+     "predicates": [
+      "owns"
+     ],
+     "from_datasets": [
+      "opensanctions_graph"
+     ],
+     "example_edges": [
+      {
+       "subject": "opensanctions:NK-T3oRNWY3XhL72vfsVMcXzX",
+       "predicate": "owns",
+       "object": "opensanctions:ru-inn-7701285928",
+       "weight": 1.0,
+       "valid_from": null,
+       "valid_to": null,
+       "from_dataset": "opensanctions_graph",
+       "record_id": "osgraph:79eef62636e1f6af34fdaca7cf5e847a785901d371fbd7e4372a30aee6e4ed62"
+      },
+      {
+       "subject": "opensanctions:NK-T3oRNWY3XhL72vfsVMcXzX",
+       "predicate": "owns",
+       "object": "opensanctions:ru-inn-7701285928",
+       "weight": 1.0,
+       "valid_from": null,
+       "valid_to": null,
+       "from_dataset": "opensanctions_graph",
+       "record_id": "osgraph:db658d435060e311b18475337a6a040a51b0ba12a0e3fbb9645de3331e54fa0c"
+      },
+      {
+       "subject": "opensanctions:NK-T3oRNWY3XhL72vfsVMcXzX",
+       "predicate": "owns",
+       "object": "opensanctions:ru-inn-7701285928",
+       "weight": 1.0,
+       "valid_from": null,
+       "valid_to": null,
+       "from_dataset": "opensanctions_graph",
+       "record_id": "osgraph:fbdae93e6f1a3ed01ac4cdb57667b3c48eb6ea3238c1f6dd24f50975595a9393"
+      }
+     ]
+    },
+    {
+     "entity_id": "lei:213800FXBZXOXNXKWP95",
+     "label": "LUKOIL SECURITIES LIMITED",
+     "label_from": "sec_gleif",
+     "entity_type": "organization",
+     "depth": 1,
+     "connecting_edges": 3,
+     "predicates": [
+      "directly_consolidated_by",
+      "owns",
+      "ultimately_consolidated_by"
+     ],
+     "from_datasets": [
+      "gleif_parent_relationships",
+      "opensanctions_graph"
+     ],
+     "example_edges": [
+      {
+       "subject": "lei:213800FXBZXOXNXKWP95",
+       "predicate": "directly_consolidated_by",
+       "object": "lei:549300LCJ1UJXHYBWI24",
+       "weight": 1.0,
+       "valid_from": "2018-07-25T00:00:00+00:00",
+       "valid_to": null,
+       "from_dataset": "gleif_parent_relationships",
+       "record_id": "gleif_rr:lei:213800FXBZXOXNXKWP95:directly_consolidated_by:lei:549300LCJ1UJXHYBWI24"
+      },
+      {
+       "subject": "lei:213800FXBZXOXNXKWP95",
+       "predicate": "ultimately_consolidated_by",
+       "object": "lei:549300LCJ1UJXHYBWI24",
+       "weight": 1.0,
+       "valid_from": "2018-07-25T00:00:00+00:00",
+       "valid_to": null,
+       "from_dataset": "gleif_parent_relationships",
+       "record_id": "gleif_rr:lei:213800FXBZXOXNXKWP95:ultimately_consolidated_by:lei:549300LCJ1UJXHYBWI24"
+      },
+      {
+       "subject": "opensanctions:NK-T3oRNWY3XhL72vfsVMcXzX",
+       "predicate": "owns",
+       "object": "opensanctions:NK-6BzaPQdz7x94fa6j4qRvcE",
+       "weight": 1.0,
+       "valid_from": null,
+       "valid_to": null,
+       "from_dataset": "opensanctions_graph",
+       "record_id": "osgraph:8fb6c2d8838ae98a439a93356e2a0f1cfccf7f3278b9d0bda997401ecbc1df56"
+      }
+     ]
+    },
+    {
+     "entity_id": "cusip:69343P105",
+     "label": "LUKOIL PJSC COM",
+     "label_from": "sec_ownership_datasets",
+     "entity_type": "security",
+     "depth": 1,
+     "connecting_edges": 1,
+     "predicates": [
+      "issuer_security"
+     ],
+     "from_datasets": [
+      "sec_gleif"
+     ],
+     "example_edges": [
+      {
+       "subject": "lei:549300LCJ1UJXHYBWI24",
+       "predicate": "issuer_security",
+       "object": "isin:US69343P1057",
+       "weight": 1.0,
+       "valid_from": null,
+       "valid_to": null,
+       "from_dataset": "sec_gleif",
+       "record_id": "gleif_isin:US69343P1057:549300LCJ1UJXHYBWI24"
+      }
+     ]
+    },
+    {
+     "entity_id": "opensanctions:NK-RMmoVMjWv9JLaoxhEgrB5G",
+     "label": "Vadim Nikolaevich Vorobyev",
+     "label_from": "opensanctions",
+     "entity_type": "person",
+     "depth": 1,
+     "connecting_edges": 1,
+     "predicates": [
+      "director_of"
+     ],
+     "from_datasets": [
+      "opensanctions_graph"
+     ],
+     "example_edges": [
+      {
+       "subject": "opensanctions:NK-RMmoVMjWv9JLaoxhEgrB5G",
+       "predicate": "director_of",
+       "object": "opensanctions:NK-T3oRNWY3XhL72vfsVMcXzX",
+       "weight": 1.0,
+       "valid_from": null,
+       "valid_to": null,
+       "from_dataset": "opensanctions_graph",
+       "record_id": "osgraph:488d1f2b30013dd49fccde99c5a74a8956c23bdf3a3996bcc28fd17d5b5ec93d"
+      }
+     ]
+    },
+    {
+     "entity_id": "opensanctions:ir-br-co-0cac38720b874f2f2e9538d7ea3c2c191ddbf012",
+     "label": "LITASCO",
+     "label_from": "opensanctions_graph",
+     "entity_type": "business",
+     "depth": 1,
+     "connecting_edges": 1,
+     "predicates": [
+      "linked_to"
+     ],
+     "from_datasets": [
+      "opensanctions_graph"
+     ],
+     "example_edges": [
+      {
+       "subject": "opensanctions:ir-br-co-0cac38720b874f2f2e9538d7ea3c2c191ddbf012",
+       "predicate": "linked_to",
+       "object": "opensanctions:NK-T3oRNWY3XhL72vfsVMcXzX",
+       "weight": 1.0,
+       "valid_from": null,
+       "valid_to": null,
+       "from_dataset": "opensanctions_graph",
+       "record_id": "osgraph:12a291359c5d475ffb6ace1a80e919d11954f3a01d267b76db1a9d1972713af2"
+      }
+     ]
+    },
+    {
+     "entity_id": "opensanctions:ru-inn-7706295292",
+     "label": "ОБЩЕСТВО С ОГРАНИЧЕННОЙ ОТВЕТСТВЕННОСТЬЮ \"К. Н. ХОЛДИНГ\"",
+     "label_from": "opensanctions_graph",
+     "entity_type": "business",
+     "depth": 1,
+     "connecting_edges": 4,
+     "predicates": [
+      "owns"
+     ],
+     "from_datasets": [
+      "opensanctions_graph"
+     ],
+     "example_edges": [
+      {
+       "subject": "opensanctions:NK-T3oRNWY3XhL72vfsVMcXzX",
+       "predicate": "owns",
+       "object": "opensanctions:ru-inn-7706295292",
+       "weight": 1.0,
+       "valid_from": null,
+       "valid_to": null,
+       "from_dataset": "opensanctions_graph",
+       "record_id": "osgraph:57791a4382249960c4ec107788640e2d4a64bc664ccd41e5a5d1052368128a1e"
+      },
+      {
+       "subject": "opensanctions:NK-T3oRNWY3XhL72vfsVMcXzX",
+       "predicate": "owns",
+       "object": "opensanctions:ru-inn-7706295292",
+       "weight": 1.0,
+       "valid_from": null,
+       "valid_to": null,
+       "from_dataset": "opensanctions_graph",
+       "record_id": "osgraph:a87f0e31fafeda414d50755b0a6c8a8bfa32f27688de587d17c5ca532b1f7732"
+      },
+      {
+       "subject": "opensanctions:NK-T3oRNWY3XhL72vfsVMcXzX",
+       "predicate": "owns",
+       "object": "opensanctions:ru-inn-7706295292",
+       "weight": 1.0,
+       "valid_from": null,
+       "valid_to": null,
+       "from_dataset": "opensanctions_graph",
+       "record_id": "osgraph:88d49950144cec4e58df96ca24953ebd126a879e52b7708b8ae1a1a8ebe76d09"
+      }
+     ]
+    },
+    {
+     "entity_id": "lei:2534008CRS9Q4TCJ0Q32",
+     "label": "Общество с ограниченной ответственностью \"ЛУКОЙЛ-Резервнефтепродукт-Трейдинг\"",
+     "label_from": "sec_gleif",
+     "entity_type": "organization",
+     "depth": 1,
+     "connecting_edges": 3,
+     "predicates": [
+      "directly_consolidated_by",
+      "owns",
+      "ultimately_consolidated_by"
+     ],
+     "from_datasets": [
+      "gleif_parent_relationships",
+      "opensanctions_graph"
+     ],
+     "example_edges": [
+      {
+       "subject": "lei:2534008CRS9Q4TCJ0Q32",
+       "predicate": "directly_consolidated_by",
+       "object": "lei:549300LCJ1UJXHYBWI24",
+       "weight": 1.0,
+       "valid_from": "2016-12-08T00:00:00+00:00",
+       "valid_to": null,
+       "from_dataset": "gleif_parent_relationships",
+       "record_id": "gleif_rr:lei:2534008CRS9Q4TCJ0Q32:directly_consolidated_by:lei:549300LCJ1UJXHYBWI24"
+      },
+      {
+       "subject": "lei:2534008CRS9Q4TCJ0Q32",
+       "predicate": "ultimately_consolidated_by",
+       "object": "lei:549300LCJ1UJXHYBWI24",
+       "weight": 1.0,
+       "valid_from": "2016-12-08T00:00:00+00:00",
+       "valid_to": null,
+       "from_dataset": "gleif_parent_relationships",
+       "record_id": "gleif_rr:lei:2534008CRS9Q4TCJ0Q32:ultimately_consolidated_by:lei:549300LCJ1UJXHYBWI24"
+      },
+      {
+       "subject": "opensanctions:NK-T3oRNWY3XhL72vfsVMcXzX",
+       "predicate": "owns",
+       "object": "opensanctions:NK-E3dVCJt7cfzHi9u8P4QEtJ",
+       "weight": 1.0,
+       "valid_from": null,
+       "valid_to": null,
+       "from_dataset": "opensanctions_graph",
+       "record_id": "osgraph:b51e1fb457b9ce44d20559b2224174aa249dccd6ff061bf06c424452c9fa03af"
+      }
+     ]
+    },
+    {
+     "entity_id": "isin:US69343P2048",
+     "label": null,
+     "label_from": null,
+     "entity_type": null,
+     "depth": 1,
+     "connecting_edges": 1,
+     "predicates": [
+      "issuer_security"
+     ],
+     "from_datasets": [
+      "sec_gleif"
+     ],
+     "example_edges": [
+      {
+       "subject": "lei:549300LCJ1UJXHYBWI24",
+       "predicate": "issuer_security",
+       "object": "isin:US69343P2048",
+       "weight": 1.0,
+       "valid_from": null,
+       "valid_to": null,
+       "from_dataset": "sec_gleif",
+       "record_id": "gleif_isin:US69343P2048:549300LCJ1UJXHYBWI24"
+      }
+     ]
+    },
+    {
+     "entity_id": "opensanctions:Q451455",
+     "label": "Vagit Yusufovich ALEKPEROV",
+     "label_from": "opensanctions",
+     "entity_type": "person",
+     "depth": 1,
+     "connecting_edges": 1,
+     "predicates": [
+      "director_of"
+     ],
+     "from_datasets": [
+      "opensanctions_graph"
+     ],
+     "example_edges": [
+      {
+       "subject": "opensanctions:Q451455",
+       "predicate": "director_of",
+       "object": "opensanctions:NK-T3oRNWY3XhL72vfsVMcXzX",
+       "weight": 1.0,
+       "valid_from": null,
+       "valid_to": null,
+       "from_dataset": "opensanctions_graph",
+       "record_id": "osgraph:d4799b234e49ec4791c08d6cd6a304b8dd2159bd39e3e7a9a037cad4c236c66a"
+      }
+     ]
+    },
+    {
+     "entity_id": "opensanctions:NK-hGHHA29iNWC5nyQjq7czDR",
+     "label": "LUKOIL WEST SIBERIA LIMITED",
+     "label_from": "opensanctions",
+     "entity_type": "organization",
+     "depth": 1,
+     "connecting_edges": 3,
+     "predicates": [
+      "owns"
+     ],
+     "from_datasets": [
+      "opensanctions_graph"
+     ],
+     "example_edges": [
+      {
+       "subject": "opensanctions:NK-T3oRNWY3XhL72vfsVMcXzX",
+       "predicate": "owns",
+       "object": "opensanctions:NK-hGHHA29iNWC5nyQjq7czDR",
+       "weight": 1.0,
+       "valid_from": null,
+       "valid_to": null,
+       "from_dataset": "opensanctions_graph",
+       "record_id": "osgraph:4811954e16c507db4a83b89499ce3f791c9b129074a8a657bce49f37f7b71175"
+      },
+      {
+       "subject": "opensanctions:NK-T3oRNWY3XhL72vfsVMcXzX",
+       "predicate": "owns",
+       "object": "opensanctions:NK-hGHHA29iNWC5nyQjq7czDR",
+       "weight": 1.0,
+       "valid_from": null,
+       "valid_to": null,
+       "from_dataset": "opensanctions_graph",
+       "record_id": "osgraph:cb8e7c002a21ea6145581533224d314609dc89cb71ca734179fb41cc9f2b282b"
+      },
+      {
+       "subject": "opensanctions:NK-T3oRNWY3XhL72vfsVMcXzX",
+       "predicate": "owns",
+       "object": "opensanctions:NK-hGHHA29iNWC5nyQjq7czDR",
+       "weight": 1.0,
+       "valid_from": null,
+       "valid_to": null,
+       "from_dataset": "opensanctions_graph",
+       "record_id": "osgraph:60a6c749e8ebe6615899b806790339a17a0e273e9a018d4e88d63a400cdccf9d"
+      }
+     ]
+    }
+   ],
+   "hop_2": [
+    {
+     "entity_id": "lei:253400XKUG4NWDYTT944",
+     "label": "Общество с ограниченной ответственностью \"ЛУКОЙЛ-Резервнефтепродукт\"",
+     "label_from": "sec_gleif",
+     "entity_type": "organization",
+     "depth": 2,
+     "connecting_edges": 3,
+     "predicates": [
+      "owns",
+      "succeeded_by"
+     ],
+     "from_datasets": [
+      "opensanctions_graph"
+     ],
+     "example_edges": [
+      {
+       "subject": "opensanctions:NK-E3dVCJt7cfzHi9u8P4QEtJ",
+       "predicate": "owns",
+       "object": "opensanctions:NK-Pby9DTdY8SzDVPT8vdPQQw",
+       "weight": 1.0,
+       "valid_from": null,
+       "valid_to": null,
+       "from_dataset": "opensanctions_graph",
+       "record_id": "osgraph:55a1d06a28b4a4d81c3978df8e088ba2acf3a09fe3ff2e9c849ff4f413e5288e"
+      },
+      {
+       "subject": "opensanctions:NK-Pby9DTdY8SzDVPT8vdPQQw",
+       "predicate": "succeeded_by",
+       "object": "opensanctions:NK-E3dVCJt7cfzHi9u8P4QEtJ",
+       "weight": 1.0,
+       "valid_from": null,
+       "valid_to": null,
+       "from_dataset": "opensanctions_graph",
+       "record_id": "osgraph:dd24f7484a79fec295a544a6060cc58fe35be8bc2fb536d3e8ebd38efaef8ee5"
+      },
+      {
+       "subject": "opensanctions:ru-inn-7706295292",
+       "predicate": "owns",
+       "object": "opensanctions:NK-Pby9DTdY8SzDVPT8vdPQQw",
+       "weight": 1.0,
+       "valid_from": null,
+       "valid_to": null,
+       "from_dataset": "opensanctions_graph",
+       "record_id": "osgraph:e7a0ed11e93175ab3b4014a3247cc3ef7c3f386ee128be53346bdb2ec4b347ce"
+      }
+     ],
+     "via": [
+      "lei:2534008CRS9Q4TCJ0Q32",
+      "opensanctions:ru-inn-7706295292"
+     ]
+    },
+    {
+     "entity_id": "opensanctions:ru-inn-504004544274",
+     "label": "ВИТАЛИЙ АЛЕКСАНДРОВИЧ ВАЛУЕВ",
+     "label_from": "opensanctions_graph",
+     "entity_type": "person",
+     "depth": 2,
+     "connecting_edges": 2,
+     "predicates": [
+      "director_of",
+      "owns"
+     ],
+     "from_datasets": [
+      "opensanctions_graph"
+     ],
+     "example_edges": [
+      {
+       "subject": "opensanctions:ru-inn-504004544274",
+       "predicate": "director_of",
+       "object": "opensanctions:NK-E3dVCJt7cfzHi9u8P4QEtJ",
+       "weight": 1.0,
+       "valid_from": null,
+       "valid_to": null,
+       "from_dataset": "opensanctions_graph",
+       "record_id": "osgraph:d6f0594db6eb634812d59dfbf00672c1cbdd031b8ccd6c58b9c174d1bb72bb42"
+      },
+      {
+       "subject": "opensanctions:ru-inn-504004544274",
+       "predicate": "owns",
+       "object": "opensanctions:NK-E3dVCJt7cfzHi9u8P4QEtJ",
+       "weight": 1.0,
+       "valid_from": null,
+       "valid_to": null,
+       "from_dataset": "opensanctions_graph",
+       "record_id": "osgraph:106b955997270b7f9bd8bdb6c6ed2891cfc61f232768b2a7a416d9a59ea45cee"
+      }
+     ],
+     "via": [
+      "lei:2534008CRS9Q4TCJ0Q32"
+     ]
+    },
+    {
+     "entity_id": "opensanctions:ru-inn-5024052744",
+     "label": "ОБЩЕСТВО С ОГРАНИЧЕННОЙ ОТВЕТСТВЕННОСТЬЮ \"ЮНИТ-КОМПЛЕКС\"",
+     "label_from": "opensanctions_graph",
+     "entity_type": "business",
+     "depth": 2,
+     "connecting_edges": 1,
+     "predicates": [
+      "succeeded_by"
+     ],
+     "from_datasets": [
+      "opensanctions_graph"
+     ],
+     "example_edges": [
+      {
+       "subject": "opensanctions:ru-inn-5024052744",
+       "predicate": "succeeded_by",
+       "object": "opensanctions:ru-inn-7701285928",
+       "weight": 1.0,
+       "valid_from": null,
+       "valid_to": null,
+       "from_dataset": "opensanctions_graph",
+       "record_id": "osgraph:89718e34f2f84a16b18e506f25311bc0eef9292cce80fdd2abca4b19d4a6d75e"
+      }
+     ],
+     "via": [
+      "opensanctions:ru-inn-7701285928"
+     ]
+    },
+    {
+     "entity_id": "sec:cik:0001050470",
+     "label": "LSV ASSET MANAGEMENT",
+     "label_from": "sec_ownership_datasets",
+     "entity_type": "organization",
+     "depth": 2,
+     "connecting_edges": 4,
+     "predicates": [
+      "reported_holding"
+     ],
+     "from_datasets": [
+      "sec_ownership_datasets"
+     ],
+     "example_edges": [
+      {
+       "subject": "sec:cik:0001050470",
+       "predicate": "reported_holding",
+       "object": "cusip:69343P105",
+       "weight": 1.0,
+       "valid_from": "2026-06-30T00:00:00+00:00",
+       "valid_to": "2026-07-01T00:00:00+00:00",
+       "from_dataset": "sec_ownership_datasets",
+       "record_id": "sec13f:0001050470-26-000007:69343P105:-:SH"
+      },
+      {
+       "subject": "sec:cik:0001050470",
+       "predicate": "reported_holding",
+       "object": "cusip:69343P105",
+       "weight": 1.0,
+       "valid_from": "2026-03-31T00:00:00+00:00",
+       "valid_to": "2026-04-01T00:00:00+00:00",
+       "from_dataset": "sec_ownership_datasets",
+       "record_id": "sec13f:0001050470-26-000004:69343P105:-:SH"
+      },
+      {
+       "subject": "sec:cik:0001050470",
+       "predicate": "reported_holding",
+       "object": "cusip:69343P105",
+       "weight": 1.0,
+       "valid_from": "2025-12-31T00:00:00+00:00",
+       "valid_to": "2026-01-01T00:00:00+00:00",
+       "from_dataset": "sec_ownership_datasets",
+       "record_id": "sec13f:0001050470-26-000003:69343P105:-:SH"
+      }
+     ],
+     "via": [
+      "cusip:69343P105"
+     ]
+    },
+    {
+     "entity_id": "opensanctions:Q136243003",
+     "label": "Yusuf Vagitovich Alekperov",
+     "label_from": "opensanctions",
+     "entity_type": "person",
+     "depth": 2,
+     "connecting_edges": 2,
+     "predicates": [
+      "family_member_of"
+     ],
+     "from_datasets": [
+      "opensanctions_graph"
+     ],
+     "example_edges": [
+      {
+       "subject": "opensanctions:Q451455",
+       "predicate": "family_member_of",
+       "object": "opensanctions:Q136243003",
+       "weight": 1.0,
+       "valid_from": null,
+       "valid_to": null,
+       "from_dataset": "opensanctions_graph",
+       "record_id": "osgraph:a5a7448ba7b06d4da1f71fe4ac0e204a608834b367fc13d21b97bf21a0b9c3b7"
+      },
+      {
+       "subject": "opensanctions:Q136243003",
+       "predicate": "family_member_of",
+       "object": "opensanctions:Q451455",
+       "weight": 1.0,
+       "valid_from": null,
+       "valid_to": null,
+       "from_dataset": "opensanctions_graph",
+       "record_id": "osgraph:7deaa8658861091da6f7d7bfb1f18b8b0220ec86ce70da05d838d16dbc0456e2"
+      }
+     ],
+     "via": [
+      "opensanctions:Q451455"
+     ]
+    },
+    {
+     "entity_id": "opensanctions:Q111042700",
+     "label": "CEO of Lukoil",
+     "label_from": "opensanctions_graph",
+     "entity_type": "office",
+     "depth": 2,
+     "connecting_edges": 1,
+     "predicates": [
+      "holds_position"
+     ],
+     "from_datasets": [
+      "opensanctions_graph"
+     ],
+     "example_edges": [
+      {
+       "subject": "opensanctions:Q451455",
+       "predicate": "holds_position",
+       "object": "opensanctions:Q111042700",
+       "weight": 1.0,
+       "valid_from": null,
+       "valid_to": null,
+       "from_dataset": "opensanctions_graph",
+       "record_id": "osgraph:91449292a720a127a7779e8d86c11f55fc5062ad39c7c14e65105b4f5d6d16c3"
+      }
+     ],
+     "via": [
+      "opensanctions:Q451455"
+     ]
+    },
+    {
+     "entity_id": "opensanctions:ru-inn-7710498263",
+     "label": "ОБЩЕСТВО С ОГРАНИЧЕННОЙ ОТВЕТСТВЕННОСТЬЮ \"НК \"ЮГРАНЕФТЕПРОМ\"",
+     "label_from": "opensanctions_graph",
+     "entity_type": "business",
+     "depth": 2,
+     "connecting_edges": 3,
+     "predicates": [
+      "owns"
+     ],
+     "from_datasets": [
+      "opensanctions_graph"
+     ],
+     "example_edges": [
+      {
+       "subject": "opensanctions:NK-hGHHA29iNWC5nyQjq7czDR",
+       "predicate": "owns",
+       "object": "opensanctions:ru-inn-7710498263",
+       "weight": 1.0,
+       "valid_from": null,
+       "valid_to": null,
+       "from_dataset": "opensanctions_graph",
+       "record_id": "osgraph:0958ba3bd56e67d24add86361ca829c54a525795b6ae2ce35f1d243e765b1853"
+      },
+      {
+       "subject": "opensanctions:ru-inn-7706295292",
+       "predicate": "owns",
+       "object": "opensanctions:ru-inn-7710498263",
+       "weight": 1.0,
+       "valid_from": null,
+       "valid_to": null,
+       "from_dataset": "opensanctions_graph",
+       "record_id": "osgraph:423e650a5666dce4a7a39ca823c8784186a6df136552309eaa385f09b35410aa"
+      },
+      {
+       "subject": "opensanctions:ru-inn-7706295292",
+       "predicate": "owns",
+       "object": "opensanctions:ru-inn-7710498263",
+       "weight": 1.0,
+       "valid_from": null,
+       "valid_to": null,
+       "from_dataset": "opensanctions_graph",
+       "record_id": "osgraph:71c460991f8a29a6f67f81af5c34cc1da43e54af8a6ed512ff9085262fc475ab"
+      }
+     ],
+     "via": [
+      "opensanctions:NK-hGHHA29iNWC5nyQjq7czDR",
+      "opensanctions:ru-inn-7706295292"
+     ]
+    },
+    {
+     "entity_id": "opensanctions:NK-cL9eNSffoDnHqq3wmA7MB6",
+     "label": "CYMANCO SERVICES LIMITED",
+     "label_from": "opensanctions_graph",
+     "entity_type": "organization",
+     "depth": 2,
+     "connecting_edges": 1,
+     "predicates": [
+      "director_of"
+     ],
+     "from_datasets": [
+      "opensanctions_graph"
+     ],
+     "example_edges": [
+      {
+       "subject": "opensanctions:NK-cL9eNSffoDnHqq3wmA7MB6",
+       "predicate": "director_of",
+       "object": "opensanctions:NK-6BzaPQdz7x94fa6j4qRvcE",
+       "weight": 1.0,
+       "valid_from": null,
+       "valid_to": null,
+       "from_dataset": "opensanctions_graph",
+       "record_id": "osgraph:4362d20b0b16f0088a837d925a1c52c950481d83d94234acf269f6ae98afac98"
+      }
+     ],
+     "via": [
+      "lei:213800FXBZXOXNXKWP95"
+     ]
+    },
+    {
+     "entity_id": "opensanctions:ru-inn-6920007470",
+     "label": "ОБЩЕСТВО С ОГРАНИЧЕННОЙ ОТВЕТСТВЕННОСТЬЮ \"МЕГА ОЙЛ ТВЕРЬ\"",
+     "label_from": "opensanctions_graph",
+     "entity_type": "business",
+     "depth": 2,
+     "connecting_edges": 1,
+     "predicates": [
+      "succeeded_by"
+     ],
+     "from_datasets": [
+      "opensanctions_graph"
+     ],
+     "example_edges": [
+      {
+       "subject": "opensanctions:ru-inn-6920007470",
+       "predicate": "succeeded_by",
+       "object": "opensanctions:ru-inn-7701285928",
+       "weight": 1.0,
+       "valid_from": null,
+       "valid_to": null,
+       "from_dataset": "opensanctions_graph",
+       "record_id": "osgraph:31b028498524db0ba7e2a9e6cd768d4b25b519160556c37ff6128e05d392d9da"
+      }
+     ],
+     "via": [
+      "opensanctions:ru-inn-7701285928"
+     ]
+    },
+    {
+     "entity_id": "sec:cik:0001329883",
+     "label": "Sterling Capital Management LLC",
+     "label_from": "sec_ownership_datasets",
+     "entity_type": "organization",
+     "depth": 2,
+     "connecting_edges": 4,
+     "predicates": [
+      "reported_holding"
+     ],
+     "from_datasets": [
+      "sec_ownership_datasets"
+     ],
+     "example_edges": [
+      {
+       "subject": "sec:cik:0001329883",
+       "predicate": "reported_holding",
+       "object": "cusip:69343P105",
+       "weight": 1.0,
+       "valid_from": "2026-06-30T00:00:00+00:00",
+       "valid_to": "2026-07-01T00:00:00+00:00",
+       "from_dataset": "sec_ownership_datasets",
+       "record_id": "sec13f:0001398344-26-012836:69343P105:-:SH"
+      },
+      {
+       "subject": "sec:cik:0001329883",
+       "predicate": "reported_holding",
+       "object": "cusip:69343P105",
+       "weight": 1.0,
+       "valid_from": "2026-03-31T00:00:00+00:00",
+       "valid_to": "2026-04-01T00:00:00+00:00",
+       "from_dataset": "sec_ownership_datasets",
+       "record_id": "sec13f:0001398344-26-006811:69343P105:-:SH"
+      },
+      {
+       "subject": "sec:cik:0001329883",
+       "predicate": "reported_holding",
+       "object": "cusip:69343P105",
+       "weight": 1.0,
+       "valid_from": "2025-12-31T00:00:00+00:00",
+       "valid_to": "2026-01-01T00:00:00+00:00",
+       "from_dataset": "sec_ownership_datasets",
+       "record_id": "sec13f:0001398344-26-003032:69343P105:-:SH"
+      }
+     ],
+     "via": [
+      "cusip:69343P105"
+     ]
+    }
+   ],
+   "hop_1_total": 196,
+   "hop_2_total_seen": 66,
+   "hop_1_truncated": true,
+   "hop_2_truncated": true,
+   "hop_2_expanded_from": 10,
+   "hubs_not_expanded": [],
+   "classifications_places_and_programs": [
+    {
+     "subject": "ofac:party:17248",
+     "predicate": "located_in",
+     "object": "iso3:RUS",
+     "weight": 1.0,
+     "valid_from": null,
+     "valid_to": null,
+     "from_dataset": "ofac_sanctions",
+     "record_id": "ofac:18dd085989f9fa4a7e58f288c1e96b84c4c4a1601ab94d69d7f76152cceb899e"
+    },
+    {
+     "subject": "ofac:party:17248",
+     "predicate": "subject_to_sanctions_program",
+     "object": "ofac:program:UKRAINE-EO13662",
+     "weight": 1.0,
+     "valid_from": null,
+     "valid_to": null,
+     "from_dataset": "ofac_sanctions",
+     "record_id": "ofac:be5f5d42e9cb307edd74289fb639d91d5df617b63532db6edc2e42ebc885b340"
+    },
+    {
+     "subject": "ofac:party:17248",
+     "predicate": "subject_to_sanctions_program",
+     "object": "ofac:program:RUSSIA-EO14024",
+     "weight": 1.0,
+     "valid_from": null,
+     "valid_to": null,
+     "from_dataset": "ofac_sanctions",
+     "record_id": "ofac:cbb25427d55d661abd3df090a24cde211f427813e0412e2ad0708572a42b4baf"
+    },
+    {
+     "subject": "opensanctions:NK-T3oRNWY3XhL72vfsVMcXzX",
+     "predicate": "associated_country",
+     "object": "iso3:RUS",
+     "weight": 1.0,
+     "valid_from": null,
+     "valid_to": null,
+     "from_dataset": "opensanctions",
+     "record_id": "opensanctions:5cc2e7c59c1513c986be0e57a004a9737dc827ac21140721d055f7cf8f1ceef4"
+    },
+    {
+     "subject": "opensanctions:NK-T3oRNWY3XhL72vfsVMcXzX",
+     "predicate": "associated_country",
+     "object": "iso3:RUS",
+     "weight": 1.0,
+     "valid_from": null,
+     "valid_to": null,
+     "from_dataset": "opensanctions_graph",
+     "record_id": "osgraph:688350fe89f644bb3df812049cdfd829217bfaf8a7e3f2328f6ba69a63e77173"
+    },
+    {
+     "subject": "opensanctions:NK-T3oRNWY3XhL72vfsVMcXzX",
+     "predicate": "registered_in",
+     "object": "iso3:RUS",
+     "weight": 1.0,
+     "valid_from": null,
+     "valid_to": null,
+     "from_dataset": "opensanctions_graph",
+     "record_id": "osgraph:b3a65cc38c23735f62d3b268c60bc896e79f1255da74c30ab1abb63a4b3e91f6"
+    },
+    {
+     "subject": "opensanctions:NK-T3oRNWY3XhL72vfsVMcXzX",
+     "predicate": "subject_to_sanctions_program",
+     "object": "opensanctions:program:AU-RUSSIA",
+     "weight": 1.0,
+     "valid_from": null,
+     "valid_to": null,
+     "from_dataset": "opensanctions",
+     "record_id": "opensanctions:c615e990cc4e66f95c66d13dfaa728520964ff48b3afc962e4a757d5d72ed6d1"
+    },
+    {
+     "subject": "opensanctions:NK-T3oRNWY3XhL72vfsVMcXzX",
+     "predicate": "subject_to_sanctions_program",
+     "object": "opensanctions:program:CA-SEMA",
+     "weight": 1.0,
+     "valid_from": null,
+     "valid_to": null,
+     "from_dataset": "opensanctions",
+     "record_id": "opensanctions:1e9665f27a0ac5a9a00739bcda34ddd4230cf5ea0787b6a9209246ba35a96ab0"
+    },
+    {
+     "subject": "opensanctions:NK-T3oRNWY3XhL72vfsVMcXzX",
+     "predicate": "subject_to_sanctions_program",
+     "object": "opensanctions:program:GB-RUS",
+     "weight": 1.0,
+     "valid_from": null,
+     "valid_to": null,
+     "from_dataset": "opensanctions",
+     "record_id": "opensanctions:afc42fc48ab861773a63d0aed60e08935918c17f58741e89ed87801d7c5ea6e6"
+    },
+    {
+     "subject": "opensanctions:NK-T3oRNWY3XhL72vfsVMcXzX",
+     "predicate": "subject_to_sanctions_program",
+     "object": "opensanctions:program:NZ-RSA2022",
+     "weight": 1.0,
+     "valid_from": null,
+     "valid_to": null,
+     "from_dataset": "opensanctions",
+     "record_id": "opensanctions:4f89ea0d3bbe7f261fa66a27cc85ee02739da5ebd9329af9696ff29376fbe249"
+    },
+    {
+     "subject": "opensanctions:NK-T3oRNWY3XhL72vfsVMcXzX",
+     "predicate": "subject_to_sanctions_program",
+     "object": "opensanctions:program:UA-SA1644",
+     "weight": 1.0,
+     "valid_from": null,
+     "valid_to": null,
+     "from_dataset": "opensanctions",
+     "record_id": "opensanctions:c388c690ce70d339bdb899dc7c3508ac18a3c2703292e916414760cbdeeb4baf"
+    },
+    {
+     "subject": "opensanctions:NK-T3oRNWY3XhL72vfsVMcXzX",
+     "predicate": "subject_to_sanctions_program",
+     "object": "opensanctions:program:US-BIS-EL",
+     "weight": 1.0,
+     "valid_from": null,
+     "valid_to": null,
+     "from_dataset": "opensanctions",
+     "record_id": "opensanctions:d35734377a989f12a7dc97131728ba763943457bbdba37845adb936d86b568f8"
+    },
+    {
+     "subject": "opensanctions:NK-T3oRNWY3XhL72vfsVMcXzX",
+     "predicate": "subject_to_sanctions_program",
+     "object": "opensanctions:program:US-SSI",
+     "weight": 1.0,
+     "valid_from": null,
+     "valid_to": null,
+     "from_dataset": "opensanctions",
+     "record_id": "opensanctions:5d7c832aa097c47b1169148a25ea9f17fe6b1557a7d82442bc885c9110f2f016"
+    },
+    {
+     "subject": "opensanctions:NK-T3oRNWY3XhL72vfsVMcXzX",
+     "predicate": "subject_to_sanctions_program",
+     "object": "opensanctions:program:US-UKRRUS-REL",
+     "weight": 1.0,
+     "valid_from": null,
+     "valid_to": null,
+     "from_dataset": "opensanctions",
+     "record_id": "opensanctions:cae469b5a92f472cac9018d377aece518d6500fc559c25996242427f934e7ff5"
+    },
+    {
+     "subject": "opensanctions:NK-T3oRNWY3XhL72vfsVMcXzX",
+     "predicate": "subject_to_sanctions_program",
+     "object": "opensanctions:program:AU-RUSSIA",
+     "weight": 1.0,
+     "valid_from": null,
+     "valid_to": null,
+     "from_dataset": "opensanctions_graph",
+     "record_id": "osgraph:ad3cdfa49310da9bc3af47258816c406e5f85a5cd4ddf1081e694aaecfd8ee75"
+    },
+    {
+     "subject": "opensanctions:NK-T3oRNWY3XhL72vfsVMcXzX",
+     "predicate": "subject_to_sanctions_program",
+     "object": "opensanctions:program:CA-SEMA",
+     "weight": 1.0,
+     "valid_from": null,
+     "valid_to": null,
+     "from_dataset": "opensanctions_graph",
+     "record_id": "osgraph:10f436cffad5939e339b130392b4f81d90b62a1aae5f59161fbfb51b6e98d60f"
+    },
+    {
+     "subject": "opensanctions:NK-T3oRNWY3XhL72vfsVMcXzX",
+     "predicate": "subject_to_sanctions_program",
+     "object": "opensanctions:program:GB-RUS",
+     "weight": 1.0,
+     "valid_from": null,
+     "valid_to": null,
+     "from_dataset": "opensanctions_graph",
+     "record_id": "osgraph:c2be98f7b13b34099881ee270c4d054778cc4f0fac3abad539ee279669ab4a2d"
+    },
+    {
+     "subject": "opensanctions:NK-T3oRNWY3XhL72vfsVMcXzX",
+     "predicate": "subject_to_sanctions_program",
+     "object": "opensanctions:program:NZ-RSA2022",
+     "weight": 1.0,
+     "valid_from": null,
+     "valid_to": null,
+     "from_dataset": "opensanctions_graph",
+     "record_id": "osgraph:c2effa8886f6922ca0788b04be837ab2135b7f6b1f1785e10800011465a0b447"
+    },
+    {
+     "subject": "opensanctions:NK-T3oRNWY3XhL72vfsVMcXzX",
+     "predicate": "subject_to_sanctions_program",
+     "object": "opensanctions:program:US-SSI",
+     "weight": 1.0,
+     "valid_from": null,
+     "valid_to": null,
+     "from_dataset": "opensanctions_graph",
+     "record_id": "osgraph:80038ed32fff1680ce93b15d57d002ea14475b6890435d2d153a7c0a7b3e8cf4"
+    },
+    {
+     "subject": "opensanctions:NK-T3oRNWY3XhL72vfsVMcXzX",
+     "predicate": "subject_to_sanctions_program",
+     "object": "opensanctions:program:US-UKRRUS-REL",
+     "weight": 1.0,
+     "valid_from": null,
+     "valid_to": null,
+     "from_dataset": "opensanctions_graph",
+     "record_id": "osgraph:7728cea1ced4b0dd8d35cb349e5a2f98499ee32f6cdbe80a8bb0de35ce2fb000"
+    },
+    {
+     "subject": "opensanctions:NK-T3oRNWY3XhL72vfsVMcXzX",
+     "predicate": "subject_to_sanctions_program",
+     "object": "opensanctions:program:US-BIS-EL",
+     "weight": 1.0,
+     "valid_from": null,
+     "valid_to": null,
+     "from_dataset": "opensanctions_graph",
+     "record_id": "osgraph:2c4d1c2321a0c9ad5d59ff01fa9ae2a29d033c753d25533244011e1b84fb830c"
+    },
+    {
+     "subject": "opensanctions:NK-T3oRNWY3XhL72vfsVMcXzX",
+     "predicate": "subject_to_sanctions_program",
+     "object": "opensanctions:program:UA-SA1644",
+     "weight": 1.0,
+     "valid_from": null,
+     "valid_to": null,
+     "from_dataset": "opensanctions_graph",
+     "record_id": "osgraph:8b0d3100047a20f6e276c493be2099ac95abb44a030b523ae51a6904c4dc106c"
+    },
+    {
+     "subject": "us_csl:17248",
+     "predicate": "listed_on",
+     "object": "us_csl:list:ssi",
+     "weight": 1.0,
+     "valid_from": null,
+     "valid_to": null,
+     "from_dataset": "other_sanctions_lists",
+     "record_id": "sanctions:a86a82c13662a3faa23d5893dbd38e8c045eac8b75b7ff83ee568aa57e96fc10"
+    },
+    {
+     "subject": "us_csl:17248",
+     "predicate": "listed_on",
+     "object": "us_csl:list:sdn",
+     "weight": 1.0,
+     "valid_from": null,
+     "valid_to": null,
+     "from_dataset": "other_sanctions_lists",
+     "record_id": "sanctions:be215892300863f33d4c444e424f73db2f5e78bdcc5b47592078b536061ce530"
+    },
+    {
+     "subject": "us_csl:17248",
+     "predicate": "located_in",
+     "object": "iso3:RUS",
+     "weight": 1.0,
+     "valid_from": null,
+     "valid_to": null,
+     "from_dataset": "other_sanctions_lists",
+     "record_id": "sanctions:f2b7a6bfa01c271786fc0dd9fde62575c5b067ff37092c7c05863a6f63ed8108"
+    },
+    {
+     "subject": "us_csl:17248",
+     "predicate": "subject_to_sanctions_program",
+     "object": "ofac:program:UKRAINE-EO13662",
+     "weight": 1.0,
+     "valid_from": null,
+     "valid_to": null,
+     "from_dataset": "other_sanctions_lists",
+     "record_id": "sanctions:34cd5b4438fd5f5548bca97a0891874d7901824778d3048dba4aad64ecd15477"
+    },
+    {
+     "subject": "us_csl:17248",
+     "predicate": "subject_to_sanctions_program",
+     "object": "ofac:program:RUSSIA-EO14024",
+     "weight": 1.0,
+     "valid_from": null,
+     "valid_to": null,
+     "from_dataset": "other_sanctions_lists",
+     "record_id": "sanctions:b38397eac7e70c67aef552193edf41ae1dc2dd5be15b1ba29799f82c432cc119"
+    }
+   ],
+   "reference_predicates_not_expanded": [
+    "within",
+    "located_in",
+    "associated_country",
+    "citizenship",
+    "nationality",
+    "registered_in",
+    "classified_as",
+    "subject_to_sanctions_program",
+    "listed_on",
+    "maps_to",
+    "flag_state",
+    "party_affiliation",
+    "cabinet_member_party",
+    "mentioned_in_listing_narrative",
+    "listing_venue",
+    "corresponds_to",
+    "conflict_in",
+    "describes_location",
+    "within_balancing_authority",
+    "published_by",
+    "methodology_document",
+    "contiguous_with",
+    "part_of",
+    "contains_resource",
+    "issued_document_by",
+    "referred_to_committee",
+    "serves_airport",
+    "mic_operating_venue",
+    "index_constituent"
+   ],
+   "per_node_edge_bound": 200
+  },
+  "counts": {
+   "members": 4,
+   "descriptions": 5,
+   "identifier_claims": 36,
+   "aliases": 66,
+   "edges": 310,
+   "edge_predicates": 13,
+   "observation_series": 0,
+   "event_groups": 0,
+   "hop_1_counterparties": 196,
+   "hop_2_counterparties_seen": 66
+  }
+ },
+ "where_the_evidence_runs_out": [
+  "The entity was chosen by a name match. 9 other label-matching clusters were not merged with it, because no publisher asserts they are the same.",
+  "Counterparties were truncated to the most-connected 10 at hop 1 and 10 at hop 2 (of 196 and 66 seen).",
+  "Nothing beyond two hops was examined, and classifications, places, lists and programmes were not expanded. For a longer chain use \"wm serve\" /graph/paths or \"python3 -m worldmodel graph-paths\".",
+  "Events are found here only where the publisher anchors the event on this ID as its subject. Events that name the entity only among their participants (storm events, disaster declarations, AIS reports) are not reachable from an entity ID in this index.",
+  "No asserted SEC filer identity: neither sec_issuer_reference nor GLEIF's SEC registration authority (RA000665) links this LEI to a CIK.",
+  "Outside this index scope entirely: companies_house_uk (the UK company register and persons with significant control); gdelt_events (news-derived event records); osm_topology (the OpenStreetMap routing graph); osm_us_midwest (OpenStreetMap US Midwest extract); osm_us_northeast (OpenStreetMap US Northeast extract); osm_us_south (OpenStreetMap US South extract); sec_13f_history (the full quarterly 13F holding history (only the sec_ownership_datasets filings are here)); usaspending (federal contract transactions); usaspending_assistance (federal assistance transactions)."
+ ],
+ "what_this_does_not_establish": [
+  "A dossier is an inventory of published claims about the IDs in one asserted cluster. It is not a profile anyone has verified, and a claim's presence is not evidence that it is true or current.",
+  "An edge states only its predicate, as published by its dataset. Two entities two hops apart are not related in any stated way; a shared counterparty is not a relationship.",
+  "Not a sanctions determination. A listing applies to the named party on the named list at the list version pinned here; group membership does not transfer it, and OpenSanctions also carries ownership, debarment and politically-exposed-person records that are not designations.",
+  "GLEIF Level 2 records accounting consolidation, not control or beneficial ownership.",
+  "Absence of an edge, observation or event here is absence of published evidence in this index scope, not absence in the world. The index pins one version of each input dataset.",
+  "Nothing is merged: records are the publishers' own claims, copied verbatim, and contradictory claims stay side by side.",
+  "Identity is asserted only (published same_as links, shared unique identifiers, published crosswalk fields). Entities whose names merely look alike are never joined; where a product had to use a name, it says INFERRED, not asserted.",
+  "Rights and use-policy metadata are an inventory, not a legal determination, and nothing here authorises republishing the acquired data."
+ ],
+ "datasets_used": [
+  "gleif_parent_relationships",
+  "ofac_sanctions",
+  "opensanctions",
+  "opensanctions_graph",
+  "other_sanctions_lists",
+  "sec_gleif",
+  "sec_ownership_datasets"
+ ],
+ "rights": {
+  "declared_purpose": "commercial",
+  "datasets": [
+   {
+    "dataset": "gleif_parent_relationships",
+    "stage": "normalized",
+    "version": "49a78461a71ad16a5f9fa22f19e36dd8ad7b7d0b0a8781b8c8468be04dfef09c",
+    "rights_metadata_from": "compact manifest of the pinned version",
+    "publisher": [
+     "GLEIF (Global Legal Entity Identifier Foundation)"
+    ],
+    "license_id": [],
+    "license": [],
+    "license_status": [
+     "CC0-1.0"
+    ],
+    "redistribution": [],
+    "attribution": [],
+    "terms_url": [],
+    "non_commercial_only": false,
+    "redistribution_review_required": true,
+    "identified_persons": {
+     "policy": "prohibited",
+     "condition": null,
+     "authority": null,
+     "declared_purpose": "commercial",
+     "identified_persons_retained": false
+    }
+   },
+   {
+    "dataset": "ofac_sanctions",
+    "stage": "normalized",
+    "version": "5680c4449455ad96dc270f4f4d9c21778c820617c2e3f30f677406ad9542dc0d",
+    "rights_metadata_from": "compact manifest of the pinned version",
+    "publisher": [
+     "U.S. Department of the Treasury, Office of Foreign Assets Control (OFAC)"
+    ],
+    "license_id": [
+     "US-Government-Public-Domain"
+    ],
+    "license": [
+     "U.S. federal government work (public domain, 17 U.S.C. 105)"
+    ],
+    "license_status": [
+     "public_domain_us_federal"
+    ],
+    "redistribution": [
+     "True"
+    ],
+    "attribution": [
+     "U.S. Treasury OFAC Sanctions List Service"
+    ],
+    "terms_url": [
+     "https://ofac.treasury.gov/sanctions-list-service"
+    ],
+    "non_commercial_only": false,
+    "redistribution_review_required": false,
+    "identified_persons": {
+     "policy": "prohibited",
+     "condition": null,
+     "authority": null,
+     "declared_purpose": "commercial",
+     "identified_persons_retained": false
+    }
+   },
+   {
+    "dataset": "opensanctions",
+    "stage": "normalized",
+    "version": "c3376e0b059852dd1e2d9dd7ea44cad7df5be2dc4cdc567e4133d2f885d9faca",
+    "rights_metadata_from": "compact manifest of the pinned version",
+    "publisher": [
+     "OpenSanctions Datenbanken GmbH"
+    ],
+    "license_id": [
+     "CC-BY-NC-4.0"
+    ],
+    "license": [
+     "CC BY-NC 4.0 (non-commercial use only; commercial use requires an OpenSanctions data licence)"
+    ],
+    "license_status": [
+     "non_commercial_only"
+    ],
+    "redistribution": [
+     "restricted"
+    ],
+    "attribution": [
+     "OpenSanctions (https://www.opensanctions.org), CC BY-NC 4.0"
+    ],
+    "terms_url": [
+     "https://www.opensanctions.org/licensing/"
+    ],
+    "non_commercial_only": true,
+    "redistribution_review_required": true,
+    "identified_persons": {
+     "policy": "prohibited",
+     "condition": null,
+     "authority": null,
+     "declared_purpose": "commercial",
+     "identified_persons_retained": false
+    }
+   },
+   {
+    "dataset": "opensanctions_graph",
+    "stage": "normalized",
+    "version": "190fe27804ed020f78d545cf5ecd1702c9c57fe63e7a943986fabd7e558fde4b",
+    "rights_metadata_from": "compact manifest of the pinned version",
+    "publisher": [
+     "OpenSanctions Datenbanken GmbH"
+    ],
+    "license_id": [
+     "CC-BY-NC-4.0"
+    ],
+    "license": [
+     "CC BY-NC 4.0 (non-commercial use only; commercial use requires an OpenSanctions data licence)"
+    ],
+    "license_status": [
+     "non_commercial_only"
+    ],
+    "redistribution": [
+     "restricted"
+    ],
+    "attribution": [
+     "OpenSanctions (https://www.opensanctions.org), CC BY-NC 4.0"
+    ],
+    "terms_url": [
+     "https://www.opensanctions.org/licensing/"
+    ],
+    "non_commercial_only": true,
+    "redistribution_review_required": true,
+    "identified_persons": {
+     "policy": "prohibited",
+     "condition": null,
+     "authority": null,
+     "declared_purpose": "commercial",
+     "identified_persons_retained": false
+    }
+   },
+   {
+    "dataset": "other_sanctions_lists",
+    "stage": "normalized",
+    "version": "9bf1ca292beb66c0c98dbacaf5dfdced364aa55bca427fe4fd83839e8373426a",
+    "rights_metadata_from": "compact manifest of the pinned version",
+    "publisher": [
+     "UN Security Council; UK Foreign, Commonwealth & Development Office; U.S. International Trade Administration"
+    ],
+    "license_id": [
+     "mixed: UN-terms / OGL-UK-3.0 / US-Government-Public-Domain"
+    ],
+    "license": [
+     "UN: public UN document (UN terms of use); UK: Open Government Licence v3.0; CSL: U.S. federal government work (public domain)"
+    ],
+    "license_status": [
+     "public_or_open_licence_with_attribution"
+    ],
+    "redistribution": [
+     "True"
+    ],
+    "attribution": [
+     "Contains public sector information licensed under the Open Government Licence v3.0 (UK Sanctions List, FCDO); United Nations Security Council Consolidated List; U.S. Consolidated Screening List (trade.gov)"
+    ],
+    "terms_url": [
+     "https://www.un.org/en/about-us/terms-of-use ; https://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/"
+    ],
+    "non_commercial_only": false,
+    "redistribution_review_required": false,
+    "identified_persons": {
+     "policy": "prohibited",
+     "condition": null,
+     "authority": null,
+     "declared_purpose": "commercial",
+     "identified_persons_retained": false
+    }
+   },
+   {
+    "dataset": "sec_gleif",
+    "stage": "normalized",
+    "version": "925f8bdfffbb0ece5021e897a504b49f5aee03c3ba9b26c6678125ec6aaf7de6",
+    "rights_metadata_from": "compact manifest of the pinned version",
+    "publisher": [
+     "GLEIF (Global Legal Entity Identifier Foundation)"
+    ],
+    "license_id": [],
+    "license": [],
+    "license_status": [
+     "CC0-1.0"
+    ],
+    "redistribution": [],
+    "attribution": [],
+    "terms_url": [],
+    "non_commercial_only": false,
+    "redistribution_review_required": true,
+    "identified_persons": {
+     "policy": "prohibited",
+     "condition": null,
+     "authority": null,
+     "declared_purpose": "commercial",
+     "identified_persons_retained": false
+    }
+   },
+   {
+    "dataset": "sec_ownership_datasets",
+    "stage": "normalized",
+    "version": "6d7bf0fcb22b6ab319ef6bef277a3b893c3a1fb968dbca3edc3734687c740c0b",
+    "rights_metadata_from": "compact manifest of the pinned version",
+    "publisher": [
+     "U.S. Securities and Exchange Commission (Division of Economic and Risk Analysis)"
+    ],
+    "license_id": [],
+    "license": [],
+    "license_status": [
+     "public_domain_us_government_work"
+    ],
+    "redistribution": [],
+    "attribution": [],
+    "terms_url": [],
+    "non_commercial_only": false,
+    "redistribution_review_required": true,
+    "identified_persons": {
+     "policy": "prohibited",
+     "condition": null,
+     "authority": null,
+     "declared_purpose": "commercial",
+     "identified_persons_retained": false
+    }
+   }
+  ],
+  "non_commercial_only": [
+   "opensanctions",
+   "opensanctions_graph"
+  ],
+  "redistribution_restricted": [
+   "opensanctions",
+   "opensanctions_graph"
+  ],
+  "redistribution_review_required": [
+   "gleif_parent_relationships",
+   "opensanctions",
+   "opensanctions_graph",
+   "sec_gleif",
+   "sec_ownership_datasets"
+  ],
+  "notices": [
+   "opensanctions, opensanctions_graph are licensed for non-commercial use only. This deployment's declared purpose is commercial (WM_COMMERCIAL_USE; unset means commercial). The products do not gate on it: they carry the terms so the reader can decide.",
+   "Redistribution review is required before sharing evidence from: gleif_parent_relationships, opensanctions, opensanctions_graph, sec_gleif, sec_ownership_datasets."
+  ],
+  "computation_policy": "metadata_only_no_local_execution_gate",
+  "interpretation": "Source metadata inventory; compatibility and derivative-work obligations are not automatically adjudicated. See DATA_RIGHTS.md and docs/use-policy.md."
+ },
+ "products_index": {
+  "available": true,
+  "built_at": "2026-09-19T02:28:06Z",
+  "counts": {
+   "labels": 9812370,
+   "entity_records_read": 9925686,
+   "aliases": 306119,
+   "storm_events_with_a_county": 1303048,
+   "storm_events_on_a_forecast_zone": 763671,
+   "disaster_declarations_with_a_county": 68792,
+   "fema_named_county_observations": 2697024,
+   "fema_named_county_groups": 144538
+  },
+  "resolution_view_digest_at_build": "f8a3169623beec055a0d2f64a5a5d2baa05e21e865204b3699195bb30ef20214"
+ },
+ "timings_s": {
+  "open": 0.0008,
+  "resolve": 0.0172,
+  "cluster": 0.0006,
+  "identifiers": 0.0052,
+  "edges": 0.0033,
+  "observations_and_events": 0.0008,
+  "counterparties": 0.0091,
+  "labels": 0.0019,
+  "total": 0.0437
+ }
+}

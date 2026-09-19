@@ -52,6 +52,9 @@ COVERAGE_GAPS = [
     '- and a true match whose publishers share no identifier will not be linked to its listing.',
     'The lists are as of the versions this index pins. Lists change daily; delistings and new designations after '
     'that are not reflected.',
+    'OpenSanctions aggregates many jurisdictions\' lists, including counter-sanctions (for example China\'s and '
+    'Iran\'s lists naming US defence firms). Every OpenSanctions listing names its source lists; read them before '
+    'treating a path as relevant to your jurisdiction.',
     'The default index scope excludes companies_house_uk (UK persons with significant control), sec_13f_history and '
     'the USAspending transactions.',
 ]
@@ -66,6 +69,19 @@ def _category(source_list):
     if 'nonproliferation' in text or 'treasury' in text or 'sanction' in text:
         return 'sanctions designation'
     return 'other restrictive list'
+
+
+def _sources(sources):
+    """The OpenSanctions source lists behind a target, with the sanctions lists named first.
+
+    OpenSanctions aggregates lists from many jurisdictions, including counter-sanctions (China's and
+    Iran's lists name US defence firms). Which jurisdiction listed an entity is the reader's question,
+    so the source names travel with every OpenSanctions listing rather than being collapsed.
+    """
+    sources = [str(s) for s in sources]
+    sanctions = [s for s in sources if 'sanction' in s.lower() or s.lower().endswith('_sdn')]
+    return {'opensanctions_sanctions_sources': sanctions,
+            'opensanctions_sources': sanctions + [s for s in sources if s not in sanctions][:12]}
 
 
 def listing_descriptors(connection, entity_ids):
@@ -108,12 +124,12 @@ def listing_descriptors(connection, entity_ids):
                 sources = attributes.get('datasets') or []
                 if 'sanction' in topics:
                     listings.append({**base, 'list': 'OpenSanctions target with topic "sanction"',
-                                     'category': 'sanctions designation', 'opensanctions_sources': sources[:12]})
+                                     'category': 'sanctions designation', **_sources(sources)})
                 elif topics & {'export.control', 'debarment'}:
                     listings.append({**base, 'list': 'OpenSanctions target with topic %s'
                                      % ', '.join(sorted(topics & {'export.control', 'debarment'})),
                                      'category': 'export control' if 'export.control' in topics else 'debarment',
-                                     'opensanctions_sources': sources[:12]})
+                                     **_sources(sources)})
                 for topic in sorted(topics & {'sanction.linked', 'sanction.control', 'export.control.linked',
                                               'role.pep', 'role.rca', 'poi', 'crime', 'crime.fin', 'crime.terror'}):
                     flags.append({**base, 'topic': topic,
@@ -121,7 +137,7 @@ def listing_descriptors(connection, entity_ids):
             elif dataset == 'opensanctions':
                 listings.append({**base, 'list': 'OpenSanctions sanctions collection',
                                  'category': 'sanctions designation',
-                                 'opensanctions_sources': (attributes.get('source_datasets') or [])[:12]})
+                                 **_sources(attributes.get('source_datasets') or [])})
         if listings or flags:
             # OpenSanctions records an entity in both datasets; keep one sanctions listing per ID.
             if any(l['from_dataset'] == 'opensanctions_graph' for l in listings):
