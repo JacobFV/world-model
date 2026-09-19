@@ -31,7 +31,7 @@ import sys
 import time
 import uuid
 
-from .graph import Graph
+from .graph import PUBLICATION_RULES, Graph
 from .resolution.bridges import (BRIDGE_TAGS, BRIDGES, IMO_SHIP_ENTITY_TYPES, LINK_PREDICATES, NAMESPACE_ALIASES,
                                  REGISTER_VALIDATORS,
                                  cardinality as bridge_cardinality, flagged_fraudulent, normalize_value, record_claims)
@@ -422,12 +422,16 @@ def unify(catalog, store, project=None, *, profile=DEFAULT_PROFILE, datasets=Non
         print('unify: profile %s, %d datasets, %s published records in scope -> %s'
               % (profile, len(groups), f"{plan['selected_rows']:,}", index_path), file=sys.stderr, flush=True)
     built = Graph(index_path).build_from_records(groups, batch_size=batch_size, validate=validate,
-                                                 cache_mb=cache_mb, compress_bodies=compress)
+                                                 cache_mb=cache_mb, compress_bodies=compress,
+                                                 publication_rules=PUBLICATION_RULES)
     elapsed = time.time() - started
     summary = {
         'scope': _scope_report(plan),
         'index': {'path': str(index_path), 'records': built['records'], 'edges': built['edges'],
                   'bytes': index_path.stat().st_size},
+        'publication_coverage': built.get('publication_coverage'),
+        'publication_rules': {name: PUBLICATION_RULES[name] for item in plan['selected']
+                              for name in [item['dataset']] if name in PUBLICATION_RULES},
         'datasets': [stats[item['dataset']] for item in plan['selected'] if item['dataset'] in stats],
         'skipped': plan['skipped'],
         'inputs': [dict(item['ref']) for item in plan['selected']],
@@ -442,7 +446,12 @@ def unify(catalog, store, project=None, *, profile=DEFAULT_PROFILE, datasets=Non
             'A scope narrower than --all indexes a documented subset: an absent edge may mean out of scope, '
             'not absent from the evidence.',
             'Raw acquisition payloads are not re-hashed by unify; run "wm verify <dataset>" for the full '
-            'recursive lineage check.'],
+            'recursive lineage check.',
+            'A record carries a publication date only where the publisher emits one (dimensions.available_at), '
+            'where the row is ALFRED-vintaged (attributes.realtime_start), or where a declared dataset rule in '
+            'worldmodel.graph.PUBLICATION_RULES can date it. Everything else is NULL, which means unknown, and is '
+            'excluded from --known-at queries by default. "publication_coverage" reports the share per dataset; '
+            'docs/point-in-time-graph.md says what a declared lag does and does not establish.'],
     }
     if publish:
         parameters = {'profile': profile, 'datasets': sorted(datasets or ()), 'domains': sorted(domains or ()),

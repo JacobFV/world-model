@@ -177,10 +177,18 @@ class SubstrateTests(unittest.TestCase):
         claims = graph.neighbors('org:acme')['assertions']
         self.assertEqual(len(claims), 2)
         self.assertEqual({r['value'] for r in claims}, {0.6, 0.8})
-        self.assertEqual(len(graph.neighbors('org:acme', known_at='2024-06-01')['assertions']), 1)
+        # The fixture publishes no availability date, so an as-of query excludes its claims by
+        # default and says so; the named option restores the old ingestion-time reading.
+        asof = graph.neighbors('org:acme', known_at='2024-06-01')
+        self.assertEqual(asof['assertions'], [])
+        self.assertEqual(asof['publication']['policy'], 'exclude_unknown_publication')
+        self.assertTrue(asof['publication']['excluded_unknown_publication'])
+        ingested = graph.neighbors('org:acme', known_at='2024-06-01', include_unknown_publication=True)
+        self.assertEqual(len(ingested['assertions']), 1)
+        self.assertIn('ingestion time', ingested['publication']['disclosure'])
         self.assertEqual(len(graph.neighbors('org:acme', valid_at='2026-01-01')['assertions']), 0)
         self.assertEqual(graph.neighbors('geo:US')['assertions'], [])
-        self.assertEqual(len(graph.observations('establishment_count')), 1)
+        self.assertEqual(len(graph.observations('establishment_count')['records']), 1)
         self.assertTrue(self.store.verify(ref))
         self.assertTrue(raw['artifact'])
 
