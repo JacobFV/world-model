@@ -172,10 +172,32 @@ host-memory cap on a GB10: CPU and GPU share one pool, which is why the cgroup i
 | Attempt | Status | Note |
 | --- | --- | --- |
 | `places.county_root_readout_v1` | not run (compute budget) | stopped at 29 min on the shared machine, projecting ~64 min against 60, before any validation score existed |
-| `places.county_root_readout_v2` | registered | identical but for the host |
-| `actors.13f_exit_increase_v1` | registered | |
+| `places.county_root_readout_v2` | not run (compute budget) | shared the second GB10's GPU with the actors attempt; stopped after one validation origin, before any score |
+| `places.county_root_readout_v3` | running | identical in every scored respect; alone on its GPU |
+| `actors.13f_exit_increase_v1` | **fail** (both tasks) | beats the base rate, loses to LightGBM; see below |
+| `actors.13f_exit_increase_v2` | queued | LightGBM plus the embedding, registered after v1's result |
 
 ## Results
 
-Filled in from the published reports once each attempt has run; see
-[data/embedding_reports](../data/embedding_reports/README.md).
+### actors.13f_exit_increase_v1
+
+Published `embedding_reports@e950075a` (exit) and `@00088be4` (increase). Test window 2021Q1-2024Q4,
+refit each year, 128,000 test positions (8,000 per quarter; 112,635 with an increase label).
+
+| Task | Test base rate | Encoder Brier | Base-rate Brier | LightGBM Brier | Brier skill | Expected calibration error |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| exit | 0.120 | 0.0905 | 0.1057 | **0.0888** | 0.144 | 0.0074 |
+| increase | 0.197 | 0.1447 | 0.1582 | **0.1413** | 0.086 | 0.0053 |
+
+* Against the base rate: better on both tasks, pooled and quarter-clustered DM p < 0.001.
+* Against LightGBM on the same template features: worse on both (Brier higher by 0.0017 and 0.0034);
+  `beats_gbdt_dm` fails. Neither task is validated.
+* On validation (2019-2020) the full subgraph beat the encoder on the query position alone
+  (exit 0.0961 against 0.1022, increase 0.1514 against 0.1566): the relational context carries
+  signal. LightGBM, given hand-aggregated neighbour features, used it better.
+* `beats_manager_rate_dm` failed as *unavailable*, not on skill: a scoring defect dropped that
+  baseline because a few rows lack a prior-quarter rate. It is fixed for later attempts; the verdict
+  does not depend on it, since the encoder already fails against LightGBM.
+* The report records commit `397b384`; the run started at `70bb84c`. The compute host's checkout was
+  synced during the run (the Python is identical between the two; only the plan changed). Commits
+  are now captured at start, and runs use an exported, immutable code directory.
