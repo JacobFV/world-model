@@ -139,6 +139,8 @@ criterion was ever evaluated, and it is excluded from every pass/fail count belo
 | `assets_model.fred_fx_realtime` | assets_model | fred_macro_panel@7dcce89c (DEXJPUS, DEXUSUK, DEXCAUS, DEXSZUS, DEXUSAL, DEXUSEU, DFF first releases), daily 2014-03..2024-12 (13,480 bars) | 1,875 | **pass** | none |
 | `monetary_model.okun_unrate_realtime` | monetary_model | fred_macro_panel@7dcce89c (CPIAUCSL, UNRATE, DFF first releases), monthly 2005-06..2024-12 (235) | — | **failed to fit** | smoothing not below one (unidentified) |
 | `monetary_model.okun_unrate_realtime_v2` | monetary_model | fred_macro_panel@7dcce89c (CPIAUCSL, UNRATE, FEDFUNDS first releases), monthly 1996-12..2024-12 (337) | 120 | **fail** | beats_persistence_dm, parameters_within_declared_bounds |
+| `influence_model.house_pac_share_defection` | influence_model | influence_panel/panel@4562e7f9 (House, 110th-118th Congresses; 3,971 member-Congresses, 1,072 members) | 733 | **fail** | beats_persistence_dm, beats_fixed_effects_only_dm, no_revision_leakage |
+| `influence_model.house_business_pac_defection` | influence_model | influence_panel/panel@4562e7f9 (same rows; 3,972 member-Congresses, 1,073 members) | 733 | **fail** | beats_persistence_dm, beats_fixed_effects_only_dm, no_revision_leakage |
 | `population_growth_rate.census_pep_v2` | population_growth / population_growth_rate | census_population@063a1413 (20 PEP vintages), annual 2000-2025 (26) | 9 | **fail** | interval_coverage |
 | `population_growth_rate.fred_popthm` | population_growth / population_growth_rate | fred_macro_panel@7dcce89c (POPTHM, 325 ALFRED vintages), annual 1959-2025 (67) | 16 | **fail** | interval_coverage |
 | `deposit_rate_pass_through.fred_realtime_v2` | coupled_economy / deposit_rate_pass_through (optional) | fred_macro_panel@7dcce89c (SNDR) + DFF, monthly 2021-04..2026-07 (64), splits recut | 24 | **fail** | beats_persistence_dm, interval_coverage |
@@ -1073,7 +1075,7 @@ fifteen components and six of eleven families are loadable; what remains blocked
 | field_diffusion_transport | per-cell concentrations with a topology (county PM2.5) | epa_aqs_daily |
 | bilateral_flow_gravity | FAF5 OD tonnage and OD distances | freight |
 | trade_model | several consecutive years of bilateral flows (un_comtrade starts 2024-01) | cepii_baci |
-| influence_model | a unit-period panel with exposure and outcome | lda_lobbying + fec + voteview_rollcalls (panel not built) |
+| ~~influence_model~~ | no longer blocked: `influence_panel` is built and loaded (see the influence wave below); a *lobbying* exposure is still unidentifiable | lda_lobbying for filing years before 2025 |
 | sanctions_model | — | non-estimable by declaration (legal-rule determination) |
 
 No FRED series is outstanding. `elections_model` is no longer blocked: `mit_election_returns`
@@ -1676,3 +1678,83 @@ time only back to its shallowest series (state Information enters ALFRED on 2011
 industry formed as the within-vintage residual `total_nonfarm − Σ nine`, because five
 state-equivalents publish no aliased mining/logging/construction series. The residual is exact where
 it can be checked (Texas 2019-06: 1,031.0 = 778.6 + 252.4).
+
+## Influence wave: the panel is built, and the association does not forecast
+
+2026-09-18. `influence_model` was blocked only on assembly. The `influence_panel` derived dataset
+([docs/influence-panel.md](influence-panel.md)) now joins Voteview positions, FEC money, BILLSTATUS
+sponsorship, LDA lobbying and committee seats by published identifiers only, and
+`worldmodel/estimation/loaders.py::influence_data` turns it into the family's fit contract. Two
+attempts were appended to the plan and committed (`4dcd066`) before either was scored. They share
+everything except the exposure:
+
+- **unit** member (bioguide), **period** Congress, **row date** the day the Congress ends;
+- **rows** House, 110th-118th Congresses (complete, with member-level positions), single-major-party
+  members with at least 20 yea/nay votes on party-unity roll calls and positive FEC receipts;
+- **outcome** percent of the member's yea/nay votes on party-unity roll calls cast against their own
+  party majority (computed from Voteview member positions);
+- **split** fit through the 114th, validate the 115th-116th, test the 117th-118th; each origin refits
+  on earlier Congresses;
+- **acceptance** the family default plus `beats_fixed_effects_only_dm` (the exposure must add
+  squared-loss skill over the same two-way effects without it).
+
+| Attempt | Exposure | n (units) | Coefficient | Cluster SE | Within R² |
+| --- | --- | --- | --- | --- | --- |
+| `influence_model.house_pac_share_defection` | FEC weball other-committee receipts as % of total receipts | 3,971 (1,072) | −0.0221 pp defection per pp | 0.0060 | 0.0046 |
+| `influence_model.house_business_pac_defection` | ln(1 + direct 24K/24Z money from PACs whose FEC interest-group category is C, T, V or W, in $000) | 3,972 (1,073) | −0.217 pp per log unit | 0.098 | 0.0023 |
+
+Holdout: 733 forecasts (370 members in the 117th, 363 in the 118th), 0 skipped origins. Naive
+baselines need two prior Congresses, so they exist for 585 of the 733 and every DM test against them
+is paired on those 585.
+
+| Metric | PAC share | Business PAC | Fixed effects only | Persistence (585) | Member mean (585) | Drift (585) |
+| --- | --- | --- | --- | --- | --- | --- |
+| MAE (pp) | 2.492 | 2.481 | 2.425 | 1.864 | 2.434 | 2.681 |
+| RMSE (pp) | 3.886 | 3.904 | 3.852 | 3.239 | 3.656 | 4.335 |
+| CRPS | 1.987 | 1.995 | 1.965 | 1.617 | 1.744 | 2.257 |
+| DM p vs model, squared (PAC share / business) | — | — | 0.999 / 1.000 | 0.996 / 0.997 | 0.999 / 1.000 | **0.034 / 0.041** |
+
+80% interval coverage 0.857 and 0.855 (mean width 9.65 pp), bias −0.40 and −0.44 pp. Reports
+`1b210017…` (PAC share) and `8046310d…` (business PAC); estimates `f1348268…` and `c05a45cd…`, all in
+`data/calibration_reports/`; `calibration-status` re-derives both verdicts from the stored reports.
+
+**Verdict: both fail, on three criteria each: `beats_persistence_dm`, `beats_fixed_effects_only_dm`
+and `no_revision_leakage`.** They pass `minimum_test_forecasts`, `interval_coverage`,
+`parameters_within_declared_bounds` and `no_timing_leakage`. Four things belong next to that.
+
+1. **The in-sample association is distinguishable from zero and useless for forecasting.** A member
+   whose PAC share of receipts is 10 points higher than their own average defects 0.22 points *less*
+   (t ≈ −3.7); business-PAC money has the same sign (t ≈ −2.2). Adding either term makes the
+   holdout forecast worse than the identical forecast without it (mean squared-loss difference +0.26
+   and +0.40 pp²; one-sided p ≈ 1). The within-R² is under half a percent. Whatever this association
+   is — reverse causation (loyal members in safe seats draw PAC money), leadership and committee
+   status, redistricting — it does not carry forward one Congress.
+2. **The family's forecaster is itself beaten by persistence.** Last Congress's defection rate has
+   RMSE 3.24 against 3.85 for the two-way fixed-effects forecast without any exposure. The unit effect
+   averages a member's whole career, and defection rates drift within careers (majority status,
+   leadership, a changed district), so a random walk wins. This failure is in the family's structure,
+   not the exposure; beating persistence would need a forecaster that weights recent Congresses.
+   The model does beat drift (p = 0.034 and 0.041), which is the only baseline it beats.
+3. **`no_revision_leakage` fails by declaration, as registered.** FEC totals are current-file values
+   that include amendments filed after each Congress, for history rows as well as the target's
+   conditional input, so the loader declares `revisions: fec_amendments_possible`.
+   `elections_model.medsl_house_districts` uses the same kind of FEC input and declared `revisions:
+   none` on the strength of its target alone; the two declarations disagree, and this wave does not
+   re-litigate the earlier one — it is flagged for reconciliation.
+4. **The lobbying exposure the family is named for cannot be identified from this panel.** The
+   family's requirement is LDA filings, and its forecaster scores a next-period outcome given the
+   period's realized exposure after fitting on earlier periods. `lda_lobbying` holds filing years
+   2025-2026 only: one Congress (the 119th), still in progress. There is no earlier period to fit on
+   and no complete period to score, so lobbying enters no attempt; the panel carries it descriptively.
+   A pre-registrable lobbying attempt needs LD-2 filings for at least three complete Congresses
+   (2019-2024 for the 116th-118th).
+
+**Disclosed before registration.** While checking the panel's construction, three individual
+118th-Congress House rows (A000055, A000148, A000369) were printed with their defection rates and
+receipts. No statistic relating outcome and exposure, and no aggregate of either over any window, was
+computed before the attempts were committed; the plan's `run_note` records this.
+
+**What this does not establish.** Neither coefficient is an effect of money on votes. The design is
+observational with member and Congress fixed effects, identification is `correlational` by the
+family's declaration, and nothing here tests whether contributions change behaviour. `influence_model`
+is not validated: both current attempts fail.
