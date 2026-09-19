@@ -1,7 +1,7 @@
 # fred_county_laus_monthly_vintages
 
 Monthly LAUS county series with **every ALFRED real-time vintage**: two families, 6,282 series,
-3,140 county-equivalents each, 216-264 vintages per series from 2005-06-08 and 2007-06. The deep half of
+3,140 county-equivalents each, a median of 233 vintages per series reaching back to 2005-06-08. The deep half of
 the county LAUS archive, and the sibling of
 [`fred_county_vintages`](../fred_county_vintages/README.md), which holds the annual averages.
 
@@ -56,10 +56,10 @@ Missing values (`.` in FRED) are kept as `value: null` with `missing_reason: not
 The records also carry a `county` entity per code (`within` its state, `within` `geo:US`) and an
 `economic_series` entity per series (`describes_location` its county).
 
-| family | FRED id form | metric | unit | series | first vintage | vintages (sampled) |
+| family | FRED id form | metric | unit | series | first vintage | vintages/series (measured) |
 | --- | --- | --- | --- | ---: | --- | --- |
-| `laus_monthly_unemployment_rate` | `TXHARR1URN` | `unemployment_rate` | percent | 3,141 | 2005-06-08 | 216-264 |
-| `laus_monthly_labor_force` | `AKALEU0LFN` | `labor_force` | persons | 3,141 | 2005-06-08 | 216-264 |
+| `laus_monthly_unemployment_rate` | `TXHARR1URN` | `unemployment_rate` | percent | 3,141 | 2005-06-08 | 42-233-264 |
+| `laus_monthly_labor_force` | `AKALEU0LFN` | `labor_force` | persons | 3,141 | 2005-06-08 | 43-233-264 |
 
 Metric names match `fred_county_vintages`, `bls_labor` and `bea_national_regional`, so a consumer can
 swap a revised feature for its real-time counterpart without renaming. There is **no monthly county
@@ -132,7 +132,77 @@ only in the annual structured rate — so coverage is the 50 states and DC.
 
 ## Measured coverage
 
-_Filled by `measure_coverage.py` after acquisition; see below._
+Published stage `4b58e747`, raw artifact `6b5c8ae3`: **6,282 shards, 1,541,203,717 bytes downloaded
+(1.44 GiB on disk against a declared 2 GiB ceiling), 16,157,146 records (16,138,199 observations,
+1,459,534 of them first releases), 365,322,814 bytes gzip**. FRED refused **no** series: every
+configured alias is in ALFRED. Everything below is counted from the published records by
+`measure_coverage.py` (`coverage.json`), not from metadata.
+
+| family | series | county-equivalents | states+DC | vintages/series (min-median-max) | first vintage | latest vintage | refused |
+| --- | ---: | ---: | ---: | --- | --- | --- | ---: |
+| laus_monthly_unemployment_rate | 3,141 | 3,140 | 51 | 42-233-264 | 2005-06-08 | 2026-09-02 | 0 |
+| laus_monthly_labor_force | 3,141 | 3,140 | 51 | 43-233-264 | 2005-06-08 | 2026-09-02 | 0 |
+
+The median county has **233 vintages of every month it has ever been published for**; the annual LAUS
+families in `fred_county_vintages` have 10 to 12. A series with 42-43 vintages is one FRED created
+recently (Chugach and Copper River, the Connecticut planning regions have no alias at all).
+
+### County-equivalents with a first release, by reference month
+
+A month counts a county-equivalent when its value for that month was published for the first time in
+a vintage **after** the series' archive opened. Zeros are not gaps in the data: those months are
+present, but only as the opening snapshot of already-revised history, and a real-time panel must not
+read them as releases.
+
+The archive opens in three steps, and the middle one is the finding:
+
+| reference months | rate | labor force | published on | what it is |
+| --- | ---: | ---: | --- | --- |
+| 1976-01 .. 1989-12 | 1 | 0 | **2016-03-18** | `DCDIST5URN` (District of Columbia). Not early real-time data: FRED *extended* that one series back to 1976 in 2016, so these are first releases of forty-year-old months. Excluded from any panel that wants a contemporaneous release |
+| 2005-04 .. 2006-06 | 339 | 339 | from **2005-07-06** | the **Federal Reserve Eighth District**: every county of AR (75), IL (44), IN (24), KY (64), MS (39), MO (72) and TN (21), all under FRED's short aliases (`ARARURN`, `KYADLFN`). FRED is the St. Louis Fed and archived its own district two years before the rest |
+| 2006-07 .. 2007-04 | 346 | 346 | from 2006-09-07 | seven more join |
+| **2007-05** | **3,137** | **3,138** | **2007-07-05** | the national cross-section arrives |
+| 2007-06 .. 2008-02 | 3,138 | 3,138 | 2007-08-08 on | |
+| 2008-03 onwards | 3,140 | 3,140 | 2008-05-07 on | every county-equivalent in the dataset |
+
+The archive's opening snapshot reaches back to **1990-01** in both families; those months are in the
+records with `realtime_start_clipped = true` and are never marked as releases. A reference month is
+published on the **fifth to eighth day of the second following month** (2007-05 on 2007-07-05,
+2008-03 on 2008-05-07), which is the real publication lag a panel should use rather than a declared
+one.
+
+and then holds, losing only counties FRED discontinues:
+
+| reference year | months with a first release | rate: counties (median month) | labor force: counties (median month) |
+| --- | ---: | ---: | ---: |
+| 2005 | 9 of 12 | 339 | 339 |
+| 2006 | 12 | 342 | 342 |
+| 2007 | 12 | 3,138 | 3,138 |
+| 2008 | 12 | 3,140 | 3,140 |
+| 2009 | 12 | 3,140 | 3,140 |
+| 2010 | 12 | 3,139 | 3,139 |
+| 2011-2014 | 12 | 3,137 | 3,137 |
+| 2015 | 12 | 3,136 | 3,136 |
+| 2016-2021 | 12 | 3,134 | 3,134 |
+| 2022-2024 | 12 | 3,133 | 3,133 |
+| 2025 | 11 of 11 | 3,125 | 3,125 |
+| 2026 | 7 of 7 | 3,125 | 3,125 |
+
+Per-month numbers for all 423 months with a first release, and counties-with-any-value beside them,
+are in `coverage.json`.
+
+### What this unblocks
+
+* **A real-time monthly county panel can take its first origin on 2005-07-06** — the day the first
+  releases for reference months 2005-04 and 2005-05 were published — for the 339 Eighth District
+  counties, and **on 2007-07-05** for the whole country (3,131 of 3,140 that day, 3,140 by
+  2008-05-07).
+* **A monthly county outcome can be scored from reference month 2005-04** for those 339 counties and
+  from **2007-05** for 3,137 of 3,140. Against `county_realtime_panel`'s LAUS, which starts at
+  reference *year* 2019, that is **twelve more years and 148 more monthly observations per county**
+  before the first year the annual panel can score.
+* It does **not** reach QCEW employment, which FRED does not carry at county level in any form, or
+  monthly employed/unemployed persons, which exist only in the structured ids from 2019-08-28.
 
 ## Building a monthly first-release panel
 

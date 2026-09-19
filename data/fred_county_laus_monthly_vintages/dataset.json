@@ -2,7 +2,8 @@
  "id": "fred_county_laus_monthly_vintages",
  "schema_version": 2,
  "kind": "source",
- "description": "Monthly LAUS county series with every ALFRED real-time vintage: the unemployment rate (FRED alias ...URN) and the civilian labor force (...LFN), 229-264 vintages per series from 2005-06-08 and 2007-06. The county counterpart of fred_county_vintages' annual LAUS averages, whose archive only opens in 2017/2019; the monthly aliases are the only county LAUS source reaching back before 2017. Subjects are geo:US:county:<SSCCC>. Each row carries the vintage it was published in, the units published in that vintage, and whether it is a first release.",
+ "status": "full_acquired",
+ "description": "Monthly LAUS county series with every ALFRED real-time vintage: the unemployment rate (FRED alias ...URN) and the civilian labor force (...LFN), 6,282 series over 3,140 county-equivalents, a median of 233 vintages each reaching back to 2005-06-08. The county counterpart of fred_county_vintages' annual LAUS averages, whose archive only opens in 2017/2019; the monthly aliases are the only county LAUS source reaching back before 2017, and they carry a national first-release cross-section from reference month 2007-05 (339 Federal Reserve Eighth District counties from 2005-04). Subjects are geo:US:county:<SSCCC>. Each row carries the vintage it was published in, the units published in that vintage (county labor force was re-expressed from thousands to persons on 2016-03-18), and whether it is a first release.",
  "source": {
   "publisher": "Federal Reserve Bank of St. Louis (FRED/ALFRED)",
   "originating_source": "U.S. Bureau of Labor Statistics, Local Area Unemployment Statistics (county, monthly, not seasonally adjusted)",
