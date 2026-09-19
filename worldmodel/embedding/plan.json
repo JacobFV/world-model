@@ -8,7 +8,8 @@
     "Every forecaster, including the baselines, sees only values whose declared available_at is on or before the origin; the leakage audit counts violations from the arrays themselves.",
     "The gradient-boosted baseline is fed the same subgraph the encoder sees (seed history and differences, neighbour means, state and nation) and the same training and calibration rows.",
     "Acceptance criteria are those of the component defaults with parameter_bounds replaced by beats_drift_dm and beats_gbdt_dm: the encoder has no structurally interpretable parameters to bound, so the replacement is two strictly harder skill tests, not a weakening.",
-    "Compute budget per attempt: 60 minutes wall clock on the shared GB10 (declared here, before running, because every origin refits a neural model and a gradient-boosted model per target). An attempt that exceeds it is recorded as not_run with reason compute_budget."
+    "Compute budget per attempt: 60 minutes wall clock on the shared GB10 (declared here, before running, because every origin refits a neural model and a gradient-boosted model per target). An attempt that exceeds it is recorded as not_run with reason compute_budget.",
+    "One attempt at a time per GPU: a fit sharing its GPU with another attempt runs up to twice as slowly, which decides the compute budget rather than the model. Added 2026-09-18 after places v2 was stopped for that reason."
   ],
   "attempts": [
     {
@@ -392,6 +393,126 @@
       },
       "registration_note": "Identical to places.county_root_readout_v1 in every scored respect (panel version, targets, splits, candidates, baselines, hyperparameters, criteria); v1 exceeded its compute budget on the shared machine before any validation score existed and is recorded under not_run. The only change is the host.",
       "host": "gb10-direct (dedicated second GB10, no other jobs); results published from the home checkout at the same commit"
+    },
+    {
+      "id": "places.county_root_readout_v3",
+      "north_star": "Places: beats persistence and a gradient-boosted model on the same inputs for next-year employment, population and establishments across US counties.",
+      "targets": [
+        "qcew:employment",
+        "qcew:establishment_count",
+        "bea:population"
+      ],
+      "protocol": {
+        "history": 10,
+        "first_origin": 1992,
+        "standardize_through": 2012,
+        "validation_origins": [
+          2014,
+          2017
+        ],
+        "test_origins": [
+          2018,
+          2023
+        ],
+        "cutoff": "2025-12-31"
+      },
+      "candidates": {
+        "root_readout": {
+          "seed_only": false
+        },
+        "seed_only": {
+          "seed_only": true
+        }
+      },
+      "gbdt_subgraph_from": "root_readout",
+      "baselines": [
+        "persistence",
+        "drift",
+        "gbdt"
+      ],
+      "config": {
+        "d": 128,
+        "layers": 3,
+        "slots": 16,
+        "passes": 12,
+        "top_k": 16,
+        "out_dim": 1024,
+        "max_nodes": 64,
+        "epochs": 4,
+        "batch": 256,
+        "lr": 0.001,
+        "weight_decay": 0.0001,
+        "dense_fraction": 0.3,
+        "gumbel": 0.5,
+        "mask_rate": 0.15,
+        "recon_weight": 0.3,
+        "calibration_years": 2,
+        "seed": 0
+      },
+      "gbdt": {
+        "n_estimators": 600,
+        "learning_rate": 0.03,
+        "num_leaves": 63,
+        "min_child_samples": 50,
+        "subsample": 0.8,
+        "subsample_freq": 1,
+        "colsample_bytree": 0.5,
+        "n_jobs": 8,
+        "random_state": 0,
+        "verbose": -1
+      },
+      "criteria": [
+        {
+          "id": "minimum_test_forecasts",
+          "type": "min_forecasts",
+          "minimum": 12
+        },
+        {
+          "id": "beats_persistence_dm",
+          "type": "diebold_mariano",
+          "baseline": "persistence",
+          "loss": "squared",
+          "max_pvalue": 0.1,
+          "require_lower_loss": true
+        },
+        {
+          "id": "beats_drift_dm",
+          "type": "diebold_mariano",
+          "baseline": "drift",
+          "loss": "squared",
+          "max_pvalue": 0.1,
+          "require_lower_loss": true
+        },
+        {
+          "id": "beats_gbdt_dm",
+          "type": "diebold_mariano",
+          "baseline": "gbdt",
+          "loss": "squared",
+          "max_pvalue": 0.1,
+          "require_lower_loss": true
+        },
+        {
+          "id": "interval_coverage",
+          "type": "interval_coverage",
+          "tolerance": 0.15
+        },
+        {
+          "id": "no_timing_leakage",
+          "type": "leakage_audit"
+        },
+        {
+          "id": "no_revision_leakage",
+          "type": "revision_leakage"
+        }
+      ],
+      "rationale": "First assay of the root-readout encoder (typed feature-history tokens, relation-gated message passing, 16 slot queries x 12 top-k sparse passes from the seed, Student-t head, masked-token reconstruction) on the one domain where identity is already clean. The seed-only candidate is the same encoder without the graph, so the selection says whether the subgraph helps on validation before the test is touched.",
+      "expected_limits": "no_revision_leakage is expected to FAIL for every target: the panel is the current vintage and QCEW (minor), LAUS and BEA (major) revise; real-time county vintages are not in the catalog, so this attempt cannot validate the process whatever its skill. The test window contains 2020, a common shock that pooled Diebold-Mariano tests treat as thousands of independent draws; test.year_clustered_dm reports the conservative per-year test beside the criterion. Labels are two annual steps ahead of the anchor for QCEW and BEA (the value for t is not public at t-12-31), so persistence is a strong baseline. Migration edges exist only for origins from 2020 and CBSA edges only from 2018, so the graph is geography, state and nation for most training origins.",
+      "panel": {
+        "dataset": "county_panel",
+        "version": "1d6071311f9bfa69bf0352eb815d621bbdcf375c25968b0fd8a781c259641973"
+      },
+      "registration_note": "Identical to places.county_root_readout_v1 and v2 in every scored respect; both were stopped for compute budget before any validation score existed (see not_run). Only scheduling changes.",
+      "host": "gb10-direct, alone on its GPU (started only after every other attempt on that host has exited)"
     }
   ],
   "not_run": [
@@ -399,6 +520,12 @@
       "id": "places.county_root_readout_v1",
       "reason": "compute_budget",
       "detail": "Stopped at 29 minutes of wall clock on the shared home GB10 after three of four validation origins (fits of 219-250 s for the full encoder and 42-194 s for the seed-only one, slowed by other jobs on the machine), a pace that projected about 64 minutes against the declared 60. No validation score, selection or test forecast had been computed or printed when it was stopped, and nothing was published.",
+      "recorded_at": "2026-09-18"
+    },
+    {
+      "id": "places.county_root_readout_v2",
+      "reason": "compute_budget",
+      "detail": "Stopped after one validation origin (full encoder 411 s, seed-only 55 s) because it shared the GPU of gb10-direct with actors.13f_exit_increase_v1, a pace that projected about 64 minutes against 60. No validation score, selection or test forecast had been computed when it was stopped.",
       "recorded_at": "2026-09-18"
     }
   ]
