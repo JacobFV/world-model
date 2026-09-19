@@ -361,7 +361,7 @@ def _events(connection, products, county, limit):
                  'latest': [shape(r) for r in storms[-limit:][::-1]],
                  'costliest': [shape(r) for r in sorted(storms, key=lambda r: -(r['damage_property'] or 0))[:limit]
                                if (r['damage_property'] or 0) > 0],
-                 'located': [shape(r) for r in storms if r['latitude'] is not None and r['longitude'] is not None][-300:]}
+                 'located': [shape(r) for r in storms if r['latitude'] is not None and r['longitude'] is not None][-150:]}
     declarations = [dict(r) for r in products.execute(
         "SELECT * FROM place_events WHERE geoid=? AND dataset='openfema' ORDER BY occurred_at", (county,))]
     by_incident = {}
