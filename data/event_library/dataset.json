@@ -1,0 +1,45 @@
+{
+  "id": "event_library",
+  "schema_version": 2,
+  "kind": "derived",
+  "status": "derived_computation",
+  "description": "Typed, dated shocks (FEMA declarations, sanctions designations with published dates, damaging storm events, M5+ earthquakes, tropical cyclones and their US county exposures, MFN tariff changes) with the affected unit, published intensity and a locator to the source record. Input to worldmodel.causal natural-experiment designs.",
+  "dependencies": [
+    "openfema",
+    "ofac_sanctions",
+    "other_sanctions_lists",
+    "noaa_storm_events",
+    "usgs_earthquakes",
+    "ibtracs",
+    "census_geography",
+    "wits_trains_tariffs"
+  ],
+  "entrypoint": "pipeline.py:run",
+  "parameters": {
+    "library_version": "1",
+    "storm_min_damage_usd": 1000000,
+    "earthquake_min_magnitude": 5.0,
+    "cyclone_basins": ["NA", "EP"],
+    "cyclone_radius_km": 100,
+    "cyclone_min_wind_kt": 34,
+    "tariff_min_change_pp": 0.5
+  },
+  "stages": [
+    {
+      "id": "events",
+      "entrypoint": "pipeline.py:run",
+      "depends_on": [],
+      "schema": {
+        "format": "evidence_jsonl",
+        "compression": "gzip"
+      },
+      "validation": {
+        "allow_empty": false,
+        "max_rows": 1000000
+      },
+      "cache": "content",
+      "retention": "retain"
+    }
+  ],
+  "output_stage": "events"
+}

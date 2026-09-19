@@ -1,0 +1,57 @@
+{
+  "schema": "worldmodel.causal_registration/1",
+  "study_id": "exposure_cyclones_county_employment",
+  "registered_at": "2026-09-18",
+  "question": "Given a North Atlantic tropical cyclone's track, does a ranking of US counties built only from pre-event information (modelled wind hazard plus migration-graph proximity to hazard) order the counties by their measured post-event employment loss better than ranking by distance to the track?",
+  "identification_strategy": "held_out_event_ranking_test",
+  "treatment": {
+    "source": "event_library: library_type tropical_cyclone, basin NA; tracks from the pinned ibtracs version (main track, USA agency wind where reported else WMO)",
+    "events": "storms whose first fix is in 2004-2024 and that have at least 20 candidate counties with outcome data",
+    "candidate_counties": "counties (50 states + DC) whose census_geography internal point is within 300 km of a fix with sustained wind >= 34 kt",
+    "event_month": "calendar month of the storm's first fix with wind >= 34 kt within 300 km of any candidate county",
+    "split": {"development": [2004, 2018], "held_out": [2019, 2024]},
+    "estimated_cohorts": null
+  },
+  "units": {"definition": "candidate counties of each storm"},
+  "windows": {"pre_months": [-2, -1], "post_months": [1, 2], "seasonal_difference": "the same window one year earlier is subtracted", "e_min": null, "e_max": null},
+  "controls": {"control_group": "not applicable: rankings are scored within each event"},
+  "outcomes": {
+    "primary": {"id": "laus_employment_loss", "label": "seasonally differenced LAUS employment loss: -[(mean ln E(m+1..m+2) - mean ln E(m-2..m-1)) - (same one year earlier)]", "unit": "log points", "source": "bls_labor LAUS county monthly employment (NSA)"},
+    "secondary": []
+  },
+  "estimator": {
+    "primary": "rankings",
+    "estimand": "mean over held-out events of the per-event Spearman correlation between a ranking and the outcome",
+    "rankings": {
+      "naive": "minus the distance (km) from the county internal point to the nearest fix with wind >= 34 kt",
+      "hazard": "H_i = max over fixes with wind >= 34 kt of modelled wind V * min(1, (40 km / d)^0.5)",
+      "graph": "G_i = sum_j w_ij H_j / sum_j w_ij over counties j != i, w_ij = IRS county-to-county migrants i->j plus j->i in 2017-2018 (H_j = 0 outside the candidate set)",
+      "exposure": "score_i = rank(H_i)/n + lambda * rank(G_i)/n, lambda chosen from {0, 0.25, 0.5, 1.0} by the highest mean Spearman on development events (ties to the smaller lambda)"
+    },
+    "anticipation": 0,
+    "robustness": []
+  },
+  "inference": {"test": "one-sided paired sign-flip permutation test across held-out events of mean Spearman(exposure) - mean Spearman(naive) > 0", "replications": 9999, "seed": 20260918, "alpha": 0.05, "top_k": "top 10% of candidate counties; top-k capture difference reported with the same test"},
+  "placebo_tests": {"none": "a ranking test has no placebo date; the naive ranking is the benchmark"},
+  "acceptance_criteria": [
+    {"id": "enough_held_out_events", "type": "min_events", "value": 10},
+    {"id": "exposure_beats_naive", "type": "permutation_p_max", "value": 0.05, "metric": "held_out_spearman_p"},
+    {"id": "exposure_positive", "type": "metric_min", "value": 0.0, "metric": "held_out_exposure_mean_spearman"}
+  ],
+  "assumptions": [
+    "The realised track is the shock; using it is not look-ahead because the question is 'given this shock, who is reached'.",
+    "Migration flows from 2017-2018 precede every held-out event; development events before 2017 use a graph measured after them, which can only affect the choice of lambda, not the held-out score.",
+    "LAUS county employment is partly model-based and not seasonally adjusted; the year-earlier difference removes the seasonal pattern but not other shocks in the same months.",
+    "A predictive ranking is not an intervention response: the result is labelled predictive_association whichever way it comes out."
+  ],
+  "data": {
+    "inputs": [
+      {"dataset": "event_library", "stage": "events", "version": "dbf0c37f15cb15933ddf2452ae00cf196981aef02045a2b642d1582643b2819a"},
+      {"dataset": "ibtracs", "stage": "normalized", "version": "dc62a3133aa1fb008f11b5f18af95b1767ffb5106d1a56859be03aa3b0c1c0c5"},
+      {"dataset": "census_geography", "stage": "normalized", "version": "d58c9aa2a11e9246046131a078bffd26a738d4e9174e2159b2fd5c79d046aa8f"},
+      {"dataset": "irs_soi_migration", "stage": "normalized", "version": "2f03942b9dcb298b2ac3a0c3f432c0b11214a807af1a686f9a53117a621da07c"},
+      {"dataset": "bls_labor", "stage": "normalized", "version": "ffd7f43a2761e2f4bc85cd9765ba9bce61cf089cd26b8b5d12e428337546e267"}
+    ]
+  },
+  "outcome_data_examined_before_registration": "None. LAUS county employment was sampled only to learn the record format (two January-February 1990 unemployment-rate rows for one Alabama county). IRS migration rows were counted by year and two rows read for format."
+}

@@ -169,10 +169,33 @@ the decision itself.
 
 ### 4. Causal identification
 
-Estimates are reduced-form and labelled as such (`correlational`,
-`predictive_association`, `descriptive_time_series`). Instrumental-variable fits carry
-their untested exclusion assumption in the record. No component identifies an
-intervention response, and holdout skill does not establish one.
+Estimates elsewhere are reduced-form and labelled as such (`correlational`,
+`predictive_association`, `descriptive_time_series`). Instrumental-variable fits carry their
+untested exclusion assumption in the record, and holdout skill does not establish an
+intervention response.
+
+`worldmodel.causal` (2026-09-18, [natural experiments](natural-experiments.md)) adds the means
+to identify one: a versioned `event_library` of 255,012 dated shocks with explicit date semantics
+and ex-ante/ex-post intensity; stdlib Callaway-Sant'Anna and stacked difference-in-differences
+with clustered and wild-bootstrap inference, pre-trend, placebo-date and placebo-unit tests; and
+a runner that refuses any design not committed before it runs. The label
+`quasi_experimental_did` is computed from pre-registered acceptance criteria, never chosen.
+
+**What is identified: nothing yet.** Four registered designs were run and none passed:
+
+* FEMA first major disasters -> county QCEW employment: `did_failed_diagnostics` (pre-trend Wald
+  p = 0.032, placebo-date p = 0.013; ATT +0.009, 95% CI -0.009 to +0.028).
+* MFN tariff increases -> BACI imports: `did_failed_diagnostics`. Imports of treated products fall
+  by 0.087 log points after the increase (CI -0.131 to -0.044), but they were already falling before it
+  (placebo-date p = 0.046), so the tariff is not separated from what prompted it.
+* OFAC designations -> 13F holdings: `not_estimable`; 7 of 19,776 designated parties carry a
+  13F-reportable identifier.
+* Cyclone exposure ranking (hazard plus migration-graph proximity) against distance to the track,
+  on 42 held-out storms: fails (mean Spearman with county employment loss -0.019 vs -0.036,
+  p = 0.19); the graph term was given zero weight by the development storms.
+
+No simulator parameter is bound to an identified effect, and no exposure ranking is validated.
+Any intervention claim made with this repository is still an assumption.
 
 ### 5. Coverage that is known rather than assumed
 

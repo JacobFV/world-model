@@ -1,0 +1,48 @@
+{
+  "schema": "worldmodel.causal_registration/1",
+  "study_id": "sanctions_designations_institutional_holdings",
+  "registered_at": "2026-09-18",
+  "question": "When OFAC designates an issuer (SDN or the Non-SDN Chinese Military-Industrial Complex list), how does US institutional ownership of its US-traded securities change, relative to securities of issuers designated later?",
+  "identification_strategy": "staggered_difference_in_differences",
+  "treatment": {
+    "source": "event_library: library_type sanctions_designation from ofac_sanctions; identifiers from ofac_sanctions identifier assertions",
+    "definition": "cohort g = calendar quarter of the party's earliest published OFAC entry event date",
+    "security_mapping": "a designated party enters the study only through an identifier that names a 13F-reportable security: an ISIN whose national number is a CUSIP or CINS (ISIN prefix US, CA, KY, BM, VG, PR, JE, GG, IM, LR, MH, PA, BS) or an OFAC 'Equity Ticker' ending ' US'",
+    "feasibility_gate": "the design is run only if at least 30 designated parties have such an identifier; otherwise the study is recorded as not estimable and no outcome is read"
+  },
+  "units": {"definition": "securities (CUSIP) of designated issuers", "strata": "none", "notes": "no never-treated comparison securities are defined; comparisons are to not-yet-designated securities"},
+  "windows": {"e_min": -4, "e_max": 4, "post": [0, 1, 2, 3, 4], "calendar_quarters": ["2013Q2", "2025Q2"], "reference_event_time": -1},
+  "controls": {"control_group": "not_yet_treated", "definition": "securities of issuers designated after max(t, g-1)"},
+  "outcomes": {
+    "primary": {"id": "log1p_13f_holders", "label": "log(1 + number of 13F managers reporting the CUSIP at quarter end)", "unit": "log points", "source": "sec_13f_history reported_holding assertions"},
+    "secondary": []
+  },
+  "estimator": {"primary": "callaway_santanna_unconditional", "estimand": "ATT over event quarters 0..4", "anticipation": 0, "balance": null, "robustness": ["stacked_did"]},
+  "inference": {"cluster": "issuer", "bootstrap": 999, "seed": 20260918, "alpha": 0.05},
+  "placebo_tests": {"placebo_date": {"shift": 3}},
+  "acceptance_criteria": [
+    {"id": "feasibility_designated_securities", "type": "min_events", "value": 30},
+    {"id": "enough_treated_securities", "type": "min_treated_units", "value": 30},
+    {"id": "no_pre_trends", "type": "pre_trend_wald_p_min", "value": 0.05},
+    {"id": "placebo_date_null", "type": "placebo_date_p_min", "value": 0.05}
+  ],
+  "assumptions": [
+    "Designation timing among designated issuers is unrelated to their institutional-ownership trends.",
+    "OFAC entry event dates are the designation dates (the source says 'earliest listing/creation event'); later amendments do not move them.",
+    "Current-list survivorship: issuers delisted from OFAC lists before retrieval are absent."
+  ],
+  "alternatives_considered": [
+    {"design": "vessel designations -> AIS activity", "rejected_because": "marine_ais holds three months of 2025 US coastal tracks only; there is no pre/post panel around any designation date"},
+    {"design": "entity designations -> firm outcomes via SEC filings", "rejected_because": "the unified-graph audit found zero SEC registrants among designated parties and within two ownership hops of them (docs/unified-graph.md)"},
+    {"design": "country designation waves -> bilateral trade (BACI)", "rejected_because": "country-level designation waves (Russia 2022, Iran, Venezuela) coincide with the geopolitical events that motivate them; there is no comparison group whose trade would have followed the same path, and the dated treatment is a program, not a unit-level first treatment"},
+    {"design": "OpenSanctions listings", "rejected_because": "OpenSanctions publishes crawler first-seen times, not designation dates"}
+  ],
+  "data": {
+    "inputs": [
+      {"dataset": "event_library", "stage": "events", "version": "dbf0c37f15cb15933ddf2452ae00cf196981aef02045a2b642d1582643b2819a"},
+      {"dataset": "ofac_sanctions", "stage": "normalized", "version": "5680c4449455ad96dc270f4f4d9c21778c820617c2e3f30f677406ad9542dc0d"},
+      {"dataset": "sec_13f_history", "stage": "normalized", "version": "94be7bc75fe7bd35c8b212eb9bc64e31832c8616a5061b6c0471037986d32cdc"}
+    ]
+  },
+  "outcome_data_examined_before_registration": "None. Design-stage checks tabulated OFAC ISIN and Equity Ticker identifiers by prefix, list and designation year, and read two 13F records to learn the record format. No 13F holding of any designated security was looked up."
+}

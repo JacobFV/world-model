@@ -1,0 +1,70 @@
+{
+  "schema": "worldmodel.causal_registration/1",
+  "study_id": "fema_disasters_county_employment",
+  "registered_at": "2026-09-18",
+  "question": "When a US county enters its first physical-hazard FEMA major disaster (DR) after at least five disaster-free years, how do its covered employment and establishment counts change over the following five years, relative to same-state counties not yet hit?",
+  "identification_strategy": "staggered_difference_in_differences",
+  "treatment": {
+    "source": "event_library: library_type fema_major_disaster_declaration",
+    "qualifying_incident_types": ["Hurricane", "Severe Storm", "Severe Storm(s)", "Flood", "Tornado", "Fire", "Snowstorm", "Severe Ice Storm", "Winter Storm", "Earthquake", "Tropical Storm", "Coastal Storm", "Typhoon", "Straight-Line Winds", "Mud/Landslide", "Dam/Levee Break", "Tsunami", "Volcanic Eruption", "Freezing"],
+    "excluded_incident_types": "Biological (COVID-19 declared every county in 2020), Drought (slow onset, no shock date), Terrorist, Chemical, Toxic Substances, Human Cause, Fishing Losses, Other",
+    "timing": "cohort g = calendar year of incident_begin_date of the county's first qualifying DR with incident_begin_date in 1995-2024; the declaration date is not used because the physical shock precedes it",
+    "baseline_quiet_period": "counties with any qualifying DR incident beginning 1990-1994 are excluded from the study",
+    "estimated_cohorts": [1995, 2019],
+    "later_cohorts": "counties first treated 2020-2024 are not-yet-treated controls until treated",
+    "never_treated": "no qualifying DR incident beginning 1990-2024",
+    "absorbing": "later declarations in a treated county are part of its post-period treatment path"
+  },
+  "units": {
+    "definition": "US counties and county equivalents in the 50 states and DC (state FIPS <= 56), identified by 5-digit FIPS as published by QCEW",
+    "strata": "state (2-digit FIPS): every comparison is within state",
+    "notes": "County definitional changes are not bridged; a county contributes to a group-time cell only when it has the outcome at both t and the base period"
+  },
+  "windows": {"e_min": -5, "e_max": 5, "post": [0, 1, 2, 3, 4, 5], "calendar_years": [1990, 2024], "reference_event_time": -1},
+  "controls": {
+    "control_group": "not_yet_treated",
+    "definition": "same-state counties never treated or first treated after max(t, g-1); never the cohort itself"
+  },
+  "outcomes": {
+    "primary": {"id": "qcew_log_employment", "label": "log QCEW annual-average covered employment (county, total covered, all ownerships)", "unit": "log points", "source": "bls_labor QCEW agglvl_code 70 metric employment"},
+    "secondary": [
+      {"id": "qcew_log_establishments", "label": "log QCEW annual-average establishment count", "unit": "log points", "source": "bls_labor QCEW agglvl_code 70 metric establishment_count"},
+      {"id": "cbp_log_establishments", "label": "log CBP establishments (2019-2023 only; exploratory, underpowered)", "unit": "log points", "source": "census_business CBP county establishment_count, all industries", "windows": {"e_min": -2, "e_max": 1, "post": [0, 1]}, "placebo_date_shift": 2}
+    ],
+    "transform": "natural log of positive values; suppressed or missing values dropped"
+  },
+  "estimator": {
+    "primary": "callaway_santanna_unconditional_within_state",
+    "estimand": "ATT: equal-weight mean over event times 0..5 of treated-count-weighted ATT(g, g+e)",
+    "anticipation": 0,
+    "balance": null,
+    "robustness": ["stacked_did", "twfe_static", "never_treated_controls"]
+  },
+  "inference": {"cluster": "state", "bootstrap": 999, "bootstrap_weights": "rademacher multiplier on state influence functions", "seed": 20260918, "alpha": 0.05},
+  "placebo_tests": {
+    "placebo_date": {"shift": 3, "definition": "treated counties keep only years before g; placebo cohort g-3; placebo effect averaged over placebo event times 0..2"},
+    "placebo_unit": {"replications": 100, "seed": 7, "min_never_treated": 20, "definition": "real treated counties removed; never-treated counties get cohorts drawn from their state's real cohorts at the state's real treated share"}
+  },
+  "acceptance_criteria": [
+    {"id": "enough_treated_counties", "type": "min_treated_units", "value": 200},
+    {"id": "enough_state_clusters", "type": "min_clusters", "value": 30},
+    {"id": "no_pre_trends", "type": "pre_trend_wald_p_min", "value": 0.05},
+    {"id": "placebo_date_null", "type": "placebo_date_p_min", "value": 0.05},
+    {"id": "placebo_unit_size", "type": "placebo_unit_rejection_rate_max", "value": 0.10},
+    {"id": "stacked_agrees", "type": "robustness_ci_overlap", "against": "stacked_ci"}
+  ],
+  "assumptions": [
+    "Within a state, the timing of a county's first qualifying disaster after a quiet period is as good as random with respect to its employment trend (weather and geology, not local economic conditions, determine which quiet county is hit first).",
+    "Declaration itself is part of the treatment: the estimand is the combined effect of the physical disaster and the federal assistance a DR declaration unlocks; the two are not separated.",
+    "Spillovers to same-state comparison counties (displaced workers, reconstruction demand) are small relative to the direct effect.",
+    "Selection into the sample (no qualifying DR in 1990-1994) does not interact with treatment effects in a way that changes their sign."
+  ],
+  "data": {
+    "inputs": [
+      {"dataset": "event_library", "stage": "events", "version": "dbf0c37f15cb15933ddf2452ae00cf196981aef02045a2b642d1582643b2819a"},
+      {"dataset": "bls_labor", "stage": "normalized", "version": "ffd7f43a2761e2f4bc85cd9765ba9bce61cf089cd26b8b5d12e428337546e267"},
+      {"dataset": "census_business", "stage": "normalized", "version": "5b0995c7a7c38f378632da57c73a053041aba721e381fc240506edfecbc21860"}
+    ]
+  },
+  "outcome_data_examined_before_registration": "None. Design-stage checks used only the treatment data (event library counts by type and year, FEMA declaration counts by incident type and decade) and the list of years CBP publishes (2019-2023, counted by row, values not read). No QCEW or CBP outcome value was read before this registration was committed."
+}
