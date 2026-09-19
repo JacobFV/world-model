@@ -36,7 +36,11 @@ def add_commands(sub):
     requirements.add_argument('process', nargs='?')
     requirements.add_argument('--full', action='store_true', help='Print the complete requirements.json document')
     status = sub.add_parser('calibration-status', help='Verify validation reports and show resulting process validation state')
-    status.add_argument('reports', nargs='+', help='validation report DATASET[@version]')
+    status.add_argument('reports', nargs='*', help='validation report DATASET[@version]')
+    status.add_argument('--all', action='store_true',
+                        help='Re-verify every published validation report and derive the headline counts, joined to the plan')
+    status.add_argument('--plan', type=Path, help='Alternative pre-registered plan file (with --all)')
+    status.add_argument('--dataset', default=REPORT_DATASET, help='Report dataset (with --all)')
     load = sub.add_parser('estimation-load', help='Build estimator inputs from published catalog datasets and summarize them')
     load.add_argument('target', nargs='?', help='Component id or model family id; omitted lists catalog availability')
     load.add_argument('--option', action='append', default=[], help='KEY=JSON loader option (e.g. issuer="sec:cik:0000320193")')
@@ -286,7 +290,15 @@ def execute(args, catalog, store, project, reference):
         return _calibrate_all(args, store)
     if args.command == 'estimation-requirements':
         return load_requirements() if args.full else requirements_summary(args.process)
+    if args.command == 'calibration-status' and args.all:
+        from .estimation.status import plan_status
+        summary = plan_status(store, load_plan(args.plan), dataset=args.dataset)
+        for row in summary['attempts']:
+            row.pop('record', None)
+        return summary
     if args.command == 'calibration-status':
+        if not args.reports:
+            raise ValueError('calibration-status needs report references, or --all')
         registry = default_registry()
         records = load_calibrations(store, registry, [reference(value, store) for value in args.reports])
         processes = {}
