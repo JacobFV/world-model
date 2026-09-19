@@ -1,0 +1,1261 @@
+{
+ "normalized_version": "8468fab93546d4d645ecf4f4c2681ecddc21391e03df684c7fc273f0867f524e",
+ "raw_artifact": "2bbca4740b19df0e9f91155ba9e3d33e7cacbf1e66be0d2f0bc1fcdb5e01ff38",
+ "families": {
+  "population": {
+   "metric": "population",
+   "configured_series": 3139,
+   "series_with_rows": 3139,
+   "refused_not_in_alfred": [],
+   "county_equivalents": 3139,
+   "states_plus_dc": 51,
+   "puerto_rico_municipios": 0,
+   "observation_rows": 521986,
+   "first_release_rows": 57410,
+   "vintages_per_series": {
+    "min": 8,
+    "median": 22,
+    "max": 25
+   },
+   "first_vintage": {
+    "earliest": "2004-04-09",
+    "latest": "2008-03-20"
+   },
+   "latest_vintage": "2026-03-26",
+   "first_release_by_year": {
+    "2000": {
+     "first_release_counties": 0,
+     "counties_with_any_value": 3139
+    },
+    "2001": {
+     "first_release_counties": 0,
+     "counties_with_any_value": 3139
+    },
+    "2002": {
+     "first_release_counties": 0,
+     "counties_with_any_value": 3139
+    },
+    "2003": {
+     "first_release_counties": 0,
+     "counties_with_any_value": 3139
+    },
+    "2004": {
+     "first_release_counties": 330,
+     "counties_with_any_value": 3139
+    },
+    "2005": {
+     "first_release_counties": 330,
+     "counties_with_any_value": 3139
+    },
+    "2006": {
+     "first_release_counties": 330,
+     "counties_with_any_value": 3139
+    },
+    "2007": {
+     "first_release_counties": 3116,
+     "counties_with_any_value": 3139
+    },
+    "2008": {
+     "first_release_counties": 3139,
+     "counties_with_any_value": 3139
+    },
+    "2009": {
+     "first_release_counties": 3139,
+     "counties_with_any_value": 3139
+    },
+    "2010": {
+     "first_release_counties": 3139,
+     "counties_with_any_value": 3139
+    },
+    "2011": {
+     "first_release_counties": 3139,
+     "counties_with_any_value": 3139
+    },
+    "2012": {
+     "first_release_counties": 3139,
+     "counties_with_any_value": 3139
+    },
+    "2013": {
+     "first_release_counties": 3139,
+     "counties_with_any_value": 3139
+    },
+    "2014": {
+     "first_release_counties": 3138,
+     "counties_with_any_value": 3138
+    },
+    "2015": {
+     "first_release_counties": 3137,
+     "counties_with_any_value": 3137
+    },
+    "2016": {
+     "first_release_counties": 3136,
+     "counties_with_any_value": 3136
+    },
+    "2017": {
+     "first_release_counties": 3136,
+     "counties_with_any_value": 3136
+    },
+    "2018": {
+     "first_release_counties": 3136,
+     "counties_with_any_value": 3136
+    },
+    "2019": {
+     "first_release_counties": 3136,
+     "counties_with_any_value": 3136
+    },
+    "2020": {
+     "first_release_counties": 3135,
+     "counties_with_any_value": 3135
+    },
+    "2021": {
+     "first_release_counties": 3135,
+     "counties_with_any_value": 3135
+    },
+    "2022": {
+     "first_release_counties": 3127,
+     "counties_with_any_value": 3127
+    },
+    "2023": {
+     "first_release_counties": 3127,
+     "counties_with_any_value": 3127
+    },
+    "2024": {
+     "first_release_counties": 3127,
+     "counties_with_any_value": 3127
+    }
+   }
+  },
+  "per_capita_personal_income": {
+   "metric": "per_capita_personal_income",
+   "configured_series": 3134,
+   "series_with_rows": 3134,
+   "refused_not_in_alfred": [],
+   "county_equivalents": 3134,
+   "states_plus_dc": 51,
+   "puerto_rico_municipios": 0,
+   "observation_rows": 1008876,
+   "first_release_rows": 37229,
+   "vintages_per_series": {
+    "min": 1,
+    "median": 14.0,
+    "max": 14
+   },
+   "first_vintage": {
+    "earliest": "2014-05-30",
+    "latest": "2015-11-19"
+   },
+   "latest_vintage": "2026-02-05",
+   "first_release_by_year": {
+    "2000": {
+     "first_release_counties": 0,
+     "counties_with_any_value": 3106
+    },
+    "2001": {
+     "first_release_counties": 0,
+     "counties_with_any_value": 3106
+    },
+    "2002": {
+     "first_release_counties": 0,
+     "counties_with_any_value": 3107
+    },
+    "2003": {
+     "first_release_counties": 0,
+     "counties_with_any_value": 3107
+    },
+    "2004": {
+     "first_release_counties": 0,
+     "counties_with_any_value": 3107
+    },
+    "2005": {
+     "first_release_counties": 0,
+     "counties_with_any_value": 3107
+    },
+    "2006": {
+     "first_release_counties": 0,
+     "counties_with_any_value": 3107
+    },
+    "2007": {
+     "first_release_counties": 0,
+     "counties_with_any_value": 3107
+    },
+    "2008": {
+     "first_release_counties": 0,
+     "counties_with_any_value": 3108
+    },
+    "2009": {
+     "first_release_counties": 0,
+     "counties_with_any_value": 3109
+    },
+    "2010": {
+     "first_release_counties": 0,
+     "counties_with_any_value": 3109
+    },
+    "2011": {
+     "first_release_counties": 0,
+     "counties_with_any_value": 3109
+    },
+    "2012": {
+     "first_release_counties": 0,
+     "counties_with_any_value": 3109
+    },
+    "2013": {
+     "first_release_counties": 3082,
+     "counties_with_any_value": 3109
+    },
+    "2014": {
+     "first_release_counties": 3081,
+     "counties_with_any_value": 3108
+    },
+    "2015": {
+     "first_release_counties": 3108,
+     "counties_with_any_value": 3108
+    },
+    "2016": {
+     "first_release_counties": 3108,
+     "counties_with_any_value": 3108
+    },
+    "2017": {
+     "first_release_counties": 3108,
+     "counties_with_any_value": 3108
+    },
+    "2018": {
+     "first_release_counties": 3108,
+     "counties_with_any_value": 3108
+    },
+    "2019": {
+     "first_release_counties": 3108,
+     "counties_with_any_value": 3108
+    },
+    "2020": {
+     "first_release_counties": 3107,
+     "counties_with_any_value": 3107
+    },
+    "2021": {
+     "first_release_counties": 3107,
+     "counties_with_any_value": 3107
+    },
+    "2022": {
+     "first_release_counties": 3107,
+     "counties_with_any_value": 3107
+    },
+    "2023": {
+     "first_release_counties": 3107,
+     "counties_with_any_value": 3107
+    },
+    "2024": {
+     "first_release_counties": 3098,
+     "counties_with_any_value": 3098
+    }
+   }
+  },
+  "personal_income": {
+   "metric": "personal_income",
+   "configured_series": 3134,
+   "series_with_rows": 3134,
+   "refused_not_in_alfred": [],
+   "county_equivalents": 3134,
+   "states_plus_dc": 51,
+   "puerto_rico_municipios": 0,
+   "observation_rows": 955805,
+   "first_release_rows": 37230,
+   "vintages_per_series": {
+    "min": 1,
+    "median": 13.0,
+    "max": 13
+   },
+   "first_vintage": {
+    "earliest": "2014-05-30",
+    "latest": "2015-11-19"
+   },
+   "latest_vintage": "2026-02-05",
+   "first_release_by_year": {
+    "2000": {
+     "first_release_counties": 0,
+     "counties_with_any_value": 3106
+    },
+    "2001": {
+     "first_release_counties": 0,
+     "counties_with_any_value": 3106
+    },
+    "2002": {
+     "first_release_counties": 0,
+     "counties_with_any_value": 3107
+    },
+    "2003": {
+     "first_release_counties": 0,
+     "counties_with_any_value": 3107
+    },
+    "2004": {
+     "first_release_counties": 0,
+     "counties_with_any_value": 3107
+    },
+    "2005": {
+     "first_release_counties": 0,
+     "counties_with_any_value": 3107
+    },
+    "2006": {
+     "first_release_counties": 0,
+     "counties_with_any_value": 3107
+    },
+    "2007": {
+     "first_release_counties": 0,
+     "counties_with_any_value": 3107
+    },
+    "2008": {
+     "first_release_counties": 0,
+     "counties_with_any_value": 3108
+    },
+    "2009": {
+     "first_release_counties": 0,
+     "counties_with_any_value": 3109
+    },
+    "2010": {
+     "first_release_counties": 0,
+     "counties_with_any_value": 3109
+    },
+    "2011": {
+     "first_release_counties": 0,
+     "counties_with_any_value": 3109
+    },
+    "2012": {
+     "first_release_counties": 0,
+     "counties_with_any_value": 3109
+    },
+    "2013": {
+     "first_release_counties": 3082,
+     "counties_with_any_value": 3109
+    },
+    "2014": {
+     "first_release_counties": 3081,
+     "counties_with_any_value": 3108
+    },
+    "2015": {
+     "first_release_counties": 3108,
+     "counties_with_any_value": 3108
+    },
+    "2016": {
+     "first_release_counties": 3108,
+     "counties_with_any_value": 3108
+    },
+    "2017": {
+     "first_release_counties": 3108,
+     "counties_with_any_value": 3108
+    },
+    "2018": {
+     "first_release_counties": 3108,
+     "counties_with_any_value": 3108
+    },
+    "2019": {
+     "first_release_counties": 3108,
+     "counties_with_any_value": 3108
+    },
+    "2020": {
+     "first_release_counties": 3107,
+     "counties_with_any_value": 3107
+    },
+    "2021": {
+     "first_release_counties": 3107,
+     "counties_with_any_value": 3107
+    },
+    "2022": {
+     "first_release_counties": 3107,
+     "counties_with_any_value": 3107
+    },
+    "2023": {
+     "first_release_counties": 3107,
+     "counties_with_any_value": 3107
+    },
+    "2024": {
+     "first_release_counties": 3099,
+     "counties_with_any_value": 3099
+    }
+   }
+  },
+  "gdp": {
+   "metric": "gdp",
+   "configured_series": 3113,
+   "series_with_rows": 3113,
+   "refused_not_in_alfred": [],
+   "county_equivalents": 3113,
+   "states_plus_dc": 51,
+   "puerto_rico_municipios": 0,
+   "observation_rows": 354657,
+   "first_release_rows": 62208,
+   "vintages_per_series": {
+    "min": 7,
+    "median": 8,
+    "max": 8
+   },
+   "first_vintage": {
+    "earliest": "2018-12-12",
+    "latest": "2018-12-12"
+   },
+   "latest_vintage": "2026-02-05",
+   "first_release_by_year": {
+    "2000": {
+     "first_release_counties": 0,
+     "counties_with_any_value": 0
+    },
+    "2001": {
+     "first_release_counties": 3107,
+     "counties_with_any_value": 3107
+    },
+    "2002": {
+     "first_release_counties": 3108,
+     "counties_with_any_value": 3108
+    },
+    "2003": {
+     "first_release_counties": 3108,
+     "counties_with_any_value": 3108
+    },
+    "2004": {
+     "first_release_counties": 3108,
+     "counties_with_any_value": 3108
+    },
+    "2005": {
+     "first_release_counties": 3108,
+     "counties_with_any_value": 3108
+    },
+    "2006": {
+     "first_release_counties": 3108,
+     "counties_with_any_value": 3108
+    },
+    "2007": {
+     "first_release_counties": 3108,
+     "counties_with_any_value": 3108
+    },
+    "2008": {
+     "first_release_counties": 3110,
+     "counties_with_any_value": 3110
+    },
+    "2009": {
+     "first_release_counties": 3113,
+     "counties_with_any_value": 3113
+    },
+    "2010": {
+     "first_release_counties": 3113,
+     "counties_with_any_value": 3113
+    },
+    "2011": {
+     "first_release_counties": 3113,
+     "counties_with_any_value": 3113
+    },
+    "2012": {
+     "first_release_counties": 0,
+     "counties_with_any_value": 3113
+    },
+    "2013": {
+     "first_release_counties": 0,
+     "counties_with_any_value": 3113
+    },
+    "2014": {
+     "first_release_counties": 0,
+     "counties_with_any_value": 3113
+    },
+    "2015": {
+     "first_release_counties": 0,
+     "counties_with_any_value": 3113
+    },
+    "2016": {
+     "first_release_counties": 3113,
+     "counties_with_any_value": 3113
+    },
+    "2017": {
+     "first_release_counties": 3113,
+     "counties_with_any_value": 3113
+    },
+    "2018": {
+     "first_release_counties": 3113,
+     "counties_with_any_value": 3113
+    },
+    "2019": {
+     "first_release_counties": 3113,
+     "counties_with_any_value": 3113
+    },
+    "2020": {
+     "first_release_counties": 3112,
+     "counties_with_any_value": 3112
+    },
+    "2021": {
+     "first_release_counties": 3112,
+     "counties_with_any_value": 3112
+    },
+    "2022": {
+     "first_release_counties": 3112,
+     "counties_with_any_value": 3112
+    },
+    "2023": {
+     "first_release_counties": 3112,
+     "counties_with_any_value": 3112
+    },
+    "2024": {
+     "first_release_counties": 3104,
+     "counties_with_any_value": 3104
+    }
+   }
+  },
+  "real_gdp": {
+   "metric": "real_gdp",
+   "configured_series": 3113,
+   "series_with_rows": 3113,
+   "refused_not_in_alfred": [],
+   "county_equivalents": 3113,
+   "states_plus_dc": 51,
+   "puerto_rico_municipios": 0,
+   "observation_rows": 354653,
+   "first_release_rows": 62207,
+   "vintages_per_series": {
+    "min": 7,
+    "median": 8,
+    "max": 8
+   },
+   "first_vintage": {
+    "earliest": "2018-12-12",
+    "latest": "2018-12-12"
+   },
+   "latest_vintage": "2026-02-05",
+   "first_release_by_year": {
+    "2000": {
+     "first_release_counties": 0,
+     "counties_with_any_value": 0
+    },
+    "2001": {
+     "first_release_counties": 3107,
+     "counties_with_any_value": 3107
+    },
+    "2002": {
+     "first_release_counties": 3108,
+     "counties_with_any_value": 3108
+    },
+    "2003": {
+     "first_release_counties": 3108,
+     "counties_with_any_value": 3108
+    },
+    "2004": {
+     "first_release_counties": 3108,
+     "counties_with_any_value": 3108
+    },
+    "2005": {
+     "first_release_counties": 3108,
+     "counties_with_any_value": 3108
+    },
+    "2006": {
+     "first_release_counties": 3108,
+     "counties_with_any_value": 3108
+    },
+    "2007": {
+     "first_release_counties": 3108,
+     "counties_with_any_value": 3108
+    },
+    "2008": {
+     "first_release_counties": 3110,
+     "counties_with_any_value": 3110
+    },
+    "2009": {
+     "first_release_counties": 3113,
+     "counties_with_any_value": 3113
+    },
+    "2010": {
+     "first_release_counties": 3113,
+     "counties_with_any_value": 3113
+    },
+    "2011": {
+     "first_release_counties": 3113,
+     "counties_with_any_value": 3113
+    },
+    "2012": {
+     "first_release_counties": 0,
+     "counties_with_any_value": 3113
+    },
+    "2013": {
+     "first_release_counties": 0,
+     "counties_with_any_value": 3113
+    },
+    "2014": {
+     "first_release_counties": 0,
+     "counties_with_any_value": 3113
+    },
+    "2015": {
+     "first_release_counties": 0,
+     "counties_with_any_value": 3113
+    },
+    "2016": {
+     "first_release_counties": 3113,
+     "counties_with_any_value": 3113
+    },
+    "2017": {
+     "first_release_counties": 3113,
+     "counties_with_any_value": 3113
+    },
+    "2018": {
+     "first_release_counties": 3113,
+     "counties_with_any_value": 3113
+    },
+    "2019": {
+     "first_release_counties": 3113,
+     "counties_with_any_value": 3113
+    },
+    "2020": {
+     "first_release_counties": 3112,
+     "counties_with_any_value": 3112
+    },
+    "2021": {
+     "first_release_counties": 3112,
+     "counties_with_any_value": 3112
+    },
+    "2022": {
+     "first_release_counties": 3112,
+     "counties_with_any_value": 3112
+    },
+    "2023": {
+     "first_release_counties": 3112,
+     "counties_with_any_value": 3112
+    },
+    "2024": {
+     "first_release_counties": 3103,
+     "counties_with_any_value": 3103
+    }
+   }
+  },
+  "private_establishments": {
+   "metric": "establishment_count",
+   "configured_series": 3142,
+   "series_with_rows": 3142,
+   "refused_not_in_alfred": [],
+   "county_equivalents": 3142,
+   "states_plus_dc": 51,
+   "puerto_rico_municipios": 0,
+   "observation_rows": 595013,
+   "first_release_rows": 103535,
+   "vintages_per_series": {
+    "min": 1,
+    "median": 39.0,
+    "max": 40
+   },
+   "first_vintage": {
+    "earliest": "2017-03-07",
+    "latest": "2017-03-07"
+   },
+   "latest_vintage": "2026-08-28",
+   "first_release_by_year": {
+    "2000": {
+     "first_release_counties": 0,
+     "counties_with_any_value": 3132,
+     "any_quarter": 0
+    },
+    "2001": {
+     "first_release_counties": 0,
+     "counties_with_any_value": 3136,
+     "any_quarter": 0
+    },
+    "2002": {
+     "first_release_counties": 0,
+     "counties_with_any_value": 3137,
+     "any_quarter": 0
+    },
+    "2003": {
+     "first_release_counties": 0,
+     "counties_with_any_value": 3137,
+     "any_quarter": 0
+    },
+    "2004": {
+     "first_release_counties": 0,
+     "counties_with_any_value": 3137,
+     "any_quarter": 0
+    },
+    "2005": {
+     "first_release_counties": 0,
+     "counties_with_any_value": 3137,
+     "any_quarter": 0
+    },
+    "2006": {
+     "first_release_counties": 0,
+     "counties_with_any_value": 3137,
+     "any_quarter": 0
+    },
+    "2007": {
+     "first_release_counties": 0,
+     "counties_with_any_value": 3139,
+     "any_quarter": 0
+    },
+    "2008": {
+     "first_release_counties": 0,
+     "counties_with_any_value": 3142,
+     "any_quarter": 0
+    },
+    "2009": {
+     "first_release_counties": 0,
+     "counties_with_any_value": 3142,
+     "any_quarter": 0
+    },
+    "2010": {
+     "first_release_counties": 0,
+     "counties_with_any_value": 3142,
+     "any_quarter": 0
+    },
+    "2011": {
+     "first_release_counties": 0,
+     "counties_with_any_value": 3142,
+     "any_quarter": 0
+    },
+    "2012": {
+     "first_release_counties": 0,
+     "counties_with_any_value": 3142,
+     "any_quarter": 0
+    },
+    "2013": {
+     "first_release_counties": 0,
+     "counties_with_any_value": 3142,
+     "any_quarter": 0
+    },
+    "2014": {
+     "first_release_counties": 0,
+     "counties_with_any_value": 3141,
+     "any_quarter": 0
+    },
+    "2015": {
+     "first_release_counties": 0,
+     "counties_with_any_value": 3141,
+     "any_quarter": 0
+    },
+    "2016": {
+     "first_release_counties": 0,
+     "counties_with_any_value": 3139,
+     "any_quarter": 3139
+    },
+    "2017": {
+     "first_release_counties": 3139,
+     "counties_with_any_value": 3139,
+     "any_quarter": 3139
+    },
+    "2018": {
+     "first_release_counties": 3139,
+     "counties_with_any_value": 3139,
+     "any_quarter": 3139
+    },
+    "2019": {
+     "first_release_counties": 3139,
+     "counties_with_any_value": 3139,
+     "any_quarter": 3139
+    },
+    "2020": {
+     "first_release_counties": 3138,
+     "counties_with_any_value": 3138,
+     "any_quarter": 3138
+    },
+    "2021": {
+     "first_release_counties": 3138,
+     "counties_with_any_value": 3138,
+     "any_quarter": 3138
+    },
+    "2022": {
+     "first_release_counties": 3138,
+     "counties_with_any_value": 3138,
+     "any_quarter": 3138
+    },
+    "2023": {
+     "first_release_counties": 3138,
+     "counties_with_any_value": 3138,
+     "any_quarter": 3138
+    },
+    "2024": {
+     "first_release_counties": 3130,
+     "counties_with_any_value": 3130,
+     "any_quarter": 3130
+    }
+   }
+  },
+  "laus_unemployment_rate": {
+   "metric": "unemployment_rate",
+   "configured_series": 3233,
+   "series_with_rows": 3233,
+   "refused_not_in_alfred": [],
+   "county_equivalents": 3233,
+   "states_plus_dc": 51,
+   "puerto_rico_municipios": 78,
+   "observation_rows": 267411,
+   "first_release_rows": 25662,
+   "vintages_per_series": {
+    "min": 2,
+    "median": 12,
+    "max": 12
+   },
+   "first_vintage": {
+    "earliest": "2017-08-30",
+    "latest": "2025-08-27"
+   },
+   "latest_vintage": "2026-05-19",
+   "first_release_by_year": {
+    "2000": {
+     "first_release_counties": 0,
+     "counties_with_any_value": 3226
+    },
+    "2001": {
+     "first_release_counties": 0,
+     "counties_with_any_value": 3226
+    },
+    "2002": {
+     "first_release_counties": 0,
+     "counties_with_any_value": 3226
+    },
+    "2003": {
+     "first_release_counties": 0,
+     "counties_with_any_value": 3226
+    },
+    "2004": {
+     "first_release_counties": 0,
+     "counties_with_any_value": 3226
+    },
+    "2005": {
+     "first_release_counties": 0,
+     "counties_with_any_value": 3219
+    },
+    "2006": {
+     "first_release_counties": 0,
+     "counties_with_any_value": 3219
+    },
+    "2007": {
+     "first_release_counties": 0,
+     "counties_with_any_value": 3226
+    },
+    "2008": {
+     "first_release_counties": 0,
+     "counties_with_any_value": 3226
+    },
+    "2009": {
+     "first_release_counties": 0,
+     "counties_with_any_value": 3226
+    },
+    "2010": {
+     "first_release_counties": 0,
+     "counties_with_any_value": 3228
+    },
+    "2011": {
+     "first_release_counties": 0,
+     "counties_with_any_value": 3228
+    },
+    "2012": {
+     "first_release_counties": 0,
+     "counties_with_any_value": 3228
+    },
+    "2013": {
+     "first_release_counties": 0,
+     "counties_with_any_value": 3228
+    },
+    "2014": {
+     "first_release_counties": 0,
+     "counties_with_any_value": 3228
+    },
+    "2015": {
+     "first_release_counties": 0,
+     "counties_with_any_value": 3228
+    },
+    "2016": {
+     "first_release_counties": 0,
+     "counties_with_any_value": 3228
+    },
+    "2017": {
+     "first_release_counties": 3219,
+     "counties_with_any_value": 3228
+    },
+    "2018": {
+     "first_release_counties": 3219,
+     "counties_with_any_value": 3228
+    },
+    "2019": {
+     "first_release_counties": 3219,
+     "counties_with_any_value": 3228
+    },
+    "2020": {
+     "first_release_counties": 3141,
+     "counties_with_any_value": 3152
+    },
+    "2021": {
+     "first_release_counties": 3218,
+     "counties_with_any_value": 3229
+    },
+    "2022": {
+     "first_release_counties": 3218,
+     "counties_with_any_value": 3229
+    },
+    "2023": {
+     "first_release_counties": 3218,
+     "counties_with_any_value": 3229
+    },
+    "2024": {
+     "first_release_counties": 3210,
+     "counties_with_any_value": 3221
+    }
+   }
+  },
+  "laus_unemployed": {
+   "metric": "unemployed",
+   "configured_series": 3148,
+   "series_with_rows": 3148,
+   "refused_not_in_alfred": [],
+   "county_equivalents": 3148,
+   "states_plus_dc": 51,
+   "puerto_rico_municipios": 0,
+   "observation_rows": 368781,
+   "first_release_rows": 18801,
+   "vintages_per_series": {
+    "min": 2,
+    "median": 10.0,
+    "max": 10
+   },
+   "first_vintage": {
+    "earliest": "2019-08-28",
+    "latest": "2025-08-27"
+   },
+   "latest_vintage": "2026-05-19",
+   "first_release_by_year": {
+    "2000": {
+     "first_release_counties": 0,
+     "counties_with_any_value": 3142
+    },
+    "2001": {
+     "first_release_counties": 0,
+     "counties_with_any_value": 3142
+    },
+    "2002": {
+     "first_release_counties": 0,
+     "counties_with_any_value": 3142
+    },
+    "2003": {
+     "first_release_counties": 0,
+     "counties_with_any_value": 3142
+    },
+    "2004": {
+     "first_release_counties": 0,
+     "counties_with_any_value": 3142
+    },
+    "2005": {
+     "first_release_counties": 0,
+     "counties_with_any_value": 3135
+    },
+    "2006": {
+     "first_release_counties": 0,
+     "counties_with_any_value": 3135
+    },
+    "2007": {
+     "first_release_counties": 0,
+     "counties_with_any_value": 3142
+    },
+    "2008": {
+     "first_release_counties": 0,
+     "counties_with_any_value": 3142
+    },
+    "2009": {
+     "first_release_counties": 0,
+     "counties_with_any_value": 3142
+    },
+    "2010": {
+     "first_release_counties": 0,
+     "counties_with_any_value": 3146
+    },
+    "2011": {
+     "first_release_counties": 0,
+     "counties_with_any_value": 3146
+    },
+    "2012": {
+     "first_release_counties": 0,
+     "counties_with_any_value": 3146
+    },
+    "2013": {
+     "first_release_counties": 0,
+     "counties_with_any_value": 3146
+    },
+    "2014": {
+     "first_release_counties": 0,
+     "counties_with_any_value": 3146
+    },
+    "2015": {
+     "first_release_counties": 0,
+     "counties_with_any_value": 3146
+    },
+    "2016": {
+     "first_release_counties": 0,
+     "counties_with_any_value": 3146
+    },
+    "2017": {
+     "first_release_counties": 0,
+     "counties_with_any_value": 3146
+    },
+    "2018": {
+     "first_release_counties": 0,
+     "counties_with_any_value": 3146
+    },
+    "2019": {
+     "first_release_counties": 3128,
+     "counties_with_any_value": 3146
+    },
+    "2020": {
+     "first_release_counties": 3137,
+     "counties_with_any_value": 3148
+    },
+    "2021": {
+     "first_release_counties": 3136,
+     "counties_with_any_value": 3147
+    },
+    "2022": {
+     "first_release_counties": 3136,
+     "counties_with_any_value": 3147
+    },
+    "2023": {
+     "first_release_counties": 3136,
+     "counties_with_any_value": 3147
+    },
+    "2024": {
+     "first_release_counties": 3128,
+     "counties_with_any_value": 3139
+    }
+   }
+  },
+  "laus_employed": {
+   "metric": "employment",
+   "configured_series": 3148,
+   "series_with_rows": 3148,
+   "refused_not_in_alfred": [],
+   "county_equivalents": 3148,
+   "states_plus_dc": 51,
+   "puerto_rico_municipios": 0,
+   "observation_rows": 411083,
+   "first_release_rows": 18801,
+   "vintages_per_series": {
+    "min": 2,
+    "median": 10.0,
+    "max": 10
+   },
+   "first_vintage": {
+    "earliest": "2019-08-28",
+    "latest": "2025-08-27"
+   },
+   "latest_vintage": "2026-05-19",
+   "first_release_by_year": {
+    "2000": {
+     "first_release_counties": 0,
+     "counties_with_any_value": 3142
+    },
+    "2001": {
+     "first_release_counties": 0,
+     "counties_with_any_value": 3142
+    },
+    "2002": {
+     "first_release_counties": 0,
+     "counties_with_any_value": 3142
+    },
+    "2003": {
+     "first_release_counties": 0,
+     "counties_with_any_value": 3142
+    },
+    "2004": {
+     "first_release_counties": 0,
+     "counties_with_any_value": 3142
+    },
+    "2005": {
+     "first_release_counties": 0,
+     "counties_with_any_value": 3135
+    },
+    "2006": {
+     "first_release_counties": 0,
+     "counties_with_any_value": 3135
+    },
+    "2007": {
+     "first_release_counties": 0,
+     "counties_with_any_value": 3142
+    },
+    "2008": {
+     "first_release_counties": 0,
+     "counties_with_any_value": 3142
+    },
+    "2009": {
+     "first_release_counties": 0,
+     "counties_with_any_value": 3142
+    },
+    "2010": {
+     "first_release_counties": 0,
+     "counties_with_any_value": 3146
+    },
+    "2011": {
+     "first_release_counties": 0,
+     "counties_with_any_value": 3146
+    },
+    "2012": {
+     "first_release_counties": 0,
+     "counties_with_any_value": 3146
+    },
+    "2013": {
+     "first_release_counties": 0,
+     "counties_with_any_value": 3146
+    },
+    "2014": {
+     "first_release_counties": 0,
+     "counties_with_any_value": 3146
+    },
+    "2015": {
+     "first_release_counties": 0,
+     "counties_with_any_value": 3146
+    },
+    "2016": {
+     "first_release_counties": 0,
+     "counties_with_any_value": 3146
+    },
+    "2017": {
+     "first_release_counties": 0,
+     "counties_with_any_value": 3146
+    },
+    "2018": {
+     "first_release_counties": 0,
+     "counties_with_any_value": 3146
+    },
+    "2019": {
+     "first_release_counties": 3128,
+     "counties_with_any_value": 3146
+    },
+    "2020": {
+     "first_release_counties": 3137,
+     "counties_with_any_value": 3148
+    },
+    "2021": {
+     "first_release_counties": 3136,
+     "counties_with_any_value": 3147
+    },
+    "2022": {
+     "first_release_counties": 3136,
+     "counties_with_any_value": 3147
+    },
+    "2023": {
+     "first_release_counties": 3136,
+     "counties_with_any_value": 3147
+    },
+    "2024": {
+     "first_release_counties": 3128,
+     "counties_with_any_value": 3139
+    }
+   }
+  },
+  "laus_labor_force": {
+   "metric": "labor_force",
+   "configured_series": 3148,
+   "series_with_rows": 3148,
+   "refused_not_in_alfred": [],
+   "county_equivalents": 3148,
+   "states_plus_dc": 51,
+   "puerto_rico_municipios": 0,
+   "observation_rows": 411761,
+   "first_release_rows": 18801,
+   "vintages_per_series": {
+    "min": 2,
+    "median": 10.0,
+    "max": 10
+   },
+   "first_vintage": {
+    "earliest": "2019-08-28",
+    "latest": "2025-08-27"
+   },
+   "latest_vintage": "2026-05-19",
+   "first_release_by_year": {
+    "2000": {
+     "first_release_counties": 0,
+     "counties_with_any_value": 3142
+    },
+    "2001": {
+     "first_release_counties": 0,
+     "counties_with_any_value": 3142
+    },
+    "2002": {
+     "first_release_counties": 0,
+     "counties_with_any_value": 3142
+    },
+    "2003": {
+     "first_release_counties": 0,
+     "counties_with_any_value": 3142
+    },
+    "2004": {
+     "first_release_counties": 0,
+     "counties_with_any_value": 3142
+    },
+    "2005": {
+     "first_release_counties": 0,
+     "counties_with_any_value": 3135
+    },
+    "2006": {
+     "first_release_counties": 0,
+     "counties_with_any_value": 3135
+    },
+    "2007": {
+     "first_release_counties": 0,
+     "counties_with_any_value": 3142
+    },
+    "2008": {
+     "first_release_counties": 0,
+     "counties_with_any_value": 3142
+    },
+    "2009": {
+     "first_release_counties": 0,
+     "counties_with_any_value": 3142
+    },
+    "2010": {
+     "first_release_counties": 0,
+     "counties_with_any_value": 3146
+    },
+    "2011": {
+     "first_release_counties": 0,
+     "counties_with_any_value": 3146
+    },
+    "2012": {
+     "first_release_counties": 0,
+     "counties_with_any_value": 3146
+    },
+    "2013": {
+     "first_release_counties": 0,
+     "counties_with_any_value": 3146
+    },
+    "2014": {
+     "first_release_counties": 0,
+     "counties_with_any_value": 3146
+    },
+    "2015": {
+     "first_release_counties": 0,
+     "counties_with_any_value": 3146
+    },
+    "2016": {
+     "first_release_counties": 0,
+     "counties_with_any_value": 3146
+    },
+    "2017": {
+     "first_release_counties": 0,
+     "counties_with_any_value": 3146
+    },
+    "2018": {
+     "first_release_counties": 0,
+     "counties_with_any_value": 3146
+    },
+    "2019": {
+     "first_release_counties": 3128,
+     "counties_with_any_value": 3146
+    },
+    "2020": {
+     "first_release_counties": 3137,
+     "counties_with_any_value": 3148
+    },
+    "2021": {
+     "first_release_counties": 3136,
+     "counties_with_any_value": 3147
+    },
+    "2022": {
+     "first_release_counties": 3136,
+     "counties_with_any_value": 3147
+    },
+    "2023": {
+     "first_release_counties": 3136,
+     "counties_with_any_value": 3147
+    },
+    "2024": {
+     "first_release_counties": 3128,
+     "counties_with_any_value": 3139
+    }
+   }
+  }
+ }
+}
