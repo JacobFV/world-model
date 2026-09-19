@@ -29,12 +29,15 @@ anything.
 
 Three layers added on 2026-09-18 each end in the same place, and each says so in its own document:
 
-* **World-state embeddings.** Six scored attempts over five domains
+* **World-state embeddings.** Eight scored attempts over five domains
   ([world-state embeddings](world-state-embeddings.md)). The encoder beats the naive baseline
   everywhere and beats a gradient-boosted model on the same subgraph only on county employment,
   where the year-clustered test is not significant. Adding the embedding to that model does not
-  help. Every places attempt fails `no_revision_leakage` by declaration: the county panel is
-  current-vintage. None is validated.
+  help. A first-release county panel removed the revision leakage that had made the places attempts
+  undecidable, and the attempt then failed on skill; a 13F link-prediction task with an empty query
+  node -- the design's best case -- also lost to that model. None is validated, and the stop rule
+  declared with the last attempt has been kept: the encoder line is closed and only the Student-t +
+  split-conformal interval head continues.
 * **Natural experiments.** Eight designs over two waves ([natural experiments](natural-experiments.md)):
   three identified nulls whose bounds all contain zero and are wider than the effect worth finding,
   five failed diagnostics, and a power suite showing every design underpowered against its own
