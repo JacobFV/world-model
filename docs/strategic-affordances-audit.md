@@ -239,10 +239,30 @@ it could have seen.
 
 ### 5. Coverage that is known rather than assumed
 
-**Partly closed.** `wm coverage-estimate` publishes 47 coverage estimates, 29 of them against a
-sourced denominator, and it found two real gaps (`sec_company_assets` holds 0.837 of its declared
-companyfacts CIKs; `openalex_people` publishes 1.258x its declared scope). The other 81 declarations
-are listed as uncurated and still need a population statement. Record counts are still not coverage.
+**Partly closed.** `wm coverage-estimate` publishes 111 coverage estimates over 106 of the 135
+declarations, 39 of them against a sourced denominator and 15 against a count quoted from the
+dataset's own `dataset.json`. It found two real gaps (`sec_company_assets` holds 0.837 of its
+declared companyfacts CIKs; `openalex_people` publishes 1.258x its declared scope).
+
+The remaining 29 declarations were triaged rather than left in one pile (2026-09-19; it was 44
+curated datasets and 91 uncurated before). **18** are now reported in their own `derived` category:
+their content is produced inside this repository - the panels, the validation and experiment
+reports, the unified-graph build, and the offline fixtures - so their coverage is a property of
+their named inputs and no population is stated for them. The last **11** stay uncurated, each now
+carrying the specific missing thing instead of a bare "no population statement curated":
+
+- four have acquired nothing, so there is no published output to count: `acled` and
+  `global_fishing_watch` (awaiting credentials, budget 0), `wto_timeseries` (awaiting an API key,
+  indicator codes not yet fixed) and `bts_airline_t100`, whose declaration names no population at
+  all ("whatever months the user downloads").
+- seven publish no entity records for an entity-key rule to select: `census_relationship_files`,
+  `mit_election_returns`, `usgs_earthquakes` and the three `fec_individual_contributions` datasets
+  (which assert no persistent contributor identity by design), plus
+  `gleif_parent_relationships`, whose published output holds 1,900,906 relationship assertions and
+  exactly one entity record.
+
+Record counts are still not coverage, and a curated population is a statement about what a source
+claims, not a measurement of the world it claims to describe.
 
 Identity coverage is now measured rather than assumed, and the measurement is the finding: after
 mining every published bridge, 3.66% of 8.59 million entities are joined across two or more
