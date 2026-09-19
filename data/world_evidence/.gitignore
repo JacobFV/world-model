@@ -13,3 +13,6 @@ __pycache__/
 /index.sqlite
 /index.sqlite*
 /*.sqlite
+
+# Kept copies of attached resolutions (runtime data, re-attachable with graph-attach-resolution)
+/resolution_history/
