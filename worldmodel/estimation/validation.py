@@ -428,11 +428,65 @@ def _compact_backtest(result):
         {k: v for k, v in f.items() if k != 'parameters'} for f in result['forecasts']]}
 
 
+SELECTION_METRICS = ('mse', 'crps')
+
+
+def _row_key(row):
+    return (row['time'], row.get('target'))
+
+
+def _common_crps(results):
+    """Mean CRPS of each candidate over the forecast rows *every* scoring candidate produced.
+
+    Candidates can skip different origins (a method that needs more history fails
+    earlier), and a mean over different rows is not a comparison. Only rows of the
+    primary group are used, as in acceptance.
+    """
+    keyed = {}
+    for name, result in results.items():
+        primary = result.get('primary_group')
+        rows = [f for f in result['forecasts'] if primary is None or f.get('group', primary) == primary]
+        keyed[name] = {_row_key(f): f for f in rows}
+    if not keyed:
+        return {}, 0, 0
+    common = set.intersection(*(set(rows) for rows in keyed.values()))
+    out = {}
+    for name, rows in keyed.items():
+        scored = summarize_forecasts([rows[key] for key in sorted(common, key=str)]) if common else {'count': 0}
+        out[name] = scored.get('crps')
+    return out, len(common), len({time for time, _ in common})
+
+
+def _holdout_summary(test):
+    model = test['metrics']['model']
+    persistence = test['diebold_mariano'].get('persistence', {}).get('squared', {})
+    return {'metrics': {k: model.get(k) for k in ('count', 'mae', 'rmse', 'bias', 'crps', 'interval_coverage',
+                                                  'mean_interval_width', 'log_score', 'predictive_families')
+                        if model.get(k) is not None},
+            'dm_persistence_squared_p': persistence.get('pvalue'), 'skipped': len(test['skipped'])}
+
+
 def validate_process(estimator, data, *, train_end, validation_end, cutoff, candidates=None, criteria=None,
                      horizon=1, window='expanding', window_size=None, refit_every=1, vintage_policy='strict',
                      interval_level=0.8, baselines=('persistence', 'drift', 'historical_mean'), season=None,
-                     fit_options=None, data_inputs=()):
-    """Select on validation, freeze, score the untouched holdout, refit at cutoff and evaluate acceptance."""
+                     fit_options=None, data_inputs=(), selection_metric='mse', min_selection_periods=None,
+                     score_unselected=False):
+    """Select on validation, freeze, score the untouched holdout, refit at cutoff and evaluate acceptance.
+
+    ``selection_metric='mse'`` (the default) keeps every earlier report byte-identical.
+    ``'crps'`` selects the candidate with the lowest validation-window CRPS computed over
+    the forecast rows all candidates produced — the rule for choosing between predictive
+    distributions, since candidates that differ only in their interval have identical
+    point forecasts and therefore identical MSE. ``min_selection_periods`` declares the
+    fewest distinct validation *periods* (not rows: a panel's units in one year share one
+    draw of the common shock) the comparison needs; below it the first declared candidate
+    (the incumbent) is kept and the reason recorded. ``score_unselected`` also
+    scores every rejected candidate on the holdout *after* the selection is frozen and
+    hashed, and records those numbers under ``unselected_holdout`` — for the record only:
+    they enter neither the selection nor the acceptance criteria.
+    """
+    if selection_metric not in SELECTION_METRICS:
+        raise ValueError(f'selection_metric must be one of {list(SELECTION_METRICS)}')
     if not instant(train_end) < instant(validation_end) < instant(cutoff):
         raise ValueError('Require train_end < validation_end < cutoff')
     named = list(candidates) if candidates else [(type(estimator).__name__, estimator)]
@@ -452,6 +506,7 @@ def validate_process(estimator, data, *, train_end, validation_end, cutoff, cand
                   fit_options=fit_options)
     scores, selection_audit = {}, {'violations': 0, 'origins_checked': 0, 'data_cutoff': validation_end,
                                    'records_visible': visible}
+    results = {}
     for name, candidate in named:
         try:
             runner = getattr(candidate, 'backtest', None)
@@ -462,26 +517,61 @@ def validate_process(estimator, data, *, train_end, validation_end, cutoff, cand
                                                  evaluation_cutoff=validation_end, **common)
             model = result['metrics']['model']
             scores[name] = {'count': model.get('count', 0), 'mse': model.get('mse'), 'mae': model.get('mae')}
+            if selection_metric != 'mse':
+                # Reported beside the score that selects; coverage is shown, never used.
+                scores[name].update({k: model.get(k) for k in ('crps', 'interval_coverage', 'mean_interval_width')})
+                results[name] = result
             selection_audit['violations'] += result['leakage_audit']['violations']
             selection_audit['origins_checked'] += result['leakage_audit']['origins_checked']
         except ValueError as error:
             scores[name] = {'count': 0, 'error': str(error)}
     usable = [(name, c) for name, c in named if scores[name].get('count')]
-    if not usable:
+    order = {name: k for k, (name, _) in enumerate(named)}
+    rule = None
+    if selection_metric == 'crps':
+        common_crps, common_count, common_periods = _common_crps({name: results[name] for name, _ in usable})
+        for name in common_crps:
+            scores[name]['common_crps'] = common_crps[name]
+        minimum = int(min_selection_periods or 1)
+        rule = {'metric': 'crps', 'over': 'validation forecast rows every scoring candidate produced',
+                'common_forecasts': common_count, 'common_periods': common_periods, 'min_selection_periods': minimum}
+        comparable = [(name, c) for name, c in usable if common_crps.get(name) is not None]
+        if len(usable) < len(named):
+            rule['unscored_candidates'] = [name for name, _ in named if not scores[name].get('count')]
+        if common_periods < minimum or not comparable:
+            rule['fallback'] = (f'{common_periods} distinct validation periods common to every scoring candidate, fewer '
+                                f'than the declared {minimum}: the first declared candidate (the incumbent) is kept')
+            selected_name, selected = named[0]
+        else:
+            selected_name, selected = min(comparable, key=lambda item: (common_crps[item[0]], order[item[0]]))
+    elif not usable:
         if len(named) > 1:
             raise ValueError('No candidate produced validation forecasts; cannot select')
         selected_name, selected = named[0]
     else:
-        order = {name: k for k, (name, _) in enumerate(named)}
         selected_name, selected = min(usable, key=lambda item: (scores[item[0]]['mse'], order[item[0]]))
     selection = {'candidates': [name for name, _ in named], 'selected': selected_name, 'scores': scores,
                  'train_end': train_end, 'validation_end': validation_end, 'leakage_audit': selection_audit,
-                 'refit_after_selection': False}
+                 'refit_after_selection': False, **({'rule': rule} if rule else {})}
     selection['selection_hash'] = digest(selection)
     if getattr(selected, 'backtest', None) is not None:
         test = selected.backtest(data, start=validation_end, end=cutoff, evaluation_cutoff=cutoff, **common)
     else:
         test = rolling_origin_backtest(selected, data, start=validation_end, end=cutoff, evaluation_cutoff=cutoff, **common)
+    unselected = {}
+    if score_unselected:
+        for name, candidate in named:
+            if name == selected_name:
+                continue
+            try:
+                if getattr(candidate, 'backtest', None) is not None:
+                    other = candidate.backtest(data, start=validation_end, end=cutoff, evaluation_cutoff=cutoff, **common)
+                else:
+                    other = rolling_origin_backtest(candidate, data, start=validation_end, end=cutoff,
+                                                    evaluation_cutoff=cutoff, **common)
+                unselected[name] = _holdout_summary(other)
+            except ValueError as error:
+                unselected[name] = {'error': str(error)}
     final = selected.fit(data, cutoff=cutoff, vintage_policy=vintage_policy, **(fit_options or {})).to_dict()
     report = {'schema': 'worldmodel.validation_report/1', 'process_id': selected.process_id, 'component': selected.component,
               'targets': list(getattr(selected, 'targets', None) or [selected.target]), 'estimator': type(selected).__name__,
@@ -491,6 +581,9 @@ def validate_process(estimator, data, *, train_end, validation_end, cutoff, cand
                            'season': season, 'origin_rule': 'first publication of anchor row across required series',
                            'actuals': 'latest vintage available by cutoff', 'fit_options': fit_options or {}},
               'selection': selection, 'test': _compact_backtest(test), 'final_estimate': final,
+              **({'unselected_holdout': {'note': 'Rejected candidates scored after the selection was frozen, for the '
+                                                 'record only; they enter neither the selection nor the acceptance criteria.',
+                                         'candidates': unselected}} if score_unselected else {}),
               'data_inputs': [dict(ref) for ref in data_inputs], 'causally_identified': False,
               'limitations': ['Out-of-sample skill on the holdout does not establish causal response to interventions.',
                               'Conditional forecasts use realized declared inputs; they do not test forecasting those inputs.',

@@ -236,14 +236,76 @@ class DynamicRegression(ComponentEstimator):
                        'model_sigma': fit.get('sigma'), 'r2': fit.get('r2'), 'pseudo_r2': fit.get('pseudo_r2'),
                        'cov_type': 'HC0' if self.link else cov_type, 'nobs': len(rows),
                        'first_stage': fit.get('first_stage'), 'overidentification': fit.get('overidentification')}
-        predictive = self.predictive_specification(frame, errors, len(names), options)
+        out_of_sample = None
+        if options.get('interval_method') in intervals.OUT_OF_SAMPLE_METHODS:
+            out_of_sample = self.recursive_errors(cols, rows, names, options)
+        predictive = self.predictive_specification(frame, errors, len(names), options, out_of_sample=out_of_sample)
         if predictive is not None:
             diagnostics['predictive'] = predictive
         return {'parameters': parameters, 'standard_errors': ses, 'nobs': len(rows), 'first_index': rows[0][0],
                 'covariance': {'names': ['coefficient:' + n for n in fit['cov']['names']], 'matrix': fit['cov']['matrix']},
                 'diagnostics': diagnostics}
 
-    def predictive_specification(self, frame, errors, coefficients, options):
+    def recursive_errors(self, cols, rows, names, options):
+        """Pre-origin out-of-sample one-step errors for ``conformal_rolling``.
+
+        For each of the last ``interval_window`` usable rows k (all of them when no
+        window is declared), the coefficients are re-estimated on rows ``0..k-1`` only
+        and row k is predicted through the same ``level`` mapping as a real forecast;
+        the error is in the same units as the in-sample residuals (relative for
+        multiplicative components). Every value read is in the origin's own frame, so
+        nothing after the origin enters. The first recursive fit needs
+        ``len(names) + 3`` rows, the estimator's own minimum. Plain least squares
+        accumulates X'X and X'y row by row (the same normal equations ``ols`` solves);
+        link-function and instrumented designs refit from scratch.
+        """
+        if options.get('window'):
+            raise ValueError(f'{self.component}: conformal_rolling is not declared for rolling-window fits')
+        window = options.get('interval_window')
+        first = len(names) + 3
+        start = first if window is None else max(first, len(rows) - int(window))
+        errors = []
+        simple = not self.endogenous and not self.link
+        if simple:
+            k = len(names)
+            xtx = [[0.0] * k for _ in range(k)]
+            xty = [0.0] * k
+            for _, y, row, _ in rows[:start]:
+                for i in range(k):
+                    xty[i] += row[i] * y
+                    for j in range(k):
+                        xtx[i][j] += row[i] * row[j]
+        for index in range(start, len(rows)):
+            t, y, row, _ = rows[index]
+            try:
+                if simple:
+                    beta = la.solve(xtx, xty)
+                else:
+                    prefix = rows[:index]
+                    ys, xs = [r[1] for r in prefix], [r[2] for r in prefix]
+                    if self.endogenous:
+                        exog = [j for j, n in enumerate(names) if n not in self.endogenous]
+                        endog = [j for j, n in enumerate(names) if n in self.endogenous]
+                        fit = tsls(ys, [[r[j] for j in exog] for r in xs], [[r[j] for j in endog] for r in xs],
+                                   [r[3] for r in prefix], exog_names=[names[j] for j in exog],
+                                   endog_names=[names[j] for j in endog], cov_type='nonrobust')
+                    else:
+                        fit = binomial_glm(ys, xs, names=names, link=self.link, cov_type='HC0')
+                    beta = [fit['params'][n] for n in names]
+                eta = math.fsum(b * v for b, v in zip(beta, row))
+                predicted = self.level(cols, t, _inv_logit(eta) if self.link else eta, options)
+                error = predicted - cols[self.target][t]
+                errors.append(error / predicted if self.multiplicative else error)
+            except (ValueError, ZeroDivisionError, OverflowError):
+                pass
+            if simple:
+                for i in range(len(names)):
+                    xty[i] += row[i] * y
+                    for j in range(len(names)):
+                        xtx[i][j] += row[i] * row[j]
+        return errors
+
+    def predictive_specification(self, frame, errors, coefficients, options, out_of_sample=None):
         """Declared predictive distribution of a one-step error, or ``None`` for the default.
 
         ``None`` means "Gaussian with ``level_sigma``", which is what every
@@ -260,7 +322,7 @@ class DynamicRegression(ComponentEstimator):
             extra['revision'] = scale
         spec = intervals.from_errors(errors, method=method, window=options.get('interval_window'),
                                      nodes=int(options.get('interval_nodes', intervals.DEFAULT_NODES)),
-                                     dof=coefficients, extra=extra)
+                                     dof=coefficients, extra=extra, out_of_sample=out_of_sample)
         if revision:
             spec['revision_diagnostics'] = diagnostics
         return spec

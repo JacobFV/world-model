@@ -171,11 +171,28 @@ def _run_attempt(attempt, store, *, publish=True, dataset=None):
             if declared not in (None, policy):
                 run['vintage_policy_note'] = f'plan declares {declared}; loader supports {policy}'
             inputs = [dict(ref) for ref in evidence['inputs']]
+            # Declared interval candidates (interval wave, 2026-09-18): each candidate is the
+            # attempt's own estimator_options plus its declared changes, the first is the
+            # incumbent, and the selection rule is the one the attempt declares.
+            selection = attempt.get('interval_selection') or {}
+            candidates = None
+            if attempt.get('interval_candidates'):
+                candidates = []
+                for declared_candidate in attempt['interval_candidates']:
+                    candidate_options = dict(declared_options or {}, **(declared_candidate.get('options') or {}))
+                    if attempt['kind'] == 'component':
+                        candidate = estimator_for(attempt['target'], overrides=attempt.get('overrides'), options=candidate_options)
+                    else:
+                        candidate = estimator_for(f"{attempt['target']}_model_parameters", options=candidate_options)
+                    candidates.append((declared_candidate['name'], candidate))
             report = validate_process(estimator, data, train_end=protocol['train_end'], validation_end=protocol['validation_end'],
                                       cutoff=protocol['cutoff'], vintage_policy=declared or policy,
                                       window=protocol.get('window', 'expanding'), window_size=protocol.get('window_size'),
                                       refit_every=protocol.get('refit_every', 1), horizon=protocol.get('horizon', 1),
-                                      data_inputs=inputs)
+                                      data_inputs=inputs, candidates=candidates,
+                                      **({'selection_metric': selection['metric'],
+                                          'min_selection_periods': selection.get('min_periods'),
+                                          'score_unselected': bool(selection.get('score_unselected'))} if selection else {}))
             artifact = None
             if publish:
                 # The estimate is published first so the dataset pointer ends on a validation report.
@@ -192,6 +209,8 @@ def _run_attempt(attempt, store, *, publish=True, dataset=None):
             run.update({'status': 'ran', 'validated': report['validated'], 'report_id': report['report_id'], 'artifact': artifact,
                         'process_id': report['process_id'], 'component': report['component'],
                         'selection_hash': report['selection']['selection_hash'],
+                        **({'selection': {k: report['selection'].get(k) for k in ('selected', 'scores', 'rule')},
+                            'unselected_holdout': report.get('unselected_holdout')} if candidates else {}),
                         'evidence': {k: v for k, v in evidence.items() if k != 'record_ids'},
                         'sample': report['final_estimate']['sample'],
                         'parameters': report['final_estimate']['parameters'],
