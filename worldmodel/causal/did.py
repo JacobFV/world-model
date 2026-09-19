@@ -206,13 +206,16 @@ def _bootstrap_se(draws):
 
 
 def event_study(panel, *, e_min, e_max, post=None, control_group='not_yet_treated', anticipation=0, balance=None,
-                alpha=0.05, bootstrap=999, seed=0, strata_min_control=1):
+                alpha=0.05, bootstrap=999, seed=0, strata_min_control=1, cohorts=None):
     """Event-study leads and lags, an overall post ATT, and pre-trend tests.
 
     Reference period ``e = -1 - anticipation`` is zero by construction and omitted. Pre-trend
     tests use the leads ``e_min .. -2 - anticipation``. ``post`` defaults to ``0 .. e_max``.
+    ``cohorts`` restricts which cohorts are estimated; other treated units still serve as
+    not-yet-treated comparisons before their own treatment.
     """
-    gt = att_gt(panel, control_group=control_group, anticipation=anticipation, min_control=strata_min_control)
+    gt = att_gt(panel, control_group=control_group, anticipation=anticipation, min_control=strata_min_control,
+                cohorts=cohorts)
     reference = -1 - anticipation
     et = aggregate_event_time(gt['cells'], e_min, e_max, balance=balance, reference=reference)
     post = list(range(0, e_max + 1)) if post is None else list(post)
@@ -332,10 +335,11 @@ def twfe_static(panel, *, tol=1e-10, max_iter=5000):
             'warning': 'biased under staggered adoption with heterogeneous or dynamic effects; comparison only'}
 
 
-def stacked_did(panel, *, e_min, e_max, post=None, anticipation=0, alpha=0.05, require_balanced=True):
+def stacked_did(panel, *, e_min, e_max, post=None, anticipation=0, alpha=0.05, require_balanced=True, cohorts=None):
     """Stacked event study with clean controls.
 
-    For each cohort ``g`` a sub-experiment holds cohort ``g`` and the units not treated before
+    For each cohort ``g`` (and stratum, when the panel is stratified) a sub-experiment holds cohort
+    ``g`` and the units of the same stratum not treated before
     ``g + e_max + anticipation + 1`` (never-treated or later cohorts), over event times
     ``e_min .. e_max``. Within a stack the event-time effect is the DiD of means relative to
     ``e = -1 - anticipation``; stacks are pooled with the weights ``n_T n_C / (n_T + n_C)``
@@ -347,37 +351,47 @@ def stacked_did(panel, *, e_min, e_max, post=None, anticipation=0, alpha=0.05, r
     event_times = [e for e in range(e_min, e_max + 1) if e != reference]
     post = list(range(0, e_max + 1)) if post is None else list(post)
     stacks = []
+    by_stratum = {}
+    for unit in panel.units:
+        by_stratum.setdefault(panel.strata[unit], []).append(unit)
     for g in sorted(panel.cohort_sizes()):
+        if cohorts is not None and g not in set(cohorts):
+            continue
         base = g + reference
         needed = [g + e for e in range(e_min, e_max + 1)]
         horizon = g + e_max + anticipation
+
         def usable(series):
             if require_balanced:
                 return all(p in series for p in needed)
             return base in series
-        treated = [u for u in panel.units if panel.cohorts[u] == g and usable(panel.outcomes[u])]
-        control = [u for u in panel.units if (panel.cohorts[u] is None or panel.cohorts[u] > horizon)
-                   and usable(panel.outcomes[u])]
-        if not treated or not control:
-            continue
-        by_e = {}
-        for e in event_times:
-            t = g + e
-            tv = [(u, panel.outcomes[u][t] - panel.outcomes[u][base]) for u in treated
-                  if t in panel.outcomes[u] and base in panel.outcomes[u]]
-            cv = [(u, panel.outcomes[u][t] - panel.outcomes[u][base]) for u in control
-                  if t in panel.outcomes[u] and base in panel.outcomes[u]]
-            if not tv or not cv:
+
+        for stratum in sorted(by_stratum, key=str):
+            units = by_stratum[stratum]
+            treated = [u for u in units if panel.cohorts[u] == g and usable(panel.outcomes[u])]
+            control = [u for u in units if (panel.cohorts[u] is None or panel.cohorts[u] > horizon)
+                       and usable(panel.outcomes[u])]
+            if not treated or not control:
                 continue
-            mt, mc = mean(v for _, v in tv), mean(v for _, v in cv)
-            psi_t = {}
-            for u, v in tv:
-                psi_t[panel.clusters[u]] = psi_t.get(panel.clusters[u], 0.0) + (v - mt) / len(tv)
-            for u, v in cv:
-                psi_t[panel.clusters[u]] = psi_t.get(panel.clusters[u], 0.0) - (v - mc) / len(cv)
-            by_e[e] = (mt - mc, psi_t)
-        weight = len(treated) * len(control) / (len(treated) + len(control))
-        stacks.append({'g': g, 'n_treated': len(treated), 'n_control': len(control), 'weight': weight, 'effects': by_e})
+            by_e = {}
+            for e in event_times:
+                t = g + e
+                tv = [(u, panel.outcomes[u][t] - panel.outcomes[u][base]) for u in treated
+                      if t in panel.outcomes[u] and base in panel.outcomes[u]]
+                cv = [(u, panel.outcomes[u][t] - panel.outcomes[u][base]) for u in control
+                      if t in panel.outcomes[u] and base in panel.outcomes[u]]
+                if not tv or not cv:
+                    continue
+                mt, mc = mean(v for _, v in tv), mean(v for _, v in cv)
+                psi_t = {}
+                for u, v in tv:
+                    psi_t[panel.clusters[u]] = psi_t.get(panel.clusters[u], 0.0) + (v - mt) / len(tv)
+                for u, v in cv:
+                    psi_t[panel.clusters[u]] = psi_t.get(panel.clusters[u], 0.0) - (v - mc) / len(cv)
+                by_e[e] = (mt - mc, psi_t)
+            weight = len(treated) * len(control) / (len(treated) + len(control))
+            stacks.append({'g': g, 'stratum': stratum, 'n_treated': len(treated), 'n_control': len(control),
+                           'weight': weight, 'effects': by_e})
     n_clusters = panel.n_clusters()
     z = normal_ppf(1 - alpha / 2)
     rows, table = [], {}
@@ -408,6 +422,6 @@ def stacked_did(panel, *, e_min, e_max, post=None, anticipation=0, alpha=0.05, r
                    'definition': 'equal-weight mean of stacked ATT(e) over post event times'}
     pre = [e for e in table if e < reference]
     wald = wald_test([table[e][0] for e in pre], [table[e][1] for e in pre], n_clusters)
-    return {'estimator': 'stacked_did_clean_controls', 'stacks': [{k: s[k] for k in ('g', 'n_treated', 'n_control', 'weight')}
-                                                                   for s in stacks],
+    return {'estimator': 'stacked_did_clean_controls', 'stack_count': len(stacks),
+            'stacks': [{k: s[k] for k in ('g', 'stratum', 'n_treated', 'n_control', 'weight')} for s in stacks[:500]],
             'event_time': rows, 'overall': overall, 'pre_trend': {'leads': pre, 'wald': wald}, 'n_clusters': n_clusters}

@@ -77,6 +77,15 @@ class EstimatorTests(unittest.TestCase):
             if cell['g'] == 2012:
                 self.assertLessEqual(cell['n_control'], sizes[2004])
 
+    def test_cohort_restriction_keeps_later_cohorts_as_comparisons(self):
+        panel, truth = staggered_panel(seed=31, **DYNAMIC)
+        result = event_study(panel, e_min=-3, e_max=5, bootstrap=0, cohorts=[2004])
+        self.assertTrue(all(row['cohorts'] == [2004] for row in result['event_time']))
+        self.assertAlmostEqual(result['overall']['att'], _true_overall(truth, range(0, 6)), delta=0.05)
+        self.assertEqual({s['g'] for s in stacked_did(panel, e_min=-2, e_max=2, cohorts=[2012])['stacks']}, set())
+        placebo = placebo_date_test(panel, shift=3, cohorts=[2004])
+        self.assertTrue(placebo['passed'])
+
     def test_pre_trend_violation_is_detected(self):
         bad, _ = staggered_panel(n_units=400, seed=7, treated_trend=0.05, effect=lambda e, g: 1.0)
         result = event_study(bad, e_min=-4, e_max=3, bootstrap=199, seed=1)
@@ -144,6 +153,10 @@ class EstimatorTests(unittest.TestCase):
         matched = event_study(stratified, e_min=-3, e_max=3, bootstrap=0)['overall']['att']
         self.assertGreater(abs(naive), 0.05)
         self.assertLess(abs(matched), 0.03)
+        stacked = stacked_did(stratified, e_min=-2, e_max=2)
+        self.assertLess(abs(stacked['overall']['att']), 0.03)
+        self.assertTrue(all(s['stratum'].startswith('s') for s in stacked['stacks']))
+        self.assertGreater(abs(stacked_did(pooled, e_min=-2, e_max=2)['overall']['att']), 0.05)
 
     def test_anticipation_window_moves_the_base_period(self):
         panel, _ = staggered_panel(n_units=400, seed=19, effect=lambda e, g: 1.0, anticipation_effect=0.5)

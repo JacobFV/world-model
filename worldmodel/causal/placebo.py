@@ -4,30 +4,33 @@ import random
 from .did import event_study
 
 
-def placebo_date_test(panel, *, shift, control_group='not_yet_treated', anticipation=0, alpha=0.05, e_min=None):
+def placebo_date_test(panel, *, shift, control_group='not_yet_treated', anticipation=0, alpha=0.05, e_min=None,
+                      cohorts=None):
     """Pretend every treated unit was treated ``shift`` periods early, using only pre-treatment data.
 
     Treated units keep observations strictly before ``g - anticipation``; their placebo cohort is
     ``g - shift``. The overall placebo ATT averages placebo event times ``0 .. shift - 1 - anticipation``,
     all of which precede real treatment. A design whose parallel-trends assumption holds should
-    find no effect.
+    find no effect. ``cohorts`` restricts the estimated (real) cohorts; units of other cohorts
+    keep serving as not-yet-treated comparisons at their shifted dates.
     """
     if shift < 1 + anticipation:
         raise ValueError('shift must leave at least one placebo post period before real treatment')
-    outcomes, cohorts = {}, {}
+    outcomes, shifted = {}, {}
     for unit, series in panel.outcomes.items():
         g = panel.cohorts[unit]
         if g is None:
-            outcomes[unit], cohorts[unit] = series, None
+            outcomes[unit], shifted[unit] = series, None
             continue
         kept = {t: v for t, v in series.items() if t < g - anticipation}
         if kept:
-            outcomes[unit], cohorts[unit] = kept, g - shift
-    placebo = panel.replace(outcomes=outcomes, cohorts=cohorts)
+            outcomes[unit], shifted[unit] = kept, g - shift
+    placebo = panel.replace(outcomes=outcomes, cohorts=shifted)
     last = shift - 1 - anticipation
     e_min = -shift if e_min is None else e_min
+    fake = None if cohorts is None else [g - shift for g in cohorts]
     result = event_study(placebo, e_min=e_min, e_max=last, post=range(0, last + 1), control_group=control_group,
-                         anticipation=anticipation, alpha=alpha, bootstrap=0)
+                         anticipation=anticipation, alpha=alpha, bootstrap=0, cohorts=fake)
     overall = result['overall']
     return {'test': 'placebo_date', 'shift': shift, 'overall': overall,
             'event_time': [r for r in result['event_time'] if r['e'] >= 0],
@@ -37,7 +40,7 @@ def placebo_date_test(panel, *, shift, control_group='not_yet_treated', anticipa
 
 
 def placebo_unit_test(panel, *, replications=100, seed=0, e_min, e_max, post=None, control_group='not_yet_treated',
-                      anticipation=0, alpha=0.05, observed=None, min_never_treated=20):
+                      anticipation=0, alpha=0.05, observed=None, min_never_treated=20, cohorts=None):
     """Assign fake cohorts to never-treated units and re-estimate.
 
     Real treated units are removed. In each replication a share of never-treated units equal to
@@ -54,7 +57,7 @@ def placebo_unit_test(panel, *, replications=100, seed=0, e_min, e_max, post=Non
         s = panel.strata[unit]
         if panel.cohorts[unit] is None:
             by_stratum_units.setdefault(s, []).append(unit)
-        else:
+        elif cohorts is None or panel.cohorts[unit] in set(cohorts):
             by_stratum_cohorts.setdefault(s, []).append(panel.cohorts[unit])
     for s, units in by_stratum_units.items():
         treated = len(by_stratum_cohorts.get(s, []))
@@ -63,7 +66,7 @@ def placebo_unit_test(panel, *, replications=100, seed=0, e_min, e_max, post=Non
     estimates, rejections, ran = [], 0, 0
     base = panel.subset(never)
     for _ in range(replications):
-        cohorts = {u: None for u in never}
+        assigned = {u: None for u in never}
         for s, units in by_stratum_units.items():
             pool = by_stratum_cohorts.get(s)
             if not pool:
@@ -71,8 +74,8 @@ def placebo_unit_test(panel, *, replications=100, seed=0, e_min, e_max, post=Non
             k = max(1, round(shares[s] * len(units))) if len(units) > 1 else 0
             k = min(k, len(units) - 1)
             for unit in rng.sample(units, k):
-                cohorts[unit] = rng.choice(pool)
-        fake = base.replace(cohorts=cohorts)
+                assigned[unit] = rng.choice(pool)
+        fake = base.replace(cohorts=assigned)
         result = event_study(fake, e_min=e_min, e_max=e_max, post=post, control_group=control_group,
                              anticipation=anticipation, alpha=alpha, bootstrap=0)
         overall = result['overall']
