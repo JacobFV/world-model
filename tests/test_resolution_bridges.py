@@ -69,6 +69,9 @@ class PublishedCrosswalkTests(unittest.TestCase):
             entity('opensanctions:NK-mgr', 'Ship Manager', 'business'),
             ident('10', 'opensanctions:NK-mgr', {'id': 'imo:5342883', 'scheme': 'imoNumber', 'value': '5342883'}),
             ident('11', 'opensanctions:NK-mgr', {'scheme': 'uniqueEntityId', 'value': 'GQBPAV1TFF41'}),
+            # a placeholder OGRN printed for two unrelated organisations: fails the check digit rule
+            ident('20', 'opensanctions:NK-mgr', {'id': 'ru_ogrn:0000000000000', 'scheme': 'ogrnCode'}),
+            ident('21', 'opensanctions:NK-bank', {'id': 'ru_ogrn:0000000000000', 'scheme': 'ogrnCode'}),
             entity('opensanctions:Q672671', 'Robert Aderholt', 'person')])
         publish('marine_ais', [
             entity('mmsi:572469210', 'REAL SHIP', 'vessel'),
@@ -120,6 +123,9 @@ class PublishedCrosswalkTests(unittest.TestCase):
         self.assertEqual(report['counts']['bridge_claims_sanctions_register_number'], 2)
         # neither a failed check digit nor an unnamed register is read
         self.assertEqual(members('ofac:party:2'), ['ofac:party:2'])
+        # a typed placeholder OGRN is refused too, so the manager and the bank stay apart
+        self.assertEqual(report['counts']['check_digit_failures_ru_ogrn'], 2)
+        self.assertNotIn('opensanctions:NK-mgr', members('ofac:party:1'))
 
     def test_gleif_bic_meets_the_sanctions_swift_code(self):
         report, members = self.resolve()

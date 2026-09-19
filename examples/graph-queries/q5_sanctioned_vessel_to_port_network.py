@@ -111,7 +111,10 @@ def main():
         'which_dataset_supplied_which_edge': {
             'vessel sanctions listing plus its IMO / MMSI': 'ofac_sanctions / other_sanctions_lists / '
                                                             'opensanctions / opensanctions_graph',
-            'listing <-> AIS vessel identity': 'asserted: the same IMO or MMSI value is published on both sides',
+            'listing <-> AIS vessel identity': 'asserted: the same IMO or MMSI value is published on both sides. '
+                                               'A value OFAC marks as fraudulently used is refused (also on the '
+                                               'CSL copy that drops the flag), and an IMO company number on an '
+                                               'organisation never meets an IMO ship number',
             'AIS vessel entity and position events': 'marine_ais',
             'ports, UN/LOCODEs and the waterway node network': 'transport (USACE + World Port Index + USACE '
                                                                'waterway network)',

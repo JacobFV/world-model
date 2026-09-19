@@ -33,6 +33,7 @@ import uuid
 
 from .graph import Graph
 from .resolution.bridges import (BRIDGE_TAGS, BRIDGES, IMO_SHIP_ENTITY_TYPES, LINK_PREDICATES, NAMESPACE_ALIASES,
+                                 REGISTER_VALIDATORS,
                                  cardinality as bridge_cardinality, flagged_fraudulent, normalize_value, record_claims)
 from .resolution.deterministic import MAPPING_SPECS
 from .util import atomic_json, canonical, digest, file_hash, now, read_json, slug
@@ -500,7 +501,13 @@ EXTRA_UNIQUE_NAMESPACES = frozenset({'gb_company_number', 'cusip', 'permid', 'ru
 # dataset's rows for the value are refused for clustering, and counted. In the other namespaces a
 # within-dataset repeat is two records of one thing (a hull re-flagged under a second MMSI keeps
 # its IMO number), which is exactly what the identifier is for, and is reported but kept.
-REFUSE_DUPLICATES_WITHIN_A_DATASET = frozenset({'iata', 'icao', 'ru_inn', 'swift'})
+#
+# Measured on this catalog before the rule was written: of 519 INN values opensanctions_graph
+# prints for two or more of its records, and 338 OGRN values, most pair *different* organisations
+# ("Gazprom Dobycha Krasnodar" and "Gazprom Dobycha Vuktyl"; a company and a person), because a
+# successor keeps its predecessor's numbers. 28 UN/LOCODEs are printed by two World Port Index
+# ports (two harbours in one locode), and an MMSI is a radio identity reassigned between hulls.
+REFUSE_DUPLICATES_WITHIN_A_DATASET = frozenset({'iata', 'icao', 'ru_inn', 'ru_ogrn', 'swift', 'unlocode', 'mmsi'})
 # Sentinels identity_records yields alongside claims.
 ENTITY_ROW, FRAUDULENT_CLAIM = '__entity__', '__fraudulent__'
 
@@ -799,6 +806,9 @@ def identity_links(store, items, *, workdir, namespaces=None, progress=None, bri
             except ValueError:
                 counts['unnormalizable_identifiers'] += 1
                 continue
+            if bridges and namespace in REGISTER_VALIDATORS and REGISTER_VALIDATORS[namespace](value) is None:
+                counts['check_digit_failures_' + namespace] += 1
+                continue
             if flagged:
                 links.add_flagged(namespace, value, scope, record)
                 continue
@@ -808,6 +818,8 @@ def identity_links(store, items, *, workdir, namespaces=None, progress=None, bri
         connection.execute('CREATE INDEX ids_bridge ON ids(bridge, namespace, scope, value)')
         bridge_conflicts = refuse_bridge_cardinality_violations(connection)
         counts['bridge_cardinality_refusals'] = len(bridge_conflicts)
+        for conflict in bridge_conflicts:
+            counts['bridge_cardinality_refusals_' + conflict['bridge']] += 1
         connection.execute('CREATE INDEX ids_value ON ids(namespace, value, scope)')
         refusals, within_dataset_duplicates = refuse_flagged_and_ambiguous_values(connection)
         counts.update(refusals)

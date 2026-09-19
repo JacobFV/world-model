@@ -183,7 +183,9 @@ def _count(work, sql, *args):
 def _measure(work, *, mentions, families, domain_of, top):
     """The report, from ``eds(entity_id, dataset)``, ``res`` and (optionally) ``men`` in ``work``."""
     work.execute('CREATE TABLE fam (dataset TEXT PRIMARY KEY, family TEXT)')
-    datasets = [row[0] for row in work.execute('SELECT DISTINCT dataset FROM eds')]
+    datasets = {row[0] for row in work.execute('SELECT DISTINCT dataset FROM eds')} | set(families)
+    if mentions:
+        datasets |= {row[0] for row in work.execute('SELECT DISTINCT dataset FROM men')}
     work.executemany('INSERT INTO fam VALUES (?,?)', [(d, families.get(d) or d) for d in datasets])
     work.executescript(
         'CREATE TABLE ids AS SELECT DISTINCT entity_id FROM eds;'
@@ -207,9 +209,10 @@ def _measure(work, *, mentions, families, domain_of, top):
             'CREATE INDEX men_id ON men(entity_id);'
             'CREATE TABLE gm AS SELECT g, dataset FROM gd UNION '
             '  SELECT m.g, x.dataset FROM members m JOIN men x ON x.entity_id = m.entity_id;'
-            'CREATE TABLE gmn AS SELECT g, COUNT(*) AS n FROM gm GROUP BY g;'
+            'CREATE TABLE gmn AS SELECT gm.g AS g, COUNT(*) AS n, COUNT(DISTINCT fam.family) AS f FROM gm '
+            '  JOIN fam ON fam.dataset = gm.dataset GROUP BY gm.g;'
             'CREATE INDEX gmn_g ON gmn(g);')
-        mention_column, mention_join = ', SUM(gmn.n >= 2)', ' JOIN gmn ON gmn.g = grp.g'
+        mention_column, mention_join = ', SUM(gmn.n >= 2), SUM(gmn.f >= 2)', ' JOIN gmn ON gmn.g = grp.g'
     by_dataset = []
     for row in work.execute(
             'SELECT e.dataset, COUNT(*), SUM(idn.n >= 2), SUM(gn.n >= 2), SUM(gn.f >= 2), SUM(grp.clustered)%s '
@@ -221,6 +224,7 @@ def _measure(work, *, mentions, families, domain_of, top):
                 'joined_fraction': round(joined / entities, 6), 'joined_independent': independent}
         if mentions:
             item['joined_with_mentions'] = row[6]
+            item['joined_with_mentions_independent'] = row[7]
         by_dataset.append(item)
     by_dataset.sort(key=lambda item: (-item['entities'], item['dataset']))
     distinct = _count(work, 'SELECT COUNT(*) FROM ids')
@@ -240,12 +244,15 @@ def _measure(work, *, mentions, families, domain_of, top):
               'clusters': _count(work, 'SELECT COUNT(DISTINCT canonical_id) FROM res')}
     if mentions:
         with_mentions = _count(work, 'SELECT COUNT(*) FROM grp JOIN gmn ON gmn.g = grp.g WHERE gmn.n >= 2')
-        totals.update(joined_with_mentions=with_mentions, joined_with_mentions_fraction=share(with_mentions))
+        independent_mentions = _count(work, 'SELECT COUNT(*) FROM grp JOIN gmn ON gmn.g = grp.g WHERE gmn.f >= 2')
+        totals.update(joined_with_mentions=with_mentions, joined_with_mentions_fraction=share(with_mentions),
+                      joined_with_mentions_independent=independent_mentions,
+                      joined_with_mentions_independent_fraction=share(independent_mentions))
     domains = {}
     for item in by_dataset:
         slot = domains.setdefault(item['domain'] or 'unassigned', Counter())
         for key in ('entities', 'in_a_cluster', 'joined_by_shared_id', 'joined', 'joined_independent',
-                    'joined_with_mentions'):
+                    'joined_with_mentions', 'joined_with_mentions_independent'):
             if key in item:
                 slot[key] += item[key]
     by_domain = {name: dict(values, joined_fraction=round(values['joined'] / values['entities'], 6))

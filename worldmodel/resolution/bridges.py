@@ -175,6 +175,11 @@ def gb_company_number(value):
     return digits.zfill(8)
 
 
+# Check-digit validators applied to *every* claim in these namespaces, typed or bridged: a typed
+# ``ru_ogrn:0000000000000`` (which OpenSanctions prints for more than one organisation) is a
+# placeholder, not a registration.
+REGISTER_VALIDATORS = {'ru_inn': ru_inn, 'ru_ogrn': ru_ogrn}
+
 # (scheme as printed, issuing country as printed) -> (namespace, validator). Only pairs that name a
 # register are listed. "Registration ID" and "Government Gazette Number" under RUS are left out:
 # OFAC uses the first for more than one Russian register and the second is the OKPO statistical code.
