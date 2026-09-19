@@ -70,7 +70,20 @@ MAPPING_SPECS = {
     'fdic_cert_rssd': {'left': 'fdic_cert', 'right': 'rssd', 'relation': 'same_as', 'cardinality': '1:1',
                        'source': 'FDIC BankFind institutions FED_RSSD field'},
     'figi_ticker': {'left': 'figi', 'right': 'ticker', 'relation': 'listed_as', 'cardinality': '1:1', 'right_scope': 'mic',
-                    'dated': True, 'source': 'OpenFIGI mapping responses (exchange-level FIGI)'},
+                    'dated': True,
+                    'source': 'OpenFIGI v3 mapping answers to idType TICKER carrying a micCode, so the MIC is '
+                              "OpenFIGI's own scoping of the listing and not a translation of a Bloomberg "
+                              'exchange code',
+                    'note': 'tickers are reused across venues and reissued over time and OpenFIGI dates no '
+                            'mapping, so every row is an undated current snapshot (temporal_validity unknown) '
+                            'and is only ever scoped to a MIC'},
+    'openfigi_cusip_figi': {'left': 'cusip', 'right': 'figi', 'relation': 'same_as', 'cardinality': '1:1',
+                            'source': 'OpenFIGI v3 mapping answers to idType ID_CUSIP, read at the level that '
+                                      'names one instrument: the US composite (exchCode US) or a row with no '
+                                      'composite at all (a bond, a muni, a preferred)',
+                            'note': 'security identity only, never issuer identity. The CUSIP check digit is '
+                                    'recomputed before the value is read, and the venue-level rows of the same '
+                                    'answer are never read, because a CUSIP does not name a listing'},
     'wikidata_identifier': {'left': 'wikidata', 'right': 'external_identifier', 'relation': 'same_as',
                             'cardinality': '1:1',
                             'source': 'Wikidata external-identifier statements at truthy rank, read through the '
