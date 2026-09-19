@@ -49,8 +49,13 @@ Three properties of that query are what make it an acquisition rather than a scr
 
 115 requests, 1 h 51 min at one request per five seconds with `Retry-After` honoured, 43,169,561
 bytes (43,361,124 on disk). The declaration asked for 250,000,000, which was the pre-acquisition
-estimate with ORCID headroom in it; the fair-share pool was never a constraint, and the next
-declaration should ask for the ~80 MB this actually needs.
+estimate with ORCID headroom in it; the fair-share pool was never a constraint. The declaration
+now asks for **65,000,000** - the 43,361,124 actually written, plus 50% for Wikidata's growth
+between acquisitions - and the ORCID headroom is gone, because [the ORCID route does not
+answer](#p496-orcid-why-the-route-does-not-answer). `desired_bytes` is one of
+`budget.NON_CONTENT_KEYS`, so lowering it left `acquisition_identity` at
+`e9c72f5c…7ea5dd`, unchanged: the settled acquisition and the measured build below are still
+the ones this page describes.
 
 ### Why not a dump, and why the paging is not optional
 
@@ -150,7 +155,7 @@ and company number series apart.
 
 | Property | statements | why not |
 | --- | ---: | --- |
-| P496 ORCID iD | 2,065,439 | 4.0x the whole rest of the extract. At the measured ~45 s per 10,000-row page that is ~2.6 h of service time for one namespace. The largest known gap; see [follow-ups](#follow-ups) |
+| P496 ORCID iD | 2,065,452 | Not cost. **The route does not answer**, at any page size; measured 2026-09-19, [below](#p496-orcid-why-the-route-does-not-answer) |
 | P1566 GeoNames ID | 4,089,782 | no catalog dataset publishes a GeoNames ID |
 | P590 GNIS Feature ID | 883,567 | same |
 | P402 OpenStreetMap relation ID | 601,057 | same |
@@ -164,6 +169,80 @@ Identifiers this catalog holds that **Wikidata has no property for at all**, so 
 acquisition would bridge them: ICPSR legislator IDs (24,978 claims held), FEC *candidate* IDs
 (54,575), CUSIP (2,422,613; proprietary), the SAM Unique Entity ID (27,513), the Federal Reserve
 RSSD (27,566), and FIGI.
+
+### P496 (ORCID): why the route does not answer
+
+The first version of this page costed P496 at "~2.6 h of service time, ~207 pages" and filed it
+under cost. **That estimate was wrong in kind, not in degree**, and the correction is the useful
+result. Measured against the live service on 2026-09-19:
+
+| query | page size | wall | result |
+| --- | ---: | ---: | --- |
+| the paged acquisition query, `ORDER BY ?item ?value` | 10,000 | 78 s | **HTTP 504** |
+| the same | 5,000 | 72 s | **HTTP 504** |
+| the same | 2,500 | 60 s | **HTTP 500** |
+| the inner subquery alone, sorted | 10,000 | 65 s | **HTTP 504** |
+| the same, at `OFFSET 2000000` | 10,000 | 92 s | **HTTP 504** |
+| sorted, bare `?item ?value`, no labels, no `P31` | **100** | 60 s | **HTTP 429** † |
+| the inner subquery **unsorted** | 10,000 | 21 s | 10,000 rows |
+| `SELECT (COUNT(*))`, no filter | - | 4.8 s | **2,065,452** |
+
+† The `LIMIT 100` row is the weakest of these and is not leaned on. It burned a full 60 s before
+the service answered 429, which is the shape of a query that exhausted its budget rather than one
+rejected on arrival - but by then this session had made many requests, so the 429 cannot be
+cleanly separated from ordinary rate limiting. Probing stopped there rather than pressing the
+service to disambiguate it. The conclusion does not rest on this row: the 2,500-row page had
+already failed on a fresh connection, and the sort is the same sort at every limit.
+
+The cost is **the total order over 2,065,452 rows**, which the service cannot produce inside its
+60-second limit. That is why the page size is irrelevant: `LIMIT 100` fails exactly as `LIMIT
+10000` does, because the sort is paid before the limit. Narrowing the partition does not help
+either - `STRSTARTS` on the value or on the item IRI, a `>=`/`<` range on the value, and
+`hint:Query hint:optimizer "None"` all fail, and so does `COUNT(*)` *with* such a filter, while
+the unfiltered `COUNT(*)` returns in under five seconds. There is no index-backed way to subset a
+2M-row predicate through this endpoint.
+
+The control says this is about P496 and not about a bad service day: in the same session the
+P1278 page returned 10,000 rows in 8.5 s and the P6782 page at offset 130,000 returned its 5,973
+in 33.8 s, both exactly as the acquisition recorded them.
+
+**Nothing was weakened to get around it.** The page size was not lowered (it would not have
+helped, and it was measured rather than assumed); `pipeline.check_pages` is untouched; and
+unsorted `LIMIT`/`OFFSET` paging was refused outright, because without the total order the pages
+are not a partition - they may overlap and omit, and a silently short answer is the one failure
+this dataset exists to prevent. A repeat test of an unsorted page did return identical bytes, but
+the second and third responses came back in 0.5 s against 17 s for the first, so that measured the
+service's HTTP cache and not the engine's ordering. No stability is claimed.
+
+**There is a working route, and it is not the publisher's.** The Freiburg **QLever** mirror
+answers the full query - labels, `P31` classes and all - in 2.3-4.5 s per 10,000-row page, 25 of
+25 consecutive requests at five-second spacing with no HTTP 429, and its tail page at offset
+2,060,000 returns 5,457 rows for a total of 2,065,457. The 429s this page recorded against QLever
+earlier did not reproduce. What remains is the reason that mattered anyway: it is a third-party
+mirror with **its own dump date**, which is why its count is 2,065,457 against the service's
+2,065,452. Acquiring one property from a mirror while the other 31 come from the publisher's own
+service would put two snapshots under one `source.publisher`, and `_check_completeness` would be
+holding pages fetched from one corpus to a count measured against another. **That is a change of
+publisher, not an implementation detail, and it is not made here.** It is written down as a
+measured option, not taken.
+
+The value rule is ready when the data is. An ORCID iD is sixteen digits in four groups whose last
+character is an **ISO 7064 MOD 11-2** check character (`0`-`9` or `X`) over the first fifteen -
+the same kind of rule this bridge already recomputes for the LEI and the ISIN. Checked against
+50,000 real Wikidata P496 values sampled at five offsets, **8 fail it (0.016%)**, which is the
+familiar "a wiki has typos" rate. The rule is *not* in `resolution.wikidata.PROPERTIES`: a test
+holds the declaration and the resolution layer to exactly the same property set, so a property
+cannot be given a rule here until it is actually acquired. That coupling is deliberate and was
+left alone.
+
+**What an ORCID join would and would not establish**, recorded now so it is not argued later. A
+Wikidata P496 statement is a **community assertion** that this item is that researcher - an editor
+typed it, and nothing in Wikidata verifies it against ORCID. ORCID iDs are themselves
+**self-registered**: a researcher creates their own record, and ORCID does not adjudicate identity
+or affiliation. So a join through P496 is only as good as *both* sides' assertions, and it is two
+assertions deep rather than one. It would also be a join between two things that are already
+weakly held: the catalog's `orcid:` entities come from one publisher, and the check digit proves
+the string is well-formed, never that it belongs to the person named beside it.
 
 ## The bridges
 
@@ -450,11 +529,29 @@ become if it does not.
 
 ## Follow-ups
 
-1. **ORCID (P496, 2,065,439 statements).** The largest identified gap and the only one where the
-   cost is the reason rather than the absence of a partner. `crossref_research` holds 89,393
-   researchers keyed on `orcid:` and only 294 of them join anything. Acquiring it is ~2.6 h of
-   query-service time at the page size this dataset already uses; the declaration extends by one
-   row and ~207 pages.
+1. **ORCID (P496, 2,065,452 statements) - attempted, and refused on the route.** Not closed, but
+   no longer open for the reason it was filed under. Two things were measured and both corrected
+   this entry.
+
+   *The partner side is a quarter of what this page claimed.* "`crossref_research` holds 89,393
+   researchers keyed on `orcid:`" was wrong: 89,393 is that dataset's **whole** entity count, and
+   it splits `crossref:` 56,427 / **`orcid:` 20,577** / `doi:` 12,000 / `ror:` 389. So the catalog
+   holds **20,577** `orcid:`-keyed entities, all of them in `crossref_research` and none in any
+   other dataset. Of those, **243** are in the attached resolution, and all 243 already meet both
+   a second dataset and a second publisher. (`openalex_people` keys its 32,800 people and
+   institutions on `openalex:`, not on `orcid:`, so it is a partner for the claim but not for the
+   entity ID.) The gap is real and it is 20,334 entities, not 89,099.
+
+   *The route does not exist.* Measured above: the query service cannot sort 2,065,452 rows inside
+   its time limit at **any** page size, so the paging contract that makes this dataset's
+   completeness checkable is unavailable for P496. The ~2.6 h estimate is withdrawn. The only
+   measured working route is a third-party mirror with its own dump date, which is a change of
+   publisher and is not made here.
+
+   What is ready for whoever picks this up: the ISO 7064 MOD 11-2 value rule and its measured
+   0.016% failure rate over 50,000 real values, and the fact that `orcid` is **already** in
+   `resolution.UNIQUE_NAMESPACES` - no resolution-layer change is needed, and the eleven
+   namespaces this bridge had to add did not include it.
 2. **Rebuild the index and attach.** The scope measurement is only realised once
    `data/world_evidence/index.sqlite` holds the new entity records; until then the bridge is worth
    the +5,386 in the index measurement rather than the +215,062 in the scope measurement.
@@ -462,12 +559,21 @@ become if it does not.
    more OpenCorporates statements are one query away, and each one carries a jurisdiction code and
    that register's own number. They become joins the moment this catalog acquires a second national
    company register.
-4. **Two things the next re-acquisition fixes.** The acquisition receipt records
-   `license_status: CC0-1.0` and the publisher, but predates the fuller `license_id` / `terms_url`
-   / `redistribution` fields now in the declaration, so `rights.terms_unspecified` is still true on
-   the published output. And `acquisition.desired_bytes` is still the 250 MB pre-acquisition
-   estimate against 43 MB actually used. Both are declaration metadata and neither changes a
-   published record, so neither was worth invalidating the measured build for.
+4. **Half closed.** `acquisition.desired_bytes` is **done**: it is now 65,000,000, measured from
+   the 43,361,124 bytes the acquisition actually wrote plus 50% for Wikidata's growth, with the
+   basis recorded in the declaration. Because `desired_bytes` and `description` are both
+   `budget.NON_CONTENT_KEYS`, `acquisition_identity` is unchanged and the settled acquisition and
+   the measured build survived the edit.
+
+   The receipt half **remains open, and it cannot be closed without re-acquiring**.
+   `rights.inherited_rights` reads `license_id` / `license` off the *raw acquisition receipt's*
+   `source` block, not off the declaration; this receipt carries only `publisher`,
+   `license_status`, `license_notes` and `authority`, so `terms_unspecified` stays true until a
+   new acquisition writes a new receipt. Editing the receipt in place is not an option - a receipt
+   records what happened. This was going to ride along with the P496 acquisition; with that
+   refused, the doc's own original judgement stands: fixing two metadata fields is not worth
+   re-running 115 requests and invalidating every measured number on this page. The next
+   re-acquisition for any reason closes it.
 5. **17,218 items are typed `entity`** because no `P31` class they carry maps to this ontology, and
    1,625 statements were refused on shape. Both are listed per property and per class in the
    pipeline and its generated class map; neither blocks a join, but both are where a reader should
