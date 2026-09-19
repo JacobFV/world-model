@@ -239,10 +239,13 @@ it could have seen.
 
 ### 5. Coverage that is known rather than assumed
 
-**Partly closed.** `wm coverage-estimate` publishes 111 coverage estimates over 106 of the 135
-declarations, 39 of them against a sourced denominator and 15 against a count quoted from the
+**Partly closed.** `wm coverage-estimate` publishes 113 coverage estimates over 107 of the 136
+declarations, 40 of them against a sourced denominator and 16 against a count quoted from the
 dataset's own `dataset.json`. It found two real gaps (`sec_company_assets` holds 0.837 of its
-declared companyfacts CIKs; `openalex_people` publishes 1.258x its declared scope).
+declared companyfacts CIKs; `openalex_people` publishes 1.258x its declared scope). The newest
+declaration, `fred_county_laus_monthly_vintages`, was curated as it landed rather than added to the
+pile: 6,282 series measured against 6,282 declared, and 3,135 of 3,222 US counties (97.3%), the 5
+entity IDs outside the reference being retired Alaska census areas and Bedford City.
 
 The remaining 29 declarations were triaged rather than left in one pile (2026-09-19; it was 44
 curated datasets and 91 uncurated before). **18** are now reported in their own `derived` category:

@@ -669,6 +669,26 @@ POPULATIONS = {
                                             'than missing; counties are counted separately by '
                                             'fred_county_vintages:counties; the underlying BEA, Census and BLS '
                                             'estimates, which FRED republishes rather than produces'},
+    'fred_county_laus_monthly_vintages': {
+        'kind': 'register',
+        'population': 'the monthly LAUS county alias series configured for this dataset (unemployment rate and '
+                      'labour force, one of each per county), with their ALFRED vintages',
+        'unit': 'FRED series ID', 'count': {'prefix': 'fred:'},
+        'declared': {'value': 6282, 'field': 'acquisition.description'},
+        'not_covered': 'monthly employed and unemployed *levels*, which FRED publishes only as structured ids '
+                       'with twelve vintages from 2025-08-27 and this dataset does not acquire; QCEW county '
+                       'employment, which FRED does not archive at all; counties are counted separately by '
+                       'fred_county_laus_monthly_vintages:counties. A vintage is what FRED held, not what BLS '
+                       'published, and the units of the labour force series change inside the archive '
+                       '(Thousands of Persons through 2016-03-17, Persons after)'},
+    'fred_county_laus_monthly_vintages:counties': {
+        'dataset': 'fred_county_laus_monthly_vintages', 'kind': 'subset',
+        'population': 'US counties for which FRED publishes a monthly LAUS unemployment rate or labour force '
+                      'series', 'unit': 'county', 'count': COUNTY, 'denominator': COUNTIES,
+        'not_covered': _COUNTY_NOT_COVERED + '; a county is present from its first archived vintage, which is '
+                       '2005-07-06 for the 339 counties of the Federal Reserve Eighth District and 2007-07-05 '
+                       'nationally, so presence in this dataset is not real-time availability in any earlier '
+                       'month'},
     'fred_state_employment_vintages': {'kind': 'register',
                                        'population': 'the BLS CES State and Area series configured for this '
                                                      'dataset (state-equivalent x CES supersector, monthly, not '
