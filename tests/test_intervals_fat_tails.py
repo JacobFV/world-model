@@ -131,6 +131,31 @@ class RecursiveErrorTests(unittest.TestCase):
         for a, b in zip(fast, slow):
             self.assertAlmostEqual(a, b, delta=1e-6 * max(1.0, abs(b)))
 
+    def test_a_rolling_estimation_window_is_honoured(self):
+        """With a declared rolling ``window`` the fit for row t uses rows t-window..t-1, as an origin at t-1 would."""
+        def sigma(t, rng):
+            return rng.gauss(0, 400.0)
+        records, dates = _inventory_records(sigma, 120, seed=12)
+        options = {'interval_method': 'conformal_rolling', 'interval_window': 20, 'window': 40}
+        estimator = estimator_for('inventory_balance', options=options)
+        frame = estimator.frame(records, cutoff=dates[-1].isoformat(), vintage_policy='strict')
+        cols = estimator._columns(frame)
+        names = estimator.names(estimator.options)
+        rows = [(t, estimator.response(cols, t, estimator.options), estimator.design(cols, t, estimator.options), [])
+                for t in range(1, len(frame))]
+        fast = estimator.recursive_errors(cols, rows, names, estimator.options)
+        slow = []
+        for t, _, row, _ in rows[-20:]:
+            training = [r for r in rows if t - 40 <= r[0] < t]
+            fit = ols([r[1] for r in training], [r[2] for r in training], names=names)
+            predicted = estimator.level(cols, t, sum(fit['params'][n] * v for n, v in zip(names, row)), estimator.options)
+            slow.append(predicted - cols[estimator.target][t])
+        self.assertEqual(len(fast), 20)
+        for a, b in zip(fast, slow):
+            self.assertAlmostEqual(a, b, delta=1e-6 * max(1.0, abs(b)))
+        spec = estimator.fit(records, cutoff=dates[-1].isoformat(), vintage_policy='strict').diagnostics['predictive']
+        self.assertEqual(spec['shape_observations'], 20)
+
     def test_estimate_reports_the_out_of_sample_count(self):
         def sigma(t, rng):
             return rng.gauss(0, 400.0)

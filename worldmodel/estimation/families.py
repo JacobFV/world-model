@@ -238,7 +238,17 @@ class DynamicRegression(ComponentEstimator):
                        'first_stage': fit.get('first_stage'), 'overidentification': fit.get('overidentification')}
         out_of_sample = None
         if options.get('interval_method') in intervals.OUT_OF_SAMPLE_METHODS:
-            out_of_sample = self.recursive_errors(cols, rows, names, options)
+            recursive_rows = rows
+            if options.get('window'):
+                # The fit itself saw only the last `window` rows; the recursive fits walk the whole frame.
+                recursive_rows = []
+                for t in range(self.lags(options), len(frame)):
+                    try:
+                        recursive_rows.append((t, self.response(cols, t, options), self.design(cols, t, options),
+                                               self.instruments(cols, t, options)))
+                    except (ValueError, ZeroDivisionError, OverflowError):
+                        continue
+            out_of_sample = self.recursive_errors(cols, recursive_rows, names, options)
         predictive = self.predictive_specification(frame, errors, len(names), options, out_of_sample=out_of_sample)
         if predictive is not None:
             diagnostics['predictive'] = predictive
@@ -249,25 +259,26 @@ class DynamicRegression(ComponentEstimator):
     def recursive_errors(self, cols, rows, names, options):
         """Pre-origin out-of-sample one-step errors for ``conformal_rolling``.
 
-        For each of the last ``interval_window`` usable rows k (all of them when no
-        window is declared), the coefficients are re-estimated on rows ``0..k-1`` only
-        and row k is predicted through the same ``level`` mapping as a real forecast;
-        the error is in the same units as the in-sample residuals (relative for
-        multiplicative components). Every value read is in the origin's own frame, so
-        nothing after the origin enters. The first recursive fit needs
-        ``len(names) + 3`` rows, the estimator's own minimum. Plain least squares
-        accumulates X'X and X'y row by row (the same normal equations ``ols`` solves);
-        link-function and instrumented designs refit from scratch.
+        For each of the last ``interval_window`` usable rows (all of them when no window
+        is declared), the coefficients are re-estimated on the rows *before* it only and
+        the row is predicted through the same ``level`` mapping as a real forecast; the
+        error is in the same units as the in-sample residuals (relative for
+        multiplicative components). ``rows`` span the whole origin frame, so every value
+        read is in the origin's own frame and nothing after the origin enters. A declared
+        rolling estimation ``window`` is honoured: the fit for frame row t uses rows
+        t-window..t-1, exactly the rows the estimator would use at an origin ending at
+        t-1. The first recursive fit needs ``len(names) + 3`` rows, the estimator's own
+        minimum. Plain expanding least squares accumulates X'X and X'y row by row (the
+        same normal equations ``ols`` solves); everything else refits its training rows.
         """
-        if options.get('window'):
-            raise ValueError(f'{self.component}: conformal_rolling is not declared for rolling-window fits')
         window = options.get('interval_window')
-        first = len(names) + 3
+        rolling = int(options['window']) if options.get('window') else None
+        k = len(names)
+        first = k + 3
         start = first if window is None else max(first, len(rows) - int(window))
         errors = []
-        simple = not self.endogenous and not self.link
-        if simple:
-            k = len(names)
+        incremental = not self.endogenous and not self.link and rolling is None
+        if incremental:
             xtx = [[0.0] * k for _ in range(k)]
             xty = [0.0] * k
             for _, y, row, _ in rows[:start]:
@@ -278,30 +289,35 @@ class DynamicRegression(ComponentEstimator):
         for index in range(start, len(rows)):
             t, y, row, _ = rows[index]
             try:
-                if simple:
+                if incremental:
                     beta = la.solve(xtx, xty)
                 else:
-                    prefix = rows[:index]
-                    ys, xs = [r[1] for r in prefix], [r[2] for r in prefix]
+                    training = [r for r in rows[:index] if rolling is None or r[0] >= t - rolling]
+                    if len(training) < first:
+                        raise ValueError('too few rows for a recursive fit')
+                    ys, xs = [r[1] for r in training], [r[2] for r in training]
                     if self.endogenous:
                         exog = [j for j, n in enumerate(names) if n not in self.endogenous]
                         endog = [j for j, n in enumerate(names) if n in self.endogenous]
                         fit = tsls(ys, [[r[j] for j in exog] for r in xs], [[r[j] for j in endog] for r in xs],
-                                   [r[3] for r in prefix], exog_names=[names[j] for j in exog],
+                                   [r[3] for r in training], exog_names=[names[j] for j in exog],
                                    endog_names=[names[j] for j in endog], cov_type='nonrobust')
-                    else:
+                        beta = [fit['params'][n] for n in names]
+                    elif self.link:
                         fit = binomial_glm(ys, xs, names=names, link=self.link, cov_type='HC0')
-                    beta = [fit['params'][n] for n in names]
+                        beta = [fit['params'][n] for n in names]
+                    else:
+                        beta = la.solve(la.xtwx(xs), la.xtwy(xs, ys))
                 eta = math.fsum(b * v for b, v in zip(beta, row))
                 predicted = self.level(cols, t, _inv_logit(eta) if self.link else eta, options)
                 error = predicted - cols[self.target][t]
                 errors.append(error / predicted if self.multiplicative else error)
             except (ValueError, ZeroDivisionError, OverflowError):
                 pass
-            if simple:
-                for i in range(len(names)):
+            if incremental:
+                for i in range(k):
                     xty[i] += row[i] * y
-                    for j in range(len(names)):
+                    for j in range(k):
                         xtx[i][j] += row[i] * row[j]
         return errors
 
