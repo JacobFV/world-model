@@ -11,6 +11,7 @@ IDENTIFIED_DID = 'quasi_experimental_did'
 FAILED_DIAGNOSTICS = 'did_failed_diagnostics'
 NOT_ESTIMABLE = 'not_estimable'
 PREDICTIVE = 'predictive_association'
+POWER = 'design_power_analysis'
 LABELS = {
     IDENTIFIED_DID: 'Average effect on the treated identified by a staggered difference-in-differences design whose '
                     'pre-registered diagnostics (pre-trends, placebo dates, placebo units) all passed. Causal only '
@@ -20,6 +21,8 @@ LABELS = {
     NOT_ESTIMABLE: 'The pre-registered design could not be estimated with the available data (too few treated '
                    'units, clusters or outcome periods); no estimate is reported as an effect.',
     PREDICTIVE: 'A predictive association scored on held-out events. It says nothing about intervention responses.',
+    POWER: 'Operating characteristics of a registered design (size, diagnostic pass rates, minimum detectable effect) '
+           'measured on synthetic panels with no effect; says nothing about any real effect.',
 }
 
 DID_ASSUMPTIONS = [
@@ -52,6 +55,10 @@ def evaluate_acceptance(criteria, facts):
             value = facts.get('placebo_date_p'); passed = value is not None and value >= threshold
         elif kind == 'placebo_unit_rejection_rate_max':
             value = facts.get('placebo_unit_rejection_rate'); passed = value is not None and value <= threshold
+        elif kind == 'placebo_cluster_rejection_rate_max':
+            value = facts.get('placebo_cluster_rejection_rate'); passed = value is not None and value <= threshold
+        elif kind == 'metric_max':
+            value = facts.get(item['metric']); passed = value is not None and value <= threshold
         elif kind == 'robustness_ci_overlap':
             primary, other = facts.get('primary_ci'), facts.get(item.get('against', 'stacked_ci'))
             if primary and other:

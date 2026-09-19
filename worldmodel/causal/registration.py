@@ -16,7 +16,7 @@ REQUIRED = ('schema', 'study_id', 'registered_at', 'question', 'identification_s
             'assumptions', 'data', 'outcome_data_examined_before_registration')
 CRITERION_TYPES = ('min_treated_units', 'min_clusters', 'pre_trend_wald_p_min', 'placebo_date_p_min',
                    'placebo_unit_rejection_rate_max', 'robustness_ci_overlap', 'min_events', 'permutation_p_max',
-                   'metric_min')
+                   'metric_min', 'metric_max', 'placebo_cluster_rejection_rate_max')
 
 
 def validate_registration(document):
