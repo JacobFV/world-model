@@ -47,7 +47,7 @@ def embed_origin(panel, snapshot, model, cache, row, x_all, m_all, device, batch
     return np.concatenate(states)
 
 
-def nearest(store, county, as_of, *, checkpoint, across='time', limit=10):
+def nearest(store, county, as_of, *, checkpoint, across='time', limit=10, include_self=False):
     import torch
     from .assay import load_panel
     from .train import SubgraphCache, limit_gpu_memory
@@ -71,12 +71,13 @@ def nearest(store, county, as_of, *, checkpoint, across='time', limit=10):
         if across == 'time' and t == as_of:
             continue
         distance = np.linalg.norm(block - query, axis=1) / np.sqrt(block.shape[1])
-        for i in np.argsort(distance)[:limit]:
-            if panel.counties[i] == county and t == as_of:
+        for i in np.argsort(distance)[:limit + 1]:
+            # The county's own earlier states are the nearest by construction; they answer a different question.
+            if panel.counties[i] == county and not include_self:
                 continue
             candidates.append((float(distance[i]), panel.counties[i], t))
     candidates.sort()
-    return {'query': {'county': county, 'as_of': f'{as_of}-12-31'}, 'across': across,
+    return {'query': {'county': county, 'as_of': f'{as_of}-12-31', 'include_self': include_self}, 'across': across,
             'panel': panel_ref, 'checkpoint': str(checkpoint), 'encoder_fit_origin': meta['origin_year'],
             'nearest': [{'county': c, 'as_of': f'{t}-12-31', 'distance': round(d, 4)} for d, c, t in candidates[:limit]],
             'does_not_establish': [

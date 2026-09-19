@@ -209,7 +209,7 @@ def run_attempt(store, attempt_id, *, log=print, publish=True, device=None, spec
             pred = forecaster.predict(batcher, samples.snap[evaluate], samples.seed[evaluate])
             fits.append({'origin': T, 'stage': stage, 'candidate': name, **forecaster.diagnostics})
             log(f'    peak GPU {forecaster.diagnostics["peak_gpu_gib"]} GiB')
-            if T == test[-1] and publish:
+            if T == test[-1]:          # the encoder of the last origin, for embed-query; not part of the scoring
                 from .query import save_checkpoint
                 path = Path(store.root) / REPORTS / 'scratch' / 'checkpoints' / f'{attempt_id}.{name}.{T}.pt'
                 save_checkpoint(path, forecaster, panel_ref, panel, targets, cfg, T)

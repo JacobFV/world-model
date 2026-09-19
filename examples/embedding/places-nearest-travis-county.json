@@ -1,0 +1,71 @@
+{
+  "query": {
+    "county": "geo:US:county:48453",
+    "as_of": "2023-12-31",
+    "include_self": false
+  },
+  "across": "time",
+  "panel": {
+    "dataset": "county_panel",
+    "version": "1d6071311f9bfa69bf0352eb815d621bbdcf375c25968b0fd8a781c259641973"
+  },
+  "checkpoint": "data/embedding_reports/scratch/checkpoints/places.county_root_readout_v3.root_readout.2023.pt",
+  "encoder_fit_origin": 2023,
+  "nearest": [
+    {
+      "county": "geo:US:county:12021",
+      "as_of": "2022-12-31",
+      "distance": 0.1302
+    },
+    {
+      "county": "geo:US:county:12071",
+      "as_of": "2022-12-31",
+      "distance": 0.1325
+    },
+    {
+      "county": "geo:US:county:37183",
+      "as_of": "2022-12-31",
+      "distance": 0.1484
+    },
+    {
+      "county": "geo:US:county:48157",
+      "as_of": "2021-12-31",
+      "distance": 0.1678
+    },
+    {
+      "county": "geo:US:county:49035",
+      "as_of": "2022-12-31",
+      "distance": 0.172
+    },
+    {
+      "county": "geo:US:county:48157",
+      "as_of": "2022-12-31",
+      "distance": 0.1759
+    },
+    {
+      "county": "geo:US:county:48085",
+      "as_of": "2021-12-31",
+      "distance": 0.1777
+    },
+    {
+      "county": "geo:US:county:48085",
+      "as_of": "2020-12-31",
+      "distance": 0.2053
+    },
+    {
+      "county": "geo:US:county:08001",
+      "as_of": "2022-12-31",
+      "distance": 0.2056
+    },
+    {
+      "county": "geo:US:county:12021",
+      "as_of": "2021-12-31",
+      "distance": 0.2084
+    }
+  ],
+  "does_not_establish": [
+    "Nearness is in the encoder's learned state space, which was trained to forecast employment, establishments and population and to reconstruct masked features; it is not a similarity of every attribute a reader may care about.",
+    "A past match does not imply the query county will follow the matched county's later path.",
+    "The encoder was fit on labels public by 2023-12-31; states at later origins are embedded with it but were not in its training labels."
+  ]
+}

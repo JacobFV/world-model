@@ -185,6 +185,37 @@ python3 -m worldmodel embed-publish run.json      # at home, from a checkout at 
 whether `worldmodel/` was modified when it ran. A GPU memory fraction (`WM_EMBED_GPU_GB`) is not a
 host-memory cap on a GB10: CPU and GPU share one pool, which is why the cgroup is required.
 
+## The places query
+
+`wm embed-query` embeds every county at every origin with a saved encoder and ranks the states
+nearest to one county's state now. Each candidate is embedded from what was public at *its own*
+origin, so a match across time compares like with like.
+
+```sh
+python3 -m worldmodel embed-query geo:US:county:48453 --as-of 2023 --across time --limit 10 \
+    --checkpoint data/embedding_reports/scratch/checkpoints/places.county_root_readout_v3.root_readout.2023.pt
+```
+
+Travis County, Texas (Austin) as of 2023-12-31, nearest other counties at earlier origins
+([full output](../examples/embedding/places-nearest-travis-county.json)):
+
+| County | As of | Distance |
+| --- | --- | ---: |
+| 12021 Collier, FL | 2022 | 0.130 |
+| 12071 Lee, FL | 2022 | 0.133 |
+| 37183 Wake, NC (Raleigh) | 2022 | 0.148 |
+| 48157 Fort Bend, TX | 2021 | 0.168 |
+| 49035 Salt Lake, UT | 2022 | 0.172 |
+
+The county's own earlier states are excluded by default (`--include-self` keeps them); they are
+nearest by construction. The encoder is the one refit at the attempt's last origin
+(`worldmodel/embedding/assay.py` saves it; it is not part of the scoring). Distance is Euclidean in
+the 1,024-d state space, divided by the square root of the dimension.
+
+What it does not establish: nearness is in a space trained to forecast employment, establishments
+and population and to reconstruct masked features, not a similarity of everything a reader cares
+about; and a past match does not mean the query county will follow that county's later path.
+
 ## Record of attempts
 
 | Attempt | Status | Note |
