@@ -178,8 +178,8 @@ Then 2,000 rollouts per policy (999 random, 1,000 refined, seed 7, 4.1 s for all
   and `inflation_end ∈ [0.5, 2.33]` — and even there 51% fail.*
 - `cuts_to_3.40_then_hold`: fails in 675 of 999. Drivers: `output_gap_start` (spread 0.35),
   `output_gap_end` (0.33), `inflation_end` (0.25) — all "fails more when higher".
-- `hold_at_4.65`: fails in 670 of 999, but for a different reason: 414 of those are **budget**
-  failures. Holding a 4.65% reserve while the fitted rule cuts is expensive, and the declared
+- `hold_at_4.65`: fails in 670 of 999, but mostly for a different reason: 414 of those failing
+  draws breach the **budget** rather than the shortfall tolerance. Holding a 4.65% reserve while the fitted rule cuts is expensive, and the declared
   6 pp-quarter liquidity budget is what breaks. No single dimension separates failures at this
   sample size.
 - `last_rate_plus_50bp`: **0 of 999** random draws fail — and the refinement still found a
@@ -270,9 +270,8 @@ the rate, so each quarter is a contextual bandit). Evaluation: 2,000 held-out se
 seeds — and therefore the same scenarios — for every policy. Weighted score is
 −(0.75 × total shortfall + 0.25 × total idle reserve); higher is better.
 
-| Policy | Held-out **history** | | | Training history, fresh seeds | | |
+| Policy | Held-out history: score | success | feasible | Training history: score | success | feasible |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: |
-| | score | success | feasible | score | success | feasible |
 | learned (tabular Q) | −1.922 | 0.483 | 1.000 | **−1.102** | 0.885 | 1.000 |
 | persistence (margin 0) | −2.359 | 0.327 | 1.000 | −1.249 | 0.737 | 1.000 |
 | fixed 25 bp | −1.855 | 0.501 | 1.000 | −1.218 | 0.911 | 1.000 |
@@ -346,7 +345,7 @@ contract adds:
 | `worldmodel/decision/cli.py` | `wm decision-validate / -rollout / -stress / -optimize` |
 | `examples/decision/*.json` | the three contracts, their candidate policies and the optimization request |
 | `examples/decision/outputs/*.json` | the outputs quoted above |
-| `tests/test_decision_*.py` | 73 tests: schema and semantics, evidence lowering, binding coverage, replay determinism, search reproducibility, the gate and the refusals |
+| `tests/test_decision_*.py` | 74 tests: schema and semantics, evidence lowering, binding coverage, replay determinism, search reproducibility, the gate and the refusals |
 
 Related: [estimation and validation](estimation-and-validation.md),
 [calibration status](calibration-status.md) (which attempts pass, and on what),
