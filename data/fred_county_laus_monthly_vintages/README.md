@@ -1,8 +1,8 @@
 # fred_county_laus_monthly_vintages
 
 Monthly LAUS county series with **every ALFRED real-time vintage**: two families, 6,282 series,
-3,140 county-equivalents each, a median of 233 vintages per series reaching back to 2005-06-08. The deep half of
-the county LAUS archive, and the sibling of
+3,140 county-equivalents each, a median of 233 vintages per series reaching back to 2005-06-08. The
+deep half of the county LAUS archive, and the sibling of
 [`fred_county_vintages`](../fred_county_vintages/README.md), which holds the annual averages.
 
 ## Why it exists, and why it is a sibling rather than a tenth family
@@ -132,9 +132,10 @@ only in the annual structured rate — so coverage is the 50 states and DC.
 
 ## Measured coverage
 
-Published stage `4b58e747`, raw artifact `6b5c8ae3`: **6,282 shards, 1,541,203,717 bytes downloaded
-(1.44 GiB on disk against a declared 2 GiB ceiling), 16,157,146 records (16,138,199 observations,
-1,459,534 of them first releases), 365,322,814 bytes gzip**. FRED refused **no** series: every
+Published stage `4b58e747`, raw artifact `6b5c8ae3`: **6,282 shards, 1,541,203,717 bytes downloaded,
+1,546,360,458 bytes settled on disk (1.44 GiB, against the 2 GiB ceiling this track declared and the
+1.8 GiB the fair-share ledger allocated), 16,157,146 records (16,138,199 observations, 1,459,534 of
+them first releases), 365,322,814 bytes gzip**. FRED refused **no** series: every
 configured alias is in ALFRED. Everything below is counted from the published records by
 `measure_coverage.py` (`coverage.json`), not from metadata.
 
