@@ -128,6 +128,32 @@ Three things this table says:
   families it starts at **2017**; with population, personal income and per-capita income alone it
   starts at **2013**, and with population alone at **2007**.
 
+## Building a first-release panel
+
+Two readings, and they answer different questions.
+
+```python
+from worldmodel.store import Store
+store = Store(data_root)
+records = store.records(store.latest('fred_county_vintages', 'normalized'))
+
+# 1. First releases: the value as first published, with the day it was published.
+first = {(r['subject'], r['dimensions']['family'], r['valid_from'][:4]):
+         (r['value'], r['dimensions']['vintage'])
+         for r in records if r.get('kind') == 'observation'
+         and r['dimensions']['first_release'] and r['value'] is not None}
+
+# 2. As of a date: what a forecaster standing on `day` could have read for any reference year,
+#    including revisions published before `day` but not after.
+def as_of(record, day):
+    return record['attributes']['realtime_start'] <= day <= record['attributes']['realtime_end']
+```
+
+Reading (2) is the one an origin-dated panel wants: at origin `day`, take the latest vintage whose
+real-time period contains `day`. Reading (1) is the stricter "what was the first estimate" question
+and is what `first_release` marks. Either way, `observed_at` is the publication day, so a row can
+never carry information from after its own timestamp.
+
 ## County codes
 
 `build_config.py` never reads a code out of a title. GeoFRED's `regional/data` cross-sections,
