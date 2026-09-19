@@ -287,6 +287,60 @@ class FamilyLoaderTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             assets_data(self.store, symbols=['AAPL', 'SPY'], factor_symbol='SPY')
 
+    def test_legislative_positions_become_yea_nay_votes_for_one_chamber_congress(self):
+        def positions(chamber, congress, rollnumber, day, groups):
+            return {'kind': 'event', 'event_type': 'roll_call_member_positions', 'id': f'vv:positions:{chamber[0]}{congress}:{rollnumber}',
+                    'occurred_at': day, 'observed_at': '2026-09-15T00:00:00+00:00',
+                    'attributes': {'chamber': chamber, 'congress': congress, 'rollnumber': rollnumber, 'positions': groups}}
+
+        def service(icpsr, chamber, congress, party):
+            return {'kind': 'assertion', 'predicate': 'congressional_service', 'id': f'vv:service:{congress}:{chamber}:{icpsr}',
+                    'subject': f'icpsr:{icpsr}', 'value': {'chamber': chamber, 'congress': congress, 'party_code': party}}
+
+        records = [positions('Senate', 117, 2, '2021-01-07', {'yea': [1, 2], 'paired_nay': [3], 'present': [4], 'not_voting': [5]}),
+                   positions('Senate', 117, 1, '2021-01-06', {'announced_yea': [3], 'nay': [1, 2]}),
+                   positions('House', 117, 1, '2021-01-06', {'yea': [9]}),
+                   positions('Senate', 116, 1, '2019-01-06', {'yea': [1]}),
+                   service(1, 'Senate', 117, '100'), service(2, 'Senate', 117, '200'), service(4, 'Senate', 117, '200'),
+                   service(9, 'House', 117, '100')]
+        self.store.write('voteview_rollcalls', records)
+        data, evidence = load_for('legislative', self.store, {'congress': 117, 'chamber': 'Senate'})[:2]
+        self.assertEqual([r['id'] for r in data['rollcalls']], ['117:Senate:1', '117:Senate:2'])      # date order
+        self.assertEqual(sorted((v['rollcall'], v['member'], v['vote']) for v in data['votes']),
+                         [('117:Senate:1', '1', 0), ('117:Senate:1', '2', 0), ('117:Senate:1', '3', 1),
+                          ('117:Senate:2', '1', 1), ('117:Senate:2', '2', 1), ('117:Senate:2', '3', 0)])
+        parties = {m['id']: m['party'] for m in data['members']}
+        self.assertEqual(parties, {'1': '100', '2': '200', '3': None, '4': '200'})   # present/not voting are missing votes
+        self.assertEqual(data['construction']['voters_without_service_record'], 1)
+        self.assertEqual(evidence['series_counts'], {'rollcall_positions': 2, 'service': 3})
+        with self.assertRaises(MissingData):
+            load_for('legislative', self.store, {'congress': 118, 'chamber': 'Senate'})
+
+    def test_market_abm_bars_carry_the_declared_smm_configuration(self):
+        from datetime import date, timedelta
+        bars, day = [], date(2020, 1, 2)
+        for index in range(70):
+            bars.append(observation(id=f'alpaca:SPY:{day}', metric='close_price_total_return_adjusted', unit='USD/share',
+                                    subject='ticker:US:SPY', value=300.0 + index, valid_from=day.isoformat(),
+                                    valid_to=day.isoformat(), dimensions={'frequency': 'daily'}))
+            bars.append(observation(id=f'alpaca:AAPL:{day}', metric='close_price_total_return_adjusted', unit='USD/share',
+                                    subject='ticker:US:AAPL', value=100.0, valid_from=day.isoformat(),
+                                    valid_to=day.isoformat(), dimensions={'frequency': 'daily'}))
+            day += timedelta(days=1)
+        self.store.write('alpaca_daily_bars', bars)
+        grid = {'chartist_strength': [0.0, 40.0]}
+        data, evidence = load_for('market_abm', self.store, {'symbol': 'SPY', 'start': '2020-01-01', 'end': '2020-12-31',
+                                                             'window_length': 20, 'grid': grid})[:2]
+        self.assertEqual(len(data['bars']), 70)
+        self.assertEqual(data['bars'][0], {'date': '2020-01-02', 'close': 300.0})
+        self.assertEqual(len(data['windows']), 3)               # windows end at bars 20, 40 and 60
+        self.assertEqual(data['grid'], grid)
+        self.assertNotIn('steps', data['base_config'])
+        self.assertEqual(data['simulation_horizon_steps'], 69)
+        self.assertEqual(evidence['series_counts'], {'bars': 70})
+        with self.assertRaises(MissingData):
+            load_for('market_abm', self.store, {'symbol': 'SPY', 'start': '2020-01-01', 'end': '2020-01-31'})
+
     def test_commodities_converts_daily_flows_to_weekly_barrels(self):
         weeks = []
         for index, ending in enumerate(['2020-01-03', '2020-01-10']):
