@@ -28,7 +28,7 @@ Graph schema **4**. Schema 2 and 3 indexes stay readable.
 | Table | Column | Holds |
 | --- | --- | --- |
 | `records` | `published_at TEXT` | the date the fact became public, or `NULL` for unknown. Indexed (`published_idx`). |
-| `records` | `published_source TEXT` | which of the three sources supplied it: `dimensions.available_at`, `attributes.realtime_start`, `rule`, or `NULL`. |
+| `records` | `published_source TEXT` | which of the three sources supplied it: `dimensions.available_at`, `attributes.realtime_start`, `rule`. It can also be set *without* a date, to `refused:<vintage marker>` where a vintage field was rejected (below) or `unparsable:<field>` where a date would not parse, so a row that looks dated but is not says why. `NULL` here with a `NULL` date is plain "nothing to go on". |
 | `edges` | `published_at TEXT` | the same date, copied onto the edge row. Indexed (`edge_published_idx`). |
 | `edges` | `dataset_id INTEGER` | position of the edge's dataset in `metadata.inputs`, so an exclusion can be attributed to a dataset without joining 26M+ edges back to `records` by rowid. |
 | `metadata` | `edge_datasets` | `dataset_id` → `{dataset, stage}`. |
@@ -47,7 +47,11 @@ applies. There is no fourth branch: what is left is `NULL`.
    this file restates, so it is a rule wearing a different field's name. A date from this source is
    not automatically a recorded one.
 2. **`attributes.realtime_start`** — the ALFRED vintage date of a real-time-vintaged row. A
-   *measured* publication date: the archive records when that number was actually on the wire.
+   *measured* publication date: the archive records when that number was actually on the wire. It is
+   **refused** when the same record sets `attributes.vintage` to a value in
+   `worldmodel.graph.RETRIEVAL_VINTAGES` (today: `current_at_retrieval`), which is an adapter saying
+   outright that it filled the field with the download date because the source has no vintage. That
+   refusal is not hypothetical; see [the trap below](#one-trap-the-measurement-caught).
 3. **A declared dataset-level rule** — `worldmodel.graph.PUBLICATION_RULES`, in the same shape
    `worldmodel.embedding.county_panel.SOURCES` already uses: months after the end of the record's
    own reference period at which the value is treated as public, the revision class, and the release
