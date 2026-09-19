@@ -25,7 +25,7 @@ restores the old ingestion-time behaviour for the unknown rows and says so in th
 Schema-2 and schema-3 indexes carry no publication date at all: they stay readable, and an
 as-of query against one reports that it cannot answer rather than guessing.
 """
-from collections import Counter, deque
+from collections import Counter
 from datetime import date
 import json
 import math
@@ -497,11 +497,13 @@ class Graph:
         return json.loads(row['value']) if row else []
 
     def _count_drops(self, connection, as_of, table, scope, params, *, dataset_column=None):
-        """Count the rows this as-of query dropped for want of a publication date, by dataset.
+        """Count, by dataset, the rows in this query's scope whose publication date is unknown.
 
-        ``scope`` is the query's own WHERE body (without the as-of clauses) and ``params`` its
-        arguments. The count is of *candidate* rows, before any result limit: a traversal or a
-        ``LIMIT`` narrows what is returned, never what the policy silently withheld.
+        Under the default policy those are the rows the query withheld; under
+        ``include_unknown_publication`` they are the rows it let through on ingestion time alone.
+        ``as_of.report`` labels them accordingly. ``scope`` is the query's own WHERE body (without
+        the as-of clauses) and ``params`` its arguments. The count is of *candidate* rows, before
+        any result limit: a ``LIMIT`` narrows what is returned, never what the policy did.
         """
         clause, drop_args = as_of.drop_clause()
         if clause is None:
