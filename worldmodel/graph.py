@@ -26,7 +26,7 @@ Schema-2 and schema-3 indexes carry no publication date at all: they stay readab
 as-of query against one reports that it cannot answer rather than guessing.
 """
 from collections import Counter, deque
-from datetime import date, timedelta
+from datetime import date
 import json
 import math
 import os
@@ -110,26 +110,41 @@ def rule_publication(record, rule):
         return None
 
 
+#: ``attributes.vintage`` values that say the row is the *current* vintage as of retrieval, not an
+#: archived one. ``bls_labor`` and ``bls_prices`` say so and then fill ``attributes.realtime_start``
+#: with the retrieval date, because the BLS flat files carry no vintage at all. Taking that field at
+#: face value would put the ingest clock back into ``published_at`` wearing a vintage field's name -
+#: the exact defect this column exists to remove - so it is refused, counted under
+#: ``refused:<marker>`` in the census, and the record stays unknown.
+RETRIEVAL_VINTAGES = frozenset({'current_at_retrieval'})
+
+
 def publication(record, rule=None):
     """``(publication date, source)`` for one record: when the fact became public, and how we know.
 
     Priority: ``dimensions.available_at``, then ``attributes.realtime_start``, then the declared
     dataset rule, then ``(None, None)``. ``None`` means unknown; it is never the ingest time.
     """
-    for field, container in (('available_at', record.get('dimensions')),
-                             ('realtime_start', record.get('attributes'))):
+    attributes = record.get('attributes')
+    attributes = attributes if isinstance(attributes, dict) else {}
+    refused = None
+    for field, container in (('available_at', record.get('dimensions')), ('realtime_start', attributes)):
         value = (container or {}).get(field) if isinstance(container, dict) else None
-        if value:
-            try:
-                return time_key(value if isinstance(value, str) else str(value)), (
-                    'dimensions.available_at' if field == 'available_at' else 'attributes.realtime_start')
-            except ValueError:
-                return None, 'unparsable:' + field
+        if not value:
+            continue
+        if field == 'realtime_start' and str(attributes.get('vintage')) in RETRIEVAL_VINTAGES:
+            refused = 'refused:' + str(attributes.get('vintage'))
+            continue
+        try:
+            return time_key(value if isinstance(value, str) else str(value)), (
+                'dimensions.available_at' if field == 'available_at' else 'attributes.realtime_start')
+        except ValueError:
+            return None, 'unparsable:' + field
     if rule:
         value = rule_publication(record, rule)
         if value:
             return value, 'rule'
-    return None, None
+    return None, refused
 
 
 def edge_weight(record):
@@ -338,8 +353,11 @@ class Graph:
             ''')
             body = (lambda raw: zlib.compress(raw, 1)) if compress_bodies else (lambda raw: raw.decode())
             with connection:
+                edge_datasets = []
                 for dataset_id, (ref, records) in enumerate(groups):
                     input_ref = canonical(ref).decode()
+                    # edges carry the position in this list, not a repeated dataset string.
+                    edge_datasets.append({'dataset': ref['dataset'], 'stage': ref.get('stage', 'final')})
                     rule = rules.get(ref['dataset'])
                     if rule:
                         applied[ref['dataset']] = rule
@@ -387,8 +405,7 @@ class Graph:
                 connection.executemany('INSERT INTO metadata VALUES (?,?)', [
                     ('inputs', canonical(refs).decode()),
                     ('schema_version', SCHEMA_VERSION),
-                    ('edge_datasets', canonical([{'dataset': ref['dataset'], 'stage': ref.get('stage', 'final')}
-                                                 for ref in refs]).decode()),
+                    ('edge_datasets', canonical(edge_datasets).decode()),
                     ('publication_rules', canonical(applied).decode()),
                     ('publication_coverage', canonical(report).decode())])
             if after:

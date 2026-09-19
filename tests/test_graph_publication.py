@@ -49,6 +49,20 @@ class PopulationTests(unittest.TestCase):
         # And with no rule and nothing published, unknown stays unknown - never the ingest time.
         self.assertEqual(publication(observation('5', 'geo:US', 1.0)), (None, None))
 
+    def test_a_retrieval_vintage_is_refused_not_taken_as_a_publication_date(self):
+        """bls_labor fills realtime_start with the retrieval date and says so in attributes.vintage."""
+        retrieved = observation('1', 'geo:US', 1.0, attributes={'vintage': 'current_at_retrieval',
+                                                                'realtime_start': '2026-09-15'})
+        self.assertEqual(publication(retrieved), (None, 'refused:current_at_retrieval'))
+        # A declared rule still applies to such a record; only the fake vintage is refused.
+        dated = observation('2', 'geo:US', 1.0, valid_from='1990-01-01', valid_to='1991-01-01',
+                            attributes={'vintage': 'current_at_retrieval', 'realtime_start': '2026-09-15'})
+        self.assertEqual(publication(dated, PUBLICATION_RULES['bls_labor']), (time_key('1991-10-01'), 'rule'))
+        # And a real ALFRED vintage, which marks the vintage with the date itself, is not refused.
+        archived = observation('3', 'geo:US', 1.0, attributes={'realtime_start': '2001-01-01'},
+                               dimensions={'vintage': '2001-01-01'})
+        self.assertEqual(publication(archived), (time_key('2001-01-01'), 'attributes.realtime_start'))
+
     def test_rule_anchors_on_the_end_of_the_reference_period(self):
         rule = {'lag_months': 9}
         self.assertEqual(rule_publication({'valid_from': '1990-01-01', 'valid_to': '1991-01-01'}, rule),
