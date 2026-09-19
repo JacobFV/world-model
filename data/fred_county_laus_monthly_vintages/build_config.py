@@ -235,6 +235,19 @@ def units_history(key, series_id):
     return history
 
 
+def units_shape(history):
+    """What makes two units histories interchangeable to ``alfred.vintage_units``.
+
+    That function reads the units of the run containing a row's ``realtime_start``, and falls back to
+    the first run for a date before the history opens. So the units, the dates the units *change* and
+    the day the last run closes decide the answer, while the first run's ``realtime_start`` -- which
+    is just the day that series entered ALFRED, and differs across a family -- does not. Keying on it
+    would call 1,679 labor-force series exceptions that behave identically.
+    """
+    return json.dumps([[item['source_units'], None if number == 0 else item['realtime_start']]
+                       for number, item in enumerate(history)] + [history[-1]['realtime_end']])
+
+
 def shared_codes(series):
     by_code = collections.defaultdict(list)
     for series_id, (_, fips, _) in sorted(series.items()):
@@ -315,15 +328,12 @@ def build_family(key, name, family, catalog, geo_by_id, geo_by_base, places, ver
                 histories[series_id] = units_history(key, series_id)
             if verbose and number % 250 == 0:
                 print(f'  {name}: units history {number}/{len(series)}', file=sys.stderr)
-    shapes = collections.Counter(json.dumps([[h['source_units'], h['realtime_start']] for h in history])
-                                 for history in histories.values())
+    shapes = collections.Counter(units_shape(history) for history in histories.values())
     common_shape = shapes.most_common(1)[0][0]
-    common = next(h for h in histories.values()
-                  if json.dumps([[x['source_units'], x['realtime_start']] for x in h]) == common_shape)
+    common = next(h for h in histories.values() if units_shape(h) == common_shape)
     exceptions = {}
     if every_series:
-        exceptions = {s: h for s, h in histories.items()
-                      if json.dumps([[x['source_units'], x['realtime_start']] for x in h]) != common_shape}
+        exceptions = {s: h for s, h in histories.items() if units_shape(h) != common_shape}
     with_vintages = [p for p in probes if p['vintages']]
     entry = {
         **family, 'geofred_series_group': family['geofred_series_group'],
