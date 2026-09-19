@@ -142,7 +142,7 @@ def run_attempt(store, attempt_id, *, log=print, publish=True, device=None, spec
     attempt = json.loads(json.dumps(spec)) if spec is not None else attempt_spec(attempt_id)
     protocol, config = attempt['protocol'], attempt['config']
     targets = attempt['targets']
-    panel_ref, panel = load_panel(store, history=protocol['history'])
+    panel_ref, panel = load_panel(store, history=protocol['history'], ref=attempt.get('panel'))
     panel.fit_standardization(protocol['standardize_through'])
     validation = list(range(protocol['validation_origins'][0], protocol['validation_origins'][1] + 1))
     test = list(range(protocol['test_origins'][0], protocol['test_origins'][1] + 1))
