@@ -2000,6 +2000,67 @@
       "expected_limits": "Total-return adjusted closes are restated by later distributions, so revisions are declared minor and no_revision_leakage is expected to fail, as it does for assets_model.alpaca_daily. The SMM distance matches four moments with a one-parameter grid, so the fitted model can reproduce at most the volatility level, not its clustering; beating the previous-window baseline on window sd is not expected. Alpaca bars are personal/internal use only, so the report stays local.",
       "compute_budget": "Measured before registration on a synthetic fixture of this attempt's size (2,264 daily closes, 107 windows of 21 returns, the same splits and SMM configuration): the whole validate_process takes 69.0 s with the frozen pre-change module and 29.3 s after the speed-up, peak RSS 35 MB, same report_id (2707d66a958c...). cProfile puts 97% of the time in the Walrasian price search, where _theta was re-evaluated for every agent at every one of ~102 bisection prices per step although only fundamentalist allocations depend on the price. simulation_horizon_steps (set by the loader to the full sample) makes each configuration a single simulated path shared by every origin, so the grid SMM refit at each window origin costs moments over cached prefixes, not new simulations. Loading SPY from alpaca_daily_bars takes 27 s (a streaming scan of the 3.8 GB dataset). Budget: 30 minutes wall clock, unchanged.",
       "run_note": "2026-09-18 (UTC 2026-09-19T01:11-01:13), after scoring. Ran inside the budget: 106.3 s wall clock including the 27 s scan of alpaca_daily_bars, peak RSS 77 MB, 0 skipped origins, run from a frozen copy of the code at commit 6cf509d. FAIL on four criteria: beats_persistence_dm (p = 0.819), beats_historical_mean_dm (p = 0.998), interval_coverage 0.222 against 0.80 +/- 0.20, and no_revision_leakage (adjusted closes, as expected). minimum_test_forecasts (18 windows >= 10), parameter bounds and timing leakage pass. The SMM selects chartist_strength 0 at the final cutoff; the simulated window sd is biased up by 0.0033 (MAE 0.0035 against persistence 0.0023) and its 10-run spread is narrow (mean 80% width 0.0041), so the intervals miss from above. Report 1f9fadd315a2..., artifact calibration_reports@0e7bd72c9f17 (estimate artifact f4c6f5924ac8)."
+    },
+    {
+      "id": "influence_model.house_pac_share_defection",
+      "kind": "family",
+      "target": "influence",
+      "process_id": "influence_model",
+      "loader": {
+        "function": "influence_data",
+        "options": {
+          "chamber": "House",
+          "start_congress": 110,
+          "end_congress": 118,
+          "outcome": "party_defection_rate_pct",
+          "exposure": "pac_share_of_receipts_pct",
+          "min_party_unity_votes": 20
+        }
+      },
+      "data": "influence_panel/panel@4562e7f9 (derived; its manifest pins congress_people@79e40ffa, voteview_rollcalls@fce7b752, govinfo_billstatus@bd0448be, congress_gov_api@44cd88fe, lda_lobbying@3eba146b, fec@93722c10, fec_candidates@a46824fd, fec_individual_contributions@4c5960d6, fec_individual_contributions_2022@1f44d0ca, fec_individual_contributions_2024@83a01f42). Rows used: House, 110th-118th Congresses.",
+      "protocol": {
+        "train_end": "2017-01-03",
+        "validation_end": "2021-01-03",
+        "cutoff": "2025-01-03",
+        "vintage_policy": "family_rows",
+        "refit_every": 1,
+        "horizon": 1
+      },
+      "entity_rule": "Every House member-Congress row of influence_panel for the 110th-118th Congresses (the complete Congresses with Voteview member-level positions) whose member is of a single major party (Voteview 100 or 200) in that Congress, cast at least 20 yea/nay votes on party-unity roll calls, and has positive FEC weball total_receipts for a chamber-matched candidate id in the concurrent cycle. Availability only; no outcome enters the rule. Members first seen in a scored Congress have no history and are not forecast by the family's forecaster.",
+      "split_rule": "By CONGRESS, row date = the day the Congress ends (roll-call record and concurrent FEC cycle complete): fit through the 114th (2017-01-03), validate the 115th-116th, test the 117th-118th (2023-01-03 and 2025-01-03). Each holdout origin refits on Congresses up to and including the previous one. The 119th Congress is in progress and is excluded.",
+      "rationale": "First run of the influence family on real data, made possible by the influence_panel derived dataset. Unit = member (bioguide), period = Congress. Outcome = percent of the member's yea/nay votes on party-unity roll calls cast against their own party majority, computed from Voteview member positions (roll-call records are not revised). Exposure = FEC weball other_committee_contributions as a percent of total_receipts in the concurrent cycle (money from PACs and other committees, the FEC's own source split). Two-way fixed effects (member, Congress), unit-clustered, observational: identification is correlational by the family's declaration. The forecaster predicts next-Congress defection given the realized exposure; acceptance is the family default plus the declared beats_fixed_effects_only_dm, i.e. the exposure must add squared-loss skill over the same two-way effects without it. Registered together with influence_model.house_business_pac_defection before either was scored; the two are two exposures of one question and are reported together, not selected between.",
+      "expected_limits": "(1) no_revision_leakage is expected to FAIL BY DECLARATION: FEC weball totals are current-file values that incorporate amendments filed after each Congress, including for history rows, so the mapping declares revisions fec_amendments_possible and information_time valid_time. This differs from elections_model.medsl_house_districts, which declared revisions none on the strength of its target alone; this attempt declares what is true of its inputs rather than follow that precedent. (2) Exposure is a conditional input: the holdout tests the association given realized cycle money, not the ability to forecast money. (3) The panel cannot identify the family's lobbying exposure: lda_lobbying holds filing years 2025-2026 only, i.e. one incomplete Congress (the 119th), and a within-member panel with a scored holdout needs at least three complete periods with the exposure; lobbying therefore enters no attempt. (4) Party-unity status and defections are defined within the chamber-Congress roll-call set; the share of party-unity roll calls moves with the agenda, which the Congress effect absorbs only on average. (5) Correlational only: a within-member association between PAC share and defection says nothing about whether money changes votes.",
+      "run_note": "DISCLOSURE (2026-09-18, before registration): while checking the panel's construction, three individual 118th-Congress House rows (A000055, A000148, A000369) were printed, including their defection rates and receipts. No statistic relating outcome and exposure, and no aggregate of either over any window, was computed before this registration."
+    },
+    {
+      "id": "influence_model.house_business_pac_defection",
+      "kind": "family",
+      "target": "influence",
+      "process_id": "influence_model",
+      "loader": {
+        "function": "influence_data",
+        "options": {
+          "chamber": "House",
+          "start_congress": 110,
+          "end_congress": 118,
+          "outcome": "party_defection_rate_pct",
+          "exposure": "log_business_pac_direct_thousands",
+          "min_party_unity_votes": 20
+        }
+      },
+      "data": "influence_panel/panel@4562e7f9 (same build and rows as influence_model.house_pac_share_defection).",
+      "protocol": {
+        "train_end": "2017-01-03",
+        "validation_end": "2021-01-03",
+        "cutoff": "2025-01-03",
+        "vintage_policy": "family_rows",
+        "refit_every": 1,
+        "horizon": 1
+      },
+      "entity_rule": "Identical to influence_model.house_pac_share_defection.",
+      "split_rule": "Identical to influence_model.house_pac_share_defection.",
+      "rationale": "Same outcome, units, split and acceptance as influence_model.house_pac_share_defection with a different exposure: ln(1 + direct contributions (FEC pas2 transaction types 24K and 24Z) from PACs (committee type Q, N, V or W) whose FEC interest-group category is corporation (C), trade association (T), cooperative (V) or corporation without capital stock (W), in USD thousands, to the member's chamber-matched candidate id in the concurrent cycle). The category is the FEC's own published code for the connected organization, not an inferred industry. Registered together with the PAC-share attempt before either was scored.",
+      "expected_limits": "As influence_model.house_pac_share_defection, points (1)-(5). In addition: pas2 records the giving committee's report of the contribution, so money a PAC reports to a candidate's non-principal committee is included when the recipient is linked to the candidate id; categories are the giver's registration in the same cycle, and a giver not registered in that cycle is counted in direct_usd but not in the business total."
     }
   ],
   "not_run": [

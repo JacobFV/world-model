@@ -12,7 +12,8 @@ import common
 
 QUERIES = ['q1_sanctioned_to_listed_holders', 'q2_county_economy_hazard_assistance',
            'q3_commodity_production_trade_price', 'q4_legislator_bills_votes_money',
-           'q5_sanctioned_vessel_to_port_network', 'q6_bank_filings_to_identity_to_group']
+           'q5_sanctioned_vessel_to_port_network', 'q6_bank_filings_to_identity_to_group',
+           'q7_who_moves_on_this_bill']
 
 
 def main():

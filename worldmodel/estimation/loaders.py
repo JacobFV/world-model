@@ -1926,10 +1926,6 @@ BLOCKED_FAMILIES = {
                      missing=(('annual bilateral flows', 'cepii_baci'),),
                      available=(('monthly flows 2024+', 'un_comtrade'), ('distance, contiguity', 'cepii_gravity'),
                                 ('tariffs', 'wits_trains_tariffs'))),
-    'influence': Blocked('No unit-period panel with an exposure measure and an outcome is published: LDA filings and FEC '
-                         'flows are normalized, but the client/registrant-to-legislator attribution panel that the family '
-                         'fit contract needs is not built, and no published crosswalk links LDA clients to FEC committees.',
-                         missing=(('panel(unit, period, exposure, outcome)', 'lda_lobbying + fec + voteview_rollcalls'),)),
     'sanctions': Blocked('worldmodel.models.sanctions declares NON_ESTIMABLE: a legal-rule determination with no held-out '
                          'observable, so it can never be validated.'),
 }
@@ -2037,3 +2033,74 @@ def availability():
                                    'missing': [{'series': s, 'dataset': d} for s, d in blocked.missing],
                                    'available': [{'series': s, 'dataset': d} for s, d in blocked.available]}
     return out
+
+
+# ----------------------------------------------------------------------------- influence panel
+
+INFLUENCE_REVISIONS = 'fec_amendments_possible'
+
+
+def influence_data(store, *, chamber='House', start_congress=110, end_congress=118, outcome='party_defection_rate_pct',
+                   exposure='pac_share_of_receipts_pct', min_party_unity_votes=20, versions=None):
+    """Legislator x congress rows of the published ``influence_panel`` as the ``influence`` family mapping.
+
+    ``unit`` is the member's bioguide id, ``period`` the Congress and ``date`` the day it ends,
+    because a Congress's roll-call record and its concurrent FEC cycle are complete only then.
+    Only complete Congresses with member-level Voteview positions are read (110th onward), and
+    only rows of a single major party with at least ``min_party_unity_votes`` yea/nay votes on
+    party-unity roll calls, so no rate rests on a handful of votes.
+
+    * ``outcome`` ``party_defection_rate_pct`` -- percent of the member's yea/nay votes on
+      party-unity roll calls cast against the member's own party majority (computed from
+      Voteview member positions in the panel; roll-call records are not revised).
+    * ``exposure`` ``pac_share_of_receipts_pct`` -- FEC weball ``other_committee_contributions``
+      as a percent of ``total_receipts`` for the member's chamber-matched candidate id(s) in the
+      concurrent cycle; ``log_business_pac_direct_thousands`` -- ln(1 + direct 24K/24Z
+      contributions from PACs whose FEC interest-group category is corporation, trade
+      association, cooperative or corporation without capital stock, in USD thousands).
+
+    FEC totals incorporate amendments filed after the period, including for history rows, so the
+    mapping declares ``revisions: fec_amendments_possible`` and ``information_time: valid_time``.
+    """
+    from ..panels.influence import panel_observation
+    evidence = Evidence()
+    ref = catalog_ref(store, 'influence_panel', 'panel', (versions or {}).get('influence_panel'))
+    evidence.add_input(ref)
+    manifest = getattr(store, 'manifest', None)
+    if manifest is not None:
+        for upstream in manifest(ref).get('inputs', []):
+            evidence.add_input(upstream)
+    rows, skipped = [], {}
+    for record in stream_records(store, ref, needles=(f'"chamber":"{chamber}"',)):
+        if not record.get('unit') or record.get('chamber') != chamber:
+            continue
+        congress = record['congress']
+        reason = None
+        if not start_congress <= congress <= end_congress:
+            reason = 'outside_declared_congresses'
+        elif not record.get('period_complete'):
+            reason = 'congress_in_progress'
+        else:
+            values, reason = panel_observation(record, outcome=outcome, exposure=exposure,
+                                               min_party_unity_votes=min_party_unity_votes)
+        if reason:
+            skipped[reason] = skipped.get(reason, 0) + 1
+            continue
+        rows.append({'unit': record['unit'], 'period': congress, 'date': record['period_end'], **values,
+                     'party': record['party'], 'state': record.get('state'), 'panel_row': record['id']})
+        evidence.add(ref, record['id'], 'panel_rows')
+    if len(rows) < 100:
+        raise MissingData(f'Only {len(rows)} {chamber} member-congress rows could be built from influence_panel '
+                          f'(skipped {skipped})')
+    rows.sort(key=lambda r: (r['period'], r['unit']))
+    data = {'panel': rows, 'outcome': 'outcome', 'exposure': 'exposure', 'controls': [], 'fixed_effects': ['unit', 'period'],
+            'design': {'type': 'observational'}, 'information_time': 'valid_time', 'revisions': INFLUENCE_REVISIONS,
+            'declared': {'chamber': chamber, 'congresses': [start_congress, end_congress], 'outcome': outcome,
+                         'exposure': exposure, 'min_party_unity_votes': min_party_unity_votes},
+            'construction': {'rows': len(rows), 'units': len({r['unit'] for r in rows}),
+                             'periods': sorted({r['period'] for r in rows}), 'skipped': dict(sorted(skipped.items()))}}
+    return data, evidence.reference()
+
+
+FAMILY_LOADERS['influence'] = influence_data
+LOADER_FUNCTIONS['influence_data'] = influence_data

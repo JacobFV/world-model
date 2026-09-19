@@ -1,0 +1,87 @@
+{
+  "id": "influence_panel",
+  "schema_version": 2,
+  "kind": "derived",
+  "status": "built_from_published_inputs",
+  "description": "Legislator x congress panel joining FEC receipts by source type, committee-to-candidate money by giver type, LDA lobbying on the bills a member sponsored, cosponsored or voted on, committee assignments and Voteview roll-call positions. Joins use published identifiers only (bioguide, ICPSR, FEC candidate/committee IDs, LDA client/registrant IDs, published bill numbers); the Congress of a bill cited in LDA free text is inferred and labelled. Descriptive and correlational; see README.md for what it does not establish.",
+  "dependencies": [
+    "congress_people",
+    "voteview_rollcalls",
+    "govinfo_billstatus",
+    "congress_gov_api",
+    "lda_lobbying",
+    "fec",
+    "fec_candidates",
+    "fec_individual_contributions",
+    "fec_individual_contributions_2022",
+    "fec_individual_contributions_2024"
+  ],
+  "entrypoint": "pipeline.py:panel",
+  "parameters": {
+    "builder": "worldmodel.panels.influence",
+    "first_congress": 106,
+    "last_congress": 119,
+    "complete_through_congress": 118,
+    "lobbying_congress": 119,
+    "lobbying_filing_years": [2025, 2026],
+    "lda_activity_periods": ["first_quarter", "second_quarter", "third_quarter", "fourth_quarter"],
+    "lda_excluded_filing_types": ["RR", "RA"],
+    "lda_amount_attribution": "equal_split_across_distinct_bills_cited_in_the_filing",
+    "direct_contribution_transaction_types": ["24K", "24Z"],
+    "independent_expenditure_support_types": ["24E"],
+    "independent_expenditure_oppose_types": ["24A"],
+    "business_interest_group_categories": ["C", "T", "V", "W"],
+    "individual_contribution_datasets": {
+      "2022": "fec_individual_contributions_2022",
+      "2024": "fec_individual_contributions_2024",
+      "2026": "fec_individual_contributions"
+    },
+    "evidence_sample": 3
+  },
+  "sampling": {
+    "strategy": "derived",
+    "format": "jsonl",
+    "max_rows": 100,
+    "max_sample_bytes": 1048576,
+    "max_download_bytes": 1048576,
+    "max_uncompressed_bytes": 1048576,
+    "disk_budget_bytes": 67108864,
+    "criteria": "Sample an existing published panel only; never trigger upstream downloads or builds.",
+    "representative": false
+  },
+  "stages": [
+    {
+      "id": "bills",
+      "entrypoint": "pipeline.py:bills",
+      "depends_on": [],
+      "schema": {
+        "format": "jsonl",
+        "compression": "gzip",
+        "required": {"id": "string", "schema": "string", "evidence": "array"}
+      },
+      "validation": {
+        "allow_empty": false,
+        "max_rows": 1000000
+      },
+      "cache": "content",
+      "retention": "retain"
+    },
+    {
+      "id": "panel",
+      "entrypoint": "pipeline.py:panel",
+      "depends_on": ["bills"],
+      "schema": {
+        "format": "jsonl",
+        "compression": "gzip",
+        "required": {"id": "string", "schema": "string", "evidence": "array"}
+      },
+      "validation": {
+        "allow_empty": false,
+        "max_rows": 1000000
+      },
+      "cache": "content",
+      "retention": "retain"
+    }
+  ],
+  "output_stage": "panel"
+}
