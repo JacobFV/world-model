@@ -179,12 +179,15 @@ def _counterparties(connection, canonical_id, members, *, first, second, per_nod
     """Counterparties one and two hops out, through non-reference predicates, on asserted clusters."""
     own = set(members)
     marks = ','.join('?' * len(REFERENCE_PREDICATES))
-    hop1_edges, reference = [], []
+    hop1_edges, reference, capped = [], [], []
     for member in members:
         for column in ('subject', 'object'):
-            hop1_edges.extend(dict(r) for r in connection.execute(
+            found = [dict(r) for r in connection.execute(
                 'SELECT rowid AS eid, * FROM edges WHERE %s=? AND predicate NOT IN (%s) LIMIT ?' % (column, marks),
-                (member, *REFERENCE_PREDICATES, per_node)))
+                (member, *REFERENCE_PREDICATES, per_node + 1))]
+            if len(found) > per_node:
+                capped.append({'entity_id': member, 'direction': 'out' if column == 'subject' else 'in'})
+            hop1_edges.extend(found[:per_node])
             reference.extend(dict(r) for r in connection.execute(
                 'SELECT rowid AS eid, * FROM edges WHERE %s=? AND predicate IN (%s) LIMIT 40' % (column, marks),
                 (member, *REFERENCE_PREDICATES)))
@@ -236,7 +239,7 @@ def _counterparties(connection, canonical_id, members, *, first, second, per_nod
             'hubs_not_expanded': [{'entity_id': k, 'degree_at_least': v} for k, v in sorted(hubs.items())],
             'classifications_places_and_programs': describe_edges(connection, reference[:60]),
             'reference_predicates_not_expanded': list(REFERENCE_PREDICATES),
-            'per_node_edge_bound': per_node}
+            'per_node_edge_bound': per_node, 'hop_1_edges_capped': capped}
 
 
 def _identity(connection, members, literal):
@@ -419,6 +422,10 @@ def _runs_out(info, members, descriptions, edge_groups, reach, obs_truncated, se
     if reach['hop_1_truncated'] or reach['hop_2_truncated']:
         out.append('Counterparties were truncated to the most-connected %d at hop 1 and %d at hop 2 (of %d and %d '
                    'seen).' % (len(reach['hop_1']), len(reach['hop_2']), reach['hop_1_total'], reach['hop_2_total_seen']))
+    if reach['hop_1_edges_capped']:
+        out.append('Hop-1 counterparties were read from the first %d non-reference edges of %s; the edge counts above '
+                   'are exact, the counterparty list is not.' % (reach['per_node_edge_bound'], ', '.join(
+                       '%s (%s)' % (c['entity_id'], c['direction']) for c in reach['hop_1_edges_capped'][:6])))
     if reach['hubs_not_expanded']:
         out.append('%d hop-1 counterparties are hubs (more edges than the degree bound) and were not expanded to hop 2: '
                    '%s.' % (len(reach['hubs_not_expanded']),
