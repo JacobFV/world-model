@@ -813,6 +813,318 @@
       },
       "rationale": "A second actor domain, on the same protocol and the same three candidates as actors v2, so the question 'does the world-state embedding add signal to a strong model on the same inputs?' is asked of a different kind of decision. A sample is one member's yea or nay on a party-unity roll call; the label is voting against their own party's majority. The subgraph is the pair, the member, the roll call, the bill's sponsor, the eight members who agreed most with them over the previous two years, and their state delegation: relations a per-member model cannot see. The member's own defection rate over the previous year is a declared baseline, because it is what anyone would use.",
       "expected_limits": "Party-unity votes only, so abstentions and consensus votes produce no samples, and the defection base rate is a few per cent: skill has to come from ranking rare events. Sampling is capped at 40 votes per member per quarter and 8,000 samples per quarter, so scores describe that sample. DW-NOMINATE and roll-call midpoints are excluded because Voteview re-estimates them from later votes; cosponsors are excluded because the published lists carry no dates, which removes the strongest available signal of a bill's bipartisanship. Members who switch party get a new ICPSR id, which resets their history. The test window includes the 117th-118th Congresses; the validation block includes 2020. Compute budget 120 minutes, declared before running."
+    },
+    {
+      "id": "actors.fec_repeat_contribution_v1",
+      "domain": "fec",
+      "north_star": "Actors, in a third domain: forecast what an organisation does next, and test whether the world-state embedding adds signal to a strong model that already sees the same inputs.",
+      "input": {
+        "dataset": "fec",
+        "stage": "normalized",
+        "version": "93722c10f3b8383b0c5ee6c76d0e3dca593641282c6d9afbf1aa14512a0e2ed9"
+      },
+      "targets": [
+        "gives_again"
+      ],
+      "protocol": {
+        "history": 4,
+        "per_quarter": 8000,
+        "per_giver": 50,
+        "first_origin_quarter": "2004-12-31",
+        "standardize_through": "2012-12-31",
+        "blocks": [
+          [
+            "2014-12-31",
+            "2014-12-31"
+          ],
+          [
+            "2016-12-31",
+            "2016-12-31"
+          ],
+          [
+            "2018-12-31",
+            "2018-12-31"
+          ],
+          [
+            "2020-12-31",
+            "2020-12-31"
+          ],
+          [
+            "2022-12-31",
+            "2022-12-31"
+          ]
+        ]
+      },
+      "candidates": {
+        "root_readout": {
+          "seed_only": false
+        },
+        "gbdt_plus_self_supervised_embedding": {
+          "kind": "gbdt_plus_self_supervised_embedding",
+          "components": 32
+        },
+        "gbdt_plus_crossfit_encoder": {
+          "kind": "gbdt_plus_crossfit_encoder"
+        }
+      },
+      "baselines": [
+        "historical_mean",
+        "giver_repeat_rate",
+        "gbdt"
+      ],
+      "config": {
+        "d": 128,
+        "layers": 3,
+        "slots": 16,
+        "passes": 12,
+        "top_k": 16,
+        "out_dim": 1024,
+        "epochs": 3,
+        "batch": 512,
+        "lr": 0.001,
+        "weight_decay": 0.0001,
+        "dense_fraction": 0.3,
+        "gumbel": 0.5,
+        "mask_rate": 0.15,
+        "recon_weight": 0.3,
+        "calibration_quarters": 1,
+        "seed": 0
+      },
+      "gbdt": {
+        "n_estimators": 600,
+        "learning_rate": 0.03,
+        "num_leaves": 63,
+        "min_child_samples": 100,
+        "subsample": 0.8,
+        "subsample_freq": 1,
+        "colsample_bytree": 0.5,
+        "n_jobs": 8,
+        "random_state": 0,
+        "verbose": -1
+      },
+      "compute_budget_minutes": 120,
+      "criteria": [
+        {
+          "id": "minimum_test_forecasts",
+          "type": "min_forecasts",
+          "minimum": 12
+        },
+        {
+          "id": "beats_base_rate_dm",
+          "type": "diebold_mariano",
+          "baseline": "historical_mean",
+          "loss": "squared",
+          "max_pvalue": 0.1,
+          "require_lower_loss": true
+        },
+        {
+          "id": "beats_gbdt_dm",
+          "type": "diebold_mariano",
+          "baseline": "gbdt",
+          "loss": "squared",
+          "max_pvalue": 0.1,
+          "require_lower_loss": true
+        },
+        {
+          "id": "brier_skill_positive",
+          "type": "brier_skill",
+          "minimum": 0.0
+        },
+        {
+          "id": "expected_calibration_error_within_2pp",
+          "type": "calibration_error",
+          "measure": "expected_calibration_error",
+          "maximum": 0.02
+        },
+        {
+          "id": "no_timing_leakage",
+          "type": "leakage_audit"
+        },
+        {
+          "id": "no_revision_leakage",
+          "type": "revision_leakage",
+          "allow_series": [
+            "fec"
+          ],
+          "note": "Declared before running. The FEC bulk pas2 release is a snapshot taken at acquisition and carries no per-transaction filing or amendment date, so an amendment filed into a cycle's own file after that cycle's declared public date (31 January after it ends) cannot be told from the original report. The domain removes the part that is visible -- money whose transaction month falls outside the window of the cycle file carrying it, 650 of 3.23M groups -- and this allowance makes the rest visible in the report instead of hiding it in a False."
+        }
+      ],
+      "extra_criteria": {
+        "gives_again": [
+          {
+            "id": "beats_giver_repeat_rate_dm",
+            "type": "diebold_mariano",
+            "baseline": "giver_repeat_rate",
+            "loss": "squared",
+            "max_pvalue": 0.1,
+            "require_lower_loss": true
+          }
+        ]
+      },
+      "rationale": "A third actor domain, on the same runner, the same three candidates and the same question as actors v2, so 'does the world-state embedding add signal to a strong model on the same inputs?' is asked of an organisation's choice rather than a person's vote or a manager's trade. A sample is one (giving committee, recipient candidate committee, cycle) pair that gave in that cycle; the label is a direct contribution to the same recipient in the next cycle. The subgraph is the pair, the giver, the recipient, the giver's eight largest other recipients that cycle and the recipient's eight largest other givers: the bipartite structure a per-pair model cannot see. The giver's own repeat rate into the sample cycle is a declared baseline, because it is what anyone would use. Periods are two-year cycles, so there are only four test cycles: the quarter-clustered test has three degrees of freedom and is weak by construction, which is declared here rather than discovered later.",
+      "expected_limits": "Pairs are sampled at most 50 per giving committee and 8,000 per cycle, so scores describe that sampling, not the population of contribution relationships; the pooled Diebold-Mariano test treats thousands of pairs within a cycle as independent, and test.quarter_clustered_dm, over four test cycles, is the conservative check beside it. Giving means a direct contribution, an in-kind contribution or a coordinated party expenditure (24K, 24Z, 24C); independent expenditures and communication costs are features but never the label, because by law they are not coordinated with the candidate. A recipient committee that does not run again is labelled 0, so the task mixes the giver's choice with the candidate's, and a model can score well by forecasting retirements. Roughly 3.9% of pas2 groups carry no recipient committee id and are dropped, as are 2,390 undated groups and 650 reported outside their cycle window. Amendments filed into a cycle's own file after its declared public date cannot be distinguished in this release: no_revision_leakage carries an explicit allowance for that, and a pass on it is not evidence that no revision entered. Committee registration attributes (party, type, mailing state) are read from the cycle's master file, which is itself a snapshot. Cycle 2026 is incomplete at the pinned version and is never a sample or a feature. Compute budget 120 minutes, declared before running."
+    },
+    {
+      "id": "actors.fdic_bank_distress_v1",
+      "domain": "fdic",
+      "north_star": "Actors, in a fourth domain: forecast a balance sheet turning, and test whether the world-state embedding adds signal to a strong model that already sees the same inputs.",
+      "input": {
+        "dataset": "fdic_bank_financials",
+        "stage": "normalized",
+        "version": "6283087ffc1fa334842c9df32f0cff1d040aacec19ef9a92a90cd839fb987e3b"
+      },
+      "targets": [
+        "distress"
+      ],
+      "protocol": {
+        "history": 4,
+        "per_quarter": 8000,
+        "first_origin_quarter": "2012-03-31",
+        "standardize_through": "2018-12-31",
+        "blocks": [
+          [
+            "2019-03-31",
+            "2020-12-31"
+          ],
+          [
+            "2021-03-31",
+            "2021-12-31"
+          ],
+          [
+            "2022-03-31",
+            "2022-12-31"
+          ],
+          [
+            "2023-03-31",
+            "2023-12-31"
+          ],
+          [
+            "2024-03-31",
+            "2024-12-31"
+          ]
+        ]
+      },
+      "candidates": {
+        "root_readout": {
+          "seed_only": false
+        },
+        "gbdt_plus_self_supervised_embedding": {
+          "kind": "gbdt_plus_self_supervised_embedding",
+          "components": 32
+        },
+        "gbdt_plus_crossfit_encoder": {
+          "kind": "gbdt_plus_crossfit_encoder"
+        }
+      },
+      "baselines": [
+        "historical_mean",
+        "bank_rate",
+        "gbdt"
+      ],
+      "config": {
+        "d": 128,
+        "layers": 3,
+        "slots": 16,
+        "passes": 12,
+        "top_k": 16,
+        "out_dim": 1024,
+        "epochs": 3,
+        "batch": 512,
+        "lr": 0.001,
+        "weight_decay": 0.0001,
+        "dense_fraction": 0.3,
+        "gumbel": 0.5,
+        "mask_rate": 0.15,
+        "recon_weight": 0.3,
+        "calibration_quarters": 2,
+        "seed": 0
+      },
+      "gbdt": {
+        "n_estimators": 600,
+        "learning_rate": 0.03,
+        "num_leaves": 63,
+        "min_child_samples": 100,
+        "subsample": 0.8,
+        "subsample_freq": 1,
+        "colsample_bytree": 0.5,
+        "n_jobs": 8,
+        "random_state": 0,
+        "verbose": -1
+      },
+      "compute_budget_minutes": 120,
+      "criteria": [
+        {
+          "id": "minimum_test_forecasts",
+          "type": "min_forecasts",
+          "minimum": 12
+        },
+        {
+          "id": "beats_base_rate_dm",
+          "type": "diebold_mariano",
+          "baseline": "historical_mean",
+          "loss": "squared",
+          "max_pvalue": 0.1,
+          "require_lower_loss": true
+        },
+        {
+          "id": "beats_gbdt_dm",
+          "type": "diebold_mariano",
+          "baseline": "gbdt",
+          "loss": "squared",
+          "max_pvalue": 0.1,
+          "require_lower_loss": true
+        },
+        {
+          "id": "brier_skill_positive",
+          "type": "brier_skill",
+          "minimum": 0.0
+        },
+        {
+          "id": "expected_calibration_error_within_2pp",
+          "type": "calibration_error",
+          "measure": "expected_calibration_error",
+          "maximum": 0.02
+        },
+        {
+          "id": "no_timing_leakage",
+          "type": "leakage_audit"
+        },
+        {
+          "id": "no_revision_leakage",
+          "type": "revision_leakage",
+          "allow_series": [
+            "fdic_bank_financials"
+          ],
+          "note": "Declared before running. The FDIC financials API serves one value per bank, report date and field, with no filing date and no amendment flag, so an amended call report cannot be told from the original. The 13F domain excludes amendments because that source marks them; here there is nothing to exclude on, and this allowance makes the risk visible in the report instead of hiding it in a False."
+        }
+      ],
+      "extra_criteria": {
+        "distress": [
+          {
+            "id": "beats_bank_rate_dm",
+            "type": "diebold_mariano",
+            "baseline": "bank_rate",
+            "loss": "squared",
+            "max_pvalue": 0.1,
+            "require_lower_loss": true
+          }
+        ]
+      },
+      "distress_marker": {
+        "declared_at": "2026-09-18",
+        "noncurrent_ratio": "bank_noncurrent_loans / bank_net_loans, both as the FDIC publishes them",
+        "noncurrent_onset": "the ratio is above 0.03 at q+1 and at or below 0.03 at q",
+        "deposit_outflow": "deposits at q+1 are below 0.90 times deposits at q",
+        "label": "1 when either component fires",
+        "measured_rates_2012Q1_2024Q4": {
+          "samples": 289781,
+          "base_rate": 0.0277,
+          "noncurrent_onset": 0.016,
+          "deposit_outflow": 0.0121
+        }
+      },
+      "rationale": "A fourth actor domain, on the same runner, the same three candidates and the same question as actors v2. A sample is one (bank, quarter); the label is a declared distress marker in the next quarter's call report -- a noncurrent-loan ratio crossing 3% from at-or-below, or deposits falling more than 10% in a quarter. The marker is a crossing rather than a level, so an already-impaired bank does not carry a label of 1 forever, and the two components fire at roughly 1.6% and 1.2% of bank-quarters. The subgraph is the bank, up to eight other banks chartered in its state (the largest by assets) and up to eight banks nationally nearest to it in log assets, with the size ratio as the edge weight: a peer structure a per-bank model cannot see. The bank's own marker rate over the previous eight quarters is a declared baseline, because it is what anyone would use.",
+      "expected_limits": "The distress marker is a declared label, not a supervisory determination: it is not a failure, a closure, a consent order or a CAMELS downgrade, and no result here says anything about those. bank_net_loans is net of the allowance for credit losses, so the noncurrent ratio runs slightly above a gross-loan ratio and the 3% threshold is declared against the published quantity. The deposit component is seasonal (first-quarter rates run highest), which a model can exploit without knowing anything about banks. Coverage begins at 2010Q1, so the 2008-2009 failures are outside the panel entirely and nothing here is evidence about a crisis. Amended call reports cannot be distinguished from original ones in this release, so a quarter may be represented by a restatement published after its origin: no_revision_leakage carries an explicit allowance for that, and a pass on it is not evidence that no revision entered. Samples are conditioned on the bank filing again next quarter, so a charter that disappears between quarters -- through failure or merger -- leaves no sample, which removes the most severe outcome from the target. Ratios whose denominator can be near zero are clipped at 10,000 before the half-precision cast. The pooled Diebold-Mariano test treats thousands of banks within a quarter as independent; test.quarter_clustered_dm over 16 test quarters is the conservative check beside it. Compute budget 120 minutes, declared before running."
     }
   ],
   "not_run": [
