@@ -110,7 +110,8 @@ def _build(store, ref, path, log):
     committees, candidates = {}, {}
     giver, recipient, cycle, klass, amount, count, office = [], [], [], [], [], [], []
     registrations = {}
-    counts = {'rows': 0, 'kept': 0, 'no_month': 0, 'month_outside_cycle': 0, 'registrations': 0}
+    counts = {'rows': 0, 'kept': 0, 'no_month': 0, 'month_outside_cycle': 0, 'missing_identifier': 0,
+              'before_first_cycle': 0, 'registrations': 0}
     with gzip.open(_records_path(store, ref), 'rt', encoding='utf-8') as stream:
         for line in stream:
             if REGISTRATION in line:
@@ -136,10 +137,16 @@ def _build(store, ref, path, log):
                 continue
             index = cycle_index(dimensions['cycle'])
             if index < 0:
+                counts['before_first_cycle'] += 1
+                continue
+            # Nothing is joined except on published identifiers: a row without both committee ids
+            # names no pair and is dropped.
+            if not dimensions.get('recipient_committee') or not record.get('subject'):
+                counts['missing_identifier'] += 1
                 continue
             source = record['subject'].rsplit(':', 1)[-1]
             target = dimensions['recipient_committee'].rsplit(':', 1)[-1]
-            candidate = dimensions['candidate'].rsplit(':', 1)[-1]
+            candidate = (dimensions.get('candidate') or '').rsplit(':', 1)[-1]
             giver.append(committees.setdefault(source, len(committees)))
             recipient.append(committees.setdefault(target, len(committees)))
             candidates.setdefault(candidate, len(candidates))

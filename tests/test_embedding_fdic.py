@@ -72,6 +72,23 @@ class MarkerTests(unittest.TestCase):
         np.testing.assert_array_equal(components[:, 3, 1], [1.0, 0.0, 0.0, 0.0])   # deposit outflow
         np.testing.assert_array_equal(marker[:, 2], [0.0, 0.0, 0.0, 0.0])
 
+    def test_the_declared_thresholds_are_the_ones_the_plan_registers(self):
+        from worldmodel.embedding.domains import fdic
+        self.assertEqual(fdic.NONCURRENT_THRESHOLD, 0.03)
+        self.assertEqual(fdic.DEPOSIT_OUTFLOW, 0.10)
+        self.assertEqual(fdic.PUBLIC_LAG_DAYS, 60)
+        self.assertEqual(fdic.OWN_RATE_QUARTERS, 8)
+
+    def test_unbounded_ratios_survive_the_half_precision_cast(self):
+        from worldmodel.embedding.domains.fdic import CLIP, METRIC_INDEX, derive
+        data = synthetic_data()
+        data['values'] = data['values'].copy()
+        data['values'][0, :, METRIC_INDEX['bank_equity']] = 1e-6      # a bank with almost no equity
+        x = derive(data)['x']
+        self.assertTrue(np.isfinite(x[0]).any())
+        self.assertLessEqual(float(np.nanmax(np.abs(x))), CLIP)
+        self.assertTrue(np.isfinite(np.asarray(x, dtype=np.float16)[np.isfinite(x)]).all())
+
     def test_a_bank_already_above_the_threshold_never_has_an_onset(self):
         # Bank 3 sits at 4% in every quarter: a level, not a crossing.
         np.testing.assert_array_equal(self.derived['components'][3, 1:, 0], [0.0, 0.0, 0.0])

@@ -258,6 +258,100 @@ def _prepare_votes(store, attempt, protocol, config, log):
                             'same roll call (a definition, not a feature).']}
 
 
+def _prepare_fec(store, attempt, protocol, config, log):
+    from .domains import fec
+    source_ref = attempt['input']
+    data = fec.load(store, ref=source_ref, log=log)
+    q_of = {fec.cycle_end(c): c for c in range(0, 30)}
+    first = q_of[protocol['first_origin_quarter']]
+    blocks = [[q_of[a], q_of[b]] for a, b in protocol['blocks']]
+    tasks = fec.build_tasks(data, first_cycle=first, last_cycle=blocks[-1][1], per_cycle=protocol['per_quarter'],
+                            per_giver=protocol['per_giver'], history=protocol['history'], seed=config['seed'], log=log)
+    k = fec.K
+    counts = data['meta']['counts']
+    return {'tasks': tasks, 'q_of': q_of, 'first': first, 'blocks': blocks, 'period_end': fec.cycle_end,
+            'origin_day': fec.cycle_public_day, 'label_public_by': lambda label_day, origin: label_day <= origin,
+            'feature_leakage': lambda q: 0,
+            'template': fec.template(), 'dims': (len(fec.NODE_TYPES), len(fec.RELATIONS)),
+            'targets': list(fec.TARGETS), 'own_rate': fec.OWN_RATE,
+            'gbdt_nodes': ((0, 1, 2), ((3, 3 + k), (3 + k, 3 + 2 * k))),
+            'inputs': [dict(source_ref)], 'component': 'fec', 'target_suffix': 'next_cycle',
+            'series': {'fec': {
+                'series': 'fec', 'revisions': 'amendments_and_late_filings',
+                'vintage_modes': ['published_transaction_month'], 'revision_leakage_possible': True,
+                'note': 'Every amount is dated by its published transaction month and a cycle is treated as public on '
+                        '31 January after it ends. Transactions whose month falls outside the window of the cycle file '
+                        'carrying them (money reported a cycle or more late) are dropped and counted. An amendment '
+                        'filed into the cycle\'s own file after that date cannot be distinguished: the FEC bulk pas2 '
+                        'release carries no per-transaction filing or amendment date, so the risk is declared, not '
+                        'removed.'}},
+            'audit_extra': {'input': dict(source_ref), 'fec_counts': counts,
+                            'dating_rule': 'transaction month; cycle public on 31 January after the cycle ends',
+                            'dropped_undated_rows': counts.get('no_month'),
+                            'dropped_rows_reported_outside_their_cycle': counts.get('month_outside_cycle')},
+            'origin_text': '31 January after the cycle ends (the year-end report closes the cycle)',
+            'vintage_policy': 'published_transaction_month_within_cycle_window',
+            'actuals': 'a direct contribution from the same committee to the same recipient committee in the next cycle',
+            'limitations': [
+                'Pairs are sampled at most 50 per giving committee and 8,000 per cycle, so scores describe that '
+                'sampling, not the population of contribution relationships.',
+                'Giving means a direct contribution, an in-kind contribution or a coordinated party expenditure '
+                '(24K, 24Z, 24C). Independent expenditures and communication costs are features, never the label: '
+                'by law they are not coordinated with the candidate.',
+                'A recipient committee that does not run again is labelled 0, so the task mixes the giver\'s choice '
+                'with the candidate\'s.',
+                'Amendments filed into a cycle\'s own file after the cycle\'s declared public date cannot be '
+                'distinguished in this release; a cycle total may therefore contain money reported after the origin.']}
+
+
+def _prepare_fdic(store, attempt, protocol, config, log):
+    from .domains import fdic
+    source_ref = attempt['input']
+    data = fdic.load(store, ref=source_ref, log=log)
+    q_of = {fdic.quarter_end(q): q for q in range(0, data['meta']['quarters'])}
+    first = q_of[protocol['first_origin_quarter']]
+    blocks = [[q_of[a], q_of[b]] for a, b in protocol['blocks']]
+    tasks = fdic.build_tasks(data, first_quarter=first, last_quarter=blocks[-1][1],
+                             per_quarter=protocol['per_quarter'], history=protocol['history'],
+                             seed=config['seed'], log=log)
+    k = fdic.K
+    return {'tasks': tasks, 'q_of': q_of, 'first': first, 'blocks': blocks, 'period_end': fdic.quarter_end,
+            'origin_day': fdic.origin_day, 'label_public_by': lambda label_day, origin: label_day <= origin,
+            'feature_leakage': lambda q: 0,
+            'template': fdic.template(), 'dims': (len(fdic.NODE_TYPES), len(fdic.RELATIONS)),
+            'targets': list(fdic.TARGETS), 'own_rate': fdic.OWN_RATE,
+            'gbdt_nodes': ((0,), ((1, 1 + k), (1 + k, 1 + 2 * k))),
+            'inputs': [dict(source_ref)], 'component': 'fdic', 'target_suffix': 'next_quarter',
+            'series': {'fdic_bank_financials': {
+                'series': 'fdic_bank_financials', 'revisions': 'call_report_amendments',
+                'vintage_modes': ['report_date_plus_60_days'], 'revision_leakage_possible': True,
+                'note': 'A call report is due 30 days after its quarter end; a quarter is treated as public 60 days '
+                        'after it. The FDIC financials API serves one value per bank, report date and field with no '
+                        'filing date and no amendment flag, so an amended report cannot be told from the original: '
+                        'values are the publisher\'s current ones and the risk is declared, not removed.'}},
+            'audit_extra': {'input': dict(source_ref), 'fdic_counts': data['meta']['counts'],
+                            'dating_rule': 'report date + 60 days',
+                            'distress_marker': {
+                                'noncurrent_ratio': 'bank_noncurrent_loans / bank_net_loans',
+                                'noncurrent_onset_threshold': fdic.NONCURRENT_THRESHOLD,
+                                'deposit_outflow_fraction': fdic.DEPOSIT_OUTFLOW,
+                                'rule': 'the marker fires when the ratio crosses the threshold from at-or-below to '
+                                        'above, or deposits fall by more than the declared fraction'},
+                            'per_quarter_rates': tasks.rates},
+            'origin_text': 'the report date of quarter q plus 60 days',
+            'vintage_policy': 'publisher_current_call_report_values',
+            'actuals': 'the declared distress marker in the next quarter\'s published call report',
+            'limitations': [
+                'The distress marker is a declared composite: a noncurrent-loan ratio crossing 3%, or deposits '
+                'falling more than 10% in a quarter. It is a label, not a supervisory determination, and it is not a '
+                'failure or a closure.',
+                'bank_net_loans is net of the allowance for credit losses, so the noncurrent ratio runs slightly '
+                'above a gross-loan ratio; the threshold is declared against the published quantity.',
+                'Amended call reports cannot be distinguished from original ones in this release, so a quarter may be '
+                'represented by a restatement published after the origin.',
+                'Coverage begins at 2010Q1, so the 2008-2009 failures are outside the panel entirely.']}
+
+
 def quarter_clustered_dm(rows, baseline):
     by = {}
     for r in rows:
@@ -288,7 +382,8 @@ def run_attempt(store, attempt_id, *, log=print, publish=True, device=None, spec
         raise ValueError('An attempt that is not in plan.json cannot be published')
     attempt = spec if spec is not None else attempt_spec(attempt_id)
     protocol, config = attempt['protocol'], attempt['config']
-    prepare = {'13f': _prepare_13f, 'votes': _prepare_votes}[attempt.get('domain', '13f')]
+    prepare = {'13f': _prepare_13f, 'votes': _prepare_votes, 'fec': _prepare_fec,
+               'fdic': _prepare_fdic}[attempt.get('domain', '13f')]
     dom = prepare(store, attempt, protocol, config, log)
     tasks, q_of, first, blocks = dom['tasks'], dom['q_of'], dom['first'], dom['blocks']
     quarter_end_ = dom['period_end']

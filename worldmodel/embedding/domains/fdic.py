@@ -9,7 +9,7 @@ is 1 when the **declared distress marker** appears in the ``q+1`` report.
 * *noncurrent onset* -- the noncurrent-loan ratio (``bank_noncurrent_loans`` over ``bank_net_loans``,
   both as the FDIC publishes them) is above 3% at ``q+1`` and at or below 3% at ``q``. It is an
   onset, not a level, so a bank that is already impaired does not carry a label of 1 forever;
-* *deposit outflow* -- total deposits at ``q+1`` are below 95% of deposits at ``q``.
+* *deposit outflow* -- total deposits at ``q+1`` are below 90% of deposits at ``q``.
 
 ``bank_net_loans`` is net of the allowance for credit losses, so the ratio runs slightly above a
 gross-loan ratio; the threshold is declared against this published quantity, not a textbook one.
@@ -49,8 +49,9 @@ DATASET = 'fdic_bank_financials'
 FIRST_YEAR = 2010
 PUBLIC_LAG_DAYS = 60
 NONCURRENT_THRESHOLD = 0.03
-DEPOSIT_OUTFLOW = 0.05
+DEPOSIT_OUTFLOW = 0.10
 OWN_RATE_QUARTERS = 8
+CLIP = 1e4
 K = 8
 
 METRICS = ('total_assets', 'bank_deposits', 'bank_uninsured_deposits', 'bank_brokered_deposits', 'bank_net_loans',
@@ -97,7 +98,7 @@ def cache_path(store, ref):
 def _build(store, ref, path, log):
     certs, states = {}, {}
     rows = []
-    counts = {'observations': 0, 'kept': 0, 'before_first_quarter': 0, 'banks_with_state': 0}
+    counts = {'observations': 0, 'kept': 0, 'before_first_quarter': 0, 'null_value': 0, 'banks_with_state': 0}
     with gzip.open(_records_path(store, ref), 'rt', encoding='utf-8') as stream:
         for line in stream:
             if '"entity_type":"bank"' in line:
@@ -117,6 +118,9 @@ def _build(store, ref, path, log):
             quarter = quarter_index(report[:4], report[5:7])
             if quarter < 0:
                 counts['before_first_quarter'] += 1
+                continue
+            if record.get('value') is None:          # a field the bank did not report that quarter
+                counts['null_value'] += 1
                 continue
             cert = record['subject'].rsplit(':', 1)[-1]
             rows.append((certs.setdefault(cert, len(certs)), quarter, METRIC_INDEX[metric], float(record['value'])))
@@ -218,6 +222,9 @@ def derive(data):
     ok = np.isfinite(noncurrent_ratio[:, 1:]) & np.isfinite(noncurrent_ratio[:, :-1])
     change[:, 1:][ok] = (noncurrent_ratio[:, 1:] - noncurrent_ratio[:, :-1])[ok]
     x[:, :, f('noncurrent_change')] = change
+    # Ratios whose denominator can be near zero (equity, above all) are clipped before the
+    # half-precision cast the runner makes; without it they overflow to infinity.
+    np.clip(x, -CLIP, CLIP, out=x)
 
     # ---- the declared distress marker of the transition q-1 -> q
     usable = (np.isfinite(loans) & (loans > 0) & np.isfinite(deposits) & (deposits > 0)
