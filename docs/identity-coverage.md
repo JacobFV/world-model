@@ -175,6 +175,30 @@ Nine of `census_geography`'s counties sit outside the 2020 reference list: they 
 planning regions (`09110`…`09190`), which replaced its eight counties in 2022. That is the
 vintage problem the reference table exists for, surfaced as data rather than as a caveat.
 
+## What the rebuild changed in the published results
+
+The new clusters were attached to `data/world_evidence/index.sqlite` with
+`graph-attach-resolution` (109,801 resolved entity IDs, view digest `764630dd…`). The resolution
+they replaced is **recoverable**: `unify-resolve` and `worldmodel.resolution.history` export what is
+attached before replacing it, and the previous one is kept at
+`data/world_evidence/resolution_history/2026-09-18-pre-bridges/` (28,008 clusters, view digest
+`f8a31696…`), re-attachable with
+`python3 -m worldmodel graph-attach-resolution --workdir <that directory>`.
+
+Both example suites were re-run against the attached index and their saved outputs updated:
+
+- `run_all.py --save`: **q1** now carries the UK listing in the LUKOIL cluster
+  (`uk:sanctions:RUS3094`), and its counts move from 1,880 to **1,894** sanctions↔LEI clusters, 246
+  to **341** clusters carrying an actual designation, 2 to **3** designation-list LEIs reaching a
+  13F-named security; 175 → **170** sanctions-linked LEIs reach such a security, the five lost being
+  the refused INN/OGRN merges. **q5** is unchanged (89 vessel clusters, all present in AIS, 2
+  re-flagged hulls) - the fraudulent MMSI and IMO values it now refuses were never joining a real
+  AIS vessel. q2, q3, q4 and q6 are unchanged.
+- `resolution_evaluation.py --save`: **unchanged** - recall 0.0044, precision 0.0226, 103,211
+  entities the name matcher would merge. It reads published records rather than the resolved table,
+  so the rebuilt clusters cannot move it; only its timings differ (1,361.0 s against 1,364.7 s).
+  Asserted identity going from 3.17% to 3.66% does not make name matching any more attractive.
+
 ## Limits
 
 - A joined entity is not a *correct* entity: clusters are exactly as reliable as the published
