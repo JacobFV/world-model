@@ -184,7 +184,11 @@ they replaced is **recoverable**: `unify-resolve` and `worldmodel.resolution.his
 attached before replacing it, and the previous one is kept at
 `data/world_evidence/resolution_history/2026-09-18-pre-bridges/` (28,008 clusters, view digest
 `f8a31696…`), re-attachable with
-`python3 -m worldmodel graph-attach-resolution --workdir <that directory>`.
+`python3 -m worldmodel graph-attach-resolution --workdir <that directory>`. The resolution that is
+attached now, its full report and the three measurement JSONs quoted on this page are kept beside
+it in `data/world_evidence/resolution_history/2026-09-18-bridges/` (`clusters.jsonl`, `view.json`,
+`report.json`, `identity-coverage-before.json`, `identity-coverage-after.json`,
+`coverage-estimate.json`). Neither directory is in Git: they sit in the data root with the index.
 
 Both example suites were re-run against the attached index and their saved outputs updated:
 
