@@ -18,7 +18,7 @@ where the new registration was written with knowledge of earlier results it says
 published validation report in `data/calibration_reports/`, recomputes its digests, re-evaluates
 its declared criteria, keys it by the attempt its manifest names and joins that to the plan for
 supersession; it does not read this file. Run on the 2026-09-17 plan, the same command reproduces
-that day's headline exactly (51 / 30 / 21, 8 pass, the same seven criterion counts, the same four
+that day's headline exactly (51 / 30 / 21, 8 pass, the same criterion counts, the same four
 processes), which is the check that the tool and the earlier hand count agree.
 
 | | 2026-09-17 | **2026-09-18** |
