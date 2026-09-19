@@ -123,7 +123,7 @@ everything else, and an as-of query against it is **refused** with an error nami
 the rebuild, rather than answered from ingest time. The named option still works there and is
 labelled `filtered_on: observed_at`, `publication_dates_available: false`.
 
-**The agent horizon.** `worldmodel.agents.grounding.EdgeIndex` filters on the same rule, with the
+**The agent horizon.** `worldmodel.agents.grounding.EvidenceIndex` filters on the same rule, with the
 same option on its constructor, and `SeedReport.publication` records which policy was in force when
 an agent was grounded with a pinned `known_at`.
 
