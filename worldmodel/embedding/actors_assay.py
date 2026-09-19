@@ -185,6 +185,7 @@ def run_attempt(store, attempt_id, *, log=print, publish=True, device=None, spec
     from .train import limit_gpu_memory
     limit_gpu_memory()
     started = time.time()
+    code = code_commit()          # at start: the checkout could be changed while a long run is going
     if spec is not None and publish:
         raise ValueError('An attempt that is not in plan.json cannot be published')
     attempt = spec if spec is not None else attempt_spec(attempt_id)
@@ -272,7 +273,9 @@ def run_attempt(store, attempt_id, *, log=print, publish=True, device=None, spec
     for j, target in enumerate(targets):
         chosen = selected[target]
         test_rows = [f for f in forecasts[chosen][j] if f['quarter'] not in validation_quarters]
-        baselines = [b for b in attempt['baselines'] if all(b in f['baselines'] for f in test_rows)]
+        # A baseline missing on some rows (the manager's own rate needs a prior quarter) is scored on the rows
+        # that have it, as score_forecasts does; dropping it would leave its declared criterion unevaluable.
+        baselines = [b for b in attempt['baselines'] if any(b in f['baselines'] for f in test_rows)]
         scored = score_forecasts(test_rows, baselines=baselines, probability=True)
         selection = {'candidates': list(attempt['candidates']), 'selected': chosen, 'scores': validation_scores[target],
                      'validation_block': protocol['blocks'][0], 'refit_after_selection': False}
@@ -294,7 +297,7 @@ def run_attempt(store, attempt_id, *, log=print, publish=True, device=None, spec
                 'revision_leakage_possible': False,
                 'note': 'Original 13F-HR filings only; amendments (13F-HR/A) are excluded, so no later restatement enters.'}},
                 'input': dict(source_ref), 'holdings_meta': meta},
-                'diagnostics': {'fits': fits, 'config': config, 'code': code_commit(),
+                'diagnostics': {'fits': fits, 'config': config, 'code': code,
                                 'standardization': {'mean': mean.tolist(), 'std': std.tolist()}},
                 'bounds_check': {}},
             'data_inputs': [dict(source_ref)], 'causally_identified': False,

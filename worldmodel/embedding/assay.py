@@ -53,27 +53,14 @@ def code_commit():
                                capture_output=True, text=True, check=True).stdout.strip()
         return {'commit': head, 'worldmodel_modified': bool(dirty)}
     except (OSError, subprocess.CalledProcessError):
+        # An exported, immutable run directory (git archive) records its commit in REVISION.
+        revision = root / 'REVISION'
+        if revision.exists():
+            return {'commit': revision.read_text().strip(), 'worldmodel_modified': False, 'source': 'REVISION (git archive)'}
         return None
 
 
-def save_reports(path, reports):
-    """Write unpublished reports with what publication needs (inputs, parameters, entrypoint)."""
-    Path(path).write_text(json.dumps([{'target': r['target'], 'report': r['report'], 'publication': r['publication']}
-                                      for r in reports]))
-
-
-def publish_saved(store, path):
-    """Publish reports saved on a compute host. The report id is re-derived before anything is written."""
-    from ..artifacts import publish_report
-    out = []
-    for item in json.loads(Path(path).read_text()):
-        report, publication = item['report'], item['publication']
-        if report['report_id'] != digest({k: v for k, v in report.items() if k != 'report_id'}):
-            raise ValueError(f'Report for {item["target"]} does not match its report_id')
-        ref = publish_report(store, REPORTS, report, publication['parameters'], inputs=publication['inputs'],
-                             entrypoint=publication['entrypoint'])
-        out.append({'target': item['target'], 'ref': ref, 'validated': report['validated']})
-    return out
+from .publish import publish_saved, save_reports  # noqa: E402,F401  (stdlib-only; re-exported)
 
 
 def attempt_spec(attempt_id):
@@ -170,6 +157,7 @@ def run_attempt(store, attempt_id, *, log=print, publish=True, device=None, spec
     limit_gpu_memory()
 
     started = time.time()
+    code = code_commit()          # at start: the checkout could be changed while a long run is going
     if spec is not None and publish:
         raise ValueError('An attempt that is not in plan.json cannot be published')
     attempt = json.loads(json.dumps(spec)) if spec is not None else attempt_spec(attempt_id)
@@ -299,7 +287,7 @@ def run_attempt(store, attempt_id, *, log=print, publish=True, device=None, spec
                                   for y, v in sorted(_by(test_rows, 'year').items())}},
             'final_estimate': {'data_audit': {'series': series, 'max_available_by_origin': leakage['max_available_by_origin']},
                                'diagnostics': {'fits': fits, 'config': config, 'checkpoints': checkpoints,
-                                               'code': code_commit()}, 'bounds_check': {}},
+                                               'code': code}, 'bounds_check': {}},
             'data_inputs': [dict(panel_ref)], 'causally_identified': False,
             'limitations': ['Out-of-sample skill does not establish the response of any place to an intervention.',
                             'The panel is the current vintage: sources that revise leak their revisions into the '

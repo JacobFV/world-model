@@ -41,14 +41,14 @@ def execute(args, catalog, store, project, reference):
                 'features': {k: {'rows': v['rows'], 'years': [v['first_year'], v['last_year']]}
                              for k, v in report['features'].items()},
                 'does_not_establish': report['does_not_establish']}
+    if args.command == 'embed-publish':          # publication needs neither numpy nor torch
+        from .embedding.publish import publish_saved
+        return publish_saved(store, args.reports)
     try:
         import numpy  # noqa: F401
         import torch  # noqa: F401
     except ImportError as error:
         raise RuntimeError(INSTALL_HINT) from error
-    if args.command == 'embed-publish':
-        from .embedding.assay import publish_saved
-        return publish_saved(store, args.reports)
     if args.command == 'embed-assay':
         from .embedding.assay import load_plan, run_attempt, save_reports
         if not args.attempt:
@@ -63,7 +63,8 @@ def execute(args, catalog, store, project, reference):
             save_reports(args.save, reports)
         return [{'target': r['target'], 'ref': r['ref'], 'validated': r['report']['validated'],
                  'acceptance': [{k: x[k] for k in ('id', 'passed', 'observed')} for x in r['report']['acceptance']['results']],
-                 'year_clustered_dm': {b: v.get('pvalue') for b, v in r['report']['test']['year_clustered_dm'].items()}}
+                 'clustered_dm': {b: v.get('pvalue') for b, v in (r['report']['test'].get('year_clustered_dm')
+                                                                   or r['report']['test'].get('quarter_clustered_dm') or {}).items()}}
                 for r in reports]
     from .embedding.query import nearest
     return nearest(store, args.county, args.as_of, checkpoint=args.checkpoint, across=args.across, limit=args.limit)

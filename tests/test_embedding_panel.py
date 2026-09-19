@@ -118,3 +118,17 @@ class RecordTests(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main()
+
+
+class PublishSavedTests(unittest.TestCase):
+    def test_a_tampered_report_is_refused_before_anything_is_written(self):
+        from worldmodel.embedding.publish import publish_saved
+        from worldmodel.util import digest
+        report = {'process_id': 'x', 'validated': False}
+        report['report_id'] = digest(report)
+        report['validated'] = True           # changed after the id was derived
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / 'run.json'
+            path.write_text(json.dumps([{'target': 't', 'report': report, 'publication': {}}]))
+            with self.assertRaises(ValueError):
+                publish_saved(None, path)
