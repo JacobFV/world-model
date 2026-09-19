@@ -50,7 +50,8 @@ def _batch(torch, gpu, idx, edges, node_type, seed_only):
             'src': src[keep], 'dst': dst[keep], 'rel': rel[keep], 'weight': weight[keep]}
 
 
-def fit_encoder(torch, gpu, edges, node_type, y, train, calibrate, cfg, *, seed_only, log=None):
+def fit_encoder(torch, gpu, edges, node_type, y, train, calibrate, cfg, *, seed_only, log=None, forecast_weight=1.0):
+    """``forecast_weight=0`` trains on masked reconstruction alone: a task-agnostic, label-free embedding."""
     from .model import WorldStateEncoder
     torch.manual_seed(cfg['seed'])
     device = gpu['x'].device
@@ -93,7 +94,7 @@ def fit_encoder(torch, gpu, edges, node_type, y, train, calibrate, cfg, *, seed_
                     recon = ((predicted.float() - target) ** 2 * weight).sum() / weight.sum().clamp_min(1)
                 else:
                     recon = torch.zeros((), device=device)
-                loss = loss_forecast + cfg['recon_weight'] * recon
+                loss = forecast_weight * loss_forecast + cfg['recon_weight'] * recon
             optimizer.zero_grad(set_to_none=True)
             loss.backward()
             torch.nn.utils.clip_grad_norm_(model.parameters(), 1.0)
@@ -105,7 +106,7 @@ def fit_encoder(torch, gpu, edges, node_type, y, train, calibrate, cfg, *, seed_
     model.readout.top_k, model.readout.gumbel = cfg['top_k'], 0.0
     temperature = np.ones(y.shape[1])
     cal = np.flatnonzero(calibrate)
-    if len(cal):
+    if len(cal) and forecast_weight > 0:
         logits = predict_logits(torch, model, gpu, edges, node_type, cal, seed_only)
         for j in range(y.shape[1]):
             ok = np.isfinite(y[cal, j])
@@ -119,7 +120,8 @@ def fit_encoder(torch, gpu, edges, node_type, y, train, calibrate, cfg, *, seed_
                                 'peak_gpu_gib': round(peak, 2) if peak is not None else None}
 
 
-def predict_logits(torch, model, gpu, edges, node_type, rows, seed_only, batch=1024):
+def predict_logits(torch, model, gpu, edges, node_type, rows, seed_only, batch=1024, state=False):
+    """Logits for ``rows``; with ``state=True``, the 1,024-d state vectors instead."""
     model.eval()
     out = []
     with torch.no_grad():
@@ -127,9 +129,30 @@ def predict_logits(torch, model, gpu, edges, node_type, rows, seed_only, batch=1
             idx = torch.as_tensor(rows[start:start + batch], device=gpu['x'].device)
             b = _batch(torch, gpu, idx, edges, node_type, seed_only)
             with torch.autocast(device_type=b['x'].device.type, dtype=torch.bfloat16, enabled=b['x'].is_cuda):
-                logits, _, _ = model.predict(model.encode(b))
-            out.append(logits.float().cpu().numpy())
+                encoded = model.encode(b)
+                value = encoded['state'] if state else model.predict(encoded)[0]
+            out.append(value.float().cpu().numpy())
     return np.concatenate(out)
+
+
+def principal_components(train_states, k):
+    """Mean and top-``k`` right singular vectors, fitted on training rows only."""
+    mean = train_states.mean(axis=0)
+    sample = train_states[np.random.default_rng(0).permutation(len(train_states))[:50000]] - mean
+    _, _, vt = np.linalg.svd(sample, full_matrices=False)
+    return mean, vt[:k].T
+
+
+def stacked_probabilities(lightgbm, params, features, extra, y, train, evaluate):
+    """LightGBM on the template features plus ``extra`` columns; probabilities for ``evaluate`` per target."""
+    X = np.concatenate([features, extra.astype(np.float32)], axis=1)
+    out = np.zeros((len(evaluate), y.shape[1]))
+    for j in range(y.shape[1]):
+        rows = train & np.isfinite(y[:, j])
+        model = lightgbm.LGBMClassifier(**params)
+        model.fit(X[rows], y[rows, j].astype(int))
+        out[:, j] = model.predict_proba(X[evaluate])[:, 1]
+    return out
 
 
 def _temperature(logits, labels):
@@ -242,12 +265,50 @@ def run_attempt(store, attempt_id, *, log=print, publish=True, device=None, spec
         for name, candidate in attempt['candidates'].items():
             if stage == 'test' and name not in selected.values():
                 continue
-            model, temperature, diag = fit_encoder(torch, gpu, edges, node_type, y_fit, train, calibrate, config,
-                                                   seed_only=candidate['seed_only'], log=log)
-            logits = predict_logits(torch, model, gpu, edges, node_type, evaluate, candidate['seed_only'])
-            probability = 1 / (1 + np.exp(-logits / temperature[None]))
-            fits.append({'block': [quarter_end(lo), quarter_end(hi)], 'stage': stage, 'candidate': name, **diag})
-            log(f'  {stage} block {quarter_end(lo)}..{quarter_end(hi)} {name}: {diag["seconds"]}s peak {diag["peak_gpu_gib"]} GiB')
+            kind = candidate.get('kind', 'encoder')
+            block = [quarter_end(lo), quarter_end(hi)]
+            if kind == 'encoder':
+                model, temperature, diag = fit_encoder(torch, gpu, edges, node_type, y_fit, train, calibrate, config,
+                                                       seed_only=candidate['seed_only'], log=log)
+                logits = predict_logits(torch, model, gpu, edges, node_type, evaluate, candidate['seed_only'])
+                probability = 1 / (1 + np.exp(-logits / temperature[None]))
+                fits.append({'block': block, 'stage': stage, 'candidate': name, **diag})
+                del model
+            elif kind == 'gbdt_plus_self_supervised_embedding':
+                # Label-free: reconstruction only, on every row whose features were public before the block.
+                seen = train | calibrate
+                model, _, diag = fit_encoder(torch, gpu, edges, node_type, y_fit, seen, np.zeros_like(seen), config,
+                                             seed_only=False, log=log, forecast_weight=0.0)
+                train_rows = np.flatnonzero(train)
+                states_train = predict_logits(torch, model, gpu, edges, node_type, train_rows, False, state=True)
+                states_eval = predict_logits(torch, model, gpu, edges, node_type, evaluate, False, state=True)
+                mean_, basis = principal_components(states_train, candidate['components'])
+                extra = np.full((len(tasks.quarter), candidate['components']), np.nan, dtype=np.float32)
+                extra[train_rows] = (states_train - mean_) @ basis
+                extra[evaluate] = (states_eval - mean_) @ basis
+                probability = stacked_probabilities(lightgbm, attempt['gbdt'], features, extra, tasks.y, train, evaluate)
+                fits.append({'block': block, 'stage': stage, 'candidate': name, 'self_supervised': diag})
+                del model, states_train, states_eval
+            elif kind == 'gbdt_plus_crossfit_encoder':
+                # Two encoders on alternating training quarters; each training row gets logits only from the encoder
+                # that never saw it, and evaluation rows get the mean of both.
+                fold = (tasks.quarter % 2).astype(int)
+                extra = np.full((len(tasks.quarter), len(targets)), np.nan, dtype=np.float32)
+                eval_logits, diags = np.zeros((len(evaluate), len(targets))), []
+                for f in (0, 1):
+                    model, _, diag = fit_encoder(torch, gpu, edges, node_type, y_fit, train & (fold != f),
+                                                 np.zeros_like(train), config, seed_only=False, log=log)
+                    held = np.flatnonzero(train & (fold == f))
+                    extra[held] = predict_logits(torch, model, gpu, edges, node_type, held, False)
+                    eval_logits += predict_logits(torch, model, gpu, edges, node_type, evaluate, False) / 2
+                    diags.append(diag)
+                    del model
+                extra[evaluate] = eval_logits
+                probability = stacked_probabilities(lightgbm, attempt['gbdt'], features, extra, tasks.y, train, evaluate)
+                fits.append({'block': block, 'stage': stage, 'candidate': name, 'folds': diags})
+            else:
+                raise ValueError(f'Unknown candidate kind {kind!r}')
+            log(f'  {stage} block {block[0]}..{block[1]} {name}: done')
             for j in range(len(targets)):
                 for k_, i in enumerate(evaluate):
                     if not np.isfinite(tasks.y[i, j]):
@@ -259,7 +320,6 @@ def run_attempt(store, attempt_id, *, log=print, publish=True, device=None, spec
                     forecasts[name][j].append({'target': f'{targets[j]}:{int(tasks.manager[i])}:{int(tasks.security[i])}',
                                                'quarter': quarter_end(int(tasks.quarter[i])), 'actual': float(tasks.y[i, j]),
                                                'mean': float(probability[k_, j]), 'baselines': baselines})
-            del model
             if device.type == 'cuda':
                 torch.cuda.empty_cache()
         if stage == 'validation':

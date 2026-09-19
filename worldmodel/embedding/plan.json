@@ -513,6 +513,153 @@
       },
       "registration_note": "Identical to places.county_root_readout_v1 and v2 in every scored respect; both were stopped for compute budget before any validation score existed (see not_run). Only scheduling changes.",
       "host": "gb10-direct, alone on its GPU (started only after every other attempt on that host has exited)"
+    },
+    {
+      "id": "actors.13f_exit_increase_v2",
+      "north_star": "Actors, and the premise under every downstream use: does the world-state embedding add signal to a strong model that already sees the same inputs?",
+      "input": {
+        "dataset": "sec_13f_history",
+        "stage": "normalized",
+        "version": "94be7bc75fe7bd35c8b212eb9bc64e31832c8616a5061b6c0471037986d32cdc"
+      },
+      "targets": [
+        "exit",
+        "increase"
+      ],
+      "protocol": {
+        "history": 4,
+        "k": 12,
+        "per_quarter": 8000,
+        "per_manager": 50,
+        "first_origin_quarter": "2014-03-31",
+        "standardize_through": "2018-12-31",
+        "blocks": [
+          [
+            "2019-03-31",
+            "2020-12-31"
+          ],
+          [
+            "2021-03-31",
+            "2021-12-31"
+          ],
+          [
+            "2022-03-31",
+            "2022-12-31"
+          ],
+          [
+            "2023-03-31",
+            "2023-12-31"
+          ],
+          [
+            "2024-03-31",
+            "2024-12-31"
+          ]
+        ]
+      },
+      "candidates": {
+        "root_readout": {
+          "seed_only": false
+        },
+        "gbdt_plus_self_supervised_embedding": {
+          "kind": "gbdt_plus_self_supervised_embedding",
+          "components": 32
+        },
+        "gbdt_plus_crossfit_encoder": {
+          "kind": "gbdt_plus_crossfit_encoder"
+        }
+      },
+      "baselines": [
+        "historical_mean",
+        "manager_rate",
+        "gbdt"
+      ],
+      "config": {
+        "d": 128,
+        "layers": 3,
+        "slots": 16,
+        "passes": 12,
+        "top_k": 16,
+        "out_dim": 1024,
+        "epochs": 3,
+        "batch": 512,
+        "lr": 0.001,
+        "weight_decay": 0.0001,
+        "dense_fraction": 0.3,
+        "gumbel": 0.5,
+        "mask_rate": 0.15,
+        "recon_weight": 0.3,
+        "calibration_quarters": 2,
+        "seed": 0
+      },
+      "gbdt": {
+        "n_estimators": 600,
+        "learning_rate": 0.03,
+        "num_leaves": 63,
+        "min_child_samples": 100,
+        "subsample": 0.8,
+        "subsample_freq": 1,
+        "colsample_bytree": 0.5,
+        "n_jobs": 8,
+        "random_state": 0,
+        "verbose": -1
+      },
+      "criteria": [
+        {
+          "id": "minimum_test_forecasts",
+          "type": "min_forecasts",
+          "minimum": 12
+        },
+        {
+          "id": "beats_base_rate_dm",
+          "type": "diebold_mariano",
+          "baseline": "historical_mean",
+          "loss": "squared",
+          "max_pvalue": 0.1,
+          "require_lower_loss": true
+        },
+        {
+          "id": "beats_gbdt_dm",
+          "type": "diebold_mariano",
+          "baseline": "gbdt",
+          "loss": "squared",
+          "max_pvalue": 0.1,
+          "require_lower_loss": true
+        },
+        {
+          "id": "brier_skill_positive",
+          "type": "brier_skill",
+          "minimum": 0.0
+        },
+        {
+          "id": "expected_calibration_error_within_2pp",
+          "type": "calibration_error",
+          "measure": "expected_calibration_error",
+          "maximum": 0.02
+        },
+        {
+          "id": "no_timing_leakage",
+          "type": "leakage_audit"
+        },
+        {
+          "id": "no_revision_leakage",
+          "type": "revision_leakage"
+        }
+      ],
+      "extra_criteria": {
+        "exit": [
+          {
+            "id": "beats_manager_rate_dm",
+            "type": "diebold_mariano",
+            "baseline": "manager_rate",
+            "loss": "squared",
+            "max_pvalue": 0.1,
+            "require_lower_loss": true
+          }
+        ]
+      },
+      "rationale": "Registered after actors v1 was scored: v1's encoder beat the base rate on both tasks and lost to LightGBM on the same template features on both. v2 asks whether the embedding is useful signal for that stronger model. gbdt_plus_self_supervised_embedding: LightGBM on the template features plus 32 principal components (fitted on training rows) of the state vector of an encoder trained on masked reconstruction alone, with no labels: a task-agnostic world-state embedding. gbdt_plus_crossfit_encoder: LightGBM plus the task-trained encoder's logits, cross-fitted over alternating training quarters so no training row is scored by an encoder that saw its label. Beating the declared gbdt baseline is exactly the test of whether the embedding adds signal. The seed-only candidate is dropped: v1 already selected the subgraph over it on validation for both tasks.",
+      "expected_limits": "Positions are sampled at most 50 per manager and 8,000 per quarter, so scores describe that sampling, not the population of positions. The pooled Diebold-Mariano test treats tens of thousands of positions as independent within a quarter; test.quarter_clustered_dm is the conservative check beside it. A 13F exit is not necessarily a sale (a position can fall below reporting, be transferred or be reclassified). The 2020 Q1 shock sits in the validation block. The test window is the one v1 was scored on, and this attempt was designed knowing v1's result there; its verdict is conditioned on that choice of candidates. Compute budget 120 minutes (declared here, before running): the cross-fit candidate fits two encoders per block.",
+      "compute_budget_minutes": 120
     }
   ],
   "not_run": [
