@@ -124,7 +124,10 @@ POPULATIONS = {
                         'unit': 'institution or author', 'count': {'prefix': 'openalex:'},
                         'declared': {'value': 13075 + 12998, 'field': 'coverage.scope',
                                      'quoted': ['13,075', '12,998']},
-                        'not_covered': 'every other institution and researcher in OpenAlex'},
+                        'not_covered': ('every other institution and researcher in OpenAlex. The published output '
+                                        'holds more institution records than the declared scope counts, because '
+                                        'each institution\'s published lineage ancestors are emitted as entities '
+                                        'too; that is why measured_over_declared is above 1')},
     'ofac_sanctions': {'kind': 'register', 'population': 'parties on the OFAC SDN list (SDN_ADVANCED)',
                        'unit': 'listed party', 'count': {'prefix': 'ofac:party:'},
                        'not_covered': 'non-SDN lists (see other_sanctions_lists) and every other jurisdiction'},
