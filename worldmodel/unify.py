@@ -32,7 +32,8 @@ import time
 import uuid
 
 from .graph import Graph
-from .resolution.bridges import BRIDGE_TAGS, BRIDGES, cardinality as bridge_cardinality, record_claims
+from .resolution.bridges import (BRIDGE_TAGS, BRIDGES, IMO_SHIP_ENTITY_TYPES, LINK_PREDICATES, NAMESPACE_ALIASES,
+                                 cardinality as bridge_cardinality, flagged_fraudulent, normalize_value, record_claims)
 from .resolution.deterministic import MAPPING_SPECS
 from .util import atomic_json, canonical, digest, file_hash, now, read_json, slug
 
@@ -484,10 +485,24 @@ ENTITY_ID_NAMESPACES = {
     'duns:': 'duns', 'fdic:cert:': 'fdic_cert', 'rssd:': 'rssd', 'isin:': 'isin', 'figi:': 'figi',
     'cusip:': 'cusip', 'mmsi:': 'mmsi', 'imo:': 'imo', 'mic:': 'mic', 'wikidata:': 'wikidata',
     'opensanctions:': 'opensanctions', 'gb:companies_house:': 'gb_company_number',
+    # transport keys an airport reference on its IATA code; crossref keys researchers on their ORCID
+    # iD and institutions on their ROR ID. Each is the published identifier, used as the entity ID.
+    'iata:': 'iata', 'orcid:': 'orcid', 'ror:': 'ror',
 }
 # Namespaces added to resolution.UNIQUE_NAMESPACES because each value names one thing at a time.
 EXTRA_UNIQUE_NAMESPACES = frozenset({'gb_company_number', 'cusip', 'permid', 'ru_inn', 'ru_ogrn',
                                      'unlocode', 'iata', 'icao', 'swift'})
+# Namespaces whose values a single publisher legitimately prints for more than one *different*
+# thing: OurAirports keeps a closed airport's IATA/ICAO code on the closed record while the code
+# serves a new airport, a Russian branch office prints its parent's INN, and a BIC is reassigned
+# between institutions over time (GLEIF's BIC-to-LEI map must be 1:1 at a point in time). One dataset printing
+# such a value for two subjects says the value does not identify one thing there, so that
+# dataset's rows for the value are refused for clustering, and counted. In the other namespaces a
+# within-dataset repeat is two records of one thing (a hull re-flagged under a second MMSI keeps
+# its IMO number), which is exactly what the identifier is for, and is reported but kept.
+REFUSE_DUPLICATES_WITHIN_A_DATASET = frozenset({'iata', 'icao', 'ru_inn', 'swift'})
+# Sentinels identity_records yields alongside claims.
+ENTITY_ROW, FRAUDULENT_CLAIM = '__entity__', '__fraudulent__'
 
 # Namespaces the published data shows are *not* one-to-one, measured on this catalog. Linking on
 # them would merge distinct entities, so they are excluded from identity clustering; the
@@ -549,22 +564,28 @@ def identity_records(store, items, *, progress=None):
             if not any(tag in line for tag in IDENTITY_TAGS):
                 continue
             record = json.loads(line)
+            record['_dataset'] = item['dataset']  # the dataset being read, not an evidence input name
             kind = record.get('kind')
             for subject, namespace, value, scope, bridge in record_claims(record):
                 kept += 1
                 yield ({'id': record['id'] + ':' + bridge, 'subject': subject,
-                        'predicate': 'identifier_assignment', 'evidence': record['evidence']},
+                        'predicate': 'identifier_assignment', 'evidence': record['evidence'], '_dataset': item['dataset']},
                        namespace, value, scope, bridge)
             if kind == 'entity':
+                # Every entity record, so the resolution can say which datasets describe a cluster.
+                yield ({'id': record['id'], 'subject': record.get('entity_id', record['id']),
+                        'entity_type': record.get('entity_type'), 'evidence': record['evidence'], '_dataset': item['dataset']},
+                       None, None, None, ENTITY_ROW)
                 parsed = _entity_identifier(record.get('entity_id', record['id']))
                 if parsed is not None:
                     kept += 1
                     yield ({'id': record['id'], 'subject': record.get('entity_id', record['id']),
-                            'predicate': 'identifier_assignment', 'evidence': record['evidence']}, *parsed, None)
+                            'predicate': 'identifier_assignment', 'evidence': record['evidence'], '_dataset': item['dataset']}, *parsed, None)
                 continue
             if kind != 'assertion':
                 continue
-            if record.get('predicate') == 'same_as' and record.get('object'):
+            predicate = record.get('predicate')
+            if (predicate == 'same_as' or predicate in LINK_PREDICATES) and record.get('object'):
                 kept += 1
                 yield record, None, None, None, None
                 continue
@@ -572,7 +593,9 @@ def identity_records(store, items, *, progress=None):
             if parsed is None:
                 continue
             kept += 1
-            yield record, *parsed, None
+            # A value the publisher itself marks as fraudulently used is kept out of identity, and
+            # remembered so the same value on a republished copy of the listing is refused too.
+            yield record, *parsed, (FRAUDULENT_CLAIM if flagged_fraudulent(record.get('value')) else None)
         if progress is not None:
             progress.advance(read, kept, item['dataset'])
             progress.line(item['dataset'] + ' (identifiers)')
@@ -588,20 +611,34 @@ class _Links:
             'PRAGMA journal_mode=OFF; PRAGMA synchronous=OFF; PRAGMA cache_size=-262144;'
             'CREATE TABLE ids (namespace TEXT, value TEXT, scope TEXT, subject TEXT, record TEXT, dataset TEXT,'
             ' bridge TEXT);'
-            'CREATE TABLE edges (subject TEXT, object TEXT, method TEXT, record TEXT, dataset TEXT);')
-        self.rows, self.edges = [], []
+            'CREATE TABLE edges (subject TEXT, object TEXT, method TEXT, record TEXT, dataset TEXT);'
+            'CREATE TABLE entities (entity_id TEXT, dataset TEXT, entity_type TEXT);'
+            'CREATE TABLE flagged (namespace TEXT, value TEXT, scope TEXT, subject TEXT, dataset TEXT);')
+        self.rows, self.edges, self.entities, self.flagged = [], [], [], []
+
+    @staticmethod
+    def _dataset(record):
+        return record.get('_dataset') or (record['evidence'][0]['input'] or {}).get('dataset')
 
     def add_identifier(self, namespace, value, scope, record, bridge=None):
         self.rows.append((namespace, value, scope or '', record['subject'], record['id'],
-                          (record['evidence'][0]['input'] or {}).get('dataset'), bridge))
+                          self._dataset(record), bridge))
         if len(self.rows) >= 50000:
             self.flush()
 
     def add_same_as(self, record):
-        self.edges.append((record['subject'], record['object'], 'source_asserted:same_as', record['id'],
-                           (record['evidence'][0]['input'] or {}).get('dataset')))
+        self.edges.append((record['subject'], record['object'], 'source_asserted:' + record.get('predicate', 'same_as'),
+                           record['id'], self._dataset(record)))
         if len(self.edges) >= 50000:
             self.flush()
+
+    def add_entity(self, record):
+        self.entities.append((record['subject'], self._dataset(record), record.get('entity_type')))
+        if len(self.entities) >= 50000:
+            self.flush()
+
+    def add_flagged(self, namespace, value, scope, record):
+        self.flagged.append((namespace, value, scope or '', record['subject'], self._dataset(record)))
 
     def flush(self):
         if self.rows:
@@ -610,6 +647,12 @@ class _Links:
         if self.edges:
             self.connection.executemany('INSERT INTO edges VALUES (?,?,?,?,?)', self.edges)
             self.edges = []
+        if self.entities:
+            self.connection.executemany('INSERT INTO entities VALUES (?,?,?)', self.entities)
+            self.entities = []
+        if self.flagged:
+            self.connection.executemany('INSERT INTO flagged VALUES (?,?,?,?,?)', self.flagged)
+            self.flagged = []
 
     def close(self):
         self.connection.close()
@@ -630,24 +673,69 @@ def refuse_bridge_cardinality_violations(connection):
         left, right = declared.split(':')
         # ``left`` constrains how many entities may publish one value; ``right`` how many values
         # one entity may publish. A bridge stores the right-hand namespace against the left-hand
-        # entity, so the two checks are the two groupings of the same table.
+        # entity, so the two checks are the two groupings of the same table. Both are held per
+        # publishing dataset: OFAC and the CSL's copy of an OFAC entry printing one INN is two
+        # publishers agreeing, while one publisher printing it for two parties is the break.
         for column, other, limit, shape in (('value', 'subject', left, 'one %s value is published by %d entities'),
                                             ('subject', 'value', right, 'one entity publishes %d %s values')):
             if limit != '1':
                 continue
             for row in connection.execute(
-                    'SELECT namespace, scope, %s AS key, COUNT(DISTINCT %s) AS n FROM ids WHERE bridge=? '
-                    'GROUP BY namespace, scope, %s HAVING n > 1' % (column, other, column), (bridge,)).fetchall():
+                    'SELECT namespace, scope, %s AS key, COUNT(DISTINCT %s) AS n, dataset FROM ids WHERE bridge=? '
+                    'GROUP BY namespace, scope, dataset, %s HAVING n > 1' % (column, other, column),
+                    (bridge,)).fetchall():
                 detail = shape % ((row[0], row[3]) if column == 'value' else (row[3], row[0]))
-                refused.append({'bridge': bridge, 'cardinality': declared,
+                refused.append({'bridge': bridge, 'cardinality': declared, 'dataset': row[4],
                                 'reason': '%s, which the mapping specification forbids' % detail,
                                 'namespace': row[0], column: row[2],
                                 'collided_with': sorted(v[0] for v in connection.execute(
                                     'SELECT DISTINCT %s FROM ids WHERE bridge=? AND namespace=? AND scope=? '
-                                    'AND %s=?' % (other, column), (bridge, row[0], row[1], row[2])))[:8]})
-                connection.execute('DELETE FROM ids WHERE bridge=? AND namespace=? AND scope=? AND %s=?' % column,
-                                   (bridge, row[0], row[1], row[2]))
+                                    'AND dataset IS ? AND %s=?' % (other, column),
+                                    (bridge, row[0], row[1], row[4], row[2])))[:8]})
+                connection.execute('DELETE FROM ids WHERE bridge=? AND namespace=? AND scope=? AND dataset IS ? '
+                                   'AND %s=?' % column, (bridge, row[0], row[1], row[4], row[2]))
     return refused
+
+
+def refuse_flagged_and_ambiguous_values(connection):
+    """Apply the three value-level refusals of :mod:`worldmodel.resolution.bridges`, and count them.
+
+    * **Fraudulent**: a claim whose publisher marks the value as fraudulently used never reaches
+      ``ids``; the same value on a record that a published link predicate makes the same
+      designation (the CSL copy of an OFAC entry, which drops the flag) is deleted here.
+    * **IMO series**: an ``imo`` claim on a subject whose own entity record is not a vessel is an
+      IMO company number, and is retyped ``imo_company`` so the two series never meet.
+    * **Codes one dataset prints for two things** (:data:`REFUSE_DUPLICATES_WITHIN_A_DATASET`):
+      that dataset's rows for the value are deleted. Repeats in other namespaces are counted only.
+    """
+    counts = Counter()
+    ship_types = ','.join("'%s'" % t for t in sorted(IMO_SHIP_ENTITY_TYPES))
+    methods = ','.join("'source_asserted:%s'" % p for p in sorted(LINK_PREDICATES))
+    connection.executescript(
+        'CREATE INDEX IF NOT EXISTS entities_id ON entities(entity_id);'
+        'DROP TABLE IF EXISTS twins;'
+        'CREATE TEMP TABLE twins AS SELECT subject AS a, object AS b FROM edges WHERE method IN (%s) '
+        'UNION SELECT object, subject FROM edges WHERE method IN (%s);' % (methods, methods))
+    counts['fraudulent_claims'] = connection.execute('SELECT COUNT(*) FROM flagged').fetchone()[0]
+    counts['fraudulent_copies_refused'] = connection.execute(
+        'DELETE FROM ids WHERE rowid IN (SELECT i.rowid FROM flagged f JOIN twins t ON t.a = f.subject '
+        'JOIN ids i ON i.subject = t.b AND i.namespace = f.namespace AND i.value = f.value)').rowcount
+    counts['imo_claims_retyped_imo_company'] = connection.execute(
+        "UPDATE ids SET namespace = 'imo_company' WHERE namespace = 'imo' AND subject IN (SELECT entity_id FROM "
+        'entities WHERE entity_type IS NOT NULL AND entity_type NOT IN (%s))' % ship_types).rowcount
+    duplicates = connection.execute(
+        'SELECT namespace, dataset, COUNT(*) FROM (SELECT namespace, dataset, value, scope FROM ids '
+        'GROUP BY namespace, dataset, value, scope HAVING COUNT(DISTINCT subject) > 1) GROUP BY namespace, dataset '
+        'ORDER BY 3 DESC').fetchall()
+    within = [{'namespace': ns, 'dataset': ds, 'values': n, 'refused': ns in REFUSE_DUPLICATES_WITHIN_A_DATASET}
+              for ns, ds, n in duplicates]
+    for namespace in sorted(REFUSE_DUPLICATES_WITHIN_A_DATASET):
+        counts['duplicate_code_rows_refused_' + namespace] = connection.execute(
+            'DELETE FROM ids WHERE rowid IN (SELECT i.rowid FROM ids i JOIN (SELECT dataset, value, scope FROM ids '
+            'WHERE namespace = ? GROUP BY dataset, value, scope HAVING COUNT(DISTINCT subject) > 1) d '
+            'ON d.dataset IS i.dataset AND d.value = i.value AND d.scope = i.scope WHERE i.namespace = ?)',
+            (namespace, namespace)).rowcount
+    return dict(counts), within
 
 
 def identity_links(store, items, *, workdir, namespaces=None, progress=None, bridges=True):
@@ -681,12 +769,23 @@ def identity_links(store, items, *, workdir, namespaces=None, progress=None, bri
     counts = Counter()
     try:
         for record, namespace, value, scope, bridge in identity_records(store, items, progress=progress):
+            if bridge == ENTITY_ROW:
+                links.add_entity(record)
+                continue
             if namespace is None:
-                counts['same_as'] += 1
+                predicate = record.get('predicate', 'same_as')
+                if predicate != 'same_as' and not bridges:
+                    continue  # a published link predicate is a crosswalk field like any other bridge
+                counts['same_as' if predicate == 'same_as' else 'link_' + predicate] += 1
                 links.add_same_as(record)
                 continue
+            flagged = bridge == FRAUDULENT_CLAIM
+            bridge = None if flagged else bridge
             if bridge is not None and not bridges:
                 continue
+            if bridges and namespace in NAMESPACE_ALIASES:
+                counts['aliased_' + namespace] += 1
+                namespace = NAMESPACE_ALIASES[namespace]
             counts['identifiers'] += 1
             counts['identifiers_' + namespace] += 1
             if bridge is not None:
@@ -695,9 +794,13 @@ def identity_links(store, items, *, workdir, namespaces=None, progress=None, bri
                 continue
             try:  # Normalize before grouping: sec_cik 1750 and 0000001750 are the same filer.
                 namespace, value = _normalize(namespace, value)
+                value = normalize_value(namespace, value)
                 scope = _scope(scope)
             except ValueError:
                 counts['unnormalizable_identifiers'] += 1
+                continue
+            if flagged:
+                links.add_flagged(namespace, value, scope, record)
                 continue
             links.add_identifier(namespace, value, scope, record, bridge)
         links.flush()
@@ -706,6 +809,8 @@ def identity_links(store, items, *, workdir, namespaces=None, progress=None, bri
         bridge_conflicts = refuse_bridge_cardinality_violations(connection)
         counts['bridge_cardinality_refusals'] = len(bridge_conflicts)
         connection.execute('CREATE INDEX ids_value ON ids(namespace, value, scope)')
+        refusals, within_dataset_duplicates = refuse_flagged_and_ambiguous_values(connection)
+        counts.update(refusals)
         colliding = connection.execute(
             'SELECT namespace, value, scope FROM ids GROUP BY namespace, value, scope '
             'HAVING COUNT(DISTINCT subject) > 1').fetchall()
@@ -738,6 +843,8 @@ def identity_links(store, items, *, workdir, namespaces=None, progress=None, bri
         edges = connection.execute('SELECT subject, object, method, record, dataset FROM edges').fetchall()
         return {'edges': edges, 'counts': dict(counts), 'conflicts': result['conflicts'][:200],
                 'bridge_conflicts': bridge_conflicts[:200], 'bridges': sorted(BRIDGES) if bridges else [],
+                'link_predicates': ['same_as'] + (sorted(LINK_PREDICATES) if bridges else []),
+                'within_dataset_duplicates': within_dataset_duplicates[:200],
                 'namespaces': sorted(namespaces), 'workdir': str(workdir)}
     finally:
         links.close()
@@ -780,7 +887,7 @@ def identity_clusters(edges, *, max_cluster_size=5000):
 
 def resolve_identities(catalog, store, *, workdir, index=None, profile=DEFAULT_PROFILE, datasets=None,
                        domains=None, exclude=None, output_dataset='world_evidence', attach=True,
-                       progress=2_000_000, max_cluster_size=5000, bridges=True):
+                       progress=2_000_000, max_cluster_size=5000, bridges=True, measure=True):
     """Run the deterministic identity layer over the real catalog and attach it to the index.
 
     Everything here is *asserted*: published ``same_as`` rows, published unique identifiers and
@@ -800,7 +907,12 @@ def resolve_identities(catalog, store, *, workdir, index=None, profile=DEFAULT_P
     policy = {'links': 'published same_as assertions, shared unique identifiers and published '
                        'crosswalk fields (resolution.bridges) only',
               'inferred_matches_attached': False, 'max_cluster_size': max_cluster_size,
-              'bridges': result['bridges'], 'namespaces': result['namespaces']}
+              'bridges': result['bridges'], 'namespaces': result['namespaces'],
+              'link_predicates': result['link_predicates'],
+              'namespace_aliases': dict(NAMESPACE_ALIASES) if bridges else {},
+              'refusals': {'fraudulent_values': 'refused on the flagged record and its published designation twins',
+                           'imo_series': 'imo on a non-vessel subject is typed imo_company',
+                           'duplicate_codes_within_a_dataset': sorted(REFUSE_DUPLICATES_WITHIN_A_DATASET)}}
     view = {'policy': policy, 'input_digest': digest(inputs), 'model_digest': digest(policy),
             'view_digest': digest([inputs, policy, [c['canonical_id'] for c in clusters], len(clusters)])}
     report = {'scope': _scope_report(plan), 'counts': result['counts'], 'clusters': len(clusters),
@@ -809,7 +921,10 @@ def resolve_identities(catalog, store, *, workdir, index=None, profile=DEFAULT_P
               'oversized_components': oversized, 'identifier_conflicts': result['conflicts'],
               'bridges': {name: dict(BRIDGES[name], spec=MAPPING_SPECS[BRIDGES[name]['spec']])
                           for name in result['bridges']},
+              'link_predicates': {name: LINK_PREDICATES[name] for name in result['link_predicates']
+                                  if name in LINK_PREDICATES},
               'bridge_conflicts': result['bridge_conflicts'],
+              'within_dataset_duplicates': result['within_dataset_duplicates'],
               'view': view, 'inputs': inputs, 'seconds': round(time.time() - started, 1),
               'peak_rss_bytes': peak_rss(),
               'interpretation': ('Clusters join entity IDs that published sources assert are the same thing. '
@@ -818,7 +933,17 @@ def resolve_identities(catalog, store, *, workdir, index=None, profile=DEFAULT_P
         for cluster in clusters:
             stream.write(json.dumps(cluster, sort_keys=True) + '\n')
     atomic_json(Path(workdir) / 'view.json', view)
+    if measure:
+        # How much of this scope's entity universe the clusters actually join across datasets.
+        from .resolution.join_coverage import publisher_families, scope_join_coverage
+        coverage = scope_join_coverage(Path(workdir) / 'identity.sqlite', workdir=Path(workdir) / 'coverage',
+                                       clusters=Path(workdir) / 'clusters.jsonl',
+                                       families=publisher_families(catalog.root), top=15)
+        report['join_coverage'] = {key: coverage[key] for key in ('totals', 'by_domain', 'top_dataset_combinations')}
     if attach:
+        if index_path.is_file():  # the resolution being replaced stays re-attachable
+            from .resolution.history import export_resolution
+            report['previous_resolution'] = export_resolution(index_path, Path(workdir) / 'previous_resolution')
         report['attached'] = Graph(index_path).attach_resolution(clusters, view=view)
         report['index'] = str(index_path)
     return report

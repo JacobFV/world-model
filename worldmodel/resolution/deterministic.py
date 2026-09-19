@@ -13,7 +13,10 @@ from ..util import digest
 
 # Namespaces whose values identify exactly one real-world entity at a time.
 UNIQUE_NAMESPACES = {'lei', 'sec_cik', 'bioguide', 'icpsr', 'fec_candidate', 'fec_committee', 'uei', 'duns', 'fdic_cert',
-                     'rssd', 'figi', 'isin', 'ofac_sdn', 'opensanctions', 'eia_plant', 'imo', 'mmsi', 'wikidata', 'mic'}
+                     'rssd', 'figi', 'isin', 'ofac_sdn', 'opensanctions', 'eia_plant', 'imo', 'mmsi', 'wikidata', 'mic',
+                     # ORCID iDs and ROR IDs are issued one per researcher / organisation; imo_company is IMO's
+                     # company and registered-owner number series (see resolution.bridges)
+                     'orcid', 'ror', 'imo_company'}
 
 MAPPING_SPECS = {
     'gleif_sec_cik': {'left': 'lei', 'right': 'sec_cik', 'relation': 'same_as', 'cardinality': '1:1',
@@ -27,6 +30,18 @@ MAPPING_SPECS = {
                                         'Companies House (LEI-CDF 3.1 RegistrationAuthorityID RA000585)',
                               'note': 'company numbers are eight characters (eight digits, or a two-letter register '
                                       'prefix and six digits); GLEIF publishes them padded and unpadded'},
+    'sanctions_register_number': {'left': 'sanctions_party', 'right': 'register_number', 'relation': 'same_as',
+                                  'cardinality': '1:1',
+                                  'source': 'OFAC SDN_ADVANCED / Consolidated Screening List identity documents whose '
+                                            'scheme and issuing country name a register (RU INN, RU OGRN, UK company '
+                                            'number), check digits recomputed',
+                                  'note': 'held per publishing dataset: OFAC and the CSL copy of an OFAC entry both '
+                                          'print the number, which is agreement, not a cardinality break'},
+    'opensanctions_uei': {'left': 'opensanctions', 'right': 'uei', 'relation': 'same_as', 'cardinality': '1:1',
+                          'source': 'OpenSanctions (FollowTheMoney) uniqueEntityId values: the US SAM Unique Entity ID'},
+    'opensanctions_wikidata': {'left': 'opensanctions', 'right': 'wikidata', 'relation': 'same_as',
+                               'cardinality': '1:1',
+                               'source': 'OpenSanctions canonical entity IDs that are Wikidata QIDs'},
     'isin_cusip': {'left': 'isin', 'right': 'cusip', 'relation': 'same_as', 'cardinality': '1:1',
                    'source': 'ISO 6166: the nine-character NSIN inside a US or CA ISIN is the CUSIP',
                    'note': 'security identity only, never issuer identity; the ISIN check digit is recomputed before '
