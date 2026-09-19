@@ -30,6 +30,7 @@ def add_commands(sub):
                        help='time: search every county at every earlier origin; space: every county at the same origin')
     query.add_argument('--checkpoint', type=Path, required=True, help='Encoder checkpoint written by embed-assay')
     query.add_argument('--limit', type=int, default=10)
+    query.add_argument('--include-self', action='store_true', help="Also rank the county's own earlier states")
 
 
 def execute(args, catalog, store, project, reference):
@@ -67,4 +68,5 @@ def execute(args, catalog, store, project, reference):
                                                                    or r['report']['test'].get('quarter_clustered_dm') or {}).items()}}
                 for r in reports]
     from .embedding.query import nearest
-    return nearest(store, args.county, args.as_of, checkpoint=args.checkpoint, across=args.across, limit=args.limit)
+    return nearest(store, args.county, args.as_of, checkpoint=args.checkpoint, across=args.across, limit=args.limit,
+                   include_self=args.include_self)
