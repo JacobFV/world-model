@@ -93,3 +93,53 @@ def placebo_unit_test(panel, *, replications=100, seed=0, e_min, e_max, post=Non
         out['observed'] = observed
         out['permutation_p'] = (1 + sum(1 for x in estimates if abs(x) >= abs(observed))) / (ran + 1)
     return out
+
+
+def placebo_cluster_test(panel, *, replications=100, seed=0, e_min, e_max, post=None, control_group='not_yet_treated',
+                         anticipation=0, alpha=0.05, observed=None, min_never_treated_clusters=10, cohorts=None):
+    """Placebo test for designs whose treatment is assigned to whole clusters (e.g. countries).
+
+    Clusters containing any real treated unit are removed. In each replication, as many never-treated
+    clusters as there are really treated clusters (capped at half the pool) receive a cohort drawn from the
+    real cluster cohorts, and every unit in a chosen cluster gets that cohort. The rejection rate at
+    ``alpha`` estimates the size of the clustered test when treatment is assigned at the cluster level;
+    ``placebo_unit_test`` would assign units independently and overstate the effective sample.
+    """
+    estimated = set(cohorts) if cohorts is not None else None
+    treated_clusters, cohort_of = set(), {}
+    for unit in panel.units:
+        g = panel.cohorts[unit]
+        if g is not None:
+            key = panel.clusters[unit]
+            treated_clusters.add(key)
+            if estimated is None or g in estimated:
+                cohort_of.setdefault(key, g)
+    pool = sorted({panel.clusters[u] for u in panel.units} - treated_clusters, key=str)
+    if len(pool) < min_never_treated_clusters or not cohort_of:
+        return {'test': 'placebo_cluster', 'ran': False, 'passed': None,
+                'reason': f'{len(pool)} never-treated clusters (< {min_never_treated_clusters}) or no estimated cohort'}
+    base = panel.subset([u for u in panel.units if panel.clusters[u] not in treated_clusters])
+    real = sorted(cohort_of.values())
+    k = min(len(real), len(pool) // 2)
+    rng = random.Random(seed)
+    estimates, rejections, ran = [], 0, 0
+    for _ in range(replications):
+        chosen = {c: rng.choice(real) for c in rng.sample(pool, k)}
+        fake = base.replace(cohorts={u: chosen.get(base.clusters[u]) for u in base.units})
+        result = event_study(fake, e_min=e_min, e_max=e_max, post=post, control_group=control_group,
+                             anticipation=anticipation, alpha=alpha, bootstrap=0)
+        overall = result['overall']
+        if overall is None or overall['p'] is None:
+            continue
+        ran += 1
+        estimates.append(overall['att'])
+        rejections += overall['p'] < alpha
+    out = {'test': 'placebo_cluster', 'ran': True, 'replications': ran, 'seed': seed,
+           'rejection_rate': rejections / ran if ran else None, 'nominal_alpha': alpha,
+           'placebo_clusters_per_replication': k, 'never_treated_clusters': len(pool),
+           'placebo_mean': sum(estimates) / ran if ran else None,
+           'placebo_sd': (sum((x - sum(estimates) / ran) ** 2 for x in estimates) / (ran - 1)) ** 0.5 if ran > 1 else None}
+    if observed is not None and ran:
+        out['observed'] = observed
+        out['permutation_p'] = (1 + sum(1 for x in estimates if abs(x) >= abs(observed))) / (ran + 1)
+    return out

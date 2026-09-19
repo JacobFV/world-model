@@ -1,0 +1,4479 @@
+{
+ "registration": {
+  "commit": "c0e0f801e89ba3af1a85f7520c8c0120052bb42e",
+  "committed_at": "2026-09-18T20:47:04-07:00",
+  "committed_clean": true,
+  "path": "examples/natural-experiments/registrations/tariff_mfn_decreases_imports.json",
+  "sha256": "855a968380feae10e85e3e9aa513d2df33acc62471ce87ca389f7a67d693ba85"
+ },
+ "results": [
+  {
+   "acceptance": [
+    {
+     "id": "enough_treated_units",
+     "passed": true,
+     "role": "identification",
+     "threshold": 500,
+     "type": "min_treated_units",
+     "value": 6121
+    },
+    {
+     "id": "enough_clusters",
+     "passed": true,
+     "role": "identification",
+     "threshold": 50,
+     "type": "min_clusters",
+     "value": 4518
+    },
+    {
+     "id": "no_pre_trends",
+     "passed": false,
+     "role": "identification",
+     "threshold": 0.05,
+     "type": "pre_trend_wald_p_min",
+     "value": 0.026524571514793937
+    },
+    {
+     "id": "placebo_date_null",
+     "passed": false,
+     "role": "identification",
+     "threshold": 0.05,
+     "type": "placebo_date_p_min",
+     "value": 0.0034498351065366923
+    },
+    {
+     "id": "placebo_unit_size",
+     "passed": true,
+     "role": "identification",
+     "threshold": 0.1,
+     "type": "placebo_unit_rejection_rate_max",
+     "value": 0.08
+    },
+    {
+     "id": "stacked_agrees",
+     "passed": true,
+     "role": "identification",
+     "threshold": null,
+     "type": "robustness_ci_overlap",
+     "value": [
+      [
+       -0.05577324551204539,
+       0.04142678628564199
+      ],
+      [
+       -0.056594720096604226,
+       0.034445362013378986
+      ]
+     ]
+    }
+   ],
+   "data": {
+    "inputs": [
+     {
+      "dataset": "wits_trains_tariffs",
+      "stage": "normalized",
+      "version": "dfa67e7ff86a26db08175897e52f161f8f9c8922669ddd190ca316fb3ffa977e"
+     },
+     {
+      "dataset": "trade_concordances",
+      "stage": "normalized",
+      "version": "4dbe3795ad4fe8ef5c2bc60dd8ef040acf71ebbf7927e2c46168432406452ede"
+     },
+     {
+      "dataset": "cepii_baci_hs92",
+      "stage": "normalized",
+      "version": "742e33f360ef9da1b3bda340a8df406c735e639a2f011b39c0e8843b2b5828ca"
+     }
+    ],
+    "outcome_extraction": {
+     "input": {
+      "dataset": "cepii_baci_hs92",
+      "stage": "normalized",
+      "version": "742e33f360ef9da1b3bda340a8df406c735e639a2f011b39c0e8843b2b5828ca"
+     },
+     "rows": 3366755,
+     "sha256": "9a662468947cce36ee17613e0c87aeb95ce868499b3493f40c16a47e4d7c398e",
+     "spec": {
+      "filter": "metric == bilateral_trade_value (HS1992); importer in the listed set; year in range; summed over exporters",
+      "importers": [
+       "iso3:AGO",
+       "iso3:ARE",
+       "iso3:ARG",
+       "iso3:AUS",
+       "iso3:BGD",
+       "iso3:BHR",
+       "iso3:BRA",
+       "iso3:CAN",
+       "iso3:CHE",
+       "iso3:CHL",
+       "iso3:CHN",
+       "iso3:CIV",
+       "iso3:COL",
+       "iso3:CRI",
+       "iso3:DZA",
+       "iso3:ECU",
+       "iso3:GBR",
+       "iso3:GHA",
+       "iso3:HKG",
+       "iso3:IDN",
+       "iso3:IND",
+       "iso3:ISR",
+       "iso3:JOR",
+       "iso3:JPN",
+       "iso3:KAZ",
+       "iso3:KEN",
+       "iso3:KOR",
+       "iso3:KWT",
+       "iso3:LKA",
+       "iso3:MAR",
+       "iso3:MMR",
+       "iso3:MYS",
+       "iso3:NGA",
+       "iso3:NOR",
+       "iso3:NZL",
+       "iso3:OMN",
+       "iso3:PAK",
+       "iso3:PAN",
+       "iso3:PER",
+       "iso3:PHL",
+       "iso3:QAT",
+       "iso3:RUS",
+       "iso3:THA",
+       "iso3:TUR",
+       "iso3:TWN",
+       "iso3:USA",
+       "iso3:VEN",
+       "iso3:VNM",
+       "iso3:ZAF"
+      ],
+      "years": [
+       2009,
+       2024
+      ]
+     }
+    },
+    "panel": {
+     "clusters": 4518,
+     "cohort_sizes": {
+      "2019": 1915,
+      "2020": 1442,
+      "2021": 2055,
+      "2022": 512,
+      "2023": 197
+     },
+     "never_treated_units": 131899,
+     "observations": 2185197,
+     "periods": [
+      2009,
+      2024
+     ],
+     "strata": 144,
+     "treated_units": 6121,
+     "units": 138020
+    },
+    "panel_digest": "89be8944cc9df7c23e81ee695fcc698a7a47cd96e78d3c8982e27d4b5790c108",
+    "treatment_facts": {
+     "first_change_decrease_2pp": 10509,
+     "first_change_other": 12460,
+     "first_change_spans_reporting_gap": 2438,
+     "hs2017_hs1992_one_to_one_codes": 3332,
+     "hs2022_hs2017_one_to_one_codes": 4097,
+     "importers": 48,
+     "never_changed": 238631,
+     "treated_by_cohort": {
+      "2019": 1915,
+      "2020": 1442,
+      "2021": 2055,
+      "2022": 512,
+      "2023": 197
+     },
+     "treated_units_estimated": 6121,
+     "units_without_one_to_one_hs92": 92754,
+     "units_without_positive_required_years": 13136,
+     "universe_units_2018": 258651
+    }
+   },
+   "design": {
+    "controls": {
+     "control_group": "not_yet_treated",
+     "definition": "same-importer, same-tercile units never treated or first treated after max(t, g-2) + 1"
+    },
+    "estimator": {
+     "anticipation": 1,
+     "balance": null,
+     "estimand": "ATT: equal-weight mean over event times 0..3 of treated-count-weighted ATT(g, g+e), base period g-2",
+     "non_gating_robustness": [
+      "unmatched_strata_importer_only: same units, strata = importer (wave-1 style)"
+     ],
+     "primary": "callaway_santanna_unconditional_within_importer_and_growth_tercile",
+     "robustness": [
+      "stacked_did",
+      "twfe_static",
+      "never_treated_controls"
+     ],
+     "stacked_note": "the stacked estimator requires every event time -5..3, so it uses cohorts 2019-2021 only"
+    },
+    "inference": {
+     "alpha": 0.05,
+     "bootstrap": 999,
+     "bootstrap_weights": "rademacher multiplier on cluster influence functions",
+     "cluster": "importer x HS2017 chapter",
+     "seed": 20260918
+    },
+    "outcomes": {
+     "hs2017_to_hs1992_crosswalk": "un_hs17_hs92_correlation",
+     "primary": {
+      "id": "baci92_log_import_value",
+      "label": "log import value from all exporters (BACI HS1992, thousand current USD)",
+      "source": "cepii_baci_hs92 bilateral_trade_value summed over exporters",
+      "unit": "log points"
+     },
+     "secondary": [
+      {
+       "id": "baci92_log_import_quantity",
+       "label": "log import quantity from all exporters (BACI HS1992, metric tons; cells with any flow lacking quantity dropped)",
+       "source": "cepii_baci_hs92 attributes.quantity_t summed over exporters",
+       "unit": "log points"
+      }
+     ],
+     "transform": "natural log of positive values; a zero or missing value drops that cell"
+    },
+    "placebo_tests": {
+     "placebo_date": {
+      "definition": "treated units keep only years before g-1; placebo cohort g-3 (base g-5); placebo effect averaged over placebo event times 0..1",
+      "shift": 3
+     },
+     "placebo_unit": {
+      "definition": "real treated units removed; never-treated units get cohorts drawn from their stratum's real cohorts at the stratum's real treated share",
+      "min_never_treated": 20,
+      "replications": 100,
+      "seed": 17
+     }
+    },
+    "question": "When an importer cuts its MFN applied tariff on an HS6 product by at least 2 percentage points, how does the value of its imports of that product (from all exporters) change over the following years, relative to the same importer's products that were on similar import paths and whose MFN rate had not yet changed, allowing one year of anticipation?",
+    "treatment": {
+     "absorbing": "later changes are part of the post-period path",
+     "concordance_rule": "HS2022 reporting years enter only for HS2022 codes that correspond one-to-one, in both directions, to an HS2017 code in the UN correlation table (4,097 codes); when a reporter publishes both revisions for a year the HS2017 rate is used",
+     "definition": "cohort g = reporting year of the unit's first MFN change of at least 0.5 pp in absolute value between consecutive reported years, when that first change is a decrease of at least 2.0 pp",
+     "design_stage_counts": "Universe 264,038 reporter x HS2017 units with a 2018 rate (49 reporters): 238,631 never changed, 10,509 first changes are decreases of at least 2 pp, 12,460 other first changes, 2,438 first changes span a reporting gap. With a one-to-one HS1992 code: 6,520 decrease units (2019: 1,961; 2020: 1,582; 2021: 2,173; 2022: 569; 2023: 235) and 147,920 never-changed units, before the positive-import requirements. Largest reporters of decrease units: PAK 1,252, CHN 1,123, LKA 925, GBR 655, ECU 447, KAZ 397.",
+     "estimated_cohorts": [
+      2019,
+      2023
+     ],
+     "excluded_units": "units whose first change is an increase or a decrease under 2.0 pp, and units whose first change spans a gap in the reporter's reporting years (timing unknown)",
+     "hs2022_to_hs2017_crosswalk": "un_hs22_hs17_correlation",
+     "max_decrease_pp": -2.0,
+     "min_change_pp": 0.5,
+     "never_treated": "units with an HS2017 rate reported for 2018 and no change of at least 0.5 pp between any consecutive reported years (censored when the reporter stops reporting or a code has no one-to-one HS2022 counterpart)",
+     "source": "wits_trains_tariffs MFN simple-average applied rates (not the event library, which keeps only same-revision changes), mapped to HS2017 codes"
+    },
+    "units": {
+     "clusters": "importer x HS2017 chapter",
+     "definition": "importer (WITS reporter with an ISO3 code that is a BACI importer) x HS2017 HS6 product with a one-to-one HS1992 code",
+     "growth_window": [
+      2009,
+      2013
+     ],
+     "positive_import_years": [
+      2009,
+      2013,
+      2017
+     ],
+     "sample": "positive BACI HS1992 import value in 2009, 2013 and 2017",
+     "strata": "importer x tercile of log import growth 2009-2013 (terciles within importer by (growth, id) rank): every comparison is within the importing country and growth tercile"
+    },
+    "windows": {
+     "calendar_years": [
+      2009,
+      2024
+     ],
+     "e_max": 3,
+     "e_min": -5,
+     "post": [
+      0,
+      1,
+      2,
+      3
+     ],
+     "reference_event_time": -2
+    }
+   },
+   "diagnostics": {
+    "placebo_date": {
+     "event_time": [
+      {
+       "analytic_se": 0.02104803891712579,
+       "att": 0.06785572771723025,
+       "band_high": null,
+       "band_low": null,
+       "ci_high": 0.10910912593999424,
+       "ci_low": 0.026602329494466267,
+       "cohorts": [
+        2016,
+        2017,
+        2018,
+        2019,
+        2020
+       ],
+       "e": 0,
+       "n_treated": 6054,
+       "p": 0.0012647947551709517,
+       "period": "post",
+       "se": 0.02104803891712579
+      },
+      {
+       "analytic_se": 0.02071303438812669,
+       "att": 0.0409518464150567,
+       "band_high": null,
+       "band_low": null,
+       "ci_high": 0.08154864782632464,
+       "ci_low": 0.00035504500378875925,
+       "cohorts": [
+        2016,
+        2017,
+        2018,
+        2019,
+        2020
+       ],
+       "e": 1,
+       "n_treated": 6055,
+       "p": 0.048029748755787874,
+       "period": "post",
+       "se": 0.02071303438812669
+      }
+     ],
+     "overall": {
+      "analytic_se": 0.018602612816974323,
+      "att": 0.054403787066143475,
+      "bootstrap_p": null,
+      "ci_high": 0.09086423820575634,
+      "ci_low": 0.017943335926530607,
+      "definition": "equal-weight mean of ATT(e) over the post event times listed",
+      "event_times": [
+       0,
+       1
+      ],
+      "p": 0.0034498351065366923,
+      "se": 0.018602612816974323
+     },
+     "p": 0.0034498351065366923,
+     "passed": false,
+     "shift": 3,
+     "test": "placebo_date",
+     "treated_units_with_pre_data": 6121
+    },
+    "placebo_unit": {
+     "never_treated_units": 131899,
+     "nominal_alpha": 0.05,
+     "observed": -0.007173229613201699,
+     "permutation_p": 0.7524752475247525,
+     "placebo_mean": 0.003909131966041077,
+     "placebo_sd": 0.01949301736542828,
+     "ran": true,
+     "rejection_rate": 0.08,
+     "replications": 100,
+     "seed": 17,
+     "test": "placebo_unit"
+    },
+    "pre_trend": {
+     "leads": [
+      -5,
+      -4,
+      -3
+     ],
+     "max_abs_lead": 0.040175907673871095,
+     "sup_t": {
+      "p": 0.112,
+      "statistic": 2.0353389299706013
+     },
+     "wald": {
+      "df": 3,
+      "p": 0.026524571514793937,
+      "statistic": 9.218331707433112
+     }
+    }
+   },
+   "estimates": {
+    "outcome": {
+     "id": "baci92_log_import_value",
+     "label": "log import value from all exporters (BACI HS1992, thousand current USD)",
+     "role": "primary",
+     "source": "cepii_baci_hs92 bilateral_trade_value summed over exporters",
+     "unit": "log points"
+    },
+    "primary": {
+     "alpha": 0.05,
+     "anticipation": 1,
+     "bootstrap": {
+      "level": "cluster",
+      "replications": 999,
+      "seed": 20260918,
+      "uniform_critical_value": 2.5627800415547926,
+      "weights": "rademacher"
+     },
+     "cells": 75,
+     "control_group": "not_yet_treated",
+     "dropped_treated_no_control": 0,
+     "estimator": "callaway_santanna_unconditional_stratified",
+     "event_time": [
+      {
+       "analytic_se": 0.020387320834233738,
+       "att": -0.040175907673871095,
+       "band_high": 0.010411251458112919,
+       "band_low": -0.09076306680585511,
+       "ci_high": -0.0014878391033303143,
+       "ci_low": -0.07886397624441188,
+       "cohorts": [
+        2019,
+        2020,
+        2021,
+        2022,
+        2023
+       ],
+       "e": -5,
+       "n_treated": 6055,
+       "p": 0.0418167815925893,
+       "period": "pre",
+       "se": 0.01973917320711367
+      },
+      {
+       "analytic_se": 0.017994071548485653,
+       "att": -0.008609983246607817,
+       "band_high": 0.03634929995695814,
+       "band_low": -0.05356926645017378,
+       "ci_high": 0.02577399603405877,
+       "ci_low": -0.04299396252727441,
+       "cohorts": [
+        2019,
+        2020,
+        2021,
+        2022,
+        2023
+       ],
+       "e": -4,
+       "n_treated": 6061,
+       "p": 0.6235761380457288,
+       "period": "pre",
+       "se": 0.01754316893161458
+      },
+      {
+       "analytic_se": 0.018722759736022564,
+       "att": 0.02245264385804697,
+       "band_high": 0.06844863755613381,
+       "band_low": -0.023543349840039873,
+       "ci_high": 0.057629479021274174,
+       "ci_low": -0.012724191305180228,
+       "cohorts": [
+        2019,
+        2020,
+        2021,
+        2022,
+        2023
+       ],
+       "e": -3,
+       "n_treated": 6044,
+       "p": 0.2109328954543785,
+       "period": "pre",
+       "se": 0.017947694672298876
+      },
+      {
+       "analytic_se": 0.014544115723908839,
+       "att": -0.014255144187138582,
+       "band_high": 0.024923107566412327,
+       "band_low": -0.053433395940689486,
+       "ci_high": 0.01570761546023916,
+       "ci_low": -0.04421790383451632,
+       "cohorts": [
+        2019,
+        2020,
+        2021,
+        2022,
+        2023
+       ],
+       "e": -1,
+       "n_treated": 6043,
+       "p": 0.35109032668271023,
+       "period": "anticipation",
+       "se": 0.015287403178691124
+      },
+      {
+       "analytic_se": 0.023741718264138033,
+       "att": -0.039856774609833445,
+       "band_high": 0.020128924105893266,
+       "band_low": -0.09984247332556015,
+       "ci_high": 0.006019112966912092,
+       "ci_low": -0.08573266218657899,
+       "cohorts": [
+        2019,
+        2020,
+        2021,
+        2022,
+        2023
+       ],
+       "e": 0,
+       "n_treated": 6048,
+       "p": 0.08860394647504277,
+       "period": "post",
+       "se": 0.02340649519001813
+      },
+      {
+       "analytic_se": 0.025081536905432168,
+       "att": -0.004597787025088537,
+       "band_high": 0.06139939848452912,
+       "band_low": -0.07059497253470619,
+       "ci_high": 0.04587556791854671,
+       "ci_low": -0.05507114196872378,
+       "cohorts": [
+        2019,
+        2020,
+        2021,
+        2022,
+        2023
+       ],
+       "e": 1,
+       "n_treated": 6028,
+       "p": 0.8582991563780119,
+       "period": "post",
+       "se": 0.025752184908377215
+      },
+      {
+       "analytic_se": 0.028766831750058806,
+       "att": 0.023398506029274915,
+       "band_high": 0.09635293269862238,
+       "band_low": -0.049555920640072554,
+       "ci_high": 0.07919262275649164,
+       "ci_low": -0.032395610697941814,
+       "cohorts": [
+        2019,
+        2020,
+        2021,
+        2022
+       ],
+       "e": 2,
+       "n_treated": 5840,
+       "p": 0.411102754460344,
+       "period": "post",
+       "se": 0.02846690917145091
+      },
+      {
+       "analytic_se": 0.03562668702994561,
+       "att": -0.007636862847159732,
+       "band_high": 0.08370536562941805,
+       "band_low": -0.0989790913237375,
+       "ci_high": 0.062219884582911784,
+       "ci_low": -0.07749361027723124,
+       "cohorts": [
+        2019,
+        2020,
+        2021
+       ],
+       "e": 3,
+       "n_treated": 5327,
+       "p": 0.8303390690165923,
+       "period": "post",
+       "se": 0.03564185259580923
+      }
+     ],
+     "n_clusters": 4518,
+     "overall": {
+      "analytic_se": 0.024506293774500122,
+      "att": -0.007173229613201699,
+      "bootstrap_p": 0.744,
+      "ci_high": 0.04142678628564199,
+      "ci_low": -0.05577324551204539,
+      "definition": "equal-weight mean of ATT(e) over the post event times listed",
+      "event_times": [
+       0,
+       1,
+       2,
+       3
+      ],
+      "p": 0.7723630366896144,
+      "se": 0.024796382118342186
+     },
+     "pre_trend": {
+      "leads": [
+       -5,
+       -4,
+       -3
+      ],
+      "max_abs_lead": 0.040175907673871095,
+      "sup_t": {
+       "p": 0.112,
+       "statistic": 2.0353389299706013
+      },
+      "wald": {
+       "df": 3,
+       "p": 0.026524571514793937,
+       "statistic": 9.218331707433112
+      }
+     },
+     "reference_event_time": -2,
+     "skipped_cells": 0
+    },
+    "robustness": {
+     "never_treated_controls": {
+      "alpha": 0.05,
+      "anticipation": 1,
+      "bootstrap": null,
+      "cells": 75,
+      "control_group": "never_treated",
+      "dropped_treated_no_control": 0,
+      "estimator": "callaway_santanna_unconditional_stratified",
+      "event_time": [
+       {
+        "analytic_se": 0.020711624758900222,
+        "att": -0.040747599396701674,
+        "band_high": null,
+        "band_low": null,
+        "ci_high": -0.00015356080794916294,
+        "ci_low": -0.08134163798545418,
+        "cohorts": [
+         2019,
+         2020,
+         2021,
+         2022,
+         2023
+        ],
+        "e": -5,
+        "n_treated": 6055,
+        "p": 0.04913962367746743,
+        "period": "pre",
+        "se": 0.020711624758900222
+       },
+       {
+        "analytic_se": 0.01825704509203903,
+        "att": -0.010239640408945268,
+        "band_high": null,
+        "band_low": null,
+        "ci_high": 0.025543510435574977,
+        "ci_low": -0.04602279125346551,
+        "cohorts": [
+         2019,
+         2020,
+         2021,
+         2022,
+         2023
+        ],
+        "e": -4,
+        "n_treated": 6061,
+        "p": 0.5748932006160852,
+        "period": "pre",
+        "se": 0.01825704509203903
+       },
+       {
+        "analytic_se": 0.01883041448512604,
+        "att": 0.019394640460015624,
+        "band_high": null,
+        "band_low": null,
+        "ci_high": 0.05630157466482401,
+        "ci_low": -0.017512293744792757,
+        "cohorts": [
+         2019,
+         2020,
+         2021,
+         2022,
+         2023
+        ],
+        "e": -3,
+        "n_treated": 6044,
+        "p": 0.30302711880131783,
+        "period": "pre",
+        "se": 0.01883041448512604
+       },
+       {
+        "analytic_se": 0.014791657701940332,
+        "att": -0.012216195529388286,
+        "band_high": null,
+        "band_low": null,
+        "ci_high": 0.016774920838059263,
+        "ci_low": -0.04120731189683584,
+        "cohorts": [
+         2019,
+         2020,
+         2021,
+         2022,
+         2023
+        ],
+        "e": -1,
+        "n_treated": 6043,
+        "p": 0.40886981711911086,
+        "period": "anticipation",
+        "se": 0.014791657701940332
+       },
+       {
+        "analytic_se": 0.02391125913773579,
+        "att": -0.038385250507939755,
+        "band_high": null,
+        "band_low": null,
+        "ci_high": 0.008479956227026651,
+        "ci_low": -0.08525045724290617,
+        "cohorts": [
+         2019,
+         2020,
+         2021,
+         2022,
+         2023
+        ],
+        "e": 0,
+        "n_treated": 6048,
+        "p": 0.10842314248121274,
+        "period": "post",
+        "se": 0.02391125913773579
+       },
+       {
+        "analytic_se": 0.025093347837354358,
+        "att": -0.004401239457679367,
+        "band_high": null,
+        "band_low": null,
+        "ci_high": 0.044780818555071225,
+        "ci_low": -0.05358329747042996,
+        "cohorts": [
+         2019,
+         2020,
+         2021,
+         2022,
+         2023
+        ],
+        "e": 1,
+        "n_treated": 6028,
+        "p": 0.860769528565829,
+        "period": "post",
+        "se": 0.025093347837354358
+       },
+       {
+        "analytic_se": 0.028766871982009622,
+        "att": 0.02339988106956843,
+        "band_high": null,
+        "band_low": null,
+        "ci_high": 0.07978191410218165,
+        "ci_low": -0.032982151963044784,
+        "cohorts": [
+         2019,
+         2020,
+         2021,
+         2022
+        ],
+        "e": 2,
+        "n_treated": 5840,
+        "p": 0.4159706804616479,
+        "period": "post",
+        "se": 0.028766871982009622
+       },
+       {
+        "analytic_se": 0.03562668702994561,
+        "att": -0.007636862847159732,
+        "band_high": null,
+        "band_low": null,
+        "ci_high": 0.06219016062001393,
+        "ci_low": -0.07746388631433339,
+        "cohorts": [
+         2019,
+         2020,
+         2021
+        ],
+        "e": 3,
+        "n_treated": 5327,
+        "p": 0.8302679469380916,
+        "period": "post",
+        "se": 0.03562668702994561
+       }
+      ],
+      "n_clusters": 4518,
+      "overall": {
+       "analytic_se": 0.024600439058693236,
+       "att": -0.006755867935802606,
+       "bootstrap_p": null,
+       "ci_high": 0.04146010662310856,
+       "ci_low": -0.05497184249471378,
+       "definition": "equal-weight mean of ATT(e) over the post event times listed",
+       "event_times": [
+        0,
+        1,
+        2,
+        3
+       ],
+       "p": 0.7836052206575724,
+       "se": 0.024600439058693236
+      },
+      "pre_trend": {
+       "leads": [
+        -5,
+        -4,
+        -3
+       ],
+       "max_abs_lead": 0.040747599396701674,
+       "sup_t": null,
+       "wald": {
+        "df": 3,
+        "p": 0.038469626907042385,
+        "statistic": 8.397676425333819
+       }
+      },
+      "reference_event_time": -2,
+      "skipped_cells": 0
+     },
+     "stacked_did": {
+      "estimator": "stacked_did_clean_controls",
+      "event_time": [
+       {
+        "att": -0.018151059054861265,
+        "ci_high": 0.022974439092097093,
+        "ci_low": -0.059276557201819624,
+        "e": -5,
+        "p": 0.3870138837233504,
+        "se": 0.020982782577308078,
+        "stacks": 178
+       },
+       {
+        "att": -0.002186770245092227,
+        "ci_high": 0.032687497325876745,
+        "ci_low": -0.0370610378160612,
+        "e": -4,
+        "p": 0.9021875699585495,
+        "se": 0.017793320615099438,
+        "stacks": 178
+       },
+       {
+        "att": 0.03561683815350175,
+        "ci_high": 0.07039982530329597,
+        "ci_low": 0.0008338510037075308,
+        "e": -3,
+        "p": 0.044754975020140336,
+        "se": 0.017746748115862326,
+        "stacks": 178
+       },
+       {
+        "att": -0.016329105764250777,
+        "ci_high": 0.012433292959227602,
+        "ci_low": -0.04509150448772915,
+        "e": -1,
+        "p": 0.2658292574392527,
+        "se": 0.01467496288215116,
+        "stacks": 178
+       },
+       {
+        "att": -0.03855810085879926,
+        "ci_high": 0.003211313380257666,
+        "ci_low": -0.08032751509785618,
+        "e": 0,
+        "p": 0.07040780000943621,
+        "se": 0.0213113172326271,
+        "stacks": 178
+       },
+       {
+        "att": -0.007970008964723642,
+        "ci_high": 0.038945129694713046,
+        "ci_low": -0.05488514762416033,
+        "e": 1,
+        "p": 0.7391634160888356,
+        "se": 0.02393673507753067,
+        "stacks": 178
+       },
+       {
+        "att": 0.009340175821760943,
+        "ci_high": 0.062085266069122416,
+        "ci_low": -0.04340491442560053,
+        "e": 2,
+        "p": 0.7285363130953946,
+        "se": 0.026911254830909153,
+        "stacks": 178
+       },
+       {
+        "att": -0.007110782164688511,
+        "ci_high": 0.05953007769377021,
+        "ci_low": -0.07375164202314723,
+        "e": 3,
+        "p": 0.8343435471423772,
+        "se": 0.03400106348081563,
+        "stacks": 178
+       }
+      ],
+      "n_clusters": 4518,
+      "overall": {
+       "att": -0.011074679041612617,
+       "ci_high": 0.034445362013378986,
+       "ci_low": -0.056594720096604226,
+       "definition": "equal-weight mean of stacked ATT(e) over post event times",
+       "p": 0.6334729984237366,
+       "se": 0.023224937506019443
+      },
+      "pre_trend": {
+       "leads": [
+        -5,
+        -4,
+        -3
+       ],
+       "wald": {
+        "df": 3,
+        "p": 0.04747754112581134,
+        "statistic": 7.930151317304166
+       }
+      },
+      "stack_count": 178,
+      "stacks": [
+       {
+        "g": 2019,
+        "n_control": 903,
+        "n_treated": 11,
+        "stratum": "iso3:ARG|t0",
+        "weight": 10.86761487964989
+       },
+       {
+        "g": 2019,
+        "n_control": 953,
+        "n_treated": 11,
+        "stratum": "iso3:ARG|t1",
+        "weight": 10.87448132780083
+       },
+       {
+        "g": 2019,
+        "n_control": 890,
+        "n_treated": 38,
+        "stratum": "iso3:ARG|t2",
+        "weight": 36.44396551724138
+       },
+       {
+        "g": 2019,
+        "n_control": 1022,
+        "n_treated": 8,
+        "stratum": "iso3:AUS|t0",
+        "weight": 7.937864077669903
+       },
+       {
+        "g": 2019,
+        "n_control": 1066,
+        "n_treated": 9,
+        "stratum": "iso3:AUS|t1",
+        "weight": 8.924651162790697
+       },
+       {
+        "g": 2019,
+        "n_control": 1048,
+        "n_treated": 13,
+        "stratum": "iso3:AUS|t2",
+        "weight": 12.84071630537229
+       },
+       {
+        "g": 2019,
+        "n_control": 842,
+        "n_treated": 6,
+        "stratum": "iso3:BGD|t0",
+        "weight": 5.9575471698113205
+       },
+       {
+        "g": 2019,
+        "n_control": 943,
+        "n_treated": 10,
+        "stratum": "iso3:BGD|t1",
+        "weight": 9.895068205666316
+       },
+       {
+        "g": 2019,
+        "n_control": 876,
+        "n_treated": 9,
+        "stratum": "iso3:BGD|t2",
+        "weight": 8.908474576271187
+       },
+       {
+        "g": 2019,
+        "n_control": 960,
+        "n_treated": 6,
+        "stratum": "iso3:BRA|t0",
+        "weight": 5.962732919254658
+       },
+       {
+        "g": 2019,
+        "n_control": 1027,
+        "n_treated": 5,
+        "stratum": "iso3:BRA|t1",
+        "weight": 4.97577519379845
+       },
+       {
+        "g": 2019,
+        "n_control": 1014,
+        "n_treated": 3,
+        "stratum": "iso3:BRA|t2",
+        "weight": 2.9911504424778763
+       },
+       {
+        "g": 2019,
+        "n_control": 1071,
+        "n_treated": 1,
+        "stratum": "iso3:CAN|t0",
+        "weight": 0.9990671641791045
+       },
+       {
+        "g": 2019,
+        "n_control": 626,
+        "n_treated": 366,
+        "stratum": "iso3:CHN|t0",
+        "weight": 230.96370967741936
+       },
+       {
+        "g": 2019,
+        "n_control": 661,
+        "n_treated": 345,
+        "stratum": "iso3:CHN|t1",
+        "weight": 226.68489065606363
+       },
+       {
+        "g": 2019,
+        "n_control": 595,
+        "n_treated": 409,
+        "stratum": "iso3:CHN|t2",
+        "weight": 242.38545816733068
+       },
+       {
+        "g": 2019,
+        "n_control": 864,
+        "n_treated": 50,
+        "stratum": "iso3:COL|t0",
+        "weight": 47.264770240700216
+       },
+       {
+        "g": 2019,
+        "n_control": 866,
+        "n_treated": 93,
+        "stratum": "iso3:COL|t1",
+        "weight": 83.98123044838373
+       },
+       {
+        "g": 2019,
+        "n_control": 862,
+        "n_treated": 59,
+        "stratum": "iso3:COL|t2",
+        "weight": 55.22041259500543
+       },
+       {
+        "g": 2019,
+        "n_control": 747,
+        "n_treated": 1,
+        "stratum": "iso3:ECU|t0",
+        "weight": 0.9986631016042781
+       },
+       {
+        "g": 2019,
+        "n_control": 724,
+        "n_treated": 1,
+        "stratum": "iso3:ECU|t1",
+        "weight": 0.9986206896551724
+       },
+       {
+        "g": 2019,
+        "n_control": 498,
+        "n_treated": 2,
+        "stratum": "iso3:GBR|t0",
+        "weight": 1.992
+       },
+       {
+        "g": 2019,
+        "n_control": 507,
+        "n_treated": 1,
+        "stratum": "iso3:GBR|t1",
+        "weight": 0.9980314960629921
+       },
+       {
+        "g": 2019,
+        "n_control": 726,
+        "n_treated": 5,
+        "stratum": "iso3:IND|t0",
+        "weight": 4.965800273597811
+       },
+       {
+        "g": 2019,
+        "n_control": 769,
+        "n_treated": 8,
+        "stratum": "iso3:IND|t1",
+        "weight": 7.917631917631917
+       },
+       {
+        "g": 2019,
+        "n_control": 746,
+        "n_treated": 7,
+        "stratum": "iso3:IND|t2",
+        "weight": 6.934926958831341
+       },
+       {
+        "g": 2019,
+        "n_control": 968,
+        "n_treated": 8,
+        "stratum": "iso3:ISR|t0",
+        "weight": 7.934426229508197
+       },
+       {
+        "g": 2019,
+        "n_control": 1014,
+        "n_treated": 12,
+        "stratum": "iso3:ISR|t1",
+        "weight": 11.859649122807017
+       },
+       {
+        "g": 2019,
+        "n_control": 985,
+        "n_treated": 7,
+        "stratum": "iso3:ISR|t2",
+        "weight": 6.950604838709677
+       },
+       {
+        "g": 2019,
+        "n_control": 503,
+        "n_treated": 1,
+        "stratum": "iso3:JOR|t0",
+        "weight": 0.998015873015873
+       },
+       {
+        "g": 2019,
+        "n_control": 545,
+        "n_treated": 1,
+        "stratum": "iso3:JOR|t1",
+        "weight": 0.9981684981684982
+       },
+       {
+        "g": 2019,
+        "n_control": 500,
+        "n_treated": 4,
+        "stratum": "iso3:JOR|t2",
+        "weight": 3.9682539682539684
+       },
+       {
+        "g": 2019,
+        "n_control": 1033,
+        "n_treated": 1,
+        "stratum": "iso3:JPN|t1",
+        "weight": 0.9990328820116054
+       },
+       {
+        "g": 2019,
+        "n_control": 1026,
+        "n_treated": 4,
+        "stratum": "iso3:JPN|t2",
+        "weight": 3.984466019417476
+       },
+       {
+        "g": 2019,
+        "n_control": 645,
+        "n_treated": 65,
+        "stratum": "iso3:KAZ|t0",
+        "weight": 59.04929577464789
+       },
+       {
+        "g": 2019,
+        "n_control": 670,
+        "n_treated": 71,
+        "stratum": "iso3:KAZ|t1",
+        "weight": 64.1970310391363
+       },
+       {
+        "g": 2019,
+        "n_control": 673,
+        "n_treated": 61,
+        "stratum": "iso3:KAZ|t2",
+        "weight": 55.93051771117166
+       },
+       {
+        "g": 2019,
+        "n_control": 607,
+        "n_treated": 3,
+        "stratum": "iso3:KEN|t0",
+        "weight": 2.9852459016393444
+       },
+       {
+        "g": 2019,
+        "n_control": 1045,
+        "n_treated": 22,
+        "stratum": "iso3:KOR|t0",
+        "weight": 21.54639175257732
+       },
+       {
+        "g": 2019,
+        "n_control": 1046,
+        "n_treated": 33,
+        "stratum": "iso3:KOR|t1",
+        "weight": 31.990732159406857
+       },
+       {
+        "g": 2019,
+        "n_control": 1034,
+        "n_treated": 23,
+        "stratum": "iso3:KOR|t2",
+        "weight": 22.499526963103122
+       },
+       {
+        "g": 2019,
+        "n_control": 611,
+        "n_treated": 2,
+        "stratum": "iso3:LKA|t0",
+        "weight": 1.9934747145187601
+       },
+       {
+        "g": 2019,
+        "n_control": 603,
+        "n_treated": 2,
+        "stratum": "iso3:LKA|t1",
+        "weight": 1.993388429752066
+       },
+       {
+        "g": 2019,
+        "n_control": 623,
+        "n_treated": 1,
+        "stratum": "iso3:LKA|t2",
+        "weight": 0.9983974358974359
+       },
+       {
+        "g": 2019,
+        "n_control": 685,
+        "n_treated": 1,
+        "stratum": "iso3:MAR|t2",
+        "weight": 0.9985422740524781
+       },
+       {
+        "g": 2019,
+        "n_control": 1062,
+        "n_treated": 8,
+        "stratum": "iso3:MYS|t1",
+        "weight": 7.940186915887851
+       },
+       {
+        "g": 2019,
+        "n_control": 1045,
+        "n_treated": 3,
+        "stratum": "iso3:MYS|t2",
+        "weight": 2.991412213740458
+       },
+       {
+        "g": 2019,
+        "n_control": 1026,
+        "n_treated": 1,
+        "stratum": "iso3:NOR|t0",
+        "weight": 0.9990262901655307
+       },
+       {
+        "g": 2019,
+        "n_control": 558,
+        "n_treated": 7,
+        "stratum": "iso3:PAK|t0",
+        "weight": 6.913274336283186
+       },
+       {
+        "g": 2019,
+        "n_control": 551,
+        "n_treated": 19,
+        "stratum": "iso3:PAK|t1",
+        "weight": 18.366666666666667
+       },
+       {
+        "g": 2019,
+        "n_control": 597,
+        "n_treated": 11,
+        "stratum": "iso3:PAK|t2",
+        "weight": 10.800986842105264
+       },
+       {
+        "g": 2019,
+        "n_control": 966,
+        "n_treated": 4,
+        "stratum": "iso3:PHL|t0",
+        "weight": 3.9835051546391753
+       },
+       {
+        "g": 2019,
+        "n_control": 990,
+        "n_treated": 3,
+        "stratum": "iso3:PHL|t2",
+        "weight": 2.990936555891239
+       },
+       {
+        "g": 2019,
+        "n_control": 938,
+        "n_treated": 7,
+        "stratum": "iso3:RUS|t0",
+        "weight": 6.948148148148148
+       },
+       {
+        "g": 2019,
+        "n_control": 961,
+        "n_treated": 12,
+        "stratum": "iso3:RUS|t1",
+        "weight": 11.852004110996917
+       },
+       {
+        "g": 2019,
+        "n_control": 973,
+        "n_treated": 8,
+        "stratum": "iso3:RUS|t2",
+        "weight": 7.934760448521916
+       },
+       {
+        "g": 2019,
+        "n_control": 971,
+        "n_treated": 2,
+        "stratum": "iso3:THA|t0",
+        "weight": 1.9958890030832477
+       },
+       {
+        "g": 2019,
+        "n_control": 983,
+        "n_treated": 4,
+        "stratum": "iso3:THA|t1",
+        "weight": 3.983789260385005
+       },
+       {
+        "g": 2019,
+        "n_control": 668,
+        "n_treated": 1,
+        "stratum": "iso3:TUR|t0",
+        "weight": 0.9985052316890882
+       },
+       {
+        "g": 2019,
+        "n_control": 683,
+        "n_treated": 3,
+        "stratum": "iso3:TUR|t1",
+        "weight": 2.986880466472303
+       },
+       {
+        "g": 2019,
+        "n_control": 663,
+        "n_treated": 5,
+        "stratum": "iso3:TUR|t2",
+        "weight": 4.962574850299402
+       },
+       {
+        "g": 2019,
+        "n_control": 997,
+        "n_treated": 1,
+        "stratum": "iso3:VNM|t0",
+        "weight": 0.998997995991984
+       },
+       {
+        "g": 2020,
+        "n_control": 731,
+        "n_treated": 9,
+        "stratum": "iso3:AGO|t0",
+        "weight": 8.89054054054054
+       },
+       {
+        "g": 2020,
+        "n_control": 808,
+        "n_treated": 17,
+        "stratum": "iso3:AGO|t1",
+        "weight": 16.64969696969697
+       },
+       {
+        "g": 2020,
+        "n_control": 757,
+        "n_treated": 7,
+        "stratum": "iso3:AGO|t2",
+        "weight": 6.93586387434555
+       },
+       {
+        "g": 2020,
+        "n_control": 1049,
+        "n_treated": 1,
+        "stratum": "iso3:ARE|t0",
+        "weight": 0.9990476190476191
+       },
+       {
+        "g": 2020,
+        "n_control": 1056,
+        "n_treated": 1,
+        "stratum": "iso3:ARE|t1",
+        "weight": 0.9990539262062441
+       },
+       {
+        "g": 2020,
+        "n_control": 1041,
+        "n_treated": 3,
+        "stratum": "iso3:ARE|t2",
+        "weight": 2.9913793103448274
+       },
+       {
+        "g": 2020,
+        "n_control": 897,
+        "n_treated": 10,
+        "stratum": "iso3:ARG|t0",
+        "weight": 9.889746416758545
+       },
+       {
+        "g": 2020,
+        "n_control": 951,
+        "n_treated": 16,
+        "stratum": "iso3:ARG|t1",
+        "weight": 15.735263702171665
+       },
+       {
+        "g": 2020,
+        "n_control": 887,
+        "n_treated": 9,
+        "stratum": "iso3:ARG|t2",
+        "weight": 8.909598214285714
+       },
+       {
+        "g": 2020,
+        "n_control": 886,
+        "n_treated": 2,
+        "stratum": "iso3:BHR|t1",
+        "weight": 1.9954954954954955
+       },
+       {
+        "g": 2020,
+        "n_control": 958,
+        "n_treated": 4,
+        "stratum": "iso3:BRA|t0",
+        "weight": 3.9833679833679834
+       },
+       {
+        "g": 2020,
+        "n_control": 1027,
+        "n_treated": 1,
+        "stratum": "iso3:BRA|t1",
+        "weight": 0.9990272373540856
+       },
+       {
+        "g": 2020,
+        "n_control": 1071,
+        "n_treated": 11,
+        "stratum": "iso3:CAN|t0",
+        "weight": 10.888170055452864
+       },
+       {
+        "g": 2020,
+        "n_control": 1067,
+        "n_treated": 22,
+        "stratum": "iso3:CAN|t1",
+        "weight": 21.555555555555557
+       },
+       {
+        "g": 2020,
+        "n_control": 1078,
+        "n_treated": 10,
+        "stratum": "iso3:CAN|t2",
+        "weight": 9.908088235294118
+       },
+       {
+        "g": 2020,
+        "n_control": 760,
+        "n_treated": 1,
+        "stratum": "iso3:CIV|t0",
+        "weight": 0.9986859395532195
+       },
+       {
+        "g": 2020,
+        "n_control": 818,
+        "n_treated": 3,
+        "stratum": "iso3:CIV|t1",
+        "weight": 2.9890377588306944
+       },
+       {
+        "g": 2020,
+        "n_control": 863,
+        "n_treated": 3,
+        "stratum": "iso3:COL|t0",
+        "weight": 2.989607390300231
+       },
+       {
+        "g": 2020,
+        "n_control": 863,
+        "n_treated": 2,
+        "stratum": "iso3:COL|t2",
+        "weight": 1.9953757225433526
+       },
+       {
+        "g": 2020,
+        "n_control": 942,
+        "n_treated": 1,
+        "stratum": "iso3:CRI|t1",
+        "weight": 0.9989395546129375
+       },
+       {
+        "g": 2020,
+        "n_control": 886,
+        "n_treated": 2,
+        "stratum": "iso3:CRI|t2",
+        "weight": 1.9954954954954955
+       },
+       {
+        "g": 2020,
+        "n_control": 747,
+        "n_treated": 27,
+        "stratum": "iso3:ECU|t0",
+        "weight": 26.058139534883722
+       },
+       {
+        "g": 2020,
+        "n_control": 723,
+        "n_treated": 52,
+        "stratum": "iso3:ECU|t1",
+        "weight": 48.51096774193548
+       },
+       {
+        "g": 2020,
+        "n_control": 769,
+        "n_treated": 26,
+        "stratum": "iso3:ECU|t2",
+        "weight": 25.149685534591196
+       },
+       {
+        "g": 2020,
+        "n_control": 501,
+        "n_treated": 3,
+        "stratum": "iso3:GBR|t2",
+        "weight": 2.982142857142857
+       },
+       {
+        "g": 2020,
+        "n_control": 792,
+        "n_treated": 2,
+        "stratum": "iso3:GHA|t0",
+        "weight": 1.9949622166246852
+       },
+       {
+        "g": 2020,
+        "n_control": 885,
+        "n_treated": 2,
+        "stratum": "iso3:GHA|t1",
+        "weight": 1.995490417136415
+       },
+       {
+        "g": 2020,
+        "n_control": 727,
+        "n_treated": 20,
+        "stratum": "iso3:IND|t0",
+        "weight": 19.464524765729585
+       },
+       {
+        "g": 2020,
+        "n_control": 769,
+        "n_treated": 10,
+        "stratum": "iso3:IND|t1",
+        "weight": 9.871630295250322
+       },
+       {
+        "g": 2020,
+        "n_control": 749,
+        "n_treated": 13,
+        "stratum": "iso3:IND|t2",
+        "weight": 12.778215223097114
+       },
+       {
+        "g": 2020,
+        "n_control": 1012,
+        "n_treated": 2,
+        "stratum": "iso3:ISR|t1",
+        "weight": 1.9960552268244576
+       },
+       {
+        "g": 2020,
+        "n_control": 502,
+        "n_treated": 6,
+        "stratum": "iso3:JOR|t0",
+        "weight": 5.929133858267717
+       },
+       {
+        "g": 2020,
+        "n_control": 542,
+        "n_treated": 6,
+        "stratum": "iso3:JOR|t1",
+        "weight": 5.934306569343065
+       },
+       {
+        "g": 2020,
+        "n_control": 496,
+        "n_treated": 3,
+        "stratum": "iso3:JOR|t2",
+        "weight": 2.9819639278557113
+       },
+       {
+        "g": 2020,
+        "n_control": 1029,
+        "n_treated": 8,
+        "stratum": "iso3:JPN|t0",
+        "weight": 7.938283510125362
+       },
+       {
+        "g": 2020,
+        "n_control": 1029,
+        "n_treated": 8,
+        "stratum": "iso3:JPN|t1",
+        "weight": 7.938283510125362
+       },
+       {
+        "g": 2020,
+        "n_control": 1024,
+        "n_treated": 9,
+        "stratum": "iso3:JPN|t2",
+        "weight": 8.9215876089061
+       },
+       {
+        "g": 2020,
+        "n_control": 645,
+        "n_treated": 45,
+        "stratum": "iso3:KAZ|t0",
+        "weight": 42.06521739130435
+       },
+       {
+        "g": 2020,
+        "n_control": 670,
+        "n_treated": 44,
+        "stratum": "iso3:KAZ|t1",
+        "weight": 41.28851540616247
+       },
+       {
+        "g": 2020,
+        "n_control": 677,
+        "n_treated": 41,
+        "stratum": "iso3:KAZ|t2",
+        "weight": 38.65877437325905
+       },
+       {
+        "g": 2020,
+        "n_control": 631,
+        "n_treated": 10,
+        "stratum": "iso3:KEN|t0",
+        "weight": 9.84399375975039
+       },
+       {
+        "g": 2020,
+        "n_control": 731,
+        "n_treated": 9,
+        "stratum": "iso3:KEN|t1",
+        "weight": 8.89054054054054
+       },
+       {
+        "g": 2020,
+        "n_control": 659,
+        "n_treated": 10,
+        "stratum": "iso3:KEN|t2",
+        "weight": 9.850523168908818
+       },
+       {
+        "g": 2020,
+        "n_control": 871,
+        "n_treated": 2,
+        "stratum": "iso3:KWT|t0",
+        "weight": 1.995418098510882
+       },
+       {
+        "g": 2020,
+        "n_control": 865,
+        "n_treated": 1,
+        "stratum": "iso3:KWT|t2",
+        "weight": 0.9988452655889145
+       },
+       {
+        "g": 2020,
+        "n_control": 1037,
+        "n_treated": 1,
+        "stratum": "iso3:MYS|t2",
+        "weight": 0.9990366088631984
+       },
+       {
+        "g": 2020,
+        "n_control": 964,
+        "n_treated": 9,
+        "stratum": "iso3:NZL|t0",
+        "weight": 8.916752312435765
+       },
+       {
+        "g": 2020,
+        "n_control": 1016,
+        "n_treated": 12,
+        "stratum": "iso3:NZL|t1",
+        "weight": 11.859922178988327
+       },
+       {
+        "g": 2020,
+        "n_control": 995,
+        "n_treated": 9,
+        "stratum": "iso3:NZL|t2",
+        "weight": 8.919322709163346
+       },
+       {
+        "g": 2020,
+        "n_control": 882,
+        "n_treated": 1,
+        "stratum": "iso3:OMN|t0",
+        "weight": 0.9988674971687429
+       },
+       {
+        "g": 2020,
+        "n_control": 904,
+        "n_treated": 3,
+        "stratum": "iso3:OMN|t2",
+        "weight": 2.990077177508269
+       },
+       {
+        "g": 2020,
+        "n_control": 554,
+        "n_treated": 213,
+        "stratum": "iso3:PAK|t0",
+        "weight": 153.84876140808345
+       },
+       {
+        "g": 2020,
+        "n_control": 549,
+        "n_treated": 251,
+        "stratum": "iso3:PAK|t1",
+        "weight": 172.24875
+       },
+       {
+        "g": 2020,
+        "n_control": 587,
+        "n_treated": 181,
+        "stratum": "iso3:PAK|t2",
+        "weight": 138.34244791666666
+       },
+       {
+        "g": 2020,
+        "n_control": 797,
+        "n_treated": 3,
+        "stratum": "iso3:PAN|t0",
+        "weight": 2.98875
+       },
+       {
+        "g": 2020,
+        "n_control": 873,
+        "n_treated": 4,
+        "stratum": "iso3:PAN|t1",
+        "weight": 3.9817559863169896
+       },
+       {
+        "g": 2020,
+        "n_control": 815,
+        "n_treated": 2,
+        "stratum": "iso3:PAN|t2",
+        "weight": 1.9951040391676866
+       },
+       {
+        "g": 2020,
+        "n_control": 970,
+        "n_treated": 2,
+        "stratum": "iso3:PHL|t0",
+        "weight": 1.9958847736625513
+       },
+       {
+        "g": 2020,
+        "n_control": 1004,
+        "n_treated": 1,
+        "stratum": "iso3:PHL|t1",
+        "weight": 0.9990049751243781
+       },
+       {
+        "g": 2020,
+        "n_control": 821,
+        "n_treated": 1,
+        "stratum": "iso3:QAT|t0",
+        "weight": 0.9987834549878345
+       },
+       {
+        "g": 2020,
+        "n_control": 847,
+        "n_treated": 1,
+        "stratum": "iso3:QAT|t1",
+        "weight": 0.9988207547169812
+       },
+       {
+        "g": 2020,
+        "n_control": 920,
+        "n_treated": 65,
+        "stratum": "iso3:RUS|t0",
+        "weight": 60.71065989847716
+       },
+       {
+        "g": 2020,
+        "n_control": 957,
+        "n_treated": 61,
+        "stratum": "iso3:RUS|t1",
+        "weight": 57.344793713163064
+       },
+       {
+        "g": 2020,
+        "n_control": 951,
+        "n_treated": 42,
+        "stratum": "iso3:RUS|t2",
+        "weight": 40.22356495468278
+       },
+       {
+        "g": 2020,
+        "n_control": 668,
+        "n_treated": 3,
+        "stratum": "iso3:TUR|t0",
+        "weight": 2.9865871833084947
+       },
+       {
+        "g": 2020,
+        "n_control": 660,
+        "n_treated": 2,
+        "stratum": "iso3:TUR|t2",
+        "weight": 1.9939577039274925
+       },
+       {
+        "g": 2020,
+        "n_control": 1009,
+        "n_treated": 1,
+        "stratum": "iso3:USA|t0",
+        "weight": 0.999009900990099
+       },
+       {
+        "g": 2020,
+        "n_control": 1018,
+        "n_treated": 1,
+        "stratum": "iso3:USA|t1",
+        "weight": 0.9990186457311089
+       },
+       {
+        "g": 2020,
+        "n_control": 1012,
+        "n_treated": 1,
+        "stratum": "iso3:USA|t2",
+        "weight": 0.9990128331688055
+       },
+       {
+        "g": 2020,
+        "n_control": 1029,
+        "n_treated": 1,
+        "stratum": "iso3:ZAF|t0",
+        "weight": 0.9990291262135922
+       },
+       {
+        "g": 2021,
+        "n_control": 890,
+        "n_treated": 2,
+        "stratum": "iso3:ARG|t0",
+        "weight": 1.9955156950672646
+       },
+       {
+        "g": 2021,
+        "n_control": 946,
+        "n_treated": 2,
+        "stratum": "iso3:ARG|t1",
+        "weight": 1.9957805907172996
+       },
+       {
+        "g": 2021,
+        "n_control": 876,
+        "n_treated": 2,
+        "stratum": "iso3:ARG|t2",
+        "weight": 1.9954441913439636
+       },
+       {
+        "g": 2021,
+        "n_control": 842,
+        "n_treated": 2,
+        "stratum": "iso3:BGD|t0",
+        "weight": 1.995260663507109
+       },
+       {
+        "g": 2021,
+        "n_control": 938,
+        "n_treated": 2,
+        "stratum": "iso3:BGD|t1",
+        "weight": 1.995744680851064
+       },
+       {
+        "g": 2021,
+        "n_control": 869,
+        "n_treated": 1,
+        "stratum": "iso3:BGD|t2",
+        "weight": 0.9988505747126437
+       },
+       {
+        "g": 2021,
+        "n_control": 961,
+        "n_treated": 13,
+        "stratum": "iso3:BRA|t0",
+        "weight": 12.826488706365502
+       },
+       {
+        "g": 2021,
+        "n_control": 1024,
+        "n_treated": 9,
+        "stratum": "iso3:BRA|t1",
+        "weight": 8.9215876089061
+       },
+       {
+        "g": 2021,
+        "n_control": 1011,
+        "n_treated": 2,
+        "stratum": "iso3:BRA|t2",
+        "weight": 1.996051332675222
+       },
+       {
+        "g": 2021,
+        "n_control": 743,
+        "n_treated": 93,
+        "stratum": "iso3:ECU|t0",
+        "weight": 82.65430622009569
+       },
+       {
+        "g": 2021,
+        "n_control": 721,
+        "n_treated": 152,
+        "stratum": "iso3:ECU|t1",
+        "weight": 125.53493699885452
+       },
+       {
+        "g": 2021,
+        "n_control": 769,
+        "n_treated": 87,
+        "stratum": "iso3:ECU|t2",
+        "weight": 78.15771028037383
+       },
+       {
+        "g": 2021,
+        "n_control": 496,
+        "n_treated": 212,
+        "stratum": "iso3:GBR|t0",
+        "weight": 148.51977401129943
+       },
+       {
+        "g": 2021,
+        "n_control": 503,
+        "n_treated": 211,
+        "stratum": "iso3:GBR|t1",
+        "weight": 148.64565826330534
+       },
+       {
+        "g": 2021,
+        "n_control": 501,
+        "n_treated": 208,
+        "stratum": "iso3:GBR|t2",
+        "weight": 146.97884344146686
+       },
+       {
+        "g": 2021,
+        "n_control": 724,
+        "n_treated": 29,
+        "stratum": "iso3:IND|t0",
+        "weight": 27.883134130146082
+       },
+       {
+        "g": 2021,
+        "n_control": 769,
+        "n_treated": 14,
+        "stratum": "iso3:IND|t1",
+        "weight": 13.749680715197957
+       },
+       {
+        "g": 2021,
+        "n_control": 748,
+        "n_treated": 20,
+        "stratum": "iso3:IND|t2",
+        "weight": 19.479166666666668
+       },
+       {
+        "g": 2021,
+        "n_control": 647,
+        "n_treated": 6,
+        "stratum": "iso3:KAZ|t0",
+        "weight": 5.944869831546708
+       },
+       {
+        "g": 2021,
+        "n_control": 670,
+        "n_treated": 6,
+        "stratum": "iso3:KAZ|t1",
+        "weight": 5.946745562130178
+       },
+       {
+        "g": 2021,
+        "n_control": 675,
+        "n_treated": 5,
+        "stratum": "iso3:KAZ|t2",
+        "weight": 4.963235294117647
+       },
+       {
+        "g": 2021,
+        "n_control": 633,
+        "n_treated": 3,
+        "stratum": "iso3:KEN|t0",
+        "weight": 2.9858490566037736
+       },
+       {
+        "g": 2021,
+        "n_control": 731,
+        "n_treated": 1,
+        "stratum": "iso3:KEN|t1",
+        "weight": 0.9986338797814208
+       },
+       {
+        "g": 2021,
+        "n_control": 659,
+        "n_treated": 2,
+        "stratum": "iso3:KEN|t2",
+        "weight": 1.993948562783661
+       },
+       {
+        "g": 2021,
+        "n_control": 1039,
+        "n_treated": 1,
+        "stratum": "iso3:KOR|t0",
+        "weight": 0.9990384615384615
+       },
+       {
+        "g": 2021,
+        "n_control": 1030,
+        "n_treated": 1,
+        "stratum": "iso3:KOR|t2",
+        "weight": 0.9990300678952473
+       },
+       {
+        "g": 2021,
+        "n_control": 602,
+        "n_treated": 220,
+        "stratum": "iso3:LKA|t0",
+        "weight": 161.11922141119223
+       },
+       {
+        "g": 2021,
+        "n_control": 601,
+        "n_treated": 301,
+        "stratum": "iso3:LKA|t1",
+        "weight": 200.55543237250555
+       },
+       {
+        "g": 2021,
+        "n_control": 609,
+        "n_treated": 252,
+        "stratum": "iso3:LKA|t2",
+        "weight": 178.2439024390244
+       },
+       {
+        "g": 2021,
+        "n_control": 670,
+        "n_treated": 4,
+        "stratum": "iso3:MAR|t0",
+        "weight": 3.9762611275964392
+       },
+       {
+        "g": 2021,
+        "n_control": 712,
+        "n_treated": 4,
+        "stratum": "iso3:MAR|t1",
+        "weight": 3.977653631284916
+       },
+       {
+        "g": 2021,
+        "n_control": 681,
+        "n_treated": 2,
+        "stratum": "iso3:MAR|t2",
+        "weight": 1.9941434846266473
+       },
+       {
+        "g": 2021,
+        "n_control": 541,
+        "n_treated": 12,
+        "stratum": "iso3:PAK|t0",
+        "weight": 11.739602169981916
+       },
+       {
+        "g": 2021,
+        "n_control": 547,
+        "n_treated": 21,
+        "stratum": "iso3:PAK|t1",
+        "weight": 20.223591549295776
+       },
+       {
+        "g": 2021,
+        "n_control": 584,
+        "n_treated": 10,
+        "stratum": "iso3:PAK|t2",
+        "weight": 9.831649831649832
+       },
+       {
+        "g": 2021,
+        "n_control": 908,
+        "n_treated": 1,
+        "stratum": "iso3:RUS|t0",
+        "weight": 0.9988998899889989
+       },
+       {
+        "g": 2021,
+        "n_control": 954,
+        "n_treated": 3,
+        "stratum": "iso3:RUS|t1",
+        "weight": 2.9905956112852663
+       },
+       {
+        "g": 2021,
+        "n_control": 946,
+        "n_treated": 1,
+        "stratum": "iso3:RUS|t2",
+        "weight": 0.9989440337909187
+       },
+       {
+        "g": 2021,
+        "n_control": 1007,
+        "n_treated": 1,
+        "stratum": "iso3:USA|t0",
+        "weight": 0.9990079365079365
+       },
+       {
+        "g": 2021,
+        "n_control": 1016,
+        "n_treated": 1,
+        "stratum": "iso3:USA|t1",
+        "weight": 0.9990167158308751
+       },
+       {
+        "g": 2021,
+        "n_control": 991,
+        "n_treated": 8,
+        "stratum": "iso3:VNM|t0",
+        "weight": 7.935935935935936
+       },
+       {
+        "g": 2021,
+        "n_control": 1030,
+        "n_treated": 6,
+        "stratum": "iso3:VNM|t1",
+        "weight": 5.9652509652509655
+       },
+       {
+        "g": 2021,
+        "n_control": 1004,
+        "n_treated": 5,
+        "stratum": "iso3:VNM|t2",
+        "weight": 4.975222993062438
+       },
+       {
+        "g": 2021,
+        "n_control": 1028,
+        "n_treated": 19,
+        "stratum": "iso3:ZAF|t0",
+        "weight": 18.65520534861509
+       },
+       {
+        "g": 2021,
+        "n_control": 1060,
+        "n_treated": 10,
+        "stratum": "iso3:ZAF|t1",
+        "weight": 9.906542056074766
+       },
+       {
+        "g": 2021,
+        "n_control": 1034,
+        "n_treated": 15,
+        "stratum": "iso3:ZAF|t2",
+        "weight": 14.785510009532889
+       }
+      ]
+     },
+     "twfe_static": {
+      "beta": -0.0033853714893858954,
+      "demeaning": {
+       "converged": true,
+       "iterations": [
+        5,
+        5
+       ]
+      },
+      "estimator": "twfe_static",
+      "n_clusters": 4518,
+      "n_obs": 2185197,
+      "p": 0.9177675798322273,
+      "se": 0.032789310896445795,
+      "warning": "biased under staggered adoption with heterogeneous or dynamic effects; comparison only"
+     },
+     "unmatched_strata_importer_only": {
+      "alpha": 0.05,
+      "anticipation": 1,
+      "bootstrap": null,
+      "cells": 75,
+      "control_group": "not_yet_treated",
+      "dropped_treated_no_control": 0,
+      "estimator": "callaway_santanna_unconditional_stratified",
+      "event_time": [
+       {
+        "analytic_se": 0.020509351854348132,
+        "att": -0.03966989621506465,
+        "band_high": null,
+        "band_low": null,
+        "ci_high": 0.0005276947657174569,
+        "ci_low": -0.07986748719584676,
+        "cohorts": [
+         2019,
+         2020,
+         2021,
+         2022,
+         2023
+        ],
+        "e": -5,
+        "n_treated": 6055,
+        "p": 0.053084300663276324,
+        "period": "pre",
+        "se": 0.020509351854348132
+       },
+       {
+        "analytic_se": 0.01813017714569676,
+        "att": -0.007107456135541604,
+        "band_high": null,
+        "band_low": null,
+        "ci_high": 0.028427038103355243,
+        "ci_low": -0.04264195037443845,
+        "cohorts": [
+         2019,
+         2020,
+         2021,
+         2022,
+         2023
+        ],
+        "e": -4,
+        "n_treated": 6061,
+        "p": 0.695040824375315,
+        "period": "pre",
+        "se": 0.01813017714569676
+       },
+       {
+        "analytic_se": 0.018381674338437248,
+        "att": 0.021774139699840548,
+        "band_high": null,
+        "band_low": null,
+        "ci_high": 0.05780155937872167,
+        "ci_low": -0.014253279979040575,
+        "cohorts": [
+         2019,
+         2020,
+         2021,
+         2022,
+         2023
+        ],
+        "e": -3,
+        "n_treated": 6044,
+        "p": 0.23619267512274578,
+        "period": "pre",
+        "se": 0.018381674338437248
+       },
+       {
+        "analytic_se": 0.01467991827209024,
+        "att": -0.013062720151378847,
+        "band_high": null,
+        "band_low": null,
+        "ci_high": 0.01570939095790948,
+        "ci_low": -0.04183483126066717,
+        "cohorts": [
+         2019,
+         2020,
+         2021,
+         2022,
+         2023
+        ],
+        "e": -1,
+        "n_treated": 6043,
+        "p": 0.3735539386086699,
+        "period": "anticipation",
+        "se": 0.01467991827209024
+       },
+       {
+        "analytic_se": 0.023741919748439155,
+        "att": -0.03827592421758902,
+        "band_high": null,
+        "band_low": null,
+        "ci_high": 0.00825738341319198,
+        "ci_low": -0.08480923184837003,
+        "cohorts": [
+         2019,
+         2020,
+         2021,
+         2022,
+         2023
+        ],
+        "e": 0,
+        "n_treated": 6048,
+        "p": 0.10692574455810036,
+        "period": "post",
+        "se": 0.023741919748439155
+       },
+       {
+        "analytic_se": 0.02520169485278718,
+        "att": -0.003620015282273931,
+        "band_high": null,
+        "band_low": null,
+        "ci_high": 0.045774398978557396,
+        "ci_low": -0.05301442954310526,
+        "cohorts": [
+         2019,
+         2020,
+         2021,
+         2022,
+         2023
+        ],
+        "e": 1,
+        "n_treated": 6028,
+        "p": 0.8857833792104344,
+        "period": "post",
+        "se": 0.02520169485278718
+       },
+       {
+        "analytic_se": 0.028962440989581693,
+        "att": 0.02533495959311057,
+        "band_high": null,
+        "band_low": null,
+        "ci_high": 0.08210030083705729,
+        "ci_low": -0.03143038165083614,
+        "cohorts": [
+         2019,
+         2020,
+         2021,
+         2022
+        ],
+        "e": 2,
+        "n_treated": 5840,
+        "p": 0.3817087391269431,
+        "period": "post",
+        "se": 0.028962440989581693
+       },
+       {
+        "analytic_se": 0.035733442892577884,
+        "att": -0.006292649011454877,
+        "band_high": null,
+        "band_low": null,
+        "ci_high": 0.06374361210161654,
+        "ci_low": -0.07632891012452629,
+        "cohorts": [
+         2019,
+         2020,
+         2021
+        ],
+        "e": 3,
+        "n_treated": 5327,
+        "p": 0.8602156069758121,
+        "period": "post",
+        "se": 0.035733442892577884
+       }
+      ],
+      "n_clusters": 4518,
+      "overall": {
+       "analytic_se": 0.024613752746348392,
+       "att": -0.0057134072295518135,
+       "bootstrap_p": null,
+       "ci_high": 0.04252866167766488,
+       "ci_low": -0.0539554761367685,
+       "definition": "equal-weight mean of ATT(e) over the post event times listed",
+       "event_times": [
+        0,
+        1,
+        2,
+        3
+       ],
+       "p": 0.8164428251992104,
+       "se": 0.024613752746348392
+      },
+      "pre_trend": {
+       "leads": [
+        -5,
+        -4,
+        -3
+       ],
+       "max_abs_lead": 0.03966989621506465,
+       "sup_t": null,
+       "wald": {
+        "df": 3,
+        "p": 0.026648603501490745,
+        "statistic": 9.20807425397423
+       }
+      },
+      "reference_event_time": -2,
+      "skipped_cells": 0
+     }
+    }
+   },
+   "identification": {
+    "assumptions": [
+     "Parallel trends: absent treatment, the average outcome of treated units would have moved like that of the comparison units (not-yet-treated or never-treated, within stratum when stratified) from the base period on.",
+     "No anticipation beyond the registered anticipation window: outcomes before g - anticipation do not respond.",
+     "Absorbing treatment: the first qualifying event defines the cohort; later events are part of the post-period treatment path, so estimates are effects of entering treatment, not of one isolated event.",
+     "SUTVA / no interference: a unit's outcome does not depend on other units' treatment (spillovers to comparison units bias the estimate toward zero or away from it).",
+     "Treatment timing is recorded correctly by the source date the registration names.",
+     "Within an importer and a 2009-2013 import-growth tercile, which products receive an MFN cut first is unrelated to product-specific import trends after 2013.",
+     "Anticipation lasts at most one year: imports before g-1 do not respond to the cut.",
+     "MFN rates bind for a material share of imports; preferential partners dilute the effect toward zero. The estimate is on total imports.",
+     "One-to-one concordance codes measure the same goods in HS2017, HS2022 and HS1992; restricting to them selects products whose definitions did not change, which may not represent all products.",
+     "No interference: substitution into neighbouring comparison products of the same importer is small.",
+     "Reporters that stop reporting censor treatment; a unit recorded as never treated may have changed later."
+    ],
+    "estimand": "ATT: equal-weight mean over event times 0..3 of treated-count-weighted ATT(g, g+e), base period g-2",
+    "label": "did_failed_diagnostics",
+    "meaning": "A difference-in-differences estimate whose pre-registered diagnostics failed. It is reported for transparency and must not be read as an intervention response.",
+    "strategy": "staggered_difference_in_differences"
+   },
+   "notes": [],
+   "registration": {
+    "commit": "c0e0f801e89ba3af1a85f7520c8c0120052bb42e",
+    "committed_at": "2026-09-18T20:47:04-07:00",
+    "committed_clean": true,
+    "path": "examples/natural-experiments/registrations/tariff_mfn_decreases_imports.json",
+    "sha256": "855a968380feae10e85e3e9aa513d2df33acc62471ce87ca389f7a67d693ba85"
+   },
+   "result_id": "27844fef0e8f1ebf9e1817545f9d9da455cec45922a0ebd3aa07c4171af1b2e7",
+   "schema": "worldmodel.causal_result/1",
+   "study_id": "tariff_mfn_decreases_imports",
+   "verdict": "No causal claim. Pre-registered diagnostics failed (no_pre_trends, placebo_date_null), so the parallel-trends design is not credible here. The estimate for log import value from all exporters (BACI HS1992, thousand current USD), -0.0072 log points (95% CI -0.0558 to +0.0414), is reported only for transparency."
+  },
+  {
+   "acceptance": [
+    {
+     "id": "enough_treated_units",
+     "passed": true,
+     "role": "identification",
+     "threshold": 500,
+     "type": "min_treated_units",
+     "value": 6080
+    },
+    {
+     "id": "enough_clusters",
+     "passed": true,
+     "role": "identification",
+     "threshold": 50,
+     "type": "min_clusters",
+     "value": 4518
+    },
+    {
+     "id": "no_pre_trends",
+     "passed": true,
+     "role": "identification",
+     "threshold": 0.05,
+     "type": "pre_trend_wald_p_min",
+     "value": 0.5493858589770948
+    },
+    {
+     "id": "placebo_date_null",
+     "passed": true,
+     "role": "identification",
+     "threshold": 0.05,
+     "type": "placebo_date_p_min",
+     "value": 0.5530042786405316
+    },
+    {
+     "id": "placebo_unit_size",
+     "passed": true,
+     "role": "identification",
+     "threshold": 0.1,
+     "type": "placebo_unit_rejection_rate_max",
+     "value": 0.08
+    },
+    {
+     "id": "stacked_agrees",
+     "passed": true,
+     "role": "identification",
+     "threshold": null,
+     "type": "robustness_ci_overlap",
+     "value": [
+      [
+       -0.0895706749264028,
+       0.07166959682606866
+      ],
+      [
+       -0.08702524891949476,
+       0.15285887220214758
+      ]
+     ]
+    }
+   ],
+   "data": {
+    "inputs": [
+     {
+      "dataset": "wits_trains_tariffs",
+      "stage": "normalized",
+      "version": "dfa67e7ff86a26db08175897e52f161f8f9c8922669ddd190ca316fb3ffa977e"
+     },
+     {
+      "dataset": "trade_concordances",
+      "stage": "normalized",
+      "version": "4dbe3795ad4fe8ef5c2bc60dd8ef040acf71ebbf7927e2c46168432406452ede"
+     },
+     {
+      "dataset": "cepii_baci_hs92",
+      "stage": "normalized",
+      "version": "742e33f360ef9da1b3bda340a8df406c735e639a2f011b39c0e8843b2b5828ca"
+     }
+    ],
+    "outcome_extraction": {
+     "input": {
+      "dataset": "cepii_baci_hs92",
+      "stage": "normalized",
+      "version": "742e33f360ef9da1b3bda340a8df406c735e639a2f011b39c0e8843b2b5828ca"
+     },
+     "rows": 3366755,
+     "sha256": "9a662468947cce36ee17613e0c87aeb95ce868499b3493f40c16a47e4d7c398e",
+     "spec": {
+      "filter": "metric == bilateral_trade_value (HS1992); importer in the listed set; year in range; summed over exporters",
+      "importers": [
+       "iso3:AGO",
+       "iso3:ARE",
+       "iso3:ARG",
+       "iso3:AUS",
+       "iso3:BGD",
+       "iso3:BHR",
+       "iso3:BRA",
+       "iso3:CAN",
+       "iso3:CHE",
+       "iso3:CHL",
+       "iso3:CHN",
+       "iso3:CIV",
+       "iso3:COL",
+       "iso3:CRI",
+       "iso3:DZA",
+       "iso3:ECU",
+       "iso3:GBR",
+       "iso3:GHA",
+       "iso3:HKG",
+       "iso3:IDN",
+       "iso3:IND",
+       "iso3:ISR",
+       "iso3:JOR",
+       "iso3:JPN",
+       "iso3:KAZ",
+       "iso3:KEN",
+       "iso3:KOR",
+       "iso3:KWT",
+       "iso3:LKA",
+       "iso3:MAR",
+       "iso3:MMR",
+       "iso3:MYS",
+       "iso3:NGA",
+       "iso3:NOR",
+       "iso3:NZL",
+       "iso3:OMN",
+       "iso3:PAK",
+       "iso3:PAN",
+       "iso3:PER",
+       "iso3:PHL",
+       "iso3:QAT",
+       "iso3:RUS",
+       "iso3:THA",
+       "iso3:TUR",
+       "iso3:TWN",
+       "iso3:USA",
+       "iso3:VEN",
+       "iso3:VNM",
+       "iso3:ZAF"
+      ],
+      "years": [
+       2009,
+       2024
+      ]
+     }
+    },
+    "panel": {
+     "clusters": 4518,
+     "cohort_sizes": {
+      "2019": 1887,
+      "2020": 1433,
+      "2021": 2052,
+      "2022": 511,
+      "2023": 197
+     },
+     "never_treated_units": 130600,
+     "observations": 1707966,
+     "periods": [
+      2009,
+      2024
+     ],
+     "strata": 144,
+     "treated_units": 6080,
+     "units": 136680
+    },
+    "panel_digest": "8780b7f0a0c5ef571eea5ff9486d5e01ee82dd866c742972008d7f14024cbcfb",
+    "treatment_facts": {
+     "first_change_decrease_2pp": 10509,
+     "first_change_other": 12460,
+     "first_change_spans_reporting_gap": 2438,
+     "hs2017_hs1992_one_to_one_codes": 3332,
+     "hs2022_hs2017_one_to_one_codes": 4097,
+     "importers": 48,
+     "never_changed": 238631,
+     "treated_by_cohort": {
+      "2019": 1887,
+      "2020": 1433,
+      "2021": 2052,
+      "2022": 511,
+      "2023": 197
+     },
+     "treated_units_estimated": 6080,
+     "units_without_one_to_one_hs92": 92754,
+     "units_without_positive_required_years": 13136,
+     "universe_units_2018": 258651
+    }
+   },
+   "design": {
+    "controls": {
+     "control_group": "not_yet_treated",
+     "definition": "same-importer, same-tercile units never treated or first treated after max(t, g-2) + 1"
+    },
+    "estimator": {
+     "anticipation": 1,
+     "balance": null,
+     "estimand": "ATT: equal-weight mean over event times 0..3 of treated-count-weighted ATT(g, g+e), base period g-2",
+     "non_gating_robustness": [
+      "unmatched_strata_importer_only: same units, strata = importer (wave-1 style)"
+     ],
+     "primary": "callaway_santanna_unconditional_within_importer_and_growth_tercile",
+     "robustness": [
+      "stacked_did",
+      "twfe_static",
+      "never_treated_controls"
+     ],
+     "stacked_note": "the stacked estimator requires every event time -5..3, so it uses cohorts 2019-2021 only"
+    },
+    "inference": {
+     "alpha": 0.05,
+     "bootstrap": 999,
+     "bootstrap_weights": "rademacher multiplier on cluster influence functions",
+     "cluster": "importer x HS2017 chapter",
+     "seed": 20260918
+    },
+    "outcomes": {
+     "hs2017_to_hs1992_crosswalk": "un_hs17_hs92_correlation",
+     "primary": {
+      "id": "baci92_log_import_value",
+      "label": "log import value from all exporters (BACI HS1992, thousand current USD)",
+      "source": "cepii_baci_hs92 bilateral_trade_value summed over exporters",
+      "unit": "log points"
+     },
+     "secondary": [
+      {
+       "id": "baci92_log_import_quantity",
+       "label": "log import quantity from all exporters (BACI HS1992, metric tons; cells with any flow lacking quantity dropped)",
+       "source": "cepii_baci_hs92 attributes.quantity_t summed over exporters",
+       "unit": "log points"
+      }
+     ],
+     "transform": "natural log of positive values; a zero or missing value drops that cell"
+    },
+    "placebo_tests": {
+     "placebo_date": {
+      "definition": "treated units keep only years before g-1; placebo cohort g-3 (base g-5); placebo effect averaged over placebo event times 0..1",
+      "shift": 3
+     },
+     "placebo_unit": {
+      "definition": "real treated units removed; never-treated units get cohorts drawn from their stratum's real cohorts at the stratum's real treated share",
+      "min_never_treated": 20,
+      "replications": 100,
+      "seed": 17
+     }
+    },
+    "question": "When an importer cuts its MFN applied tariff on an HS6 product by at least 2 percentage points, how does the value of its imports of that product (from all exporters) change over the following years, relative to the same importer's products that were on similar import paths and whose MFN rate had not yet changed, allowing one year of anticipation?",
+    "treatment": {
+     "absorbing": "later changes are part of the post-period path",
+     "concordance_rule": "HS2022 reporting years enter only for HS2022 codes that correspond one-to-one, in both directions, to an HS2017 code in the UN correlation table (4,097 codes); when a reporter publishes both revisions for a year the HS2017 rate is used",
+     "definition": "cohort g = reporting year of the unit's first MFN change of at least 0.5 pp in absolute value between consecutive reported years, when that first change is a decrease of at least 2.0 pp",
+     "design_stage_counts": "Universe 264,038 reporter x HS2017 units with a 2018 rate (49 reporters): 238,631 never changed, 10,509 first changes are decreases of at least 2 pp, 12,460 other first changes, 2,438 first changes span a reporting gap. With a one-to-one HS1992 code: 6,520 decrease units (2019: 1,961; 2020: 1,582; 2021: 2,173; 2022: 569; 2023: 235) and 147,920 never-changed units, before the positive-import requirements. Largest reporters of decrease units: PAK 1,252, CHN 1,123, LKA 925, GBR 655, ECU 447, KAZ 397.",
+     "estimated_cohorts": [
+      2019,
+      2023
+     ],
+     "excluded_units": "units whose first change is an increase or a decrease under 2.0 pp, and units whose first change spans a gap in the reporter's reporting years (timing unknown)",
+     "hs2022_to_hs2017_crosswalk": "un_hs22_hs17_correlation",
+     "max_decrease_pp": -2.0,
+     "min_change_pp": 0.5,
+     "never_treated": "units with an HS2017 rate reported for 2018 and no change of at least 0.5 pp between any consecutive reported years (censored when the reporter stops reporting or a code has no one-to-one HS2022 counterpart)",
+     "source": "wits_trains_tariffs MFN simple-average applied rates (not the event library, which keeps only same-revision changes), mapped to HS2017 codes"
+    },
+    "units": {
+     "clusters": "importer x HS2017 chapter",
+     "definition": "importer (WITS reporter with an ISO3 code that is a BACI importer) x HS2017 HS6 product with a one-to-one HS1992 code",
+     "growth_window": [
+      2009,
+      2013
+     ],
+     "positive_import_years": [
+      2009,
+      2013,
+      2017
+     ],
+     "sample": "positive BACI HS1992 import value in 2009, 2013 and 2017",
+     "strata": "importer x tercile of log import growth 2009-2013 (terciles within importer by (growth, id) rank): every comparison is within the importing country and growth tercile"
+    },
+    "windows": {
+     "calendar_years": [
+      2009,
+      2024
+     ],
+     "e_max": 3,
+     "e_min": -5,
+     "post": [
+      0,
+      1,
+      2,
+      3
+     ],
+     "reference_event_time": -2
+    }
+   },
+   "diagnostics": {
+    "placebo_date": {
+     "event_time": [
+      {
+       "analytic_se": 0.0292924110857234,
+       "att": 0.019521849977422116,
+       "band_high": null,
+       "band_low": null,
+       "ci_high": 0.0769339207257818,
+       "ci_low": -0.037890220770937566,
+       "cohorts": [
+        2016,
+        2017,
+        2018,
+        2019,
+        2020
+       ],
+       "e": 0,
+       "n_treated": 3858,
+       "p": 0.5051252007707449,
+       "period": "post",
+       "se": 0.0292924110857234
+      },
+      {
+       "analytic_se": 0.02973986312404051,
+       "att": 0.011000270025958133,
+       "band_high": null,
+       "band_low": null,
+       "ci_high": 0.06928933065422839,
+       "ci_low": -0.04728879060231212,
+       "cohorts": [
+        2016,
+        2017,
+        2018,
+        2019,
+        2020
+       ],
+       "e": 1,
+       "n_treated": 3715,
+       "p": 0.711469662728331,
+       "period": "post",
+       "se": 0.02973986312404051
+      }
+     ],
+     "overall": {
+      "analytic_se": 0.02572388005949219,
+      "att": 0.015261060001690124,
+      "bootstrap_p": null,
+      "ci_high": 0.06567893846092288,
+      "ci_low": -0.03515681845754262,
+      "definition": "equal-weight mean of ATT(e) over the post event times listed",
+      "event_times": [
+       0,
+       1
+      ],
+      "p": 0.5530042786405316,
+      "se": 0.02572388005949219
+     },
+     "p": 0.5530042786405316,
+     "passed": true,
+     "shift": 3,
+     "test": "placebo_date",
+     "treated_units_with_pre_data": 6051
+    },
+    "placebo_unit": {
+     "never_treated_units": 130600,
+     "nominal_alpha": 0.05,
+     "observed": -0.008950539050167072,
+     "permutation_p": 0.7029702970297029,
+     "placebo_mean": -0.0030724774415338495,
+     "placebo_sd": 0.027426404629730873,
+     "ran": true,
+     "rejection_rate": 0.08,
+     "replications": 100,
+     "seed": 17,
+     "test": "placebo_unit"
+    },
+    "pre_trend": {
+     "leads": [
+      -5,
+      -4,
+      -3
+     ],
+     "max_abs_lead": 0.021041295489842984,
+     "sup_t": {
+      "p": 0.703,
+      "statistic": 0.8842744702753166
+     },
+     "wald": {
+      "df": 3,
+      "p": 0.5493858589770948,
+      "statistic": 2.11251096778667
+     }
+    }
+   },
+   "estimates": {
+    "outcome": {
+     "id": "baci92_log_import_quantity",
+     "label": "log import quantity from all exporters (BACI HS1992, metric tons; cells with any flow lacking quantity dropped)",
+     "role": "secondary",
+     "source": "cepii_baci_hs92 attributes.quantity_t summed over exporters",
+     "unit": "log points"
+    },
+    "primary": {
+     "alpha": 0.05,
+     "anticipation": 1,
+     "bootstrap": {
+      "level": "cluster",
+      "replications": 999,
+      "seed": 20260918,
+      "uniform_critical_value": 2.632218419706491,
+      "weights": "rademacher"
+     },
+     "cells": 75,
+     "control_group": "not_yet_treated",
+     "dropped_treated_no_control": 0,
+     "estimator": "callaway_santanna_unconditional_stratified",
+     "event_time": [
+      {
+       "analytic_se": 0.02939709436967767,
+       "att": -0.010312239992427948,
+       "band_high": 0.06806273332509391,
+       "band_low": -0.0886872133099498,
+       "ci_high": 0.04804618643662169,
+       "ci_low": -0.06867066642147758,
+       "cohorts": [
+        2019,
+        2020,
+        2021,
+        2022,
+        2023
+       ],
+       "e": -5,
+       "n_treated": 3715,
+       "p": 0.7290902809141684,
+       "period": "pre",
+       "se": 0.029775254489048508
+      },
+      {
+       "analytic_se": 0.023818613671705027,
+       "att": 0.021041295489842984,
+       "band_high": 0.08367488655756627,
+       "band_low": -0.0415922955778803,
+       "ci_high": 0.06767860407946821,
+       "ci_low": -0.025596013099782242,
+       "cohorts": [
+        2019,
+        2020,
+        2021,
+        2022,
+        2023
+       ],
+       "e": -4,
+       "n_treated": 3721,
+       "p": 0.37654806624113013,
+       "period": "pre",
+       "se": 0.023794982437174546
+      },
+      {
+       "analytic_se": 0.027019606344500582,
+       "att": 0.01297014882493937,
+       "band_high": 0.0847281289851339,
+       "band_low": -0.05878783133525517,
+       "ci_high": 0.06640152658005881,
+       "ci_low": -0.04046122893018007,
+       "cohorts": [
+        2019,
+        2020,
+        2021,
+        2022,
+        2023
+       ],
+       "e": -3,
+       "n_treated": 3726,
+       "p": 0.6342385385143193,
+       "period": "pre",
+       "se": 0.027261407952686546
+      },
+      {
+       "analytic_se": 0.022917430283120314,
+       "att": -0.015635439947105527,
+       "band_high": 0.04314242407353987,
+       "band_low": -0.07441330396775092,
+       "ci_high": 0.02813087355719076,
+       "ci_low": -0.05940175345140181,
+       "cohorts": [
+        2019,
+        2020,
+        2021,
+        2022,
+        2023
+       ],
+       "e": -1,
+       "n_treated": 3585,
+       "p": 0.48380631421664844,
+       "period": "anticipation",
+       "se": 0.022330162109875176
+      },
+      {
+       "analytic_se": 0.03429151840552537,
+       "att": -0.014411382771227894,
+       "band_high": 0.07282652150427804,
+       "band_low": -0.10164928704673384,
+       "ci_high": 0.05054642969093478,
+       "ci_low": -0.07936919523339056,
+       "cohorts": [
+        2019,
+        2020,
+        2021,
+        2022,
+        2023
+       ],
+       "e": 0,
+       "n_treated": 3509,
+       "p": 0.6636837533287957,
+       "period": "post",
+       "se": 0.033142350050583386
+      },
+      {
+       "analytic_se": 0.04092794297754041,
+       "att": -0.009351584736462215,
+       "band_high": 0.10380183030879479,
+       "band_low": -0.12250499978171923,
+       "ci_high": 0.07490305635109082,
+       "ci_low": -0.09360622582401526,
+       "cohorts": [
+        2019,
+        2020,
+        2021,
+        2022,
+        2023
+       ],
+       "e": 1,
+       "n_treated": 3435,
+       "p": 0.827787402211507,
+       "period": "post",
+       "se": 0.042987851691226424
+      },
+      {
+       "analytic_se": 0.04726458431501124,
+       "att": 0.019916679355798966,
+       "band_high": 0.15092091021246673,
+       "band_low": -0.1110875515008688,
+       "ci_high": 0.11746313385180177,
+       "ci_low": -0.07762977514020383,
+       "cohorts": [
+        2019,
+        2020,
+        2021,
+        2022
+       ],
+       "e": 2,
+       "n_treated": 3132,
+       "p": 0.6890251971028782,
+       "period": "post",
+       "se": 0.04976951375914905
+      },
+      {
+       "analytic_se": 0.05997465114419481,
+       "att": -0.03195586804877715,
+       "band_high": 0.14142839871343516,
+       "band_low": -0.20534013481098945,
+       "ci_high": 0.09714698899213442,
+       "ci_low": -0.16105872508968871,
+       "cohorts": [
+        2019,
+        2020,
+        2021
+       ],
+       "e": 3,
+       "n_treated": 2916,
+       "p": 0.6275803888250864,
+       "period": "post",
+       "se": 0.0658700149896929
+      }
+     ],
+     "n_clusters": 4518,
+     "overall": {
+      "analytic_se": 0.03971077233788949,
+      "att": -0.008950539050167072,
+      "bootstrap_p": 0.84,
+      "ci_high": 0.07166959682606866,
+      "ci_low": -0.0895706749264028,
+      "definition": "equal-weight mean of ATT(e) over the post event times listed",
+      "event_times": [
+       0,
+       1,
+       2,
+       3
+      ],
+      "p": 0.827742788936736,
+      "se": 0.041133478223149555
+     },
+     "pre_trend": {
+      "leads": [
+       -5,
+       -4,
+       -3
+      ],
+      "max_abs_lead": 0.021041295489842984,
+      "sup_t": {
+       "p": 0.703,
+       "statistic": 0.8842744702753166
+      },
+      "wald": {
+       "df": 3,
+       "p": 0.5493858589770948,
+       "statistic": 2.11251096778667
+      }
+     },
+     "reference_event_time": -2,
+     "skipped_cells": 0
+    },
+    "robustness": {
+     "never_treated_controls": {
+      "alpha": 0.05,
+      "anticipation": 1,
+      "bootstrap": null,
+      "cells": 75,
+      "control_group": "never_treated",
+      "dropped_treated_no_control": 0,
+      "estimator": "callaway_santanna_unconditional_stratified",
+      "event_time": [
+       {
+        "analytic_se": 0.029750128849518453,
+        "att": -0.01097846465978946,
+        "band_high": null,
+        "band_low": null,
+        "ci_high": 0.04733071642069273,
+        "ci_low": -0.06928764574027166,
+        "cohorts": [
+         2019,
+         2020,
+         2021,
+         2022,
+         2023
+        ],
+        "e": -5,
+        "n_treated": 3715,
+        "p": 0.7121110106850708,
+        "period": "pre",
+        "se": 0.029750128849518453
+       },
+       {
+        "analytic_se": 0.024095587899771058,
+        "att": 0.019486797352254417,
+        "band_high": null,
+        "band_low": null,
+        "ci_high": 0.06671328182212481,
+        "ci_low": -0.027739687117615975,
+        "cohorts": [
+         2019,
+         2020,
+         2021,
+         2022,
+         2023
+        ],
+        "e": -4,
+        "n_treated": 3721,
+        "p": 0.41867112352730707,
+        "period": "pre",
+        "se": 0.024095587899771058
+       },
+       {
+        "analytic_se": 0.02699405614485883,
+        "att": 0.011142775856563692,
+        "band_high": null,
+        "band_low": null,
+        "ci_high": 0.06405015369713912,
+        "ci_low": -0.041764601984011746,
+        "cohorts": [
+         2019,
+         2020,
+         2021,
+         2022,
+         2023
+        ],
+        "e": -3,
+        "n_treated": 3726,
+        "p": 0.6797632087649749,
+        "period": "pre",
+        "se": 0.02699405614485883
+       },
+       {
+        "analytic_se": 0.023356856373087355,
+        "att": -0.010842805254549299,
+        "band_high": null,
+        "band_low": null,
+        "ci_high": 0.03493579202877674,
+        "ci_low": -0.05662140253787534,
+        "cohorts": [
+         2019,
+         2020,
+         2021,
+         2022,
+         2023
+        ],
+        "e": -1,
+        "n_treated": 3585,
+        "p": 0.6424875145209658,
+        "period": "anticipation",
+        "se": 0.023356856373087355
+       },
+       {
+        "analytic_se": 0.034556722065406734,
+        "att": -0.01269934675826525,
+        "band_high": null,
+        "band_low": null,
+        "ci_high": 0.055030583913692525,
+        "ci_low": -0.08042927743022302,
+        "cohorts": [
+         2019,
+         2020,
+         2021,
+         2022,
+         2023
+        ],
+        "e": 0,
+        "n_treated": 3509,
+        "p": 0.7132514570074873,
+        "period": "post",
+        "se": 0.034556722065406734
+       },
+       {
+        "analytic_se": 0.04093722916103922,
+        "att": -0.009212499523123143,
+        "band_high": null,
+        "band_low": null,
+        "ci_high": 0.07102299525937658,
+        "ci_low": -0.08944799430562286,
+        "cohorts": [
+         2019,
+         2020,
+         2021,
+         2022,
+         2023
+        ],
+        "e": 1,
+        "n_treated": 3435,
+        "p": 0.8219484328029577,
+        "period": "post",
+        "se": 0.04093722916103922
+       },
+       {
+        "analytic_se": 0.047264579153134055,
+        "att": 0.01992041900509079,
+        "band_high": null,
+        "band_low": null,
+        "ci_high": 0.11255729188967617,
+        "ci_low": -0.0727164538794946,
+        "cohorts": [
+         2019,
+         2020,
+         2021,
+         2022
+        ],
+        "e": 2,
+        "n_treated": 3132,
+        "p": 0.6734147426136246,
+        "period": "post",
+        "se": 0.047264579153134055
+       },
+       {
+        "analytic_se": 0.05997465114419481,
+        "att": -0.03195586804877715,
+        "band_high": null,
+        "band_low": null,
+        "ci_high": 0.08559228817919862,
+        "ci_low": -0.1495040242767529,
+        "cohorts": [
+         2019,
+         2020,
+         2021
+        ],
+        "e": 3,
+        "n_treated": 2916,
+        "p": 0.5941561743999392,
+        "period": "post",
+        "se": 0.05997465114419481
+       }
+      ],
+      "n_clusters": 4518,
+      "overall": {
+       "analytic_se": 0.03987142615528286,
+       "att": -0.008486823831268687,
+       "bootstrap_p": null,
+       "ci_high": 0.06965973544533402,
+       "ci_low": -0.08663338310787139,
+       "definition": "equal-weight mean of ATT(e) over the post event times listed",
+       "event_times": [
+        0,
+        1,
+        2,
+        3
+       ],
+       "p": 0.8314402307006958,
+       "se": 0.03987142615528286
+      },
+      "pre_trend": {
+       "leads": [
+        -5,
+        -4,
+        -3
+       ],
+       "max_abs_lead": 0.019486797352254417,
+       "sup_t": null,
+       "wald": {
+        "df": 3,
+        "p": 0.5817564202600025,
+        "statistic": 1.955202676321814
+       }
+      },
+      "reference_event_time": -2,
+      "skipped_cells": 0
+     },
+     "stacked_did": {
+      "estimator": "stacked_did_clean_controls",
+      "event_time": [
+       {
+        "att": 0.12279473882611598,
+        "ci_high": 0.21723125556217754,
+        "ci_low": 0.02835822209005444,
+        "e": -5,
+        "p": 0.01081813661874475,
+        "se": 0.0481827816638289,
+        "stacks": 129
+       },
+       {
+        "att": 0.07369836597906405,
+        "ci_high": 0.15529462633790672,
+        "ci_low": -0.007897894379778614,
+        "e": -4,
+        "p": 0.076684762296589,
+        "se": 0.041631510069809224,
+        "stacks": 129
+       },
+       {
+        "att": 0.06302006775506908,
+        "ci_high": 0.13306769631808724,
+        "ci_low": -0.007027560807949085,
+        "e": -3,
+        "p": 0.07784490074359765,
+        "se": 0.03573924271851163,
+        "stacks": 129
+       },
+       {
+        "att": -0.0034933469868366,
+        "ci_high": 0.0727940643939681,
+        "ci_low": -0.07978075836764129,
+        "e": -1,
+        "p": 0.9284854745918213,
+        "se": 0.038922863880433554,
+        "stacks": 129
+       },
+       {
+        "att": -0.003024359477316016,
+        "ci_high": 0.10178457568011373,
+        "ci_low": -0.10783329463474575,
+        "e": 0,
+        "p": 0.9548984177715798,
+        "se": 0.05347492912326413,
+        "stacks": 129
+       },
+       {
+        "att": 0.05565751645102688,
+        "ci_high": 0.1609971257210797,
+        "ci_low": -0.049682092819025934,
+        "e": 1,
+        "p": 0.3004019584356563,
+        "se": 0.05374568619676598,
+        "stacks": 129
+       },
+       {
+        "att": 0.04090351534819336,
+        "ci_high": 0.18455445591383762,
+        "ci_low": -0.1027474252174509,
+        "e": 2,
+        "p": 0.5767864296179234,
+        "se": 0.07329264297647536,
+        "stacks": 129
+       },
+       {
+        "att": 0.03813057424340144,
+        "ci_high": 0.22182146050501764,
+        "ci_low": -0.14556031201821476,
+        "e": 3,
+        "p": 0.6841185002622634,
+        "se": 0.09372156208509264,
+        "stacks": 129
+       }
+      ],
+      "n_clusters": 4518,
+      "overall": {
+       "att": 0.03291681164132641,
+       "ci_high": 0.15285887220214758,
+       "ci_low": -0.08702524891949476,
+       "definition": "equal-weight mean of stacked ATT(e) over post event times",
+       "p": 0.5906522423014048,
+       "se": 0.06119605334940278
+      },
+      "pre_trend": {
+       "leads": [
+        -5,
+        -4,
+        -3
+       ],
+       "wald": {
+        "df": 3,
+        "p": 0.06596495246348813,
+        "statistic": 7.193993970100044
+       }
+      },
+      "stack_count": 129,
+      "stacks": [
+       {
+        "g": 2019,
+        "n_control": 331,
+        "n_treated": 3,
+        "stratum": "iso3:ARG|t0",
+        "weight": 2.9730538922155687
+       },
+       {
+        "g": 2019,
+        "n_control": 284,
+        "n_treated": 2,
+        "stratum": "iso3:ARG|t1",
+        "weight": 1.986013986013986
+       },
+       {
+        "g": 2019,
+        "n_control": 322,
+        "n_treated": 13,
+        "stratum": "iso3:ARG|t2",
+        "weight": 12.495522388059701
+       },
+       {
+        "g": 2019,
+        "n_control": 225,
+        "n_treated": 1,
+        "stratum": "iso3:AUS|t1",
+        "weight": 0.995575221238938
+       },
+       {
+        "g": 2019,
+        "n_control": 266,
+        "n_treated": 3,
+        "stratum": "iso3:AUS|t2",
+        "weight": 2.966542750929368
+       },
+       {
+        "g": 2019,
+        "n_control": 333,
+        "n_treated": 4,
+        "stratum": "iso3:BGD|t0",
+        "weight": 3.9525222551928785
+       },
+       {
+        "g": 2019,
+        "n_control": 390,
+        "n_treated": 6,
+        "stratum": "iso3:BGD|t1",
+        "weight": 5.909090909090909
+       },
+       {
+        "g": 2019,
+        "n_control": 367,
+        "n_treated": 4,
+        "stratum": "iso3:BGD|t2",
+        "weight": 3.9568733153638815
+       },
+       {
+        "g": 2019,
+        "n_control": 387,
+        "n_treated": 1,
+        "stratum": "iso3:BRA|t0",
+        "weight": 0.9974226804123711
+       },
+       {
+        "g": 2019,
+        "n_control": 357,
+        "n_treated": 2,
+        "stratum": "iso3:BRA|t1",
+        "weight": 1.988857938718663
+       },
+       {
+        "g": 2019,
+        "n_control": 166,
+        "n_treated": 51,
+        "stratum": "iso3:CHN|t0",
+        "weight": 39.013824884792626
+       },
+       {
+        "g": 2019,
+        "n_control": 152,
+        "n_treated": 44,
+        "stratum": "iso3:CHN|t1",
+        "weight": 34.12244897959184
+       },
+       {
+        "g": 2019,
+        "n_control": 202,
+        "n_treated": 48,
+        "stratum": "iso3:CHN|t2",
+        "weight": 38.784
+       },
+       {
+        "g": 2019,
+        "n_control": 326,
+        "n_treated": 14,
+        "stratum": "iso3:COL|t0",
+        "weight": 13.423529411764706
+       },
+       {
+        "g": 2019,
+        "n_control": 240,
+        "n_treated": 16,
+        "stratum": "iso3:COL|t1",
+        "weight": 15.0
+       },
+       {
+        "g": 2019,
+        "n_control": 330,
+        "n_treated": 16,
+        "stratum": "iso3:COL|t2",
+        "weight": 15.260115606936417
+       },
+       {
+        "g": 2019,
+        "n_control": 244,
+        "n_treated": 2,
+        "stratum": "iso3:IND|t0",
+        "weight": 1.983739837398374
+       },
+       {
+        "g": 2019,
+        "n_control": 195,
+        "n_treated": 3,
+        "stratum": "iso3:IND|t1",
+        "weight": 2.9545454545454546
+       },
+       {
+        "g": 2019,
+        "n_control": 366,
+        "n_treated": 6,
+        "stratum": "iso3:ISR|t0",
+        "weight": 5.903225806451613
+       },
+       {
+        "g": 2019,
+        "n_control": 337,
+        "n_treated": 6,
+        "stratum": "iso3:ISR|t1",
+        "weight": 5.895043731778426
+       },
+       {
+        "g": 2019,
+        "n_control": 381,
+        "n_treated": 5,
+        "stratum": "iso3:ISR|t2",
+        "weight": 4.935233160621761
+       },
+       {
+        "g": 2019,
+        "n_control": 230,
+        "n_treated": 1,
+        "stratum": "iso3:JOR|t1",
+        "weight": 0.9956709956709957
+       },
+       {
+        "g": 2019,
+        "n_control": 255,
+        "n_treated": 3,
+        "stratum": "iso3:JOR|t2",
+        "weight": 2.9651162790697674
+       },
+       {
+        "g": 2019,
+        "n_control": 287,
+        "n_treated": 1,
+        "stratum": "iso3:JPN|t2",
+        "weight": 0.9965277777777778
+       },
+       {
+        "g": 2019,
+        "n_control": 223,
+        "n_treated": 28,
+        "stratum": "iso3:KAZ|t0",
+        "weight": 24.87649402390438
+       },
+       {
+        "g": 2019,
+        "n_control": 199,
+        "n_treated": 28,
+        "stratum": "iso3:KAZ|t1",
+        "weight": 24.54625550660793
+       },
+       {
+        "g": 2019,
+        "n_control": 242,
+        "n_treated": 23,
+        "stratum": "iso3:KAZ|t2",
+        "weight": 21.00377358490566
+       },
+       {
+        "g": 2019,
+        "n_control": 291,
+        "n_treated": 1,
+        "stratum": "iso3:KEN|t0",
+        "weight": 0.9965753424657534
+       },
+       {
+        "g": 2019,
+        "n_control": 163,
+        "n_treated": 1,
+        "stratum": "iso3:LKA|t1",
+        "weight": 0.9939024390243902
+       },
+       {
+        "g": 2019,
+        "n_control": 399,
+        "n_treated": 1,
+        "stratum": "iso3:MYS|t1",
+        "weight": 0.9975
+       },
+       {
+        "g": 2019,
+        "n_control": 389,
+        "n_treated": 1,
+        "stratum": "iso3:MYS|t2",
+        "weight": 0.9974358974358974
+       },
+       {
+        "g": 2019,
+        "n_control": 495,
+        "n_treated": 1,
+        "stratum": "iso3:NOR|t0",
+        "weight": 0.9979838709677419
+       },
+       {
+        "g": 2019,
+        "n_control": 256,
+        "n_treated": 5,
+        "stratum": "iso3:PAK|t0",
+        "weight": 4.904214559386973
+       },
+       {
+        "g": 2019,
+        "n_control": 186,
+        "n_treated": 8,
+        "stratum": "iso3:PAK|t1",
+        "weight": 7.670103092783505
+       },
+       {
+        "g": 2019,
+        "n_control": 283,
+        "n_treated": 5,
+        "stratum": "iso3:PAK|t2",
+        "weight": 4.913194444444445
+       },
+       {
+        "g": 2019,
+        "n_control": 346,
+        "n_treated": 2,
+        "stratum": "iso3:PHL|t0",
+        "weight": 1.9885057471264367
+       },
+       {
+        "g": 2019,
+        "n_control": 335,
+        "n_treated": 1,
+        "stratum": "iso3:PHL|t2",
+        "weight": 0.9970238095238095
+       },
+       {
+        "g": 2019,
+        "n_control": 264,
+        "n_treated": 1,
+        "stratum": "iso3:RUS|t0",
+        "weight": 0.9962264150943396
+       },
+       {
+        "g": 2019,
+        "n_control": 219,
+        "n_treated": 8,
+        "stratum": "iso3:RUS|t1",
+        "weight": 7.71806167400881
+       },
+       {
+        "g": 2019,
+        "n_control": 257,
+        "n_treated": 4,
+        "stratum": "iso3:RUS|t2",
+        "weight": 3.9386973180076628
+       },
+       {
+        "g": 2019,
+        "n_control": 300,
+        "n_treated": 1,
+        "stratum": "iso3:TUR|t0",
+        "weight": 0.9966777408637874
+       },
+       {
+        "g": 2019,
+        "n_control": 314,
+        "n_treated": 4,
+        "stratum": "iso3:TUR|t2",
+        "weight": 3.949685534591195
+       },
+       {
+        "g": 2020,
+        "n_control": 328,
+        "n_treated": 4,
+        "stratum": "iso3:AGO|t0",
+        "weight": 3.9518072289156625
+       },
+       {
+        "g": 2020,
+        "n_control": 280,
+        "n_treated": 8,
+        "stratum": "iso3:AGO|t1",
+        "weight": 7.777777777777778
+       },
+       {
+        "g": 2020,
+        "n_control": 318,
+        "n_treated": 2,
+        "stratum": "iso3:AGO|t2",
+        "weight": 1.9875
+       },
+       {
+        "g": 2020,
+        "n_control": 319,
+        "n_treated": 3,
+        "stratum": "iso3:ARG|t0",
+        "weight": 2.972049689440994
+       },
+       {
+        "g": 2020,
+        "n_control": 271,
+        "n_treated": 4,
+        "stratum": "iso3:ARG|t1",
+        "weight": 3.941818181818182
+       },
+       {
+        "g": 2020,
+        "n_control": 318,
+        "n_treated": 4,
+        "stratum": "iso3:ARG|t2",
+        "weight": 3.950310559006211
+       },
+       {
+        "g": 2020,
+        "n_control": 261,
+        "n_treated": 1,
+        "stratum": "iso3:BHR|t1",
+        "weight": 0.9961832061068703
+       },
+       {
+        "g": 2020,
+        "n_control": 367,
+        "n_treated": 2,
+        "stratum": "iso3:BRA|t0",
+        "weight": 1.989159891598916
+       },
+       {
+        "g": 2020,
+        "n_control": 176,
+        "n_treated": 4,
+        "stratum": "iso3:CAN|t0",
+        "weight": 3.911111111111111
+       },
+       {
+        "g": 2020,
+        "n_control": 135,
+        "n_treated": 7,
+        "stratum": "iso3:CAN|t1",
+        "weight": 6.654929577464789
+       },
+       {
+        "g": 2020,
+        "n_control": 184,
+        "n_treated": 5,
+        "stratum": "iso3:CAN|t2",
+        "weight": 4.867724867724868
+       },
+       {
+        "g": 2020,
+        "n_control": 452,
+        "n_treated": 1,
+        "stratum": "iso3:CIV|t0",
+        "weight": 0.9977924944812362
+       },
+       {
+        "g": 2020,
+        "n_control": 500,
+        "n_treated": 3,
+        "stratum": "iso3:CIV|t1",
+        "weight": 2.982107355864811
+       },
+       {
+        "g": 2020,
+        "n_control": 310,
+        "n_treated": 2,
+        "stratum": "iso3:COL|t2",
+        "weight": 1.9871794871794872
+       },
+       {
+        "g": 2020,
+        "n_control": 241,
+        "n_treated": 1,
+        "stratum": "iso3:CRI|t1",
+        "weight": 0.9958677685950413
+       },
+       {
+        "g": 2020,
+        "n_control": 304,
+        "n_treated": 2,
+        "stratum": "iso3:CRI|t2",
+        "weight": 1.9869281045751634
+       },
+       {
+        "g": 2020,
+        "n_control": 91,
+        "n_treated": 1,
+        "stratum": "iso3:ECU|t0",
+        "weight": 0.9891304347826086
+       },
+       {
+        "g": 2020,
+        "n_control": 44,
+        "n_treated": 2,
+        "stratum": "iso3:ECU|t1",
+        "weight": 1.9130434782608696
+       },
+       {
+        "g": 2020,
+        "n_control": 306,
+        "n_treated": 1,
+        "stratum": "iso3:GHA|t0",
+        "weight": 0.996742671009772
+       },
+       {
+        "g": 2020,
+        "n_control": 347,
+        "n_treated": 2,
+        "stratum": "iso3:GHA|t1",
+        "weight": 1.988538681948424
+       },
+       {
+        "g": 2020,
+        "n_control": 239,
+        "n_treated": 3,
+        "stratum": "iso3:IND|t0",
+        "weight": 2.9628099173553717
+       },
+       {
+        "g": 2020,
+        "n_control": 196,
+        "n_treated": 1,
+        "stratum": "iso3:IND|t1",
+        "weight": 0.9949238578680203
+       },
+       {
+        "g": 2020,
+        "n_control": 260,
+        "n_treated": 3,
+        "stratum": "iso3:IND|t2",
+        "weight": 2.9657794676806084
+       },
+       {
+        "g": 2020,
+        "n_control": 316,
+        "n_treated": 1,
+        "stratum": "iso3:ISR|t1",
+        "weight": 0.9968454258675079
+       },
+       {
+        "g": 2020,
+        "n_control": 222,
+        "n_treated": 5,
+        "stratum": "iso3:JOR|t0",
+        "weight": 4.889867841409692
+       },
+       {
+        "g": 2020,
+        "n_control": 222,
+        "n_treated": 6,
+        "stratum": "iso3:JOR|t1",
+        "weight": 5.842105263157895
+       },
+       {
+        "g": 2020,
+        "n_control": 236,
+        "n_treated": 2,
+        "stratum": "iso3:JOR|t2",
+        "weight": 1.9831932773109244
+       },
+       {
+        "g": 2020,
+        "n_control": 266,
+        "n_treated": 2,
+        "stratum": "iso3:JPN|t0",
+        "weight": 1.9850746268656716
+       },
+       {
+        "g": 2020,
+        "n_control": 237,
+        "n_treated": 1,
+        "stratum": "iso3:JPN|t1",
+        "weight": 0.9957983193277311
+       },
+       {
+        "g": 2020,
+        "n_control": 273,
+        "n_treated": 1,
+        "stratum": "iso3:JPN|t2",
+        "weight": 0.9963503649635036
+       },
+       {
+        "g": 2020,
+        "n_control": 219,
+        "n_treated": 19,
+        "stratum": "iso3:KAZ|t0",
+        "weight": 17.483193277310924
+       },
+       {
+        "g": 2020,
+        "n_control": 197,
+        "n_treated": 12,
+        "stratum": "iso3:KAZ|t1",
+        "weight": 11.311004784688995
+       },
+       {
+        "g": 2020,
+        "n_control": 229,
+        "n_treated": 15,
+        "stratum": "iso3:KAZ|t2",
+        "weight": 14.077868852459016
+       },
+       {
+        "g": 2020,
+        "n_control": 287,
+        "n_treated": 8,
+        "stratum": "iso3:KEN|t0",
+        "weight": 7.783050847457627
+       },
+       {
+        "g": 2020,
+        "n_control": 289,
+        "n_treated": 5,
+        "stratum": "iso3:KEN|t1",
+        "weight": 4.914965986394558
+       },
+       {
+        "g": 2020,
+        "n_control": 284,
+        "n_treated": 4,
+        "stratum": "iso3:KEN|t2",
+        "weight": 3.9444444444444446
+       },
+       {
+        "g": 2020,
+        "n_control": 389,
+        "n_treated": 1,
+        "stratum": "iso3:KWT|t0",
+        "weight": 0.9974358974358974
+       },
+       {
+        "g": 2020,
+        "n_control": 320,
+        "n_treated": 1,
+        "stratum": "iso3:MYS|t2",
+        "weight": 0.9968847352024922
+       },
+       {
+        "g": 2020,
+        "n_control": 350,
+        "n_treated": 1,
+        "stratum": "iso3:NZL|t0",
+        "weight": 0.9971509971509972
+       },
+       {
+        "g": 2020,
+        "n_control": 288,
+        "n_treated": 1,
+        "stratum": "iso3:NZL|t1",
+        "weight": 0.9965397923875432
+       },
+       {
+        "g": 2020,
+        "n_control": 376,
+        "n_treated": 1,
+        "stratum": "iso3:NZL|t2",
+        "weight": 0.9973474801061007
+       },
+       {
+        "g": 2020,
+        "n_control": 376,
+        "n_treated": 1,
+        "stratum": "iso3:OMN|t2",
+        "weight": 0.9973474801061007
+       },
+       {
+        "g": 2020,
+        "n_control": 247,
+        "n_treated": 113,
+        "stratum": "iso3:PAK|t0",
+        "weight": 77.53055555555555
+       },
+       {
+        "g": 2020,
+        "n_control": 178,
+        "n_treated": 127,
+        "stratum": "iso3:PAK|t1",
+        "weight": 74.11803278688525
+       },
+       {
+        "g": 2020,
+        "n_control": 269,
+        "n_treated": 95,
+        "stratum": "iso3:PAK|t2",
+        "weight": 70.20604395604396
+       },
+       {
+        "g": 2020,
+        "n_control": 343,
+        "n_treated": 1,
+        "stratum": "iso3:PAN|t0",
+        "weight": 0.997093023255814
+       },
+       {
+        "g": 2020,
+        "n_control": 363,
+        "n_treated": 1,
+        "stratum": "iso3:PAN|t1",
+        "weight": 0.9972527472527473
+       },
+       {
+        "g": 2020,
+        "n_control": 333,
+        "n_treated": 1,
+        "stratum": "iso3:PHL|t1",
+        "weight": 0.9970059880239521
+       },
+       {
+        "g": 2020,
+        "n_control": 297,
+        "n_treated": 1,
+        "stratum": "iso3:QAT|t1",
+        "weight": 0.9966442953020134
+       },
+       {
+        "g": 2020,
+        "n_control": 256,
+        "n_treated": 26,
+        "stratum": "iso3:RUS|t0",
+        "weight": 23.602836879432623
+       },
+       {
+        "g": 2020,
+        "n_control": 224,
+        "n_treated": 19,
+        "stratum": "iso3:RUS|t1",
+        "weight": 17.51440329218107
+       },
+       {
+        "g": 2020,
+        "n_control": 248,
+        "n_treated": 14,
+        "stratum": "iso3:RUS|t2",
+        "weight": 13.251908396946565
+       },
+       {
+        "g": 2020,
+        "n_control": 286,
+        "n_treated": 2,
+        "stratum": "iso3:TUR|t0",
+        "weight": 1.9861111111111112
+       },
+       {
+        "g": 2020,
+        "n_control": 288,
+        "n_treated": 1,
+        "stratum": "iso3:TUR|t2",
+        "weight": 0.9965397923875432
+       },
+       {
+        "g": 2021,
+        "n_control": 329,
+        "n_treated": 1,
+        "stratum": "iso3:ARG|t0",
+        "weight": 0.996969696969697
+       },
+       {
+        "g": 2021,
+        "n_control": 265,
+        "n_treated": 1,
+        "stratum": "iso3:ARG|t1",
+        "weight": 0.9962406015037594
+       },
+       {
+        "g": 2021,
+        "n_control": 311,
+        "n_treated": 2,
+        "stratum": "iso3:ARG|t2",
+        "weight": 1.987220447284345
+       },
+       {
+        "g": 2021,
+        "n_control": 352,
+        "n_treated": 1,
+        "stratum": "iso3:BGD|t0",
+        "weight": 0.9971671388101983
+       },
+       {
+        "g": 2021,
+        "n_control": 404,
+        "n_treated": 2,
+        "stratum": "iso3:BGD|t1",
+        "weight": 1.9901477832512315
+       },
+       {
+        "g": 2021,
+        "n_control": 387,
+        "n_treated": 9,
+        "stratum": "iso3:BRA|t0",
+        "weight": 8.795454545454545
+       },
+       {
+        "g": 2021,
+        "n_control": 406,
+        "n_treated": 2,
+        "stratum": "iso3:BRA|t2",
+        "weight": 1.9901960784313726
+       },
+       {
+        "g": 2021,
+        "n_control": 86,
+        "n_treated": 6,
+        "stratum": "iso3:ECU|t0",
+        "weight": 5.608695652173913
+       },
+       {
+        "g": 2021,
+        "n_control": 44,
+        "n_treated": 8,
+        "stratum": "iso3:ECU|t1",
+        "weight": 6.769230769230769
+       },
+       {
+        "g": 2021,
+        "n_control": 59,
+        "n_treated": 8,
+        "stratum": "iso3:ECU|t2",
+        "weight": 7.044776119402985
+       },
+       {
+        "g": 2021,
+        "n_control": 101,
+        "n_treated": 42,
+        "stratum": "iso3:GBR|t0",
+        "weight": 29.664335664335663
+       },
+       {
+        "g": 2021,
+        "n_control": 87,
+        "n_treated": 34,
+        "stratum": "iso3:GBR|t1",
+        "weight": 24.446280991735538
+       },
+       {
+        "g": 2021,
+        "n_control": 95,
+        "n_treated": 22,
+        "stratum": "iso3:GBR|t2",
+        "weight": 17.863247863247864
+       },
+       {
+        "g": 2021,
+        "n_control": 245,
+        "n_treated": 10,
+        "stratum": "iso3:IND|t0",
+        "weight": 9.607843137254902
+       },
+       {
+        "g": 2021,
+        "n_control": 194,
+        "n_treated": 6,
+        "stratum": "iso3:IND|t1",
+        "weight": 5.82
+       },
+       {
+        "g": 2021,
+        "n_control": 240,
+        "n_treated": 9,
+        "stratum": "iso3:IND|t2",
+        "weight": 8.674698795180722
+       },
+       {
+        "g": 2021,
+        "n_control": 223,
+        "n_treated": 2,
+        "stratum": "iso3:KAZ|t0",
+        "weight": 1.9822222222222223
+       },
+       {
+        "g": 2021,
+        "n_control": 197,
+        "n_treated": 1,
+        "stratum": "iso3:KAZ|t1",
+        "weight": 0.9949494949494949
+       },
+       {
+        "g": 2021,
+        "n_control": 266,
+        "n_treated": 1,
+        "stratum": "iso3:KEN|t1",
+        "weight": 0.9962546816479401
+       },
+       {
+        "g": 2021,
+        "n_control": 159,
+        "n_treated": 41,
+        "stratum": "iso3:LKA|t0",
+        "weight": 32.595
+       },
+       {
+        "g": 2021,
+        "n_control": 157,
+        "n_treated": 48,
+        "stratum": "iso3:LKA|t1",
+        "weight": 36.760975609756095
+       },
+       {
+        "g": 2021,
+        "n_control": 152,
+        "n_treated": 58,
+        "stratum": "iso3:LKA|t2",
+        "weight": 41.98095238095238
+       },
+       {
+        "g": 2021,
+        "n_control": 247,
+        "n_treated": 1,
+        "stratum": "iso3:MAR|t0",
+        "weight": 0.9959677419354839
+       },
+       {
+        "g": 2021,
+        "n_control": 214,
+        "n_treated": 1,
+        "stratum": "iso3:MAR|t2",
+        "weight": 0.9953488372093023
+       },
+       {
+        "g": 2021,
+        "n_control": 247,
+        "n_treated": 7,
+        "stratum": "iso3:PAK|t0",
+        "weight": 6.807086614173229
+       },
+       {
+        "g": 2021,
+        "n_control": 184,
+        "n_treated": 10,
+        "stratum": "iso3:PAK|t1",
+        "weight": 9.484536082474227
+       },
+       {
+        "g": 2021,
+        "n_control": 268,
+        "n_treated": 4,
+        "stratum": "iso3:PAK|t2",
+        "weight": 3.9411764705882355
+       },
+       {
+        "g": 2021,
+        "n_control": 417,
+        "n_treated": 6,
+        "stratum": "iso3:VNM|t0",
+        "weight": 5.914893617021277
+       },
+       {
+        "g": 2021,
+        "n_control": 371,
+        "n_treated": 3,
+        "stratum": "iso3:VNM|t1",
+        "weight": 2.9759358288770055
+       },
+       {
+        "g": 2021,
+        "n_control": 360,
+        "n_treated": 2,
+        "stratum": "iso3:VNM|t2",
+        "weight": 1.988950276243094
+       },
+       {
+        "g": 2021,
+        "n_control": 51,
+        "n_treated": 3,
+        "stratum": "iso3:ZAF|t0",
+        "weight": 2.8333333333333335
+       },
+       {
+        "g": 2021,
+        "n_control": 36,
+        "n_treated": 2,
+        "stratum": "iso3:ZAF|t1",
+        "weight": 1.894736842105263
+       },
+       {
+        "g": 2021,
+        "n_control": 58,
+        "n_treated": 7,
+        "stratum": "iso3:ZAF|t2",
+        "weight": 6.246153846153846
+       }
+      ]
+     },
+     "twfe_static": {
+      "beta": -0.02731365547766491,
+      "demeaning": {
+       "converged": true,
+       "iterations": [
+        8,
+        8
+       ]
+      },
+      "estimator": "twfe_static",
+      "n_clusters": 4518,
+      "n_obs": 1707966,
+      "p": 0.5223937221400206,
+      "se": 0.04270027698950532,
+      "warning": "biased under staggered adoption with heterogeneous or dynamic effects; comparison only"
+     },
+     "unmatched_strata_importer_only": {
+      "alpha": 0.05,
+      "anticipation": 1,
+      "bootstrap": null,
+      "cells": 75,
+      "control_group": "not_yet_treated",
+      "dropped_treated_no_control": 0,
+      "estimator": "callaway_santanna_unconditional_stratified",
+      "event_time": [
+       {
+        "analytic_se": 0.028978713403059603,
+        "att": -0.012500473002520643,
+        "band_high": null,
+        "band_low": null,
+        "ci_high": 0.04429676158578432,
+        "ci_low": -0.06929770759082561,
+        "cohorts": [
+         2019,
+         2020,
+         2021,
+         2022,
+         2023
+        ],
+        "e": -5,
+        "n_treated": 3715,
+        "p": 0.6662012311896318,
+        "period": "pre",
+        "se": 0.028978713403059603
+       },
+       {
+        "analytic_se": 0.023911141208707257,
+        "att": 0.021161287618762563,
+        "band_high": null,
+        "band_low": null,
+        "ci_high": 0.06802626321708032,
+        "ci_low": -0.02570368797955519,
+        "cohorts": [
+         2019,
+         2020,
+         2021,
+         2022,
+         2023
+        ],
+        "e": -4,
+        "n_treated": 3721,
+        "p": 0.376158263320873,
+        "period": "pre",
+        "se": 0.023911141208707257
+       },
+       {
+        "analytic_se": 0.026628645069413138,
+        "att": 0.011636280517179468,
+        "band_high": null,
+        "band_low": null,
+        "ci_high": 0.0638274658103293,
+        "ci_low": -0.04055490477597036,
+        "cohorts": [
+         2019,
+         2020,
+         2021,
+         2022,
+         2023
+        ],
+        "e": -3,
+        "n_treated": 3726,
+        "p": 0.6621232599442616,
+        "period": "pre",
+        "se": 0.026628645069413138
+       },
+       {
+        "analytic_se": 0.022870940127027208,
+        "att": -0.015244300019077787,
+        "band_high": null,
+        "band_low": null,
+        "ci_high": 0.029581918922467466,
+        "ci_low": -0.06007051896062304,
+        "cohorts": [
+         2019,
+         2020,
+         2021,
+         2022,
+         2023
+        ],
+        "e": -1,
+        "n_treated": 3585,
+        "p": 0.5050686988567923,
+        "period": "anticipation",
+        "se": 0.022870940127027208
+       },
+       {
+        "analytic_se": 0.03446033842099675,
+        "att": -0.01380721705263891,
+        "band_high": null,
+        "band_low": null,
+        "ci_high": 0.05373380514757659,
+        "ci_low": -0.08134823925285442,
+        "cohorts": [
+         2019,
+         2020,
+         2021,
+         2022,
+         2023
+        ],
+        "e": 0,
+        "n_treated": 3509,
+        "p": 0.6886632450215959,
+        "period": "post",
+        "se": 0.03446033842099675
+       },
+       {
+        "analytic_se": 0.04106399789285153,
+        "att": -0.011669523680394686,
+        "band_high": null,
+        "band_low": null,
+        "ci_high": 0.06881443325082297,
+        "ci_low": -0.09215348061161234,
+        "cohorts": [
+         2019,
+         2020,
+         2021,
+         2022,
+         2023
+        ],
+        "e": 1,
+        "n_treated": 3435,
+        "p": 0.7762732485215199,
+        "period": "post",
+        "se": 0.04106399789285153
+       },
+       {
+        "analytic_se": 0.047700124686719816,
+        "att": 0.018300495797626635,
+        "band_high": null,
+        "band_low": null,
+        "ci_high": 0.11179102224166738,
+        "ci_low": -0.07519003064641412,
+        "cohorts": [
+         2019,
+         2020,
+         2021,
+         2022
+        ],
+        "e": 2,
+        "n_treated": 3132,
+        "p": 0.7012325462426193,
+        "period": "post",
+        "se": 0.047700124686719816
+       },
+       {
+        "analytic_se": 0.06091015627010123,
+        "att": -0.03040289181301462,
+        "band_high": null,
+        "band_low": null,
+        "ci_high": 0.08897882076909035,
+        "ci_low": -0.1497846043951196,
+        "cohorts": [
+         2019,
+         2020,
+         2021
+        ],
+        "e": 3,
+        "n_treated": 2916,
+        "p": 0.6176784884212226,
+        "period": "post",
+        "se": 0.06091015627010123
+       }
+      ],
+      "n_clusters": 4518,
+      "overall": {
+       "analytic_se": 0.04018876383346579,
+       "att": -0.009394784187105395,
+       "bootstrap_p": null,
+       "ci_high": 0.06937374550967343,
+       "ci_low": -0.08816331388388421,
+       "definition": "equal-weight mean of ATT(e) over the post event times listed",
+       "event_times": [
+        0,
+        1,
+        2,
+        3
+       ],
+       "p": 0.815166305947606,
+       "se": 0.04018876383346579
+      },
+      "pre_trend": {
+       "leads": [
+        -5,
+        -4,
+        -3
+       ],
+       "max_abs_lead": 0.021161287618762563,
+       "sup_t": null,
+       "wald": {
+        "df": 3,
+        "p": 0.49079582965522184,
+        "statistic": 2.415284123626214
+       }
+      },
+      "reference_event_time": -2,
+      "skipped_cells": 0
+     }
+    }
+   },
+   "identification": {
+    "assumptions": [
+     "Parallel trends: absent treatment, the average outcome of treated units would have moved like that of the comparison units (not-yet-treated or never-treated, within stratum when stratified) from the base period on.",
+     "No anticipation beyond the registered anticipation window: outcomes before g - anticipation do not respond.",
+     "Absorbing treatment: the first qualifying event defines the cohort; later events are part of the post-period treatment path, so estimates are effects of entering treatment, not of one isolated event.",
+     "SUTVA / no interference: a unit's outcome does not depend on other units' treatment (spillovers to comparison units bias the estimate toward zero or away from it).",
+     "Treatment timing is recorded correctly by the source date the registration names.",
+     "Within an importer and a 2009-2013 import-growth tercile, which products receive an MFN cut first is unrelated to product-specific import trends after 2013.",
+     "Anticipation lasts at most one year: imports before g-1 do not respond to the cut.",
+     "MFN rates bind for a material share of imports; preferential partners dilute the effect toward zero. The estimate is on total imports.",
+     "One-to-one concordance codes measure the same goods in HS2017, HS2022 and HS1992; restricting to them selects products whose definitions did not change, which may not represent all products.",
+     "No interference: substitution into neighbouring comparison products of the same importer is small.",
+     "Reporters that stop reporting censor treatment; a unit recorded as never treated may have changed later."
+    ],
+    "estimand": "ATT: equal-weight mean over event times 0..3 of treated-count-weighted ATT(g, g+e), base period g-2",
+    "label": "quasi_experimental_did",
+    "meaning": "Average effect on the treated identified by a staggered difference-in-differences design whose pre-registered diagnostics (pre-trends, placebo dates, placebo units) all passed. Causal only under the stated assumptions, for the treated population and horizon studied.",
+    "strategy": "staggered_difference_in_differences"
+   },
+   "notes": [],
+   "registration": {
+    "commit": "c0e0f801e89ba3af1a85f7520c8c0120052bb42e",
+    "committed_at": "2026-09-18T20:47:04-07:00",
+    "committed_clean": true,
+    "path": "examples/natural-experiments/registrations/tariff_mfn_decreases_imports.json",
+    "sha256": "855a968380feae10e85e3e9aa513d2df33acc62471ce87ca389f7a67d693ba85"
+   },
+   "result_id": "69fb64574284f83c798d601620eccc2bd36c2ddc85b3b948da648588dde9ee6d",
+   "schema": "worldmodel.causal_result/1",
+   "study_id": "tariff_mfn_decreases_imports",
+   "verdict": "Diagnostics passed; the effect on log import quantity from all exporters (BACI HS1992, metric tons; cells with any flow lacking quantity dropped) is a null: -0.0090 log points (95% CI -0.0896 to +0.0717). The design rules out average effects outside that interval under the stated assumptions."
+  }
+ ],
+ "schema": "worldmodel.natural_experiment_report/1",
+ "seconds": 1219.4,
+ "study_id": "tariff_mfn_decreases_imports"
+}

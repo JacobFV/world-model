@@ -1,0 +1,162 @@
+{
+  "schema": "worldmodel.causal_registration/1",
+  "study_id": "design_power_negative_controls",
+  "registered_at": "2026-09-18",
+  "wave": 2,
+  "question": "For every registered natural-experiment design (wave 1 and wave 2), what is the smallest effect it could detect with 80% power, how often does it claim an effect when there is none, and how often does a correct design with no effect pass its own pre-trend and placebo-date checks?",
+  "identification_strategy": "synthetic_null_panels_calibrated_to_real_panels",
+  "relation_to_wave_1": "Wave 1 reported four failures without saying whether any design could have succeeded. A null from an underpowered design and a failed diagnostic from a design whose checks reject correct designs half the time mean different things; this study measures both for each design, and records a design that cannot detect a plausible effect as such.",
+  "treatment": {
+    "definition": "none: synthetic panels carry no effect. Each covered design's real treatment timing (cohorts), units, observed unit-periods, strata and clusters are kept exactly",
+    "estimated_cohorts": null
+  },
+  "units": {
+    "definition": "the real primary-outcome panel of each covered design, rebuilt from its pinned inputs by its own code; wave-1 panels must reproduce the digests their published results recorded"
+  },
+  "windows": {
+    "e_min": null,
+    "e_max": null,
+    "note": "each design's own registered windows"
+  },
+  "controls": {
+    "control_group": "each design's own registered comparison group"
+  },
+  "outcomes": {
+    "primary": {
+      "id": "mde_80",
+      "label": "minimum detectable effect at 80% power, two-sided alpha 0.05, for a homogeneous additive effect on the post-period cells",
+      "unit": "outcome units (log points; Spearman for the ranking test)"
+    },
+    "secondary": [
+      {
+        "id": "null_rejection_rate",
+        "label": "share of synthetic null panels in which the design's overall ATT test rejects at 0.05 (negative control: the test's real size)"
+      },
+      {
+        "id": "diagnostic_pass_rates",
+        "label": "share of null panels passing the pre-trend Wald test and the placebo-date test (each at 0.05) and both"
+      }
+    ]
+  },
+  "estimator": {
+    "primary": "calibrated_null_simulation",
+    "estimand": "operating characteristics of each registered design",
+    "calibration": "on each real panel's untreated cells only (never-treated units; treated units before g - anticipation): residuals after unit and stratum-by-period means, then first differences (so unit effects never enter). AR(1) coefficient rho from the autocorrelation of within-cluster differenced residuals (corr = -(1 - rho)/2, bounded to [-0.9, 0.98]); unit-specific innovation variances shrunk toward the pooled value with 5 pseudo-observations; a cluster-by-period innovation variance from the between-unit variation of cluster-period means, with the same rho. No post-treatment outcome of a treated unit enters calibration.",
+    "simulation": "outcome_it = AR(1)_i(t) + AR(1)_cluster(i)(t) on exactly the real observed cells; each replication runs the design's registered primary estimator (bootstrap off, analytic clustered SE) and its placebo-date test. Placebo-unit and placebo-cluster tests are not simulated (each is itself a 100-replication simulation).",
+    "power": "the estimators are linear in the outcomes, so a homogeneous additive effect delta on the treated post-period cells shifts the estimate by exactly delta with an unchanged SE: power(delta) = share of null draws with |att + delta| / se > 1.96, and MDE = smallest |delta| (the larger of the increase and decrease directions) with power >= 0.8",
+    "calibration_check": "the mean simulated SE is compared with the real panel's analytic SE; if their ratio is outside [0.67, 1.5] the calibration is declared failed and the reported MDE is the analytic 2.80 x real SE instead of the simulated one. Both are always reported.",
+    "ranking_design": "for the wave-1 exposure ranking test: synthetic studies resample the 42 held-out storms' centred per-storm Spearman differences (exposure minus naive) with replacement and add delta; the one-sided sign-flip test is applied in its normal approximation; MDE by bisection at 80% power",
+    "anticipation": 0,
+    "robustness": [],
+    "calibration_amended": "amendment 1: variogram-fitted noise (see amendments); reported alongside, not used for verdicts"
+  },
+  "inference": {
+    "alpha": 0.05,
+    "power": 0.8,
+    "note": "Monte Carlo error with 200 draws is about +/-3 percentage points on a rejection rate near 0.8"
+  },
+  "simulation": {
+    "replications": 200,
+    "seed": 20260919,
+    "power": 0.8,
+    "ranking_draws": 2000
+  },
+  "placebo_tests": {
+    "none": "the synthetic null panels are the negative control"
+  },
+  "designs": [
+    {
+      "study_id": "fema_disasters_county_employment",
+      "kind": "did",
+      "wave": 1,
+      "outcome": "qcew_log_employment",
+      "expected_panel_digest": "ea51a8f62bf7e120b6bef35f5c8e89bf797ee40bdc0f156a65981488cb54e8b7",
+      "plausible_effect": 0.01,
+      "plausible_rationale": "1% of county covered employment averaged over five years after a county's first major disaster. Studies of US hurricanes and large disasters find county employment or earnings effects of roughly 0.5-5% (e.g. Belasen and Polachek 2008 on Florida hurricanes; Strobl 2011); most first declarations are for moderate events, so 1% is a plausible average, not an upper bound."
+    },
+    {
+      "study_id": "tariff_mfn_increases_imports",
+      "kind": "did",
+      "wave": 1,
+      "outcome": "baci_log_import_value",
+      "expected_panel_digest": "3d50cc96925b3ffca61ca7d8209011feb8d6a32bc356d89a318c940fc33331ed",
+      "plausible_effect": 0.05,
+      "plausible_rationale": "Import demand elasticities with respect to tariff-inclusive prices of about 2-5 (Fajgelbaum et al. 2020; Caliendo and Parro 2015) imply 4-10% lower imports for a 2 pp increase and more for the typical increase in the sample; 5% is a conservative plausible effect."
+    },
+    {
+      "study_id": "sanctions_designations_institutional_holdings",
+      "kind": "not_applicable",
+      "wave": 1,
+      "reason": "No panel exists: the design stopped at its feasibility gate (7 of 19,776 designated parties map to a 13F security; gate 30) and never read an outcome. With 7 treated securities no staggered design is estimable, so it cannot detect any effect; recorded as such."
+    },
+    {
+      "study_id": "exposure_cyclones_county_employment",
+      "kind": "ranking",
+      "wave": 1,
+      "report": {
+        "dataset": "natural_experiment_reports",
+        "version": "c7cb3fcd132b316123ad14ff726e6b53857120ee0394fff22341726847e311fc"
+      },
+      "plausible_effect": 0.05,
+      "plausible_rationale": "An improvement of 0.05 in the mean per-storm Spearman correlation over distance to track would be a meaningful ranking gain; the wave-1 observed difference was 0.017."
+    },
+    {
+      "study_id": "fema_damage_dose_county_employment",
+      "kind": "did",
+      "wave": 2,
+      "outcome": "qcew_log_employment",
+      "plausible_effect": 0.02,
+      "plausible_rationale": "Treated counties had at least $100 (median about $300) of recorded damage per resident, roughly 0.5-1% of annual per-capita income concentrated in one event; a 2% employment difference over four years is within the range found for severe local disasters."
+    },
+    {
+      "study_id": "tariff_mfn_decreases_imports",
+      "kind": "did",
+      "wave": 2,
+      "outcome": "baci92_log_import_value",
+      "plausible_effect": 0.05,
+      "plausible_rationale": "Symmetric to the increases: elasticities of 2-5 imply 4-10% higher imports for a 2 pp cut; 5% is conservative."
+    },
+    {
+      "study_id": "sanctions_programme_waves_us_trade",
+      "kind": "did",
+      "wave": 2,
+      "outcome": "log_us_share_ratio_exports",
+      "plausible_effect": 0.15,
+      "plausible_rationale": "Country programmes block dealings with listed parties and deter US counterparties more broadly; a 15% fall in the target's exports to the US relative to its other exports is a moderate effect for programmes that range from narrow listings to near-embargoes."
+    }
+  ],
+  "acceptance_criteria": [
+    {
+      "id": "detects_plausible_effect",
+      "type": "metric_max",
+      "metric": "mde_over_plausible",
+      "value": 1.0
+    },
+    {
+      "id": "negative_control_size",
+      "type": "metric_max",
+      "metric": "null_rejection_rate",
+      "value": 0.1
+    }
+  ],
+  "assumptions": [
+    "The calibrated noise (unit-specific AR(1) plus cluster-period AR(1) shocks) reproduces the real panels' variance and dependence well enough for the design's standard errors; the calibration check against the real SE tests this and falls back to the analytic MDE when it fails.",
+    "The minimum detectable effect is for a homogeneous additive effect; heterogeneous or dynamic effects change power somewhat.",
+    "Synthetic panels satisfy parallel trends exactly, so diagnostic failure rates measure how often the checks reject a correct design (their size), not their power against real violations.",
+    "Plausible effects were fixed in this registration before any wave-2 outcome was read; the wave-1 ones after wave 1's results were published, and they are stated with sources rather than chosen from those results."
+  ],
+  "data": {
+    "inputs": "the pinned inputs of each covered design's registration, plus natural_experiment_reports@c7cb3fcd... (wave-1 exposure report, per-storm scores)"
+  },
+  "outcome_data_examined_before_registration": "Wave-1 outcomes were read by wave 1 and their aggregate results are public (the wave-1 plausible effects above are argued from outside sources, not from those results). No wave-2 outcome had been read when this registration was committed. Calibration reads only untreated cells; the real standard error is read from each design's real panel after that design's own registration was committed.",
+  "amendments": [
+    {
+      "id": "amendment_1_variogram_noise_model",
+      "date": "2026-09-18",
+      "what": "A second, supplementary noise model is simulated alongside the registered one: the untreated cells' empirical variogram gamma(k) (half the mean squared k-period change, pair-count weighted, lags 1..12) is fitted with three non-negative components, a(1 - rho^k) + b k + c k^2, i.e. stationary AR(1) noise, a random walk and a unit-specific random trend, by a grid over rho with non-negative least squares. Synthetic panels under this model are drawn with the same seeds, replications and design specs, and reported as amended_variogram_model beside the registered results.",
+      "why": "The registered model is a stationary AR(1) in levels, whose first differences can only be negatively autocorrelated. On the county employment panels the untreated differences are positively autocorrelated (+0.09 on the wave-1 FEMA panel), so the fitted rho hits its 0.98 bound and the synthetic panels are smoother than the real ones. The registered calibration check catches this (it is what exposed it, on a trial draw of the wave-1 FEMA and wave-2 dose panels whose real standard errors were known) and the registered fallback then reports the analytic minimum detectable effect; but the negative-control size and the diagnostic pass rates have no analytic fallback and would be meaningless under a misspecified model.",
+      "what_does_not_change": "The verdict, the identification label and both acceptance criteria are still computed from the registered model with its registered fallback rule. The plausible effects, replications, seeds, designs and acceptance thresholds are unchanged. The amended model is reported, never used to decide a verdict.",
+      "disclosure": "This amendment was written after the wave-1 results and the wave-2 FEMA dose result had been published, and after the real standard errors of the wave-1 FEMA and wave-2 dose panels had been seen in a trial draw. It changes only how noise is simulated; no effect estimate, acceptance rule or plausible effect depends on it."
+    }
+  ]
+}

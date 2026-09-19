@@ -186,11 +186,14 @@ intervention response.
 `worldmodel.causal` (2026-09-18, [natural experiments](natural-experiments.md)) adds the means
 to identify one: a versioned `event_library` of 255,012 dated shocks with explicit date semantics
 and ex-ante/ex-post intensity; stdlib Callaway-Sant'Anna and stacked difference-in-differences
-with clustered and wild-bootstrap inference, pre-trend, placebo-date and placebo-unit tests; and
-a runner that refuses any design not committed before it runs. The label
+with clustered and wild-bootstrap inference, pre-trend, placebo-date, placebo-unit and
+placebo-cluster tests; a runner that refuses any design not committed before it runs; and a
+registered power suite that measures, on synthetic panels calibrated to each real panel, what a
+design could have detected and how often it would claim an effect when there is none. The label
 `quasi_experimental_did` is computed from pre-registered acceptance criteria, never chosen.
 
-**What is identified: nothing yet.** Four registered designs were run and none passed:
+**What is identified: three nulls, no effect.** Two waves of pre-registered designs have been run.
+Wave 1 (four designs) identified nothing:
 
 * FEMA first major disasters -> county QCEW employment: `did_failed_diagnostics` (pre-trend Wald
   p = 0.032, placebo-date p = 0.013; ATT +0.009, 95% CI -0.009 to +0.028).
@@ -203,8 +206,36 @@ a runner that refuses any design not committed before it runs. The label
   on 42 held-out storms: fails (mean Spearman with county employment loss -0.019 vs -0.036,
   p = 0.19); the graph term was given zero weight by the development storms.
 
-No simulator parameter is bound to an identified effect, and no exposure ranking is validated.
-Any intervention claim made with this repository is still an assumption.
+Wave 2 registered four designs against those failures (a damage dose compared inside one FEMA
+declaration and matched on earlier growth; MFN *decreases* with one year of anticipation, the
+HS2022-HS2017 concordance and a pre-period back to 2009; OFAC country-programme waves against the
+target's trade with the US relative to its trade with everyone else; and the power suite). It
+produced **three identified nulls and four more failed diagnostics**:
+
+* Heavy vs negligible storm damage in the same declaration: employment fails its pre-trend
+  criterion (p = 0.034; ATT -0.010, CI -0.039 to +0.018), while establishments pass every criterion
+  and bound the effect at -0.028 to +0.020 log points.
+* MFN cuts of at least 2 pp: import value fails (pre-trend p = 0.027, placebo date +0.054,
+  p = 0.003) exactly as the increases did, with the sign reversed; import quantity passes and bounds
+  the effect at -0.090 to +0.072 log points.
+* OFAC country-programme waves (16 target countries): the target's exports to the US relative to
+  its other exports fall 0.115 log points (CI -0.267 to +0.038) but the design fails its cluster-placebo
+  criterion (rejection 0.11 against a 0.10 limit); the import side passes and bounds the effect at
+  -0.309 to +0.068 log points.
+* Power and negative controls (200 synthetic null panels per design, calibrated on each real
+  panel's untreated cells): **every design in both waves is underpowered against the effect its own
+  registration called plausible**. Minimum detectable effect at 80% power, divided by that plausible
+  effect: 2.27 (wave-1 FEMA), 1.81 (wave-1 tariffs), 1.67 (wave-2 damage dose), 1.39 (wave-2
+  tariffs), 1.34 (wave-2 sanctions), 1.02 (wave-1 exposure ranking); the wave-1 13F design had no
+  panel at all. Two designs also reject a true null more often than they claim: 11.5% (wave-1
+  tariffs) and 14.5% (wave-2 sanctions, whose pre-trend test rejects a correct design 37.5% of the
+  time with 16 treated clusters). The three nulls above are therefore bounds from designs that
+  could not have seen the effects in question.
+
+No simulator parameter may be bound to a non-zero effect, and no exposure ranking is validated.
+Any intervention claim made with this repository is still an assumption; what has changed is that
+three of them now come with published bounds, and every design comes with the size of the effect
+it could have seen.
 
 ### 5. Coverage that is known rather than assumed
 

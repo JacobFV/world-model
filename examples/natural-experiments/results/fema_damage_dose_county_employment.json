@@ -1,0 +1,5309 @@
+{
+ "registration": {
+  "commit": "c0e0f801e89ba3af1a85f7520c8c0120052bb42e",
+  "committed_at": "2026-09-18T20:47:04-07:00",
+  "committed_clean": true,
+  "path": "examples/natural-experiments/registrations/fema_damage_dose_county_employment.json",
+  "sha256": "2d8a78e9f2f131813abc35f3f5bc8ddf106e7e6bf0e6395ebd6ba99c638191e8"
+ },
+ "results": [
+  {
+   "acceptance": [
+    {
+     "id": "enough_treated_counties",
+     "passed": true,
+     "role": "identification",
+     "threshold": 150,
+     "type": "min_treated_units",
+     "value": 583
+    },
+    {
+     "id": "enough_state_clusters",
+     "passed": true,
+     "role": "identification",
+     "threshold": 20,
+     "type": "min_clusters",
+     "value": 50
+    },
+    {
+     "id": "no_pre_trends",
+     "passed": false,
+     "role": "identification",
+     "threshold": 0.05,
+     "type": "pre_trend_wald_p_min",
+     "value": 0.033839134966430505
+    },
+    {
+     "id": "placebo_date_null",
+     "passed": true,
+     "role": "identification",
+     "threshold": 0.05,
+     "type": "placebo_date_p_min",
+     "value": 0.7903767546832825
+    },
+    {
+     "id": "placebo_unit_size",
+     "passed": true,
+     "role": "identification",
+     "threshold": 0.1,
+     "type": "placebo_unit_rejection_rate_max",
+     "value": 0.03
+    },
+    {
+     "id": "stacked_agrees",
+     "passed": true,
+     "role": "identification",
+     "threshold": null,
+     "type": "robustness_ci_overlap",
+     "value": [
+      [
+       -0.038555019049392174,
+       0.018404413812356496
+      ],
+      [
+       -0.024834110499545495,
+       0.00549652012148623
+      ]
+     ]
+    }
+   ],
+   "data": {
+    "extractions": {
+     "bea_population": {
+      "input": {
+       "dataset": "bea_national_regional",
+       "stage": "normalized",
+       "version": "5fdb83db0ff92858d40cfa9f36961ccd0fb0013f4afaa3ab7b349ce771758e8e"
+      },
+      "rows": 174148,
+      "sha256": "a91ca429fa0ed1e178395eeb8a387c19bf280a76b61f70a65a8e0f322831a146",
+      "spec": {
+       "filter": "metric == population, subject geo:US:county:* (BEA CAINC1), annual"
+      }
+     },
+     "bls": {
+      "input": {
+       "dataset": "bls_labor",
+       "stage": "normalized",
+       "version": "ffd7f43a2761e2f4bc85cd9765ba9bce61cf089cd26b8b5d12e428337546e267"
+      },
+      "rows": 4463709,
+      "sha256": "25133fe7b7f21bcb1e7a930e3b9c3782a829f83e80e708804a5d8e0f3a305b6d",
+      "spec": {
+       "laus": {
+        "filter": "dimensions.survey == LAUS and subject geo:US:county:* and period_type == month",
+        "metrics": [
+         "employment",
+         "labor_force",
+         "unemployment_rate"
+        ]
+       },
+       "qcew": {
+        "filter": "dimensions.survey == QCEW and dimensions.agglvl_code == 70 (county, total covered, all ownerships) and period_type == annual_average",
+        "metrics": [
+         "employment",
+         "establishment_count"
+        ]
+       }
+      }
+     },
+     "noaa": {
+      "input": {
+       "dataset": "noaa_storm_events",
+       "stage": "normalized",
+       "version": "7d19dd57135ac4cf628d790add0d6bb250ac74504598e5d2687cb1ddda10d927"
+      },
+      "rows": 403421,
+      "sha256": "7119fd2c9891b1e98396f268699714335b64735a4e9783cd21bbb1d43c1c4004",
+      "spec": {
+       "fields": "county_fips, begin date (UTC, YYYY-MM-DD), metric, nominal USD, event type, record id",
+       "filter": "metric in (storm_damage_property, storm_damage_crops), dimensions.location geo:US:county:* (NWS-zone-coded damage cannot be attributed to a county and is skipped)"
+      }
+     }
+    },
+    "inputs": [
+     {
+      "dataset": "event_library",
+      "stage": "events",
+      "version": "dbf0c37f15cb15933ddf2452ae00cf196981aef02045a2b642d1582643b2819a"
+     },
+     {
+      "dataset": "noaa_storm_events",
+      "stage": "normalized",
+      "version": "7d19dd57135ac4cf628d790add0d6bb250ac74504598e5d2687cb1ddda10d927"
+     },
+     {
+      "dataset": "bea_national_regional",
+      "stage": "normalized",
+      "version": "5fdb83db0ff92858d40cfa9f36961ccd0fb0013f4afaa3ab7b349ce771758e8e"
+     },
+     {
+      "dataset": "bls_labor",
+      "stage": "normalized",
+      "version": "ffd7f43a2761e2f4bc85cd9765ba9bce61cf089cd26b8b5d12e428337546e267"
+     }
+    ],
+    "panel": {
+     "clusters": 50,
+     "cohort_sizes": {
+      "1998": 34,
+      "1999": 15,
+      "2000": 9,
+      "2001": 17,
+      "2002": 20,
+      "2003": 30,
+      "2004": 21,
+      "2005": 12,
+      "2006": 6,
+      "2007": 24,
+      "2008": 70,
+      "2009": 23,
+      "2010": 27,
+      "2011": 69,
+      "2012": 3,
+      "2013": 23,
+      "2014": 16,
+      "2015": 24,
+      "2016": 23,
+      "2017": 31,
+      "2018": 17,
+      "2019": 65,
+      "2020": 4
+     },
+     "never_treated_units": 3370,
+     "observations": 138301,
+     "periods": [
+      1990,
+      2024
+     ],
+     "strata": 1020,
+     "treated_units": 583,
+     "units": 3953
+    },
+    "panel_digest": "21b27640f80f503fc103b5cd878493cd2195224008f0407fc6bf78eb268dbe0b",
+    "treatment_facts": {
+     "control": 3371,
+     "controls_in_panel": 3370,
+     "disasters_in_panel": 576,
+     "excluded_no_population": 45,
+     "excluded_recent_other_disaster": 10034,
+     "middle": 1664,
+     "pairs_in_scope": 15697,
+     "treated": 583,
+     "treated_dose_usd_per_capita_quartiles": [
+      157.42622434668118,
+      306.14082477939854,
+      842.5528024138247
+     ],
+     "treated_in_panel": 583,
+     "units_without_match_window_outcome": 1
+    }
+   },
+   "design": {
+    "controls": {
+     "control_group": "never_treated",
+     "definition": "counties declared in the same disaster with NOAA damage under $1 per capita, in the same pre-growth half; they are never treated within their stack"
+    },
+    "estimator": {
+     "anticipation": 0,
+     "balance": null,
+     "estimand": "ATT: equal-weight mean over event times 0..4 of treated-count-weighted ATT(g, g+e), for heavy-damage declared counties relative to negligible-damage counties of the same declaration",
+     "non_gating_robustness": [
+      "unmatched_strata_disaster_only: same units, strata = disaster (no growth matching)"
+     ],
+     "primary": "callaway_santanna_unconditional_within_disaster_and_growth_half",
+     "robustness": [
+      "stacked_did",
+      "twfe_static"
+     ]
+    },
+    "inference": {
+     "alpha": 0.05,
+     "bootstrap": 999,
+     "bootstrap_weights": "rademacher multiplier on state influence functions",
+     "cluster": "state",
+     "seed": 20260918
+    },
+    "outcomes": {
+     "primary": {
+      "id": "qcew_log_employment",
+      "label": "log QCEW annual-average covered employment (county, total covered, all ownerships)",
+      "source": "bls_labor QCEW agglvl_code 70 metric employment",
+      "unit": "log points"
+     },
+     "secondary": [
+      {
+       "id": "qcew_log_establishments",
+       "label": "log QCEW annual-average establishment count",
+       "source": "bls_labor QCEW agglvl_code 70 metric establishment_count (matching still uses employment growth)",
+       "unit": "log points"
+      }
+     ],
+     "transform": "natural log of positive values; suppressed or missing values dropped"
+    },
+    "placebo_tests": {
+     "placebo_date": {
+      "definition": "treated units keep only years before g; placebo cohort g-2; placebo effect averaged over placebo event times 0..1",
+      "shift": 2
+     },
+     "placebo_unit": {
+      "definition": "real treated units removed; control counties receive cohorts drawn from their stratum's real cohorts at the stratum's real treated share",
+      "min_never_treated": 20,
+      "replications": 100,
+      "seed": 13
+     }
+    },
+    "question": "Among US counties declared in the same FEMA major disaster (severe storm, flood or tornado), how does covered employment change over the following four years in counties where NOAA recorded heavy damage (at least $100 per resident) relative to declared counties where it recorded almost none (under $1 per resident), comparing counties that were on similar employment paths beforehand?",
+    "treatment": {
+     "absorbing": "a stack's treated county stays treated; later disasters are part of its post-period path",
+     "control_max_usd_per_capita": 1.0,
+     "design_stage_counts": "15,697 (disaster, county) pairs of the four types in 1998-2020; 10,034 dropped for another disaster in g-3..g-1; 45 without BEA population; 583 treated, 3,371 control, 1,664 middle. 154 disasters have both a treated and a control county: 476 treated and 1,377 controls in 36 states before the QCEW and matching-window requirements. Treated dose quartiles $157, $306, $843 per capita.",
+     "dose": "sum of NOAA storm_damage_property + storm_damage_crops (nominal USD) over county-coded storm events in the declared county whose begin date falls in [incident_begin_date, incident_end_date], divided by the county's BEA population in year g-1",
+     "dose_incident_types": [
+      "Severe Storm",
+      "Severe Storm(s)",
+      "Flood",
+      "Tornado"
+     ],
+     "dose_incident_types_reason": "NOAA records these hazards (thunderstorm wind, hail, tornado, flash flood, flood) against counties. Hurricane, tropical-storm, winter and heat damage is recorded against NWS forecast zones (85,424 zone-coded damage rows), which cannot be attributed to a county, so a 'zero-damage' control in a hurricane declaration could be heavily damaged.",
+     "dose_timing": "Damage is estimated by NWS offices from the physical event within weeks; it is a property of the shock, measured after it (ex post in the event library's sense) but before any annual outcome it could be confused with. It does not depend on the employment outcome. This is a deliberate, disclosed use of an ex-post intensity: the assumption that damage is not predicted by the county's employment trend is tested by the leads.",
+     "estimated_cohorts": [
+      1998,
+      2020
+     ],
+     "incident_years": [
+      1998,
+      2020
+     ],
+     "match_window": [
+      -8,
+      -5
+     ],
+     "middle_doses": "declared counties with dose in [$1, $100) per capita are excluded",
+     "quiet_period_incident_types": [
+      "Hurricane",
+      "Severe Storm",
+      "Severe Storm(s)",
+      "Flood",
+      "Tornado",
+      "Fire",
+      "Snowstorm",
+      "Severe Ice Storm",
+      "Winter Storm",
+      "Earthquake",
+      "Tropical Storm",
+      "Coastal Storm",
+      "Typhoon",
+      "Straight-Line Winds",
+      "Mud/Landslide",
+      "Dam/Levee Break",
+      "Tsunami",
+      "Volcanic Eruption",
+      "Freezing"
+     ],
+     "quiet_period_rule": "a (disaster, county) pair is dropped when the county has another qualifying DR (wave-1 physical-hazard list) with incident beginning in g-3..g-1; other disasters in the same year or later are part of the post-period path",
+     "quiet_years": 3,
+     "source": "event_library: library_type fema_major_disaster_declaration (county rows, 50 states + DC); dose from noaa_storm_events county-coded damage; population from bea_national_regional CAINC1",
+     "timing": "g = calendar year of the disaster's incident_begin_date",
+     "treated_min_usd_per_capita": 100.0
+    },
+    "units": {
+     "definition": "(disaster, county) pairs: each disaster is a stack holding its treated and control counties; a county may appear in several stacks",
+     "notes": "County definitional changes are not bridged.",
+     "sample": "units need QCEW employment in g-8 and g-5; others are dropped from the primary and the robustness panel alike",
+     "strata": "disaster x pre-growth half: comparisons are only within the same disaster and the same half of log employment growth from g-8 to g-5 (split at the median of the disaster's treated and control counties by (growth, id) rank)"
+    },
+    "windows": {
+     "calendar_years": [
+      1990,
+      2024
+     ],
+     "e_max": 4,
+     "e_min": -4,
+     "post": [
+      0,
+      1,
+      2,
+      3,
+      4
+     ],
+     "reference_event_time": -1
+    }
+   },
+   "diagnostics": {
+    "placebo_date": {
+     "event_time": [
+      {
+       "analytic_se": 0.0038572962823841313,
+       "att": 0.0029112290942066746,
+       "band_high": null,
+       "band_low": null,
+       "ci_high": 0.010471390885379813,
+       "ci_low": -0.004648932696966463,
+       "cohorts": [
+        1996,
+        1997,
+        1998,
+        1999,
+        2000,
+        2001,
+        2002,
+        2003,
+        2004,
+        2005,
+        2006,
+        2007,
+        2008,
+        2009,
+        2010,
+        2011,
+        2012,
+        2013,
+        2014,
+        2015,
+        2016,
+        2017,
+        2018
+       ],
+       "e": 0,
+       "n_treated": 398,
+       "p": 0.4504091553167249,
+       "period": "post",
+       "se": 0.0038572962823841313
+      },
+      {
+       "analytic_se": 0.006615670083447596,
+       "att": -0.0002046400145025274,
+       "band_high": null,
+       "band_low": null,
+       "ci_high": 0.012761835082653853,
+       "ci_low": -0.013171115111658907,
+       "cohorts": [
+        1996,
+        1997,
+        1998,
+        1999,
+        2000,
+        2001,
+        2002,
+        2003,
+        2004,
+        2005,
+        2006,
+        2007,
+        2008,
+        2009,
+        2010,
+        2011,
+        2012,
+        2013,
+        2014,
+        2015,
+        2016,
+        2017,
+        2018
+       ],
+       "e": 1,
+       "n_treated": 397,
+       "p": 0.9753232746704806,
+       "period": "post",
+       "se": 0.006615670083447596
+      }
+     ],
+     "overall": {
+      "analytic_se": 0.005090991534186924,
+      "att": 0.0013532945398520735,
+      "bootstrap_p": null,
+      "ci_high": 0.01133145459245676,
+      "ci_low": -0.008624865512752612,
+      "definition": "equal-weight mean of ATT(e) over the post event times listed",
+      "event_times": [
+       0,
+       1
+      ],
+      "p": 0.7903767546832825,
+      "se": 0.005090991534186924
+     },
+     "p": 0.7903767546832825,
+     "passed": true,
+     "shift": 2,
+     "test": "placebo_date",
+     "treated_units_with_pre_data": 583
+    },
+    "placebo_unit": {
+     "never_treated_units": 3370,
+     "nominal_alpha": 0.05,
+     "observed": -0.01007530261851784,
+     "permutation_p": 0.16831683168316833,
+     "placebo_mean": 0.0012760360593190472,
+     "placebo_sd": 0.007549600840246943,
+     "ran": true,
+     "rejection_rate": 0.03,
+     "replications": 100,
+     "seed": 13,
+     "test": "placebo_unit"
+    },
+    "pre_trend": {
+     "leads": [
+      -4,
+      -3,
+      -2
+     ],
+     "max_abs_lead": 0.005382677400492703,
+     "sup_t": {
+      "p": 0.622,
+      "statistic": 0.8268963276473885
+     },
+     "wald": {
+      "df": 3,
+      "p": 0.033839134966430505,
+      "statistic": 8.681516797193712
+     }
+    }
+   },
+   "estimates": {
+    "outcome": {
+     "id": "qcew_log_employment",
+     "label": "log QCEW annual-average covered employment (county, total covered, all ownerships)",
+     "role": "primary",
+     "source": "bls_labor QCEW agglvl_code 70 metric employment",
+     "unit": "log points"
+    },
+    "primary": {
+     "alpha": 0.05,
+     "anticipation": 0,
+     "bootstrap": {
+      "level": "cluster",
+      "replications": 999,
+      "seed": 20260918,
+      "uniform_critical_value": 2.1584184547843663,
+      "weights": "rademacher"
+     },
+     "cells": 782,
+     "control_group": "never_treated",
+     "dropped_treated_no_control": 6289,
+     "estimator": "callaway_santanna_unconditional_stratified",
+     "event_time": [
+      {
+       "analytic_se": 0.007973910436167507,
+       "att": 0.005382677400492703,
+       "band_high": 0.02382705904077127,
+       "band_low": -0.013061704239785862,
+       "ci_high": 0.022131201604372965,
+       "ci_low": -0.011365846803387557,
+       "cohorts": [
+        1998,
+        1999,
+        2000,
+        2001,
+        2002,
+        2003,
+        2004,
+        2005,
+        2006,
+        2007,
+        2008,
+        2009,
+        2010,
+        2011,
+        2012,
+        2013,
+        2014,
+        2015,
+        2016,
+        2017,
+        2018,
+        2019,
+        2020
+       ],
+       "e": -4,
+       "n_treated": 397,
+       "p": 0.5287616361301456,
+       "period": "pre",
+       "se": 0.008545322432447986
+      },
+      {
+       "analytic_se": 0.006615670083447596,
+       "att": 0.0002046400145025274,
+       "band_high": 0.015582209191187649,
+       "band_low": -0.015172929162182595,
+       "ci_high": 0.014168327958917887,
+       "ci_low": -0.013759047929912834,
+       "cohorts": [
+        1998,
+        1999,
+        2000,
+        2001,
+        2002,
+        2003,
+        2004,
+        2005,
+        2006,
+        2007,
+        2008,
+        2009,
+        2010,
+        2011,
+        2012,
+        2013,
+        2014,
+        2015,
+        2016,
+        2017,
+        2018,
+        2019,
+        2020
+       ],
+       "e": -3,
+       "n_treated": 397,
+       "p": 0.9770850528340577,
+       "period": "pre",
+       "se": 0.007124461497537277
+      },
+      {
+       "analytic_se": 0.0036829399618631877,
+       "att": 0.0031163046532340886,
+       "band_high": 0.011250685287633433,
+       "band_low": -0.005018075981165255,
+       "ci_high": 0.010502774614433323,
+       "ci_low": -0.004270165307965146,
+       "cohorts": [
+        1998,
+        1999,
+        2000,
+        2001,
+        2002,
+        2003,
+        2004,
+        2005,
+        2006,
+        2007,
+        2008,
+        2009,
+        2010,
+        2011,
+        2012,
+        2013,
+        2014,
+        2015,
+        2016,
+        2017,
+        2018,
+        2019,
+        2020
+       ],
+       "e": -2,
+       "n_treated": 397,
+       "p": 0.40829582507337814,
+       "period": "pre",
+       "se": 0.0037686763733735763
+      },
+      {
+       "analytic_se": 0.004721082338974986,
+       "att": 0.000347451491613852,
+       "band_high": 0.01147774397515924,
+       "band_low": -0.010782840991931535,
+       "ci_high": 0.010454376011644064,
+       "ci_low": -0.009759473028416359,
+       "cohorts": [
+        1998,
+        1999,
+        2000,
+        2001,
+        2002,
+        2003,
+        2004,
+        2005,
+        2006,
+        2007,
+        2008,
+        2009,
+        2010,
+        2011,
+        2012,
+        2013,
+        2014,
+        2015,
+        2016,
+        2017,
+        2018,
+        2019,
+        2020
+       ],
+       "e": 0,
+       "n_treated": 397,
+       "p": 0.9462801488067611,
+       "period": "post",
+       "se": 0.005156688898241163
+      },
+      {
+       "analytic_se": 0.008453051347231457,
+       "att": 0.00020726223508044965,
+       "band_high": 0.0192653406137407,
+       "band_low": -0.018850816143579797,
+       "ci_high": 0.017513057204502774,
+       "ci_low": -0.01709853273434187,
+       "cohorts": [
+        1998,
+        1999,
+        2000,
+        2001,
+        2002,
+        2003,
+        2004,
+        2005,
+        2006,
+        2007,
+        2008,
+        2009,
+        2010,
+        2011,
+        2012,
+        2013,
+        2014,
+        2015,
+        2016,
+        2017,
+        2018,
+        2019,
+        2020
+       ],
+       "e": 1,
+       "n_treated": 397,
+       "p": 0.9812726255505066,
+       "period": "post",
+       "se": 0.00882964947617825
+      },
+      {
+       "analytic_se": 0.012981794011466468,
+       "att": -0.008187724046735345,
+       "band_high": 0.025906752568396064,
+       "band_low": -0.042282200661866755,
+       "ci_high": 0.022771956681196807,
+       "ci_low": -0.039147404774667494,
+       "cohorts": [
+        1998,
+        1999,
+        2000,
+        2001,
+        2002,
+        2003,
+        2004,
+        2005,
+        2006,
+        2007,
+        2008,
+        2009,
+        2010,
+        2011,
+        2012,
+        2013,
+        2014,
+        2015,
+        2016,
+        2017,
+        2018,
+        2019,
+        2020
+       ],
+       "e": 2,
+       "n_treated": 397,
+       "p": 0.6042209939854621,
+       "period": "post",
+       "se": 0.01579604572948185
+      },
+      {
+       "analytic_se": 0.01892584885461956,
+       "att": -0.018554158182006848,
+       "band_high": 0.03497132115108817,
+       "band_low": -0.07207963751510187,
+       "ci_high": 0.030049953553402634,
+       "ci_low": -0.06715826991741633,
+       "cohorts": [
+        1998,
+        1999,
+        2000,
+        2001,
+        2002,
+        2003,
+        2004,
+        2005,
+        2006,
+        2007,
+        2008,
+        2009,
+        2010,
+        2011,
+        2012,
+        2013,
+        2014,
+        2015,
+        2016,
+        2017,
+        2018,
+        2019,
+        2020
+       ],
+       "e": 3,
+       "n_treated": 397,
+       "p": 0.45434095299602634,
+       "period": "post",
+       "se": 0.024798471869275415
+      },
+      {
+       "analytic_se": 0.02047336349940879,
+       "att": -0.024189344590541312,
+       "band_high": 0.034492000138273346,
+       "band_low": -0.08287068931935597,
+       "ci_high": 0.02909657963694881,
+       "ci_low": -0.07747526881803143,
+       "cohorts": [
+        1998,
+        1999,
+        2000,
+        2001,
+        2002,
+        2003,
+        2004,
+        2005,
+        2006,
+        2007,
+        2008,
+        2009,
+        2010,
+        2011,
+        2012,
+        2013,
+        2014,
+        2015,
+        2016,
+        2017,
+        2018,
+        2019,
+        2020
+       ],
+       "e": 4,
+       "n_treated": 397,
+       "p": 0.37360928025710305,
+       "period": "post",
+       "se": 0.02718719560553291
+      }
+     ],
+     "n_clusters": 50,
+     "overall": {
+      "analytic_se": 0.01191479109694867,
+      "att": -0.01007530261851784,
+      "bootstrap_p": 0.494,
+      "ci_high": 0.018404413812356496,
+      "ci_low": -0.038555019049392174,
+      "definition": "equal-weight mean of ATT(e) over the post event times listed",
+      "event_times": [
+       0,
+       1,
+       2,
+       3,
+       4
+      ],
+      "p": 0.4880718924142172,
+      "se": 0.014530734572430263
+     },
+     "pre_trend": {
+      "leads": [
+       -4,
+       -3,
+       -2
+      ],
+      "max_abs_lead": 0.005382677400492703,
+      "sup_t": {
+       "p": 0.622,
+       "statistic": 0.8268963276473885
+      },
+      "wald": {
+       "df": 3,
+       "p": 0.033839134966430505,
+       "statistic": 8.681516797193712
+      }
+     },
+     "reference_event_time": -1,
+     "skipped_cells": 0
+    },
+    "robustness": {
+     "stacked_did": {
+      "estimator": "stacked_did_clean_controls",
+      "event_time": [
+       {
+        "att": 0.010135230711242074,
+        "ci_high": 0.021187835515328518,
+        "ci_low": -0.0009173740928443697,
+        "e": -4,
+        "p": 0.07229029522052856,
+        "se": 0.005639187705114983,
+        "stacks": 189
+       },
+       {
+        "att": 0.002780000855696358,
+        "ci_high": 0.012051478812966691,
+        "ci_low": -0.006491477101573975,
+        "e": -3,
+        "p": 0.5567442502726273,
+        "se": 0.004730432819379626,
+        "stacks": 189
+       },
+       {
+        "att": 0.003734609379153994,
+        "ci_high": 0.009162420916274257,
+        "ci_low": -0.0016932021579662685,
+        "e": -2,
+        "p": 0.17748009142003668,
+        "se": 0.002769342487889649,
+        "stacks": 189
+       },
+       {
+        "att": -0.003240801045894099,
+        "ci_high": 0.0037118820687906586,
+        "ci_low": -0.010193484160578857,
+        "e": 0,
+        "p": 0.3609359848720408,
+        "se": 0.0035473524868449807,
+        "stacks": 189
+       },
+       {
+        "att": -0.005777236977194737,
+        "ci_high": 0.004326366876621325,
+        "ci_low": -0.0158808408310108,
+        "e": 1,
+        "p": 0.2624127347086549,
+        "se": 0.0051549946496527495,
+        "stacks": 189
+       },
+       {
+        "att": -0.008511112635345264,
+        "ci_high": 0.008472458031455243,
+        "ci_low": -0.02549468330214577,
+        "e": 2,
+        "p": 0.3259952046310598,
+        "se": 0.008665246300832439,
+        "stacks": 189
+       },
+       {
+        "att": -0.013281977507550339,
+        "ci_high": 0.011753711418641073,
+        "ci_low": -0.03831766643374175,
+        "e": 3,
+        "p": 0.29843119180103106,
+        "se": 0.0127735453935224,
+        "stacks": 189
+       },
+       {
+        "att": -0.01753284777916372,
+        "ci_high": 0.008166686070355044,
+        "ci_low": -0.04323238162868248,
+        "e": 4,
+        "p": 0.18117852356178324,
+        "se": 0.01311224800671513,
+        "stacks": 189
+       }
+      ],
+      "n_clusters": 50,
+      "overall": {
+       "att": -0.009668795189029631,
+       "ci_high": 0.00549652012148623,
+       "ci_low": -0.024834110499545495,
+       "definition": "equal-weight mean of stacked ATT(e) over post event times",
+       "p": 0.21144781591264453,
+       "se": 0.007737547949930681
+      },
+      "pre_trend": {
+       "leads": [
+        -4,
+        -3,
+        -2
+       ],
+       "wald": {
+        "df": 3,
+        "p": 0.004291772596112343,
+        "statistic": 13.165630686547011
+       }
+      },
+      "stack_count": 189,
+      "stacks": [
+       {
+        "g": 1998,
+        "n_control": 12,
+        "n_treated": 1,
+        "stratum": "fema:disaster:1197|hi",
+        "weight": 0.9230769230769231
+       },
+       {
+        "g": 1998,
+        "n_control": 27,
+        "n_treated": 1,
+        "stratum": "fema:disaster:1209|hi",
+        "weight": 0.9642857142857143
+       },
+       {
+        "g": 1998,
+        "n_control": 8,
+        "n_treated": 1,
+        "stratum": "fema:disaster:1215|hi",
+        "weight": 0.8888888888888888
+       },
+       {
+        "g": 1998,
+        "n_control": 9,
+        "n_treated": 1,
+        "stratum": "fema:disaster:1215|lo",
+        "weight": 0.9
+       },
+       {
+        "g": 1998,
+        "n_control": 1,
+        "n_treated": 4,
+        "stratum": "fema:disaster:1227|lo",
+        "weight": 0.8
+       },
+       {
+        "g": 1998,
+        "n_control": 5,
+        "n_treated": 2,
+        "stratum": "fema:disaster:1230|hi",
+        "weight": 1.4285714285714286
+       },
+       {
+        "g": 1998,
+        "n_control": 110,
+        "n_treated": 1,
+        "stratum": "fema:disaster:1239|hi",
+        "weight": 0.990990990990991
+       },
+       {
+        "g": 1998,
+        "n_control": 6,
+        "n_treated": 4,
+        "stratum": "fema:disaster:1257|hi",
+        "weight": 2.4
+       },
+       {
+        "g": 1998,
+        "n_control": 9,
+        "n_treated": 1,
+        "stratum": "fema:disaster:1257|lo",
+        "weight": 0.9
+       },
+       {
+        "g": 1998,
+        "n_control": 6,
+        "n_treated": 2,
+        "stratum": "fema:disaster:1258|hi",
+        "weight": 1.5
+       },
+       {
+        "g": 1999,
+        "n_control": 1,
+        "n_treated": 1,
+        "stratum": "fema:disaster:1270|lo",
+        "weight": 0.5
+       },
+       {
+        "g": 1999,
+        "n_control": 1,
+        "n_treated": 4,
+        "stratum": "fema:disaster:1272|lo",
+        "weight": 0.8
+       },
+       {
+        "g": 1999,
+        "n_control": 1,
+        "n_treated": 1,
+        "stratum": "fema:disaster:1282|lo",
+        "weight": 0.5
+       },
+       {
+        "g": 1999,
+        "n_control": 2,
+        "n_treated": 1,
+        "stratum": "fema:disaster:1284|lo",
+        "weight": 0.6666666666666666
+       },
+       {
+        "g": 2000,
+        "n_control": 3,
+        "n_treated": 1,
+        "stratum": "fema:disaster:1328|lo",
+        "weight": 0.75
+       },
+       {
+        "g": 2000,
+        "n_control": 2,
+        "n_treated": 1,
+        "stratum": "fema:disaster:1332|hi",
+        "weight": 0.6666666666666666
+       },
+       {
+        "g": 2000,
+        "n_control": 2,
+        "n_treated": 2,
+        "stratum": "fema:disaster:1332|lo",
+        "weight": 1.0
+       },
+       {
+        "g": 2000,
+        "n_control": 1,
+        "n_treated": 1,
+        "stratum": "fema:disaster:1347|lo",
+        "weight": 0.5
+       },
+       {
+        "g": 2001,
+        "n_control": 1,
+        "n_treated": 1,
+        "stratum": "fema:disaster:1369|hi",
+        "weight": 0.5
+       },
+       {
+        "g": 2001,
+        "n_control": 4,
+        "n_treated": 5,
+        "stratum": "fema:disaster:1370|hi",
+        "weight": 2.2222222222222223
+       },
+       {
+        "g": 2001,
+        "n_control": 9,
+        "n_treated": 1,
+        "stratum": "fema:disaster:1370|lo",
+        "weight": 0.9
+       },
+       {
+        "g": 2001,
+        "n_control": 11,
+        "n_treated": 1,
+        "stratum": "fema:disaster:1373|hi",
+        "weight": 0.9166666666666666
+       },
+       {
+        "g": 2001,
+        "n_control": 4,
+        "n_treated": 1,
+        "stratum": "fema:disaster:1378|lo",
+        "weight": 0.8
+       },
+       {
+        "g": 2001,
+        "n_control": 2,
+        "n_treated": 1,
+        "stratum": "fema:disaster:1398|hi",
+        "weight": 0.6666666666666666
+       },
+       {
+        "g": 2001,
+        "n_control": 3,
+        "n_treated": 1,
+        "stratum": "fema:disaster:1398|lo",
+        "weight": 0.75
+       },
+       {
+        "g": 2002,
+        "n_control": 24,
+        "n_treated": 1,
+        "stratum": "fema:disaster:1412|hi",
+        "weight": 0.96
+       },
+       {
+        "g": 2002,
+        "n_control": 24,
+        "n_treated": 2,
+        "stratum": "fema:disaster:1412|lo",
+        "weight": 1.8461538461538463
+       },
+       {
+        "g": 2002,
+        "n_control": 5,
+        "n_treated": 2,
+        "stratum": "fema:disaster:1414|hi",
+        "weight": 1.4285714285714286
+       },
+       {
+        "g": 2002,
+        "n_control": 6,
+        "n_treated": 1,
+        "stratum": "fema:disaster:1414|lo",
+        "weight": 0.8571428571428571
+       },
+       {
+        "g": 2002,
+        "n_control": 20,
+        "n_treated": 4,
+        "stratum": "fema:disaster:1416|hi",
+        "weight": 3.3333333333333335
+       },
+       {
+        "g": 2002,
+        "n_control": 24,
+        "n_treated": 1,
+        "stratum": "fema:disaster:1416|lo",
+        "weight": 0.96
+       },
+       {
+        "g": 2002,
+        "n_control": 13,
+        "n_treated": 2,
+        "stratum": "fema:disaster:1425|lo",
+        "weight": 1.7333333333333334
+       },
+       {
+        "g": 2002,
+        "n_control": 9,
+        "n_treated": 1,
+        "stratum": "fema:disaster:1433|hi",
+        "weight": 0.9
+       },
+       {
+        "g": 2002,
+        "n_control": 10,
+        "n_treated": 1,
+        "stratum": "fema:disaster:1433|lo",
+        "weight": 0.9090909090909091
+       },
+       {
+        "g": 2002,
+        "n_control": 1,
+        "n_treated": 1,
+        "stratum": "fema:disaster:1441|hi",
+        "weight": 0.5
+       },
+       {
+        "g": 2002,
+        "n_control": 5,
+        "n_treated": 1,
+        "stratum": "fema:disaster:1444|hi",
+        "weight": 0.8333333333333334
+       },
+       {
+        "g": 2002,
+        "n_control": 4,
+        "n_treated": 3,
+        "stratum": "fema:disaster:1444|lo",
+        "weight": 1.7142857142857142
+       },
+       {
+        "g": 2003,
+        "n_control": 2,
+        "n_treated": 3,
+        "stratum": "fema:disaster:1459|hi",
+        "weight": 1.2
+       },
+       {
+        "g": 2003,
+        "n_control": 3,
+        "n_treated": 2,
+        "stratum": "fema:disaster:1459|lo",
+        "weight": 1.2
+       },
+       {
+        "g": 2003,
+        "n_control": 4,
+        "n_treated": 5,
+        "stratum": "fema:disaster:1464|hi",
+        "weight": 2.2222222222222223
+       },
+       {
+        "g": 2003,
+        "n_control": 5,
+        "n_treated": 4,
+        "stratum": "fema:disaster:1464|lo",
+        "weight": 2.2222222222222223
+       },
+       {
+        "g": 2003,
+        "n_control": 3,
+        "n_treated": 1,
+        "stratum": "fema:disaster:1471|hi",
+        "weight": 0.75
+       },
+       {
+        "g": 2003,
+        "n_control": 7,
+        "n_treated": 1,
+        "stratum": "fema:disaster:1476|hi",
+        "weight": 0.875
+       },
+       {
+        "g": 2003,
+        "n_control": 8,
+        "n_treated": 1,
+        "stratum": "fema:disaster:1476|lo",
+        "weight": 0.8888888888888888
+       },
+       {
+        "g": 2003,
+        "n_control": 4,
+        "n_treated": 2,
+        "stratum": "fema:disaster:1480|hi",
+        "weight": 1.3333333333333333
+       },
+       {
+        "g": 2003,
+        "n_control": 2,
+        "n_treated": 4,
+        "stratum": "fema:disaster:1480|lo",
+        "weight": 1.3333333333333333
+       },
+       {
+        "g": 2003,
+        "n_control": 1,
+        "n_treated": 2,
+        "stratum": "fema:disaster:1484|hi",
+        "weight": 0.6666666666666666
+       },
+       {
+        "g": 2003,
+        "n_control": 2,
+        "n_treated": 1,
+        "stratum": "fema:disaster:1484|lo",
+        "weight": 0.6666666666666666
+       },
+       {
+        "g": 2003,
+        "n_control": 1,
+        "n_treated": 2,
+        "stratum": "fema:disaster:1485|lo",
+        "weight": 0.6666666666666666
+       },
+       {
+        "g": 2004,
+        "n_control": 1,
+        "n_treated": 1,
+        "stratum": "fema:disaster:1513|lo",
+        "weight": 0.5
+       },
+       {
+        "g": 2004,
+        "n_control": 7,
+        "n_treated": 3,
+        "stratum": "fema:disaster:1517|hi",
+        "weight": 2.1
+       },
+       {
+        "g": 2004,
+        "n_control": 6,
+        "n_treated": 4,
+        "stratum": "fema:disaster:1517|lo",
+        "weight": 2.4
+       },
+       {
+        "g": 2004,
+        "n_control": 5,
+        "n_treated": 1,
+        "stratum": "fema:disaster:1518|lo",
+        "weight": 0.8333333333333334
+       },
+       {
+        "g": 2004,
+        "n_control": 3,
+        "n_treated": 1,
+        "stratum": "fema:disaster:1523|lo",
+        "weight": 0.75
+       },
+       {
+        "g": 2004,
+        "n_control": 2,
+        "n_treated": 1,
+        "stratum": "fema:disaster:1524|lo",
+        "weight": 0.6666666666666666
+       },
+       {
+        "g": 2004,
+        "n_control": 3,
+        "n_treated": 1,
+        "stratum": "fema:disaster:1526|hi",
+        "weight": 0.75
+       },
+       {
+        "g": 2004,
+        "n_control": 3,
+        "n_treated": 2,
+        "stratum": "fema:disaster:1526|lo",
+        "weight": 1.2
+       },
+       {
+        "g": 2004,
+        "n_control": 5,
+        "n_treated": 3,
+        "stratum": "fema:disaster:1535|hi",
+        "weight": 1.875
+       },
+       {
+        "g": 2004,
+        "n_control": 5,
+        "n_treated": 3,
+        "stratum": "fema:disaster:1535|lo",
+        "weight": 1.875
+       },
+       {
+        "g": 2005,
+        "n_control": 1,
+        "n_treated": 1,
+        "stratum": "fema:disaster:1597|hi",
+        "weight": 0.5
+       },
+       {
+        "g": 2005,
+        "n_control": 1,
+        "n_treated": 1,
+        "stratum": "fema:disaster:1597|lo",
+        "weight": 0.5
+       },
+       {
+        "g": 2005,
+        "n_control": 3,
+        "n_treated": 4,
+        "stratum": "fema:disaster:1628|hi",
+        "weight": 1.7142857142857142
+       },
+       {
+        "g": 2005,
+        "n_control": 6,
+        "n_treated": 2,
+        "stratum": "fema:disaster:1628|lo",
+        "weight": 1.5
+       },
+       {
+        "g": 2006,
+        "n_control": 1,
+        "n_treated": 1,
+        "stratum": "fema:disaster:1646|lo",
+        "weight": 0.5
+       },
+       {
+        "g": 2006,
+        "n_control": 2,
+        "n_treated": 1,
+        "stratum": "fema:disaster:1671|lo",
+        "weight": 0.6666666666666666
+       },
+       {
+        "g": 2007,
+        "n_control": 1,
+        "n_treated": 1,
+        "stratum": "fema:disaster:1686|lo",
+        "weight": 0.5
+       },
+       {
+        "g": 2007,
+        "n_control": 2,
+        "n_treated": 1,
+        "stratum": "fema:disaster:1699|lo",
+        "weight": 0.6666666666666666
+       },
+       {
+        "g": 2007,
+        "n_control": 1,
+        "n_treated": 2,
+        "stratum": "fema:disaster:1705|lo",
+        "weight": 0.6666666666666666
+       },
+       {
+        "g": 2007,
+        "n_control": 1,
+        "n_treated": 2,
+        "stratum": "fema:disaster:1711|hi",
+        "weight": 0.6666666666666666
+       },
+       {
+        "g": 2007,
+        "n_control": 1,
+        "n_treated": 1,
+        "stratum": "fema:disaster:1717|hi",
+        "weight": 0.5
+       },
+       {
+        "g": 2008,
+        "n_control": 1,
+        "n_treated": 3,
+        "stratum": "fema:disaster:1744|hi",
+        "weight": 0.75
+       },
+       {
+        "g": 2008,
+        "n_control": 3,
+        "n_treated": 1,
+        "stratum": "fema:disaster:1745|hi",
+        "weight": 0.75
+       },
+       {
+        "g": 2008,
+        "n_control": 1,
+        "n_treated": 3,
+        "stratum": "fema:disaster:1745|lo",
+        "weight": 0.75
+       },
+       {
+        "g": 2008,
+        "n_control": 2,
+        "n_treated": 1,
+        "stratum": "fema:disaster:1746|hi",
+        "weight": 0.6666666666666666
+       },
+       {
+        "g": 2008,
+        "n_control": 2,
+        "n_treated": 1,
+        "stratum": "fema:disaster:1746|lo",
+        "weight": 0.6666666666666666
+       },
+       {
+        "g": 2008,
+        "n_control": 1,
+        "n_treated": 2,
+        "stratum": "fema:disaster:1749|hi",
+        "weight": 0.6666666666666666
+       },
+       {
+        "g": 2008,
+        "n_control": 2,
+        "n_treated": 2,
+        "stratum": "fema:disaster:1749|lo",
+        "weight": 1.0
+       },
+       {
+        "g": 2008,
+        "n_control": 2,
+        "n_treated": 11,
+        "stratum": "fema:disaster:1751|hi",
+        "weight": 1.6923076923076923
+       },
+       {
+        "g": 2008,
+        "n_control": 5,
+        "n_treated": 8,
+        "stratum": "fema:disaster:1751|lo",
+        "weight": 3.076923076923077
+       },
+       {
+        "g": 2008,
+        "n_control": 1,
+        "n_treated": 2,
+        "stratum": "fema:disaster:1761|lo",
+        "weight": 0.6666666666666666
+       },
+       {
+        "g": 2008,
+        "n_control": 1,
+        "n_treated": 1,
+        "stratum": "fema:disaster:1763|hi",
+        "weight": 0.5
+       },
+       {
+        "g": 2008,
+        "n_control": 1,
+        "n_treated": 3,
+        "stratum": "fema:disaster:1768|hi",
+        "weight": 0.75
+       },
+       {
+        "g": 2008,
+        "n_control": 2,
+        "n_treated": 1,
+        "stratum": "fema:disaster:1770|hi",
+        "weight": 0.6666666666666666
+       },
+       {
+        "g": 2008,
+        "n_control": 1,
+        "n_treated": 1,
+        "stratum": "fema:disaster:1773|hi",
+        "weight": 0.5
+       },
+       {
+        "g": 2008,
+        "n_control": 2,
+        "n_treated": 1,
+        "stratum": "fema:disaster:1773|lo",
+        "weight": 0.6666666666666666
+       },
+       {
+        "g": 2008,
+        "n_control": 1,
+        "n_treated": 2,
+        "stratum": "fema:disaster:1774|hi",
+        "weight": 0.6666666666666666
+       },
+       {
+        "g": 2008,
+        "n_control": 2,
+        "n_treated": 1,
+        "stratum": "fema:disaster:1774|lo",
+        "weight": 0.6666666666666666
+       },
+       {
+        "g": 2008,
+        "n_control": 1,
+        "n_treated": 1,
+        "stratum": "fema:disaster:1777|lo",
+        "weight": 0.5
+       },
+       {
+        "g": 2008,
+        "n_control": 1,
+        "n_treated": 1,
+        "stratum": "fema:disaster:1779|lo",
+        "weight": 0.5
+       },
+       {
+        "g": 2008,
+        "n_control": 7,
+        "n_treated": 1,
+        "stratum": "fema:disaster:1809|lo",
+        "weight": 0.875
+       },
+       {
+        "g": 2009,
+        "n_control": 2,
+        "n_treated": 4,
+        "stratum": "fema:disaster:1829|hi",
+        "weight": 1.3333333333333333
+       },
+       {
+        "g": 2009,
+        "n_control": 2,
+        "n_treated": 5,
+        "stratum": "fema:disaster:1829|lo",
+        "weight": 1.4285714285714286
+       },
+       {
+        "g": 2009,
+        "n_control": 1,
+        "n_treated": 1,
+        "stratum": "fema:disaster:1837|lo",
+        "weight": 0.5
+       },
+       {
+        "g": 2009,
+        "n_control": 1,
+        "n_treated": 1,
+        "stratum": "fema:disaster:1856|lo",
+        "weight": 0.5
+       },
+       {
+        "g": 2009,
+        "n_control": 3,
+        "n_treated": 1,
+        "stratum": "fema:disaster:1858|hi",
+        "weight": 0.75
+       },
+       {
+        "g": 2009,
+        "n_control": 2,
+        "n_treated": 3,
+        "stratum": "fema:disaster:1858|lo",
+        "weight": 1.2
+       },
+       {
+        "g": 2010,
+        "n_control": 1,
+        "n_treated": 1,
+        "stratum": "fema:disaster:1888|hi",
+        "weight": 0.5
+       },
+       {
+        "g": 2010,
+        "n_control": 5,
+        "n_treated": 2,
+        "stratum": "fema:disaster:1909|hi",
+        "weight": 1.4285714285714286
+       },
+       {
+        "g": 2010,
+        "n_control": 3,
+        "n_treated": 5,
+        "stratum": "fema:disaster:1909|lo",
+        "weight": 1.875
+       },
+       {
+        "g": 2010,
+        "n_control": 4,
+        "n_treated": 1,
+        "stratum": "fema:disaster:1941|lo",
+        "weight": 0.8
+       },
+       {
+        "g": 2010,
+        "n_control": 2,
+        "n_treated": 1,
+        "stratum": "fema:disaster:1942|hi",
+        "weight": 0.6666666666666666
+       },
+       {
+        "g": 2011,
+        "n_control": 1,
+        "n_treated": 4,
+        "stratum": "fema:disaster:1969|lo",
+        "weight": 0.8
+       },
+       {
+        "g": 2011,
+        "n_control": 3,
+        "n_treated": 8,
+        "stratum": "fema:disaster:1971|hi",
+        "weight": 2.1818181818181817
+       },
+       {
+        "g": 2011,
+        "n_control": 2,
+        "n_treated": 9,
+        "stratum": "fema:disaster:1971|lo",
+        "weight": 1.6363636363636365
+       },
+       {
+        "g": 2011,
+        "n_control": 1,
+        "n_treated": 5,
+        "stratum": "fema:disaster:1972|hi",
+        "weight": 0.8333333333333334
+       },
+       {
+        "g": 2011,
+        "n_control": 2,
+        "n_treated": 5,
+        "stratum": "fema:disaster:1972|lo",
+        "weight": 1.4285714285714286
+       },
+       {
+        "g": 2011,
+        "n_control": 2,
+        "n_treated": 3,
+        "stratum": "fema:disaster:1973|lo",
+        "weight": 1.2
+       },
+       {
+        "g": 2011,
+        "n_control": 2,
+        "n_treated": 3,
+        "stratum": "fema:disaster:1974|lo",
+        "weight": 1.2
+       },
+       {
+        "g": 2011,
+        "n_control": 1,
+        "n_treated": 1,
+        "stratum": "fema:disaster:1991|hi",
+        "weight": 0.5
+       },
+       {
+        "g": 2011,
+        "n_control": 1,
+        "n_treated": 2,
+        "stratum": "fema:disaster:1991|lo",
+        "weight": 0.6666666666666666
+       },
+       {
+        "g": 2011,
+        "n_control": 4,
+        "n_treated": 1,
+        "stratum": "fema:disaster:1993|hi",
+        "weight": 0.8
+       },
+       {
+        "g": 2011,
+        "n_control": 4,
+        "n_treated": 1,
+        "stratum": "fema:disaster:1993|lo",
+        "weight": 0.8
+       },
+       {
+        "g": 2011,
+        "n_control": 13,
+        "n_treated": 4,
+        "stratum": "fema:disaster:1996|hi",
+        "weight": 3.0588235294117645
+       },
+       {
+        "g": 2011,
+        "n_control": 16,
+        "n_treated": 1,
+        "stratum": "fema:disaster:1996|lo",
+        "weight": 0.9411764705882353
+       },
+       {
+        "g": 2011,
+        "n_control": 4,
+        "n_treated": 2,
+        "stratum": "fema:disaster:4002|hi",
+        "weight": 1.3333333333333333
+       },
+       {
+        "g": 2011,
+        "n_control": 6,
+        "n_treated": 1,
+        "stratum": "fema:disaster:4002|lo",
+        "weight": 0.8571428571428571
+       },
+       {
+        "g": 2011,
+        "n_control": 3,
+        "n_treated": 1,
+        "stratum": "fema:disaster:4007|hi",
+        "weight": 0.75
+       },
+       {
+        "g": 2011,
+        "n_control": 1,
+        "n_treated": 4,
+        "stratum": "fema:disaster:4030|lo",
+        "weight": 0.8
+       },
+       {
+        "g": 2011,
+        "n_control": 2,
+        "n_treated": 1,
+        "stratum": "fema:disaster:4031|hi",
+        "weight": 0.6666666666666666
+       },
+       {
+        "g": 2011,
+        "n_control": 2,
+        "n_treated": 1,
+        "stratum": "fema:disaster:4031|lo",
+        "weight": 0.6666666666666666
+       },
+       {
+        "g": 2012,
+        "n_control": 1,
+        "n_treated": 1,
+        "stratum": "fema:disaster:4069|hi",
+        "weight": 0.5
+       },
+       {
+        "g": 2013,
+        "n_control": 1,
+        "n_treated": 1,
+        "stratum": "fema:disaster:4121|hi",
+        "weight": 0.5
+       },
+       {
+        "g": 2013,
+        "n_control": 1,
+        "n_treated": 2,
+        "stratum": "fema:disaster:4121|lo",
+        "weight": 0.6666666666666666
+       },
+       {
+        "g": 2013,
+        "n_control": 1,
+        "n_treated": 2,
+        "stratum": "fema:disaster:4126|hi",
+        "weight": 0.6666666666666666
+       },
+       {
+        "g": 2013,
+        "n_control": 1,
+        "n_treated": 1,
+        "stratum": "fema:disaster:4131|lo",
+        "weight": 0.5
+       },
+       {
+        "g": 2013,
+        "n_control": 3,
+        "n_treated": 2,
+        "stratum": "fema:disaster:4145|hi",
+        "weight": 1.2
+       },
+       {
+        "g": 2013,
+        "n_control": 3,
+        "n_treated": 3,
+        "stratum": "fema:disaster:4145|lo",
+        "weight": 1.5
+       },
+       {
+        "g": 2013,
+        "n_control": 3,
+        "n_treated": 1,
+        "stratum": "fema:disaster:4146|hi",
+        "weight": 0.75
+       },
+       {
+        "g": 2013,
+        "n_control": 2,
+        "n_treated": 1,
+        "stratum": "fema:disaster:4152|hi",
+        "weight": 0.6666666666666666
+       },
+       {
+        "g": 2013,
+        "n_control": 2,
+        "n_treated": 1,
+        "stratum": "fema:disaster:4152|lo",
+        "weight": 0.6666666666666666
+       },
+       {
+        "g": 2014,
+        "n_control": 1,
+        "n_treated": 1,
+        "stratum": "fema:disaster:4179|hi",
+        "weight": 0.5
+       },
+       {
+        "g": 2014,
+        "n_control": 1,
+        "n_treated": 2,
+        "stratum": "fema:disaster:4179|lo",
+        "weight": 0.6666666666666666
+       },
+       {
+        "g": 2014,
+        "n_control": 1,
+        "n_treated": 1,
+        "stratum": "fema:disaster:4185|hi",
+        "weight": 0.5
+       },
+       {
+        "g": 2014,
+        "n_control": 1,
+        "n_treated": 1,
+        "stratum": "fema:disaster:4185|lo",
+        "weight": 0.5
+       },
+       {
+        "g": 2015,
+        "n_control": 5,
+        "n_treated": 1,
+        "stratum": "fema:disaster:4222|hi",
+        "weight": 0.8333333333333334
+       },
+       {
+        "g": 2015,
+        "n_control": 31,
+        "n_treated": 3,
+        "stratum": "fema:disaster:4223|hi",
+        "weight": 2.735294117647059
+       },
+       {
+        "g": 2015,
+        "n_control": 30,
+        "n_treated": 4,
+        "stratum": "fema:disaster:4223|lo",
+        "weight": 3.5294117647058822
+       },
+       {
+        "g": 2015,
+        "n_control": 3,
+        "n_treated": 2,
+        "stratum": "fema:disaster:4225|hi",
+        "weight": 1.2
+       },
+       {
+        "g": 2015,
+        "n_control": 3,
+        "n_treated": 2,
+        "stratum": "fema:disaster:4225|lo",
+        "weight": 1.2
+       },
+       {
+        "g": 2015,
+        "n_control": 2,
+        "n_treated": 1,
+        "stratum": "fema:disaster:4226|hi",
+        "weight": 0.6666666666666666
+       },
+       {
+        "g": 2015,
+        "n_control": 1,
+        "n_treated": 2,
+        "stratum": "fema:disaster:4226|lo",
+        "weight": 0.6666666666666666
+       },
+       {
+        "g": 2015,
+        "n_control": 1,
+        "n_treated": 1,
+        "stratum": "fema:disaster:4227|hi",
+        "weight": 0.5
+       },
+       {
+        "g": 2015,
+        "n_control": 1,
+        "n_treated": 1,
+        "stratum": "fema:disaster:4227|lo",
+        "weight": 0.5
+       },
+       {
+        "g": 2015,
+        "n_control": 6,
+        "n_treated": 1,
+        "stratum": "fema:disaster:4230|hi",
+        "weight": 0.8571428571428571
+       },
+       {
+        "g": 2015,
+        "n_control": 2,
+        "n_treated": 1,
+        "stratum": "fema:disaster:4233|lo",
+        "weight": 0.6666666666666666
+       },
+       {
+        "g": 2015,
+        "n_control": 3,
+        "n_treated": 1,
+        "stratum": "fema:disaster:4245|hi",
+        "weight": 0.75
+       },
+       {
+        "g": 2015,
+        "n_control": 4,
+        "n_treated": 1,
+        "stratum": "fema:disaster:4245|lo",
+        "weight": 0.8
+       },
+       {
+        "g": 2015,
+        "n_control": 1,
+        "n_treated": 1,
+        "stratum": "fema:disaster:4248|hi",
+        "weight": 0.5
+       },
+       {
+        "g": 2015,
+        "n_control": 1,
+        "n_treated": 2,
+        "stratum": "fema:disaster:4248|lo",
+        "weight": 0.6666666666666666
+       },
+       {
+        "g": 2016,
+        "n_control": 7,
+        "n_treated": 1,
+        "stratum": "fema:disaster:4263|hi",
+        "weight": 0.875
+       },
+       {
+        "g": 2016,
+        "n_control": 3,
+        "n_treated": 6,
+        "stratum": "fema:disaster:4263|lo",
+        "weight": 2.0
+       },
+       {
+        "g": 2016,
+        "n_control": 2,
+        "n_treated": 1,
+        "stratum": "fema:disaster:4268|lo",
+        "weight": 0.6666666666666666
+       },
+       {
+        "g": 2016,
+        "n_control": 1,
+        "n_treated": 1,
+        "stratum": "fema:disaster:4272|hi",
+        "weight": 0.5
+       },
+       {
+        "g": 2016,
+        "n_control": 1,
+        "n_treated": 6,
+        "stratum": "fema:disaster:4277|hi",
+        "weight": 0.8571428571428571
+       },
+       {
+        "g": 2016,
+        "n_control": 1,
+        "n_treated": 6,
+        "stratum": "fema:disaster:4277|lo",
+        "weight": 0.8571428571428571
+       },
+       {
+        "g": 2017,
+        "n_control": 11,
+        "n_treated": 1,
+        "stratum": "fema:disaster:4301|hi",
+        "weight": 0.9166666666666666
+       },
+       {
+        "g": 2017,
+        "n_control": 11,
+        "n_treated": 2,
+        "stratum": "fema:disaster:4301|lo",
+        "weight": 1.6923076923076923
+       },
+       {
+        "g": 2017,
+        "n_control": 2,
+        "n_treated": 1,
+        "stratum": "fema:disaster:4307|hi",
+        "weight": 0.6666666666666666
+       },
+       {
+        "g": 2017,
+        "n_control": 14,
+        "n_treated": 2,
+        "stratum": "fema:disaster:4308|hi",
+        "weight": 1.75
+       },
+       {
+        "g": 2017,
+        "n_control": 13,
+        "n_treated": 4,
+        "stratum": "fema:disaster:4308|lo",
+        "weight": 3.0588235294117645
+       },
+       {
+        "g": 2017,
+        "n_control": 2,
+        "n_treated": 1,
+        "stratum": "fema:disaster:4310|hi",
+        "weight": 0.6666666666666666
+       },
+       {
+        "g": 2017,
+        "n_control": 2,
+        "n_treated": 2,
+        "stratum": "fema:disaster:4310|lo",
+        "weight": 1.0
+       },
+       {
+        "g": 2017,
+        "n_control": 1,
+        "n_treated": 1,
+        "stratum": "fema:disaster:4317|hi",
+        "weight": 0.5
+       },
+       {
+        "g": 2017,
+        "n_control": 1,
+        "n_treated": 2,
+        "stratum": "fema:disaster:4317|lo",
+        "weight": 0.6666666666666666
+       },
+       {
+        "g": 2017,
+        "n_control": 1,
+        "n_treated": 1,
+        "stratum": "fema:disaster:4333|lo",
+        "weight": 0.5
+       },
+       {
+        "g": 2018,
+        "n_control": 4,
+        "n_treated": 1,
+        "stratum": "fema:disaster:4386|hi",
+        "weight": 0.8
+       },
+       {
+        "g": 2018,
+        "n_control": 3,
+        "n_treated": 1,
+        "stratum": "fema:disaster:4387|lo",
+        "weight": 0.75
+       },
+       {
+        "g": 2018,
+        "n_control": 8,
+        "n_treated": 2,
+        "stratum": "fema:disaster:4390|lo",
+        "weight": 1.6
+       },
+       {
+        "g": 2018,
+        "n_control": 2,
+        "n_treated": 3,
+        "stratum": "fema:disaster:4416|hi",
+        "weight": 1.2
+       },
+       {
+        "g": 2018,
+        "n_control": 3,
+        "n_treated": 3,
+        "stratum": "fema:disaster:4416|lo",
+        "weight": 1.5
+       },
+       {
+        "g": 2019,
+        "n_control": 7,
+        "n_treated": 5,
+        "stratum": "fema:disaster:4420|hi",
+        "weight": 2.9166666666666665
+       },
+       {
+        "g": 2019,
+        "n_control": 12,
+        "n_treated": 1,
+        "stratum": "fema:disaster:4420|lo",
+        "weight": 0.9230769230769231
+       },
+       {
+        "g": 2019,
+        "n_control": 6,
+        "n_treated": 5,
+        "stratum": "fema:disaster:4421|hi",
+        "weight": 2.727272727272727
+       },
+       {
+        "g": 2019,
+        "n_control": 14,
+        "n_treated": 1,
+        "stratum": "fema:disaster:4427|hi",
+        "weight": 0.9333333333333333
+       },
+       {
+        "g": 2019,
+        "n_control": 15,
+        "n_treated": 1,
+        "stratum": "fema:disaster:4427|lo",
+        "weight": 0.9375
+       },
+       {
+        "g": 2019,
+        "n_control": 2,
+        "n_treated": 1,
+        "stratum": "fema:disaster:4429|hi",
+        "weight": 0.6666666666666666
+       },
+       {
+        "g": 2019,
+        "n_control": 3,
+        "n_treated": 1,
+        "stratum": "fema:disaster:4429|lo",
+        "weight": 0.75
+       },
+       {
+        "g": 2019,
+        "n_control": 1,
+        "n_treated": 7,
+        "stratum": "fema:disaster:4440|hi",
+        "weight": 0.875
+       },
+       {
+        "g": 2019,
+        "n_control": 1,
+        "n_treated": 7,
+        "stratum": "fema:disaster:4440|lo",
+        "weight": 0.875
+       },
+       {
+        "g": 2019,
+        "n_control": 5,
+        "n_treated": 1,
+        "stratum": "fema:disaster:4444|hi",
+        "weight": 0.8333333333333334
+       },
+       {
+        "g": 2019,
+        "n_control": 14,
+        "n_treated": 1,
+        "stratum": "fema:disaster:4449|lo",
+        "weight": 0.9333333333333333
+       },
+       {
+        "g": 2019,
+        "n_control": 19,
+        "n_treated": 2,
+        "stratum": "fema:disaster:4451|hi",
+        "weight": 1.8095238095238095
+       },
+       {
+        "g": 2019,
+        "n_control": 2,
+        "n_treated": 1,
+        "stratum": "fema:disaster:4452|hi",
+        "weight": 0.6666666666666666
+       },
+       {
+        "g": 2019,
+        "n_control": 1,
+        "n_treated": 2,
+        "stratum": "fema:disaster:4452|lo",
+        "weight": 0.6666666666666666
+       },
+       {
+        "g": 2019,
+        "n_control": 11,
+        "n_treated": 1,
+        "stratum": "fema:disaster:4461|lo",
+        "weight": 0.9166666666666666
+       },
+       {
+        "g": 2019,
+        "n_control": 1,
+        "n_treated": 5,
+        "stratum": "fema:disaster:4463|hi",
+        "weight": 0.8333333333333334
+       },
+       {
+        "g": 2019,
+        "n_control": 1,
+        "n_treated": 6,
+        "stratum": "fema:disaster:4463|lo",
+        "weight": 0.8571428571428571
+       },
+       {
+        "g": 2019,
+        "n_control": 1,
+        "n_treated": 1,
+        "stratum": "fema:disaster:4471|hi",
+        "weight": 0.5
+       },
+       {
+        "g": 2020,
+        "n_control": 1,
+        "n_treated": 1,
+        "stratum": "fema:disaster:4536|hi",
+        "weight": 0.5
+       }
+      ]
+     },
+     "twfe_static": {
+      "beta": -0.014761816433693778,
+      "demeaning": {
+       "converged": true,
+       "iterations": [
+        4,
+        4
+       ]
+      },
+      "estimator": "twfe_static",
+      "n_clusters": 50,
+      "n_obs": 138301,
+      "p": 0.29559499487959295,
+      "se": 0.014113627721801268,
+      "warning": "biased under staggered adoption with heterogeneous or dynamic effects; comparison only"
+     },
+     "unmatched_strata_disaster_only": {
+      "alpha": 0.05,
+      "anticipation": 0,
+      "bootstrap": null,
+      "cells": 782,
+      "control_group": "never_treated",
+      "dropped_treated_no_control": 3637,
+      "estimator": "callaway_santanna_unconditional_stratified",
+      "event_time": [
+       {
+        "analytic_se": 0.0070165544096784166,
+        "att": 0.0008072296690005985,
+        "band_high": null,
+        "band_low": null,
+        "ci_high": 0.014559423607535994,
+        "ci_low": -0.012944964269534795,
+        "cohorts": [
+         1998,
+         1999,
+         2000,
+         2001,
+         2002,
+         2003,
+         2004,
+         2005,
+         2006,
+         2007,
+         2008,
+         2009,
+         2010,
+         2011,
+         2012,
+         2013,
+         2014,
+         2015,
+         2016,
+         2017,
+         2018,
+         2019,
+         2020
+        ],
+        "e": -4,
+        "n_treated": 475,
+        "p": 0.9084083054652036,
+        "period": "pre",
+        "se": 0.0070165544096784166
+       },
+       {
+        "analytic_se": 0.005998090852576572,
+        "att": -0.0013315931534843898,
+        "band_high": null,
+        "band_low": null,
+        "ci_high": 0.010424448893564838,
+        "ci_low": -0.013087635200533616,
+        "cohorts": [
+         1998,
+         1999,
+         2000,
+         2001,
+         2002,
+         2003,
+         2004,
+         2005,
+         2006,
+         2007,
+         2008,
+         2009,
+         2010,
+         2011,
+         2012,
+         2013,
+         2014,
+         2015,
+         2016,
+         2017,
+         2018,
+         2019,
+         2020
+        ],
+        "e": -3,
+        "n_treated": 475,
+        "p": 0.8243116790328178,
+        "period": "pre",
+        "se": 0.005998090852576572
+       },
+       {
+        "analytic_se": 0.0032130178079982693,
+        "att": 0.001579914255404091,
+        "band_high": null,
+        "band_low": null,
+        "ci_high": 0.007877313440766528,
+        "ci_low": -0.0047174849299583465,
+        "cohorts": [
+         1998,
+         1999,
+         2000,
+         2001,
+         2002,
+         2003,
+         2004,
+         2005,
+         2006,
+         2007,
+         2008,
+         2009,
+         2010,
+         2011,
+         2012,
+         2013,
+         2014,
+         2015,
+         2016,
+         2017,
+         2018,
+         2019,
+         2020
+        ],
+        "e": -2,
+        "n_treated": 475,
+        "p": 0.6229152866158374,
+        "period": "pre",
+        "se": 0.0032130178079982693
+       },
+       {
+        "analytic_se": 0.004076868541633584,
+        "att": 0.002712896710458591,
+        "band_high": null,
+        "band_low": null,
+        "ci_high": 0.01070341222176475,
+        "ci_low": -0.005277618800847568,
+        "cohorts": [
+         1998,
+         1999,
+         2000,
+         2001,
+         2002,
+         2003,
+         2004,
+         2005,
+         2006,
+         2007,
+         2008,
+         2009,
+         2010,
+         2011,
+         2012,
+         2013,
+         2014,
+         2015,
+         2016,
+         2017,
+         2018,
+         2019,
+         2020
+        ],
+        "e": 0,
+        "n_treated": 475,
+        "p": 0.5057714121620205,
+        "period": "post",
+        "se": 0.004076868541633584
+       },
+       {
+        "analytic_se": 0.007537342041520859,
+        "att": 0.006093718017653987,
+        "band_high": null,
+        "band_low": null,
+        "ci_high": 0.020866636958194473,
+        "ci_low": -0.008679200922886498,
+        "cohorts": [
+         1998,
+         1999,
+         2000,
+         2001,
+         2002,
+         2003,
+         2004,
+         2005,
+         2006,
+         2007,
+         2008,
+         2009,
+         2010,
+         2011,
+         2012,
+         2013,
+         2014,
+         2015,
+         2016,
+         2017,
+         2018,
+         2019,
+         2020
+        ],
+        "e": 1,
+        "n_treated": 475,
+        "p": 0.4188198328667508,
+        "period": "post",
+        "se": 0.007537342041520859
+       },
+       {
+        "analytic_se": 0.011467868066860001,
+        "att": -0.0008171274665700412,
+        "band_high": null,
+        "band_low": null,
+        "ci_high": 0.021659480923932533,
+        "ci_low": -0.023293735857072614,
+        "cohorts": [
+         1998,
+         1999,
+         2000,
+         2001,
+         2002,
+         2003,
+         2004,
+         2005,
+         2006,
+         2007,
+         2008,
+         2009,
+         2010,
+         2011,
+         2012,
+         2013,
+         2014,
+         2015,
+         2016,
+         2017,
+         2018,
+         2019,
+         2020
+        ],
+        "e": 2,
+        "n_treated": 475,
+        "p": 0.9431958827277466,
+        "period": "post",
+        "se": 0.011467868066860001
+       },
+       {
+        "analytic_se": 0.016145285703219263,
+        "att": -0.008276517601723833,
+        "band_high": null,
+        "band_low": null,
+        "ci_high": 0.023367660896695355,
+        "ci_low": -0.039920696100143024,
+        "cohorts": [
+         1998,
+         1999,
+         2000,
+         2001,
+         2002,
+         2003,
+         2004,
+         2005,
+         2006,
+         2007,
+         2008,
+         2009,
+         2010,
+         2011,
+         2012,
+         2013,
+         2014,
+         2015,
+         2016,
+         2017,
+         2018,
+         2019,
+         2020
+        ],
+        "e": 3,
+        "n_treated": 475,
+        "p": 0.608211906174093,
+        "period": "post",
+        "se": 0.016145285703219263
+       },
+       {
+        "analytic_se": 0.017311344636788593,
+        "att": -0.01272442947028607,
+        "band_high": null,
+        "band_low": null,
+        "ci_high": 0.021205182541780193,
+        "ci_low": -0.04665404148235233,
+        "cohorts": [
+         1998,
+         1999,
+         2000,
+         2001,
+         2002,
+         2003,
+         2004,
+         2005,
+         2006,
+         2007,
+         2008,
+         2009,
+         2010,
+         2011,
+         2012,
+         2013,
+         2014,
+         2015,
+         2016,
+         2017,
+         2018,
+         2019,
+         2020
+        ],
+        "e": 4,
+        "n_treated": 475,
+        "p": 0.4623186970523994,
+        "period": "post",
+        "se": 0.017311344636788593
+       }
+      ],
+      "n_clusters": 50,
+      "overall": {
+       "analytic_se": 0.010320820621157521,
+       "att": -0.002602291962093473,
+       "bootstrap_p": null,
+       "ci_high": 0.017626144746273574,
+       "ci_low": -0.022830728670460522,
+       "definition": "equal-weight mean of ATT(e) over the post event times listed",
+       "event_times": [
+        0,
+        1,
+        2,
+        3,
+        4
+       ],
+       "p": 0.8009328342013736,
+       "se": 0.010320820621157521
+      },
+      "pre_trend": {
+       "leads": [
+        -4,
+        -3,
+        -2
+       ],
+       "max_abs_lead": 0.001579914255404091,
+       "sup_t": null,
+       "wald": {
+        "df": 3,
+        "p": 0.3386358200701305,
+        "statistic": 3.365455836830738
+       }
+      },
+      "reference_event_time": -1,
+      "skipped_cells": 0
+     }
+    }
+   },
+   "identification": {
+    "assumptions": [
+     "Parallel trends: absent treatment, the average outcome of treated units would have moved like that of the comparison units (not-yet-treated or never-treated, within stratum when stratified) from the base period on.",
+     "No anticipation beyond the registered anticipation window: outcomes before g - anticipation do not respond.",
+     "Absorbing treatment: the first qualifying event defines the cohort; later events are part of the post-period treatment path, so estimates are effects of entering treatment, not of one isolated event.",
+     "SUTVA / no interference: a unit's outcome does not depend on other units' treatment (spillovers to comparison units bias the estimate toward zero or away from it).",
+     "Treatment timing is recorded correctly by the source date the registration names.",
+     "Within a declaration and a pre-growth half, which counties NOAA records as heavily damaged is unrelated to their employment trend: storm paths, not local economic conditions, decide where damage falls.",
+     "NOAA county-coded damage measures the physical damage with error unrelated to the employment path; unreported damage in 'control' counties biases the estimate toward zero.",
+     "Nominal damage thresholds are applied across 1998-2020 without deflation (prices rose about 60%), so the treated group in later years includes relatively smaller real damage.",
+     "BEA population in g-1 is the per-capita denominator.",
+     "Spillovers from heavily damaged to lightly damaged counties of the same disaster (commuting, reconstruction demand) are small; they would bias the estimate toward zero.",
+     "The estimand is the effect of heavy relative to negligible damage given a declaration; it is not the effect of the declaration or of federal aid."
+    ],
+    "estimand": "ATT: equal-weight mean over event times 0..4 of treated-count-weighted ATT(g, g+e), for heavy-damage declared counties relative to negligible-damage counties of the same declaration",
+    "label": "did_failed_diagnostics",
+    "meaning": "A difference-in-differences estimate whose pre-registered diagnostics failed. It is reported for transparency and must not be read as an intervention response.",
+    "strategy": "staggered_difference_in_differences"
+   },
+   "notes": [],
+   "registration": {
+    "commit": "c0e0f801e89ba3af1a85f7520c8c0120052bb42e",
+    "committed_at": "2026-09-18T20:47:04-07:00",
+    "committed_clean": true,
+    "path": "examples/natural-experiments/registrations/fema_damage_dose_county_employment.json",
+    "sha256": "2d8a78e9f2f131813abc35f3f5bc8ddf106e7e6bf0e6395ebd6ba99c638191e8"
+   },
+   "result_id": "5e23572a1d18d8f51374d9a962ce0097b3fb31a64c613893ceb3ee86758e5484",
+   "schema": "worldmodel.causal_result/1",
+   "study_id": "fema_damage_dose_county_employment",
+   "verdict": "No causal claim. Pre-registered diagnostics failed (no_pre_trends), so the parallel-trends design is not credible here. The estimate for log QCEW annual-average covered employment (county, total covered, all ownerships), -0.0101 log points (95% CI -0.0386 to +0.0184), is reported only for transparency."
+  },
+  {
+   "acceptance": [
+    {
+     "id": "enough_treated_counties",
+     "passed": true,
+     "role": "identification",
+     "threshold": 150,
+     "type": "min_treated_units",
+     "value": 583
+    },
+    {
+     "id": "enough_state_clusters",
+     "passed": true,
+     "role": "identification",
+     "threshold": 20,
+     "type": "min_clusters",
+     "value": 50
+    },
+    {
+     "id": "no_pre_trends",
+     "passed": true,
+     "role": "identification",
+     "threshold": 0.05,
+     "type": "pre_trend_wald_p_min",
+     "value": 0.18153615185428507
+    },
+    {
+     "id": "placebo_date_null",
+     "passed": true,
+     "role": "identification",
+     "threshold": 0.05,
+     "type": "placebo_date_p_min",
+     "value": 0.6941521133970285
+    },
+    {
+     "id": "placebo_unit_size",
+     "passed": true,
+     "role": "identification",
+     "threshold": 0.1,
+     "type": "placebo_unit_rejection_rate_max",
+     "value": 0.06
+    },
+    {
+     "id": "stacked_agrees",
+     "passed": true,
+     "role": "identification",
+     "threshold": null,
+     "type": "robustness_ci_overlap",
+     "value": [
+      [
+       -0.02784772155868654,
+       0.02019224244009299
+      ],
+      [
+       -0.015187099742883252,
+       0.008127450069223116
+      ]
+     ]
+    }
+   ],
+   "data": {
+    "extractions": {
+     "bea_population": {
+      "input": {
+       "dataset": "bea_national_regional",
+       "stage": "normalized",
+       "version": "5fdb83db0ff92858d40cfa9f36961ccd0fb0013f4afaa3ab7b349ce771758e8e"
+      },
+      "rows": 174148,
+      "sha256": "a91ca429fa0ed1e178395eeb8a387c19bf280a76b61f70a65a8e0f322831a146",
+      "spec": {
+       "filter": "metric == population, subject geo:US:county:* (BEA CAINC1), annual"
+      }
+     },
+     "bls": {
+      "input": {
+       "dataset": "bls_labor",
+       "stage": "normalized",
+       "version": "ffd7f43a2761e2f4bc85cd9765ba9bce61cf089cd26b8b5d12e428337546e267"
+      },
+      "rows": 4463709,
+      "sha256": "25133fe7b7f21bcb1e7a930e3b9c3782a829f83e80e708804a5d8e0f3a305b6d",
+      "spec": {
+       "laus": {
+        "filter": "dimensions.survey == LAUS and subject geo:US:county:* and period_type == month",
+        "metrics": [
+         "employment",
+         "labor_force",
+         "unemployment_rate"
+        ]
+       },
+       "qcew": {
+        "filter": "dimensions.survey == QCEW and dimensions.agglvl_code == 70 (county, total covered, all ownerships) and period_type == annual_average",
+        "metrics": [
+         "employment",
+         "establishment_count"
+        ]
+       }
+      }
+     },
+     "noaa": {
+      "input": {
+       "dataset": "noaa_storm_events",
+       "stage": "normalized",
+       "version": "7d19dd57135ac4cf628d790add0d6bb250ac74504598e5d2687cb1ddda10d927"
+      },
+      "rows": 403421,
+      "sha256": "7119fd2c9891b1e98396f268699714335b64735a4e9783cd21bbb1d43c1c4004",
+      "spec": {
+       "fields": "county_fips, begin date (UTC, YYYY-MM-DD), metric, nominal USD, event type, record id",
+       "filter": "metric in (storm_damage_property, storm_damage_crops), dimensions.location geo:US:county:* (NWS-zone-coded damage cannot be attributed to a county and is skipped)"
+      }
+     }
+    },
+    "inputs": [
+     {
+      "dataset": "event_library",
+      "stage": "events",
+      "version": "dbf0c37f15cb15933ddf2452ae00cf196981aef02045a2b642d1582643b2819a"
+     },
+     {
+      "dataset": "noaa_storm_events",
+      "stage": "normalized",
+      "version": "7d19dd57135ac4cf628d790add0d6bb250ac74504598e5d2687cb1ddda10d927"
+     },
+     {
+      "dataset": "bea_national_regional",
+      "stage": "normalized",
+      "version": "5fdb83db0ff92858d40cfa9f36961ccd0fb0013f4afaa3ab7b349ce771758e8e"
+     },
+     {
+      "dataset": "bls_labor",
+      "stage": "normalized",
+      "version": "ffd7f43a2761e2f4bc85cd9765ba9bce61cf089cd26b8b5d12e428337546e267"
+     }
+    ],
+    "panel": {
+     "clusters": 50,
+     "cohort_sizes": {
+      "1998": 34,
+      "1999": 15,
+      "2000": 9,
+      "2001": 17,
+      "2002": 20,
+      "2003": 30,
+      "2004": 21,
+      "2005": 12,
+      "2006": 6,
+      "2007": 24,
+      "2008": 70,
+      "2009": 23,
+      "2010": 27,
+      "2011": 69,
+      "2012": 3,
+      "2013": 23,
+      "2014": 16,
+      "2015": 24,
+      "2016": 23,
+      "2017": 31,
+      "2018": 17,
+      "2019": 65,
+      "2020": 4
+     },
+     "never_treated_units": 3370,
+     "observations": 138313,
+     "periods": [
+      1990,
+      2024
+     ],
+     "strata": 1020,
+     "treated_units": 583,
+     "units": 3953
+    },
+    "panel_digest": "186a04af1a9151de4a02ce4589a64fcfe954ad48485483445ee7e74714a4dc01",
+    "treatment_facts": {
+     "control": 3371,
+     "controls_in_panel": 3370,
+     "disasters_in_panel": 576,
+     "excluded_no_population": 45,
+     "excluded_recent_other_disaster": 10034,
+     "middle": 1664,
+     "pairs_in_scope": 15697,
+     "treated": 583,
+     "treated_dose_usd_per_capita_quartiles": [
+      157.42622434668118,
+      306.14082477939854,
+      842.5528024138247
+     ],
+     "treated_in_panel": 583,
+     "units_without_match_window_outcome": 1
+    }
+   },
+   "design": {
+    "controls": {
+     "control_group": "never_treated",
+     "definition": "counties declared in the same disaster with NOAA damage under $1 per capita, in the same pre-growth half; they are never treated within their stack"
+    },
+    "estimator": {
+     "anticipation": 0,
+     "balance": null,
+     "estimand": "ATT: equal-weight mean over event times 0..4 of treated-count-weighted ATT(g, g+e), for heavy-damage declared counties relative to negligible-damage counties of the same declaration",
+     "non_gating_robustness": [
+      "unmatched_strata_disaster_only: same units, strata = disaster (no growth matching)"
+     ],
+     "primary": "callaway_santanna_unconditional_within_disaster_and_growth_half",
+     "robustness": [
+      "stacked_did",
+      "twfe_static"
+     ]
+    },
+    "inference": {
+     "alpha": 0.05,
+     "bootstrap": 999,
+     "bootstrap_weights": "rademacher multiplier on state influence functions",
+     "cluster": "state",
+     "seed": 20260918
+    },
+    "outcomes": {
+     "primary": {
+      "id": "qcew_log_employment",
+      "label": "log QCEW annual-average covered employment (county, total covered, all ownerships)",
+      "source": "bls_labor QCEW agglvl_code 70 metric employment",
+      "unit": "log points"
+     },
+     "secondary": [
+      {
+       "id": "qcew_log_establishments",
+       "label": "log QCEW annual-average establishment count",
+       "source": "bls_labor QCEW agglvl_code 70 metric establishment_count (matching still uses employment growth)",
+       "unit": "log points"
+      }
+     ],
+     "transform": "natural log of positive values; suppressed or missing values dropped"
+    },
+    "placebo_tests": {
+     "placebo_date": {
+      "definition": "treated units keep only years before g; placebo cohort g-2; placebo effect averaged over placebo event times 0..1",
+      "shift": 2
+     },
+     "placebo_unit": {
+      "definition": "real treated units removed; control counties receive cohorts drawn from their stratum's real cohorts at the stratum's real treated share",
+      "min_never_treated": 20,
+      "replications": 100,
+      "seed": 13
+     }
+    },
+    "question": "Among US counties declared in the same FEMA major disaster (severe storm, flood or tornado), how does covered employment change over the following four years in counties where NOAA recorded heavy damage (at least $100 per resident) relative to declared counties where it recorded almost none (under $1 per resident), comparing counties that were on similar employment paths beforehand?",
+    "treatment": {
+     "absorbing": "a stack's treated county stays treated; later disasters are part of its post-period path",
+     "control_max_usd_per_capita": 1.0,
+     "design_stage_counts": "15,697 (disaster, county) pairs of the four types in 1998-2020; 10,034 dropped for another disaster in g-3..g-1; 45 without BEA population; 583 treated, 3,371 control, 1,664 middle. 154 disasters have both a treated and a control county: 476 treated and 1,377 controls in 36 states before the QCEW and matching-window requirements. Treated dose quartiles $157, $306, $843 per capita.",
+     "dose": "sum of NOAA storm_damage_property + storm_damage_crops (nominal USD) over county-coded storm events in the declared county whose begin date falls in [incident_begin_date, incident_end_date], divided by the county's BEA population in year g-1",
+     "dose_incident_types": [
+      "Severe Storm",
+      "Severe Storm(s)",
+      "Flood",
+      "Tornado"
+     ],
+     "dose_incident_types_reason": "NOAA records these hazards (thunderstorm wind, hail, tornado, flash flood, flood) against counties. Hurricane, tropical-storm, winter and heat damage is recorded against NWS forecast zones (85,424 zone-coded damage rows), which cannot be attributed to a county, so a 'zero-damage' control in a hurricane declaration could be heavily damaged.",
+     "dose_timing": "Damage is estimated by NWS offices from the physical event within weeks; it is a property of the shock, measured after it (ex post in the event library's sense) but before any annual outcome it could be confused with. It does not depend on the employment outcome. This is a deliberate, disclosed use of an ex-post intensity: the assumption that damage is not predicted by the county's employment trend is tested by the leads.",
+     "estimated_cohorts": [
+      1998,
+      2020
+     ],
+     "incident_years": [
+      1998,
+      2020
+     ],
+     "match_window": [
+      -8,
+      -5
+     ],
+     "middle_doses": "declared counties with dose in [$1, $100) per capita are excluded",
+     "quiet_period_incident_types": [
+      "Hurricane",
+      "Severe Storm",
+      "Severe Storm(s)",
+      "Flood",
+      "Tornado",
+      "Fire",
+      "Snowstorm",
+      "Severe Ice Storm",
+      "Winter Storm",
+      "Earthquake",
+      "Tropical Storm",
+      "Coastal Storm",
+      "Typhoon",
+      "Straight-Line Winds",
+      "Mud/Landslide",
+      "Dam/Levee Break",
+      "Tsunami",
+      "Volcanic Eruption",
+      "Freezing"
+     ],
+     "quiet_period_rule": "a (disaster, county) pair is dropped when the county has another qualifying DR (wave-1 physical-hazard list) with incident beginning in g-3..g-1; other disasters in the same year or later are part of the post-period path",
+     "quiet_years": 3,
+     "source": "event_library: library_type fema_major_disaster_declaration (county rows, 50 states + DC); dose from noaa_storm_events county-coded damage; population from bea_national_regional CAINC1",
+     "timing": "g = calendar year of the disaster's incident_begin_date",
+     "treated_min_usd_per_capita": 100.0
+    },
+    "units": {
+     "definition": "(disaster, county) pairs: each disaster is a stack holding its treated and control counties; a county may appear in several stacks",
+     "notes": "County definitional changes are not bridged.",
+     "sample": "units need QCEW employment in g-8 and g-5; others are dropped from the primary and the robustness panel alike",
+     "strata": "disaster x pre-growth half: comparisons are only within the same disaster and the same half of log employment growth from g-8 to g-5 (split at the median of the disaster's treated and control counties by (growth, id) rank)"
+    },
+    "windows": {
+     "calendar_years": [
+      1990,
+      2024
+     ],
+     "e_max": 4,
+     "e_min": -4,
+     "post": [
+      0,
+      1,
+      2,
+      3,
+      4
+     ],
+     "reference_event_time": -1
+    }
+   },
+   "diagnostics": {
+    "placebo_date": {
+     "event_time": [
+      {
+       "analytic_se": 0.003164514315452728,
+       "att": 0.0005064990566279286,
+       "band_high": null,
+       "band_low": null,
+       "ci_high": 0.006708833143476698,
+       "ci_low": -0.005695835030220841,
+       "cohorts": [
+        1996,
+        1997,
+        1998,
+        1999,
+        2000,
+        2001,
+        2002,
+        2003,
+        2004,
+        2005,
+        2006,
+        2007,
+        2008,
+        2009,
+        2010,
+        2011,
+        2012,
+        2013,
+        2014,
+        2015,
+        2016,
+        2017,
+        2018
+       ],
+       "e": 0,
+       "n_treated": 398,
+       "p": 0.8728370723401031,
+       "period": "post",
+       "se": 0.003164514315452728
+      },
+      {
+       "analytic_se": 0.004324136926390506,
+       "att": 0.002331593698013212,
+       "band_high": null,
+       "band_low": null,
+       "ci_high": 0.01080674633795833,
+       "ci_low": -0.006143558941931905,
+       "cohorts": [
+        1996,
+        1997,
+        1998,
+        1999,
+        2000,
+        2001,
+        2002,
+        2003,
+        2004,
+        2005,
+        2006,
+        2007,
+        2008,
+        2009,
+        2010,
+        2011,
+        2012,
+        2013,
+        2014,
+        2015,
+        2016,
+        2017,
+        2018
+       ],
+       "e": 1,
+       "n_treated": 398,
+       "p": 0.5897458180982976,
+       "period": "post",
+       "se": 0.004324136926390506
+      }
+     ],
+     "overall": {
+      "analytic_se": 0.0036087241324183365,
+      "att": 0.0014190463773205704,
+      "bootstrap_p": null,
+      "ci_high": 0.008492015707001062,
+      "ci_low": -0.0056539229523599206,
+      "definition": "equal-weight mean of ATT(e) over the post event times listed",
+      "event_times": [
+       0,
+       1
+      ],
+      "p": 0.6941521133970285,
+      "se": 0.0036087241324183365
+     },
+     "p": 0.6941521133970285,
+     "passed": true,
+     "shift": 2,
+     "test": "placebo_date",
+     "treated_units_with_pre_data": 583
+    },
+    "placebo_unit": {
+     "never_treated_units": 3370,
+     "nominal_alpha": 0.05,
+     "observed": -0.003827739559296777,
+     "permutation_p": 0.2871287128712871,
+     "placebo_mean": 0.00048014086846151423,
+     "placebo_sd": 0.0037437756520504136,
+     "ran": true,
+     "rejection_rate": 0.06,
+     "replications": 100,
+     "seed": 13,
+     "test": "placebo_unit"
+    },
+    "pre_trend": {
+     "leads": [
+      -4,
+      -3,
+      -2
+     ],
+     "max_abs_lead": 0.002331593698013212,
+     "sup_t": {
+      "p": 0.689,
+      "statistic": 0.7393804199210273
+     },
+     "wald": {
+      "df": 3,
+      "p": 0.18153615185428507,
+      "statistic": 4.8704086519324505
+     }
+    }
+   },
+   "estimates": {
+    "outcome": {
+     "id": "qcew_log_establishments",
+     "label": "log QCEW annual-average establishment count",
+     "role": "secondary",
+     "source": "bls_labor QCEW agglvl_code 70 metric establishment_count (matching still uses employment growth)",
+     "unit": "log points"
+    },
+    "primary": {
+     "alpha": 0.05,
+     "anticipation": 0,
+     "bootstrap": {
+      "level": "cluster",
+      "replications": 999,
+      "seed": 20260918,
+      "uniform_critical_value": 2.0001498297347386,
+      "weights": "rademacher"
+     },
+     "cells": 782,
+     "control_group": "never_treated",
+     "dropped_treated_no_control": 6290,
+     "estimator": "callaway_santanna_unconditional_stratified",
+     "event_time": [
+      {
+       "analytic_se": 0.004983245924909594,
+       "att": 6.868107886504648e-05,
+       "band_high": 0.010990248458235081,
+       "band_low": -0.01085288630050499,
+       "ci_high": 0.010770818688791813,
+       "ci_low": -0.010633456531061722,
+       "cohorts": [
+        1998,
+        1999,
+        2000,
+        2001,
+        2002,
+        2003,
+        2004,
+        2005,
+        2006,
+        2007,
+        2008,
+        2009,
+        2010,
+        2011,
+        2012,
+        2013,
+        2014,
+        2015,
+        2016,
+        2017,
+        2018,
+        2019,
+        2020
+       ],
+       "e": -4,
+       "n_treated": 398,
+       "p": 0.9899644014796162,
+       "period": "pre",
+       "se": 0.005460374626444091
+      },
+      {
+       "analytic_se": 0.004324136926390506,
+       "att": -0.002331593698013212,
+       "band_high": 0.007126805394908926,
+       "band_low": -0.011789992790935351,
+       "ci_high": 0.0069367727503104335,
+       "ci_low": -0.011599960146336859,
+       "cohorts": [
+        1998,
+        1999,
+        2000,
+        2001,
+        2002,
+        2003,
+        2004,
+        2005,
+        2006,
+        2007,
+        2008,
+        2009,
+        2010,
+        2011,
+        2012,
+        2013,
+        2014,
+        2015,
+        2016,
+        2017,
+        2018,
+        2019,
+        2020
+       ],
+       "e": -3,
+       "n_treated": 398,
+       "p": 0.6219718005288007,
+       "period": "pre",
+       "se": 0.004728845285643685
+      },
+      {
+       "analytic_se": 0.00230934245320274,
+       "att": -0.0018250946413852847,
+       "band_high": 0.0031120968744604615,
+       "band_low": -0.0067622861572310304,
+       "ci_high": 0.0030129016986777547,
+       "ci_low": -0.006663090981448324,
+       "cohorts": [
+        1998,
+        1999,
+        2000,
+        2001,
+        2002,
+        2003,
+        2004,
+        2005,
+        2006,
+        2007,
+        2008,
+        2009,
+        2010,
+        2011,
+        2012,
+        2013,
+        2014,
+        2015,
+        2016,
+        2017,
+        2018,
+        2019,
+        2020
+       ],
+       "e": -2,
+       "n_treated": 398,
+       "p": 0.4596760284155111,
+       "period": "pre",
+       "se": 0.002468410837252387
+      },
+      {
+       "analytic_se": 0.0029987144254457845,
+       "att": 0.00421469372215841,
+       "band_high": 0.011690250258650827,
+       "band_low": -0.003260862814334008,
+       "ci_high": 0.011540055731594102,
+       "ci_low": -0.003110668287277283,
+       "cohorts": [
+        1998,
+        1999,
+        2000,
+        2001,
+        2002,
+        2003,
+        2004,
+        2005,
+        2006,
+        2007,
+        2008,
+        2009,
+        2010,
+        2011,
+        2012,
+        2013,
+        2014,
+        2015,
+        2016,
+        2017,
+        2018,
+        2019,
+        2020
+       ],
+       "e": 0,
+       "n_treated": 398,
+       "p": 0.2594560288687231,
+       "period": "post",
+       "se": 0.0037374982740587146
+      },
+      {
+       "analytic_se": 0.005372492271103688,
+       "att": 0.005170222279426178,
+       "band_high": 0.017563437778951016,
+       "band_low": -0.007222993220098659,
+       "ci_high": 0.017314440512784048,
+       "ci_low": -0.006973995953931693,
+       "cohorts": [
+        1998,
+        1999,
+        2000,
+        2001,
+        2002,
+        2003,
+        2004,
+        2005,
+        2006,
+        2007,
+        2008,
+        2009,
+        2010,
+        2011,
+        2012,
+        2013,
+        2014,
+        2015,
+        2016,
+        2017,
+        2018,
+        2019,
+        2020
+       ],
+       "e": 1,
+       "n_treated": 398,
+       "p": 0.4040410630507249,
+       "period": "post",
+       "se": 0.006196143566488934
+      },
+      {
+       "analytic_se": 0.009021296631130988,
+       "att": -0.0036062943254578446,
+       "band_high": 0.018814994287657736,
+       "band_low": -0.026027582938573424,
+       "ci_high": 0.018364518818331767,
+       "ci_low": -0.025577107469247455,
+       "cohorts": [
+        1998,
+        1999,
+        2000,
+        2001,
+        2002,
+        2003,
+        2004,
+        2005,
+        2006,
+        2007,
+        2008,
+        2009,
+        2010,
+        2011,
+        2012,
+        2013,
+        2014,
+        2015,
+        2016,
+        2017,
+        2018,
+        2019,
+        2020
+       ],
+       "e": 2,
+       "n_treated": 398,
+       "p": 0.7476732048978371,
+       "period": "post",
+       "se": 0.011209804525538523
+      },
+      {
+       "analytic_se": 0.014756837176880712,
+       "att": -0.011036423860897359,
+       "band_high": 0.029164890250116163,
+       "band_low": -0.05123773797191088,
+       "ci_high": 0.02835718886621417,
+       "ci_low": -0.05043003658800888,
+       "cohorts": [
+        1998,
+        1999,
+        2000,
+        2001,
+        2002,
+        2003,
+        2004,
+        2005,
+        2006,
+        2007,
+        2008,
+        2009,
+        2010,
+        2011,
+        2012,
+        2013,
+        2014,
+        2015,
+        2016,
+        2017,
+        2018,
+        2019,
+        2020
+       ],
+       "e": 3,
+       "n_treated": 398,
+       "p": 0.5829375126746348,
+       "period": "post",
+       "se": 0.020099151330250618
+      },
+      {
+       "analytic_se": 0.01725378258865835,
+       "att": -0.01388089561171327,
+       "band_high": 0.03314687509047822,
+       "band_low": -0.06090866631390476,
+       "ci_high": 0.03220202051748854,
+       "ci_low": -0.05996381174091508,
+       "cohorts": [
+        1998,
+        1999,
+        2000,
+        2001,
+        2002,
+        2003,
+        2004,
+        2005,
+        2006,
+        2007,
+        2008,
+        2009,
+        2010,
+        2011,
+        2012,
+        2013,
+        2014,
+        2015,
+        2016,
+        2017,
+        2018,
+        2019,
+        2020
+       ],
+       "e": 4,
+       "n_treated": 398,
+       "p": 0.5549413930040312,
+       "period": "post",
+       "se": 0.02351212394344895
+      }
+     ],
+     "n_clusters": 50,
+     "overall": {
+      "analytic_se": 0.009391923299293241,
+      "att": -0.003827739559296777,
+      "bootstrap_p": 0.772,
+      "ci_high": 0.02019224244009299,
+      "ci_low": -0.02784772155868654,
+      "definition": "equal-weight mean of ATT(e) over the post event times listed",
+      "event_times": [
+       0,
+       1,
+       2,
+       3,
+       4
+      ],
+      "p": 0.7547875061989092,
+      "se": 0.012255318051176614
+     },
+     "pre_trend": {
+      "leads": [
+       -4,
+       -3,
+       -2
+      ],
+      "max_abs_lead": 0.002331593698013212,
+      "sup_t": {
+       "p": 0.689,
+       "statistic": 0.7393804199210273
+      },
+      "wald": {
+       "df": 3,
+       "p": 0.18153615185428507,
+       "statistic": 4.8704086519324505
+      }
+     },
+     "reference_event_time": -1,
+     "skipped_cells": 0
+    },
+    "robustness": {
+     "stacked_did": {
+      "estimator": "stacked_did_clean_controls",
+      "event_time": [
+       {
+        "att": 0.0035638917337608676,
+        "ci_high": 0.011149399296923618,
+        "ci_low": -0.004021615829401884,
+        "e": -4,
+        "p": 0.35712979228954844,
+        "se": 0.003870228036329376,
+        "stacks": 190
+       },
+       {
+        "att": 0.0011070915765566953,
+        "ci_high": 0.006929955660514251,
+        "ci_low": -0.004715772507400859,
+        "e": -3,
+        "p": 0.7094128766872141,
+        "se": 0.002970903613478393,
+        "stacks": 190
+       },
+       {
+        "att": 0.000364453139735449,
+        "ci_high": 0.00401852979701292,
+        "ci_low": -0.0032896235175420216,
+        "e": -2,
+        "p": 0.8450137394453758,
+        "se": 0.0018643590831772226,
+        "stacks": 190
+       },
+       {
+        "att": 0.0006166549193125764,
+        "ci_high": 0.0040931934784740965,
+        "ci_low": -0.002859883639848944,
+        "e": 0,
+        "p": 0.7281024456422842,
+        "se": 0.0017737767564016552,
+        "stacks": 190
+       },
+       {
+        "att": 0.0021017259181824793,
+        "ci_high": 0.008440681292770393,
+        "ci_low": -0.004237229456405435,
+        "e": 1,
+        "p": 0.5157955430435758,
+        "se": 0.0032342203349596146,
+        "stacks": 190
+       },
+       {
+        "att": -0.0031074663181992904,
+        "ci_high": 0.009005318658873464,
+        "ci_low": -0.015220251295272047,
+        "e": 2,
+        "p": 0.6150924838294486,
+        "se": 0.006180105896137307,
+        "stacks": 190
+       },
+       {
+        "att": -0.0076704487954902196,
+        "ci_high": 0.011035251068523069,
+        "ci_low": -0.026376148659503506,
+        "e": 3,
+        "p": 0.421569253444511,
+        "se": 0.00954389979181325,
+        "stacks": 190
+       },
+       {
+        "att": -0.009589589907955887,
+        "ci_high": 0.011887432668535022,
+        "ci_low": -0.031066612484446796,
+        "e": 4,
+        "p": 0.38150155221140525,
+        "se": 0.010957865933200266,
+        "stacks": 190
+       }
+      ],
+      "n_clusters": 50,
+      "overall": {
+       "att": -0.003529824836830068,
+       "ci_high": 0.008127450069223116,
+       "ci_low": -0.015187099742883252,
+       "definition": "equal-weight mean of stacked ATT(e) over post event times",
+       "p": 0.5528616833057983,
+       "se": 0.005947698528138416
+      },
+      "pre_trend": {
+       "leads": [
+        -4,
+        -3,
+        -2
+       ],
+       "wald": {
+        "df": 3,
+        "p": 0.54443646707386,
+        "statistic": 2.1371362016706756
+       }
+      },
+      "stack_count": 190,
+      "stacks": [
+       {
+        "g": 1998,
+        "n_control": 12,
+        "n_treated": 1,
+        "stratum": "fema:disaster:1197|hi",
+        "weight": 0.9230769230769231
+       },
+       {
+        "g": 1998,
+        "n_control": 27,
+        "n_treated": 1,
+        "stratum": "fema:disaster:1209|hi",
+        "weight": 0.9642857142857143
+       },
+       {
+        "g": 1998,
+        "n_control": 8,
+        "n_treated": 1,
+        "stratum": "fema:disaster:1215|hi",
+        "weight": 0.8888888888888888
+       },
+       {
+        "g": 1998,
+        "n_control": 9,
+        "n_treated": 1,
+        "stratum": "fema:disaster:1215|lo",
+        "weight": 0.9
+       },
+       {
+        "g": 1998,
+        "n_control": 1,
+        "n_treated": 4,
+        "stratum": "fema:disaster:1227|lo",
+        "weight": 0.8
+       },
+       {
+        "g": 1998,
+        "n_control": 5,
+        "n_treated": 2,
+        "stratum": "fema:disaster:1230|hi",
+        "weight": 1.4285714285714286
+       },
+       {
+        "g": 1998,
+        "n_control": 110,
+        "n_treated": 1,
+        "stratum": "fema:disaster:1239|hi",
+        "weight": 0.990990990990991
+       },
+       {
+        "g": 1998,
+        "n_control": 6,
+        "n_treated": 4,
+        "stratum": "fema:disaster:1257|hi",
+        "weight": 2.4
+       },
+       {
+        "g": 1998,
+        "n_control": 9,
+        "n_treated": 1,
+        "stratum": "fema:disaster:1257|lo",
+        "weight": 0.9
+       },
+       {
+        "g": 1998,
+        "n_control": 6,
+        "n_treated": 2,
+        "stratum": "fema:disaster:1258|hi",
+        "weight": 1.5
+       },
+       {
+        "g": 1999,
+        "n_control": 1,
+        "n_treated": 1,
+        "stratum": "fema:disaster:1270|lo",
+        "weight": 0.5
+       },
+       {
+        "g": 1999,
+        "n_control": 1,
+        "n_treated": 4,
+        "stratum": "fema:disaster:1272|lo",
+        "weight": 0.8
+       },
+       {
+        "g": 1999,
+        "n_control": 1,
+        "n_treated": 1,
+        "stratum": "fema:disaster:1282|lo",
+        "weight": 0.5
+       },
+       {
+        "g": 1999,
+        "n_control": 2,
+        "n_treated": 1,
+        "stratum": "fema:disaster:1284|lo",
+        "weight": 0.6666666666666666
+       },
+       {
+        "g": 2000,
+        "n_control": 3,
+        "n_treated": 1,
+        "stratum": "fema:disaster:1328|lo",
+        "weight": 0.75
+       },
+       {
+        "g": 2000,
+        "n_control": 2,
+        "n_treated": 1,
+        "stratum": "fema:disaster:1332|hi",
+        "weight": 0.6666666666666666
+       },
+       {
+        "g": 2000,
+        "n_control": 2,
+        "n_treated": 2,
+        "stratum": "fema:disaster:1332|lo",
+        "weight": 1.0
+       },
+       {
+        "g": 2000,
+        "n_control": 1,
+        "n_treated": 1,
+        "stratum": "fema:disaster:1347|lo",
+        "weight": 0.5
+       },
+       {
+        "g": 2001,
+        "n_control": 1,
+        "n_treated": 1,
+        "stratum": "fema:disaster:1369|hi",
+        "weight": 0.5
+       },
+       {
+        "g": 2001,
+        "n_control": 4,
+        "n_treated": 5,
+        "stratum": "fema:disaster:1370|hi",
+        "weight": 2.2222222222222223
+       },
+       {
+        "g": 2001,
+        "n_control": 9,
+        "n_treated": 1,
+        "stratum": "fema:disaster:1370|lo",
+        "weight": 0.9
+       },
+       {
+        "g": 2001,
+        "n_control": 11,
+        "n_treated": 1,
+        "stratum": "fema:disaster:1373|hi",
+        "weight": 0.9166666666666666
+       },
+       {
+        "g": 2001,
+        "n_control": 4,
+        "n_treated": 1,
+        "stratum": "fema:disaster:1378|lo",
+        "weight": 0.8
+       },
+       {
+        "g": 2001,
+        "n_control": 2,
+        "n_treated": 1,
+        "stratum": "fema:disaster:1398|hi",
+        "weight": 0.6666666666666666
+       },
+       {
+        "g": 2001,
+        "n_control": 3,
+        "n_treated": 1,
+        "stratum": "fema:disaster:1398|lo",
+        "weight": 0.75
+       },
+       {
+        "g": 2002,
+        "n_control": 24,
+        "n_treated": 1,
+        "stratum": "fema:disaster:1412|hi",
+        "weight": 0.96
+       },
+       {
+        "g": 2002,
+        "n_control": 24,
+        "n_treated": 2,
+        "stratum": "fema:disaster:1412|lo",
+        "weight": 1.8461538461538463
+       },
+       {
+        "g": 2002,
+        "n_control": 5,
+        "n_treated": 2,
+        "stratum": "fema:disaster:1414|hi",
+        "weight": 1.4285714285714286
+       },
+       {
+        "g": 2002,
+        "n_control": 6,
+        "n_treated": 1,
+        "stratum": "fema:disaster:1414|lo",
+        "weight": 0.8571428571428571
+       },
+       {
+        "g": 2002,
+        "n_control": 20,
+        "n_treated": 4,
+        "stratum": "fema:disaster:1416|hi",
+        "weight": 3.3333333333333335
+       },
+       {
+        "g": 2002,
+        "n_control": 24,
+        "n_treated": 1,
+        "stratum": "fema:disaster:1416|lo",
+        "weight": 0.96
+       },
+       {
+        "g": 2002,
+        "n_control": 13,
+        "n_treated": 2,
+        "stratum": "fema:disaster:1425|lo",
+        "weight": 1.7333333333333334
+       },
+       {
+        "g": 2002,
+        "n_control": 9,
+        "n_treated": 1,
+        "stratum": "fema:disaster:1433|hi",
+        "weight": 0.9
+       },
+       {
+        "g": 2002,
+        "n_control": 10,
+        "n_treated": 1,
+        "stratum": "fema:disaster:1433|lo",
+        "weight": 0.9090909090909091
+       },
+       {
+        "g": 2002,
+        "n_control": 1,
+        "n_treated": 1,
+        "stratum": "fema:disaster:1441|hi",
+        "weight": 0.5
+       },
+       {
+        "g": 2002,
+        "n_control": 5,
+        "n_treated": 1,
+        "stratum": "fema:disaster:1444|hi",
+        "weight": 0.8333333333333334
+       },
+       {
+        "g": 2002,
+        "n_control": 4,
+        "n_treated": 3,
+        "stratum": "fema:disaster:1444|lo",
+        "weight": 1.7142857142857142
+       },
+       {
+        "g": 2003,
+        "n_control": 2,
+        "n_treated": 3,
+        "stratum": "fema:disaster:1459|hi",
+        "weight": 1.2
+       },
+       {
+        "g": 2003,
+        "n_control": 3,
+        "n_treated": 2,
+        "stratum": "fema:disaster:1459|lo",
+        "weight": 1.2
+       },
+       {
+        "g": 2003,
+        "n_control": 4,
+        "n_treated": 5,
+        "stratum": "fema:disaster:1464|hi",
+        "weight": 2.2222222222222223
+       },
+       {
+        "g": 2003,
+        "n_control": 5,
+        "n_treated": 4,
+        "stratum": "fema:disaster:1464|lo",
+        "weight": 2.2222222222222223
+       },
+       {
+        "g": 2003,
+        "n_control": 3,
+        "n_treated": 1,
+        "stratum": "fema:disaster:1471|hi",
+        "weight": 0.75
+       },
+       {
+        "g": 2003,
+        "n_control": 7,
+        "n_treated": 1,
+        "stratum": "fema:disaster:1476|hi",
+        "weight": 0.875
+       },
+       {
+        "g": 2003,
+        "n_control": 8,
+        "n_treated": 1,
+        "stratum": "fema:disaster:1476|lo",
+        "weight": 0.8888888888888888
+       },
+       {
+        "g": 2003,
+        "n_control": 4,
+        "n_treated": 2,
+        "stratum": "fema:disaster:1480|hi",
+        "weight": 1.3333333333333333
+       },
+       {
+        "g": 2003,
+        "n_control": 2,
+        "n_treated": 4,
+        "stratum": "fema:disaster:1480|lo",
+        "weight": 1.3333333333333333
+       },
+       {
+        "g": 2003,
+        "n_control": 1,
+        "n_treated": 2,
+        "stratum": "fema:disaster:1484|hi",
+        "weight": 0.6666666666666666
+       },
+       {
+        "g": 2003,
+        "n_control": 2,
+        "n_treated": 1,
+        "stratum": "fema:disaster:1484|lo",
+        "weight": 0.6666666666666666
+       },
+       {
+        "g": 2003,
+        "n_control": 1,
+        "n_treated": 2,
+        "stratum": "fema:disaster:1485|lo",
+        "weight": 0.6666666666666666
+       },
+       {
+        "g": 2004,
+        "n_control": 1,
+        "n_treated": 1,
+        "stratum": "fema:disaster:1513|lo",
+        "weight": 0.5
+       },
+       {
+        "g": 2004,
+        "n_control": 7,
+        "n_treated": 3,
+        "stratum": "fema:disaster:1517|hi",
+        "weight": 2.1
+       },
+       {
+        "g": 2004,
+        "n_control": 6,
+        "n_treated": 4,
+        "stratum": "fema:disaster:1517|lo",
+        "weight": 2.4
+       },
+       {
+        "g": 2004,
+        "n_control": 5,
+        "n_treated": 1,
+        "stratum": "fema:disaster:1518|lo",
+        "weight": 0.8333333333333334
+       },
+       {
+        "g": 2004,
+        "n_control": 3,
+        "n_treated": 1,
+        "stratum": "fema:disaster:1523|lo",
+        "weight": 0.75
+       },
+       {
+        "g": 2004,
+        "n_control": 2,
+        "n_treated": 1,
+        "stratum": "fema:disaster:1524|lo",
+        "weight": 0.6666666666666666
+       },
+       {
+        "g": 2004,
+        "n_control": 3,
+        "n_treated": 1,
+        "stratum": "fema:disaster:1526|hi",
+        "weight": 0.75
+       },
+       {
+        "g": 2004,
+        "n_control": 3,
+        "n_treated": 2,
+        "stratum": "fema:disaster:1526|lo",
+        "weight": 1.2
+       },
+       {
+        "g": 2004,
+        "n_control": 5,
+        "n_treated": 3,
+        "stratum": "fema:disaster:1535|hi",
+        "weight": 1.875
+       },
+       {
+        "g": 2004,
+        "n_control": 5,
+        "n_treated": 3,
+        "stratum": "fema:disaster:1535|lo",
+        "weight": 1.875
+       },
+       {
+        "g": 2005,
+        "n_control": 1,
+        "n_treated": 1,
+        "stratum": "fema:disaster:1597|hi",
+        "weight": 0.5
+       },
+       {
+        "g": 2005,
+        "n_control": 1,
+        "n_treated": 1,
+        "stratum": "fema:disaster:1597|lo",
+        "weight": 0.5
+       },
+       {
+        "g": 2005,
+        "n_control": 3,
+        "n_treated": 4,
+        "stratum": "fema:disaster:1628|hi",
+        "weight": 1.7142857142857142
+       },
+       {
+        "g": 2005,
+        "n_control": 6,
+        "n_treated": 2,
+        "stratum": "fema:disaster:1628|lo",
+        "weight": 1.5
+       },
+       {
+        "g": 2006,
+        "n_control": 1,
+        "n_treated": 1,
+        "stratum": "fema:disaster:1646|lo",
+        "weight": 0.5
+       },
+       {
+        "g": 2006,
+        "n_control": 2,
+        "n_treated": 1,
+        "stratum": "fema:disaster:1671|lo",
+        "weight": 0.6666666666666666
+       },
+       {
+        "g": 2007,
+        "n_control": 1,
+        "n_treated": 1,
+        "stratum": "fema:disaster:1686|lo",
+        "weight": 0.5
+       },
+       {
+        "g": 2007,
+        "n_control": 2,
+        "n_treated": 1,
+        "stratum": "fema:disaster:1699|lo",
+        "weight": 0.6666666666666666
+       },
+       {
+        "g": 2007,
+        "n_control": 1,
+        "n_treated": 2,
+        "stratum": "fema:disaster:1705|lo",
+        "weight": 0.6666666666666666
+       },
+       {
+        "g": 2007,
+        "n_control": 1,
+        "n_treated": 2,
+        "stratum": "fema:disaster:1711|hi",
+        "weight": 0.6666666666666666
+       },
+       {
+        "g": 2007,
+        "n_control": 1,
+        "n_treated": 1,
+        "stratum": "fema:disaster:1717|hi",
+        "weight": 0.5
+       },
+       {
+        "g": 2008,
+        "n_control": 1,
+        "n_treated": 3,
+        "stratum": "fema:disaster:1744|hi",
+        "weight": 0.75
+       },
+       {
+        "g": 2008,
+        "n_control": 3,
+        "n_treated": 1,
+        "stratum": "fema:disaster:1745|hi",
+        "weight": 0.75
+       },
+       {
+        "g": 2008,
+        "n_control": 1,
+        "n_treated": 3,
+        "stratum": "fema:disaster:1745|lo",
+        "weight": 0.75
+       },
+       {
+        "g": 2008,
+        "n_control": 2,
+        "n_treated": 1,
+        "stratum": "fema:disaster:1746|hi",
+        "weight": 0.6666666666666666
+       },
+       {
+        "g": 2008,
+        "n_control": 2,
+        "n_treated": 1,
+        "stratum": "fema:disaster:1746|lo",
+        "weight": 0.6666666666666666
+       },
+       {
+        "g": 2008,
+        "n_control": 1,
+        "n_treated": 2,
+        "stratum": "fema:disaster:1749|hi",
+        "weight": 0.6666666666666666
+       },
+       {
+        "g": 2008,
+        "n_control": 2,
+        "n_treated": 2,
+        "stratum": "fema:disaster:1749|lo",
+        "weight": 1.0
+       },
+       {
+        "g": 2008,
+        "n_control": 2,
+        "n_treated": 11,
+        "stratum": "fema:disaster:1751|hi",
+        "weight": 1.6923076923076923
+       },
+       {
+        "g": 2008,
+        "n_control": 5,
+        "n_treated": 8,
+        "stratum": "fema:disaster:1751|lo",
+        "weight": 3.076923076923077
+       },
+       {
+        "g": 2008,
+        "n_control": 1,
+        "n_treated": 2,
+        "stratum": "fema:disaster:1761|lo",
+        "weight": 0.6666666666666666
+       },
+       {
+        "g": 2008,
+        "n_control": 1,
+        "n_treated": 1,
+        "stratum": "fema:disaster:1763|hi",
+        "weight": 0.5
+       },
+       {
+        "g": 2008,
+        "n_control": 1,
+        "n_treated": 3,
+        "stratum": "fema:disaster:1768|hi",
+        "weight": 0.75
+       },
+       {
+        "g": 2008,
+        "n_control": 2,
+        "n_treated": 1,
+        "stratum": "fema:disaster:1770|hi",
+        "weight": 0.6666666666666666
+       },
+       {
+        "g": 2008,
+        "n_control": 1,
+        "n_treated": 1,
+        "stratum": "fema:disaster:1773|hi",
+        "weight": 0.5
+       },
+       {
+        "g": 2008,
+        "n_control": 2,
+        "n_treated": 1,
+        "stratum": "fema:disaster:1773|lo",
+        "weight": 0.6666666666666666
+       },
+       {
+        "g": 2008,
+        "n_control": 1,
+        "n_treated": 2,
+        "stratum": "fema:disaster:1774|hi",
+        "weight": 0.6666666666666666
+       },
+       {
+        "g": 2008,
+        "n_control": 2,
+        "n_treated": 1,
+        "stratum": "fema:disaster:1774|lo",
+        "weight": 0.6666666666666666
+       },
+       {
+        "g": 2008,
+        "n_control": 1,
+        "n_treated": 1,
+        "stratum": "fema:disaster:1777|lo",
+        "weight": 0.5
+       },
+       {
+        "g": 2008,
+        "n_control": 1,
+        "n_treated": 1,
+        "stratum": "fema:disaster:1779|lo",
+        "weight": 0.5
+       },
+       {
+        "g": 2008,
+        "n_control": 7,
+        "n_treated": 1,
+        "stratum": "fema:disaster:1809|lo",
+        "weight": 0.875
+       },
+       {
+        "g": 2009,
+        "n_control": 2,
+        "n_treated": 4,
+        "stratum": "fema:disaster:1829|hi",
+        "weight": 1.3333333333333333
+       },
+       {
+        "g": 2009,
+        "n_control": 2,
+        "n_treated": 5,
+        "stratum": "fema:disaster:1829|lo",
+        "weight": 1.4285714285714286
+       },
+       {
+        "g": 2009,
+        "n_control": 1,
+        "n_treated": 1,
+        "stratum": "fema:disaster:1837|lo",
+        "weight": 0.5
+       },
+       {
+        "g": 2009,
+        "n_control": 1,
+        "n_treated": 1,
+        "stratum": "fema:disaster:1856|lo",
+        "weight": 0.5
+       },
+       {
+        "g": 2009,
+        "n_control": 3,
+        "n_treated": 1,
+        "stratum": "fema:disaster:1858|hi",
+        "weight": 0.75
+       },
+       {
+        "g": 2009,
+        "n_control": 2,
+        "n_treated": 3,
+        "stratum": "fema:disaster:1858|lo",
+        "weight": 1.2
+       },
+       {
+        "g": 2010,
+        "n_control": 1,
+        "n_treated": 1,
+        "stratum": "fema:disaster:1888|hi",
+        "weight": 0.5
+       },
+       {
+        "g": 2010,
+        "n_control": 5,
+        "n_treated": 2,
+        "stratum": "fema:disaster:1909|hi",
+        "weight": 1.4285714285714286
+       },
+       {
+        "g": 2010,
+        "n_control": 3,
+        "n_treated": 5,
+        "stratum": "fema:disaster:1909|lo",
+        "weight": 1.875
+       },
+       {
+        "g": 2010,
+        "n_control": 4,
+        "n_treated": 1,
+        "stratum": "fema:disaster:1941|lo",
+        "weight": 0.8
+       },
+       {
+        "g": 2010,
+        "n_control": 2,
+        "n_treated": 1,
+        "stratum": "fema:disaster:1942|hi",
+        "weight": 0.6666666666666666
+       },
+       {
+        "g": 2011,
+        "n_control": 1,
+        "n_treated": 4,
+        "stratum": "fema:disaster:1969|lo",
+        "weight": 0.8
+       },
+       {
+        "g": 2011,
+        "n_control": 3,
+        "n_treated": 8,
+        "stratum": "fema:disaster:1971|hi",
+        "weight": 2.1818181818181817
+       },
+       {
+        "g": 2011,
+        "n_control": 2,
+        "n_treated": 9,
+        "stratum": "fema:disaster:1971|lo",
+        "weight": 1.6363636363636365
+       },
+       {
+        "g": 2011,
+        "n_control": 1,
+        "n_treated": 5,
+        "stratum": "fema:disaster:1972|hi",
+        "weight": 0.8333333333333334
+       },
+       {
+        "g": 2011,
+        "n_control": 2,
+        "n_treated": 5,
+        "stratum": "fema:disaster:1972|lo",
+        "weight": 1.4285714285714286
+       },
+       {
+        "g": 2011,
+        "n_control": 2,
+        "n_treated": 3,
+        "stratum": "fema:disaster:1973|lo",
+        "weight": 1.2
+       },
+       {
+        "g": 2011,
+        "n_control": 2,
+        "n_treated": 3,
+        "stratum": "fema:disaster:1974|lo",
+        "weight": 1.2
+       },
+       {
+        "g": 2011,
+        "n_control": 1,
+        "n_treated": 1,
+        "stratum": "fema:disaster:1991|hi",
+        "weight": 0.5
+       },
+       {
+        "g": 2011,
+        "n_control": 1,
+        "n_treated": 2,
+        "stratum": "fema:disaster:1991|lo",
+        "weight": 0.6666666666666666
+       },
+       {
+        "g": 2011,
+        "n_control": 4,
+        "n_treated": 1,
+        "stratum": "fema:disaster:1993|hi",
+        "weight": 0.8
+       },
+       {
+        "g": 2011,
+        "n_control": 4,
+        "n_treated": 1,
+        "stratum": "fema:disaster:1993|lo",
+        "weight": 0.8
+       },
+       {
+        "g": 2011,
+        "n_control": 13,
+        "n_treated": 4,
+        "stratum": "fema:disaster:1996|hi",
+        "weight": 3.0588235294117645
+       },
+       {
+        "g": 2011,
+        "n_control": 16,
+        "n_treated": 1,
+        "stratum": "fema:disaster:1996|lo",
+        "weight": 0.9411764705882353
+       },
+       {
+        "g": 2011,
+        "n_control": 4,
+        "n_treated": 2,
+        "stratum": "fema:disaster:4002|hi",
+        "weight": 1.3333333333333333
+       },
+       {
+        "g": 2011,
+        "n_control": 6,
+        "n_treated": 1,
+        "stratum": "fema:disaster:4002|lo",
+        "weight": 0.8571428571428571
+       },
+       {
+        "g": 2011,
+        "n_control": 1,
+        "n_treated": 1,
+        "stratum": "fema:disaster:4003|lo",
+        "weight": 0.5
+       },
+       {
+        "g": 2011,
+        "n_control": 3,
+        "n_treated": 1,
+        "stratum": "fema:disaster:4007|hi",
+        "weight": 0.75
+       },
+       {
+        "g": 2011,
+        "n_control": 2,
+        "n_treated": 4,
+        "stratum": "fema:disaster:4030|lo",
+        "weight": 1.3333333333333333
+       },
+       {
+        "g": 2011,
+        "n_control": 2,
+        "n_treated": 1,
+        "stratum": "fema:disaster:4031|hi",
+        "weight": 0.6666666666666666
+       },
+       {
+        "g": 2011,
+        "n_control": 2,
+        "n_treated": 1,
+        "stratum": "fema:disaster:4031|lo",
+        "weight": 0.6666666666666666
+       },
+       {
+        "g": 2012,
+        "n_control": 1,
+        "n_treated": 1,
+        "stratum": "fema:disaster:4069|hi",
+        "weight": 0.5
+       },
+       {
+        "g": 2013,
+        "n_control": 1,
+        "n_treated": 1,
+        "stratum": "fema:disaster:4121|hi",
+        "weight": 0.5
+       },
+       {
+        "g": 2013,
+        "n_control": 1,
+        "n_treated": 2,
+        "stratum": "fema:disaster:4121|lo",
+        "weight": 0.6666666666666666
+       },
+       {
+        "g": 2013,
+        "n_control": 1,
+        "n_treated": 2,
+        "stratum": "fema:disaster:4126|hi",
+        "weight": 0.6666666666666666
+       },
+       {
+        "g": 2013,
+        "n_control": 1,
+        "n_treated": 1,
+        "stratum": "fema:disaster:4131|lo",
+        "weight": 0.5
+       },
+       {
+        "g": 2013,
+        "n_control": 3,
+        "n_treated": 2,
+        "stratum": "fema:disaster:4145|hi",
+        "weight": 1.2
+       },
+       {
+        "g": 2013,
+        "n_control": 3,
+        "n_treated": 3,
+        "stratum": "fema:disaster:4145|lo",
+        "weight": 1.5
+       },
+       {
+        "g": 2013,
+        "n_control": 3,
+        "n_treated": 1,
+        "stratum": "fema:disaster:4146|hi",
+        "weight": 0.75
+       },
+       {
+        "g": 2013,
+        "n_control": 2,
+        "n_treated": 1,
+        "stratum": "fema:disaster:4152|hi",
+        "weight": 0.6666666666666666
+       },
+       {
+        "g": 2013,
+        "n_control": 2,
+        "n_treated": 1,
+        "stratum": "fema:disaster:4152|lo",
+        "weight": 0.6666666666666666
+       },
+       {
+        "g": 2014,
+        "n_control": 1,
+        "n_treated": 1,
+        "stratum": "fema:disaster:4179|hi",
+        "weight": 0.5
+       },
+       {
+        "g": 2014,
+        "n_control": 1,
+        "n_treated": 2,
+        "stratum": "fema:disaster:4179|lo",
+        "weight": 0.6666666666666666
+       },
+       {
+        "g": 2014,
+        "n_control": 1,
+        "n_treated": 1,
+        "stratum": "fema:disaster:4185|hi",
+        "weight": 0.5
+       },
+       {
+        "g": 2014,
+        "n_control": 1,
+        "n_treated": 1,
+        "stratum": "fema:disaster:4185|lo",
+        "weight": 0.5
+       },
+       {
+        "g": 2015,
+        "n_control": 5,
+        "n_treated": 1,
+        "stratum": "fema:disaster:4222|hi",
+        "weight": 0.8333333333333334
+       },
+       {
+        "g": 2015,
+        "n_control": 31,
+        "n_treated": 3,
+        "stratum": "fema:disaster:4223|hi",
+        "weight": 2.735294117647059
+       },
+       {
+        "g": 2015,
+        "n_control": 30,
+        "n_treated": 4,
+        "stratum": "fema:disaster:4223|lo",
+        "weight": 3.5294117647058822
+       },
+       {
+        "g": 2015,
+        "n_control": 3,
+        "n_treated": 2,
+        "stratum": "fema:disaster:4225|hi",
+        "weight": 1.2
+       },
+       {
+        "g": 2015,
+        "n_control": 3,
+        "n_treated": 2,
+        "stratum": "fema:disaster:4225|lo",
+        "weight": 1.2
+       },
+       {
+        "g": 2015,
+        "n_control": 2,
+        "n_treated": 1,
+        "stratum": "fema:disaster:4226|hi",
+        "weight": 0.6666666666666666
+       },
+       {
+        "g": 2015,
+        "n_control": 1,
+        "n_treated": 2,
+        "stratum": "fema:disaster:4226|lo",
+        "weight": 0.6666666666666666
+       },
+       {
+        "g": 2015,
+        "n_control": 1,
+        "n_treated": 1,
+        "stratum": "fema:disaster:4227|hi",
+        "weight": 0.5
+       },
+       {
+        "g": 2015,
+        "n_control": 1,
+        "n_treated": 1,
+        "stratum": "fema:disaster:4227|lo",
+        "weight": 0.5
+       },
+       {
+        "g": 2015,
+        "n_control": 6,
+        "n_treated": 1,
+        "stratum": "fema:disaster:4230|hi",
+        "weight": 0.8571428571428571
+       },
+       {
+        "g": 2015,
+        "n_control": 2,
+        "n_treated": 1,
+        "stratum": "fema:disaster:4233|lo",
+        "weight": 0.6666666666666666
+       },
+       {
+        "g": 2015,
+        "n_control": 3,
+        "n_treated": 1,
+        "stratum": "fema:disaster:4245|hi",
+        "weight": 0.75
+       },
+       {
+        "g": 2015,
+        "n_control": 4,
+        "n_treated": 1,
+        "stratum": "fema:disaster:4245|lo",
+        "weight": 0.8
+       },
+       {
+        "g": 2015,
+        "n_control": 1,
+        "n_treated": 1,
+        "stratum": "fema:disaster:4248|hi",
+        "weight": 0.5
+       },
+       {
+        "g": 2015,
+        "n_control": 1,
+        "n_treated": 2,
+        "stratum": "fema:disaster:4248|lo",
+        "weight": 0.6666666666666666
+       },
+       {
+        "g": 2016,
+        "n_control": 7,
+        "n_treated": 1,
+        "stratum": "fema:disaster:4263|hi",
+        "weight": 0.875
+       },
+       {
+        "g": 2016,
+        "n_control": 3,
+        "n_treated": 6,
+        "stratum": "fema:disaster:4263|lo",
+        "weight": 2.0
+       },
+       {
+        "g": 2016,
+        "n_control": 2,
+        "n_treated": 1,
+        "stratum": "fema:disaster:4268|lo",
+        "weight": 0.6666666666666666
+       },
+       {
+        "g": 2016,
+        "n_control": 1,
+        "n_treated": 1,
+        "stratum": "fema:disaster:4272|hi",
+        "weight": 0.5
+       },
+       {
+        "g": 2016,
+        "n_control": 1,
+        "n_treated": 6,
+        "stratum": "fema:disaster:4277|hi",
+        "weight": 0.8571428571428571
+       },
+       {
+        "g": 2016,
+        "n_control": 1,
+        "n_treated": 6,
+        "stratum": "fema:disaster:4277|lo",
+        "weight": 0.8571428571428571
+       },
+       {
+        "g": 2017,
+        "n_control": 11,
+        "n_treated": 1,
+        "stratum": "fema:disaster:4301|hi",
+        "weight": 0.9166666666666666
+       },
+       {
+        "g": 2017,
+        "n_control": 11,
+        "n_treated": 2,
+        "stratum": "fema:disaster:4301|lo",
+        "weight": 1.6923076923076923
+       },
+       {
+        "g": 2017,
+        "n_control": 2,
+        "n_treated": 1,
+        "stratum": "fema:disaster:4307|hi",
+        "weight": 0.6666666666666666
+       },
+       {
+        "g": 2017,
+        "n_control": 14,
+        "n_treated": 2,
+        "stratum": "fema:disaster:4308|hi",
+        "weight": 1.75
+       },
+       {
+        "g": 2017,
+        "n_control": 13,
+        "n_treated": 4,
+        "stratum": "fema:disaster:4308|lo",
+        "weight": 3.0588235294117645
+       },
+       {
+        "g": 2017,
+        "n_control": 2,
+        "n_treated": 1,
+        "stratum": "fema:disaster:4310|hi",
+        "weight": 0.6666666666666666
+       },
+       {
+        "g": 2017,
+        "n_control": 2,
+        "n_treated": 2,
+        "stratum": "fema:disaster:4310|lo",
+        "weight": 1.0
+       },
+       {
+        "g": 2017,
+        "n_control": 1,
+        "n_treated": 1,
+        "stratum": "fema:disaster:4317|hi",
+        "weight": 0.5
+       },
+       {
+        "g": 2017,
+        "n_control": 1,
+        "n_treated": 2,
+        "stratum": "fema:disaster:4317|lo",
+        "weight": 0.6666666666666666
+       },
+       {
+        "g": 2017,
+        "n_control": 1,
+        "n_treated": 1,
+        "stratum": "fema:disaster:4333|lo",
+        "weight": 0.5
+       },
+       {
+        "g": 2018,
+        "n_control": 4,
+        "n_treated": 1,
+        "stratum": "fema:disaster:4386|hi",
+        "weight": 0.8
+       },
+       {
+        "g": 2018,
+        "n_control": 3,
+        "n_treated": 1,
+        "stratum": "fema:disaster:4387|lo",
+        "weight": 0.75
+       },
+       {
+        "g": 2018,
+        "n_control": 8,
+        "n_treated": 2,
+        "stratum": "fema:disaster:4390|lo",
+        "weight": 1.6
+       },
+       {
+        "g": 2018,
+        "n_control": 2,
+        "n_treated": 3,
+        "stratum": "fema:disaster:4416|hi",
+        "weight": 1.2
+       },
+       {
+        "g": 2018,
+        "n_control": 3,
+        "n_treated": 3,
+        "stratum": "fema:disaster:4416|lo",
+        "weight": 1.5
+       },
+       {
+        "g": 2019,
+        "n_control": 7,
+        "n_treated": 5,
+        "stratum": "fema:disaster:4420|hi",
+        "weight": 2.9166666666666665
+       },
+       {
+        "g": 2019,
+        "n_control": 12,
+        "n_treated": 1,
+        "stratum": "fema:disaster:4420|lo",
+        "weight": 0.9230769230769231
+       },
+       {
+        "g": 2019,
+        "n_control": 7,
+        "n_treated": 5,
+        "stratum": "fema:disaster:4421|hi",
+        "weight": 2.9166666666666665
+       },
+       {
+        "g": 2019,
+        "n_control": 14,
+        "n_treated": 1,
+        "stratum": "fema:disaster:4427|hi",
+        "weight": 0.9333333333333333
+       },
+       {
+        "g": 2019,
+        "n_control": 15,
+        "n_treated": 1,
+        "stratum": "fema:disaster:4427|lo",
+        "weight": 0.9375
+       },
+       {
+        "g": 2019,
+        "n_control": 2,
+        "n_treated": 1,
+        "stratum": "fema:disaster:4429|hi",
+        "weight": 0.6666666666666666
+       },
+       {
+        "g": 2019,
+        "n_control": 3,
+        "n_treated": 1,
+        "stratum": "fema:disaster:4429|lo",
+        "weight": 0.75
+       },
+       {
+        "g": 2019,
+        "n_control": 1,
+        "n_treated": 7,
+        "stratum": "fema:disaster:4440|hi",
+        "weight": 0.875
+       },
+       {
+        "g": 2019,
+        "n_control": 1,
+        "n_treated": 7,
+        "stratum": "fema:disaster:4440|lo",
+        "weight": 0.875
+       },
+       {
+        "g": 2019,
+        "n_control": 5,
+        "n_treated": 1,
+        "stratum": "fema:disaster:4444|hi",
+        "weight": 0.8333333333333334
+       },
+       {
+        "g": 2019,
+        "n_control": 14,
+        "n_treated": 1,
+        "stratum": "fema:disaster:4449|lo",
+        "weight": 0.9333333333333333
+       },
+       {
+        "g": 2019,
+        "n_control": 19,
+        "n_treated": 2,
+        "stratum": "fema:disaster:4451|hi",
+        "weight": 1.8095238095238095
+       },
+       {
+        "g": 2019,
+        "n_control": 2,
+        "n_treated": 1,
+        "stratum": "fema:disaster:4452|hi",
+        "weight": 0.6666666666666666
+       },
+       {
+        "g": 2019,
+        "n_control": 1,
+        "n_treated": 2,
+        "stratum": "fema:disaster:4452|lo",
+        "weight": 0.6666666666666666
+       },
+       {
+        "g": 2019,
+        "n_control": 11,
+        "n_treated": 1,
+        "stratum": "fema:disaster:4461|lo",
+        "weight": 0.9166666666666666
+       },
+       {
+        "g": 2019,
+        "n_control": 1,
+        "n_treated": 5,
+        "stratum": "fema:disaster:4463|hi",
+        "weight": 0.8333333333333334
+       },
+       {
+        "g": 2019,
+        "n_control": 1,
+        "n_treated": 6,
+        "stratum": "fema:disaster:4463|lo",
+        "weight": 0.8571428571428571
+       },
+       {
+        "g": 2019,
+        "n_control": 1,
+        "n_treated": 1,
+        "stratum": "fema:disaster:4471|hi",
+        "weight": 0.5
+       },
+       {
+        "g": 2020,
+        "n_control": 1,
+        "n_treated": 1,
+        "stratum": "fema:disaster:4536|hi",
+        "weight": 0.5
+       }
+      ]
+     },
+     "twfe_static": {
+      "beta": -0.010120889369739166,
+      "demeaning": {
+       "converged": true,
+       "iterations": [
+        4,
+        4
+       ]
+      },
+      "estimator": "twfe_static",
+      "n_clusters": 50,
+      "n_obs": 138313,
+      "p": 0.3556929188620427,
+      "se": 0.010958048623546924,
+      "warning": "biased under staggered adoption with heterogeneous or dynamic effects; comparison only"
+     },
+     "unmatched_strata_disaster_only": {
+      "alpha": 0.05,
+      "anticipation": 0,
+      "bootstrap": null,
+      "cells": 782,
+      "control_group": "never_treated",
+      "dropped_treated_no_control": 3638,
+      "estimator": "callaway_santanna_unconditional_stratified",
+      "event_time": [
+       {
+        "analytic_se": 0.004370374182908531,
+        "att": -5.5983413389085945e-05,
+        "band_high": null,
+        "band_low": null,
+        "ci_high": 0.0085097925840753,
+        "ci_low": -0.008621759410853472,
+        "cohorts": [
+         1998,
+         1999,
+         2000,
+         2001,
+         2002,
+         2003,
+         2004,
+         2005,
+         2006,
+         2007,
+         2008,
+         2009,
+         2010,
+         2011,
+         2012,
+         2013,
+         2014,
+         2015,
+         2016,
+         2017,
+         2018,
+         2019,
+         2020
+        ],
+        "e": -4,
+        "n_treated": 476,
+        "p": 0.9897795754406864,
+        "period": "pre",
+        "se": 0.004370374182908531
+       },
+       {
+        "analytic_se": 0.0037032425434592358,
+        "att": -0.0028628061745418205,
+        "band_high": null,
+        "band_low": null,
+        "ci_high": 0.004395415836654787,
+        "ci_low": -0.010121028185738427,
+        "cohorts": [
+         1998,
+         1999,
+         2000,
+         2001,
+         2002,
+         2003,
+         2004,
+         2005,
+         2006,
+         2007,
+         2008,
+         2009,
+         2010,
+         2011,
+         2012,
+         2013,
+         2014,
+         2015,
+         2016,
+         2017,
+         2018,
+         2019,
+         2020
+        ],
+        "e": -3,
+        "n_treated": 476,
+        "p": 0.43949046893408955,
+        "period": "pre",
+        "se": 0.0037032425434592358
+       },
+       {
+        "analytic_se": 0.0020896262088559198,
+        "att": -0.0017684956065216059,
+        "band_high": null,
+        "band_low": null,
+        "ci_high": 0.002327096503986969,
+        "ci_low": -0.0058640877170301805,
+        "cohorts": [
+         1998,
+         1999,
+         2000,
+         2001,
+         2002,
+         2003,
+         2004,
+         2005,
+         2006,
+         2007,
+         2008,
+         2009,
+         2010,
+         2011,
+         2012,
+         2013,
+         2014,
+         2015,
+         2016,
+         2017,
+         2018,
+         2019,
+         2020
+        ],
+        "e": -2,
+        "n_treated": 476,
+        "p": 0.39737341197973897,
+        "period": "pre",
+        "se": 0.0020896262088559198
+       },
+       {
+        "analytic_se": 0.0025198677623502817,
+        "att": 0.003528342447928134,
+        "band_high": null,
+        "band_low": null,
+        "ci_high": 0.008467192507938221,
+        "ci_low": -0.0014105076120819538,
+        "cohorts": [
+         1998,
+         1999,
+         2000,
+         2001,
+         2002,
+         2003,
+         2004,
+         2005,
+         2006,
+         2007,
+         2008,
+         2009,
+         2010,
+         2011,
+         2012,
+         2013,
+         2014,
+         2015,
+         2016,
+         2017,
+         2018,
+         2019,
+         2020
+        ],
+        "e": 0,
+        "n_treated": 476,
+        "p": 0.16145063126113388,
+        "period": "post",
+        "se": 0.0025198677623502817
+       },
+       {
+        "analytic_se": 0.004485038910999516,
+        "att": 0.006808382010153422,
+        "band_high": null,
+        "band_low": null,
+        "ci_high": 0.015598896744973216,
+        "ci_low": -0.001982132724666372,
+        "cohorts": [
+         1998,
+         1999,
+         2000,
+         2001,
+         2002,
+         2003,
+         2004,
+         2005,
+         2006,
+         2007,
+         2008,
+         2009,
+         2010,
+         2011,
+         2012,
+         2013,
+         2014,
+         2015,
+         2016,
+         2017,
+         2018,
+         2019,
+         2020
+        ],
+        "e": 1,
+        "n_treated": 476,
+        "p": 0.12900917461526776,
+        "period": "post",
+        "se": 0.004485038910999516
+       },
+       {
+        "analytic_se": 0.00731891333070112,
+        "att": -0.0004668687714087838,
+        "band_high": null,
+        "band_low": null,
+        "ci_high": 0.0138779377627355,
+        "ci_low": -0.014811675305553069,
+        "cohorts": [
+         1998,
+         1999,
+         2000,
+         2001,
+         2002,
+         2003,
+         2004,
+         2005,
+         2006,
+         2007,
+         2008,
+         2009,
+         2010,
+         2011,
+         2012,
+         2013,
+         2014,
+         2015,
+         2016,
+         2017,
+         2018,
+         2019,
+         2020
+        ],
+        "e": 2,
+        "n_treated": 476,
+        "p": 0.9491379533073845,
+        "period": "post",
+        "se": 0.00731891333070112
+       },
+       {
+        "analytic_se": 0.011913820958284162,
+        "att": -0.00438194440341971,
+        "band_high": null,
+        "band_low": null,
+        "ci_high": 0.01896871559307572,
+        "ci_low": -0.02773260439991514,
+        "cohorts": [
+         1998,
+         1999,
+         2000,
+         2001,
+         2002,
+         2003,
+         2004,
+         2005,
+         2006,
+         2007,
+         2008,
+         2009,
+         2010,
+         2011,
+         2012,
+         2013,
+         2014,
+         2015,
+         2016,
+         2017,
+         2018,
+         2019,
+         2020
+        ],
+        "e": 3,
+        "n_treated": 476,
+        "p": 0.7130197993394929,
+        "period": "post",
+        "se": 0.011913820958284162
+       },
+       {
+        "analytic_se": 0.013931539162219035,
+        "att": -0.00592629897348352,
+        "band_high": null,
+        "band_low": null,
+        "ci_high": 0.0213790160336751,
+        "ci_low": -0.033231613980642144,
+        "cohorts": [
+         1998,
+         1999,
+         2000,
+         2001,
+         2002,
+         2003,
+         2004,
+         2005,
+         2006,
+         2007,
+         2008,
+         2009,
+         2010,
+         2011,
+         2012,
+         2013,
+         2014,
+         2015,
+         2016,
+         2017,
+         2018,
+         2019,
+         2020
+        ],
+        "e": 4,
+        "n_treated": 476,
+        "p": 0.6705544073421092,
+        "period": "post",
+        "se": 0.013931539162219035
+       }
+      ],
+      "n_clusters": 50,
+      "overall": {
+       "analytic_se": 0.007589351645405277,
+       "att": -8.767753804609163e-05,
+       "bootstrap_p": null,
+       "ci_high": 0.01478717835295805,
+       "ci_low": -0.014962533429050233,
+       "definition": "equal-weight mean of ATT(e) over the post event times listed",
+       "event_times": [
+        0,
+        1,
+        2,
+        3,
+        4
+       ],
+       "p": 0.9907824803605431,
+       "se": 0.007589351645405277
+      },
+      "pre_trend": {
+       "leads": [
+        -4,
+        -3,
+        -2
+       ],
+       "max_abs_lead": 0.0028628061745418205,
+       "sup_t": null,
+       "wald": {
+        "df": 3,
+        "p": 0.06880809491444155,
+        "statistic": 7.099008698599239
+       }
+      },
+      "reference_event_time": -1,
+      "skipped_cells": 0
+     }
+    }
+   },
+   "identification": {
+    "assumptions": [
+     "Parallel trends: absent treatment, the average outcome of treated units would have moved like that of the comparison units (not-yet-treated or never-treated, within stratum when stratified) from the base period on.",
+     "No anticipation beyond the registered anticipation window: outcomes before g - anticipation do not respond.",
+     "Absorbing treatment: the first qualifying event defines the cohort; later events are part of the post-period treatment path, so estimates are effects of entering treatment, not of one isolated event.",
+     "SUTVA / no interference: a unit's outcome does not depend on other units' treatment (spillovers to comparison units bias the estimate toward zero or away from it).",
+     "Treatment timing is recorded correctly by the source date the registration names.",
+     "Within a declaration and a pre-growth half, which counties NOAA records as heavily damaged is unrelated to their employment trend: storm paths, not local economic conditions, decide where damage falls.",
+     "NOAA county-coded damage measures the physical damage with error unrelated to the employment path; unreported damage in 'control' counties biases the estimate toward zero.",
+     "Nominal damage thresholds are applied across 1998-2020 without deflation (prices rose about 60%), so the treated group in later years includes relatively smaller real damage.",
+     "BEA population in g-1 is the per-capita denominator.",
+     "Spillovers from heavily damaged to lightly damaged counties of the same disaster (commuting, reconstruction demand) are small; they would bias the estimate toward zero.",
+     "The estimand is the effect of heavy relative to negligible damage given a declaration; it is not the effect of the declaration or of federal aid."
+    ],
+    "estimand": "ATT: equal-weight mean over event times 0..4 of treated-count-weighted ATT(g, g+e), for heavy-damage declared counties relative to negligible-damage counties of the same declaration",
+    "label": "quasi_experimental_did",
+    "meaning": "Average effect on the treated identified by a staggered difference-in-differences design whose pre-registered diagnostics (pre-trends, placebo dates, placebo units) all passed. Causal only under the stated assumptions, for the treated population and horizon studied.",
+    "strategy": "staggered_difference_in_differences"
+   },
+   "notes": [],
+   "registration": {
+    "commit": "c0e0f801e89ba3af1a85f7520c8c0120052bb42e",
+    "committed_at": "2026-09-18T20:47:04-07:00",
+    "committed_clean": true,
+    "path": "examples/natural-experiments/registrations/fema_damage_dose_county_employment.json",
+    "sha256": "2d8a78e9f2f131813abc35f3f5bc8ddf106e7e6bf0e6395ebd6ba99c638191e8"
+   },
+   "result_id": "48fda4897fc40d438ea0a100913e379782cdfe9f0bf723bcaf810f667411554b",
+   "schema": "worldmodel.causal_result/1",
+   "study_id": "fema_damage_dose_county_employment",
+   "verdict": "Diagnostics passed; the effect on log QCEW annual-average establishment count is a null: -0.0038 log points (95% CI -0.0278 to +0.0202). The design rules out average effects outside that interval under the stated assumptions."
+  }
+ ],
+ "schema": "worldmodel.natural_experiment_report/1",
+ "seconds": 110.4,
+ "study_id": "fema_damage_dose_county_employment"
+}

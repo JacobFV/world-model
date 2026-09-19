@@ -1,6 +1,6 @@
 """Run a registered staggered difference-in-differences design on a panel."""
 from .did import event_study, stacked_did, twfe_static
-from .placebo import placebo_date_test, placebo_unit_test
+from .placebo import placebo_cluster_test, placebo_date_test, placebo_unit_test
 from .results import DID_ASSUMPTIONS, build_result, did_verdict, evaluate_acceptance
 
 
@@ -8,10 +8,13 @@ def _strip(result):
     return {k: v for k, v in result.items() if k != 'att_gt'} if result else result
 
 
-def run_did_design(panel, registration, status, *, outcome, data=None, notes=(), include_att_gt=False):
+def run_did_design(panel, registration, status, *, outcome, data=None, notes=(), include_att_gt=False,
+                   extra_robustness=None):
     """Estimate, diagnose and judge one outcome exactly as the registration specifies.
 
     ``outcome`` is ``{'id', 'label', 'unit'}`` naming the registered outcome being analysed.
+    ``extra_robustness`` maps a name to an alternative panel (e.g. without matching strata); each is
+    estimated with the primary estimator and reported, never used by the acceptance criteria.
     Returns a result record (``worldmodel.causal_result/1``).
     """
     windows, estimator = registration['windows'], registration['estimator']
@@ -39,6 +42,9 @@ def run_did_design(panel, registration, status, *, outcome, data=None, notes=(),
                                                   balance=balance, bootstrap=0, cohorts=cohorts, **alt))
         else:
             raise ValueError(f'unknown robustness estimator {name}')
+    for name, alt_panel in (extra_robustness or {}).items():
+        robustness[name] = _strip(event_study(alt_panel, e_min=windows['e_min'], e_max=windows['e_max'], post=post,
+                                              balance=balance, bootstrap=0, cohorts=cohorts, **common))
     diagnostics = {'pre_trend': primary['pre_trend']}
     if 'placebo_date' in placebo:
         cfg = placebo['placebo_date']
@@ -50,12 +56,21 @@ def run_did_design(panel, registration, status, *, outcome, data=None, notes=(),
                                                         e_min=windows['e_min'], e_max=windows['e_max'], post=post,
                                                         observed=observed, cohorts=cohorts,
                                                         min_never_treated=cfg.get('min_never_treated', 20), **common)
+    if 'placebo_cluster' in placebo:
+        cfg = placebo['placebo_cluster']
+        observed = primary['overall']['att'] if primary['overall'] else None
+        diagnostics['placebo_cluster'] = placebo_cluster_test(
+            panel, replications=cfg['replications'], seed=cfg['seed'], e_min=windows['e_min'], e_max=windows['e_max'],
+            post=post, observed=observed, cohorts=cohorts,
+            min_never_treated_clusters=cfg.get('min_never_treated_clusters', 10), **common)
     overall = primary['overall']
     estimated = [u for u in panel.treated_units() if cohorts is None or panel.cohorts[u] in set(cohorts)]
     facts = {'treated_units': len(estimated), 'clusters': panel.n_clusters(),
              'pre_trend_p': primary['pre_trend']['wald']['p'],
              'placebo_date_p': diagnostics.get('placebo_date', {}).get('p'),
              'placebo_unit_rejection_rate': diagnostics.get('placebo_unit', {}).get('rejection_rate'),
+             'placebo_cluster_rejection_rate': diagnostics.get('placebo_cluster', {}).get('rejection_rate'),
+             'events': len({panel.clusters[u] for u in estimated}),
              'primary_ci': [overall['ci_low'], overall['ci_high']] if overall else None}
     stacked = robustness.get('stacked_did', {}).get('overall') if robustness.get('stacked_did') else None
     if stacked:

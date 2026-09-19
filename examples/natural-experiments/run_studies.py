@@ -19,12 +19,13 @@ from worldmodel.artifacts import publish_report  # noqa: E402
 from worldmodel.causal.exposure_study import run_exposure  # noqa: E402
 from worldmodel.causal.registration import load_registration  # noqa: E402
 from worldmodel.causal.studies import RUNNERS  # noqa: E402
+from worldmodel.causal.studies_wave2 import RUNNERS as WAVE2  # noqa: E402
 from worldmodel.resources import resource_roots  # noqa: E402
 from worldmodel.store import Store  # noqa: E402
 
 REGISTRATIONS = ROOT / 'examples/natural-experiments/registrations'
 RESULTS = ROOT / 'examples/natural-experiments/results'
-ALL = {**RUNNERS, 'exposure_cyclones_county_employment': run_exposure}
+ALL = {**RUNNERS, 'exposure_cyclones_county_employment': run_exposure, **WAVE2}
 
 
 def summary(result):
@@ -58,7 +59,8 @@ def main(argv=None):
             published = publish_report(store, 'natural_experiment_reports', json.loads(json.dumps(report, default=str)),
                                        {'study_id': study, 'registration_sha256': status['sha256'],
                                         'registration_commit': status['commit']},
-                                       inputs=inputs, entrypoint=f'worldmodel/causal/studies.py:{study}')
+                                       inputs=inputs, entrypoint=(f'worldmodel/causal/studies_wave2.py:{study}' if study in WAVE2
+                                                               else f'worldmodel/causal/studies.py:{study}'))
         print(json.dumps({'study': study, 'published': published, 'seconds': report['seconds'],
                           'results': [summary(r) for r in results]}, indent=1, default=str), flush=True)
 
