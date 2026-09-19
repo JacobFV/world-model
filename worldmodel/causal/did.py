@@ -283,7 +283,7 @@ def event_study(panel, *, e_min, e_max, post=None, control_group='not_yet_treate
             'att_gt': [{k: c[k] for k in ('g', 't', 'e', 'att', 'n_treated', 'n_control')} for c in gt['cells']]}
 
 
-def twfe_static(panel, *, tol=1e-10, max_iter=5000):
+def twfe_static(panel, *, tol=1e-9, max_iter=300):
     """Naive two-way fixed-effects DiD: y_it = a_i + l_t + beta D_it + e_it, D_it = 1{t >= g_i}.
 
     Fixed effects are removed by alternating projections (valid for unbalanced panels).
@@ -300,9 +300,11 @@ def twfe_static(panel, *, tol=1e-10, max_iter=5000):
     ys = [o[2] for o in obs]
     ds = [o[3] for o in obs]
 
+    iterations = []
+
     def demean(values):
         values = list(values)
-        for _ in range(max_iter):
+        for step in range(max_iter):
             change = 0.0
             for idx in (0, 1):
                 sums, counts = {}, {}
@@ -316,6 +318,7 @@ def twfe_static(panel, *, tol=1e-10, max_iter=5000):
                     change = max(change, abs(m))
             if change < tol:
                 break
+        iterations.append((step + 1, change))
         return values
 
     yt, dt = demean(ys), demean(ds)
@@ -331,7 +334,8 @@ def twfe_static(panel, *, tol=1e-10, max_iter=5000):
     var = (c / (c - 1)) * math.fsum(s * s for s in scores.values()) / (sdd * sdd) if c > 1 else float('nan')
     se = math.sqrt(var)
     return {'estimator': 'twfe_static', 'beta': beta, 'se': se, 'p': normal_two_sided_p(beta / se) if se > 0 else None,
-            'n_obs': len(obs), 'n_clusters': c,
+            'n_obs': len(obs), 'n_clusters': c, 'demeaning': {'iterations': [i for i, _ in iterations],
+                                                        'converged': all(ch < tol for _, ch in iterations)},
             'warning': 'biased under staggered adoption with heterogeneous or dynamic effects; comparison only'}
 
 
