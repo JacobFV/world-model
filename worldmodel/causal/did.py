@@ -13,7 +13,10 @@
   it is biased under staggered timing with heterogeneous or dynamic effects.
 
 Influence functions are "sum" normalised: an estimate's variance is ``sum_c psi_c**2`` times the
-small-sample factor ``C / (C - 1)``. Weights such as treated shares are treated as fixed.
+small-sample factor ``C / (C - 1)``. Aggregation weights (stratum and cohort treated shares, stack
+weights) are estimated, and their influence is included: each treated unit also carries the
+deviation of its cell's effect from the aggregate. Without that term, clustering at the stratum
+level would report a zero variance.
 """
 import math
 import random
@@ -100,21 +103,29 @@ def att_gt(panel, *, control_group='not_yet_treated', anticipation=0, cohorts=No
                 if total_treated or dropped:
                     skipped.append({'g': g, 't': t, 'n_treated': total_treated, 'dropped_treated_no_control': dropped})
                 continue
-            att, psi = 0.0, {}
+            parts = []
             for treated, control in strata_parts:
-                w = len(treated) / total_treated
                 mt = mean(v for _, v in treated)
                 mc = mean(v for _, v in control)
-                att += w * (mt - mc)
+                parts.append((treated, control, mt, mc, len(treated) / total_treated))
+            att = math.fsum(w * (mt - mc) for _, _, mt, mc, w in parts)
+            psi, treated_by_cluster = {}, {}
+            for treated, control, mt, mc, w in parts:
+                # Treated units carry both their own deviation and the deviation of their stratum's
+                # effect from the pooled ATT (the influence of the estimated stratum weight). Without
+                # the second term, clustering at the stratum level would give a zero variance.
+                shift = (mt - mc) - att
                 for unit, v in treated:
                     key = panel.clusters[unit]
-                    psi[key] = psi.get(key, 0.0) + (v - mt) / total_treated
+                    psi[key] = psi.get(key, 0.0) + (v - mt + shift) / total_treated
+                    treated_by_cluster[key] = treated_by_cluster.get(key, 0) + 1
                 scale = w / len(control)
                 for unit, v in control:
                     key = panel.clusters[unit]
                     psi[key] = psi.get(key, 0.0) - scale * (v - mc)
             cells.append({'g': g, 't': t, 'e': t - g, 'att': att, 'n_treated': total_treated,
-                          'n_control': total_control, 'dropped_treated_no_control': dropped, 'psi': psi})
+                          'n_control': total_control, 'dropped_treated_no_control': dropped, 'psi': psi,
+                          'treated_by_cluster': treated_by_cluster})
     return {'cells': cells, 'skipped': skipped, 'control_group': control_group, 'anticipation': anticipation,
             'base_period': 'universal: g - 1 - anticipation'}
 
@@ -140,12 +151,13 @@ def aggregate_event_time(cells, e_min, e_max, *, balance=None, reference=-1):
         if not chosen:
             continue
         n = sum(c['n_treated'] for c in chosen)
+        att = math.fsum(c['n_treated'] / n * c['att'] for c in chosen)
         psi = {}
-        att = 0.0
         for c in chosen:
-            w = c['n_treated'] / n
-            att += w * c['att']
-            _add(psi, c['psi'], w)
+            _add(psi, c['psi'], c['n_treated'] / n)
+            # influence of the estimated cohort weights n_g / n
+            for key, count in c.get('treated_by_cluster', {}).items():
+                psi[key] = psi.get(key, 0.0) + count * (c['att'] - att) / n
         out[e] = {'e': e, 'att': att, 'psi': psi, 'n_treated': n, 'cohorts': sorted(c['g'] for c in chosen)}
     return out
 
@@ -387,12 +399,13 @@ def stacked_did(panel, *, e_min, e_max, post=None, anticipation=0, alpha=0.05, r
                 if not tv or not cv:
                     continue
                 mt, mc = mean(v for _, v in tv), mean(v for _, v in cv)
-                psi_t = {}
+                psi_t, counts = {}, {}
                 for u, v in tv:
                     psi_t[panel.clusters[u]] = psi_t.get(panel.clusters[u], 0.0) + (v - mt) / len(tv)
+                    counts[panel.clusters[u]] = counts.get(panel.clusters[u], 0) + 1
                 for u, v in cv:
                     psi_t[panel.clusters[u]] = psi_t.get(panel.clusters[u], 0.0) - (v - mc) / len(cv)
-                by_e[e] = (mt - mc, psi_t)
+                by_e[e] = (mt - mc, psi_t, counts, len(tv))
             weight = len(treated) * len(control) / (len(treated) + len(control))
             stacks.append({'g': g, 'stratum': stratum, 'n_treated': len(treated), 'n_control': len(control),
                            'weight': weight, 'effects': by_e})
@@ -404,11 +417,15 @@ def stacked_did(panel, *, e_min, e_max, post=None, anticipation=0, alpha=0.05, r
         if not members:
             continue
         total = sum(s['weight'] for s in members)
-        att, psi = 0.0, {}
+        att = math.fsum(s['weight'] / total * s['effects'][e][0] for s in members)
+        psi = {}
         for s in members:
             w = s['weight'] / total
-            att += w * s['effects'][e][0]
-            _add(psi, s['effects'][e][1], w)
+            effect, psi_s, counts, n_t = s['effects'][e]
+            _add(psi, psi_s, w)
+            # influence of the stack weight, attributed to the stack's treated units
+            for key, count in counts.items():
+                psi[key] = psi.get(key, 0.0) + w * (effect - att) * count / n_t
         se = math.sqrt(_variance(psi, n_clusters))
         table[e] = (att, psi)
         rows.append({'e': e, 'att': att, 'se': se, 'ci_low': att - z * se, 'ci_high': att + z * se,

@@ -141,6 +141,32 @@ class EstimatorTests(unittest.TestCase):
         se_u = event_study(unclustered, e_min=-2, e_max=3, bootstrap=0)['overall']['se']
         self.assertGreater(se_c, 1.5 * se_u)
 
+    def test_clustering_at_the_stratum_level_keeps_the_variance_of_heterogeneous_effects(self):
+        # Regression test: when clusters equal strata, within-stratum-centred influence functions sum to
+        # zero in every cluster. The estimated-weight term must carry the between-stratum variation.
+        import random
+        covered, reps = 0, 40
+        for rep in range(reps):
+            rng = random.Random(500 + rep)
+            outcomes, cohorts, strata = {}, {}, {}
+            for s in range(30):
+                tau = rng.gauss(1.0, 0.5)
+                shocks = {t: rng.gauss(0, 0.3) for t in range(2000, 2012)}
+                for i in range(20):
+                    unit = f's{s}u{i}'
+                    g = rng.choice([2004, 2008, None])
+                    a = rng.gauss(0, 1)
+                    outcomes[unit] = {t: a + shocks[t] + rng.gauss(0, 0.1) + (tau if g is not None and t >= g else 0.0)
+                                      for t in range(2000, 2012)}
+                    cohorts[unit], strata[unit] = g, f's{s}'
+            panel = Panel(outcomes, cohorts, strata=strata, clusters=strata)
+            result = event_study(panel, e_min=-3, e_max=3, bootstrap=0)
+            self.assertGreater(result['overall']['se'], 0.03)
+            covered += result['overall']['ci_low'] <= 1.0 <= result['overall']['ci_high']
+            stacked = stacked_did(panel, e_min=-2, e_max=2)
+            self.assertGreater(stacked['overall']['se'], 0.03)
+        self.assertGreaterEqual(covered / reps, 0.8)
+
     def test_stratification_removes_confounding_by_stratum_shocks(self):
         panel, truth = staggered_panel(n_units=800, seed=17, strata=4, stratum_shock_sd=0.0, selection_on_stratum=1.2,
                                        effect=lambda e, g: 0.0)
