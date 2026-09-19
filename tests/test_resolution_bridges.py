@@ -62,7 +62,13 @@ class PublishedCrosswalkTests(unittest.TestCase):
             link('1', 'us_csl:3', 'same_designation_as', 'ofac:party:3'),
             entity('uk:sanctions:AFG0001', 'A PERSON', 'person'),
             entity('un:sanctions:TAe.010', 'A PERSON', 'person'),
-            link('2', 'uk:sanctions:AFG0001', 'same_designation_as', 'un:sanctions:TAe.010')])
+            link('2', 'uk:sanctions:AFG0001', 'same_designation_as', 'un:sanctions:TAe.010'),
+            # the UK list prints the registers as labelled free text; KPP and OKPO are not read
+            entity('uk:sanctions:RUS0001', 'BANK ONE', 'organization'),
+            ident('22', 'uk:sanctions:RUS0001', {'scheme': 'Business Registration Number',
+                                                 'value': 'OGRN ' + OGRN + 'KPP: 770701001INN ' + INN + ' OKPO 00044434'}),
+            entity('uk:sanctions:RUS0002', 'UNLABELLED', 'organization'),
+            ident('23', 'uk:sanctions:RUS0002', {'scheme': 'Business Registration Number', 'value': INN})])
         publish('opensanctions_graph', [
             entity('opensanctions:NK-bank', 'Bank One PJSC', 'business'),
             ident('9', 'opensanctions:NK-bank', {'id': 'ru_inn:' + INN, 'scheme': 'innCode', 'value': INN}),
@@ -119,8 +125,11 @@ class PublishedCrosswalkTests(unittest.TestCase):
 
     def test_register_numbers_named_by_scheme_and_country_join_across_publishers(self):
         report, members = self.resolve()
-        self.assertEqual(members('ofac:party:1'), ['lei:549300BANKONE000001', 'ofac:party:1', 'opensanctions:NK-bank'])
+        self.assertEqual(members('ofac:party:1'), ['lei:549300BANKONE000001', 'ofac:party:1', 'opensanctions:NK-bank',
+                                                   'uk:sanctions:RUS0001'])
         self.assertEqual(report['counts']['bridge_claims_sanctions_register_number'], 2)
+        self.assertEqual(report['counts']['bridge_claims_labelled_register_number'], 2)
+        self.assertEqual(members('uk:sanctions:RUS0002'), ['uk:sanctions:RUS0002'])
         # neither a failed check digit nor an unnamed register is read
         self.assertEqual(members('ofac:party:2'), ['ofac:party:2'])
         # a typed placeholder OGRN is refused too, so the manager and the bank stay apart
@@ -187,9 +196,10 @@ class PublishedCrosswalkTests(unittest.TestCase):
         by_dataset = {row['dataset']: row for row in index['by_dataset']}
         self.assertEqual(by_dataset['transport']['joined'], 1)                    # iata:UTK, not iata:OLD
         self.assertEqual(by_dataset['sec_gleif']['joined'], 1)
-        # OFAC and the CSL are given one publisher here, so their join alone is not independent
-        self.assertEqual(by_dataset['other_sanctions_lists']['joined_independent'], 0)
-        self.assertEqual(by_dataset['other_sanctions_lists']['joined'], 1)
+        # OFAC and the CSL are given one publisher here, so us_csl:3 (joined to OFAC only) is not an
+        # independent join; uk:sanctions:RUS0001 (joined to GLEIF and OpenSanctions too) is
+        self.assertEqual(by_dataset['other_sanctions_lists']['joined'], 2)
+        self.assertEqual(by_dataset['other_sanctions_lists']['joined_independent'], 1)
         self.assertGreaterEqual(index['totals']['joined_with_mentions'], index['totals']['joined'])
         unresolved = join_coverage(self.index, workdir=Path(self.tmp.name) / 'jc0', clusters=None, families={})
         self.assertEqual(unresolved['totals']['joined'], 0)
@@ -236,6 +246,14 @@ class BridgeUnitTests(unittest.TestCase):
         self.assertIsNone(claim({'scheme': 'Tax ID No.', 'issuing_country': 'RUS', 'number': INN,
                                  'validity': 'Fraudulent'}))
         self.assertIsNone(claim({'id': 'lei:X', 'scheme': 'Tax ID No.', 'issuing_country': 'RUS', 'number': INN}))
+
+    def test_labelled_register_numbers_in_free_text(self):
+        read = bridges.labelled_register_numbers
+        self.assertEqual(read('OGRN 1027700035769INN 7708004767 OKPO 00044434'),
+                         [('ru_ogrn', '1027700035769'), ('ru_inn', '7708004767')])
+        self.assertEqual(read('UK Company Number – OE019729'), [('gb_company_number', 'OE019729')])
+        for text in ('7810938831', 'Tax number: 5042120394', 'LINN 7708004767', 'INN 7708004768', None):
+            self.assertEqual(read(text), [])
 
     def test_value_forms(self):
         self.assertEqual(bridges.normalize_value('swift', 'havigb2lxxx'), 'HAVIGB2L')

@@ -204,6 +204,34 @@ def register_number_claim(value):
     return None if normalized is None else (namespace, normalized)
 
 
+# The UK sanctions list prints registration numbers as free text inside one "Business Registration
+# Number" field, with the register named by a label in the text: "OGRN 1027700035769INN 7708004767
+# OKPO 00044434" (LUKOIL), "OGRN: 1247700291200KPP: 770701001INN: 9707028663", "UK Company no.
+# 06527449". A number is read only where its own label names the register and it passes that
+# register's check digits; an unlabelled number ("7810938831") and a label for a register this
+# catalog cannot type (OKPO, KPP, India CIN) are never read.
+_NOT_LETTER = r'(?<![A-Za-zЀ-ӿ])'
+_LABELLED = (
+    ('ru_ogrn', re.compile(_NOT_LETTER + r'(?:OGRN|ОГРН)\s*[:#№.\-–]?\s*(\d{15}|\d{13})(?!\d)'), ru_ogrn),
+    ('ru_inn', re.compile(_NOT_LETTER + r'(?:INN|ИНН)\s*[:#№.\-–]?\s*(\d{12}|\d{10})(?!\d)'), ru_inn),
+    ('gb_company_number', re.compile(r'UK Company (?:no\.?|number)\s*[:\-–]?\s*([A-Z]{2}\d{6}|\d{6,8})(?![\dA-Z])',
+                                     re.IGNORECASE), gb_company_number),
+)
+
+
+def labelled_register_numbers(text):
+    """(namespace, value) pairs a free-text registration field labels by register, check digits held."""
+    if not isinstance(text, str):
+        return []
+    found = []
+    for namespace, pattern, validate in _LABELLED:
+        for match in pattern.finditer(text):
+            value = validate(match.group(1))
+            if value is not None and (namespace, value) not in found:
+                found.append((namespace, value))
+    return found
+
+
 # FollowTheMoney's ``uniqueEntityId`` property is the US System for Award Management Unique Entity
 # ID: twelve characters, letters and digits, never an O or I, never starting with 0.
 _UEI = re.compile(r'[A-HJ-NP-Z1-9][A-HJ-NP-Z0-9]{11}')
@@ -313,6 +341,15 @@ BRIDGES = {
                             'printing one number for two parties (a Russian branch shares its parent\'s INN) is '
                             'refused, not merged'),
     },
+    'labelled_register_number': {
+        'spec': 'sanctions_register_number', 'namespace': 'ru_ogrn / ru_inn / gb_company_number',
+        'reads': 'free-text "Business Registration Number" identifier values (the UK sanctions list)',
+        'published_basis': ('the text labels the register next to the number ("OGRN 1027700035769", "INN '
+                            '7708004767", "UK Company no. 06527449"), and each value passes that register\'s '
+                            'check digits'),
+        'does_not_assert': ('anything about an unlabelled number or a register this catalog cannot type (OKPO, '
+                            'KPP, CIN, PAN); those stay text'),
+    },
     'opensanctions_uei': {
         'spec': 'opensanctions_uei', 'namespace': 'uei',
         'reads': 'opensanctions_graph identifier values with scheme uniqueEntityId',
@@ -370,6 +407,10 @@ def record_claims(record):
         claim = register_number_claim(value)
         if claim is not None:
             return [(subject, claim[0], claim[1], None, 'sanctions_register_number')]
+        if (value.get('scheme') == 'Business Registration Number' and not value.get('id')
+                and not flagged_fraudulent(value)):
+            return [(subject, namespace, number, None, 'labelled_register_number')
+                    for namespace, number in labelled_register_numbers(value.get('value', value.get('number')))]
     return []
 
 
