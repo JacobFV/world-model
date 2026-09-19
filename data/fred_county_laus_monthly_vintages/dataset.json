@@ -1,0 +1,80 @@
+{
+ "id": "fred_county_laus_monthly_vintages",
+ "schema_version": 2,
+ "kind": "source",
+ "description": "Monthly LAUS county series with every ALFRED real-time vintage: the unemployment rate (FRED alias ...URN) and the civilian labor force (...LFN), 229-264 vintages per series from 2005-06-08 and 2007-06. The county counterpart of fred_county_vintages' annual LAUS averages, whose archive only opens in 2017/2019; the monthly aliases are the only county LAUS source reaching back before 2017. Subjects are geo:US:county:<SSCCC>. Each row carries the vintage it was published in, the units published in that vintage, and whether it is a first release.",
+ "source": {
+  "publisher": "Federal Reserve Bank of St. Louis (FRED/ALFRED)",
+  "originating_source": "U.S. Bureau of Labor Statistics, Local Area Unemployment Statistics (county, monthly, not seasonally adjusted)",
+  "documentation": "https://fred.stlouisfed.org/docs/api/fred/series_observations.html",
+  "license_status": "publisher_terms",
+  "license_notes": "FRED API Terms of Use (https://fred.stlouisfed.org/docs/api/terms_of_use.html). The underlying series are US federal statistics (public domain); FRED terms govern API use. Cite FRED/ALFRED and the Bureau of Labor Statistics. No third-party copyright series are included."
+ },
+ "dependencies": [],
+ "parameters": {},
+ "entrypoint": "pipeline.py:run",
+ "output_stage": "normalized",
+ "sampling": {
+  "strategy": "blocked",
+  "format": "json",
+  "max_rows": 100,
+  "max_sample_bytes": 1048576,
+  "max_download_bytes": 1048576,
+  "max_uncompressed_bytes": 1048576,
+  "disk_budget_bytes": 67108864,
+  "criteria": "Not sampled",
+  "reason": "A 100-row excerpt of one series would carry a handful of vintages and could not be told apart from a current-vintage download, which is the exact confusion this dataset exists to remove. pipeline.py refuses to run on anything but the full sharded artifact."
+ },
+ "acquisition": {
+  "strategy": "url_list",
+  "description": "One FRED API series/observations request per configured monthly LAUS county alias, each over the full real-time window 1776-07-04..9999-12-31 so every ALFRED vintage comes back as [realtime_start, realtime_end] spans. Series and their county codes are discovered by build_config.py from FRED release 116 and GeoFRED; the series_id list here must equal config.json (build_config.py --emit-parameters regenerates it). A series FRED does not archive answers 400 \"does not exist in ALFRED\" and is recorded as skipped. desired_bytes is 1.8 GiB against a declared 2 GiB ceiling for this dataset: 20 sampled full-window payloads measured 174.7 KiB mean for the unemployment rate and 313.7 KiB mean for the labor force, which extrapolates to 1.43 GiB for the two families together.",
+  "documentation": "https://fred.stlouisfed.org/docs/api/fred/series_observations.html",
+  "desired_bytes": 1932735283,
+  "min_bytes": 0,
+  "priority": 3.0,
+  "url_template": "https://api.stlouisfed.org/fred/series/observations?series_id={series_id}&realtime_start=1776-07-04&realtime_end=9999-12-31&file_type=json&limit=100000&sort_order=asc&offset=0",
+  "parameters": {
+   "series_id": []
+  },
+  "credentials": [
+   {
+    "env": "FRED_API_KEY",
+    "query": "api_key"
+   }
+  ],
+  "rate_limit": {
+   "requests_per_second": 1.9,
+   "requests_per_day": null,
+   "key": "api.stlouisfed.org"
+  },
+  "timeout_seconds": 120,
+  "retries": 5,
+  "max_requests": 8000,
+  "skip_statuses": [
+   400
+  ],
+  "reader": {
+   "format": "json",
+   "records_path": [
+    "observations"
+   ]
+  }
+ },
+ "stages": [
+  {
+   "id": "normalized",
+   "entrypoint": "pipeline.py:run",
+   "depends_on": [],
+   "schema": {
+    "format": "evidence_jsonl",
+    "compression": "gzip"
+   },
+   "validation": {
+    "allow_empty": false,
+    "max_rows": 30000000
+   },
+   "cache": "content",
+   "retention": "retain"
+  }
+ ]
+}
