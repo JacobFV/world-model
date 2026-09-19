@@ -28,6 +28,11 @@ wm decision-optimize examples/decision/monetary-treasury-optimize.json --request
 python3 examples/decision/run_examples.py        # all four, writing examples/decision/outputs/
 ```
 
+Each of these reads the published reports in the data root (`--data-root`, or
+`WORLD_MODEL_DATA`), and the monetary examples also read the two FRED datasets the
+validated attempt pinned. `--no-store` checks a contract's structure without them, and
+then nothing can resolve to `validated`.
+
 ## 1. The contract
 
 `worldmodel.decision_contract/1` — JSON Schema in
