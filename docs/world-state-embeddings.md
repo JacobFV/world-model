@@ -152,6 +152,24 @@ calibration error ≤ 0.02, and no timing or revision leakage (original filings 
 revision enters). The worst-bin calibration deviation is reported but not judged: a bin holding a
 handful of forecasts decides it.
 
+## Actors: roll-call votes
+
+The second actor domain, on the same runner and the same candidates, so the question "does the
+embedding add signal?" is asked of a different kind of decision. A sample is one member's yea or
+nay on a *party-unity* roll call (a majority of each party on opposite sides); the label is voting
+against their own party's majority, which happens on about 4% of them. The origin is the roll call's
+date, and every feature comes from roll calls held strictly before it.
+
+Excluded on purpose: DW-NOMINATE and Nokken-Poole scores and roll-call midpoints, which Voteview
+re-estimates from later votes; and cosponsor lists, which the published data carries without dates,
+so which cosponsors had signed before a given vote is unknown. That removes the strongest available
+signal of a bill's bipartisanship, and the registration says so.
+
+Template (20 nodes): the (member, roll call) pair, the member, the roll call, the bill's sponsor,
+the eight members who agreed most with the member on unity votes in the two years before the
+quarter began, and up to eight of their state delegation. Baselines: the training base rate, the
+member's own defection rate over the previous year, and LightGBM on the same features.
+
 ## Running it
 
 The home GB10 is shared; heavy runs go to the dedicated second GB10 (`ssh gb10-direct`), with the
@@ -176,6 +194,7 @@ host-memory cap on a GB10: CPU and GPU share one pool, which is why the cgroup i
 | `places.county_root_readout_v3` | running | identical in every scored respect; alone on its GPU |
 | `actors.13f_exit_increase_v1` | **fail** (both tasks) | beats the base rate, loses to LightGBM; see below |
 | `actors.13f_exit_increase_v2` | queued | LightGBM plus the embedding, registered after v1's result |
+| `actors.votes_party_defection_v1` | queued | the same three candidates, on roll-call defections |
 
 ## Results
 
