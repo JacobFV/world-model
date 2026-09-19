@@ -1,0 +1,127 @@
+{
+  "id": "firm_panel",
+  "schema_version": 2,
+  "kind": "derived",
+  "status": "built_from_published_inputs",
+  "description": "SEC issuer x fiscal period panel: revenue, net income, assets, liabilities, equity, cash and shares as filed, every restatement kept as a later vintage dated by its filing date; LEI from GLEIF's SEC registration-authority field or SEC submissions; 13F long share positions per issuer-quarter through the CUSIPs of GLEIF/ANNA ISINs of that LEI. Joins use published identifiers only; federal contract obligations are not linked because no published UEI-CIK or UEI-LEI crosswalk exists in the catalog. See README.md for what it does not establish.",
+  "dependencies": [
+    "sec_financial_statements",
+    "sec_company_assets",
+    "sec_gleif",
+    "sec_issuer_reference",
+    "sec_13f_history",
+    "sec_ownership_datasets"
+  ],
+  "entrypoint": "pipeline.py:panel",
+  "parameters": {
+    "builder": "worldmodel.panels.firm",
+    "fsds_first_filed": "2012-10-01",
+    "instants": [
+      "total_assets",
+      "total_liabilities",
+      "stockholders_equity",
+      "cash_and_equivalents",
+      "cash_restricted_cash_and_equivalents",
+      "shares_outstanding",
+      "shares_outstanding_cover"
+    ],
+    "durations": [
+      "revenue",
+      "net_income",
+      "weighted_average_shares_diluted"
+    ],
+    "duration_quarters": [
+      1,
+      2,
+      3,
+      4
+    ],
+    "ownership_datasets": [
+      "sec_13f_history",
+      "sec_ownership_datasets"
+    ],
+    "ownership_share_class": "SH",
+    "ownership_exclude_options": true,
+    "thirteen_f_deadline_days": 45,
+    "evidence_sample": 3
+  },
+  "sampling": {
+    "strategy": "derived",
+    "format": "jsonl",
+    "max_rows": 100,
+    "max_sample_bytes": 1048576,
+    "max_download_bytes": 1048576,
+    "max_uncompressed_bytes": 1048576,
+    "disk_budget_bytes": 67108864,
+    "criteria": "Sample an existing published panel only; never trigger upstream downloads or builds.",
+    "representative": false
+  },
+  "stages": [
+    {
+      "id": "links",
+      "entrypoint": "pipeline.py:links",
+      "depends_on": [],
+      "schema": {
+        "format": "jsonl",
+        "compression": "gzip",
+        "required": {
+          "id": "string",
+          "schema": "string",
+          "evidence": "array"
+        }
+      },
+      "validation": {
+        "allow_empty": false,
+        "max_rows": 1000000
+      },
+      "cache": "content",
+      "retention": "retain"
+    },
+    {
+      "id": "ownership",
+      "entrypoint": "pipeline.py:ownership",
+      "depends_on": [
+        "links"
+      ],
+      "schema": {
+        "format": "jsonl",
+        "compression": "gzip",
+        "required": {
+          "id": "string",
+          "schema": "string",
+          "evidence": "array"
+        }
+      },
+      "validation": {
+        "allow_empty": false,
+        "max_rows": 5000000
+      },
+      "cache": "content",
+      "retention": "retain"
+    },
+    {
+      "id": "panel",
+      "entrypoint": "pipeline.py:panel",
+      "depends_on": [
+        "links",
+        "ownership"
+      ],
+      "schema": {
+        "format": "jsonl",
+        "compression": "gzip",
+        "required": {
+          "id": "string",
+          "schema": "string",
+          "evidence": "array"
+        }
+      },
+      "validation": {
+        "allow_empty": false,
+        "max_rows": 10000000
+      },
+      "cache": "content",
+      "retention": "retain"
+    }
+  ],
+  "output_stage": "panel"
+}
