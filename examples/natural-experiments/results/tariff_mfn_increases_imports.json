@@ -1,0 +1,2233 @@
+{
+ "registration": {
+  "commit": "c1bcbc2e7aa379f7d743b33aaa759bfc12b7b228",
+  "committed_at": "2026-09-18T18:32:51-07:00",
+  "committed_clean": true,
+  "path": "examples/natural-experiments/registrations/tariff_mfn_increases_imports.json",
+  "sha256": "50589b4e44af0b25e0bd9fb27ef04eeb9fdaf19969fa173f28e14ac936dce750"
+ },
+ "results": [
+  {
+   "acceptance": [
+    {
+     "id": "enough_treated_units",
+     "passed": true,
+     "role": "identification",
+     "threshold": 200,
+     "type": "min_treated_units",
+     "value": 4233
+    },
+    {
+     "id": "enough_clusters",
+     "passed": true,
+     "role": "identification",
+     "threshold": 50,
+     "type": "min_clusters",
+     "value": 4571
+    },
+    {
+     "id": "no_pre_trends",
+     "passed": true,
+     "role": "identification",
+     "threshold": 0.05,
+     "type": "pre_trend_wald_p_min",
+     "value": 0.1355859755501051
+    },
+    {
+     "id": "placebo_date_null",
+     "passed": false,
+     "role": "identification",
+     "threshold": 0.05,
+     "type": "placebo_date_p_min",
+     "value": 0.04644599299496326
+    },
+    {
+     "id": "placebo_unit_size",
+     "passed": true,
+     "role": "identification",
+     "threshold": 0.1,
+     "type": "placebo_unit_rejection_rate_max",
+     "value": 0.05
+    },
+    {
+     "id": "stacked_agrees",
+     "passed": true,
+     "role": "identification",
+     "threshold": null,
+     "type": "robustness_ci_overlap",
+     "value": [
+      [
+       -0.130646201131245,
+       -0.04352443280751708
+      ],
+      [
+       -0.161957037308623,
+       -0.05500600623640535
+      ]
+     ]
+    }
+   ],
+   "data": {
+    "inputs": [
+     {
+      "dataset": "event_library",
+      "stage": "events",
+      "version": "dbf0c37f15cb15933ddf2452ae00cf196981aef02045a2b642d1582643b2819a"
+     },
+     {
+      "dataset": "wits_trains_tariffs",
+      "stage": "normalized",
+      "version": "dfa67e7ff86a26db08175897e52f161f8f9c8922669ddd190ca316fb3ffa977e"
+     },
+     {
+      "dataset": "cepii_baci",
+      "stage": "normalized",
+      "version": "0e2f1e6d47d21824270a48c6cff770b392b279f9dc12b2f321383ece1d83e2c8"
+     }
+    ],
+    "outcome_extraction": {
+     "input": {
+      "dataset": "cepii_baci",
+      "stage": "normalized",
+      "version": "0e2f1e6d47d21824270a48c6cff770b392b279f9dc12b2f321383ece1d83e2c8"
+     },
+     "rows": 1880804,
+     "sha256": "12612a464e9e863c08dfb36246613dddf55ab436cc2444d0c3db5e310b4cb15f",
+     "spec": {
+      "filter": "metric == bilateral_trade_value; importer in the listed set; sum over exporters",
+      "importers": [
+       "iso3:AGO",
+       "iso3:ARE",
+       "iso3:ARG",
+       "iso3:AUS",
+       "iso3:BGD",
+       "iso3:BHR",
+       "iso3:BRA",
+       "iso3:CAN",
+       "iso3:CHE",
+       "iso3:CHL",
+       "iso3:CHN",
+       "iso3:CIV",
+       "iso3:COL",
+       "iso3:CRI",
+       "iso3:DZA",
+       "iso3:ECU",
+       "iso3:GBR",
+       "iso3:GHA",
+       "iso3:HKG",
+       "iso3:IDN",
+       "iso3:IND",
+       "iso3:ISR",
+       "iso3:JOR",
+       "iso3:JPN",
+       "iso3:KAZ",
+       "iso3:KEN",
+       "iso3:KOR",
+       "iso3:KWT",
+       "iso3:LKA",
+       "iso3:MAR",
+       "iso3:MMR",
+       "iso3:MYS",
+       "iso3:NGA",
+       "iso3:NOR",
+       "iso3:NZL",
+       "iso3:OMN",
+       "iso3:PAK",
+       "iso3:PAN",
+       "iso3:PER",
+       "iso3:PHL",
+       "iso3:QAT",
+       "iso3:RUS",
+       "iso3:THA",
+       "iso3:TUR",
+       "iso3:TWN",
+       "iso3:USA",
+       "iso3:VEN",
+       "iso3:VNM",
+       "iso3:ZAF"
+      ]
+     }
+    },
+    "panel": {
+     "clusters": 4571,
+     "cohort_sizes": {
+      "2019": 1676,
+      "2020": 655,
+      "2021": 1881,
+      "2022": 21
+     },
+     "never_treated_units": 211164,
+     "observations": 1693807,
+     "periods": [
+      2017,
+      2024
+     ],
+     "strata": 48,
+     "treated_units": 4233,
+     "units": 215397
+    },
+    "panel_digest": "3d50cc96925b3ffca61ca7d8209011feb8d6a32bc356d89a318c940fc33331ed",
+    "treatment_facts": {
+     "extensive_margin_treated_with_zero_post_import": 74,
+     "importers": 49,
+     "sample_units": 215397,
+     "treated_units_estimated": 4233,
+     "units_excluded_first_change_other": 14280,
+     "units_with_first_change_increase_2pp": 4764,
+     "universe_units": 264038
+    }
+   },
+   "design": {
+    "controls": {
+     "control_group": "not_yet_treated",
+     "definition": "same-importer HS6 products never treated or first treated after max(t, g-1)"
+    },
+    "estimator": {
+     "anticipation": 0,
+     "balance": null,
+     "estimand": "ATT: equal-weight mean over event times 0..3 of treated-count-weighted ATT(g, g+e)",
+     "primary": "callaway_santanna_unconditional_within_importer",
+     "robustness": [
+      "stacked_did",
+      "twfe_static",
+      "never_treated_controls"
+     ]
+    },
+    "inference": {
+     "alpha": 0.05,
+     "bootstrap": 999,
+     "bootstrap_weights": "rademacher multiplier on cluster influence functions",
+     "cluster": "importer x HS2 chapter",
+     "seed": 20260918
+    },
+    "outcomes": {
+     "primary": {
+      "id": "baci_log_import_value",
+      "label": "log import value from all exporters (BACI, thousand current USD)",
+      "source": "cepii_baci bilateral_trade_value summed over exporters",
+      "unit": "log points"
+     },
+     "secondary": [
+      {
+       "id": "baci_log_import_quantity",
+       "label": "log import quantity from all exporters (BACI, metric tons; cells with any flow lacking quantity dropped)",
+       "source": "cepii_baci attributes.quantity_t summed over exporters",
+       "unit": "log points"
+      }
+     ],
+     "transform": "natural log of positive values; a zero or missing post-period value drops that cell, and the share of treated units with any post-period zero is reported as an extensive-margin diagnostic"
+    },
+    "placebo_tests": {
+     "placebo_date": {
+      "definition": "treated units keep only years before g; placebo cohort g-2; placebo effect averaged over placebo event times 0..1",
+      "shift": 2
+     },
+     "placebo_unit": {
+      "definition": "real treated units removed; never-treated units get cohorts drawn from their importer's real cohorts at the importer's real treated share",
+      "min_never_treated": 20,
+      "replications": 100,
+      "seed": 11
+     }
+    },
+    "question": "When an importer raises its MFN applied tariff on an HS6 product by at least 2 percentage points, how does the value of its imports of that product (from all exporters) change over the following years, relative to the same importer's products whose MFN rate has not yet changed?",
+    "treatment": {
+     "absorbing": "later changes to a treated unit are part of its post-period treatment path",
+     "censoring": "tariff status is observed only while the reporter reports in HS2017 (to 2021 for most, 2022-2023 for some); a never-treated unit may have changed after its reporter switched to HS2022",
+     "definition": "cohort g = reporting year of the unit's first MFN change of at least 0.5 pp in absolute value, when that first change is an increase of at least 2.0 pp",
+     "estimated_cohorts": [
+      2019,
+      2022
+     ],
+     "excluded_units": "units whose first change of at least 0.5 pp is a decrease or an increase below 2.0 pp",
+     "never_treated": "units with an HS2017 MFN rate reported in 2018 and no change of at least 0.5 pp between any consecutive HS2017 reporting years",
+     "source": "event_library: library_type tariff_mfn_increase / tariff_mfn_decrease with hs_revision HS2017 (both reporting years in HS2017)"
+    },
+    "units": {
+     "definition": "importer (WITS/TRAINS reporter with an ISO3 code that is also a BACI importer; the EU aggregate is excluded) x HS6 product (HS2017)",
+     "sample": "units with BACI import value > 0 in both 2017 and 2018 (pre-treatment for every cohort)",
+     "strata": "importer: every comparison is within the importing country, absorbing importer-year shocks (exchange rates, aggregate demand)"
+    },
+    "windows": {
+     "calendar_years": [
+      2017,
+      2024
+     ],
+     "e_max": 3,
+     "e_min": -3,
+     "post": [
+      0,
+      1,
+      2,
+      3
+     ],
+     "reference_event_time": -1
+    }
+   },
+   "diagnostics": {
+    "placebo_date": {
+     "event_time": [
+      {
+       "analytic_se": 0.027611746743134647,
+       "att": -0.048325068198639215,
+       "band_high": null,
+       "band_low": null,
+       "ci_high": 0.00579296096814582,
+       "ci_low": -0.10244309736542426,
+       "cohorts": [
+        2018,
+        2019,
+        2020
+       ],
+       "e": 0,
+       "n_treated": 2553,
+       "p": 0.08009012458783456,
+       "period": "post",
+       "se": 0.027611746743134647
+      },
+      {
+       "analytic_se": 0.04577530614245692,
+       "att": -0.08743657723883073,
+       "band_high": null,
+       "band_low": null,
+       "ci_high": 0.0022813741816799377,
+       "ci_low": -0.1771545286593414,
+       "cohorts": [
+        2018,
+        2019,
+        2020
+       ],
+       "e": 1,
+       "n_treated": 2551,
+       "p": 0.05611706291381613,
+       "period": "post",
+       "se": 0.04577530614245692
+      }
+     ],
+     "overall": {
+      "analytic_se": 0.03408839765758507,
+      "att": -0.06788082271873497,
+      "bootstrap_p": null,
+      "ci_high": -0.0010687910191886918,
+      "ci_low": -0.13469285441828124,
+      "definition": "equal-weight mean of ATT(e) over the post event times listed",
+      "event_times": [
+       0,
+       1
+      ],
+      "p": 0.04644599299496326,
+      "se": 0.03408839765758507
+     },
+     "p": 0.04644599299496326,
+     "passed": false,
+     "shift": 2,
+     "test": "placebo_date",
+     "treated_units_with_pre_data": 4233
+    },
+    "placebo_unit": {
+     "never_treated_units": 211164,
+     "nominal_alpha": 0.05,
+     "observed": -0.08708531696938104,
+     "permutation_p": 0.009900990099009901,
+     "placebo_mean": -0.0016422778297237746,
+     "placebo_sd": 0.019867196259795973,
+     "ran": true,
+     "rejection_rate": 0.05,
+     "replications": 100,
+     "seed": 11,
+     "test": "placebo_unit"
+    },
+    "pre_trend": {
+     "leads": [
+      -3,
+      -2
+     ],
+     "max_abs_lead": 0.08506158797107093,
+     "sup_t": {
+      "p": 0.126,
+      "statistic": 1.6765375546676382
+     },
+     "wald": {
+      "df": 2,
+      "p": 0.1355859755501051,
+      "statistic": 3.996298667942618
+     }
+    }
+   },
+   "estimates": {
+    "outcome": {
+     "id": "baci_log_import_value",
+     "label": "log import value from all exporters (BACI, thousand current USD)",
+     "role": "primary",
+     "source": "cepii_baci bilateral_trade_value summed over exporters",
+     "unit": "log points"
+    },
+    "primary": {
+     "alpha": 0.05,
+     "anticipation": 0,
+     "bootstrap": {
+      "level": "cluster",
+      "replications": 999,
+      "seed": 20260918,
+      "uniform_critical_value": 2.5044875247201905,
+      "weights": "rademacher"
+     },
+     "cells": 28,
+     "control_group": "not_yet_treated",
+     "dropped_treated_no_control": 0,
+     "estimator": "callaway_santanna_unconditional_stratified",
+     "event_time": [
+      {
+       "analytic_se": 0.04558759109222997,
+       "att": 0.08506158797107093,
+       "band_high": 0.21213043012931831,
+       "band_low": -0.04200725418717645,
+       "ci_high": 0.18450323091365034,
+       "ci_low": -0.014380054971508488,
+       "cohorts": [
+        2020,
+        2021,
+        2022
+       ],
+       "e": -3,
+       "n_treated": 2551,
+       "p": 0.09363294659444595,
+       "period": "pre",
+       "se": 0.050736464408000566
+      },
+      {
+       "analytic_se": 0.02161904837791383,
+       "att": 0.01710937825038368,
+       "band_high": 0.07071339918298938,
+       "band_low": -0.03649464268222202,
+       "ci_high": 0.05905885869995237,
+       "ci_low": -0.02484010219918501,
+       "cohorts": [
+        2019,
+        2020,
+        2021,
+        2022
+       ],
+       "e": -2,
+       "n_treated": 4225,
+       "p": 0.42406748538877737,
+       "period": "pre",
+       "se": 0.021403189436367633
+      },
+      {
+       "analytic_se": 0.021359721361099357,
+       "att": -0.06429968025209255,
+       "band_high": -0.01096857229984978,
+       "band_low": -0.11763078820433533,
+       "ci_high": -0.022563776275612735,
+       "ci_low": -0.10603558422857237,
+       "cohorts": [
+        2019,
+        2020,
+        2021,
+        2022
+       ],
+       "e": 0,
+       "n_treated": 4215,
+       "p": 0.002531222983520435,
+       "period": "post",
+       "se": 0.02129421984571518
+      },
+      {
+       "analytic_se": 0.0251484614899073,
+       "att": -0.11381690193541195,
+       "band_high": -0.04683044292056074,
+       "band_low": -0.18080336095026317,
+       "ci_high": -0.06139458167025309,
+       "ci_low": -0.1662392222005708,
+       "cohorts": [
+        2019,
+        2020,
+        2021,
+        2022
+       ],
+       "e": 1,
+       "n_treated": 4194,
+       "p": 2.0869186064356505e-05,
+       "period": "post",
+       "se": 0.02674657324249805
+      },
+      {
+       "analytic_se": 0.027709063622875892,
+       "att": -0.08749319639535069,
+       "band_high": -0.01749630187246777,
+       "band_low": -0.15749009091823363,
+       "ci_high": -0.03271496694107264,
+       "ci_low": -0.14227142584962874,
+       "cohorts": [
+        2019,
+        2020,
+        2021,
+        2022
+       ],
+       "e": 2,
+       "n_treated": 4186,
+       "p": 0.0017450610858599075,
+       "period": "post",
+       "se": 0.02794858981407911
+      },
+      {
+       "analytic_se": 0.027465901698694856,
+       "att": -0.08273148929466898,
+       "band_high": -0.011479403648247052,
+       "band_low": -0.15398357494109088,
+       "ci_high": -0.026970971299694085,
+       "ci_low": -0.13849200728964386,
+       "cohorts": [
+        2019,
+        2020,
+        2021
+       ],
+       "e": 3,
+       "n_treated": 4160,
+       "p": 0.0036376600488670237,
+       "period": "post",
+       "se": 0.028449766646125516
+      }
+     ],
+     "n_clusters": 4571,
+     "overall": {
+      "analytic_se": 0.022060302375878676,
+      "att": -0.08708531696938104,
+      "bootstrap_p": 0.001,
+      "ci_high": -0.04352443280751708,
+      "ci_low": -0.130646201131245,
+      "definition": "equal-weight mean of ATT(e) over the post event times listed",
+      "event_times": [
+       0,
+       1,
+       2,
+       3
+      ],
+      "p": 8.918015645318169e-05,
+      "se": 0.02222534929491902
+     },
+     "pre_trend": {
+      "leads": [
+       -3,
+       -2
+      ],
+      "max_abs_lead": 0.08506158797107093,
+      "sup_t": {
+       "p": 0.126,
+       "statistic": 1.6765375546676382
+      },
+      "wald": {
+       "df": 2,
+       "p": 0.1355859755501051,
+       "statistic": 3.996298667942618
+      }
+     },
+     "reference_event_time": -1,
+     "skipped_cells": 0
+    },
+    "robustness": {
+     "never_treated_controls": {
+      "alpha": 0.05,
+      "anticipation": 0,
+      "bootstrap": null,
+      "cells": 28,
+      "control_group": "never_treated",
+      "dropped_treated_no_control": 0,
+      "estimator": "callaway_santanna_unconditional_stratified",
+      "event_time": [
+       {
+        "analytic_se": 0.0457782563382724,
+        "att": 0.08748238772800034,
+        "band_high": null,
+        "band_low": null,
+        "ci_high": 0.17720612142605668,
+        "ci_low": -0.0022413459700560134,
+        "cohorts": [
+         2020,
+         2021,
+         2022
+        ],
+        "e": -3,
+        "n_treated": 2551,
+        "p": 0.05600418826333262,
+        "period": "pre",
+        "se": 0.0457782563382724
+       },
+       {
+        "analytic_se": 0.021853181628551453,
+        "att": 0.017467110808691188,
+        "band_high": null,
+        "band_low": null,
+        "ci_high": 0.060298559748264396,
+        "ci_low": -0.025364338130882024,
+        "cohorts": [
+         2019,
+         2020,
+         2021,
+         2022
+        ],
+        "e": -2,
+        "n_treated": 4225,
+        "p": 0.4241201202301831,
+        "period": "pre",
+        "se": 0.021853181628551453
+       },
+       {
+        "analytic_se": 0.021595008422425316,
+        "att": -0.06531877279342371,
+        "band_high": null,
+        "band_low": null,
+        "ci_high": -0.02299333403963097,
+        "ci_low": -0.10764421154721646,
+        "cohorts": [
+         2019,
+         2020,
+         2021,
+         2022
+        ],
+        "e": 0,
+        "n_treated": 4215,
+        "p": 0.0024886649274697974,
+        "period": "post",
+        "se": 0.021595008422425316
+       },
+       {
+        "analytic_se": 0.025170148695649062,
+        "att": -0.11402440340903694,
+        "band_high": null,
+        "band_low": null,
+        "ci_high": -0.06469181848004696,
+        "ci_low": -0.16335698833802692,
+        "cohorts": [
+         2019,
+         2020,
+         2021,
+         2022
+        ],
+        "e": 1,
+        "n_treated": 4194,
+        "p": 5.894343881669021e-06,
+        "period": "post",
+        "se": 0.025170148695649062
+       },
+       {
+        "analytic_se": 0.02770899605380134,
+        "att": -0.08749388416637587,
+        "band_high": null,
+        "band_low": null,
+        "ci_high": -0.03318524985316276,
+        "ci_low": -0.14180251847958897,
+        "cohorts": [
+         2019,
+         2020,
+         2021,
+         2022
+        ],
+        "e": 2,
+        "n_treated": 4186,
+        "p": 0.0015907448905776221,
+        "period": "post",
+        "se": 0.02770899605380134
+       },
+       {
+        "analytic_se": 0.027465901698694856,
+        "att": -0.08273148929466898,
+        "band_high": null,
+        "band_low": null,
+        "ci_high": -0.028899311162309572,
+        "ci_low": -0.13656366742702838,
+        "cohorts": [
+         2019,
+         2020,
+         2021
+        ],
+        "e": 3,
+        "n_treated": 4160,
+        "p": 0.002594020948702263,
+        "period": "post",
+        "se": 0.027465901698694856
+       }
+      ],
+      "n_clusters": 4571,
+      "overall": {
+       "analytic_se": 0.022104029708102487,
+       "att": -0.08739213741587637,
+       "bootstrap_p": null,
+       "ci_high": -0.0440690352747921,
+       "ci_low": -0.13071523955696063,
+       "definition": "equal-weight mean of ATT(e) over the post event times listed",
+       "event_times": [
+        0,
+        1,
+        2,
+        3
+       ],
+       "p": 7.696010675140914e-05,
+       "se": 0.022104029708102487
+      },
+      "pre_trend": {
+       "leads": [
+        -3,
+        -2
+       ],
+       "max_abs_lead": 0.08748238772800034,
+       "sup_t": null,
+       "wald": {
+        "df": 2,
+        "p": 0.1193466008782986,
+        "statistic": 4.251446813770487
+       }
+      },
+      "reference_event_time": -1,
+      "skipped_cells": 0
+     },
+     "stacked_did": {
+      "estimator": "stacked_did_clean_controls",
+      "event_time": [
+       {
+        "att": 0.11435023367660548,
+        "ci_high": 0.20555864929785025,
+        "ci_low": 0.023141818055360697,
+        "e": -3,
+        "p": 0.014000325163891573,
+        "se": 0.04653576103473591,
+        "stacks": 52
+       },
+       {
+        "att": 0.050979519392869384,
+        "ci_high": 0.11057809296468896,
+        "ci_low": -0.008619054178950182,
+        "e": -2,
+        "p": 0.09363696855507149,
+        "se": 0.030407994249856386,
+        "stacks": 52
+       },
+       {
+        "att": -0.06155521372363675,
+        "ci_high": -0.004815429106066624,
+        "ci_low": -0.11829499834120688,
+        "e": 0,
+        "p": 0.033477997790152016,
+        "se": 0.028949401654890763,
+        "stacks": 52
+       },
+       {
+        "att": -0.12494853613029844,
+        "ci_high": -0.0663624465501183,
+        "ci_low": -0.18353462571047857,
+        "e": 1,
+        "p": 2.9140460481390017e-05,
+        "se": 0.02989141129240116,
+        "stacks": 52
+       },
+       {
+        "att": -0.1274922614289898,
+        "ci_high": -0.06583897707358288,
+        "ci_low": -0.18914554578439674,
+        "e": 2,
+        "p": 5.056682889909298e-05,
+        "se": 0.03145633534173086,
+        "stacks": 52
+       },
+       {
+        "att": -0.11993007580713172,
+        "ci_high": -0.046689828796384836,
+        "ci_low": -0.1931703228178786,
+        "e": 3,
+        "p": 0.0013300358555575944,
+        "se": 0.03736815961336872,
+        "stacks": 52
+       }
+      ],
+      "n_clusters": 4571,
+      "overall": {
+       "att": -0.10848152177251418,
+       "ci_high": -0.05500600623640535,
+       "ci_low": -0.161957037308623,
+       "definition": "equal-weight mean of stacked ATT(e) over post event times",
+       "p": 7.007737308556286e-05,
+       "se": 0.027283927642506128
+      },
+      "pre_trend": {
+       "leads": [
+        -3,
+        -2
+       ],
+       "wald": {
+        "df": 2,
+        "p": 0.04516562322378022,
+        "statistic": 6.194838059307748
+       }
+      },
+      "stack_count": 52,
+      "stacks": [
+       {
+        "g": 2020,
+        "n_control": 3453,
+        "n_treated": 278,
+        "stratum": "iso3:AGO",
+        "weight": 257.28598231037256
+       },
+       {
+        "g": 2020,
+        "n_control": 4940,
+        "n_treated": 1,
+        "stratum": "iso3:ARE",
+        "weight": 0.9997976118194697
+       },
+       {
+        "g": 2020,
+        "n_control": 4015,
+        "n_treated": 8,
+        "stratum": "iso3:ARG",
+        "weight": 7.98409147402436
+       },
+       {
+        "g": 2020,
+        "n_control": 4149,
+        "n_treated": 1,
+        "stratum": "iso3:BHR",
+        "weight": 0.9997590361445783
+       },
+       {
+        "g": 2020,
+        "n_control": 4525,
+        "n_treated": 4,
+        "stratum": "iso3:BRA",
+        "weight": 3.9964672113049238
+       },
+       {
+        "g": 2020,
+        "n_control": 3560,
+        "n_treated": 7,
+        "stratum": "iso3:CIV",
+        "weight": 6.986262966077937
+       },
+       {
+        "g": 2020,
+        "n_control": 4193,
+        "n_treated": 1,
+        "stratum": "iso3:CRI",
+        "weight": 0.9997615641392466
+       },
+       {
+        "g": 2020,
+        "n_control": 3562,
+        "n_treated": 6,
+        "stratum": "iso3:DZA",
+        "weight": 5.989910313901345
+       },
+       {
+        "g": 2020,
+        "n_control": 3386,
+        "n_treated": 8,
+        "stratum": "iso3:ECU",
+        "weight": 7.981143193871538
+       },
+       {
+        "g": 2020,
+        "n_control": 2489,
+        "n_treated": 9,
+        "stratum": "iso3:GBR",
+        "weight": 8.967574059247397
+       },
+       {
+        "g": 2020,
+        "n_control": 3694,
+        "n_treated": 85,
+        "stratum": "iso3:GHA",
+        "weight": 83.08811854988092
+       },
+       {
+        "g": 2020,
+        "n_control": 3569,
+        "n_treated": 2,
+        "stratum": "iso3:IND",
+        "weight": 1.99887986558387
+       },
+       {
+        "g": 2020,
+        "n_control": 4529,
+        "n_treated": 8,
+        "stratum": "iso3:ISR",
+        "weight": 7.98589376239806
+       },
+       {
+        "g": 2020,
+        "n_control": 4053,
+        "n_treated": 1,
+        "stratum": "iso3:JOR",
+        "weight": 0.9997533300444006
+       },
+       {
+        "g": 2020,
+        "n_control": 4973,
+        "n_treated": 19,
+        "stratum": "iso3:JPN",
+        "weight": 18.927684294871796
+       },
+       {
+        "g": 2020,
+        "n_control": 3327,
+        "n_treated": 17,
+        "stratum": "iso3:KAZ",
+        "weight": 16.913576555023923
+       },
+       {
+        "g": 2020,
+        "n_control": 3533,
+        "n_treated": 99,
+        "stratum": "iso3:KEN",
+        "weight": 96.30148678414096
+       },
+       {
+        "g": 2020,
+        "n_control": 4816,
+        "n_treated": 1,
+        "stratum": "iso3:KOR",
+        "weight": 0.9997924019099025
+       },
+       {
+        "g": 2020,
+        "n_control": 4317,
+        "n_treated": 1,
+        "stratum": "iso3:KWT",
+        "weight": 0.9997684113015285
+       },
+       {
+        "g": 2020,
+        "n_control": 2990,
+        "n_treated": 4,
+        "stratum": "iso3:LKA",
+        "weight": 3.9946559786239146
+       },
+       {
+        "g": 2020,
+        "n_control": 4003,
+        "n_treated": 7,
+        "stratum": "iso3:MMR",
+        "weight": 6.987780548628429
+       },
+       {
+        "g": 2020,
+        "n_control": 4328,
+        "n_treated": 1,
+        "stratum": "iso3:OMN",
+        "weight": 0.9997689997689998
+       },
+       {
+        "g": 2020,
+        "n_control": 3060,
+        "n_treated": 1,
+        "stratum": "iso3:PAK",
+        "weight": 0.999673309376021
+       },
+       {
+        "g": 2020,
+        "n_control": 3932,
+        "n_treated": 33,
+        "stratum": "iso3:PAN",
+        "weight": 32.725346784363175
+       },
+       {
+        "g": 2020,
+        "n_control": 4449,
+        "n_treated": 10,
+        "stratum": "iso3:PHL",
+        "weight": 9.977573446961202
+       },
+       {
+        "g": 2020,
+        "n_control": 4036,
+        "n_treated": 1,
+        "stratum": "iso3:QAT",
+        "weight": 0.9997522913054249
+       },
+       {
+        "g": 2020,
+        "n_control": 4334,
+        "n_treated": 7,
+        "stratum": "iso3:RUS",
+        "weight": 6.9887122782768945
+       },
+       {
+        "g": 2020,
+        "n_control": 4635,
+        "n_treated": 1,
+        "stratum": "iso3:THA",
+        "weight": 0.9997842968075927
+       },
+       {
+        "g": 2020,
+        "n_control": 4816,
+        "n_treated": 14,
+        "stratum": "iso3:TUR",
+        "weight": 13.959420289855073
+       },
+       {
+        "g": 2020,
+        "n_control": 4850,
+        "n_treated": 9,
+        "stratum": "iso3:ZAF",
+        "weight": 8.983329903272278
+       },
+       {
+        "g": 2021,
+        "n_control": 3403,
+        "n_treated": 189,
+        "stratum": "iso3:AGO",
+        "weight": 179.05540089086858
+       },
+       {
+        "g": 2021,
+        "n_control": 4884,
+        "n_treated": 1,
+        "stratum": "iso3:ARE",
+        "weight": 0.9997952917093142
+       },
+       {
+        "g": 2021,
+        "n_control": 3966,
+        "n_treated": 3,
+        "stratum": "iso3:ARG",
+        "weight": 2.997732426303855
+       },
+       {
+        "g": 2021,
+        "n_control": 3960,
+        "n_treated": 14,
+        "stratum": "iso3:BGD",
+        "weight": 13.950679416205334
+       },
+       {
+        "g": 2021,
+        "n_control": 4503,
+        "n_treated": 2,
+        "stratum": "iso3:BRA",
+        "weight": 1.9991120976692565
+       },
+       {
+        "g": 2021,
+        "n_control": 2971,
+        "n_treated": 1,
+        "stratum": "iso3:CHN",
+        "weight": 0.9996635262449529
+       },
+       {
+        "g": 2021,
+        "n_control": 3926,
+        "n_treated": 210,
+        "stratum": "iso3:COL",
+        "weight": 199.33752417794972
+       },
+       {
+        "g": 2021,
+        "n_control": 4166,
+        "n_treated": 3,
+        "stratum": "iso3:CRI",
+        "weight": 2.997841208923003
+       },
+       {
+        "g": 2021,
+        "n_control": 2484,
+        "n_treated": 17,
+        "stratum": "iso3:GBR",
+        "weight": 16.884446221511396
+       },
+       {
+        "g": 2021,
+        "n_control": 3544,
+        "n_treated": 156,
+        "stratum": "iso3:IND",
+        "weight": 149.4227027027027
+       },
+       {
+        "g": 2021,
+        "n_control": 3303,
+        "n_treated": 3,
+        "stratum": "iso3:KAZ",
+        "weight": 2.9972776769509983
+       },
+       {
+        "g": 2021,
+        "n_control": 3511,
+        "n_treated": 17,
+        "stratum": "iso3:KEN",
+        "weight": 16.91808390022676
+       },
+       {
+        "g": 2021,
+        "n_control": 2966,
+        "n_treated": 4,
+        "stratum": "iso3:LKA",
+        "weight": 3.9946127946127947
+       },
+       {
+        "g": 2021,
+        "n_control": 3320,
+        "n_treated": 1160,
+        "stratum": "iso3:MAR",
+        "weight": 859.6428571428571
+       },
+       {
+        "g": 2021,
+        "n_control": 3021,
+        "n_treated": 2,
+        "stratum": "iso3:PAK",
+        "weight": 1.9986768111147866
+       },
+       {
+        "g": 2021,
+        "n_control": 3887,
+        "n_treated": 5,
+        "stratum": "iso3:PAN",
+        "weight": 4.993576567317574
+       },
+       {
+        "g": 2021,
+        "n_control": 4410,
+        "n_treated": 3,
+        "stratum": "iso3:PHL",
+        "weight": 2.997960571040109
+       },
+       {
+        "g": 2021,
+        "n_control": 4265,
+        "n_treated": 1,
+        "stratum": "iso3:RUS",
+        "weight": 0.9997655883731833
+       },
+       {
+        "g": 2021,
+        "n_control": 4613,
+        "n_treated": 29,
+        "stratum": "iso3:THA",
+        "weight": 28.818828091339938
+       },
+       {
+        "g": 2021,
+        "n_control": 4801,
+        "n_treated": 4,
+        "stratum": "iso3:TUR",
+        "weight": 3.9966701352757545
+       },
+       {
+        "g": 2021,
+        "n_control": 4678,
+        "n_treated": 5,
+        "stratum": "iso3:VNM",
+        "weight": 4.994661541746743
+       },
+       {
+        "g": 2021,
+        "n_control": 4826,
+        "n_treated": 13,
+        "stratum": "iso3:ZAF",
+        "weight": 12.965075428807605
+       }
+      ]
+     },
+     "twfe_static": {
+      "beta": -0.028747599889959657,
+      "demeaning": {
+       "converged": true,
+       "iterations": [
+        6,
+        6
+       ]
+      },
+      "estimator": "twfe_static",
+      "n_clusters": 4571,
+      "n_obs": 1693807,
+      "p": 0.3053702912584521,
+      "se": 0.0280468508581781,
+      "warning": "biased under staggered adoption with heterogeneous or dynamic effects; comparison only"
+     }
+    }
+   },
+   "identification": {
+    "assumptions": [
+     "Parallel trends: absent treatment, the average outcome of treated units would have moved like that of the comparison units (not-yet-treated or never-treated, within stratum when stratified) from the base period on.",
+     "No anticipation beyond the registered anticipation window: outcomes before g - anticipation do not respond.",
+     "Absorbing treatment: the first qualifying event defines the cohort; later events are part of the post-period treatment path, so estimates are effects of entering treatment, not of one isolated event.",
+     "SUTVA / no interference: a unit's outcome does not depend on other units' treatment (spillovers to comparison units bias the estimate toward zero or away from it).",
+     "Treatment timing is recorded correctly by the source date the registration names.",
+     "Within an importer, which products get an MFN increase first is unrelated to product-specific import trends (a safeguard or protection-for-sale motive that responds to import surges would violate this and should show in the leads).",
+     "No anticipation: announced increases do not move imports before the reporting year of the new rate. Front-running in year g-1 would inflate the base year and bias the estimate toward a larger decline; the placebo-date test, not the e=-1 lead, is the check on this.",
+     "MFN rates bind: preferential partners paying lower rates dilute the effect toward zero; the estimate is the effect on total imports, not on MFN-rate imports.",
+     "No interference: substitution into neighbouring HS6 products of the same importer (possible comparison units) is small.",
+     "BACI reconciled mirror values measure the importer's imports of the product with error unrelated to the tariff change."
+    ],
+    "estimand": "ATT: equal-weight mean over event times 0..3 of treated-count-weighted ATT(g, g+e)",
+    "label": "did_failed_diagnostics",
+    "meaning": "A difference-in-differences estimate whose pre-registered diagnostics failed. It is reported for transparency and must not be read as an intervention response.",
+    "strategy": "staggered_difference_in_differences"
+   },
+   "notes": [],
+   "registration": {
+    "commit": "c1bcbc2e7aa379f7d743b33aaa759bfc12b7b228",
+    "committed_at": "2026-09-18T18:32:51-07:00",
+    "committed_clean": true,
+    "path": "examples/natural-experiments/registrations/tariff_mfn_increases_imports.json",
+    "sha256": "50589b4e44af0b25e0bd9fb27ef04eeb9fdaf19969fa173f28e14ac936dce750"
+   },
+   "result_id": "4ee2ddb7258afbf6d75e1746a31000c2f57026c3201519e143db0a1fd1c2547f",
+   "schema": "worldmodel.causal_result/1",
+   "study_id": "tariff_mfn_increases_imports",
+   "verdict": "No causal claim. Pre-registered diagnostics failed (placebo_date_null), so the parallel-trends design is not credible here. The estimate for log import value from all exporters (BACI, thousand current USD), -0.0871 log points (95% CI -0.1306 to -0.0435), is reported only for transparency."
+  },
+  {
+   "acceptance": [
+    {
+     "id": "enough_treated_units",
+     "passed": true,
+     "role": "identification",
+     "threshold": 200,
+     "type": "min_treated_units",
+     "value": 4088
+    },
+    {
+     "id": "enough_clusters",
+     "passed": true,
+     "role": "identification",
+     "threshold": 50,
+     "type": "min_clusters",
+     "value": 4570
+    },
+    {
+     "id": "no_pre_trends",
+     "passed": false,
+     "role": "identification",
+     "threshold": 0.05,
+     "type": "pre_trend_wald_p_min",
+     "value": 0.013348858447653095
+    },
+    {
+     "id": "placebo_date_null",
+     "passed": false,
+     "role": "identification",
+     "threshold": 0.05,
+     "type": "placebo_date_p_min",
+     "value": 0.004318387705208929
+    },
+    {
+     "id": "placebo_unit_size",
+     "passed": true,
+     "role": "identification",
+     "threshold": 0.1,
+     "type": "placebo_unit_rejection_rate_max",
+     "value": 0.06
+    },
+    {
+     "id": "stacked_agrees",
+     "passed": true,
+     "role": "identification",
+     "threshold": null,
+     "type": "robustness_ci_overlap",
+     "value": [
+      [
+       -0.20077210259315575,
+       -0.04198079886323122
+      ],
+      [
+       -0.21704803188182697,
+       -0.03541289259124129
+      ]
+     ]
+    }
+   ],
+   "data": {
+    "inputs": [
+     {
+      "dataset": "event_library",
+      "stage": "events",
+      "version": "dbf0c37f15cb15933ddf2452ae00cf196981aef02045a2b642d1582643b2819a"
+     },
+     {
+      "dataset": "wits_trains_tariffs",
+      "stage": "normalized",
+      "version": "dfa67e7ff86a26db08175897e52f161f8f9c8922669ddd190ca316fb3ffa977e"
+     },
+     {
+      "dataset": "cepii_baci",
+      "stage": "normalized",
+      "version": "0e2f1e6d47d21824270a48c6cff770b392b279f9dc12b2f321383ece1d83e2c8"
+     }
+    ],
+    "outcome_extraction": {
+     "input": {
+      "dataset": "cepii_baci",
+      "stage": "normalized",
+      "version": "0e2f1e6d47d21824270a48c6cff770b392b279f9dc12b2f321383ece1d83e2c8"
+     },
+     "rows": 1880804,
+     "sha256": "12612a464e9e863c08dfb36246613dddf55ab436cc2444d0c3db5e310b4cb15f",
+     "spec": {
+      "filter": "metric == bilateral_trade_value; importer in the listed set; sum over exporters",
+      "importers": [
+       "iso3:AGO",
+       "iso3:ARE",
+       "iso3:ARG",
+       "iso3:AUS",
+       "iso3:BGD",
+       "iso3:BHR",
+       "iso3:BRA",
+       "iso3:CAN",
+       "iso3:CHE",
+       "iso3:CHL",
+       "iso3:CHN",
+       "iso3:CIV",
+       "iso3:COL",
+       "iso3:CRI",
+       "iso3:DZA",
+       "iso3:ECU",
+       "iso3:GBR",
+       "iso3:GHA",
+       "iso3:HKG",
+       "iso3:IDN",
+       "iso3:IND",
+       "iso3:ISR",
+       "iso3:JOR",
+       "iso3:JPN",
+       "iso3:KAZ",
+       "iso3:KEN",
+       "iso3:KOR",
+       "iso3:KWT",
+       "iso3:LKA",
+       "iso3:MAR",
+       "iso3:MMR",
+       "iso3:MYS",
+       "iso3:NGA",
+       "iso3:NOR",
+       "iso3:NZL",
+       "iso3:OMN",
+       "iso3:PAK",
+       "iso3:PAN",
+       "iso3:PER",
+       "iso3:PHL",
+       "iso3:QAT",
+       "iso3:RUS",
+       "iso3:THA",
+       "iso3:TUR",
+       "iso3:TWN",
+       "iso3:USA",
+       "iso3:VEN",
+       "iso3:VNM",
+       "iso3:ZAF"
+      ]
+     }
+    },
+    "panel": {
+     "clusters": 4570,
+     "cohort_sizes": {
+      "2019": 1612,
+      "2020": 652,
+      "2021": 1803,
+      "2022": 21
+     },
+     "never_treated_units": 204484,
+     "observations": 1284074,
+     "periods": [
+      2017,
+      2024
+     ],
+     "strata": 48,
+     "treated_units": 4088,
+     "units": 208572
+    },
+    "panel_digest": "2cc0af7c3b5ea6596845d26d84e10d63e647b7f26093102bb65ce32066d13e46",
+    "treatment_facts": {
+     "extensive_margin_treated_with_zero_post_import": 73,
+     "importers": 49,
+     "sample_units": 208572,
+     "treated_units_estimated": 4088,
+     "units_excluded_first_change_other": 14280,
+     "units_with_first_change_increase_2pp": 4764,
+     "universe_units": 264038
+    }
+   },
+   "design": {
+    "controls": {
+     "control_group": "not_yet_treated",
+     "definition": "same-importer HS6 products never treated or first treated after max(t, g-1)"
+    },
+    "estimator": {
+     "anticipation": 0,
+     "balance": null,
+     "estimand": "ATT: equal-weight mean over event times 0..3 of treated-count-weighted ATT(g, g+e)",
+     "primary": "callaway_santanna_unconditional_within_importer",
+     "robustness": [
+      "stacked_did",
+      "twfe_static",
+      "never_treated_controls"
+     ]
+    },
+    "inference": {
+     "alpha": 0.05,
+     "bootstrap": 999,
+     "bootstrap_weights": "rademacher multiplier on cluster influence functions",
+     "cluster": "importer x HS2 chapter",
+     "seed": 20260918
+    },
+    "outcomes": {
+     "primary": {
+      "id": "baci_log_import_value",
+      "label": "log import value from all exporters (BACI, thousand current USD)",
+      "source": "cepii_baci bilateral_trade_value summed over exporters",
+      "unit": "log points"
+     },
+     "secondary": [
+      {
+       "id": "baci_log_import_quantity",
+       "label": "log import quantity from all exporters (BACI, metric tons; cells with any flow lacking quantity dropped)",
+       "source": "cepii_baci attributes.quantity_t summed over exporters",
+       "unit": "log points"
+      }
+     ],
+     "transform": "natural log of positive values; a zero or missing post-period value drops that cell, and the share of treated units with any post-period zero is reported as an extensive-margin diagnostic"
+    },
+    "placebo_tests": {
+     "placebo_date": {
+      "definition": "treated units keep only years before g; placebo cohort g-2; placebo effect averaged over placebo event times 0..1",
+      "shift": 2
+     },
+     "placebo_unit": {
+      "definition": "real treated units removed; never-treated units get cohorts drawn from their importer's real cohorts at the importer's real treated share",
+      "min_never_treated": 20,
+      "replications": 100,
+      "seed": 11
+     }
+    },
+    "question": "When an importer raises its MFN applied tariff on an HS6 product by at least 2 percentage points, how does the value of its imports of that product (from all exporters) change over the following years, relative to the same importer's products whose MFN rate has not yet changed?",
+    "treatment": {
+     "absorbing": "later changes to a treated unit are part of its post-period treatment path",
+     "censoring": "tariff status is observed only while the reporter reports in HS2017 (to 2021 for most, 2022-2023 for some); a never-treated unit may have changed after its reporter switched to HS2022",
+     "definition": "cohort g = reporting year of the unit's first MFN change of at least 0.5 pp in absolute value, when that first change is an increase of at least 2.0 pp",
+     "estimated_cohorts": [
+      2019,
+      2022
+     ],
+     "excluded_units": "units whose first change of at least 0.5 pp is a decrease or an increase below 2.0 pp",
+     "never_treated": "units with an HS2017 MFN rate reported in 2018 and no change of at least 0.5 pp between any consecutive HS2017 reporting years",
+     "source": "event_library: library_type tariff_mfn_increase / tariff_mfn_decrease with hs_revision HS2017 (both reporting years in HS2017)"
+    },
+    "units": {
+     "definition": "importer (WITS/TRAINS reporter with an ISO3 code that is also a BACI importer; the EU aggregate is excluded) x HS6 product (HS2017)",
+     "sample": "units with BACI import value > 0 in both 2017 and 2018 (pre-treatment for every cohort)",
+     "strata": "importer: every comparison is within the importing country, absorbing importer-year shocks (exchange rates, aggregate demand)"
+    },
+    "windows": {
+     "calendar_years": [
+      2017,
+      2024
+     ],
+     "e_max": 3,
+     "e_min": -3,
+     "post": [
+      0,
+      1,
+      2,
+      3
+     ],
+     "reference_event_time": -1
+    }
+   },
+   "diagnostics": {
+    "placebo_date": {
+     "event_time": [
+      {
+       "analytic_se": 0.03459886756582327,
+       "att": -0.07125945772735258,
+       "band_high": null,
+       "band_low": null,
+       "ci_high": -0.0034469233924679793,
+       "ci_low": -0.1390719920622372,
+       "cohorts": [
+        2018,
+        2019,
+        2020
+       ],
+       "e": 0,
+       "n_treated": 1441,
+       "p": 0.03943781918163142,
+       "period": "post",
+       "se": 0.03459886756582327
+      },
+      {
+       "analytic_se": 0.05319595555367834,
+       "att": -0.15698319852881337,
+       "band_high": null,
+       "band_low": null,
+       "ci_high": -0.052721041520410364,
+       "ci_low": -0.2612453555372164,
+       "cohorts": [
+        2018,
+        2019,
+        2020
+       ],
+       "e": 1,
+       "n_treated": 1459,
+       "p": 0.00316709641869073,
+       "period": "post",
+       "se": 0.05319595555367834
+      }
+     ],
+     "overall": {
+      "analytic_se": 0.03998761956057895,
+      "att": -0.11412132812808298,
+      "bootstrap_p": null,
+      "ci_high": -0.03574703396185887,
+      "ci_low": -0.1924956222943071,
+      "definition": "equal-weight mean of ATT(e) over the post event times listed",
+      "event_times": [
+       0,
+       1
+      ],
+      "p": 0.004318387705208929,
+      "se": 0.03998761956057895
+     },
+     "p": 0.004318387705208929,
+     "passed": false,
+     "shift": 2,
+     "test": "placebo_date",
+     "treated_units_with_pre_data": 3850
+    },
+    "placebo_unit": {
+     "never_treated_units": 204484,
+     "nominal_alpha": 0.05,
+     "observed": -0.12137645072819349,
+     "permutation_p": 0.009900990099009901,
+     "placebo_mean": 0.0006156915122950716,
+     "placebo_sd": 0.02689733312073603,
+     "ran": true,
+     "rejection_rate": 0.06,
+     "replications": 100,
+     "seed": 11,
+     "test": "placebo_unit"
+    },
+    "pre_trend": {
+     "leads": [
+      -3,
+      -2
+     ],
+     "max_abs_lead": 0.15124557178092135,
+     "sup_t": {
+      "p": 0.011,
+      "statistic": 2.7717131893902387
+     },
+     "wald": {
+      "df": 2,
+      "p": 0.013348858447653095,
+      "statistic": 8.632648814662243
+     }
+    }
+   },
+   "estimates": {
+    "outcome": {
+     "id": "baci_log_import_quantity",
+     "label": "log import quantity from all exporters (BACI, metric tons; cells with any flow lacking quantity dropped)",
+     "role": "secondary",
+     "source": "cepii_baci attributes.quantity_t summed over exporters",
+     "unit": "log points"
+    },
+    "primary": {
+     "alpha": 0.05,
+     "anticipation": 0,
+     "bootstrap": {
+      "level": "cluster",
+      "replications": 999,
+      "seed": 20260918,
+      "uniform_critical_value": 2.38554595796751,
+      "weights": "rademacher"
+     },
+     "cells": 28,
+     "control_group": "not_yet_treated",
+     "dropped_treated_no_control": 0,
+     "estimator": "callaway_santanna_unconditional_stratified",
+     "event_time": [
+      {
+       "analytic_se": 0.05256882392415932,
+       "att": 0.15124557178092135,
+       "band_high": 0.2814189475124257,
+       "band_low": 0.021072196049417014,
+       "ci_high": 0.25819598593145165,
+       "ci_low": 0.04429515763039102,
+       "cohorts": [
+        2020,
+        2021,
+        2022
+       ],
+       "e": -3,
+       "n_treated": 1459,
+       "p": 0.005576214452777889,
+       "period": "pre",
+       "se": 0.05456754052326551
+      },
+      {
+       "analytic_se": 0.027626924350646072,
+       "att": 0.02434303883265686,
+       "band_high": 0.09184984903622302,
+       "band_low": -0.04316377137090931,
+       "ci_high": 0.0798066178378167,
+       "ci_low": -0.031120540172502983,
+       "cohorts": [
+        2019,
+        2020,
+        2021,
+        2022
+       ],
+       "e": -2,
+       "n_treated": 2512,
+       "p": 0.3896618252977534,
+       "period": "pre",
+       "se": 0.028298264377636266
+      },
+      {
+       "analytic_se": 0.03310584054095261,
+       "att": -0.08469105796669595,
+       "band_high": 0.0001151523799468035,
+       "band_low": -0.1694972683133387,
+       "ci_high": -0.015014295970307831,
+       "ci_low": -0.15436781996308407,
+       "cohorts": [
+        2019,
+        2020,
+        2021,
+        2022
+       ],
+       "e": 0,
+       "n_treated": 2487,
+       "p": 0.017204557421590702,
+       "period": "post",
+       "se": 0.03555002160549354
+      },
+      {
+       "analytic_se": 0.044956353827401305,
+       "att": -0.11565964206017762,
+       "band_high": 0.0016446497510624464,
+       "band_low": -0.23296393387141767,
+       "ci_high": -0.019282464159193907,
+       "ci_low": -0.21203681996116133,
+       "cohorts": [
+        2019,
+        2020,
+        2021,
+        2022
+       ],
+       "e": 1,
+       "n_treated": 2433,
+       "p": 0.01866776972739808,
+       "period": "post",
+       "se": 0.04917293310550327
+      },
+      {
+       "analytic_se": 0.04793908677979253,
+       "att": -0.14538797645563808,
+       "band_high": -0.022338501309424802,
+       "band_low": -0.2684374516018514,
+       "ci_high": -0.044290557310289067,
+       "ci_low": -0.2464853956009871,
+       "cohorts": [
+        2019,
+        2020,
+        2021,
+        2022
+       ],
+       "e": 2,
+       "n_treated": 2338,
+       "p": 0.004823059381442823,
+       "period": "post",
+       "se": 0.051581263708309226
+      },
+      {
+       "analytic_se": 0.04314793613521393,
+       "att": -0.1397671264302623,
+       "band_high": -0.03028657228301286,
+       "band_low": -0.24924768057751173,
+       "ci_high": -0.04981792950977329,
+       "ci_low": -0.2297163233507513,
+       "cohorts": [
+        2019,
+        2020,
+        2021
+       ],
+       "e": 3,
+       "n_treated": 2270,
+       "p": 0.0023230876646653507,
+       "period": "post",
+       "se": 0.045893290708399134
+      }
+     ],
+     "n_clusters": 4570,
+     "overall": {
+      "analytic_se": 0.03638807060549739,
+      "att": -0.12137645072819349,
+      "bootstrap_p": 0.001,
+      "ci_high": -0.04198079886323122,
+      "ci_low": -0.20077210259315575,
+      "definition": "equal-weight mean of ATT(e) over the post event times listed",
+      "event_times": [
+       0,
+       1,
+       2,
+       3
+      ],
+      "p": 0.0027327427141713417,
+      "se": 0.04050873000280875
+     },
+     "pre_trend": {
+      "leads": [
+       -3,
+       -2
+      ],
+      "max_abs_lead": 0.15124557178092135,
+      "sup_t": {
+       "p": 0.011,
+       "statistic": 2.7717131893902387
+      },
+      "wald": {
+       "df": 2,
+       "p": 0.013348858447653095,
+       "statistic": 8.632648814662243
+      }
+     },
+     "reference_event_time": -1,
+     "skipped_cells": 0
+    },
+    "robustness": {
+     "never_treated_controls": {
+      "alpha": 0.05,
+      "anticipation": 0,
+      "bootstrap": null,
+      "cells": 28,
+      "control_group": "never_treated",
+      "dropped_treated_no_control": 0,
+      "estimator": "callaway_santanna_unconditional_stratified",
+      "event_time": [
+       {
+        "analytic_se": 0.05322508459941992,
+        "att": 0.15730526461984806,
+        "band_high": null,
+        "band_low": null,
+        "ci_high": 0.26162451350880855,
+        "ci_low": 0.05298601573088754,
+        "cohorts": [
+         2020,
+         2021,
+         2022
+        ],
+        "e": -3,
+        "n_treated": 1459,
+        "p": 0.0031219070248960637,
+        "period": "pre",
+        "se": 0.05322508459941992
+       },
+       {
+        "analytic_se": 0.027700032922237734,
+        "att": 0.024934412278457843,
+        "band_high": null,
+        "band_low": null,
+        "ci_high": 0.07922547917661758,
+        "ci_low": -0.029356654619701897,
+        "cohorts": [
+         2019,
+         2020,
+         2021,
+         2022
+        ],
+        "e": -2,
+        "n_treated": 2512,
+        "p": 0.36803605764721986,
+        "period": "pre",
+        "se": 0.027700032922237734
+       },
+       {
+        "analytic_se": 0.03331386336460013,
+        "att": -0.08544320007085804,
+        "band_high": null,
+        "band_low": null,
+        "ci_high": -0.020149227690353447,
+        "ci_low": -0.15073717245136264,
+        "cohorts": [
+         2019,
+         2020,
+         2021,
+         2022
+        ],
+        "e": 0,
+        "n_treated": 2487,
+        "p": 0.010323704838586937,
+        "period": "post",
+        "se": 0.03331386336460013
+       },
+       {
+        "analytic_se": 0.04495000338587953,
+        "att": -0.11666316827648578,
+        "band_high": null,
+        "band_low": null,
+        "ci_high": -0.028562780535208415,
+        "ci_low": -0.20476355601776314,
+        "cohorts": [
+         2019,
+         2020,
+         2021,
+         2022
+        ],
+        "e": 1,
+        "n_treated": 2433,
+        "p": 0.009448132314885036,
+        "period": "post",
+        "se": 0.04495000338587953
+       },
+       {
+        "analytic_se": 0.04793851822895468,
+        "att": -0.14538269458325317,
+        "band_high": null,
+        "band_low": null,
+        "ci_high": -0.05142492538228516,
+        "ci_low": -0.2393404637842212,
+        "cohorts": [
+         2019,
+         2020,
+         2021,
+         2022
+        ],
+        "e": 2,
+        "n_treated": 2338,
+        "p": 0.0024238395853462226,
+        "period": "post",
+        "se": 0.04793851822895468
+       },
+       {
+        "analytic_se": 0.04314793613521393,
+        "att": -0.1397671264302623,
+        "band_high": null,
+        "band_low": null,
+        "ci_high": -0.05519872559800863,
+        "ci_low": -0.22433552726251593,
+        "cohorts": [
+         2019,
+         2020,
+         2021
+        ],
+        "e": 3,
+        "n_treated": 2270,
+        "p": 0.0011984277992695832,
+        "period": "post",
+        "se": 0.04314793613521393
+       }
+      ],
+      "n_clusters": 4570,
+      "overall": {
+       "analytic_se": 0.03642742878223187,
+       "att": -0.12181404734021482,
+       "bootstrap_p": null,
+       "ci_high": -0.050417598877642605,
+       "ci_low": -0.19321049580278704,
+       "definition": "equal-weight mean of ATT(e) over the post event times listed",
+       "event_times": [
+        0,
+        1,
+        2,
+        3
+       ],
+       "p": 0.0008257380931838115,
+       "se": 0.03642742878223187
+      },
+      "pre_trend": {
+       "leads": [
+        -3,
+        -2
+       ],
+       "max_abs_lead": 0.15730526461984806,
+       "sup_t": null,
+       "wald": {
+        "df": 2,
+        "p": 0.010504417653716588,
+        "statistic": 9.111918762749735
+       }
+      },
+      "reference_event_time": -1,
+      "skipped_cells": 0
+     },
+     "stacked_did": {
+      "estimator": "stacked_did_clean_controls",
+      "event_time": [
+       {
+        "att": 0.09152165555805519,
+        "ci_high": 0.2142453058342678,
+        "ci_low": -0.031201994718157405,
+        "e": -3,
+        "p": 0.14383686546263416,
+        "se": 0.0626152578538387,
+        "stacks": 35
+       },
+       {
+        "att": 0.022739172220641226,
+        "ci_high": 0.10801781099603522,
+        "ci_low": -0.06253946655475276,
+        "e": -2,
+        "p": 0.6012416875004853,
+        "se": 0.04351030909142261,
+        "stacks": 35
+       },
+       {
+        "att": -0.03976594130052071,
+        "ci_high": 0.046514616092844276,
+        "ci_low": -0.1260464986938857,
+        "e": 0,
+        "p": 0.36635079844894947,
+        "se": 0.044021501453054765,
+        "stacks": 35
+       },
+       {
+        "att": -0.11503545432598747,
+        "ci_high": -0.008122511878570965,
+        "ci_low": -0.22194839677340397,
+        "e": 1,
+        "p": 0.03495592509100506,
+        "se": 0.054548421956082956,
+        "stacks": 35
+       },
+       {
+        "att": -0.1865563298624117,
+        "ci_high": -0.07758680932369448,
+        "ci_low": -0.2955258504011289,
+        "e": 2,
+        "p": 0.0007923095774214785,
+        "se": 0.055597715773480993,
+        "stacks": 35
+       },
+       {
+        "att": -0.16356412345721674,
+        "ci_high": -0.029827803222804122,
+        "ci_low": -0.29730044369162933,
+        "e": 3,
+        "p": 0.0165252585787481,
+        "se": 0.06823407026318222,
+        "stacks": 35
+       }
+      ],
+      "n_clusters": 4570,
+      "overall": {
+       "att": -0.12623046223653414,
+       "ci_high": -0.03541289259124129,
+       "ci_low": -0.21704803188182697,
+       "definition": "equal-weight mean of stacked ATT(e) over post event times",
+       "p": 0.006445329840296348,
+       "se": 0.04633634615822039
+      },
+      "pre_trend": {
+       "leads": [
+        -3,
+        -2
+       ],
+       "wald": {
+        "df": 2,
+        "p": 0.2694918808794089,
+        "statistic": 2.622434031387836
+       }
+      },
+      "stack_count": 35,
+      "stacks": [
+       {
+        "g": 2020,
+        "n_control": 1583,
+        "n_treated": 116,
+        "stratum": "iso3:AGO",
+        "weight": 108.08004708652149
+       },
+       {
+        "g": 2020,
+        "n_control": 1595,
+        "n_treated": 2,
+        "stratum": "iso3:ARG",
+        "weight": 1.997495303694427
+       },
+       {
+        "g": 2020,
+        "n_control": 2085,
+        "n_treated": 3,
+        "stratum": "iso3:BRA",
+        "weight": 2.9956896551724137
+       },
+       {
+        "g": 2020,
+        "n_control": 2383,
+        "n_treated": 4,
+        "stratum": "iso3:CIV",
+        "weight": 3.99329702555509
+       },
+       {
+        "g": 2020,
+        "n_control": 2206,
+        "n_treated": 1,
+        "stratum": "iso3:DZA",
+        "weight": 0.9995468962392388
+       },
+       {
+        "g": 2020,
+        "n_control": 655,
+        "n_treated": 7,
+        "stratum": "iso3:GBR",
+        "weight": 6.925981873111782
+       },
+       {
+        "g": 2020,
+        "n_control": 1774,
+        "n_treated": 41,
+        "stratum": "iso3:GHA",
+        "weight": 40.07382920110193
+       },
+       {
+        "g": 2020,
+        "n_control": 1365,
+        "n_treated": 2,
+        "stratum": "iso3:IND",
+        "weight": 1.9970738844184346
+       },
+       {
+        "g": 2020,
+        "n_control": 1858,
+        "n_treated": 1,
+        "stratum": "iso3:ISR",
+        "weight": 0.9994620763851533
+       },
+       {
+        "g": 2020,
+        "n_control": 2062,
+        "n_treated": 1,
+        "stratum": "iso3:JOR",
+        "weight": 0.9995152690256908
+       },
+       {
+        "g": 2020,
+        "n_control": 1668,
+        "n_treated": 17,
+        "stratum": "iso3:JPN",
+        "weight": 16.828486646884272
+       },
+       {
+        "g": 2020,
+        "n_control": 1321,
+        "n_treated": 8,
+        "stratum": "iso3:KAZ",
+        "weight": 7.951843491346877
+       },
+       {
+        "g": 2020,
+        "n_control": 1581,
+        "n_treated": 7,
+        "stratum": "iso3:KEN",
+        "weight": 6.9691435768261965
+       },
+       {
+        "g": 2020,
+        "n_control": 878,
+        "n_treated": 3,
+        "stratum": "iso3:LKA",
+        "weight": 2.989784335981839
+       },
+       {
+        "g": 2020,
+        "n_control": 2036,
+        "n_treated": 6,
+        "stratum": "iso3:MMR",
+        "weight": 5.982370225269344
+       },
+       {
+        "g": 2020,
+        "n_control": 2148,
+        "n_treated": 1,
+        "stratum": "iso3:OMN",
+        "weight": 0.9995346672871103
+       },
+       {
+        "g": 2020,
+        "n_control": 2060,
+        "n_treated": 19,
+        "stratum": "iso3:PAN",
+        "weight": 18.826358826358828
+       },
+       {
+        "g": 2020,
+        "n_control": 1837,
+        "n_treated": 3,
+        "stratum": "iso3:PHL",
+        "weight": 2.9951086956521737
+       },
+       {
+        "g": 2020,
+        "n_control": 1884,
+        "n_treated": 1,
+        "stratum": "iso3:QAT",
+        "weight": 0.9994694960212201
+       },
+       {
+        "g": 2020,
+        "n_control": 1383,
+        "n_treated": 3,
+        "stratum": "iso3:RUS",
+        "weight": 2.9935064935064934
+       },
+       {
+        "g": 2020,
+        "n_control": 2192,
+        "n_treated": 9,
+        "stratum": "iso3:TUR",
+        "weight": 8.963198546115402
+       },
+       {
+        "g": 2021,
+        "n_control": 1485,
+        "n_treated": 96,
+        "stratum": "iso3:AGO",
+        "weight": 90.1707779886148
+       },
+       {
+        "g": 2021,
+        "n_control": 2015,
+        "n_treated": 7,
+        "stratum": "iso3:BGD",
+        "weight": 6.9757665677546985
+       },
+       {
+        "g": 2021,
+        "n_control": 1491,
+        "n_treated": 6,
+        "stratum": "iso3:COL",
+        "weight": 5.975951903807616
+       },
+       {
+        "g": 2021,
+        "n_control": 576,
+        "n_treated": 4,
+        "stratum": "iso3:GBR",
+        "weight": 3.972413793103448
+       },
+       {
+        "g": 2021,
+        "n_control": 1273,
+        "n_treated": 41,
+        "stratum": "iso3:IND",
+        "weight": 39.720700152207
+       },
+       {
+        "g": 2021,
+        "n_control": 1407,
+        "n_treated": 3,
+        "stratum": "iso3:KEN",
+        "weight": 2.9936170212765956
+       },
+       {
+        "g": 2021,
+        "n_control": 1259,
+        "n_treated": 270,
+        "stratum": "iso3:MAR",
+        "weight": 222.32177894048397
+       },
+       {
+        "g": 2021,
+        "n_control": 1573,
+        "n_treated": 1,
+        "stratum": "iso3:PAK",
+        "weight": 0.9993646759847522
+       },
+       {
+        "g": 2021,
+        "n_control": 1996,
+        "n_treated": 1,
+        "stratum": "iso3:PAN",
+        "weight": 0.99949924887331
+       },
+       {
+        "g": 2021,
+        "n_control": 1674,
+        "n_treated": 3,
+        "stratum": "iso3:PHL",
+        "weight": 2.994633273703041
+       },
+       {
+        "g": 2021,
+        "n_control": 1336,
+        "n_treated": 1,
+        "stratum": "iso3:RUS",
+        "weight": 0.9992520568436799
+       },
+       {
+        "g": 2021,
+        "n_control": 1908,
+        "n_treated": 17,
+        "stratum": "iso3:THA",
+        "weight": 16.84987012987013
+       },
+       {
+        "g": 2021,
+        "n_control": 2109,
+        "n_treated": 4,
+        "stratum": "iso3:TUR",
+        "weight": 3.992427827733081
+       },
+       {
+        "g": 2021,
+        "n_control": 1985,
+        "n_treated": 3,
+        "stratum": "iso3:VNM",
+        "weight": 2.995472837022133
+       }
+      ]
+     },
+     "twfe_static": {
+      "beta": -0.02132502314738406,
+      "demeaning": {
+       "converged": true,
+       "iterations": [
+        8,
+        8
+       ]
+      },
+      "estimator": "twfe_static",
+      "n_clusters": 4570,
+      "n_obs": 1284074,
+      "p": 0.44641944795611865,
+      "se": 0.02800772560006973,
+      "warning": "biased under staggered adoption with heterogeneous or dynamic effects; comparison only"
+     }
+    }
+   },
+   "identification": {
+    "assumptions": [
+     "Parallel trends: absent treatment, the average outcome of treated units would have moved like that of the comparison units (not-yet-treated or never-treated, within stratum when stratified) from the base period on.",
+     "No anticipation beyond the registered anticipation window: outcomes before g - anticipation do not respond.",
+     "Absorbing treatment: the first qualifying event defines the cohort; later events are part of the post-period treatment path, so estimates are effects of entering treatment, not of one isolated event.",
+     "SUTVA / no interference: a unit's outcome does not depend on other units' treatment (spillovers to comparison units bias the estimate toward zero or away from it).",
+     "Treatment timing is recorded correctly by the source date the registration names.",
+     "Within an importer, which products get an MFN increase first is unrelated to product-specific import trends (a safeguard or protection-for-sale motive that responds to import surges would violate this and should show in the leads).",
+     "No anticipation: announced increases do not move imports before the reporting year of the new rate. Front-running in year g-1 would inflate the base year and bias the estimate toward a larger decline; the placebo-date test, not the e=-1 lead, is the check on this.",
+     "MFN rates bind: preferential partners paying lower rates dilute the effect toward zero; the estimate is the effect on total imports, not on MFN-rate imports.",
+     "No interference: substitution into neighbouring HS6 products of the same importer (possible comparison units) is small.",
+     "BACI reconciled mirror values measure the importer's imports of the product with error unrelated to the tariff change."
+    ],
+    "estimand": "ATT: equal-weight mean over event times 0..3 of treated-count-weighted ATT(g, g+e)",
+    "label": "did_failed_diagnostics",
+    "meaning": "A difference-in-differences estimate whose pre-registered diagnostics failed. It is reported for transparency and must not be read as an intervention response.",
+    "strategy": "staggered_difference_in_differences"
+   },
+   "notes": [],
+   "registration": {
+    "commit": "c1bcbc2e7aa379f7d743b33aaa759bfc12b7b228",
+    "committed_at": "2026-09-18T18:32:51-07:00",
+    "committed_clean": true,
+    "path": "examples/natural-experiments/registrations/tariff_mfn_increases_imports.json",
+    "sha256": "50589b4e44af0b25e0bd9fb27ef04eeb9fdaf19969fa173f28e14ac936dce750"
+   },
+   "result_id": "be4de20964a3983b69debdc81576abc3a0724e48be8a5cc3cbcb86110e8a197f",
+   "schema": "worldmodel.causal_result/1",
+   "study_id": "tariff_mfn_increases_imports",
+   "verdict": "No causal claim. Pre-registered diagnostics failed (no_pre_trends, placebo_date_null), so the parallel-trends design is not credible here. The estimate for log import quantity from all exporters (BACI, metric tons; cells with any flow lacking quantity dropped), -0.1214 log points (95% CI -0.2008 to -0.0420), is reported only for transparency."
+  }
+ ],
+ "schema": "worldmodel.natural_experiment_report/1",
+ "seconds": 1959.4,
+ "study_id": "tariff_mfn_increases_imports"
+}

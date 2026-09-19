@@ -1,0 +1,4320 @@
+{
+ "registration": {
+  "commit": "c1bcbc2e7aa379f7d743b33aaa759bfc12b7b228",
+  "committed_at": "2026-09-18T18:32:51-07:00",
+  "committed_clean": true,
+  "path": "examples/natural-experiments/registrations/fema_disasters_county_employment.json",
+  "sha256": "0f0f581704a7fd6297ce2bbb9675a500a6cf3a4499d9af7149cb61ba033e641f"
+ },
+ "results": [
+  {
+   "acceptance": [
+    {
+     "id": "enough_treated_counties",
+     "passed": true,
+     "role": "identification",
+     "threshold": 200,
+     "type": "min_treated_units",
+     "value": 1204
+    },
+    {
+     "id": "enough_state_clusters",
+     "passed": true,
+     "role": "identification",
+     "threshold": 30,
+     "type": "min_clusters",
+     "value": 46
+    },
+    {
+     "id": "no_pre_trends",
+     "passed": false,
+     "role": "identification",
+     "threshold": 0.05,
+     "type": "pre_trend_wald_p_min",
+     "value": 0.032189736572384664
+    },
+    {
+     "id": "placebo_date_null",
+     "passed": false,
+     "role": "identification",
+     "threshold": 0.05,
+     "type": "placebo_date_p_min",
+     "value": 0.012732499148841404
+    },
+    {
+     "id": "placebo_unit_size",
+     "passed": true,
+     "role": "identification",
+     "threshold": 0.1,
+     "type": "placebo_unit_rejection_rate_max",
+     "value": 0.03
+    },
+    {
+     "id": "stacked_agrees",
+     "passed": true,
+     "role": "identification",
+     "threshold": null,
+     "type": "robustness_ci_overlap",
+     "value": [
+      [
+       -0.009048731663869646,
+       0.027525225836979222
+      ],
+      [
+       -0.009278183383145188,
+       0.027726576631369144
+      ]
+     ]
+    }
+   ],
+   "data": {
+    "inputs": [
+     {
+      "dataset": "event_library",
+      "stage": "events",
+      "version": "dbf0c37f15cb15933ddf2452ae00cf196981aef02045a2b642d1582643b2819a"
+     },
+     {
+      "dataset": "bls_labor",
+      "stage": "normalized",
+      "version": "ffd7f43a2761e2f4bc85cd9765ba9bce61cf089cd26b8b5d12e428337546e267"
+     },
+     {
+      "dataset": "census_business",
+      "stage": "normalized",
+      "version": "5b0995c7a7c38f378632da57c73a053041aba721e381fc240506edfecbc21860"
+     }
+    ],
+    "outcome_extraction": {
+     "input": {
+      "dataset": "bls_labor",
+      "stage": "normalized",
+      "version": "ffd7f43a2761e2f4bc85cd9765ba9bce61cf089cd26b8b5d12e428337546e267"
+     },
+     "rows": 4463709,
+     "sha256": "25133fe7b7f21bcb1e7a930e3b9c3782a829f83e80e708804a5d8e0f3a305b6d",
+     "spec": {
+      "laus": {
+       "filter": "dimensions.survey == LAUS and subject geo:US:county:* and period_type == month",
+       "metrics": [
+        "employment",
+        "labor_force",
+        "unemployment_rate"
+       ]
+      },
+      "qcew": {
+       "filter": "dimensions.survey == QCEW and dimensions.agglvl_code == 70 (county, total covered, all ownerships) and period_type == annual_average",
+       "metrics": [
+        "employment",
+        "establishment_count"
+       ]
+      }
+     }
+    },
+    "panel": {
+     "clusters": 46,
+     "cohort_sizes": {
+      "1995": 96,
+      "1996": 428,
+      "1997": 119,
+      "1998": 177,
+      "1999": 48,
+      "2000": 68,
+      "2001": 35,
+      "2002": 82,
+      "2003": 20,
+      "2004": 37,
+      "2005": 23,
+      "2006": 15,
+      "2007": 3,
+      "2008": 7,
+      "2010": 3,
+      "2011": 26,
+      "2013": 2,
+      "2014": 2,
+      "2015": 1,
+      "2017": 9,
+      "2018": 1,
+      "2019": 2,
+      "2020": 6,
+      "2023": 7,
+      "2024": 1
+     },
+     "never_treated_units": 64,
+     "observations": 44235,
+     "periods": [
+      1990,
+      2024
+     ],
+     "strata": 46,
+     "treated_units": 1218,
+     "units": 1282
+    },
+    "panel_digest": "ea51a8f62bf7e120b6bef35f5c8e89bf797ee40bdc0f156a65981488cb54e8b7",
+    "treatment_facts": {
+     "counties_excluded_for_1990_1994_disasters": 1878,
+     "counties_first_treated_1995_2024": 3087,
+     "declarations_read": 45733,
+     "qualifying_county_incidents": 40332
+    }
+   },
+   "design": {
+    "controls": {
+     "control_group": "not_yet_treated",
+     "definition": "same-state counties never treated or first treated after max(t, g-1); never the cohort itself"
+    },
+    "estimator": {
+     "anticipation": 0,
+     "balance": null,
+     "estimand": "ATT: equal-weight mean over event times 0..5 of treated-count-weighted ATT(g, g+e)",
+     "primary": "callaway_santanna_unconditional_within_state",
+     "robustness": [
+      "stacked_did",
+      "twfe_static",
+      "never_treated_controls"
+     ]
+    },
+    "inference": {
+     "alpha": 0.05,
+     "bootstrap": 999,
+     "bootstrap_weights": "rademacher multiplier on state influence functions",
+     "cluster": "state",
+     "seed": 20260918
+    },
+    "outcomes": {
+     "primary": {
+      "id": "qcew_log_employment",
+      "label": "log QCEW annual-average covered employment (county, total covered, all ownerships)",
+      "source": "bls_labor QCEW agglvl_code 70 metric employment",
+      "unit": "log points"
+     },
+     "secondary": [
+      {
+       "id": "qcew_log_establishments",
+       "label": "log QCEW annual-average establishment count",
+       "source": "bls_labor QCEW agglvl_code 70 metric establishment_count",
+       "unit": "log points"
+      },
+      {
+       "id": "cbp_log_establishments",
+       "label": "log CBP establishments (2019-2023 only; exploratory, underpowered)",
+       "placebo_date_shift": 2,
+       "source": "census_business CBP county establishment_count, all industries",
+       "unit": "log points",
+       "windows": {
+        "e_max": 1,
+        "e_min": -2,
+        "post": [
+         0,
+         1
+        ]
+       }
+      }
+     ],
+     "transform": "natural log of positive values; suppressed or missing values dropped"
+    },
+    "placebo_tests": {
+     "placebo_date": {
+      "definition": "treated counties keep only years before g; placebo cohort g-3; placebo effect averaged over placebo event times 0..2",
+      "shift": 3
+     },
+     "placebo_unit": {
+      "definition": "real treated counties removed; never-treated counties get cohorts drawn from their state's real cohorts at the state's real treated share",
+      "min_never_treated": 20,
+      "replications": 100,
+      "seed": 7
+     }
+    },
+    "question": "When a US county enters its first physical-hazard FEMA major disaster (DR) after at least five disaster-free years, how do its covered employment and establishment counts change over the following five years, relative to same-state counties not yet hit?",
+    "treatment": {
+     "absorbing": "later declarations in a treated county are part of its post-period treatment path",
+     "baseline_quiet_period": "counties with any qualifying DR incident beginning 1990-1994 are excluded from the study",
+     "estimated_cohorts": [
+      1995,
+      2019
+     ],
+     "excluded_incident_types": "Biological (COVID-19 declared every county in 2020), Drought (slow onset, no shock date), Terrorist, Chemical, Toxic Substances, Human Cause, Fishing Losses, Other",
+     "later_cohorts": "counties first treated 2020-2024 are not-yet-treated controls until treated",
+     "never_treated": "no qualifying DR incident beginning 1990-2024",
+     "qualifying_incident_types": [
+      "Hurricane",
+      "Severe Storm",
+      "Severe Storm(s)",
+      "Flood",
+      "Tornado",
+      "Fire",
+      "Snowstorm",
+      "Severe Ice Storm",
+      "Winter Storm",
+      "Earthquake",
+      "Tropical Storm",
+      "Coastal Storm",
+      "Typhoon",
+      "Straight-Line Winds",
+      "Mud/Landslide",
+      "Dam/Levee Break",
+      "Tsunami",
+      "Volcanic Eruption",
+      "Freezing"
+     ],
+     "source": "event_library: library_type fema_major_disaster_declaration",
+     "timing": "cohort g = calendar year of incident_begin_date of the county's first qualifying DR with incident_begin_date in 1995-2024; the declaration date is not used because the physical shock precedes it"
+    },
+    "units": {
+     "definition": "US counties and county equivalents in the 50 states and DC (state FIPS <= 56), identified by 5-digit FIPS as published by QCEW",
+     "notes": "County definitional changes are not bridged; a county contributes to a group-time cell only when it has the outcome at both t and the base period",
+     "strata": "state (2-digit FIPS): every comparison is within state"
+    },
+    "windows": {
+     "calendar_years": [
+      1990,
+      2024
+     ],
+     "e_max": 5,
+     "e_min": -5,
+     "post": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5
+     ],
+     "reference_event_time": -1
+    }
+   },
+   "diagnostics": {
+    "placebo_date": {
+     "event_time": [
+      {
+       "analytic_se": 0.005029550534109201,
+       "att": 0.009987174548222441,
+       "band_high": null,
+       "band_low": null,
+       "ci_high": 0.019844912453500667,
+       "ci_low": 0.00012943664294421536,
+       "cohorts": [
+        1992,
+        1993,
+        1994,
+        1995,
+        1996,
+        1997,
+        1998,
+        1999,
+        2000,
+        2001,
+        2002,
+        2003,
+        2004,
+        2005,
+        2007,
+        2008,
+        2010,
+        2011,
+        2014,
+        2015,
+        2016
+       ],
+       "e": 0,
+       "n_treated": 773,
+       "p": 0.04706673221618866,
+       "period": "post",
+       "se": 0.005029550534109201
+      },
+      {
+       "analytic_se": 0.004072561357839487,
+       "att": 0.010767616358325313,
+       "band_high": null,
+       "band_low": null,
+       "ci_high": 0.018749689944520247,
+       "ci_low": 0.0027855427721303807,
+       "cohorts": [
+        1992,
+        1993,
+        1994,
+        1995,
+        1996,
+        1997,
+        1998,
+        1999,
+        2000,
+        2001,
+        2002,
+        2003,
+        2004,
+        2005,
+        2007,
+        2008,
+        2010,
+        2014,
+        2015,
+        2016
+       ],
+       "e": 1,
+       "n_treated": 712,
+       "p": 0.00819466766327578,
+       "period": "post",
+       "se": 0.004072561357839487
+      },
+      {
+       "analytic_se": 0.012177682710181032,
+       "att": 0.023971089696997985,
+       "band_high": null,
+       "band_low": null,
+       "ci_high": 0.047838909224108925,
+       "ci_low": 0.00010327016988704793,
+       "cohorts": [
+        1992,
+        1993,
+        1994,
+        1995,
+        1996,
+        1997,
+        1998,
+        1999,
+        2000,
+        2001,
+        2002,
+        2003,
+        2004,
+        2005,
+        2007,
+        2008,
+        2010,
+        2014,
+        2015,
+        2016
+       ],
+       "e": 2,
+       "n_treated": 598,
+       "p": 0.04901694296440077,
+       "period": "post",
+       "se": 0.012177682710181032
+      }
+     ],
+     "overall": {
+      "analytic_se": 0.0059846004369468,
+      "att": 0.014908626867848579,
+      "bootstrap_p": null,
+      "ci_high": 0.026638228186126975,
+      "ci_low": 0.0031790255495701813,
+      "definition": "equal-weight mean of ATT(e) over the post event times listed",
+      "event_times": [
+       0,
+       1,
+       2
+      ],
+      "p": 0.012732499148841404,
+      "se": 0.0059846004369468
+     },
+     "p": 0.012732499148841404,
+     "passed": false,
+     "shift": 3,
+     "test": "placebo_date",
+     "treated_units_with_pre_data": 1218
+    },
+    "placebo_unit": {
+     "never_treated_units": 64,
+     "nominal_alpha": 0.05,
+     "observed": 0.009238247086554787,
+     "permutation_p": 0.7029702970297029,
+     "placebo_mean": 0.0018561624427534365,
+     "placebo_sd": 0.02189687216934135,
+     "ran": true,
+     "rejection_rate": 0.03,
+     "replications": 100,
+     "seed": 7,
+     "test": "placebo_unit"
+    },
+    "pre_trend": {
+     "leads": [
+      -5,
+      -4,
+      -3,
+      -2
+     ],
+     "max_abs_lead": 0.022317960804069448,
+     "sup_t": {
+      "p": 0.002,
+      "statistic": 2.727503682314451
+     },
+     "wald": {
+      "df": 4,
+      "p": 0.032189736572384664,
+      "statistic": 10.544482771581256
+     }
+    }
+   },
+   "estimates": {
+    "outcome": {
+     "id": "qcew_log_employment",
+     "label": "log QCEW annual-average covered employment (county, total covered, all ownerships)",
+     "role": "primary",
+     "source": "bls_labor QCEW agglvl_code 70 metric employment",
+     "unit": "log points"
+    },
+    "primary": {
+     "alpha": 0.05,
+     "anticipation": 0,
+     "bootstrap": {
+      "level": "cluster",
+      "replications": 999,
+      "seed": 20260918,
+      "uniform_critical_value": 2.2385045466455256,
+      "weights": "rademacher"
+     },
+     "cells": 680,
+     "control_group": "not_yet_treated",
+     "dropped_treated_no_control": 26362,
+     "estimator": "callaway_santanna_unconditional_stratified",
+     "event_time": [
+      {
+       "analytic_se": 0.008188491044514122,
+       "att": -0.022317960804069448,
+       "band_high": -0.002709161410925729,
+       "band_low": -0.04192676019721317,
+       "ci_high": -0.005149114465014648,
+       "ci_low": -0.03948680714312425,
+       "cohorts": [
+        1995,
+        1996,
+        1997,
+        1998,
+        1999,
+        2000,
+        2001,
+        2002,
+        2003,
+        2004,
+        2005,
+        2006,
+        2007,
+        2008,
+        2010,
+        2011,
+        2013,
+        2014,
+        2017,
+        2018,
+        2019
+       ],
+       "e": -5,
+       "n_treated": 773,
+       "p": 0.010841161008239912,
+       "period": "pre",
+       "se": 0.008759776442057339
+      },
+      {
+       "analytic_se": 0.006702785876186424,
+       "att": -0.019154348574861115,
+       "band_high": -0.0034340778192682025,
+       "band_low": -0.03487461933045403,
+       "ci_high": -0.005390175276954736,
+       "ci_low": -0.032918521872767496,
+       "cohorts": [
+        1995,
+        1996,
+        1997,
+        1998,
+        1999,
+        2000,
+        2001,
+        2002,
+        2003,
+        2004,
+        2005,
+        2006,
+        2007,
+        2008,
+        2010,
+        2011,
+        2013,
+        2014,
+        2017,
+        2018,
+        2019
+       ],
+       "e": -4,
+       "n_treated": 773,
+       "p": 0.006381554533639284,
+       "period": "pre",
+       "se": 0.007022666440034829
+      },
+      {
+       "analytic_se": 0.0064358074819070655,
+       "att": -0.009083782497821553,
+       "band_high": 0.0053352545457250496,
+       "band_low": -0.023502819541368156,
+       "ci_high": 0.0035410715992809025,
+       "ci_low": -0.02170863659492401,
+       "cohorts": [
+        1995,
+        1996,
+        1997,
+        1998,
+        1999,
+        2000,
+        2001,
+        2002,
+        2003,
+        2004,
+        2005,
+        2006,
+        2007,
+        2008,
+        2010,
+        2011,
+        2013,
+        2014,
+        2017,
+        2018,
+        2019
+       ],
+       "e": -3,
+       "n_treated": 773,
+       "p": 0.15847321707062534,
+       "period": "pre",
+       "se": 0.006441370452052025
+      },
+      {
+       "analytic_se": 0.004570383970801835,
+       "att": -0.008465387889605509,
+       "band_high": 0.00322475641562003,
+       "band_low": -0.020155532194831047,
+       "ci_high": 0.0017701337878701356,
+       "ci_low": -0.018700909567081155,
+       "cohorts": [
+        1995,
+        1996,
+        1997,
+        1998,
+        1999,
+        2000,
+        2001,
+        2002,
+        2003,
+        2004,
+        2005,
+        2006,
+        2007,
+        2008,
+        2010,
+        2011,
+        2013,
+        2014,
+        2017,
+        2018,
+        2019
+       ],
+       "e": -2,
+       "n_treated": 773,
+       "p": 0.10501607269244417,
+       "period": "pre",
+       "se": 0.005222300898492082
+      },
+      {
+       "analytic_se": 0.0031039925322076125,
+       "att": 0.0015197426270133463,
+       "band_high": 0.009253212395765001,
+       "band_low": -0.006213727141738307,
+       "ci_high": 0.008290924863384631,
+       "ci_low": -0.005251439609357939,
+       "cohorts": [
+        1995,
+        1996,
+        1997,
+        1998,
+        1999,
+        2000,
+        2001,
+        2002,
+        2003,
+        2004,
+        2005,
+        2006,
+        2007,
+        2008,
+        2010,
+        2011,
+        2013,
+        2014,
+        2017,
+        2018,
+        2019
+       ],
+       "e": 0,
+       "n_treated": 773,
+       "p": 0.660009776683322,
+       "period": "post",
+       "se": 0.0034547482962858033
+      },
+      {
+       "analytic_se": 0.00500477527475065,
+       "att": -0.00336878282006664,
+       "band_high": 0.009626705038433148,
+       "band_low": -0.01636427067856643,
+       "ci_high": 0.008009656505578609,
+       "ci_low": -0.01474722214571189,
+       "cohorts": [
+        1995,
+        1996,
+        1997,
+        1998,
+        1999,
+        2000,
+        2001,
+        2002,
+        2003,
+        2004,
+        2005,
+        2006,
+        2007,
+        2008,
+        2010,
+        2011,
+        2013,
+        2017,
+        2018,
+        2019
+       ],
+       "e": 1,
+       "n_treated": 712,
+       "p": 0.5617250878185073,
+       "period": "post",
+       "se": 0.005805432862744891
+      },
+      {
+       "analytic_se": 0.005371837999310824,
+       "att": 0.0013719740553203832,
+       "band_high": 0.012962824157012614,
+       "band_low": -0.010218876046371847,
+       "ci_high": 0.011520556859658375,
+       "ci_low": -0.008776608749017608,
+       "cohorts": [
+        1995,
+        1996,
+        1997,
+        1998,
+        1999,
+        2000,
+        2001,
+        2002,
+        2003,
+        2004,
+        2005,
+        2006,
+        2007,
+        2008,
+        2010,
+        2011,
+        2013,
+        2017,
+        2018,
+        2019
+       ],
+       "e": 2,
+       "n_treated": 598,
+       "p": 0.7910363869111832,
+       "period": "post",
+       "se": 0.005177943515487386
+      },
+      {
+       "analytic_se": 0.010535337332577013,
+       "att": 0.008940644699162052,
+       "band_high": 0.032661915157024865,
+       "band_low": -0.014780625758700764,
+       "ci_high": 0.02971024100604298,
+       "ci_low": -0.011828951607718876,
+       "cohorts": [
+        1995,
+        1996,
+        1997,
+        1998,
+        1999,
+        2000,
+        2001,
+        2002,
+        2003,
+        2004,
+        2005,
+        2006,
+        2007,
+        2008,
+        2010,
+        2011,
+        2013,
+        2017,
+        2018,
+        2019
+       ],
+       "e": 3,
+       "n_treated": 548,
+       "p": 0.3988361739521588,
+       "period": "post",
+       "se": 0.010596927530663245
+      },
+      {
+       "analytic_se": 0.014287983436552415,
+       "att": 0.01788622161741109,
+       "band_high": 0.0538047844534749,
+       "band_low": -0.01803234121865272,
+       "ci_high": 0.049335382460358373,
+       "ci_low": -0.013562939225536197,
+       "cohorts": [
+        1995,
+        1996,
+        1997,
+        1998,
+        1999,
+        2000,
+        2001,
+        2002,
+        2003,
+        2004,
+        2005,
+        2006,
+        2007,
+        2008,
+        2010,
+        2011,
+        2013,
+        2017,
+        2018,
+        2019
+       ],
+       "e": 4,
+       "n_treated": 521,
+       "p": 0.2649794017953244,
+       "period": "post",
+       "se": 0.0160457850710596
+      },
+      {
+       "analytic_se": 0.020419352370166698,
+       "att": 0.02907968234048849,
+       "band_high": 0.07746749277040199,
+       "band_low": -0.019308128089425006,
+       "ci_high": 0.07144652312957714,
+       "ci_low": -0.013287158448600154,
+       "cohorts": [
+        1995,
+        1996,
+        1997,
+        1998,
+        1999,
+        2000,
+        2001,
+        2002,
+        2003,
+        2004,
+        2005,
+        2006,
+        2007,
+        2008,
+        2010,
+        2011,
+        2013,
+        2017,
+        2018,
+        2019
+       ],
+       "e": 5,
+       "n_treated": 451,
+       "p": 0.17853584702216427,
+       "period": "post",
+       "se": 0.021616132297977354
+      }
+     ],
+     "n_clusters": 46,
+     "overall": {
+      "analytic_se": 0.008652400523045299,
+      "att": 0.009238247086554787,
+      "bootstrap_p": 0.299,
+      "ci_high": 0.027525225836979222,
+      "ci_low": -0.009048731663869646,
+      "definition": "equal-weight mean of ATT(e) over the post event times listed",
+      "event_times": [
+       0,
+       1,
+       2,
+       3,
+       4,
+       5
+      ],
+      "p": 0.32210669851179813,
+      "se": 0.00933026264496174
+     },
+     "pre_trend": {
+      "leads": [
+       -5,
+       -4,
+       -3,
+       -2
+      ],
+      "max_abs_lead": 0.022317960804069448,
+      "sup_t": {
+       "p": 0.002,
+       "statistic": 2.727503682314451
+      },
+      "wald": {
+       "df": 4,
+       "p": 0.032189736572384664,
+       "statistic": 10.544482771581256
+      }
+     },
+     "reference_event_time": -1,
+     "skipped_cells": 68
+    },
+    "robustness": {
+     "never_treated_controls": {
+      "alpha": 0.05,
+      "anticipation": 0,
+      "bootstrap": null,
+      "cells": 578,
+      "control_group": "never_treated",
+      "dropped_treated_no_control": 33717,
+      "estimator": "callaway_santanna_unconditional_stratified",
+      "event_time": [
+       {
+        "analytic_se": 0.02027147842807187,
+        "att": -0.004630423350049411,
+        "band_high": null,
+        "band_low": null,
+        "ci_high": 0.03510094428235208,
+        "ci_low": -0.0443617909824509,
+        "cohorts": [
+         1995,
+         1996,
+         1997,
+         1998,
+         1999,
+         2000,
+         2001,
+         2002,
+         2004,
+         2005,
+         2008,
+         2010,
+         2011,
+         2013,
+         2017,
+         2018,
+         2019
+        ],
+        "e": -5,
+        "n_treated": 171,
+        "p": 0.8193192729957756,
+        "period": "pre",
+        "se": 0.02027147842807187
+       },
+       {
+        "analytic_se": 0.017675150956998915,
+        "att": -0.004842609329636052,
+        "band_high": null,
+        "band_low": null,
+        "ci_high": 0.02980004996739049,
+        "ci_low": -0.039485268626662594,
+        "cohorts": [
+         1995,
+         1996,
+         1997,
+         1998,
+         1999,
+         2000,
+         2001,
+         2002,
+         2004,
+         2005,
+         2008,
+         2010,
+         2011,
+         2013,
+         2017,
+         2018,
+         2019
+        ],
+        "e": -4,
+        "n_treated": 171,
+        "p": 0.7841012319039562,
+        "period": "pre",
+        "se": 0.017675150956998915
+       },
+       {
+        "analytic_se": 0.014116718967968728,
+        "att": 0.0018447546500760166,
+        "band_high": null,
+        "band_low": null,
+        "ci_high": 0.029513015407168164,
+        "ci_low": -0.025823506107016128,
+        "cohorts": [
+         1995,
+         1996,
+         1997,
+         1998,
+         1999,
+         2000,
+         2001,
+         2002,
+         2004,
+         2005,
+         2008,
+         2010,
+         2011,
+         2013,
+         2017,
+         2018,
+         2019
+        ],
+        "e": -3,
+        "n_treated": 171,
+        "p": 0.8960294734067865,
+        "period": "pre",
+        "se": 0.014116718967968728
+       },
+       {
+        "analytic_se": 0.009324672154085233,
+        "att": 0.0001283958946261369,
+        "band_high": null,
+        "band_low": null,
+        "ci_high": 0.01840441748427672,
+        "ci_low": -0.018147625695024445,
+        "cohorts": [
+         1995,
+         1996,
+         1997,
+         1998,
+         1999,
+         2000,
+         2001,
+         2002,
+         2004,
+         2005,
+         2008,
+         2010,
+         2011,
+         2013,
+         2017,
+         2018,
+         2019
+        ],
+        "e": -2,
+        "n_treated": 171,
+        "p": 0.9890138909818419,
+        "period": "pre",
+        "se": 0.009324672154085233
+       },
+       {
+        "analytic_se": 0.0071395844548869485,
+        "att": 0.00026045978964853346,
+        "band_high": null,
+        "band_low": null,
+        "ci_high": 0.014253788185808984,
+        "ci_low": -0.013732868606511918,
+        "cohorts": [
+         1995,
+         1996,
+         1997,
+         1998,
+         1999,
+         2000,
+         2001,
+         2002,
+         2004,
+         2005,
+         2008,
+         2010,
+         2011,
+         2013,
+         2017,
+         2018,
+         2019
+        ],
+        "e": 0,
+        "n_treated": 171,
+        "p": 0.9708987603973691,
+        "period": "post",
+        "se": 0.0071395844548869485
+       },
+       {
+        "analytic_se": 0.010567014167888179,
+        "att": -0.002897527804861258,
+        "band_high": null,
+        "band_low": null,
+        "ci_high": 0.017813439388324057,
+        "ci_low": -0.023608494998046573,
+        "cohorts": [
+         1995,
+         1996,
+         1997,
+         1998,
+         1999,
+         2000,
+         2001,
+         2002,
+         2004,
+         2005,
+         2008,
+         2010,
+         2011,
+         2013,
+         2017,
+         2018,
+         2019
+        ],
+        "e": 1,
+        "n_treated": 171,
+        "p": 0.7839271087994524,
+        "period": "post",
+        "se": 0.010567014167888179
+       },
+       {
+        "analytic_se": 0.014417975436942945,
+        "att": 0.006834309591594338,
+        "band_high": null,
+        "band_low": null,
+        "ci_high": 0.035093022177985655,
+        "ci_low": -0.021424402994796983,
+        "cohorts": [
+         1995,
+         1996,
+         1997,
+         1998,
+         1999,
+         2000,
+         2001,
+         2002,
+         2004,
+         2005,
+         2008,
+         2010,
+         2011,
+         2013,
+         2017,
+         2018,
+         2019
+        ],
+        "e": 2,
+        "n_treated": 171,
+        "p": 0.635490547848299,
+        "period": "post",
+        "se": 0.014417975436942945
+       },
+       {
+        "analytic_se": 0.01816270950930913,
+        "att": 0.00653584721904369,
+        "band_high": null,
+        "band_low": null,
+        "ci_high": 0.04213410371895274,
+        "ci_low": -0.029062409280865356,
+        "cohorts": [
+         1995,
+         1996,
+         1997,
+         1998,
+         1999,
+         2000,
+         2001,
+         2002,
+         2004,
+         2005,
+         2008,
+         2010,
+         2011,
+         2013,
+         2017,
+         2018,
+         2019
+        ],
+        "e": 3,
+        "n_treated": 171,
+        "p": 0.7189594661542172,
+        "period": "post",
+        "se": 0.01816270950930913
+       },
+       {
+        "analytic_se": 0.020639298823622844,
+        "att": 0.0036846706953921502,
+        "band_high": null,
+        "band_low": null,
+        "ci_high": 0.04413695305585282,
+        "ci_low": -0.03676761166506853,
+        "cohorts": [
+         1995,
+         1996,
+         1997,
+         1998,
+         1999,
+         2000,
+         2001,
+         2002,
+         2004,
+         2005,
+         2008,
+         2010,
+         2011,
+         2013,
+         2017,
+         2018,
+         2019
+        ],
+        "e": 4,
+        "n_treated": 171,
+        "p": 0.8583091723292718,
+        "period": "post",
+        "se": 0.020639298823622844
+       },
+       {
+        "analytic_se": 0.0281624070822703,
+        "att": 0.002116818430807132,
+        "band_high": null,
+        "band_low": null,
+        "ci_high": 0.05731412203001266,
+        "ci_low": -0.053080485168398396,
+        "cohorts": [
+         1995,
+         1996,
+         1997,
+         1998,
+         1999,
+         2000,
+         2001,
+         2002,
+         2004,
+         2005,
+         2008,
+         2010,
+         2011,
+         2013,
+         2017,
+         2018,
+         2019
+        ],
+        "e": 5,
+        "n_treated": 171,
+        "p": 0.9400836828724206,
+        "period": "post",
+        "se": 0.0281624070822703
+       }
+      ],
+      "n_clusters": 46,
+      "overall": {
+       "analytic_se": 0.015590860695257848,
+       "att": 0.0027557629869374312,
+       "bootstrap_p": null,
+       "ci_high": 0.03331328843762391,
+       "ci_low": -0.027801762463749054,
+       "definition": "equal-weight mean of ATT(e) over the post event times listed",
+       "event_times": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
+       ],
+       "p": 0.8597008168091349,
+       "se": 0.015590860695257848
+      },
+      "pre_trend": {
+       "leads": [
+        -5,
+        -4,
+        -3,
+        -2
+       ],
+       "max_abs_lead": 0.004842609329636052,
+       "sup_t": null,
+       "wald": {
+        "df": 4,
+        "p": 0.6663548534960759,
+        "statistic": 2.3793907435908292
+       }
+      },
+      "reference_event_time": -1,
+      "skipped_cells": 170
+     },
+     "stacked_did": {
+      "estimator": "stacked_did_clean_controls",
+      "event_time": [
+       {
+        "att": -0.016987754727912602,
+        "ci_high": 0.02235258017116531,
+        "ci_low": -0.05632808962699051,
+        "e": -5,
+        "p": 0.3973618462811144,
+        "se": 0.02007196826543215,
+        "stacks": 78
+       },
+       {
+        "att": -0.01129957846556345,
+        "ci_high": 0.02316529007781196,
+        "ci_low": -0.04576444700893886,
+        "e": -4,
+        "p": 0.520490419170785,
+        "se": 0.017584439721969332,
+        "stacks": 78
+       },
+       {
+        "att": -0.007136033073942634,
+        "ci_high": 0.016494169643070253,
+        "ci_low": -0.03076623579095552,
+        "e": -3,
+        "p": 0.5539274492749546,
+        "se": 0.012056447416077497,
+        "stacks": 78
+       },
+       {
+        "att": -0.006823935552872209,
+        "ci_high": 0.013685460093969152,
+        "ci_low": -0.02733333119971357,
+        "e": -2,
+        "p": 0.514321220772361,
+        "se": 0.010464169652410382,
+        "stacks": 78
+       },
+       {
+        "att": 0.004070790739045311,
+        "ci_high": 0.010835130083421317,
+        "ci_low": -0.002693548605330695,
+        "e": 0,
+        "p": 0.23819531377774555,
+        "se": 0.00345125696070553,
+        "stacks": 78
+       },
+       {
+        "att": 0.0019745449153083672,
+        "ci_high": 0.011275529040794397,
+        "ci_low": -0.007326439210177662,
+        "e": 1,
+        "p": 0.6773448996302818,
+        "se": 0.004745487263465557,
+        "stacks": 78
+       },
+       {
+        "att": 0.009755735245267495,
+        "ci_high": 0.027265086668232855,
+        "ci_low": -0.007753616177697865,
+        "e": 2,
+        "p": 0.2748160823087107,
+        "se": 0.008933506718019766,
+        "stacks": 78
+       },
+       {
+        "att": 0.012095389802751457,
+        "ci_high": 0.03571318984538129,
+        "ci_low": -0.011522410239878378,
+        "e": 3,
+        "p": 0.315495831300477,
+        "se": 0.01205011940470541,
+        "stacks": 78
+       },
+       {
+        "att": 0.01296520955300275,
+        "ci_high": 0.040409052011700336,
+        "ci_low": -0.01447863290569484,
+        "e": 4,
+        "p": 0.35447730832496077,
+        "se": 0.014002217732147694,
+        "stacks": 78
+       },
+       {
+        "att": 0.014483509489296489,
+        "ci_high": 0.04707807921298606,
+        "ci_low": -0.01811106023439308,
+        "e": 5,
+        "p": 0.38379960637331856,
+        "se": 0.01663018809569532,
+        "stacks": 78
+       }
+      ],
+      "n_clusters": 46,
+      "overall": {
+       "att": 0.009224196624111978,
+       "ci_high": 0.027726576631369144,
+       "ci_low": -0.009278183383145188,
+       "definition": "equal-weight mean of stacked ATT(e) over post event times",
+       "p": 0.3285084734952962,
+       "se": 0.009440163264836283
+      },
+      "pre_trend": {
+       "leads": [
+        -5,
+        -4,
+        -3,
+        -2
+       ],
+       "wald": {
+        "df": 4,
+        "p": 0.5626121178924237,
+        "statistic": 2.9714640925013343
+       }
+      },
+      "stack_count": 78,
+      "stacks": [
+       {
+        "g": 1995,
+        "n_control": 2,
+        "n_treated": 1,
+        "stratum": "01",
+        "weight": 0.6666666666666666
+       },
+       {
+        "g": 1995,
+        "n_control": 9,
+        "n_treated": 4,
+        "stratum": "02",
+        "weight": 2.769230769230769
+       },
+       {
+        "g": 1995,
+        "n_control": 7,
+        "n_treated": 9,
+        "stratum": "13",
+        "weight": 3.9375
+       },
+       {
+        "g": 1995,
+        "n_control": 4,
+        "n_treated": 9,
+        "stratum": "27",
+        "weight": 2.769230769230769
+       },
+       {
+        "g": 1995,
+        "n_control": 25,
+        "n_treated": 5,
+        "stratum": "39",
+        "weight": 4.166666666666667
+       },
+       {
+        "g": 1995,
+        "n_control": 4,
+        "n_treated": 5,
+        "stratum": "40",
+        "weight": 2.2222222222222223
+       },
+       {
+        "g": 1995,
+        "n_control": 3,
+        "n_treated": 1,
+        "stratum": "41",
+        "weight": 0.75
+       },
+       {
+        "g": 1996,
+        "n_control": 11,
+        "n_treated": 19,
+        "stratum": "16",
+        "weight": 6.966666666666667
+       },
+       {
+        "g": 1996,
+        "n_control": 20,
+        "n_treated": 13,
+        "stratum": "17",
+        "weight": 7.878787878787879
+       },
+       {
+        "g": 1996,
+        "n_control": 2,
+        "n_treated": 2,
+        "stratum": "18",
+        "weight": 1.0
+       },
+       {
+        "g": 1996,
+        "n_control": 51,
+        "n_treated": 7,
+        "stratum": "26",
+        "weight": 6.155172413793103
+       },
+       {
+        "g": 1996,
+        "n_control": 1,
+        "n_treated": 20,
+        "stratum": "30",
+        "weight": 0.9523809523809523
+       },
+       {
+        "g": 1996,
+        "n_control": 9,
+        "n_treated": 7,
+        "stratum": "32",
+        "weight": 3.9375
+       },
+       {
+        "g": 1996,
+        "n_control": 25,
+        "n_treated": 6,
+        "stratum": "39",
+        "weight": 4.838709677419355
+       },
+       {
+        "g": 1996,
+        "n_control": 3,
+        "n_treated": 24,
+        "stratum": "41",
+        "weight": 2.6666666666666665
+       },
+       {
+        "g": 1996,
+        "n_control": 4,
+        "n_treated": 5,
+        "stratum": "45",
+        "weight": 2.2222222222222223
+       },
+       {
+        "g": 1997,
+        "n_control": 11,
+        "n_treated": 7,
+        "stratum": "16",
+        "weight": 4.277777777777778
+       },
+       {
+        "g": 1997,
+        "n_control": 6,
+        "n_treated": 1,
+        "stratum": "17",
+        "weight": 0.8571428571428571
+       },
+       {
+        "g": 1997,
+        "n_control": 49,
+        "n_treated": 4,
+        "stratum": "26",
+        "weight": 3.69811320754717
+       },
+       {
+        "g": 1997,
+        "n_control": 1,
+        "n_treated": 15,
+        "stratum": "30",
+        "weight": 0.9375
+       },
+       {
+        "g": 1997,
+        "n_control": 12,
+        "n_treated": 4,
+        "stratum": "31",
+        "weight": 3.0
+       },
+       {
+        "g": 1997,
+        "n_control": 4,
+        "n_treated": 10,
+        "stratum": "35",
+        "weight": 2.857142857142857
+       },
+       {
+        "g": 1997,
+        "n_control": 17,
+        "n_treated": 2,
+        "stratum": "39",
+        "weight": 1.7894736842105263
+       },
+       {
+        "g": 1998,
+        "n_control": 1,
+        "n_treated": 2,
+        "stratum": "01",
+        "weight": 0.6666666666666666
+       },
+       {
+        "g": 1998,
+        "n_control": 7,
+        "n_treated": 19,
+        "stratum": "13",
+        "weight": 5.115384615384615
+       },
+       {
+        "g": 1998,
+        "n_control": 22,
+        "n_treated": 10,
+        "stratum": "20",
+        "weight": 6.875
+       },
+       {
+        "g": 1998,
+        "n_control": 49,
+        "n_treated": 11,
+        "stratum": "26",
+        "weight": 8.983333333333333
+       },
+       {
+        "g": 1998,
+        "n_control": 9,
+        "n_treated": 8,
+        "stratum": "39",
+        "weight": 4.235294117647059
+       },
+       {
+        "g": 1998,
+        "n_control": 2,
+        "n_treated": 1,
+        "stratum": "55",
+        "weight": 0.6666666666666666
+       },
+       {
+        "g": 1998,
+        "n_control": 18,
+        "n_treated": 2,
+        "stratum": "56",
+        "weight": 1.8
+       },
+       {
+        "g": 1999,
+        "n_control": 9,
+        "n_treated": 8,
+        "stratum": "02",
+        "weight": 4.235294117647059
+       },
+       {
+        "g": 1999,
+        "n_control": 9,
+        "n_treated": 1,
+        "stratum": "32",
+        "weight": 0.9
+       },
+       {
+        "g": 1999,
+        "n_control": 4,
+        "n_treated": 6,
+        "stratum": "35",
+        "weight": 2.4
+       },
+       {
+        "g": 1999,
+        "n_control": 1,
+        "n_treated": 15,
+        "stratum": "45",
+        "weight": 0.9375
+       },
+       {
+        "g": 1999,
+        "n_control": 26,
+        "n_treated": 1,
+        "stratum": "49",
+        "weight": 0.9629629629629629
+       },
+       {
+        "g": 1999,
+        "n_control": 2,
+        "n_treated": 8,
+        "stratum": "55",
+        "weight": 1.6
+       },
+       {
+        "g": 2000,
+        "n_control": 4,
+        "n_treated": 7,
+        "stratum": "13",
+        "weight": 2.5454545454545454
+       },
+       {
+        "g": 2000,
+        "n_control": 11,
+        "n_treated": 7,
+        "stratum": "16",
+        "weight": 4.277777777777778
+       },
+       {
+        "g": 2000,
+        "n_control": 13,
+        "n_treated": 1,
+        "stratum": "20",
+        "weight": 0.9285714285714286
+       },
+       {
+        "g": 2000,
+        "n_control": 1,
+        "n_treated": 20,
+        "stratum": "30",
+        "weight": 0.9523809523809523
+       },
+       {
+        "g": 2000,
+        "n_control": 4,
+        "n_treated": 8,
+        "stratum": "35",
+        "weight": 2.6666666666666665
+       },
+       {
+        "g": 2000,
+        "n_control": 2,
+        "n_treated": 6,
+        "stratum": "55",
+        "weight": 1.5
+       },
+       {
+        "g": 2000,
+        "n_control": 17,
+        "n_treated": 3,
+        "stratum": "56",
+        "weight": 2.55
+       },
+       {
+        "g": 2001,
+        "n_control": 3,
+        "n_treated": 16,
+        "stratum": "31",
+        "weight": 2.526315789473684
+       },
+       {
+        "g": 2001,
+        "n_control": 2,
+        "n_treated": 1,
+        "stratum": "55",
+        "weight": 0.6666666666666666
+       },
+       {
+        "g": 2002,
+        "n_control": 3,
+        "n_treated": 14,
+        "stratum": "17",
+        "weight": 2.4705882352941178
+       },
+       {
+        "g": 2002,
+        "n_control": 36,
+        "n_treated": 2,
+        "stratum": "26",
+        "weight": 1.894736842105263
+       },
+       {
+        "g": 2002,
+        "n_control": 2,
+        "n_treated": 2,
+        "stratum": "55",
+        "weight": 1.0
+       },
+       {
+        "g": 2003,
+        "n_control": 2,
+        "n_treated": 1,
+        "stratum": "17",
+        "weight": 0.6666666666666666
+       },
+       {
+        "g": 2003,
+        "n_control": 1,
+        "n_treated": 1,
+        "stratum": "18",
+        "weight": 0.5
+       },
+       {
+        "g": 2003,
+        "n_control": 2,
+        "n_treated": 5,
+        "stratum": "31",
+        "weight": 1.4285714285714286
+       },
+       {
+        "g": 2004,
+        "n_control": 5,
+        "n_treated": 2,
+        "stratum": "02",
+        "weight": 1.4285714285714286
+       },
+       {
+        "g": 2004,
+        "n_control": 3,
+        "n_treated": 3,
+        "stratum": "13",
+        "weight": 1.5
+       },
+       {
+        "g": 2004,
+        "n_control": 2,
+        "n_treated": 2,
+        "stratum": "17",
+        "weight": 1.0
+       },
+       {
+        "g": 2004,
+        "n_control": 30,
+        "n_treated": 13,
+        "stratum": "26",
+        "weight": 9.069767441860465
+       },
+       {
+        "g": 2004,
+        "n_control": 2,
+        "n_treated": 1,
+        "stratum": "31",
+        "weight": 0.6666666666666666
+       },
+       {
+        "g": 2005,
+        "n_control": 5,
+        "n_treated": 1,
+        "stratum": "02",
+        "weight": 0.8333333333333334
+       },
+       {
+        "g": 2005,
+        "n_control": 1,
+        "n_treated": 3,
+        "stratum": "31",
+        "weight": 0.75
+       },
+       {
+        "g": 2005,
+        "n_control": 7,
+        "n_treated": 2,
+        "stratum": "32",
+        "weight": 1.5555555555555556
+       },
+       {
+        "g": 2005,
+        "n_control": 16,
+        "n_treated": 9,
+        "stratum": "49",
+        "weight": 5.76
+       },
+       {
+        "g": 2005,
+        "n_control": 16,
+        "n_treated": 1,
+        "stratum": "56",
+        "weight": 0.9411764705882353
+       },
+       {
+        "g": 2006,
+        "n_control": 1,
+        "n_treated": 2,
+        "stratum": "35",
+        "weight": 0.6666666666666666
+       },
+       {
+        "g": 2007,
+        "n_control": 2,
+        "n_treated": 1,
+        "stratum": "13",
+        "weight": 0.6666666666666666
+       },
+       {
+        "g": 2007,
+        "n_control": 1,
+        "n_treated": 1,
+        "stratum": "31",
+        "weight": 0.5
+       },
+       {
+        "g": 2007,
+        "n_control": 1,
+        "n_treated": 1,
+        "stratum": "35",
+        "weight": 0.5
+       },
+       {
+        "g": 2008,
+        "n_control": 29,
+        "n_treated": 6,
+        "stratum": "26",
+        "weight": 4.9714285714285715
+       },
+       {
+        "g": 2010,
+        "n_control": 1,
+        "n_treated": 1,
+        "stratum": "31",
+        "weight": 0.5
+       },
+       {
+        "g": 2010,
+        "n_control": 6,
+        "n_treated": 1,
+        "stratum": "49",
+        "weight": 0.8571428571428571
+       },
+       {
+        "g": 2010,
+        "n_control": 6,
+        "n_treated": 1,
+        "stratum": "56",
+        "weight": 0.8571428571428571
+       },
+       {
+        "g": 2011,
+        "n_control": 6,
+        "n_treated": 12,
+        "stratum": "49",
+        "weight": 4.0
+       },
+       {
+        "g": 2011,
+        "n_control": 6,
+        "n_treated": 10,
+        "stratum": "56",
+        "weight": 3.75
+       },
+       {
+        "g": 2013,
+        "n_control": 27,
+        "n_treated": 1,
+        "stratum": "26",
+        "weight": 0.9642857142857143
+       },
+       {
+        "g": 2017,
+        "n_control": 5,
+        "n_treated": 6,
+        "stratum": "16",
+        "weight": 2.727272727272727
+       },
+       {
+        "g": 2017,
+        "n_control": 26,
+        "n_treated": 1,
+        "stratum": "26",
+        "weight": 0.9629629629629629
+       },
+       {
+        "g": 2017,
+        "n_control": 6,
+        "n_treated": 1,
+        "stratum": "32",
+        "weight": 0.8571428571428571
+       },
+       {
+        "g": 2017,
+        "n_control": 5,
+        "n_treated": 1,
+        "stratum": "56",
+        "weight": 0.8333333333333334
+       },
+       {
+        "g": 2018,
+        "n_control": 25,
+        "n_treated": 1,
+        "stratum": "26",
+        "weight": 0.9615384615384616
+       },
+       {
+        "g": 2019,
+        "n_control": 1,
+        "n_treated": 1,
+        "stratum": "55",
+        "weight": 0.5
+       }
+      ]
+     },
+     "twfe_static": {
+      "beta": -0.0036489735788836544,
+      "demeaning": {
+       "converged": true,
+       "iterations": [
+        6,
+        7
+       ]
+      },
+      "estimator": "twfe_static",
+      "n_clusters": 46,
+      "n_obs": 44235,
+      "p": 0.7376919572940754,
+      "se": 0.010895341527762217,
+      "warning": "biased under staggered adoption with heterogeneous or dynamic effects; comparison only"
+     }
+    }
+   },
+   "identification": {
+    "assumptions": [
+     "Parallel trends: absent treatment, the average outcome of treated units would have moved like that of the comparison units (not-yet-treated or never-treated, within stratum when stratified) from the base period on.",
+     "No anticipation beyond the registered anticipation window: outcomes before g - anticipation do not respond.",
+     "Absorbing treatment: the first qualifying event defines the cohort; later events are part of the post-period treatment path, so estimates are effects of entering treatment, not of one isolated event.",
+     "SUTVA / no interference: a unit's outcome does not depend on other units' treatment (spillovers to comparison units bias the estimate toward zero or away from it).",
+     "Treatment timing is recorded correctly by the source date the registration names.",
+     "Within a state, the timing of a county's first qualifying disaster after a quiet period is as good as random with respect to its employment trend (weather and geology, not local economic conditions, determine which quiet county is hit first).",
+     "Declaration itself is part of the treatment: the estimand is the combined effect of the physical disaster and the federal assistance a DR declaration unlocks; the two are not separated.",
+     "Spillovers to same-state comparison counties (displaced workers, reconstruction demand) are small relative to the direct effect.",
+     "Selection into the sample (no qualifying DR in 1990-1994) does not interact with treatment effects in a way that changes their sign."
+    ],
+    "estimand": "ATT: equal-weight mean over event times 0..5 of treated-count-weighted ATT(g, g+e)",
+    "label": "did_failed_diagnostics",
+    "meaning": "A difference-in-differences estimate whose pre-registered diagnostics failed. It is reported for transparency and must not be read as an intervention response.",
+    "strategy": "staggered_difference_in_differences"
+   },
+   "notes": [],
+   "registration": {
+    "commit": "c1bcbc2e7aa379f7d743b33aaa759bfc12b7b228",
+    "committed_at": "2026-09-18T18:32:51-07:00",
+    "committed_clean": true,
+    "path": "examples/natural-experiments/registrations/fema_disasters_county_employment.json",
+    "sha256": "0f0f581704a7fd6297ce2bbb9675a500a6cf3a4499d9af7149cb61ba033e641f"
+   },
+   "result_id": "6190e0a83a183deedc2fbf529420028722575f7a335663cef47d4728fd7b9f70",
+   "schema": "worldmodel.causal_result/1",
+   "study_id": "fema_disasters_county_employment",
+   "verdict": "No causal claim. Pre-registered diagnostics failed (no_pre_trends, placebo_date_null), so the parallel-trends design is not credible here. The estimate for log QCEW annual-average covered employment (county, total covered, all ownerships), +0.0092 log points (95% CI -0.0090 to +0.0275), is reported only for transparency."
+  },
+  {
+   "acceptance": [
+    {
+     "id": "enough_treated_counties",
+     "passed": true,
+     "role": "identification",
+     "threshold": 200,
+     "type": "min_treated_units",
+     "value": 1204
+    },
+    {
+     "id": "enough_state_clusters",
+     "passed": true,
+     "role": "identification",
+     "threshold": 30,
+     "type": "min_clusters",
+     "value": 46
+    },
+    {
+     "id": "no_pre_trends",
+     "passed": false,
+     "role": "identification",
+     "threshold": 0.05,
+     "type": "pre_trend_wald_p_min",
+     "value": 0.04178444144525574
+    },
+    {
+     "id": "placebo_date_null",
+     "passed": false,
+     "role": "identification",
+     "threshold": 0.05,
+     "type": "placebo_date_p_min",
+     "value": 0.0006132913603870927
+    },
+    {
+     "id": "placebo_unit_size",
+     "passed": true,
+     "role": "identification",
+     "threshold": 0.1,
+     "type": "placebo_unit_rejection_rate_max",
+     "value": 0.02
+    },
+    {
+     "id": "stacked_agrees",
+     "passed": true,
+     "role": "identification",
+     "threshold": null,
+     "type": "robustness_ci_overlap",
+     "value": [
+      [
+       -0.005187690872754554,
+       0.03892544860860041
+      ],
+      [
+       -0.0009175199418253732,
+       0.024313753906357993
+      ]
+     ]
+    }
+   ],
+   "data": {
+    "inputs": [
+     {
+      "dataset": "event_library",
+      "stage": "events",
+      "version": "dbf0c37f15cb15933ddf2452ae00cf196981aef02045a2b642d1582643b2819a"
+     },
+     {
+      "dataset": "bls_labor",
+      "stage": "normalized",
+      "version": "ffd7f43a2761e2f4bc85cd9765ba9bce61cf089cd26b8b5d12e428337546e267"
+     },
+     {
+      "dataset": "census_business",
+      "stage": "normalized",
+      "version": "5b0995c7a7c38f378632da57c73a053041aba721e381fc240506edfecbc21860"
+     }
+    ],
+    "outcome_extraction": {
+     "input": {
+      "dataset": "bls_labor",
+      "stage": "normalized",
+      "version": "ffd7f43a2761e2f4bc85cd9765ba9bce61cf089cd26b8b5d12e428337546e267"
+     },
+     "rows": 4463709,
+     "sha256": "25133fe7b7f21bcb1e7a930e3b9c3782a829f83e80e708804a5d8e0f3a305b6d",
+     "spec": {
+      "laus": {
+       "filter": "dimensions.survey == LAUS and subject geo:US:county:* and period_type == month",
+       "metrics": [
+        "employment",
+        "labor_force",
+        "unemployment_rate"
+       ]
+      },
+      "qcew": {
+       "filter": "dimensions.survey == QCEW and dimensions.agglvl_code == 70 (county, total covered, all ownerships) and period_type == annual_average",
+       "metrics": [
+        "employment",
+        "establishment_count"
+       ]
+      }
+     }
+    },
+    "panel": {
+     "clusters": 46,
+     "cohort_sizes": {
+      "1995": 96,
+      "1996": 428,
+      "1997": 119,
+      "1998": 177,
+      "1999": 48,
+      "2000": 68,
+      "2001": 35,
+      "2002": 82,
+      "2003": 20,
+      "2004": 37,
+      "2005": 23,
+      "2006": 15,
+      "2007": 3,
+      "2008": 7,
+      "2010": 3,
+      "2011": 26,
+      "2013": 2,
+      "2014": 2,
+      "2015": 1,
+      "2017": 9,
+      "2018": 1,
+      "2019": 2,
+      "2020": 6,
+      "2023": 7,
+      "2024": 1
+     },
+     "never_treated_units": 64,
+     "observations": 44237,
+     "periods": [
+      1990,
+      2024
+     ],
+     "strata": 46,
+     "treated_units": 1218,
+     "units": 1282
+    },
+    "panel_digest": "dd69647a69b52845d49fc17512854c534bafb829f7400b400b0477848cc215cf",
+    "treatment_facts": {
+     "counties_excluded_for_1990_1994_disasters": 1878,
+     "counties_first_treated_1995_2024": 3087,
+     "declarations_read": 45733,
+     "qualifying_county_incidents": 40332
+    }
+   },
+   "design": {
+    "controls": {
+     "control_group": "not_yet_treated",
+     "definition": "same-state counties never treated or first treated after max(t, g-1); never the cohort itself"
+    },
+    "estimator": {
+     "anticipation": 0,
+     "balance": null,
+     "estimand": "ATT: equal-weight mean over event times 0..5 of treated-count-weighted ATT(g, g+e)",
+     "primary": "callaway_santanna_unconditional_within_state",
+     "robustness": [
+      "stacked_did",
+      "twfe_static",
+      "never_treated_controls"
+     ]
+    },
+    "inference": {
+     "alpha": 0.05,
+     "bootstrap": 999,
+     "bootstrap_weights": "rademacher multiplier on state influence functions",
+     "cluster": "state",
+     "seed": 20260918
+    },
+    "outcomes": {
+     "primary": {
+      "id": "qcew_log_employment",
+      "label": "log QCEW annual-average covered employment (county, total covered, all ownerships)",
+      "source": "bls_labor QCEW agglvl_code 70 metric employment",
+      "unit": "log points"
+     },
+     "secondary": [
+      {
+       "id": "qcew_log_establishments",
+       "label": "log QCEW annual-average establishment count",
+       "source": "bls_labor QCEW agglvl_code 70 metric establishment_count",
+       "unit": "log points"
+      },
+      {
+       "id": "cbp_log_establishments",
+       "label": "log CBP establishments (2019-2023 only; exploratory, underpowered)",
+       "placebo_date_shift": 2,
+       "source": "census_business CBP county establishment_count, all industries",
+       "unit": "log points",
+       "windows": {
+        "e_max": 1,
+        "e_min": -2,
+        "post": [
+         0,
+         1
+        ]
+       }
+      }
+     ],
+     "transform": "natural log of positive values; suppressed or missing values dropped"
+    },
+    "placebo_tests": {
+     "placebo_date": {
+      "definition": "treated counties keep only years before g; placebo cohort g-3; placebo effect averaged over placebo event times 0..2",
+      "shift": 3
+     },
+     "placebo_unit": {
+      "definition": "real treated counties removed; never-treated counties get cohorts drawn from their state's real cohorts at the state's real treated share",
+      "min_never_treated": 20,
+      "replications": 100,
+      "seed": 7
+     }
+    },
+    "question": "When a US county enters its first physical-hazard FEMA major disaster (DR) after at least five disaster-free years, how do its covered employment and establishment counts change over the following five years, relative to same-state counties not yet hit?",
+    "treatment": {
+     "absorbing": "later declarations in a treated county are part of its post-period treatment path",
+     "baseline_quiet_period": "counties with any qualifying DR incident beginning 1990-1994 are excluded from the study",
+     "estimated_cohorts": [
+      1995,
+      2019
+     ],
+     "excluded_incident_types": "Biological (COVID-19 declared every county in 2020), Drought (slow onset, no shock date), Terrorist, Chemical, Toxic Substances, Human Cause, Fishing Losses, Other",
+     "later_cohorts": "counties first treated 2020-2024 are not-yet-treated controls until treated",
+     "never_treated": "no qualifying DR incident beginning 1990-2024",
+     "qualifying_incident_types": [
+      "Hurricane",
+      "Severe Storm",
+      "Severe Storm(s)",
+      "Flood",
+      "Tornado",
+      "Fire",
+      "Snowstorm",
+      "Severe Ice Storm",
+      "Winter Storm",
+      "Earthquake",
+      "Tropical Storm",
+      "Coastal Storm",
+      "Typhoon",
+      "Straight-Line Winds",
+      "Mud/Landslide",
+      "Dam/Levee Break",
+      "Tsunami",
+      "Volcanic Eruption",
+      "Freezing"
+     ],
+     "source": "event_library: library_type fema_major_disaster_declaration",
+     "timing": "cohort g = calendar year of incident_begin_date of the county's first qualifying DR with incident_begin_date in 1995-2024; the declaration date is not used because the physical shock precedes it"
+    },
+    "units": {
+     "definition": "US counties and county equivalents in the 50 states and DC (state FIPS <= 56), identified by 5-digit FIPS as published by QCEW",
+     "notes": "County definitional changes are not bridged; a county contributes to a group-time cell only when it has the outcome at both t and the base period",
+     "strata": "state (2-digit FIPS): every comparison is within state"
+    },
+    "windows": {
+     "calendar_years": [
+      1990,
+      2024
+     ],
+     "e_max": 5,
+     "e_min": -5,
+     "post": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5
+     ],
+     "reference_event_time": -1
+    }
+   },
+   "diagnostics": {
+    "placebo_date": {
+     "event_time": [
+      {
+       "analytic_se": 0.0013573072499526682,
+       "att": 0.0026740402191907553,
+       "band_high": null,
+       "band_low": null,
+       "ci_high": 0.00533431354505309,
+       "ci_low": 1.376689332842091e-05,
+       "cohorts": [
+        1992,
+        1993,
+        1994,
+        1995,
+        1996,
+        1997,
+        1998,
+        1999,
+        2000,
+        2001,
+        2002,
+        2003,
+        2004,
+        2005,
+        2007,
+        2008,
+        2010,
+        2011,
+        2014,
+        2015,
+        2016
+       ],
+       "e": 0,
+       "n_treated": 773,
+       "p": 0.04882613375356031,
+       "period": "post",
+       "se": 0.0013573072499526682
+      },
+      {
+       "analytic_se": 0.003111247593985501,
+       "att": 0.009086528302791818,
+       "band_high": null,
+       "band_low": null,
+       "ci_high": 0.015184461533990296,
+       "ci_low": 0.002988595071593339,
+       "cohorts": [
+        1992,
+        1993,
+        1994,
+        1995,
+        1996,
+        1997,
+        1998,
+        1999,
+        2000,
+        2001,
+        2002,
+        2003,
+        2004,
+        2005,
+        2007,
+        2008,
+        2010,
+        2014,
+        2015,
+        2016
+       ],
+       "e": 1,
+       "n_treated": 712,
+       "p": 0.0034942344347285536,
+       "period": "post",
+       "se": 0.003111247593985501
+      },
+      {
+       "analytic_se": 0.004199780735408017,
+       "att": 0.01395710914743106,
+       "band_high": null,
+       "band_low": null,
+       "ci_high": 0.022188528131795913,
+       "ci_low": 0.005725690163066205,
+       "cohorts": [
+        1992,
+        1993,
+        1994,
+        1995,
+        1996,
+        1997,
+        1998,
+        1999,
+        2000,
+        2001,
+        2002,
+        2003,
+        2004,
+        2005,
+        2007,
+        2008,
+        2010,
+        2014,
+        2015,
+        2016
+       ],
+       "e": 2,
+       "n_treated": 598,
+       "p": 0.0008896087129031012,
+       "period": "post",
+       "se": 0.004199780735408017
+      }
+     ],
+     "overall": {
+      "analytic_se": 0.002502449524429772,
+      "att": 0.008572559223137878,
+      "bootstrap_p": null,
+      "ci_high": 0.013477270164149617,
+      "ci_low": 0.0036678482821261398,
+      "definition": "equal-weight mean of ATT(e) over the post event times listed",
+      "event_times": [
+       0,
+       1,
+       2
+      ],
+      "p": 0.0006132913603870927,
+      "se": 0.002502449524429772
+     },
+     "p": 0.0006132913603870927,
+     "passed": false,
+     "shift": 3,
+     "test": "placebo_date",
+     "treated_units_with_pre_data": 1218
+    },
+    "placebo_unit": {
+     "never_treated_units": 64,
+     "nominal_alpha": 0.05,
+     "observed": 0.01686887886792293,
+     "permutation_p": 0.297029702970297,
+     "placebo_mean": 0.0012665063886654955,
+     "placebo_sd": 0.01645502099695677,
+     "ran": true,
+     "rejection_rate": 0.02,
+     "replications": 100,
+     "seed": 7,
+     "test": "placebo_unit"
+    },
+    "pre_trend": {
+     "leads": [
+      -5,
+      -4,
+      -3,
+      -2
+     ],
+     "max_abs_lead": 0.01741687275987402,
+     "sup_t": {
+      "p": 0.002,
+      "statistic": 2.9835755757536524
+     },
+     "wald": {
+      "df": 4,
+      "p": 0.04178444144525574,
+      "statistic": 9.920725058503377
+     }
+    }
+   },
+   "estimates": {
+    "outcome": {
+     "id": "qcew_log_establishments",
+     "label": "log QCEW annual-average establishment count",
+     "role": "secondary",
+     "source": "bls_labor QCEW agglvl_code 70 metric establishment_count",
+     "unit": "log points"
+    },
+    "primary": {
+     "alpha": 0.05,
+     "anticipation": 0,
+     "bootstrap": {
+      "level": "cluster",
+      "replications": 999,
+      "seed": 20260918,
+      "uniform_critical_value": 2.2161792907073035,
+      "weights": "rademacher"
+     },
+     "cells": 680,
+     "control_group": "not_yet_treated",
+     "dropped_treated_no_control": 26363,
+     "estimator": "callaway_santanna_unconditional_stratified",
+     "event_time": [
+      {
+       "analytic_se": 0.007472172284734665,
+       "att": -0.01741687275987402,
+       "band_high": 0.0024871602440449253,
+       "band_low": -0.03732090576379297,
+       "ci_high": 0.00018602967602371692,
+       "ci_low": -0.03501977519577176,
+       "cohorts": [
+        1995,
+        1996,
+        1997,
+        1998,
+        1999,
+        2000,
+        2001,
+        2002,
+        2003,
+        2004,
+        2005,
+        2006,
+        2007,
+        2008,
+        2010,
+        2011,
+        2013,
+        2014,
+        2017,
+        2018,
+        2019
+       ],
+       "e": -5,
+       "n_treated": 773,
+       "p": 0.05247080175178962,
+       "period": "pre",
+       "se": 0.008981237703726799
+      },
+      {
+       "analytic_se": 0.003262109029624226,
+       "att": -0.009839706847541738,
+       "band_high": -0.0025308406940022883,
+       "band_low": -0.017148573001081188,
+       "ci_high": -0.0033758280048740976,
+       "ci_low": -0.016303585690209378,
+       "cohorts": [
+        1995,
+        1996,
+        1997,
+        1998,
+        1999,
+        2000,
+        2001,
+        2002,
+        2003,
+        2004,
+        2005,
+        2006,
+        2007,
+        2008,
+        2010,
+        2011,
+        2013,
+        2014,
+        2017,
+        2018,
+        2019
+       ],
+       "e": -4,
+       "n_treated": 773,
+       "p": 0.002849016658697856,
+       "period": "pre",
+       "se": 0.003297957969459589
+      },
+      {
+       "analytic_se": 0.002939418145023712,
+       "att": -0.007200859161457032,
+       "band_high": -0.000604191691438283,
+       "band_low": -0.013797526631475782,
+       "ci_high": -0.0013668408067880455,
+       "ci_low": -0.013034877516126019,
+       "cohorts": [
+        1995,
+        1996,
+        1997,
+        1998,
+        1999,
+        2000,
+        2001,
+        2002,
+        2003,
+        2004,
+        2005,
+        2006,
+        2007,
+        2008,
+        2010,
+        2011,
+        2013,
+        2014,
+        2017,
+        2018,
+        2019
+       ],
+       "e": -3,
+       "n_treated": 773,
+       "p": 0.015556390308577082,
+       "period": "pre",
+       "se": 0.002976594672497546
+      },
+      {
+       "analytic_se": 0.0014876617909877104,
+       "att": -0.002558475048264914,
+       "band_high": 0.0008907307464973129,
+       "band_low": -0.006007680843027141,
+       "ci_high": 0.000491963678126772,
+       "ci_low": -0.005608913774656599,
+       "cohorts": [
+        1995,
+        1996,
+        1997,
+        1998,
+        1999,
+        2000,
+        2001,
+        2002,
+        2003,
+        2004,
+        2005,
+        2006,
+        2007,
+        2008,
+        2010,
+        2011,
+        2013,
+        2014,
+        2017,
+        2018,
+        2019
+       ],
+       "e": -2,
+       "n_treated": 773,
+       "p": 0.10020344825016153,
+       "period": "pre",
+       "se": 0.001556374887729141
+      },
+      {
+       "analytic_se": 0.0024623013889345053,
+       "att": 0.0019207655868937862,
+       "band_high": 0.007665557103890986,
+       "band_low": -0.003824025930103414,
+       "ci_high": 0.007001394450821211,
+       "ci_low": -0.0031598632770336384,
+       "cohorts": [
+        1995,
+        1996,
+        1997,
+        1998,
+        1999,
+        2000,
+        2001,
+        2002,
+        2003,
+        2004,
+        2005,
+        2006,
+        2007,
+        2008,
+        2010,
+        2011,
+        2013,
+        2014,
+        2017,
+        2018,
+        2019
+       ],
+       "e": 0,
+       "n_treated": 773,
+       "p": 0.4587071187595816,
+       "period": "post",
+       "se": 0.002592205216015589
+      },
+      {
+       "analytic_se": 0.0047192367985277855,
+       "att": 0.006978295863974696,
+       "band_high": 0.01844795955876146,
+       "band_low": -0.004491367830812068,
+       "ci_high": 0.017121937152759607,
+       "ci_low": -0.0031653454248102147,
+       "cohorts": [
+        1995,
+        1996,
+        1997,
+        1998,
+        1999,
+        2000,
+        2001,
+        2002,
+        2003,
+        2004,
+        2005,
+        2006,
+        2007,
+        2008,
+        2010,
+        2011,
+        2013,
+        2017,
+        2018,
+        2019
+       ],
+       "e": 1,
+       "n_treated": 712,
+       "p": 0.17754489196127737,
+       "period": "post",
+       "se": 0.005175422287754602
+      },
+      {
+       "analytic_se": 0.0063252889231106574,
+       "att": 0.010261482028423304,
+       "band_high": 0.0247046776817946,
+       "band_low": -0.004181713624947991,
+       "ci_high": 0.023034881464548584,
+       "ci_low": -0.0025119174077019753,
+       "cohorts": [
+        1995,
+        1996,
+        1997,
+        1998,
+        1999,
+        2000,
+        2001,
+        2002,
+        2003,
+        2004,
+        2005,
+        2006,
+        2007,
+        2008,
+        2010,
+        2011,
+        2013,
+        2017,
+        2018,
+        2019
+       ],
+       "e": 2,
+       "n_treated": 598,
+       "p": 0.11536434603269975,
+       "period": "post",
+       "se": 0.006517160282984905
+      },
+      {
+       "analytic_se": 0.009787476062121244,
+       "att": 0.016481385657964844,
+       "band_high": 0.04191851165651211,
+       "band_low": -0.00895574034058242,
+       "ci_high": 0.0389776931708143,
+       "ci_low": -0.006014921854884614,
+       "cohorts": [
+        1995,
+        1996,
+        1997,
+        1998,
+        1999,
+        2000,
+        2001,
+        2002,
+        2003,
+        2004,
+        2005,
+        2006,
+        2007,
+        2008,
+        2010,
+        2011,
+        2013,
+        2017,
+        2018,
+        2019
+       ],
+       "e": 3,
+       "n_treated": 548,
+       "p": 0.15102479779626565,
+       "period": "post",
+       "se": 0.011477918824170987
+      },
+      {
+       "analytic_se": 0.014757606637598768,
+       "att": 0.025005691711914163,
+       "band_high": 0.06422415092214359,
+       "band_low": -0.014212767498315272,
+       "ci_high": 0.05969005497778986,
+       "ci_low": -0.009678671553961536,
+       "cohorts": [
+        1995,
+        1996,
+        1997,
+        1998,
+        1999,
+        2000,
+        2001,
+        2002,
+        2003,
+        2004,
+        2005,
+        2006,
+        2007,
+        2008,
+        2010,
+        2011,
+        2013,
+        2017,
+        2018,
+        2019
+       ],
+       "e": 4,
+       "n_treated": 521,
+       "p": 0.15764512887068463,
+       "period": "post",
+       "se": 0.017696428883112923
+      },
+      {
+       "analytic_se": 0.020497608357556957,
+       "att": 0.040565652358366774,
+       "band_high": 0.09812178000305748,
+       "band_low": -0.016990475286323928,
+       "ci_high": 0.09146764289054107,
+       "ci_low": -0.010336338173807531,
+       "cohorts": [
+        1995,
+        1996,
+        1997,
+        1998,
+        1999,
+        2000,
+        2001,
+        2002,
+        2003,
+        2004,
+        2005,
+        2006,
+        2007,
+        2008,
+        2010,
+        2011,
+        2013,
+        2017,
+        2018,
+        2019
+       ],
+       "e": 5,
+       "n_treated": 451,
+       "p": 0.11829581781018639,
+       "period": "post",
+       "se": 0.025970880553766663
+      }
+     ],
+     "n_clusters": 46,
+     "overall": {
+      "analytic_se": 0.009371786566610887,
+      "att": 0.01686887886792293,
+      "bootstrap_p": 0.047,
+      "ci_high": 0.03892544860860041,
+      "ci_low": -0.005187690872754554,
+      "definition": "equal-weight mean of ATT(e) over the post event times listed",
+      "event_times": [
+       0,
+       1,
+       2,
+       3,
+       4,
+       5
+      ],
+      "p": 0.1338783721172076,
+      "se": 0.011253558695290778
+     },
+     "pre_trend": {
+      "leads": [
+       -5,
+       -4,
+       -3,
+       -2
+      ],
+      "max_abs_lead": 0.01741687275987402,
+      "sup_t": {
+       "p": 0.002,
+       "statistic": 2.9835755757536524
+      },
+      "wald": {
+       "df": 4,
+       "p": 0.04178444144525574,
+       "statistic": 9.920725058503377
+      }
+     },
+     "reference_event_time": -1,
+     "skipped_cells": 68
+    },
+    "robustness": {
+     "never_treated_controls": {
+      "alpha": 0.05,
+      "anticipation": 0,
+      "bootstrap": null,
+      "cells": 578,
+      "control_group": "never_treated",
+      "dropped_treated_no_control": 33718,
+      "estimator": "callaway_santanna_unconditional_stratified",
+      "event_time": [
+       {
+        "analytic_se": 0.007754916176396879,
+        "att": -0.01183273334917349,
+        "band_high": null,
+        "band_low": null,
+        "ci_high": 0.003366623059691454,
+        "ci_low": -0.027032089758038433,
+        "cohorts": [
+         1995,
+         1996,
+         1997,
+         1998,
+         1999,
+         2000,
+         2001,
+         2002,
+         2004,
+         2005,
+         2008,
+         2010,
+         2011,
+         2013,
+         2017,
+         2018,
+         2019
+        ],
+        "e": -5,
+        "n_treated": 171,
+        "p": 0.1270506140491956,
+        "period": "pre",
+        "se": 0.007754916176396879
+       },
+       {
+        "analytic_se": 0.007235161656577696,
+        "att": -0.010262328692724396,
+        "band_high": null,
+        "band_low": null,
+        "ci_high": 0.003918327576493042,
+        "ci_low": -0.024442984961941833,
+        "cohorts": [
+         1995,
+         1996,
+         1997,
+         1998,
+         1999,
+         2000,
+         2001,
+         2002,
+         2004,
+         2005,
+         2008,
+         2010,
+         2011,
+         2013,
+         2017,
+         2018,
+         2019
+        ],
+        "e": -4,
+        "n_treated": 171,
+        "p": 0.1560750077715982,
+        "period": "pre",
+        "se": 0.007235161656577696
+       },
+       {
+        "analytic_se": 0.004748715812273493,
+        "att": -0.007496786489694906,
+        "band_high": null,
+        "band_low": null,
+        "ci_high": 0.0018105254751770074,
+        "ci_low": -0.016804098454566818,
+        "cohorts": [
+         1995,
+         1996,
+         1997,
+         1998,
+         1999,
+         2000,
+         2001,
+         2002,
+         2004,
+         2005,
+         2008,
+         2010,
+         2011,
+         2013,
+         2017,
+         2018,
+         2019
+        ],
+        "e": -3,
+        "n_treated": 171,
+        "p": 0.11440542428883406,
+        "period": "pre",
+        "se": 0.004748715812273493
+       },
+       {
+        "analytic_se": 0.002456525872391858,
+        "att": -0.0016260307433153937,
+        "band_high": null,
+        "band_low": null,
+        "ci_high": 0.0031886714936634843,
+        "ci_low": -0.006440732980294272,
+        "cohorts": [
+         1995,
+         1996,
+         1997,
+         1998,
+         1999,
+         2000,
+         2001,
+         2002,
+         2004,
+         2005,
+         2008,
+         2010,
+         2011,
+         2013,
+         2017,
+         2018,
+         2019
+        ],
+        "e": -2,
+        "n_treated": 171,
+        "p": 0.5080206311479709,
+        "period": "pre",
+        "se": 0.002456525872391858
+       },
+       {
+        "analytic_se": 0.003519566852748242,
+        "att": 0.0010359463069781318,
+        "band_high": null,
+        "band_low": null,
+        "ci_high": 0.007934170579545673,
+        "ci_low": -0.00586227796558941,
+        "cohorts": [
+         1995,
+         1996,
+         1997,
+         1998,
+         1999,
+         2000,
+         2001,
+         2002,
+         2004,
+         2005,
+         2008,
+         2010,
+         2011,
+         2013,
+         2017,
+         2018,
+         2019
+        ],
+        "e": 0,
+        "n_treated": 171,
+        "p": 0.7684987614515876,
+        "period": "post",
+        "se": 0.003519566852748242
+       },
+       {
+        "analytic_se": 0.006642391994846946,
+        "att": 0.006774940094476202,
+        "band_high": null,
+        "band_low": null,
+        "ci_high": 0.019793789175573378,
+        "ci_low": -0.006243908986620974,
+        "cohorts": [
+         1995,
+         1996,
+         1997,
+         1998,
+         1999,
+         2000,
+         2001,
+         2002,
+         2004,
+         2005,
+         2008,
+         2010,
+         2011,
+         2013,
+         2017,
+         2018,
+         2019
+        ],
+        "e": 1,
+        "n_treated": 171,
+        "p": 0.30774986256295184,
+        "period": "post",
+        "se": 0.006642391994846946
+       },
+       {
+        "analytic_se": 0.00816889601174121,
+        "att": 0.008525147439008321,
+        "band_high": null,
+        "band_low": null,
+        "ci_high": 0.02453588941547398,
+        "ci_low": -0.0074855945374573355,
+        "cohorts": [
+         1995,
+         1996,
+         1997,
+         1998,
+         1999,
+         2000,
+         2001,
+         2002,
+         2004,
+         2005,
+         2008,
+         2010,
+         2011,
+         2013,
+         2017,
+         2018,
+         2019
+        ],
+        "e": 2,
+        "n_treated": 171,
+        "p": 0.29666553167571535,
+        "period": "post",
+        "se": 0.00816889601174121
+       },
+       {
+        "analytic_se": 0.010343221567365233,
+        "att": 0.012172162503577073,
+        "band_high": null,
+        "band_low": null,
+        "ci_high": 0.032444504259730854,
+        "ci_low": -0.008100179252576709,
+        "cohorts": [
+         1995,
+         1996,
+         1997,
+         1998,
+         1999,
+         2000,
+         2001,
+         2002,
+         2004,
+         2005,
+         2008,
+         2010,
+         2011,
+         2013,
+         2017,
+         2018,
+         2019
+        ],
+        "e": 3,
+        "n_treated": 171,
+        "p": 0.23926533184743215,
+        "period": "post",
+        "se": 0.010343221567365233
+       },
+       {
+        "analytic_se": 0.012982280649790174,
+        "att": 0.010692797212201715,
+        "band_high": null,
+        "band_low": null,
+        "ci_high": 0.0361375997229817,
+        "ci_low": -0.014752005298578272,
+        "cohorts": [
+         1995,
+         1996,
+         1997,
+         1998,
+         1999,
+         2000,
+         2001,
+         2002,
+         2004,
+         2005,
+         2008,
+         2010,
+         2011,
+         2013,
+         2017,
+         2018,
+         2019
+        ],
+        "e": 4,
+        "n_treated": 171,
+        "p": 0.410141007100866,
+        "period": "post",
+        "se": 0.012982280649790174
+       },
+       {
+        "analytic_se": 0.015781001122961585,
+        "att": 0.012003295953513049,
+        "band_high": null,
+        "band_low": null,
+        "ci_high": 0.0429334897945039,
+        "ci_low": -0.018926897887477805,
+        "cohorts": [
+         1995,
+         1996,
+         1997,
+         1998,
+         1999,
+         2000,
+         2001,
+         2002,
+         2004,
+         2005,
+         2008,
+         2010,
+         2011,
+         2013,
+         2017,
+         2018,
+         2019
+        ],
+        "e": 5,
+        "n_treated": 171,
+        "p": 0.4468859301078227,
+        "period": "post",
+        "se": 0.015781001122961585
+       }
+      ],
+      "n_clusters": 46,
+      "overall": {
+       "analytic_se": 0.00907495536725387,
+       "att": 0.008534048251625749,
+       "bootstrap_p": null,
+       "ci_high": 0.026320633932751795,
+       "ci_low": -0.009252537429500296,
+       "definition": "equal-weight mean of ATT(e) over the post event times listed",
+       "event_times": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
+       ],
+       "p": 0.3470146696141603,
+       "se": 0.00907495536725387
+      },
+      "pre_trend": {
+       "leads": [
+        -5,
+        -4,
+        -3,
+        -2
+       ],
+       "max_abs_lead": 0.01183273334917349,
+       "sup_t": null,
+       "wald": {
+        "df": 4,
+        "p": 0.29679664302264086,
+        "statistic": 4.908678563842873
+       }
+      },
+      "reference_event_time": -1,
+      "skipped_cells": 170
+     },
+     "stacked_did": {
+      "estimator": "stacked_did_clean_controls",
+      "event_time": [
+       {
+        "att": -0.01351208039347695,
+        "ci_high": -0.0004142417621661558,
+        "ci_low": -0.026609919024787744,
+        "e": -5,
+        "p": 0.04318139050336737,
+        "se": 0.006682693526322359,
+        "stacks": 78
+       },
+       {
+        "att": -0.0104382614454403,
+        "ci_high": -0.0013926061325338756,
+        "ci_low": -0.019483916758346723,
+        "e": -4,
+        "p": 0.023715549189401424,
+        "se": 0.00461521506734685,
+        "stacks": 78
+       },
+       {
+        "att": -0.006196427873560518,
+        "ci_high": 0.0008285865208372059,
+        "ci_low": -0.013221442267958242,
+        "e": -3,
+        "p": 0.08384666539552091,
+        "se": 0.0035842568791111177,
+        "stacks": 78
+       },
+       {
+        "att": -0.003076160099046861,
+        "ci_high": 0.002321515246885546,
+        "ci_low": -0.008473835444979268,
+        "e": -2,
+        "p": 0.2639975220024736,
+        "se": 0.002753966597605151,
+        "stacks": 78
+       },
+       {
+        "att": 0.0025371327286715993,
+        "ci_high": 0.00782052565846682,
+        "ci_low": -0.0027462602011236203,
+        "e": 0,
+        "p": 0.3466063191713711,
+        "se": 0.002695658171002095,
+        "stacks": 78
+       },
+       {
+        "att": 0.00629779198824949,
+        "ci_high": 0.014373127720504432,
+        "ci_low": -0.0017775437440054522,
+        "e": 1,
+        "p": 0.12637938643456265,
+        "se": 0.004120144959780976,
+        "stacks": 78
+       },
+       {
+        "att": 0.01033065802377747,
+        "ci_high": 0.02200814133899677,
+        "ci_low": -0.0013468252914418301,
+        "e": 2,
+        "p": 0.08293386227639557,
+        "se": 0.005958009130438009,
+        "stacks": 78
+       },
+       {
+        "att": 0.011560511196185801,
+        "ci_high": 0.02510824703840526,
+        "ci_low": -0.0019872246460336546,
+        "e": 3,
+        "p": 0.09443162318762348,
+        "se": 0.006912237137560827,
+        "stacks": 78
+       },
+       {
+        "att": 0.016913015344926566,
+        "ci_high": 0.034726317910247405,
+        "ci_low": -0.0009002872203942719,
+        "e": 4,
+        "p": 0.0627572991205514,
+        "se": 0.009088586681097152,
+        "stacks": 78
+       },
+       {
+        "att": 0.02254959261178693,
+        "ci_high": 0.04459921726312885,
+        "ci_low": 0.0004999679604450157,
+        "e": 5,
+        "p": 0.04502663839906671,
+        "se": 0.011250015217252227,
+        "stacks": 78
+       }
+      ],
+      "n_clusters": 46,
+      "overall": {
+       "att": 0.01169811698226631,
+       "ci_high": 0.024313753906357993,
+       "ci_low": -0.0009175199418253732,
+       "definition": "equal-weight mean of stacked ATT(e) over post event times",
+       "p": 0.06915310520851224,
+       "se": 0.006436667726347127
+      },
+      "pre_trend": {
+       "leads": [
+        -5,
+        -4,
+        -3,
+        -2
+       ],
+       "wald": {
+        "df": 4,
+        "p": 0.1299442582971437,
+        "statistic": 7.11480509440136
+       }
+      },
+      "stack_count": 78,
+      "stacks": [
+       {
+        "g": 1995,
+        "n_control": 2,
+        "n_treated": 1,
+        "stratum": "01",
+        "weight": 0.6666666666666666
+       },
+       {
+        "g": 1995,
+        "n_control": 9,
+        "n_treated": 4,
+        "stratum": "02",
+        "weight": 2.769230769230769
+       },
+       {
+        "g": 1995,
+        "n_control": 7,
+        "n_treated": 9,
+        "stratum": "13",
+        "weight": 3.9375
+       },
+       {
+        "g": 1995,
+        "n_control": 4,
+        "n_treated": 9,
+        "stratum": "27",
+        "weight": 2.769230769230769
+       },
+       {
+        "g": 1995,
+        "n_control": 25,
+        "n_treated": 5,
+        "stratum": "39",
+        "weight": 4.166666666666667
+       },
+       {
+        "g": 1995,
+        "n_control": 4,
+        "n_treated": 5,
+        "stratum": "40",
+        "weight": 2.2222222222222223
+       },
+       {
+        "g": 1995,
+        "n_control": 3,
+        "n_treated": 1,
+        "stratum": "41",
+        "weight": 0.75
+       },
+       {
+        "g": 1996,
+        "n_control": 11,
+        "n_treated": 19,
+        "stratum": "16",
+        "weight": 6.966666666666667
+       },
+       {
+        "g": 1996,
+        "n_control": 20,
+        "n_treated": 13,
+        "stratum": "17",
+        "weight": 7.878787878787879
+       },
+       {
+        "g": 1996,
+        "n_control": 2,
+        "n_treated": 2,
+        "stratum": "18",
+        "weight": 1.0
+       },
+       {
+        "g": 1996,
+        "n_control": 51,
+        "n_treated": 7,
+        "stratum": "26",
+        "weight": 6.155172413793103
+       },
+       {
+        "g": 1996,
+        "n_control": 1,
+        "n_treated": 20,
+        "stratum": "30",
+        "weight": 0.9523809523809523
+       },
+       {
+        "g": 1996,
+        "n_control": 9,
+        "n_treated": 7,
+        "stratum": "32",
+        "weight": 3.9375
+       },
+       {
+        "g": 1996,
+        "n_control": 25,
+        "n_treated": 6,
+        "stratum": "39",
+        "weight": 4.838709677419355
+       },
+       {
+        "g": 1996,
+        "n_control": 3,
+        "n_treated": 24,
+        "stratum": "41",
+        "weight": 2.6666666666666665
+       },
+       {
+        "g": 1996,
+        "n_control": 4,
+        "n_treated": 5,
+        "stratum": "45",
+        "weight": 2.2222222222222223
+       },
+       {
+        "g": 1997,
+        "n_control": 11,
+        "n_treated": 7,
+        "stratum": "16",
+        "weight": 4.277777777777778
+       },
+       {
+        "g": 1997,
+        "n_control": 6,
+        "n_treated": 1,
+        "stratum": "17",
+        "weight": 0.8571428571428571
+       },
+       {
+        "g": 1997,
+        "n_control": 49,
+        "n_treated": 4,
+        "stratum": "26",
+        "weight": 3.69811320754717
+       },
+       {
+        "g": 1997,
+        "n_control": 1,
+        "n_treated": 15,
+        "stratum": "30",
+        "weight": 0.9375
+       },
+       {
+        "g": 1997,
+        "n_control": 12,
+        "n_treated": 4,
+        "stratum": "31",
+        "weight": 3.0
+       },
+       {
+        "g": 1997,
+        "n_control": 4,
+        "n_treated": 10,
+        "stratum": "35",
+        "weight": 2.857142857142857
+       },
+       {
+        "g": 1997,
+        "n_control": 17,
+        "n_treated": 2,
+        "stratum": "39",
+        "weight": 1.7894736842105263
+       },
+       {
+        "g": 1998,
+        "n_control": 1,
+        "n_treated": 2,
+        "stratum": "01",
+        "weight": 0.6666666666666666
+       },
+       {
+        "g": 1998,
+        "n_control": 7,
+        "n_treated": 19,
+        "stratum": "13",
+        "weight": 5.115384615384615
+       },
+       {
+        "g": 1998,
+        "n_control": 22,
+        "n_treated": 10,
+        "stratum": "20",
+        "weight": 6.875
+       },
+       {
+        "g": 1998,
+        "n_control": 49,
+        "n_treated": 11,
+        "stratum": "26",
+        "weight": 8.983333333333333
+       },
+       {
+        "g": 1998,
+        "n_control": 9,
+        "n_treated": 8,
+        "stratum": "39",
+        "weight": 4.235294117647059
+       },
+       {
+        "g": 1998,
+        "n_control": 2,
+        "n_treated": 1,
+        "stratum": "55",
+        "weight": 0.6666666666666666
+       },
+       {
+        "g": 1998,
+        "n_control": 18,
+        "n_treated": 2,
+        "stratum": "56",
+        "weight": 1.8
+       },
+       {
+        "g": 1999,
+        "n_control": 9,
+        "n_treated": 8,
+        "stratum": "02",
+        "weight": 4.235294117647059
+       },
+       {
+        "g": 1999,
+        "n_control": 9,
+        "n_treated": 1,
+        "stratum": "32",
+        "weight": 0.9
+       },
+       {
+        "g": 1999,
+        "n_control": 4,
+        "n_treated": 6,
+        "stratum": "35",
+        "weight": 2.4
+       },
+       {
+        "g": 1999,
+        "n_control": 1,
+        "n_treated": 15,
+        "stratum": "45",
+        "weight": 0.9375
+       },
+       {
+        "g": 1999,
+        "n_control": 26,
+        "n_treated": 1,
+        "stratum": "49",
+        "weight": 0.9629629629629629
+       },
+       {
+        "g": 1999,
+        "n_control": 2,
+        "n_treated": 8,
+        "stratum": "55",
+        "weight": 1.6
+       },
+       {
+        "g": 2000,
+        "n_control": 4,
+        "n_treated": 7,
+        "stratum": "13",
+        "weight": 2.5454545454545454
+       },
+       {
+        "g": 2000,
+        "n_control": 11,
+        "n_treated": 7,
+        "stratum": "16",
+        "weight": 4.277777777777778
+       },
+       {
+        "g": 2000,
+        "n_control": 13,
+        "n_treated": 1,
+        "stratum": "20",
+        "weight": 0.9285714285714286
+       },
+       {
+        "g": 2000,
+        "n_control": 1,
+        "n_treated": 20,
+        "stratum": "30",
+        "weight": 0.9523809523809523
+       },
+       {
+        "g": 2000,
+        "n_control": 4,
+        "n_treated": 8,
+        "stratum": "35",
+        "weight": 2.6666666666666665
+       },
+       {
+        "g": 2000,
+        "n_control": 2,
+        "n_treated": 6,
+        "stratum": "55",
+        "weight": 1.5
+       },
+       {
+        "g": 2000,
+        "n_control": 17,
+        "n_treated": 3,
+        "stratum": "56",
+        "weight": 2.55
+       },
+       {
+        "g": 2001,
+        "n_control": 3,
+        "n_treated": 16,
+        "stratum": "31",
+        "weight": 2.526315789473684
+       },
+       {
+        "g": 2001,
+        "n_control": 2,
+        "n_treated": 1,
+        "stratum": "55",
+        "weight": 0.6666666666666666
+       },
+       {
+        "g": 2002,
+        "n_control": 3,
+        "n_treated": 14,
+        "stratum": "17",
+        "weight": 2.4705882352941178
+       },
+       {
+        "g": 2002,
+        "n_control": 36,
+        "n_treated": 2,
+        "stratum": "26",
+        "weight": 1.894736842105263
+       },
+       {
+        "g": 2002,
+        "n_control": 2,
+        "n_treated": 2,
+        "stratum": "55",
+        "weight": 1.0
+       },
+       {
+        "g": 2003,
+        "n_control": 2,
+        "n_treated": 1,
+        "stratum": "17",
+        "weight": 0.6666666666666666
+       },
+       {
+        "g": 2003,
+        "n_control": 1,
+        "n_treated": 1,
+        "stratum": "18",
+        "weight": 0.5
+       },
+       {
+        "g": 2003,
+        "n_control": 2,
+        "n_treated": 5,
+        "stratum": "31",
+        "weight": 1.4285714285714286
+       },
+       {
+        "g": 2004,
+        "n_control": 5,
+        "n_treated": 2,
+        "stratum": "02",
+        "weight": 1.4285714285714286
+       },
+       {
+        "g": 2004,
+        "n_control": 3,
+        "n_treated": 3,
+        "stratum": "13",
+        "weight": 1.5
+       },
+       {
+        "g": 2004,
+        "n_control": 2,
+        "n_treated": 2,
+        "stratum": "17",
+        "weight": 1.0
+       },
+       {
+        "g": 2004,
+        "n_control": 30,
+        "n_treated": 13,
+        "stratum": "26",
+        "weight": 9.069767441860465
+       },
+       {
+        "g": 2004,
+        "n_control": 2,
+        "n_treated": 1,
+        "stratum": "31",
+        "weight": 0.6666666666666666
+       },
+       {
+        "g": 2005,
+        "n_control": 5,
+        "n_treated": 1,
+        "stratum": "02",
+        "weight": 0.8333333333333334
+       },
+       {
+        "g": 2005,
+        "n_control": 1,
+        "n_treated": 3,
+        "stratum": "31",
+        "weight": 0.75
+       },
+       {
+        "g": 2005,
+        "n_control": 7,
+        "n_treated": 2,
+        "stratum": "32",
+        "weight": 1.5555555555555556
+       },
+       {
+        "g": 2005,
+        "n_control": 16,
+        "n_treated": 9,
+        "stratum": "49",
+        "weight": 5.76
+       },
+       {
+        "g": 2005,
+        "n_control": 16,
+        "n_treated": 1,
+        "stratum": "56",
+        "weight": 0.9411764705882353
+       },
+       {
+        "g": 2006,
+        "n_control": 1,
+        "n_treated": 2,
+        "stratum": "35",
+        "weight": 0.6666666666666666
+       },
+       {
+        "g": 2007,
+        "n_control": 2,
+        "n_treated": 1,
+        "stratum": "13",
+        "weight": 0.6666666666666666
+       },
+       {
+        "g": 2007,
+        "n_control": 1,
+        "n_treated": 1,
+        "stratum": "31",
+        "weight": 0.5
+       },
+       {
+        "g": 2007,
+        "n_control": 1,
+        "n_treated": 1,
+        "stratum": "35",
+        "weight": 0.5
+       },
+       {
+        "g": 2008,
+        "n_control": 29,
+        "n_treated": 6,
+        "stratum": "26",
+        "weight": 4.9714285714285715
+       },
+       {
+        "g": 2010,
+        "n_control": 1,
+        "n_treated": 1,
+        "stratum": "31",
+        "weight": 0.5
+       },
+       {
+        "g": 2010,
+        "n_control": 6,
+        "n_treated": 1,
+        "stratum": "49",
+        "weight": 0.8571428571428571
+       },
+       {
+        "g": 2010,
+        "n_control": 6,
+        "n_treated": 1,
+        "stratum": "56",
+        "weight": 0.8571428571428571
+       },
+       {
+        "g": 2011,
+        "n_control": 6,
+        "n_treated": 12,
+        "stratum": "49",
+        "weight": 4.0
+       },
+       {
+        "g": 2011,
+        "n_control": 6,
+        "n_treated": 10,
+        "stratum": "56",
+        "weight": 3.75
+       },
+       {
+        "g": 2013,
+        "n_control": 27,
+        "n_treated": 1,
+        "stratum": "26",
+        "weight": 0.9642857142857143
+       },
+       {
+        "g": 2017,
+        "n_control": 5,
+        "n_treated": 6,
+        "stratum": "16",
+        "weight": 2.727272727272727
+       },
+       {
+        "g": 2017,
+        "n_control": 26,
+        "n_treated": 1,
+        "stratum": "26",
+        "weight": 0.9629629629629629
+       },
+       {
+        "g": 2017,
+        "n_control": 6,
+        "n_treated": 1,
+        "stratum": "32",
+        "weight": 0.8571428571428571
+       },
+       {
+        "g": 2017,
+        "n_control": 5,
+        "n_treated": 1,
+        "stratum": "56",
+        "weight": 0.8333333333333334
+       },
+       {
+        "g": 2018,
+        "n_control": 25,
+        "n_treated": 1,
+        "stratum": "26",
+        "weight": 0.9615384615384616
+       },
+       {
+        "g": 2019,
+        "n_control": 1,
+        "n_treated": 1,
+        "stratum": "55",
+        "weight": 0.5
+       }
+      ]
+     },
+     "twfe_static": {
+      "beta": -0.012652211555176799,
+      "demeaning": {
+       "converged": true,
+       "iterations": [
+        6,
+        7
+       ]
+      },
+      "estimator": "twfe_static",
+      "n_clusters": 46,
+      "n_obs": 44237,
+      "p": 0.31823197540062753,
+      "se": 0.01267632547001161,
+      "warning": "biased under staggered adoption with heterogeneous or dynamic effects; comparison only"
+     }
+    }
+   },
+   "identification": {
+    "assumptions": [
+     "Parallel trends: absent treatment, the average outcome of treated units would have moved like that of the comparison units (not-yet-treated or never-treated, within stratum when stratified) from the base period on.",
+     "No anticipation beyond the registered anticipation window: outcomes before g - anticipation do not respond.",
+     "Absorbing treatment: the first qualifying event defines the cohort; later events are part of the post-period treatment path, so estimates are effects of entering treatment, not of one isolated event.",
+     "SUTVA / no interference: a unit's outcome does not depend on other units' treatment (spillovers to comparison units bias the estimate toward zero or away from it).",
+     "Treatment timing is recorded correctly by the source date the registration names.",
+     "Within a state, the timing of a county's first qualifying disaster after a quiet period is as good as random with respect to its employment trend (weather and geology, not local economic conditions, determine which quiet county is hit first).",
+     "Declaration itself is part of the treatment: the estimand is the combined effect of the physical disaster and the federal assistance a DR declaration unlocks; the two are not separated.",
+     "Spillovers to same-state comparison counties (displaced workers, reconstruction demand) are small relative to the direct effect.",
+     "Selection into the sample (no qualifying DR in 1990-1994) does not interact with treatment effects in a way that changes their sign."
+    ],
+    "estimand": "ATT: equal-weight mean over event times 0..5 of treated-count-weighted ATT(g, g+e)",
+    "label": "did_failed_diagnostics",
+    "meaning": "A difference-in-differences estimate whose pre-registered diagnostics failed. It is reported for transparency and must not be read as an intervention response.",
+    "strategy": "staggered_difference_in_differences"
+   },
+   "notes": [],
+   "registration": {
+    "commit": "c1bcbc2e7aa379f7d743b33aaa759bfc12b7b228",
+    "committed_at": "2026-09-18T18:32:51-07:00",
+    "committed_clean": true,
+    "path": "examples/natural-experiments/registrations/fema_disasters_county_employment.json",
+    "sha256": "0f0f581704a7fd6297ce2bbb9675a500a6cf3a4499d9af7149cb61ba033e641f"
+   },
+   "result_id": "8ac3f03889b9ab215036ab5d00e2e2ab16e7fcd4a8e26562021d9743cd06c525",
+   "schema": "worldmodel.causal_result/1",
+   "study_id": "fema_disasters_county_employment",
+   "verdict": "No causal claim. Pre-registered diagnostics failed (no_pre_trends, placebo_date_null), so the parallel-trends design is not credible here. The estimate for log QCEW annual-average establishment count, +0.0169 log points (95% CI -0.0052 to +0.0389), is reported only for transparency."
+  },
+  {
+   "acceptance": [
+    {
+     "id": "enough_treated_counties",
+     "passed": true,
+     "role": "identification",
+     "threshold": 200,
+     "type": "min_treated_units",
+     "value": 1201
+    },
+    {
+     "id": "enough_state_clusters",
+     "passed": true,
+     "role": "identification",
+     "threshold": 30,
+     "type": "min_clusters",
+     "value": 46
+    },
+    {
+     "id": "no_pre_trends",
+     "note": "not measured; an unmeasured criterion fails",
+     "passed": false,
+     "role": "identification",
+     "threshold": 0.05,
+     "type": "pre_trend_wald_p_min",
+     "value": null
+    },
+    {
+     "id": "placebo_date_null",
+     "note": "not measured; an unmeasured criterion fails",
+     "passed": false,
+     "role": "identification",
+     "threshold": 0.05,
+     "type": "placebo_date_p_min",
+     "value": null
+    },
+    {
+     "id": "placebo_unit_size",
+     "note": "not measured; an unmeasured criterion fails",
+     "passed": false,
+     "role": "identification",
+     "threshold": 0.1,
+     "type": "placebo_unit_rejection_rate_max",
+     "value": null
+    },
+    {
+     "id": "stacked_agrees",
+     "note": "not measured; an unmeasured criterion fails",
+     "passed": false,
+     "role": "identification",
+     "threshold": null,
+     "type": "robustness_ci_overlap",
+     "value": null
+    }
+   ],
+   "data": {
+    "inputs": [
+     {
+      "dataset": "event_library",
+      "stage": "events",
+      "version": "dbf0c37f15cb15933ddf2452ae00cf196981aef02045a2b642d1582643b2819a"
+     },
+     {
+      "dataset": "bls_labor",
+      "stage": "normalized",
+      "version": "ffd7f43a2761e2f4bc85cd9765ba9bce61cf089cd26b8b5d12e428337546e267"
+     },
+     {
+      "dataset": "census_business",
+      "stage": "normalized",
+      "version": "5b0995c7a7c38f378632da57c73a053041aba721e381fc240506edfecbc21860"
+     }
+    ],
+    "outcome_extraction": {
+     "input": {
+      "dataset": "census_business",
+      "stage": "normalized",
+      "version": "5b0995c7a7c38f378632da57c73a053041aba721e381fc240506edfecbc21860"
+     },
+     "rows": 15954,
+     "sha256": "9663f5b5026115bc510cb068a6716d68627075f57c2555a7c95ac93527e31f96",
+     "spec": {
+      "filter": "metric == establishment_count, subject geo:US:county:*, dimensions.program == cbp, industry == all, legal_form == all",
+      "metric": "establishment_count"
+     }
+    },
+    "panel": {
+     "clusters": 46,
+     "cohort_sizes": {
+      "1995": 96,
+      "1996": 428,
+      "1997": 118,
+      "1998": 176,
+      "1999": 47,
+      "2000": 68,
+      "2001": 35,
+      "2002": 82,
+      "2003": 20,
+      "2004": 37,
+      "2005": 23,
+      "2006": 15,
+      "2007": 3,
+      "2008": 7,
+      "2010": 3,
+      "2011": 26,
+      "2013": 2,
+      "2014": 2,
+      "2015": 1,
+      "2017": 9,
+      "2018": 1,
+      "2019": 2,
+      "2020": 5,
+      "2023": 6,
+      "2024": 1
+     },
+     "never_treated_units": 62,
+     "observations": 6338,
+     "periods": [
+      2019,
+      2023
+     ],
+     "strata": 46,
+     "treated_units": 1213,
+     "units": 1275
+    },
+    "panel_digest": "c4745d5f6c92bd40b4d654c141df030244cd6790b64dca9fbe3a9b10924b7de0",
+    "treatment_facts": {
+     "counties_excluded_for_1990_1994_disasters": 1878,
+     "counties_first_treated_1995_2024": 3087,
+     "declarations_read": 45733,
+     "qualifying_county_incidents": 40332
+    }
+   },
+   "design": {
+    "controls": {
+     "control_group": "not_yet_treated",
+     "definition": "same-state counties never treated or first treated after max(t, g-1); never the cohort itself"
+    },
+    "estimator": {
+     "anticipation": 0,
+     "balance": null,
+     "estimand": "ATT: equal-weight mean over event times 0..5 of treated-count-weighted ATT(g, g+e)",
+     "primary": "callaway_santanna_unconditional_within_state",
+     "robustness": [
+      "stacked_did",
+      "twfe_static",
+      "never_treated_controls"
+     ]
+    },
+    "inference": {
+     "alpha": 0.05,
+     "bootstrap": 999,
+     "bootstrap_weights": "rademacher multiplier on state influence functions",
+     "cluster": "state",
+     "seed": 20260918
+    },
+    "outcomes": {
+     "primary": {
+      "id": "qcew_log_employment",
+      "label": "log QCEW annual-average covered employment (county, total covered, all ownerships)",
+      "source": "bls_labor QCEW agglvl_code 70 metric employment",
+      "unit": "log points"
+     },
+     "secondary": [
+      {
+       "id": "qcew_log_establishments",
+       "label": "log QCEW annual-average establishment count",
+       "source": "bls_labor QCEW agglvl_code 70 metric establishment_count",
+       "unit": "log points"
+      },
+      {
+       "id": "cbp_log_establishments",
+       "label": "log CBP establishments (2019-2023 only; exploratory, underpowered)",
+       "placebo_date_shift": 2,
+       "source": "census_business CBP county establishment_count, all industries",
+       "unit": "log points",
+       "windows": {
+        "e_max": 1,
+        "e_min": -2,
+        "post": [
+         0,
+         1
+        ]
+       }
+      }
+     ],
+     "transform": "natural log of positive values; suppressed or missing values dropped"
+    },
+    "placebo_tests": {
+     "placebo_date": {
+      "definition": "treated counties keep only years before g; placebo cohort g-3; placebo effect averaged over placebo event times 0..2",
+      "shift": 2
+     },
+     "placebo_unit": {
+      "definition": "real treated counties removed; never-treated counties get cohorts drawn from their state's real cohorts at the state's real treated share",
+      "min_never_treated": 20,
+      "replications": 100,
+      "seed": 7
+     }
+    },
+    "question": "When a US county enters its first physical-hazard FEMA major disaster (DR) after at least five disaster-free years, how do its covered employment and establishment counts change over the following five years, relative to same-state counties not yet hit?",
+    "treatment": {
+     "absorbing": "later declarations in a treated county are part of its post-period treatment path",
+     "baseline_quiet_period": "counties with any qualifying DR incident beginning 1990-1994 are excluded from the study",
+     "estimated_cohorts": [
+      1995,
+      2019
+     ],
+     "excluded_incident_types": "Biological (COVID-19 declared every county in 2020), Drought (slow onset, no shock date), Terrorist, Chemical, Toxic Substances, Human Cause, Fishing Losses, Other",
+     "later_cohorts": "counties first treated 2020-2024 are not-yet-treated controls until treated",
+     "never_treated": "no qualifying DR incident beginning 1990-2024",
+     "qualifying_incident_types": [
+      "Hurricane",
+      "Severe Storm",
+      "Severe Storm(s)",
+      "Flood",
+      "Tornado",
+      "Fire",
+      "Snowstorm",
+      "Severe Ice Storm",
+      "Winter Storm",
+      "Earthquake",
+      "Tropical Storm",
+      "Coastal Storm",
+      "Typhoon",
+      "Straight-Line Winds",
+      "Mud/Landslide",
+      "Dam/Levee Break",
+      "Tsunami",
+      "Volcanic Eruption",
+      "Freezing"
+     ],
+     "source": "event_library: library_type fema_major_disaster_declaration",
+     "timing": "cohort g = calendar year of incident_begin_date of the county's first qualifying DR with incident_begin_date in 1995-2024; the declaration date is not used because the physical shock precedes it"
+    },
+    "units": {
+     "definition": "US counties and county equivalents in the 50 states and DC (state FIPS <= 56), identified by 5-digit FIPS as published by QCEW",
+     "notes": "County definitional changes are not bridged; a county contributes to a group-time cell only when it has the outcome at both t and the base period",
+     "strata": "state (2-digit FIPS): every comparison is within state"
+    },
+    "windows": {
+     "calendar_years": [
+      1990,
+      2024
+     ],
+     "e_max": 1,
+     "e_min": -2,
+     "post": [
+      0,
+      1
+     ],
+     "reference_event_time": -1
+    }
+   },
+   "diagnostics": {
+    "placebo_date": {
+     "event_time": [],
+     "overall": null,
+     "p": null,
+     "passed": null,
+     "shift": 2,
+     "test": "placebo_date",
+     "treated_units_with_pre_data": 12
+    },
+    "placebo_unit": {
+     "never_treated_units": 62,
+     "nominal_alpha": 0.05,
+     "placebo_mean": null,
+     "placebo_sd": null,
+     "ran": true,
+     "rejection_rate": null,
+     "replications": 0,
+     "seed": 7,
+     "test": "placebo_unit"
+    },
+    "pre_trend": {
+     "leads": [],
+     "max_abs_lead": null,
+     "sup_t": null,
+     "wald": {
+      "df": 0,
+      "note": "no estimates to test",
+      "p": null,
+      "statistic": null
+     }
+    }
+   },
+   "estimates": {
+    "outcome": {
+     "id": "cbp_log_establishments",
+     "label": "log CBP establishments (2019-2023 only; exploratory, underpowered)",
+     "placebo_date_shift": 2,
+     "role": "secondary",
+     "source": "census_business CBP county establishment_count, all industries",
+     "unit": "log points",
+     "windows": {
+      "e_max": 1,
+      "e_min": -2,
+      "post": [
+       0,
+       1
+      ]
+     }
+    },
+    "primary": {
+     "alpha": 0.05,
+     "anticipation": 0,
+     "bootstrap": {
+      "level": "cluster",
+      "replications": 999,
+      "seed": 20260918,
+      "uniform_critical_value": 0.0,
+      "weights": "rademacher"
+     },
+     "cells": 0,
+     "control_group": "not_yet_treated",
+     "dropped_treated_no_control": 0,
+     "estimator": "callaway_santanna_unconditional_stratified",
+     "event_time": [],
+     "n_clusters": 46,
+     "overall": null,
+     "pre_trend": {
+      "leads": [],
+      "max_abs_lead": null,
+      "sup_t": null,
+      "wald": {
+       "df": 0,
+       "note": "no estimates to test",
+       "p": null,
+       "statistic": null
+      }
+     },
+     "reference_event_time": -1,
+     "skipped_cells": 0
+    },
+    "robustness": {
+     "never_treated_controls": {
+      "alpha": 0.05,
+      "anticipation": 0,
+      "bootstrap": null,
+      "cells": 0,
+      "control_group": "never_treated",
+      "dropped_treated_no_control": 0,
+      "estimator": "callaway_santanna_unconditional_stratified",
+      "event_time": [],
+      "n_clusters": 46,
+      "overall": null,
+      "pre_trend": {
+       "leads": [],
+       "max_abs_lead": null,
+       "sup_t": null,
+       "wald": {
+        "df": 0,
+        "note": "no estimates to test",
+        "p": null,
+        "statistic": null
+       }
+      },
+      "reference_event_time": -1,
+      "skipped_cells": 0
+     },
+     "stacked_did": {
+      "estimator": "stacked_did_clean_controls",
+      "event_time": [],
+      "n_clusters": 46,
+      "overall": null,
+      "pre_trend": {
+       "leads": [],
+       "wald": {
+        "df": 0,
+        "note": "no estimates to test",
+        "p": null,
+        "statistic": null
+       }
+      },
+      "stack_count": 0,
+      "stacks": []
+     },
+     "twfe_static": {
+      "beta": -0.00896203760278168,
+      "demeaning": {
+       "converged": true,
+       "iterations": [
+        6,
+        5
+       ]
+      },
+      "estimator": "twfe_static",
+      "n_clusters": 46,
+      "n_obs": 6338,
+      "p": 0.5406944335326967,
+      "se": 0.014649520346987932,
+      "warning": "biased under staggered adoption with heterogeneous or dynamic effects; comparison only"
+     }
+    }
+   },
+   "identification": {
+    "assumptions": [
+     "Parallel trends: absent treatment, the average outcome of treated units would have moved like that of the comparison units (not-yet-treated or never-treated, within stratum when stratified) from the base period on.",
+     "No anticipation beyond the registered anticipation window: outcomes before g - anticipation do not respond.",
+     "Absorbing treatment: the first qualifying event defines the cohort; later events are part of the post-period treatment path, so estimates are effects of entering treatment, not of one isolated event.",
+     "SUTVA / no interference: a unit's outcome does not depend on other units' treatment (spillovers to comparison units bias the estimate toward zero or away from it).",
+     "Treatment timing is recorded correctly by the source date the registration names.",
+     "Within a state, the timing of a county's first qualifying disaster after a quiet period is as good as random with respect to its employment trend (weather and geology, not local economic conditions, determine which quiet county is hit first).",
+     "Declaration itself is part of the treatment: the estimand is the combined effect of the physical disaster and the federal assistance a DR declaration unlocks; the two are not separated.",
+     "Spillovers to same-state comparison counties (displaced workers, reconstruction demand) are small relative to the direct effect.",
+     "Selection into the sample (no qualifying DR in 1990-1994) does not interact with treatment effects in a way that changes their sign."
+    ],
+    "estimand": "ATT: equal-weight mean over event times 0..5 of treated-count-weighted ATT(g, g+e)",
+    "label": "not_estimable",
+    "meaning": "The pre-registered design could not be estimated with the available data (too few treated units, clusters or outcome periods); no estimate is reported as an effect.",
+    "strategy": "staggered_difference_in_differences"
+   },
+   "notes": [],
+   "registration": {
+    "commit": "c1bcbc2e7aa379f7d743b33aaa759bfc12b7b228",
+    "committed_at": "2026-09-18T18:32:51-07:00",
+    "committed_clean": true,
+    "path": "examples/natural-experiments/registrations/fema_disasters_county_employment.json",
+    "sha256": "0f0f581704a7fd6297ce2bbb9675a500a6cf3a4499d9af7149cb61ba033e641f"
+   },
+   "result_id": "678baf59b650fc3fb6819c71d2604489e9c60d9493d4bb30ac24948043c6e7a8",
+   "schema": "worldmodel.causal_result/1",
+   "study_id": "fema_disasters_county_employment",
+   "verdict": "Not estimable: the registered design produced no post-period estimate."
+  }
+ ],
+ "schema": "worldmodel.natural_experiment_report/1",
+ "seconds": 13.7,
+ "study_id": "fema_disasters_county_employment"
+}

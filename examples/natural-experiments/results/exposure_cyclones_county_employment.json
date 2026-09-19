@@ -1,0 +1,3931 @@
+{
+ "registration": {
+  "commit": "c1bcbc2e7aa379f7d743b33aaa759bfc12b7b228",
+  "committed_at": "2026-09-18T18:32:51-07:00",
+  "committed_clean": true,
+  "path": "examples/natural-experiments/registrations/exposure_cyclones_county_employment.json",
+  "sha256": "721590f6dcdcb2634e47b9af773618e8c418019fb575c6d56596444d69b7c550"
+ },
+ "results": [
+  {
+   "acceptance": [
+    {
+     "id": "enough_held_out_events",
+     "passed": true,
+     "role": "identification",
+     "threshold": 10,
+     "type": "min_events",
+     "value": 42
+    },
+    {
+     "id": "exposure_beats_naive",
+     "passed": false,
+     "role": "identification",
+     "threshold": 0.05,
+     "type": "permutation_p_max",
+     "value": 0.1893
+    },
+    {
+     "id": "exposure_positive",
+     "passed": false,
+     "role": "identification",
+     "threshold": 0.0,
+     "type": "metric_min",
+     "value": -0.019273955929407376
+    }
+   ],
+   "data": {
+    "inputs": [
+     {
+      "dataset": "event_library",
+      "stage": "events",
+      "version": "dbf0c37f15cb15933ddf2452ae00cf196981aef02045a2b642d1582643b2819a"
+     },
+     {
+      "dataset": "ibtracs",
+      "stage": "normalized",
+      "version": "dc62a3133aa1fb008f11b5f18af95b1767ffb5106d1a56859be03aa3b0c1c0c5"
+     },
+     {
+      "dataset": "census_geography",
+      "stage": "normalized",
+      "version": "d58c9aa2a11e9246046131a078bffd26a738d4e9174e2159b2fd5c79d046aa8f"
+     },
+     {
+      "dataset": "irs_soi_migration",
+      "stage": "normalized",
+      "version": "2f03942b9dcb298b2ac3a0c3f432c0b11214a807af1a686f9a53117a621da07c"
+     },
+     {
+      "dataset": "bls_labor",
+      "stage": "normalized",
+      "version": "ffd7f43a2761e2f4bc85cd9765ba9bce61cf089cd26b8b5d12e428337546e267"
+     }
+    ],
+    "outcome_extraction": {
+     "input": {
+      "dataset": "bls_labor",
+      "stage": "normalized",
+      "version": "ffd7f43a2761e2f4bc85cd9765ba9bce61cf089cd26b8b5d12e428337546e267"
+     },
+     "rows": 4463709,
+     "sha256": "25133fe7b7f21bcb1e7a930e3b9c3782a829f83e80e708804a5d8e0f3a305b6d",
+     "spec": {
+      "laus": {
+       "filter": "dimensions.survey == LAUS and subject geo:US:county:* and period_type == month",
+       "metrics": [
+        "employment",
+        "labor_force",
+        "unemployment_rate"
+       ]
+      },
+      "qcew": {
+       "filter": "dimensions.survey == QCEW and dimensions.agglvl_code == 70 (county, total covered, all ownerships) and period_type == annual_average",
+       "metrics": [
+        "employment",
+        "establishment_count"
+       ]
+      }
+     }
+    }
+   },
+   "design": {
+    "controls": {
+     "control_group": "not applicable: rankings are scored within each event"
+    },
+    "estimator": {
+     "anticipation": 0,
+     "estimand": "mean over held-out events of the per-event Spearman correlation between a ranking and the outcome",
+     "primary": "rankings",
+     "rankings": {
+      "exposure": "score_i = rank(H_i)/n + lambda * rank(G_i)/n, lambda chosen from {0, 0.25, 0.5, 1.0} by the highest mean Spearman on development events (ties to the smaller lambda)",
+      "graph": "G_i = sum_j w_ij H_j / sum_j w_ij over counties j != i, w_ij = IRS county-to-county migrants i->j plus j->i in 2017-2018 (H_j = 0 outside the candidate set)",
+      "hazard": "H_i = max over fixes with wind >= 34 kt of modelled wind V * min(1, (40 km / d)^0.5)",
+      "naive": "minus the distance (km) from the county internal point to the nearest fix with wind >= 34 kt"
+     },
+     "robustness": []
+    },
+    "inference": {
+     "alpha": 0.05,
+     "replications": 9999,
+     "seed": 20260918,
+     "test": "one-sided paired sign-flip permutation test across held-out events of mean Spearman(exposure) - mean Spearman(naive) > 0",
+     "top_k": "top 10% of candidate counties; top-k capture difference reported with the same test"
+    },
+    "outcomes": {
+     "primary": {
+      "id": "laus_employment_loss",
+      "label": "seasonally differenced LAUS employment loss: -[(mean ln E(m+1..m+2) - mean ln E(m-2..m-1)) - (same one year earlier)]",
+      "source": "bls_labor LAUS county monthly employment (NSA)",
+      "unit": "log points"
+     },
+     "secondary": []
+    },
+    "placebo_tests": {
+     "none": "a ranking test has no placebo date; the naive ranking is the benchmark"
+    },
+    "question": "Given a North Atlantic tropical cyclone's track, does a ranking of US counties built only from pre-event information (modelled wind hazard plus migration-graph proximity to hazard) order the counties by their measured post-event employment loss better than ranking by distance to the track?",
+    "treatment": {
+     "candidate_counties": "counties (50 states + DC) whose census_geography internal point is within 300 km of a fix with sustained wind >= 34 kt",
+     "estimated_cohorts": null,
+     "event_month": "calendar month of the storm's first fix with wind >= 34 kt within 300 km of any candidate county",
+     "events": "storms whose first fix is in 2004-2024 and that have at least 20 candidate counties with outcome data",
+     "source": "event_library: library_type tropical_cyclone, basin NA; tracks from the pinned ibtracs version (main track, USA agency wind where reported else WMO)",
+     "split": {
+      "development": [
+       2004,
+       2018
+      ],
+      "held_out": [
+       2019,
+       2024
+      ]
+     }
+    },
+    "units": {
+     "definition": "candidate counties of each storm"
+    },
+    "windows": {
+     "e_max": null,
+     "e_min": null,
+     "post_months": [
+      1,
+      2
+     ],
+     "pre_months": [
+      -2,
+      -1
+     ],
+     "seasonal_difference": "the same window one year earlier is subtracted"
+    }
+   },
+   "diagnostics": {
+    "centroids": 3144,
+    "migration_graph_counties": 2875,
+    "skipped_events": [
+     {
+      "date": "2004-08-13",
+      "name": "EARL",
+      "reason": "no county within 300 km of a >=34 kt fix",
+      "storm": "ibtracs:storm:2004227N09314",
+      "year": 2004
+     },
+     {
+      "date": "2004-08-13",
+      "name": "DANIELLE",
+      "reason": "no county within 300 km of a >=34 kt fix",
+      "storm": "ibtracs:storm:2004227N12338",
+      "year": 2004
+     },
+     {
+      "date": "2004-09-07",
+      "name": "UNNAMED",
+      "reason": "no county within 300 km of a >=34 kt fix",
+      "storm": "ibtracs:storm:2004252N32320",
+      "year": 2004
+     },
+     {
+      "date": "2004-09-16",
+      "name": "KARL",
+      "reason": "no county within 300 km of a >=34 kt fix",
+      "storm": "ibtracs:storm:2004260N11331",
+      "year": 2004
+     },
+     {
+      "date": "2004-09-19",
+      "name": "LISA",
+      "reason": "no county within 300 km of a >=34 kt fix",
+      "storm": "ibtracs:storm:2004264N13328",
+      "year": 2004
+     },
+     {
+      "date": "2004-10-10",
+      "name": "NICOLE",
+      "reason": "no county within 300 km of a >=34 kt fix",
+      "storm": "ibtracs:storm:2004284N30295",
+      "year": 2004
+     },
+     {
+      "date": "2004-11-26",
+      "name": "OTTO",
+      "reason": "no county within 300 km of a >=34 kt fix",
+      "storm": "ibtracs:storm:2004331N28320",
+      "year": 2004
+     },
+     {
+      "date": "2005-06-28",
+      "name": "BRET",
+      "reason": "no county within 300 km of a >=34 kt fix",
+      "storm": "ibtracs:storm:2005180N20265",
+      "year": 2005
+     },
+     {
+      "date": "2005-07-11",
+      "name": "EMILY",
+      "reason": "10 counties with outcome (< 20)",
+      "storm": "ibtracs:storm:2005192N11318",
+      "year": 2005
+     },
+     {
+      "date": "2005-07-21",
+      "name": "FRANKLIN",
+      "reason": "no county within 300 km of a >=34 kt fix",
+      "storm": "ibtracs:storm:2005203N25285",
+      "year": 2005
+     },
+     {
+      "date": "2005-07-23",
+      "name": "GERT",
+      "reason": "no county within 300 km of a >=34 kt fix",
+      "storm": "ibtracs:storm:2005205N19267",
+      "year": 2005
+     },
+     {
+      "date": "2005-08-02",
+      "name": "HARVEY",
+      "reason": "no county within 300 km of a >=34 kt fix",
+      "storm": "ibtracs:storm:2005215N28291",
+      "year": 2005
+     },
+     {
+      "date": "2005-08-04",
+      "name": "IRENE",
+      "reason": "no county within 300 km of a >=34 kt fix",
+      "storm": "ibtracs:storm:2005217N13327",
+      "year": 2005
+     },
+     {
+      "date": "2005-08-13",
+      "name": "UNNAMED",
+      "reason": "no county within 300 km of a >=34 kt fix",
+      "storm": "ibtracs:storm:2005226N13316",
+      "year": 2005
+     },
+     {
+      "date": "2005-08-22",
+      "name": "JOSE",
+      "reason": "no county within 300 km of a >=34 kt fix",
+      "storm": "ibtracs:storm:2005235N19266",
+      "year": 2005
+     },
+     {
+      "date": "2005-08-28",
+      "name": "LEE",
+      "reason": "no county within 300 km of a >=34 kt fix",
+      "storm": "ibtracs:storm:2005241N14315",
+      "year": 2005
+     },
+     {
+      "date": "2005-09-01",
+      "name": "MARIA",
+      "reason": "no county within 300 km of a >=34 kt fix",
+      "storm": "ibtracs:storm:2005245N19315",
+      "year": 2005
+     },
+     {
+      "date": "2005-09-05",
+      "name": "NATE",
+      "reason": "no county within 300 km of a >=34 kt fix",
+      "storm": "ibtracs:storm:2005249N28293",
+      "year": 2005
+     },
+     {
+      "date": "2005-09-17",
+      "name": "PHILIPPE",
+      "reason": "no county within 300 km of a >=34 kt fix",
+      "storm": "ibtracs:storm:2005261N13306",
+      "year": 2005
+     },
+     {
+      "date": "2005-09-30",
+      "name": "UNNAMED",
+      "reason": "no county within 300 km of a >=34 kt fix",
+      "storm": "ibtracs:storm:2005274N12327",
+      "year": 2005
+     },
+     {
+      "date": "2005-10-01",
+      "name": "STAN",
+      "reason": "no county within 300 km of a >=34 kt fix",
+      "storm": "ibtracs:storm:2005275N19274",
+      "year": 2005
+     },
+     {
+      "date": "2005-10-04",
+      "name": "UNNAMED",
+      "reason": "no county within 300 km of a >=34 kt fix",
+      "storm": "ibtracs:storm:2005277N34328",
+      "year": 2005
+     },
+     {
+      "date": "2005-10-08",
+      "name": "VINCE",
+      "reason": "no county within 300 km of a >=34 kt fix",
+      "storm": "ibtracs:storm:2005281N33339",
+      "year": 2005
+     },
+     {
+      "date": "2005-10-22",
+      "name": "ALPHA",
+      "reason": "no county within 300 km of a >=34 kt fix",
+      "storm": "ibtracs:storm:2005296N16293",
+      "year": 2005
+     },
+     {
+      "date": "2005-10-26",
+      "name": "BETA",
+      "reason": "no county within 300 km of a >=34 kt fix",
+      "storm": "ibtracs:storm:2005300N10279",
+      "year": 2005
+     },
+     {
+      "date": "2005-11-14",
+      "name": "GAMMA",
+      "reason": "no county within 300 km of a >=34 kt fix",
+      "storm": "ibtracs:storm:2005318N13298",
+      "year": 2005
+     },
+     {
+      "date": "2005-11-19",
+      "name": "DELTA",
+      "reason": "no county within 300 km of a >=34 kt fix",
+      "storm": "ibtracs:storm:2005324N27312",
+      "year": 2005
+     },
+     {
+      "date": "2005-11-29",
+      "name": "EPSILON",
+      "reason": "no county within 300 km of a >=34 kt fix",
+      "storm": "ibtracs:storm:2005333N32311",
+      "year": 2005
+     },
+     {
+      "date": "2005-12-30",
+      "name": "ZETA",
+      "reason": "no county within 300 km of a >=34 kt fix",
+      "storm": "ibtracs:storm:2005364N24324",
+      "year": 2005
+     },
+     {
+      "date": "2006-07-16",
+      "name": "UNNAMED",
+      "reason": "no county within 300 km of a >=34 kt fix",
+      "storm": "ibtracs:storm:2006198N37291",
+      "year": 2006
+     },
+     {
+      "date": "2006-08-01",
+      "name": "CHRIS",
+      "reason": "no county within 300 km of a >=34 kt fix",
+      "storm": "ibtracs:storm:2006213N16302",
+      "year": 2006
+     },
+     {
+      "date": "2006-08-21",
+      "name": "DEBBY",
+      "reason": "no county within 300 km of a >=34 kt fix",
+      "storm": "ibtracs:storm:2006234N12338",
+      "year": 2006
+     },
+     {
+      "date": "2006-09-03",
+      "name": "FLORENCE",
+      "reason": "no county within 300 km of a >=34 kt fix",
+      "storm": "ibtracs:storm:2006247N14321",
+      "year": 2006
+     },
+     {
+      "date": "2006-09-10",
+      "name": "GORDON",
+      "reason": "no county within 300 km of a >=34 kt fix",
+      "storm": "ibtracs:storm:2006254N20306",
+      "year": 2006
+     },
+     {
+      "date": "2006-09-12",
+      "name": "HELENE",
+      "reason": "no county within 300 km of a >=34 kt fix",
+      "storm": "ibtracs:storm:2006256N12338",
+      "year": 2006
+     },
+     {
+      "date": "2006-09-27",
+      "name": "ISAAC",
+      "reason": "no county within 300 km of a >=34 kt fix",
+      "storm": "ibtracs:storm:2006271N26307",
+      "year": 2006
+     },
+     {
+      "date": "2007-07-31",
+      "name": "CHANTAL",
+      "reason": "no county within 300 km of a >=34 kt fix",
+      "storm": "ibtracs:storm:2007212N36294",
+      "year": 2007
+     },
+     {
+      "date": "2007-08-13",
+      "name": "DEAN",
+      "reason": "no county within 300 km of a >=34 kt fix",
+      "storm": "ibtracs:storm:2007225N12331",
+      "year": 2007
+     },
+     {
+      "date": "2007-08-31",
+      "name": "FELIX",
+      "reason": "no county within 300 km of a >=34 kt fix",
+      "storm": "ibtracs:storm:2007244N12303",
+      "year": 2007
+     },
+     {
+      "date": "2007-09-12",
+      "name": "INGRID",
+      "reason": "no county within 300 km of a >=34 kt fix",
+      "storm": "ibtracs:storm:2007255N13316",
+      "year": 2007
+     },
+     {
+      "date": "2007-09-21",
+      "name": "UNNAMED",
+      "reason": "no county within 300 km of a >=34 kt fix",
+      "storm": "ibtracs:storm:2007265N29275",
+      "year": 2007
+     },
+     {
+      "date": "2007-09-23",
+      "name": "JERRY",
+      "reason": "no county within 300 km of a >=34 kt fix",
+      "storm": "ibtracs:storm:2007266N36314",
+      "year": 2007
+     },
+     {
+      "date": "2007-09-25",
+      "name": "KAREN",
+      "reason": "no county within 300 km of a >=34 kt fix",
+      "storm": "ibtracs:storm:2007268N10324",
+      "year": 2007
+     },
+     {
+      "date": "2007-09-25",
+      "name": "LORENZO",
+      "reason": "no county within 300 km of a >=34 kt fix",
+      "storm": "ibtracs:storm:2007269N22265",
+      "year": 2007
+     },
+     {
+      "date": "2007-09-28",
+      "name": "MELISSA",
+      "reason": "no county within 300 km of a >=34 kt fix",
+      "storm": "ibtracs:storm:2007271N14334",
+      "year": 2007
+     },
+     {
+      "date": "2007-10-11",
+      "name": "UNNAMED",
+      "reason": "no county within 300 km of a >=34 kt fix",
+      "storm": "ibtracs:storm:2007285N30307",
+      "year": 2007
+     },
+     {
+      "date": "2007-12-10",
+      "name": "OLGA",
+      "reason": "no county within 300 km of a >=34 kt fix",
+      "storm": "ibtracs:storm:2007345N18298",
+      "year": 2007
+     },
+     {
+      "date": "2008-05-31",
+      "name": "ARTHUR",
+      "reason": "no county within 300 km of a >=34 kt fix",
+      "storm": "ibtracs:storm:2008152N18273",
+      "year": 2008
+     },
+     {
+      "date": "2008-07-03",
+      "name": "BERTHA",
+      "reason": "no county within 300 km of a >=34 kt fix",
+      "storm": "ibtracs:storm:2008185N13337",
+      "year": 2008
+     },
+     {
+      "date": "2008-09-02",
+      "name": "JOSEPHINE",
+      "reason": "no county within 300 km of a >=34 kt fix",
+      "storm": "ibtracs:storm:2008246N12338",
+      "year": 2008
+     },
+     {
+      "date": "2008-09-25",
+      "name": "KYLE",
+      "reason": "12 counties with outcome (< 20)",
+      "storm": "ibtracs:storm:2008269N21290",
+      "year": 2008
+     },
+     {
+      "date": "2008-09-26",
+      "name": "LAURA",
+      "reason": "no county within 300 km of a >=34 kt fix",
+      "storm": "ibtracs:storm:2008270N39325",
+      "year": 2008
+     },
+     {
+      "date": "2008-10-06",
+      "name": "MARCO",
+      "reason": "no county within 300 km of a >=34 kt fix",
+      "storm": "ibtracs:storm:2008280N18268",
+      "year": 2008
+     },
+     {
+      "date": "2008-10-12",
+      "name": "NANA",
+      "reason": "no county within 300 km of a >=34 kt fix",
+      "storm": "ibtracs:storm:2008286N16323",
+      "year": 2008
+     },
+     {
+      "date": "2008-10-13",
+      "name": "OMAR",
+      "reason": "no county within 300 km of a >=34 kt fix",
+      "storm": "ibtracs:storm:2008287N15291",
+      "year": 2008
+     },
+     {
+      "date": "2008-10-14",
+      "name": "UNNAMED",
+      "reason": "no county within 300 km of a >=34 kt fix",
+      "storm": "ibtracs:storm:2008289N15277",
+      "year": 2008
+     },
+     {
+      "date": "2008-11-05",
+      "name": "PALOMA",
+      "reason": "no county within 300 km of a >=34 kt fix",
+      "storm": "ibtracs:storm:2008311N14278",
+      "year": 2008
+     },
+     {
+      "date": "2009-05-26",
+      "name": "UNNAMED",
+      "reason": "no county within 300 km of a >=34 kt fix",
+      "storm": "ibtracs:storm:2009147N31285",
+      "year": 2009
+     },
+     {
+      "date": "2009-08-10",
+      "name": "ANA",
+      "reason": "no county within 300 km of a >=34 kt fix",
+      "storm": "ibtracs:storm:2009222N14336",
+      "year": 2009
+     },
+     {
+      "date": "2009-08-15",
+      "name": "BILL",
+      "reason": "2 counties with outcome (< 20)",
+      "storm": "ibtracs:storm:2009227N12328",
+      "year": 2009
+     },
+     {
+      "date": "2009-08-26",
+      "name": "DANNY",
+      "reason": "no county within 300 km of a >=34 kt fix",
+      "storm": "ibtracs:storm:2009238N24290",
+      "year": 2009
+     },
+     {
+      "date": "2009-09-01",
+      "name": "ERIKA",
+      "reason": "no county within 300 km of a >=34 kt fix",
+      "storm": "ibtracs:storm:2009245N17303",
+      "year": 2009
+     },
+     {
+      "date": "2009-09-07",
+      "name": "FRED",
+      "reason": "no county within 300 km of a >=34 kt fix",
+      "storm": "ibtracs:storm:2009251N12336",
+      "year": 2009
+     },
+     {
+      "date": "2009-09-25",
+      "name": "UNNAMED",
+      "reason": "no county within 300 km of a >=34 kt fix",
+      "storm": "ibtracs:storm:2009268N15331",
+      "year": 2009
+     },
+     {
+      "date": "2009-09-27",
+      "name": "GRACE",
+      "reason": "no county within 300 km of a >=34 kt fix",
+      "storm": "ibtracs:storm:2009271N46317",
+      "year": 2009
+     },
+     {
+      "date": "2009-10-06",
+      "name": "HENRI",
+      "reason": "no county within 300 km of a >=34 kt fix",
+      "storm": "ibtracs:storm:2009279N15311",
+      "year": 2009
+     },
+     {
+      "date": "2010-06-24",
+      "name": "ALEX",
+      "reason": "5 counties with outcome (< 20)",
+      "storm": "ibtracs:storm:2010176N16278",
+      "year": 2010
+     },
+     {
+      "date": "2010-07-07",
+      "name": "UNNAMED",
+      "reason": "no county within 300 km of a >=34 kt fix",
+      "storm": "ibtracs:storm:2010188N21269",
+      "year": 2010
+     },
+     {
+      "date": "2010-07-22",
+      "name": "BONNIE",
+      "reason": "18 counties with outcome (< 20)",
+      "storm": "ibtracs:storm:2010203N22286",
+      "year": 2010
+     },
+     {
+      "date": "2010-08-02",
+      "name": "COLIN",
+      "reason": "no county within 300 km of a >=34 kt fix",
+      "storm": "ibtracs:storm:2010215N13319",
+      "year": 2010
+     },
+     {
+      "date": "2010-08-10",
+      "name": "UNNAMED",
+      "reason": "no county within 300 km of a >=34 kt fix",
+      "storm": "ibtracs:storm:2010222N26277",
+      "year": 2010
+     },
+     {
+      "date": "2010-08-21",
+      "name": "DANIELLE",
+      "reason": "no county within 300 km of a >=34 kt fix",
+      "storm": "ibtracs:storm:2010234N11329",
+      "year": 2010
+     },
+     {
+      "date": "2010-08-30",
+      "name": "FIONA",
+      "reason": "no county within 300 km of a >=34 kt fix",
+      "storm": "ibtracs:storm:2010242N14318",
+      "year": 2010
+     },
+     {
+      "date": "2010-09-01",
+      "name": "GASTON",
+      "reason": "no county within 300 km of a >=34 kt fix",
+      "storm": "ibtracs:storm:2010244N12328",
+      "year": 2010
+     },
+     {
+      "date": "2010-09-08",
+      "name": "IGOR",
+      "reason": "no county within 300 km of a >=34 kt fix",
+      "storm": "ibtracs:storm:2010251N14337",
+      "year": 2010
+     },
+     {
+      "date": "2010-09-12",
+      "name": "JULIA",
+      "reason": "no county within 300 km of a >=34 kt fix",
+      "storm": "ibtracs:storm:2010255N13340",
+      "year": 2010
+     },
+     {
+      "date": "2010-09-13",
+      "name": "KARL",
+      "reason": "no county within 300 km of a >=34 kt fix",
+      "storm": "ibtracs:storm:2010257N16282",
+      "year": 2010
+     },
+     {
+      "date": "2010-09-20",
+      "name": "LISA",
+      "reason": "no county within 300 km of a >=34 kt fix",
+      "storm": "ibtracs:storm:2010263N15328",
+      "year": 2010
+     },
+     {
+      "date": "2010-09-23",
+      "name": "MATTHEW",
+      "reason": "no county within 300 km of a >=34 kt fix",
+      "storm": "ibtracs:storm:2010267N14285",
+      "year": 2010
+     },
+     {
+      "date": "2010-09-28",
+      "name": "NICOLE",
+      "reason": "16 counties with outcome (< 20)",
+      "storm": "ibtracs:storm:2010271N19276",
+      "year": 2010
+     },
+     {
+      "date": "2010-10-06",
+      "name": "OTTO",
+      "reason": "no county within 300 km of a >=34 kt fix",
+      "storm": "ibtracs:storm:2010279N22293",
+      "year": 2010
+     },
+     {
+      "date": "2010-10-11",
+      "name": "PAULA",
+      "reason": "no county within 300 km of a >=34 kt fix",
+      "storm": "ibtracs:storm:2010284N14278",
+      "year": 2010
+     },
+     {
+      "date": "2010-10-19",
+      "name": "RICHARD",
+      "reason": "no county within 300 km of a >=34 kt fix",
+      "storm": "ibtracs:storm:2010293N17277",
+      "year": 2010
+     },
+     {
+      "date": "2010-10-28",
+      "name": "SHARY",
+      "reason": "no county within 300 km of a >=34 kt fix",
+      "storm": "ibtracs:storm:2010302N26299",
+      "year": 2010
+     },
+     {
+      "date": "2010-10-29",
+      "name": "TOMAS",
+      "reason": "no county within 300 km of a >=34 kt fix",
+      "storm": "ibtracs:storm:2010302N09306",
+      "year": 2010
+     },
+     {
+      "date": "2011-06-28",
+      "name": "ARLENE",
+      "reason": "no county within 300 km of a >=34 kt fix",
+      "storm": "ibtracs:storm:2011179N20267",
+      "year": 2011
+     },
+     {
+      "date": "2011-07-16",
+      "name": "BRET",
+      "reason": "8 counties with outcome (< 20)",
+      "storm": "ibtracs:storm:2011197N31280",
+      "year": 2011
+     },
+     {
+      "date": "2011-07-20",
+      "name": "CINDY",
+      "reason": "no county within 300 km of a >=34 kt fix",
+      "storm": "ibtracs:storm:2011201N33301",
+      "year": 2011
+     },
+     {
+      "date": "2011-08-02",
+      "name": "EMILY",
+      "reason": "8 counties with outcome (< 20)",
+      "storm": "ibtracs:storm:2011214N15299",
+      "year": 2011
+     },
+     {
+      "date": "2011-08-12",
+      "name": "FRANKLIN",
+      "reason": "no county within 300 km of a >=34 kt fix",
+      "storm": "ibtracs:storm:2011225N35294",
+      "year": 2011
+     },
+     {
+      "date": "2011-08-13",
+      "name": "GERT",
+      "reason": "no county within 300 km of a >=34 kt fix",
+      "storm": "ibtracs:storm:2011225N26302",
+      "year": 2011
+     },
+     {
+      "date": "2011-08-19",
+      "name": "HARVEY",
+      "reason": "no county within 300 km of a >=34 kt fix",
+      "storm": "ibtracs:storm:2011231N15278",
+      "year": 2011
+     },
+     {
+      "date": "2011-08-25",
+      "name": "UNNAMED",
+      "reason": "no county within 300 km of a >=34 kt fix",
+      "storm": "ibtracs:storm:2011237N12331",
+      "year": 2011
+     },
+     {
+      "date": "2011-08-26",
+      "name": "JOSE",
+      "reason": "no county within 300 km of a >=34 kt fix",
+      "storm": "ibtracs:storm:2011239N27301",
+      "year": 2011
+     },
+     {
+      "date": "2011-08-28",
+      "name": "KATIA",
+      "reason": "no county within 300 km of a >=34 kt fix",
+      "storm": "ibtracs:storm:2011240N10341",
+      "year": 2011
+     },
+     {
+      "date": "2011-08-31",
+      "name": "UNNAMED",
+      "reason": "no county within 300 km of a >=34 kt fix",
+      "storm": "ibtracs:storm:2011244N37296",
+      "year": 2011
+     },
+     {
+      "date": "2011-09-06",
+      "name": "MARIA",
+      "reason": "no county within 300 km of a >=34 kt fix",
+      "storm": "ibtracs:storm:2011250N12324",
+      "year": 2011
+     },
+     {
+      "date": "2011-09-06",
+      "name": "NATE",
+      "reason": "no county within 300 km of a >=34 kt fix",
+      "storm": "ibtracs:storm:2011250N20266",
+      "year": 2011
+     },
+     {
+      "date": "2011-09-20",
+      "name": "OPHELIA",
+      "reason": "no county within 300 km of a >=34 kt fix",
+      "storm": "ibtracs:storm:2011263N12323",
+      "year": 2011
+     },
+     {
+      "date": "2011-09-23",
+      "name": "PHILIPPE",
+      "reason": "no county within 300 km of a >=34 kt fix",
+      "storm": "ibtracs:storm:2011266N08343",
+      "year": 2011
+     },
+     {
+      "date": "2011-10-22",
+      "name": "RINA",
+      "reason": "no county within 300 km of a >=34 kt fix",
+      "storm": "ibtracs:storm:2011295N13279",
+      "year": 2011
+     },
+     {
+      "date": "2011-11-06",
+      "name": "SEAN",
+      "reason": "no county within 300 km of a >=34 kt fix",
+      "storm": "ibtracs:storm:2011310N29290",
+      "year": 2011
+     },
+     {
+      "date": "2012-06-17",
+      "name": "CHRIS",
+      "reason": "no county within 300 km of a >=34 kt fix",
+      "storm": "ibtracs:storm:2012169N29291",
+      "year": 2012
+     },
+     {
+      "date": "2012-08-01",
+      "name": "ERNESTO",
+      "reason": "no county within 300 km of a >=34 kt fix",
+      "storm": "ibtracs:storm:2012215N12313",
+      "year": 2012
+     },
+     {
+      "date": "2012-08-03",
+      "name": "FLORENCE",
+      "reason": "no county within 300 km of a >=34 kt fix",
+      "storm": "ibtracs:storm:2012216N12337",
+      "year": 2012
+     },
+     {
+      "date": "2012-08-09",
+      "name": "HELENE",
+      "reason": "no county within 300 km of a >=34 kt fix",
+      "storm": "ibtracs:storm:2012223N14317",
+      "year": 2012
+     },
+     {
+      "date": "2012-08-15",
+      "name": "GORDON",
+      "reason": "no county within 300 km of a >=34 kt fix",
+      "storm": "ibtracs:storm:2012229N28305",
+      "year": 2012
+     },
+     {
+      "date": "2012-08-21",
+      "name": "JOYCE",
+      "reason": "no county within 300 km of a >=34 kt fix",
+      "storm": "ibtracs:storm:2012235N11328",
+      "year": 2012
+     },
+     {
+      "date": "2012-08-28",
+      "name": "LESLIE",
+      "reason": "no county within 300 km of a >=34 kt fix",
+      "storm": "ibtracs:storm:2012242N13333",
+      "year": 2012
+     },
+     {
+      "date": "2012-08-28",
+      "name": "KIRK",
+      "reason": "no county within 300 km of a >=34 kt fix",
+      "storm": "ibtracs:storm:2012242N24317",
+      "year": 2012
+     },
+     {
+      "date": "2012-09-02",
+      "name": "MICHAEL",
+      "reason": "no county within 300 km of a >=34 kt fix",
+      "storm": "ibtracs:storm:2012246N29323",
+      "year": 2012
+     },
+     {
+      "date": "2012-09-10",
+      "name": "NADINE",
+      "reason": "no county within 300 km of a >=34 kt fix",
+      "storm": "ibtracs:storm:2012255N16322",
+      "year": 2012
+     },
+     {
+      "date": "2012-10-02",
+      "name": "OSCAR",
+      "reason": "no county within 300 km of a >=34 kt fix",
+      "storm": "ibtracs:storm:2012277N12322",
+      "year": 2012
+     },
+     {
+      "date": "2012-10-10",
+      "name": "PATTY",
+      "reason": "no county within 300 km of a >=34 kt fix",
+      "storm": "ibtracs:storm:2012285N26288",
+      "year": 2012
+     },
+     {
+      "date": "2012-10-12",
+      "name": "RAFAEL",
+      "reason": "no county within 300 km of a >=34 kt fix",
+      "storm": "ibtracs:storm:2012287N15297",
+      "year": 2012
+     },
+     {
+      "date": "2012-10-21",
+      "name": "TONY",
+      "reason": "no county within 300 km of a >=34 kt fix",
+      "storm": "ibtracs:storm:2012296N20309",
+      "year": 2012
+     },
+     {
+      "date": "2013-06-16",
+      "name": "BARRY",
+      "reason": "no county within 300 km of a >=34 kt fix",
+      "storm": "ibtracs:storm:2013167N12279",
+      "year": 2013
+     },
+     {
+      "date": "2013-07-07",
+      "name": "CHANTAL",
+      "reason": "no county within 300 km of a >=34 kt fix",
+      "storm": "ibtracs:storm:2013189N09319",
+      "year": 2013
+     },
+     {
+      "date": "2013-07-22",
+      "name": "DORIAN",
+      "reason": "no county within 300 km of a >=34 kt fix",
+      "storm": "ibtracs:storm:2013204N11340",
+      "year": 2013
+     },
+     {
+      "date": "2013-08-15",
+      "name": "ERIN",
+      "reason": "no county within 300 km of a >=34 kt fix",
+      "storm": "ibtracs:storm:2013227N14337",
+      "year": 2013
+     },
+     {
+      "date": "2013-08-25",
+      "name": "FERNAND",
+      "reason": "no county within 300 km of a >=34 kt fix",
+      "storm": "ibtracs:storm:2013238N19266",
+      "year": 2013
+     },
+     {
+      "date": "2013-09-04",
+      "name": "GABRIELLE",
+      "reason": "no county within 300 km of a >=34 kt fix",
+      "storm": "ibtracs:storm:2013248N16294",
+      "year": 2013
+     },
+     {
+      "date": "2013-09-06",
+      "name": "UNNAMED",
+      "reason": "no county within 300 km of a >=34 kt fix",
+      "storm": "ibtracs:storm:2013250N22263",
+      "year": 2013
+     },
+     {
+      "date": "2013-09-08",
+      "name": "HUMBERTO",
+      "reason": "no county within 300 km of a >=34 kt fix",
+      "storm": "ibtracs:storm:2013251N13342",
+      "year": 2013
+     },
+     {
+      "date": "2013-09-12",
+      "name": "INGRID",
+      "reason": "1 counties with outcome (< 20)",
+      "storm": "ibtracs:storm:2013255N19268",
+      "year": 2013
+     },
+     {
+      "date": "2013-09-28",
+      "name": "JERRY",
+      "reason": "no county within 300 km of a >=34 kt fix",
+      "storm": "ibtracs:storm:2013271N21310",
+      "year": 2013
+     },
+     {
+      "date": "2013-10-21",
+      "name": "LORENZO",
+      "reason": "no county within 300 km of a >=34 kt fix",
+      "storm": "ibtracs:storm:2013294N28304",
+      "year": 2013
+     },
+     {
+      "date": "2013-11-17",
+      "name": "MELISSA",
+      "reason": "no county within 300 km of a >=34 kt fix",
+      "storm": "ibtracs:storm:2013321N24308",
+      "year": 2013
+     },
+     {
+      "date": "2013-12-03",
+      "name": "UNNAMED",
+      "reason": "no county within 300 km of a >=34 kt fix",
+      "storm": "ibtracs:storm:2013338N34332",
+      "year": 2013
+     },
+     {
+      "date": "2014-07-19",
+      "name": "UNNAMED",
+      "reason": "no county within 300 km of a >=34 kt fix",
+      "storm": "ibtracs:storm:2014201N09331",
+      "year": 2014
+     },
+     {
+      "date": "2014-07-29",
+      "name": "BERTHA",
+      "reason": "no county within 300 km of a >=34 kt fix",
+      "storm": "ibtracs:storm:2014210N10323",
+      "year": 2014
+     },
+     {
+      "date": "2014-08-23",
+      "name": "CRISTOBAL",
+      "reason": "no county within 300 km of a >=34 kt fix",
+      "storm": "ibtracs:storm:2014236N22288",
+      "year": 2014
+     },
+     {
+      "date": "2014-09-01",
+      "name": "DOLLY",
+      "reason": "no county within 300 km of a >=34 kt fix",
+      "storm": "ibtracs:storm:2014245N19268",
+      "year": 2014
+     },
+     {
+      "date": "2014-09-10",
+      "name": "EDOUARD",
+      "reason": "no county within 300 km of a >=34 kt fix",
+      "storm": "ibtracs:storm:2014254N14327",
+      "year": 2014
+     },
+     {
+      "date": "2014-10-10",
+      "name": "FAY",
+      "reason": "no county within 300 km of a >=34 kt fix",
+      "storm": "ibtracs:storm:2014283N22299",
+      "year": 2014
+     },
+     {
+      "date": "2014-10-11",
+      "name": "GONZALO",
+      "reason": "no county within 300 km of a >=34 kt fix",
+      "storm": "ibtracs:storm:2014285N16305",
+      "year": 2014
+     },
+     {
+      "date": "2014-10-21",
+      "name": "HANNA",
+      "reason": "no county within 300 km of a >=34 kt fix",
+      "storm": "ibtracs:storm:2014294N20265",
+      "year": 2014
+     },
+     {
+      "date": "2015-07-12",
+      "name": "CLAUDETTE",
+      "reason": "no county within 300 km of a >=34 kt fix",
+      "storm": "ibtracs:storm:2015193N35285",
+      "year": 2015
+     },
+     {
+      "date": "2015-08-17",
+      "name": "DANNY",
+      "reason": "no county within 300 km of a >=34 kt fix",
+      "storm": "ibtracs:storm:2015229N10331",
+      "year": 2015
+     },
+     {
+      "date": "2015-08-24",
+      "name": "ERIKA",
+      "reason": "no county within 300 km of a >=34 kt fix",
+      "storm": "ibtracs:storm:2015237N14315",
+      "year": 2015
+     },
+     {
+      "date": "2015-08-30",
+      "name": "FRED",
+      "reason": "no county within 300 km of a >=34 kt fix",
+      "storm": "ibtracs:storm:2015242N12343",
+      "year": 2015
+     },
+     {
+      "date": "2015-09-05",
+      "name": "GRACE",
+      "reason": "no county within 300 km of a >=34 kt fix",
+      "storm": "ibtracs:storm:2015248N12337",
+      "year": 2015
+     },
+     {
+      "date": "2015-09-08",
+      "name": "HENRI",
+      "reason": "no county within 300 km of a >=34 kt fix",
+      "storm": "ibtracs:storm:2015251N31298",
+      "year": 2015
+     },
+     {
+      "date": "2015-09-15",
+      "name": "UNNAMED",
+      "reason": "no county within 300 km of a >=34 kt fix",
+      "storm": "ibtracs:storm:2015258N12320",
+      "year": 2015
+     },
+     {
+      "date": "2015-09-15",
+      "name": "IDA",
+      "reason": "no county within 300 km of a >=34 kt fix",
+      "storm": "ibtracs:storm:2015259N09336",
+      "year": 2015
+     },
+     {
+      "date": "2015-09-26",
+      "name": "JOAQUIN",
+      "reason": "no county within 300 km of a >=34 kt fix",
+      "storm": "ibtracs:storm:2015270N27291",
+      "year": 2015
+     },
+     {
+      "date": "2015-11-08",
+      "name": "KATE",
+      "reason": "no county within 300 km of a >=34 kt fix",
+      "storm": "ibtracs:storm:2015313N22289",
+      "year": 2015
+     },
+     {
+      "date": "2016-01-07",
+      "name": "ALEX",
+      "reason": "no county within 300 km of a >=34 kt fix",
+      "storm": "ibtracs:storm:2016007N27285",
+      "year": 2016
+     },
+     {
+      "date": "2016-06-18",
+      "name": "DANIELLE",
+      "reason": "no county within 300 km of a >=34 kt fix",
+      "storm": "ibtracs:storm:2016171N19268",
+      "year": 2016
+     },
+     {
+      "date": "2016-08-02",
+      "name": "EARL",
+      "reason": "no county within 300 km of a >=34 kt fix",
+      "storm": "ibtracs:storm:2016215N16283",
+      "year": 2016
+     },
+     {
+      "date": "2016-08-16",
+      "name": "FIONA",
+      "reason": "no county within 300 km of a >=34 kt fix",
+      "storm": "ibtracs:storm:2016230N12328",
+      "year": 2016
+     },
+     {
+      "date": "2016-08-21",
+      "name": "GASTON",
+      "reason": "no county within 300 km of a >=34 kt fix",
+      "storm": "ibtracs:storm:2016235N11341",
+      "year": 2016
+     },
+     {
+      "date": "2016-08-27",
+      "name": "UNNAMED",
+      "reason": "no county within 300 km of a >=34 kt fix",
+      "storm": "ibtracs:storm:2016240N31295",
+      "year": 2016
+     },
+     {
+      "date": "2016-09-12",
+      "name": "IAN",
+      "reason": "no county within 300 km of a >=34 kt fix",
+      "storm": "ibtracs:storm:2016256N20312",
+      "year": 2016
+     },
+     {
+      "date": "2016-09-12",
+      "name": "KARL",
+      "reason": "no county within 300 km of a >=34 kt fix",
+      "storm": "ibtracs:storm:2016257N13341",
+      "year": 2016
+     },
+     {
+      "date": "2016-09-19",
+      "name": "LISA",
+      "reason": "no county within 300 km of a >=34 kt fix",
+      "storm": "ibtracs:storm:2016263N13333",
+      "year": 2016
+     },
+     {
+      "date": "2016-10-04",
+      "name": "NICOLE",
+      "reason": "no county within 300 km of a >=34 kt fix",
+      "storm": "ibtracs:storm:2016278N23300",
+      "year": 2016
+     },
+     {
+      "date": "2016-11-17",
+      "name": "OTTO",
+      "reason": "no county within 300 km of a >=34 kt fix",
+      "storm": "ibtracs:storm:2016323N13279",
+      "year": 2016
+     },
+     {
+      "date": "2017-04-16",
+      "name": "ARLENE",
+      "reason": "no county within 300 km of a >=34 kt fix",
+      "storm": "ibtracs:storm:2017106N36310",
+      "year": 2017
+     },
+     {
+      "date": "2017-06-18",
+      "name": "BRET",
+      "reason": "no county within 300 km of a >=34 kt fix",
+      "storm": "ibtracs:storm:2017170N08310",
+      "year": 2017
+     },
+     {
+      "date": "2017-07-05",
+      "name": "UNNAMED",
+      "reason": "no county within 300 km of a >=34 kt fix",
+      "storm": "ibtracs:storm:2017187N12324",
+      "year": 2017
+     },
+     {
+      "date": "2017-07-17",
+      "name": "DON",
+      "reason": "no county within 300 km of a >=34 kt fix",
+      "storm": "ibtracs:storm:2017198N10312",
+      "year": 2017
+     },
+     {
+      "date": "2017-08-06",
+      "name": "FRANKLIN",
+      "reason": "no county within 300 km of a >=34 kt fix",
+      "storm": "ibtracs:storm:2017219N16279",
+      "year": 2017
+     },
+     {
+      "date": "2017-08-12",
+      "name": "GERT",
+      "reason": "no county within 300 km of a >=34 kt fix",
+      "storm": "ibtracs:storm:2017224N22293",
+      "year": 2017
+     },
+     {
+      "date": "2017-09-04",
+      "name": "JOSE",
+      "reason": "9 counties with outcome (< 20)",
+      "storm": "ibtracs:storm:2017247N09327",
+      "year": 2017
+     },
+     {
+      "date": "2017-09-05",
+      "name": "KATIA",
+      "reason": "no county within 300 km of a >=34 kt fix",
+      "storm": "ibtracs:storm:2017249N22263",
+      "year": 2017
+     },
+     {
+      "date": "2017-09-14",
+      "name": "LEE",
+      "reason": "no county within 300 km of a >=34 kt fix",
+      "storm": "ibtracs:storm:2017258N10337",
+      "year": 2017
+     },
+     {
+      "date": "2017-09-16",
+      "name": "MARIA",
+      "reason": "2 counties with outcome (< 20)",
+      "storm": "ibtracs:storm:2017260N12310",
+      "year": 2017
+     },
+     {
+      "date": "2017-10-06",
+      "name": "OPHELIA",
+      "reason": "no county within 300 km of a >=34 kt fix",
+      "storm": "ibtracs:storm:2017280N32321",
+      "year": 2017
+     },
+     {
+      "date": "2017-10-27",
+      "name": "PHILIPPE",
+      "reason": "no county within 300 km of a >=34 kt fix",
+      "storm": "ibtracs:storm:2017301N18276",
+      "year": 2017
+     },
+     {
+      "date": "2017-11-04",
+      "name": "RINA",
+      "reason": "no county within 300 km of a >=34 kt fix",
+      "storm": "ibtracs:storm:2017309N26308",
+      "year": 2017
+     },
+     {
+      "date": "2018-07-04",
+      "name": "BERYL",
+      "reason": "no county within 300 km of a >=34 kt fix",
+      "storm": "ibtracs:storm:2018186N10325",
+      "year": 2018
+     },
+     {
+      "date": "2018-07-05",
+      "name": "CHRIS",
+      "reason": "11 counties with outcome (< 20)",
+      "storm": "ibtracs:storm:2018186N31292",
+      "year": 2018
+     },
+     {
+      "date": "2018-08-02",
+      "name": "DEBBY",
+      "reason": "no county within 300 km of a >=34 kt fix",
+      "storm": "ibtracs:storm:2018215N41326",
+      "year": 2018
+     },
+     {
+      "date": "2018-08-15",
+      "name": "ERNESTO",
+      "reason": "no county within 300 km of a >=34 kt fix",
+      "storm": "ibtracs:storm:2018227N37315",
+      "year": 2018
+     },
+     {
+      "date": "2018-09-07",
+      "name": "ISAAC",
+      "reason": "no county within 300 km of a >=34 kt fix",
+      "storm": "ibtracs:storm:2018251N13325",
+      "year": 2018
+     },
+     {
+      "date": "2018-09-07",
+      "name": "HELENE",
+      "reason": "no county within 300 km of a >=34 kt fix",
+      "storm": "ibtracs:storm:2018251N13343",
+      "year": 2018
+     },
+     {
+      "date": "2018-09-12",
+      "name": "JOYCE",
+      "reason": "no county within 300 km of a >=34 kt fix",
+      "storm": "ibtracs:storm:2018255N37320",
+      "year": 2018
+     },
+     {
+      "date": "2018-09-21",
+      "name": "UNNAMED",
+      "reason": "no county within 300 km of a >=34 kt fix",
+      "storm": "ibtracs:storm:2018265N13308",
+      "year": 2018
+     },
+     {
+      "date": "2018-09-22",
+      "name": "KIRK",
+      "reason": "no county within 300 km of a >=34 kt fix",
+      "storm": "ibtracs:storm:2018265N08338",
+      "year": 2018
+     },
+     {
+      "date": "2018-09-22",
+      "name": "LESLIE",
+      "reason": "no county within 300 km of a >=34 kt fix",
+      "storm": "ibtracs:storm:2018265N35315",
+      "year": 2018
+     },
+     {
+      "date": "2018-10-08",
+      "name": "NADINE",
+      "reason": "no county within 300 km of a >=34 kt fix",
+      "storm": "ibtracs:storm:2018282N09333",
+      "year": 2018
+     },
+     {
+      "date": "2018-10-26",
+      "name": "OSCAR",
+      "reason": "no county within 300 km of a >=34 kt fix",
+      "storm": "ibtracs:storm:2018300N25315",
+      "year": 2018
+     },
+     {
+      "date": "2019-05-20",
+      "name": "ANDREA",
+      "reason": "no county within 300 km of a >=34 kt fix",
+      "storm": "ibtracs:storm:2019141N28291",
+      "year": 2019
+     },
+     {
+      "date": "2019-07-22",
+      "name": "UNNAMED",
+      "reason": "no county within 300 km of a >=34 kt fix",
+      "storm": "ibtracs:storm:2019204N25283",
+      "year": 2019
+     },
+     {
+      "date": "2019-08-20",
+      "name": "CHANTAL",
+      "reason": "no county within 300 km of a >=34 kt fix",
+      "storm": "ibtracs:storm:2019233N40300",
+      "year": 2019
+     },
+     {
+      "date": "2019-08-26",
+      "name": "ERIN",
+      "reason": "no county within 300 km of a >=34 kt fix",
+      "storm": "ibtracs:storm:2019239N32287",
+      "year": 2019
+     },
+     {
+      "date": "2019-09-03",
+      "name": "GABRIELLE",
+      "reason": "no county within 300 km of a >=34 kt fix",
+      "storm": "ibtracs:storm:2019246N16330",
+      "year": 2019
+     },
+     {
+      "date": "2019-09-03",
+      "name": "FERNAND",
+      "reason": "5 counties with outcome (< 20)",
+      "storm": "ibtracs:storm:2019246N24266",
+      "year": 2019
+     },
+     {
+      "date": "2019-09-12",
+      "name": "HUMBERTO",
+      "reason": "6 counties with outcome (< 20)",
+      "storm": "ibtracs:storm:2019256N23286",
+      "year": 2019
+     },
+     {
+      "date": "2019-09-17",
+      "name": "JERRY",
+      "reason": "no county within 300 km of a >=34 kt fix",
+      "storm": "ibtracs:storm:2019260N13317",
+      "year": 2019
+     },
+     {
+      "date": "2019-09-22",
+      "name": "KAREN",
+      "reason": "no county within 300 km of a >=34 kt fix",
+      "storm": "ibtracs:storm:2019265N12301",
+      "year": 2019
+     },
+     {
+      "date": "2019-09-22",
+      "name": "LORENZO",
+      "reason": "no county within 300 km of a >=34 kt fix",
+      "storm": "ibtracs:storm:2019266N11341",
+      "year": 2019
+     },
+     {
+      "date": "2019-10-14",
+      "name": "UNNAMED",
+      "reason": "no county within 300 km of a >=34 kt fix",
+      "storm": "ibtracs:storm:2019288N13341",
+      "year": 2019
+     },
+     {
+      "date": "2019-10-23",
+      "name": "PABLO",
+      "reason": "no county within 300 km of a >=34 kt fix",
+      "storm": "ibtracs:storm:2019297N40322",
+      "year": 2019
+     },
+     {
+      "date": "2019-10-27",
+      "name": "REBEKAH",
+      "reason": "no county within 300 km of a >=34 kt fix",
+      "storm": "ibtracs:storm:2019300N41309",
+      "year": 2019
+     },
+     {
+      "date": "2019-11-19",
+      "name": "SEBASTIEN",
+      "reason": "no county within 300 km of a >=34 kt fix",
+      "storm": "ibtracs:storm:2019323N19302",
+      "year": 2019
+     },
+     {
+      "date": "2020-06-22",
+      "name": "DOLLY",
+      "reason": "no county within 300 km of a >=34 kt fix",
+      "storm": "ibtracs:storm:2020174N39293",
+      "year": 2020
+     },
+     {
+      "date": "2020-07-04",
+      "name": "EDOUARD",
+      "reason": "no county within 300 km of a >=34 kt fix",
+      "storm": "ibtracs:storm:2020186N30289",
+      "year": 2020
+     },
+     {
+      "date": "2020-07-20",
+      "name": "GONZALO",
+      "reason": "no county within 300 km of a >=34 kt fix",
+      "storm": "ibtracs:storm:2020203N09323",
+      "year": 2020
+     },
+     {
+      "date": "2020-07-29",
+      "name": "UNNAMED",
+      "reason": "no county within 300 km of a >=34 kt fix",
+      "storm": "ibtracs:storm:2020212N13340",
+      "year": 2020
+     },
+     {
+      "date": "2020-08-10",
+      "name": "JOSEPHINE",
+      "reason": "no county within 300 km of a >=34 kt fix",
+      "storm": "ibtracs:storm:2020224N11326",
+      "year": 2020
+     },
+     {
+      "date": "2020-08-30",
+      "name": "OMAR",
+      "reason": "9 counties with outcome (< 20)",
+      "storm": "ibtracs:storm:2020244N30279",
+      "year": 2020
+     },
+     {
+      "date": "2020-09-01",
+      "name": "NANA",
+      "reason": "no county within 300 km of a >=34 kt fix",
+      "storm": "ibtracs:storm:2020245N16285",
+      "year": 2020
+     },
+     {
+      "date": "2020-09-06",
+      "name": "RENE",
+      "reason": "no county within 300 km of a >=34 kt fix",
+      "storm": "ibtracs:storm:2020251N15342",
+      "year": 2020
+     },
+     {
+      "date": "2020-09-07",
+      "name": "PAULETTE",
+      "reason": "no county within 300 km of a >=34 kt fix",
+      "storm": "ibtracs:storm:2020251N17319",
+      "year": 2020
+     },
+     {
+      "date": "2020-09-12",
+      "name": "TEDDY",
+      "reason": "no county within 300 km of a >=34 kt fix",
+      "storm": "ibtracs:storm:2020256N11329",
+      "year": 2020
+     },
+     {
+      "date": "2020-09-14",
+      "name": "VICKY",
+      "reason": "no county within 300 km of a >=34 kt fix",
+      "storm": "ibtracs:storm:2020258N18332",
+      "year": 2020
+     },
+     {
+      "date": "2020-09-14",
+      "name": "ALPHA",
+      "reason": "no county within 300 km of a >=34 kt fix",
+      "storm": "ibtracs:storm:2020259N47338",
+      "year": 2020
+     },
+     {
+      "date": "2020-09-17",
+      "name": "WILFRED",
+      "reason": "no county within 300 km of a >=34 kt fix",
+      "storm": "ibtracs:storm:2020261N10335",
+      "year": 2020
+     },
+     {
+      "date": "2020-10-02",
+      "name": "GAMMA",
+      "reason": "no county within 300 km of a >=34 kt fix",
+      "storm": "ibtracs:storm:2020276N17277",
+      "year": 2020
+     },
+     {
+      "date": "2020-10-16",
+      "name": "EPSILON",
+      "reason": "no county within 300 km of a >=34 kt fix",
+      "storm": "ibtracs:storm:2020291N32305",
+      "year": 2020
+     },
+     {
+      "date": "2020-11-08",
+      "name": "THETA",
+      "reason": "no county within 300 km of a >=34 kt fix",
+      "storm": "ibtracs:storm:2020314N28313",
+      "year": 2020
+     },
+     {
+      "date": "2020-11-12",
+      "name": "IOTA",
+      "reason": "no county within 300 km of a >=34 kt fix",
+      "storm": "ibtracs:storm:2020318N16289",
+      "year": 2020
+     },
+     {
+      "date": "2021-05-20",
+      "name": "ANA",
+      "reason": "no county within 300 km of a >=34 kt fix",
+      "storm": "ibtracs:storm:2021140N30305",
+      "year": 2021
+     },
+     {
+      "date": "2021-06-13",
+      "name": "BILL",
+      "reason": "1 counties with outcome (< 20)",
+      "storm": "ibtracs:storm:2021165N32282",
+      "year": 2021
+     },
+     {
+      "date": "2021-08-13",
+      "name": "GRACE",
+      "reason": "no county within 300 km of a >=34 kt fix",
+      "storm": "ibtracs:storm:2021225N15313",
+      "year": 2021
+     },
+     {
+      "date": "2021-08-27",
+      "name": "KATE",
+      "reason": "no county within 300 km of a >=34 kt fix",
+      "storm": "ibtracs:storm:2021240N13313",
+      "year": 2021
+     },
+     {
+      "date": "2021-08-28",
+      "name": "JULIAN",
+      "reason": "no county within 300 km of a >=34 kt fix",
+      "storm": "ibtracs:storm:2021241N32308",
+      "year": 2021
+     },
+     {
+      "date": "2021-08-31",
+      "name": "LARRY",
+      "reason": "no county within 300 km of a >=34 kt fix",
+      "storm": "ibtracs:storm:2021244N12339",
+      "year": 2021
+     },
+     {
+      "date": "2021-09-16",
+      "name": "ODETTE",
+      "reason": "2 counties with outcome (< 20)",
+      "storm": "ibtracs:storm:2021259N30286",
+      "year": 2021
+     },
+     {
+      "date": "2021-09-19",
+      "name": "ROSE",
+      "reason": "no county within 300 km of a >=34 kt fix",
+      "storm": "ibtracs:storm:2021262N10333",
+      "year": 2021
+     },
+     {
+      "date": "2021-09-19",
+      "name": "PETER",
+      "reason": "no county within 300 km of a >=34 kt fix",
+      "storm": "ibtracs:storm:2021262N16307",
+      "year": 2021
+     },
+     {
+      "date": "2021-09-22",
+      "name": "SAM",
+      "reason": "no county within 300 km of a >=34 kt fix",
+      "storm": "ibtracs:storm:2021266N10327",
+      "year": 2021
+     },
+     {
+      "date": "2021-09-24",
+      "name": "TERESA",
+      "reason": "no county within 300 km of a >=34 kt fix",
+      "storm": "ibtracs:storm:2021267N31298",
+      "year": 2021
+     },
+     {
+      "date": "2021-09-29",
+      "name": "VICTOR",
+      "reason": "no county within 300 km of a >=34 kt fix",
+      "storm": "ibtracs:storm:2021272N07338",
+      "year": 2021
+     },
+     {
+      "date": "2022-06-27",
+      "name": "BONNIE",
+      "reason": "no county within 300 km of a >=34 kt fix",
+      "storm": "ibtracs:storm:2022179N08310",
+      "year": 2022
+     },
+     {
+      "date": "2022-08-19",
+      "name": "UNNAMED",
+      "reason": "no county within 300 km of a >=34 kt fix",
+      "storm": "ibtracs:storm:2022232N20266",
+      "year": 2022
+     },
+     {
+      "date": "2022-08-31",
+      "name": "DANIELLE",
+      "reason": "no county within 300 km of a >=34 kt fix",
+      "storm": "ibtracs:storm:2022244N38313",
+      "year": 2022
+     },
+     {
+      "date": "2022-09-02",
+      "name": "EARL",
+      "reason": "no county within 300 km of a >=34 kt fix",
+      "storm": "ibtracs:storm:2022246N18301",
+      "year": 2022
+     },
+     {
+      "date": "2022-09-14",
+      "name": "FIONA",
+      "reason": "no county within 300 km of a >=34 kt fix",
+      "storm": "ibtracs:storm:2022257N16312",
+      "year": 2022
+     },
+     {
+      "date": "2022-09-19",
+      "name": "GASTON",
+      "reason": "no county within 300 km of a >=34 kt fix",
+      "storm": "ibtracs:storm:2022263N29314",
+      "year": 2022
+     },
+     {
+      "date": "2022-09-23",
+      "name": "HERMINE",
+      "reason": "no county within 300 km of a >=34 kt fix",
+      "storm": "ibtracs:storm:2022266N17341",
+      "year": 2022
+     },
+     {
+      "date": "2022-09-26",
+      "name": "UNNAMED",
+      "reason": "no county within 300 km of a >=34 kt fix",
+      "storm": "ibtracs:storm:2022270N14324",
+      "year": 2022
+     },
+     {
+      "date": "2022-10-04",
+      "name": "UNNAMED",
+      "reason": "no county within 300 km of a >=34 kt fix",
+      "storm": "ibtracs:storm:2022278N14331",
+      "year": 2022
+     },
+     {
+      "date": "2022-10-06",
+      "name": "JULIA",
+      "reason": "no county within 300 km of a >=34 kt fix",
+      "storm": "ibtracs:storm:2022280N11294",
+      "year": 2022
+     },
+     {
+      "date": "2022-10-11",
+      "name": "KARL",
+      "reason": "no county within 300 km of a >=34 kt fix",
+      "storm": "ibtracs:storm:2022285N19266",
+      "year": 2022
+     },
+     {
+      "date": "2022-10-30",
+      "name": "LISA",
+      "reason": "no county within 300 km of a >=34 kt fix",
+      "storm": "ibtracs:storm:2022304N16287",
+      "year": 2022
+     },
+     {
+      "date": "2022-10-30",
+      "name": "MARTIN",
+      "reason": "no county within 300 km of a >=34 kt fix",
+      "storm": "ibtracs:storm:2022304N34296",
+      "year": 2022
+     },
+     {
+      "date": "2023-01-15",
+      "name": "UNNAMED",
+      "reason": "no county within 300 km of a >=34 kt fix",
+      "storm": "ibtracs:storm:2023015N36289",
+      "year": 2023
+     },
+     {
+      "date": "2023-05-31",
+      "name": "ARLENE",
+      "reason": "no county within 300 km of a >=34 kt fix",
+      "storm": "ibtracs:storm:2023152N26274",
+      "year": 2023
+     },
+     {
+      "date": "2023-06-19",
+      "name": "BRET",
+      "reason": "no county within 300 km of a >=34 kt fix",
+      "storm": "ibtracs:storm:2023170N11323",
+      "year": 2023
+     },
+     {
+      "date": "2023-06-22",
+      "name": "CINDY",
+      "reason": "no county within 300 km of a >=34 kt fix",
+      "storm": "ibtracs:storm:2023173N10320",
+      "year": 2023
+     },
+     {
+      "date": "2023-07-11",
+      "name": "DON",
+      "reason": "no county within 300 km of a >=34 kt fix",
+      "storm": "ibtracs:storm:2023193N37305",
+      "year": 2023
+     },
+     {
+      "date": "2023-08-18",
+      "name": "EMILY",
+      "reason": "no county within 300 km of a >=34 kt fix",
+      "storm": "ibtracs:storm:2023231N15327",
+      "year": 2023
+     },
+     {
+      "date": "2023-08-19",
+      "name": "GERT",
+      "reason": "no county within 300 km of a >=34 kt fix",
+      "storm": "ibtracs:storm:2023231N15313",
+      "year": 2023
+     },
+     {
+      "date": "2023-08-19",
+      "name": "FRANKLIN",
+      "reason": "no county within 300 km of a >=34 kt fix",
+      "storm": "ibtracs:storm:2023232N13300",
+      "year": 2023
+     },
+     {
+      "date": "2023-08-29",
+      "name": "JOSE",
+      "reason": "no county within 300 km of a >=34 kt fix",
+      "storm": "ibtracs:storm:2023241N28308",
+      "year": 2023
+     },
+     {
+      "date": "2023-08-30",
+      "name": "KATIA",
+      "reason": "no county within 300 km of a >=34 kt fix",
+      "storm": "ibtracs:storm:2023242N15339",
+      "year": 2023
+     },
+     {
+      "date": "2023-09-05",
+      "name": "LEE",
+      "reason": "10 counties with outcome (< 20)",
+      "storm": "ibtracs:storm:2023249N12320",
+      "year": 2023
+     },
+     {
+      "date": "2023-09-07",
+      "name": "MARGOT",
+      "reason": "no county within 300 km of a >=34 kt fix",
+      "storm": "ibtracs:storm:2023251N16334",
+      "year": 2023
+     },
+     {
+      "date": "2023-09-15",
+      "name": "NIGEL",
+      "reason": "no county within 300 km of a >=34 kt fix",
+      "storm": "ibtracs:storm:2023258N14318",
+      "year": 2023
+     },
+     {
+      "date": "2023-09-23",
+      "name": "PHILIPPE",
+      "reason": "no county within 300 km of a >=34 kt fix",
+      "storm": "ibtracs:storm:2023266N16323",
+      "year": 2023
+     },
+     {
+      "date": "2023-09-28",
+      "name": "RINA",
+      "reason": "no county within 300 km of a >=34 kt fix",
+      "storm": "ibtracs:storm:2023271N16316",
+      "year": 2023
+     },
+     {
+      "date": "2023-10-10",
+      "name": "SEAN",
+      "reason": "no county within 300 km of a >=34 kt fix",
+      "storm": "ibtracs:storm:2023284N10330",
+      "year": 2023
+     },
+     {
+      "date": "2023-10-18",
+      "name": "TAMMY",
+      "reason": "no county within 300 km of a >=34 kt fix",
+      "storm": "ibtracs:storm:2023292N13309",
+      "year": 2023
+     },
+     {
+      "date": "2023-10-23",
+      "name": "UNNAMED",
+      "reason": "no county within 300 km of a >=34 kt fix",
+      "storm": "ibtracs:storm:2023297N11277",
+      "year": 2023
+     },
+     {
+      "date": "2023-11-16",
+      "name": "UNNAMED",
+      "reason": "no county within 300 km of a >=34 kt fix",
+      "storm": "ibtracs:storm:2023321N15278",
+      "year": 2023
+     },
+     {
+      "date": "2024-06-17",
+      "name": "ALBERTO",
+      "reason": "no county within 300 km of a >=34 kt fix",
+      "storm": "ibtracs:storm:2024170N20267",
+      "year": 2024
+     },
+     {
+      "date": "2024-06-30",
+      "name": "CHRIS",
+      "reason": "no county within 300 km of a >=34 kt fix",
+      "storm": "ibtracs:storm:2024183N20265",
+      "year": 2024
+     },
+     {
+      "date": "2024-08-11",
+      "name": "ERNESTO",
+      "reason": "no county within 300 km of a >=34 kt fix",
+      "storm": "ibtracs:storm:2024225N14313",
+      "year": 2024
+     },
+     {
+      "date": "2024-09-11",
+      "name": "GORDON",
+      "reason": "no county within 300 km of a >=34 kt fix",
+      "storm": "ibtracs:storm:2024256N16332",
+      "year": 2024
+     },
+     {
+      "date": "2024-09-24",
+      "name": "ISAAC",
+      "reason": "no county within 300 km of a >=34 kt fix",
+      "storm": "ibtracs:storm:2024269N39302",
+      "year": 2024
+     },
+     {
+      "date": "2024-09-27",
+      "name": "JOYCE",
+      "reason": "no county within 300 km of a >=34 kt fix",
+      "storm": "ibtracs:storm:2024271N17319",
+      "year": 2024
+     },
+     {
+      "date": "2024-09-29",
+      "name": "KIRK",
+      "reason": "no county within 300 km of a >=34 kt fix",
+      "storm": "ibtracs:storm:2024274N14328",
+      "year": 2024
+     },
+     {
+      "date": "2024-10-01",
+      "name": "LESLIE",
+      "reason": "no county within 300 km of a >=34 kt fix",
+      "storm": "ibtracs:storm:2024275N10336",
+      "year": 2024
+     },
+     {
+      "date": "2024-10-18",
+      "name": "NADINE",
+      "reason": "no county within 300 km of a >=34 kt fix",
+      "storm": "ibtracs:storm:2024293N17275",
+      "year": 2024
+     },
+     {
+      "date": "2024-10-19",
+      "name": "OSCAR",
+      "reason": "no county within 300 km of a >=34 kt fix",
+      "storm": "ibtracs:storm:2024293N21294",
+      "year": 2024
+     },
+     {
+      "date": "2024-10-31",
+      "name": "PATTY",
+      "reason": "no county within 300 km of a >=34 kt fix",
+      "storm": "ibtracs:storm:2024306N39319",
+      "year": 2024
+     },
+     {
+      "date": "2024-11-03",
+      "name": "RAFAEL",
+      "reason": "no county within 300 km of a >=34 kt fix",
+      "storm": "ibtracs:storm:2024309N13283",
+      "year": 2024
+     },
+     {
+      "date": "2024-11-13",
+      "name": "SARA",
+      "reason": "no county within 300 km of a >=34 kt fix",
+      "storm": "ibtracs:storm:2024319N16282",
+      "year": 2024
+     }
+    ]
+   },
+   "estimates": {
+    "development_events": [
+     {
+      "date": "2004-07-31",
+      "exposure_0.0": -0.030299471520845566,
+      "exposure_0.25": -0.02426765958230817,
+      "exposure_0.5": -0.015630463391517316,
+      "exposure_1.0": 0.00786876144963062,
+      "n_units": 131,
+      "naive": 0.0248545347781989,
+      "name": "ALEX",
+      "storm": "ibtracs:storm:2004214N30282"
+     },
+     {
+      "date": "2004-08-03",
+      "exposure_0.0": 0.04854283331963237,
+      "exposure_0.25": 0.08146310128743135,
+      "exposure_0.5": 0.10470576383814101,
+      "exposure_1.0": 0.13627981519766622,
+      "n_units": 106,
+      "naive": 0.09467214147164774,
+      "name": "BONNIE",
+      "storm": "ibtracs:storm:2004217N13306"
+     },
+     {
+      "date": "2004-08-09",
+      "exposure_0.0": 0.25098386101743203,
+      "exposure_0.25": 0.24237891865909456,
+      "exposure_0.5": 0.23432742344189428,
+      "exposure_1.0": 0.22405836289334985,
+      "n_units": 396,
+      "naive": 0.068224572672489,
+      "name": "CHARLEY",
+      "storm": "ibtracs:storm:2004223N11301"
+     },
+     {
+      "date": "2004-08-25",
+      "exposure_0.0": 0.129469408307297,
+      "exposure_0.25": 0.1323368473222454,
+      "exposure_0.5": 0.1306146879554249,
+      "exposure_1.0": 0.1333641653287364,
+      "n_units": 283,
+      "naive": 0.10440864871962396,
+      "name": "FRANCES",
+      "storm": "ibtracs:storm:2004238N11325"
+     },
+     {
+      "date": "2004-08-27",
+      "exposure_0.0": 0.27184662522413755,
+      "exposure_0.25": 0.2547928576875356,
+      "exposure_0.5": 0.21810226056489962,
+      "exposure_1.0": 0.13895107000333168,
+      "n_units": 78,
+      "naive": 0.21177556620594595,
+      "name": "HERMINE",
+      "storm": "ibtracs:storm:2004241N29295"
+     },
+     {
+      "date": "2004-08-27",
+      "exposure_0.0": 0.0040690342601990065,
+      "exposure_0.25": 0.009778812438179768,
+      "exposure_0.5": 0.013454129835581174,
+      "exposure_1.0": 0.018031046532087307,
+      "n_units": 373,
+      "naive": -0.11533931066313768,
+      "name": "GASTON",
+      "storm": "ibtracs:storm:2004241N32282"
+     },
+     {
+      "date": "2004-09-02",
+      "exposure_0.0": 0.1479090190766206,
+      "exposure_0.25": 0.14804330483284758,
+      "exposure_0.5": 0.14912243329496241,
+      "exposure_1.0": 0.14781634418263384,
+      "n_units": 393,
+      "naive": 0.023454520724087675,
+      "name": "IVAN",
+      "storm": "ibtracs:storm:2004247N10332"
+     },
+     {
+      "date": "2004-09-13",
+      "exposure_0.0": 0.26185139742040575,
+      "exposure_0.25": 0.2649966441347457,
+      "exposure_0.5": 0.26632437821169175,
+      "exposure_1.0": 0.26420115774532654,
+      "n_units": 343,
+      "naive": 0.27570022588507337,
+      "name": "JEANNE",
+      "storm": "ibtracs:storm:2004258N16300"
+     },
+     {
+      "date": "2004-10-08",
+      "exposure_0.0": -0.25884515625393467,
+      "exposure_0.25": -0.26030019214010064,
+      "exposure_0.5": -0.2471508300444024,
+      "exposure_1.0": -0.23399486409270218,
+      "n_units": 62,
+      "naive": -0.25149202991614417,
+      "name": "MATTHEW",
+      "storm": "ibtracs:storm:2004283N24265"
+     },
+     {
+      "date": "2005-06-08",
+      "exposure_0.0": 0.1202923290301931,
+      "exposure_0.25": 0.09912699748068966,
+      "exposure_0.5": 0.08229840179912293,
+      "exposure_1.0": 0.05813786009443034,
+      "n_units": 104,
+      "naive": 0.06997759522031367,
+      "name": "ARLENE",
+      "storm": "ibtracs:storm:2005160N17276"
+     },
+     {
+      "date": "2005-07-03",
+      "exposure_0.0": -0.025542334364853706,
+      "exposure_0.25": -0.027876619476943754,
+      "exposure_0.5": -0.027477327024171754,
+      "exposure_1.0": -0.026893307299158935,
+      "n_units": 129,
+      "naive": 0.05631149373881932,
+      "name": "CINDY",
+      "storm": "ibtracs:storm:2005185N18273"
+     },
+     {
+      "date": "2005-07-04",
+      "exposure_0.0": -0.1337951741956493,
+      "exposure_0.25": -0.13103902628382266,
+      "exposure_0.5": -0.12620268428766282,
+      "exposure_1.0": -0.11717117170164779,
+      "n_units": 173,
+      "naive": -0.005124437378030974,
+      "name": "DENNIS",
+      "storm": "ibtracs:storm:2005186N12299"
+     },
+     {
+      "date": "2005-08-23",
+      "exposure_0.0": 0.03674128260418981,
+      "exposure_0.25": 0.034625742347584955,
+      "exposure_0.5": 0.0322781028996258,
+      "exposure_1.0": 0.02830911157407221,
+      "n_units": 325,
+      "naive": 0.23289986541520283,
+      "name": "KATRINA",
+      "storm": "ibtracs:storm:2005236N23285"
+     },
+     {
+      "date": "2005-09-06",
+      "exposure_0.0": -0.06260504201680672,
+      "exposure_0.25": -0.05211984319541238,
+      "exposure_0.5": -0.048377081677924615,
+      "exposure_1.0": -0.0445435904329501,
+      "n_units": 169,
+      "naive": 0.04212122718910049,
+      "name": "OPHELIA",
+      "storm": "ibtracs:storm:2005249N26281"
+     },
+     {
+      "date": "2005-09-18",
+      "exposure_0.0": -0.3233541839166801,
+      "exposure_0.25": -0.33237018744624064,
+      "exposure_0.5": -0.3331322748380152,
+      "exposure_1.0": -0.3389339729331591,
+      "n_units": 190,
+      "naive": -0.04806518915088769,
+      "name": "RITA",
+      "storm": "ibtracs:storm:2005261N21290"
+     },
+     {
+      "date": "2005-10-05",
+      "exposure_0.0": 0.10516840747642167,
+      "exposure_0.25": 0.10304034010559124,
+      "exposure_0.5": 0.09470023313259002,
+      "exposure_1.0": 0.09142618369024662,
+      "n_units": 202,
+      "naive": 0.09767409356184498,
+      "name": "TAMMY",
+      "storm": "ibtracs:storm:2005278N27280"
+     },
+     {
+      "date": "2005-10-08",
+      "exposure_0.0": 0.1037030537030537,
+      "exposure_0.25": 0.11022385244240132,
+      "exposure_0.5": 0.12187903800806096,
+      "exposure_1.0": 0.13437089356260656,
+      "n_units": 111,
+      "naive": 0.018287118287118286,
+      "name": "UNNAMED",
+      "storm": "ibtracs:storm:2005281N26303"
+     },
+     {
+      "date": "2005-10-15",
+      "exposure_0.0": 0.5528364849833148,
+      "exposure_0.25": 0.5500055657573987,
+      "exposure_0.5": 0.537888090501067,
+      "exposure_1.0": 0.5191452627047839,
+      "n_units": 30,
+      "naive": 0.5581757508342603,
+      "name": "WILMA",
+      "storm": "ibtracs:storm:2005289N18282"
+     },
+     {
+      "date": "2006-06-10",
+      "exposure_0.0": 0.08483619135826717,
+      "exposure_0.25": 0.07138100894540605,
+      "exposure_0.5": 0.06021156061387407,
+      "exposure_1.0": 0.04417274313810164,
+      "n_units": 447,
+      "naive": 0.031248925142633572,
+      "name": "ALBERTO",
+      "storm": "ibtracs:storm:2006161N20275"
+     },
+     {
+      "date": "2006-07-18",
+      "exposure_0.0": 0.17413349731663685,
+      "exposure_0.25": 0.15164673904982306,
+      "exposure_0.5": 0.12349720060960333,
+      "exposure_1.0": 0.05858601391426643,
+      "n_units": 129,
+      "naive": -0.1300033542039356,
+      "name": "BERYL",
+      "storm": "ibtracs:storm:2006200N32287"
+     },
+     {
+      "date": "2006-08-24",
+      "exposure_0.0": 0.04693790270965541,
+      "exposure_0.25": 0.05443030501305251,
+      "exposure_0.5": 0.05983378472020777,
+      "exposure_1.0": 0.06364127703355725,
+      "n_units": 439,
+      "naive": 0.093415353018436,
+      "name": "ERNESTO",
+      "storm": "ibtracs:storm:2006237N13298"
+     },
+     {
+      "date": "2007-05-06",
+      "exposure_0.0": 0.07485529451821586,
+      "exposure_0.25": 0.03755628762599154,
+      "exposure_0.5": -0.012020141446423972,
+      "exposure_1.0": -0.06923469847168723,
+      "n_units": 89,
+      "naive": -0.06363636363636363,
+      "name": "ANDREA",
+      "storm": "ibtracs:storm:2007127N36286"
+     },
+     {
+      "date": "2007-05-31",
+      "exposure_0.0": 0.10555134341423261,
+      "exposure_0.25": 0.10739415326102719,
+      "exposure_0.5": 0.10828142913894276,
+      "exposure_1.0": 0.10833433178155757,
+      "n_units": 448,
+      "naive": 0.10920000128121082,
+      "name": "BARRY",
+      "storm": "ibtracs:storm:2007151N18273"
+     },
+     {
+      "date": "2007-08-15",
+      "exposure_0.0": -0.06612940739266385,
+      "exposure_0.25": -0.0443956223152986,
+      "exposure_0.5": -0.027871716000800007,
+      "exposure_1.0": -0.005806254827476731,
+      "n_units": 202,
+      "naive": -0.1381210321605648,
+      "name": "ERIN",
+      "storm": "ibtracs:storm:2007227N24269"
+     },
+     {
+      "date": "2007-09-08",
+      "exposure_0.0": 0.22440320693080631,
+      "exposure_0.25": 0.20955385316513586,
+      "exposure_0.5": 0.20096711774692932,
+      "exposure_1.0": 0.1794323094461352,
+      "n_units": 130,
+      "naive": 0.1898728645755097,
+      "name": "GABRIELLE",
+      "storm": "ibtracs:storm:2007251N30288"
+     },
+     {
+      "date": "2007-09-12",
+      "exposure_0.0": 0.24780998496261494,
+      "exposure_0.25": 0.23258647718345274,
+      "exposure_0.5": 0.22405517941747818,
+      "exposure_1.0": 0.2124215968695464,
+      "n_units": 158,
+      "naive": 0.13145480627784817,
+      "name": "HUMBERTO",
+      "storm": "ibtracs:storm:2007255N27265"
+     },
+     {
+      "date": "2007-10-24",
+      "exposure_0.0": -0.029644268774703556,
+      "exposure_0.25": -0.08699951631369279,
+      "exposure_0.5": -0.16209538424181139,
+      "exposure_1.0": -0.19629177215614182,
+      "n_units": 23,
+      "naive": -0.2608695652173913,
+      "name": "NOEL",
+      "storm": "ibtracs:storm:2007297N18300"
+     },
+     {
+      "date": "2008-07-19",
+      "exposure_0.0": -0.055333871525775576,
+      "exposure_0.25": -0.06873950032556844,
+      "exposure_0.5": -0.08150712449130801,
+      "exposure_1.0": -0.08434649735343855,
+      "n_units": 116,
+      "naive": -0.1641794487371699,
+      "name": "CRISTOBAL",
+      "storm": "ibtracs:storm:2008201N32280"
+     },
+     {
+      "date": "2008-07-20",
+      "exposure_0.0": -0.07591836734693877,
+      "exposure_0.25": -0.04454422545383286,
+      "exposure_0.5": -0.011021532866861973,
+      "exposure_1.0": -0.01061495313965134,
+      "n_units": 49,
+      "naive": -0.24418367346938777,
+      "name": "DOLLY",
+      "storm": "ibtracs:storm:2008203N18276"
+     },
+     {
+      "date": "2008-08-03",
+      "exposure_0.0": 0.053194090446689296,
+      "exposure_0.25": 0.056438954811679355,
+      "exposure_0.5": 0.05649885977575252,
+      "exposure_1.0": 0.05810930084428046,
+      "n_units": 136,
+      "naive": -0.1695625208720958,
+      "name": "EDOUARD",
+      "storm": "ibtracs:storm:2008217N28273"
+     },
+     {
+      "date": "2008-08-15",
+      "exposure_0.0": -0.3230336375670653,
+      "exposure_0.25": -0.3081916724962151,
+      "exposure_0.5": -0.2977793413257335,
+      "exposure_1.0": -0.2859754067127625,
+      "n_units": 193,
+      "naive": -0.43943298969072164,
+      "name": "FAY",
+      "storm": "ibtracs:storm:2008229N18293"
+     },
+     {
+      "date": "2008-08-25",
+      "exposure_0.0": 0.08248421935051263,
+      "exposure_0.25": 0.08515671672132917,
+      "exposure_0.5": 0.08217449295489493,
+      "exposure_1.0": 0.07863264220093738,
+      "n_units": 174,
+      "naive": -0.040713004356616074,
+      "name": "GUSTAV",
+      "storm": "ibtracs:storm:2008238N13293"
+     },
+     {
+      "date": "2008-08-28",
+      "exposure_0.0": -0.09456752361851102,
+      "exposure_0.25": -0.10004407848349775,
+      "exposure_0.5": -0.10111677659498386,
+      "exposure_1.0": -0.10143443968223421,
+      "n_units": 480,
+      "naive": -0.08431948489359763,
+      "name": "HANNA",
+      "storm": "ibtracs:storm:2008241N19303"
+     },
+     {
+      "date": "2008-09-01",
+      "exposure_0.0": 0.035354013780495686,
+      "exposure_0.25": 0.03846008459826079,
+      "exposure_0.5": 0.04125829742295757,
+      "exposure_1.0": 0.04342532213806604,
+      "n_units": 798,
+      "naive": 0.07092897168337338,
+      "name": "IKE",
+      "storm": "ibtracs:storm:2008245N17323"
+     },
+     {
+      "date": "2009-08-16",
+      "exposure_0.0": 0.2339907405215606,
+      "exposure_0.25": 0.23527798111639955,
+      "exposure_0.5": 0.22867773870423735,
+      "exposure_1.0": 0.22814682926948465,
+      "n_units": 134,
+      "naive": 0.34653549296125885,
+      "name": "CLAUDETTE",
+      "storm": "ibtracs:storm:2009228N27277"
+     },
+     {
+      "date": "2009-11-04",
+      "exposure_0.0": 0.002864730983856047,
+      "exposure_0.25": 0.0048268813285640005,
+      "exposure_0.5": 0.005401413025341256,
+      "exposure_1.0": 0.01539902044014297,
+      "n_units": 93,
+      "naive": 0.13779057622870103,
+      "name": "IDA",
+      "storm": "ibtracs:storm:2009308N11279"
+     },
+     {
+      "date": "2010-08-24",
+      "exposure_0.0": 0.13481989708404804,
+      "exposure_0.25": 0.15568177531617258,
+      "exposure_0.5": 0.16613296845453948,
+      "exposure_1.0": 0.1385410134567383,
+      "n_units": 54,
+      "naive": -0.22195540308747855,
+      "name": "EARL",
+      "storm": "ibtracs:storm:2010236N12341"
+     },
+     {
+      "date": "2011-07-27",
+      "exposure_0.0": 0.29381207028265854,
+      "exposure_0.25": 0.2816535567240262,
+      "exposure_0.5": 0.24042798851196173,
+      "exposure_1.0": 0.1758006825051429,
+      "n_units": 34,
+      "naive": 0.21619556913674562,
+      "name": "DON",
+      "storm": "ibtracs:storm:2011208N22274"
+     },
+     {
+      "date": "2011-08-21",
+      "exposure_0.0": -0.0074618458281244275,
+      "exposure_0.25": -0.017074357292436507,
+      "exposure_0.5": -0.02289562197868911,
+      "exposure_1.0": -0.032928291899120485,
+      "n_units": 341,
+      "naive": 0.035841587754101484,
+      "name": "IRENE",
+      "storm": "ibtracs:storm:2011233N15301"
+     },
+     {
+      "date": "2011-09-02",
+      "exposure_0.0": -0.13219494582660832,
+      "exposure_0.25": -0.12881943681533659,
+      "exposure_0.5": -0.12970257996306234,
+      "exposure_1.0": -0.1280876663914397,
+      "n_units": 239,
+      "naive": -0.13809465208677613,
+      "name": "LEE",
+      "storm": "ibtracs:storm:2011245N27269"
+     },
+     {
+      "date": "2012-05-19",
+      "exposure_0.0": 0.12877024798483425,
+      "exposure_0.25": 0.12216652346053211,
+      "exposure_0.5": 0.1052700531992462,
+      "exposure_1.0": 0.08960239287319047,
+      "n_units": 92,
+      "naive": -0.040750273569347906,
+      "name": "ALBERTO",
+      "storm": "ibtracs:storm:2012140N33283"
+     },
+     {
+      "date": "2012-05-25",
+      "exposure_0.0": -0.21665706789888864,
+      "exposure_0.25": -0.21407215777475477,
+      "exposure_0.5": -0.21498312067402114,
+      "exposure_1.0": -0.20888036312817576,
+      "n_units": 285,
+      "naive": -0.1691369416350884,
+      "name": "BERYL",
+      "storm": "ibtracs:storm:2012147N30284"
+     },
+     {
+      "date": "2012-06-23",
+      "exposure_0.0": -0.3880893325985785,
+      "exposure_0.25": -0.3671352595600521,
+      "exposure_0.5": -0.3429637791745024,
+      "exposure_1.0": -0.29826266620929726,
+      "n_units": 105,
+      "naive": -0.36523947750362845,
+      "name": "DEBBY",
+      "storm": "ibtracs:storm:2012176N26272"
+     },
+     {
+      "date": "2012-08-20",
+      "exposure_0.0": -0.26244901091111494,
+      "exposure_0.25": -0.24985490889783907,
+      "exposure_0.5": -0.23934928795503468,
+      "exposure_1.0": -0.21548247212214044,
+      "n_units": 187,
+      "naive": -0.09389669638367608,
+      "name": "ISAAC",
+      "storm": "ibtracs:storm:2012234N16315"
+     },
+     {
+      "date": "2012-10-21",
+      "exposure_0.0": -0.07309309038285378,
+      "exposure_0.25": -0.0701721632136321,
+      "exposure_0.5": -0.0689853584055522,
+      "exposure_1.0": -0.06611467946536656,
+      "n_units": 328,
+      "naive": 0.10705835063704643,
+      "name": "SANDY",
+      "storm": "ibtracs:storm:2012296N14283"
+     },
+     {
+      "date": "2013-06-05",
+      "exposure_0.0": -0.03194353857528505,
+      "exposure_0.25": -0.02239543288848695,
+      "exposure_0.5": -0.0161412922283039,
+      "exposure_1.0": -0.0057736268482772675,
+      "n_units": 586,
+      "naive": -0.0285932969957134,
+      "name": "ANDREA",
+      "storm": "ibtracs:storm:2013157N25273"
+     },
+     {
+      "date": "2013-10-03",
+      "exposure_0.0": -0.06766917293233082,
+      "exposure_0.25": -0.004511278195488722,
+      "exposure_0.5": 0.06170054417844249,
+      "exposure_1.0": 0.0760256412344997,
+      "n_units": 20,
+      "naive": -0.10676691729323308,
+      "name": "KAREN",
+      "storm": "ibtracs:storm:2013276N21273"
+     },
+     {
+      "date": "2014-06-28",
+      "exposure_0.0": 0.34083904610368904,
+      "exposure_0.25": 0.34307553898745935,
+      "exposure_0.5": 0.3396967801906159,
+      "exposure_1.0": 0.3408170561483997,
+      "n_units": 252,
+      "naive": 0.2720613874260159,
+      "name": "ARTHUR",
+      "storm": "ibtracs:storm:2014180N32282"
+     },
+     {
+      "date": "2015-05-06",
+      "exposure_0.0": -0.010752097702411808,
+      "exposure_0.25": -0.002026342452065324,
+      "exposure_0.5": 0.0041461191249208395,
+      "exposure_1.0": 0.0030314096929198236,
+      "n_units": 103,
+      "naive": -0.037242454860958576,
+      "name": "ANA",
+      "storm": "ibtracs:storm:2015126N27281"
+     },
+     {
+      "date": "2015-06-16",
+      "exposure_0.0": 0.25682170855407466,
+      "exposure_0.25": 0.2733703485209679,
+      "exposure_0.5": 0.28517158182548896,
+      "exposure_1.0": 0.2971616005206447,
+      "n_units": 106,
+      "naive": 0.15391087487719474,
+      "name": "BILL",
+      "storm": "ibtracs:storm:2015167N27266"
+     },
+     {
+      "date": "2016-05-27",
+      "exposure_0.0": -0.3093601269169751,
+      "exposure_0.25": -0.353763981191387,
+      "exposure_0.5": -0.35909301327885723,
+      "exposure_1.0": -0.37162501977636186,
+      "n_units": 61,
+      "naive": -0.18202009518773135,
+      "name": "BONNIE",
+      "storm": "ibtracs:storm:2016148N27288"
+     },
+     {
+      "date": "2016-06-05",
+      "exposure_0.0": 0.03453958946453149,
+      "exposure_0.25": 0.016177020084181797,
+      "exposure_0.5": 0.0060699444835234295,
+      "exposure_1.0": -0.01053418932494702,
+      "n_units": 262,
+      "naive": -0.012321633569770712,
+      "name": "COLIN",
+      "storm": "ibtracs:storm:2016158N22272"
+     },
+     {
+      "date": "2016-08-28",
+      "exposure_0.0": 0.06397896133407029,
+      "exposure_0.25": 0.05942998344995014,
+      "exposure_0.5": 0.05873225980242604,
+      "exposure_1.0": 0.05177507997265045,
+      "n_units": 429,
+      "naive": 0.10779216436682205,
+      "name": "HERMINE",
+      "storm": "ibtracs:storm:2016242N24279"
+     },
+     {
+      "date": "2016-09-13",
+      "exposure_0.0": 0.16113009849570098,
+      "exposure_0.25": 0.15891615237809964,
+      "exposure_0.5": 0.15461021113078205,
+      "exposure_1.0": 0.14922409927856473,
+      "n_units": 181,
+      "naive": 0.18023192277335923,
+      "name": "JULIA",
+      "storm": "ibtracs:storm:2016257N27280"
+     },
+     {
+      "date": "2016-09-28",
+      "exposure_0.0": 0.11878924175940518,
+      "exposure_0.25": 0.1314910491255142,
+      "exposure_0.5": 0.13977918528276206,
+      "exposure_1.0": 0.15015820176483552,
+      "n_units": 242,
+      "naive": 0.14585987288112273,
+      "name": "MATTHEW",
+      "storm": "ibtracs:storm:2016273N13300"
+     },
+     {
+      "date": "2017-06-19",
+      "exposure_0.0": -0.33268335331698723,
+      "exposure_0.25": -0.3313631255943242,
+      "exposure_0.5": -0.3300486400808552,
+      "exposure_1.0": -0.31961971958444113,
+      "n_units": 149,
+      "naive": -0.24079811354979141,
+      "name": "CINDY",
+      "storm": "ibtracs:storm:2017171N24271"
+     },
+     {
+      "date": "2017-07-30",
+      "exposure_0.0": -0.12481962481962482,
+      "exposure_0.25": -0.13088967492042647,
+      "exposure_0.5": -0.1431251586837363,
+      "exposure_1.0": -0.1333573898663813,
+      "n_units": 55,
+      "naive": -0.14155844155844155,
+      "name": "EMILY",
+      "storm": "ibtracs:storm:2017212N28275"
+     },
+     {
+      "date": "2017-08-16",
+      "exposure_0.0": 0.15741221733956004,
+      "exposure_0.25": 0.17383251494383642,
+      "exposure_0.5": 0.1814475687064699,
+      "exposure_1.0": 0.18680573980812587,
+      "n_units": 189,
+      "naive": 0.17427967080822623,
+      "name": "HARVEY",
+      "storm": "ibtracs:storm:2017228N14314"
+     },
+     {
+      "date": "2017-08-27",
+      "exposure_0.0": -0.238659567521908,
+      "exposure_0.25": -0.24316493500515565,
+      "exposure_0.5": -0.23862733713031445,
+      "exposure_1.0": -0.2314713336809673,
+      "n_units": 219,
+      "naive": -0.1568944440001371,
+      "name": "UNNAMED",
+      "storm": "ibtracs:storm:2017240N31279"
+     },
+     {
+      "date": "2017-08-30",
+      "exposure_0.0": -0.028431068877068852,
+      "exposure_0.25": -0.031360203098110245,
+      "exposure_0.5": -0.03527506693769537,
+      "exposure_1.0": -0.03681508721115823,
+      "n_units": 253,
+      "naive": 0.10370862733067457,
+      "name": "IRMA",
+      "storm": "ibtracs:storm:2017242N16333"
+     },
+     {
+      "date": "2017-10-03",
+      "exposure_0.0": -0.2750587855915903,
+      "exposure_0.25": -0.262093816333208,
+      "exposure_0.5": -0.2502322274561222,
+      "exposure_1.0": -0.23373118577421265,
+      "n_units": 176,
+      "naive": -0.18724191063174114,
+      "name": "NATE",
+      "storm": "ibtracs:storm:2017277N11279"
+     },
+     {
+      "date": "2018-05-25",
+      "exposure_0.0": 0.1278487716540814,
+      "exposure_0.25": 0.13518783088197273,
+      "exposure_0.5": 0.13258075682155424,
+      "exposure_1.0": 0.12841540577537391,
+      "n_units": 112,
+      "naive": 0.08919602282434141,
+      "name": "ALBERTO",
+      "storm": "ibtracs:storm:2018146N19273"
+     },
+     {
+      "date": "2018-08-30",
+      "exposure_0.0": -0.015838009454499275,
+      "exposure_0.25": -0.03112392738458201,
+      "exposure_0.5": -0.03924660216014956,
+      "exposure_1.0": -0.05158375086804889,
+      "n_units": 262,
+      "naive": -0.02091371520288676,
+      "name": "FLORENCE",
+      "storm": "ibtracs:storm:2018242N13343"
+     },
+     {
+      "date": "2018-09-02",
+      "exposure_0.0": 0.2126126610329669,
+      "exposure_0.25": 0.2169057947632374,
+      "exposure_0.5": 0.21827331342281597,
+      "exposure_1.0": 0.21488723648907543,
+      "n_units": 182,
+      "naive": 0.10160829117445366,
+      "name": "GORDON",
+      "storm": "ibtracs:storm:2018246N22283"
+     },
+     {
+      "date": "2018-10-06",
+      "exposure_0.0": 0.11830574973073665,
+      "exposure_0.25": 0.11233811811699837,
+      "exposure_0.5": 0.10585396574442058,
+      "exposure_1.0": 0.0986806770410308,
+      "n_units": 592,
+      "naive": 0.011443703314171808,
+      "name": "MICHAEL",
+      "storm": "ibtracs:storm:2018280N18273"
+     }
+    ],
+    "held_out": {
+     "exposure_spearman_vs_zero": {
+      "mean_difference": -0.019273955929407376,
+      "method": "monte_carlo_9999",
+      "n": 42,
+      "p": 0.7549
+     },
+     "hazard_vs_naive": {
+      "baseline": "naive",
+      "baseline_mean": -0.035818302680205014,
+      "candidate": "hazard",
+      "candidate_mean": -0.019273955929407376,
+      "events": 42,
+      "events_candidate_better": 27,
+      "mean_difference": 0.01654434675079763,
+      "method": "monte_carlo_9999",
+      "metric": "spearman",
+      "p": 0.1893
+     },
+     "naive_spearman_vs_zero": {
+      "mean_difference": -0.035818302680205014,
+      "method": "monte_carlo_9999",
+      "n": 42,
+      "p": 0.8792
+     },
+     "spearman": {
+      "baseline": "naive",
+      "baseline_mean": -0.035818302680205014,
+      "candidate": "exposure",
+      "candidate_mean": -0.019273955929407376,
+      "events": 42,
+      "events_candidate_better": 27,
+      "mean_difference": 0.01654434675079763,
+      "method": "monte_carlo_9999",
+      "metric": "spearman",
+      "p": 0.1893
+     },
+     "top_k_capture": {
+      "baseline": "naive",
+      "baseline_mean": 0.08029217361964258,
+      "candidate": "exposure",
+      "candidate_mean": 0.07250647036675363,
+      "events": 42,
+      "events_candidate_better": 5,
+      "mean_difference": -0.007785703252888949,
+      "method": "monte_carlo_9999",
+      "metric": "top_k_capture",
+      "p": 0.8912
+     }
+    },
+    "held_out_events": [
+     {
+      "candidates": 177,
+      "date": "2019-07-10",
+      "exposure": {
+       "spearman": -0.09128249519847365,
+       "top_k_capture": 0.1111111111111111,
+       "top_k_lift": -7.334815369087339e-05
+      },
+      "hazard": {
+       "spearman": -0.09128249519847365,
+       "top_k_capture": 0.1111111111111111,
+       "top_k_lift": -7.334815369087339e-05
+      },
+      "k": 18,
+      "month": "2019-07",
+      "n_units": 177,
+      "naive": {
+       "spearman": -0.1574916466127664,
+       "top_k_capture": 0.1111111111111111,
+       "top_k_lift": -0.0023150080651309964
+      },
+      "name": "BARRY",
+      "storm": "ibtracs:storm:2019192N29274",
+      "top_k_capture_null": 0.1016949152542373
+     },
+     {
+      "candidates": 191,
+      "date": "2019-08-24",
+      "exposure": {
+       "spearman": -0.10590210801873795,
+       "top_k_capture": 0.05263157894736842,
+       "top_k_lift": -0.009330698970994252
+      },
+      "hazard": {
+       "spearman": -0.10590210801873795,
+       "top_k_capture": 0.05263157894736842,
+       "top_k_lift": -0.009330698970994252
+      },
+      "k": 19,
+      "month": "2019-09",
+      "n_units": 191,
+      "naive": {
+       "spearman": -0.1880097823091761,
+       "top_k_capture": 0.05263157894736842,
+       "top_k_lift": -0.011319597848972358
+      },
+      "name": "DORIAN",
+      "storm": "ibtracs:storm:2019236N10314",
+      "top_k_capture_null": 0.09947643979057591
+     },
+     {
+      "candidates": 80,
+      "date": "2019-09-17",
+      "exposure": {
+       "spearman": 0.04370630395236767,
+       "top_k_capture": 0.0,
+       "top_k_lift": -0.0024273380951072786
+      },
+      "hazard": {
+       "spearman": 0.04370630395236767,
+       "top_k_capture": 0.0,
+       "top_k_lift": -0.0024273380951072786
+      },
+      "k": 8,
+      "month": "2019-09",
+      "n_units": 80,
+      "naive": {
+       "spearman": 0.034200656352555085,
+       "top_k_capture": 0.0,
+       "top_k_lift": -0.0024273380951072786
+      },
+      "name": "IMELDA",
+      "storm": "ibtracs:storm:2019261N28264",
+      "top_k_capture_null": 0.1
+     },
+     {
+      "candidates": 23,
+      "date": "2019-10-08",
+      "exposure": {
+       "spearman": -0.4189723320158103,
+       "top_k_capture": 0.0,
+       "top_k_lift": 0.006864663209176747
+      },
+      "hazard": {
+       "spearman": -0.4189723320158103,
+       "top_k_capture": 0.0,
+       "top_k_lift": 0.006864663209176747
+      },
+      "k": 2,
+      "month": "2019-10",
+      "n_units": 23,
+      "naive": {
+       "spearman": -0.6245059288537549,
+       "top_k_capture": 0.0,
+       "top_k_lift": -0.014717634547806313
+      },
+      "name": "MELISSA",
+      "storm": "ibtracs:storm:2019282N35286",
+      "top_k_capture_null": 0.08695652173913043
+     },
+     {
+      "candidates": 536,
+      "date": "2019-10-17",
+      "exposure": {
+       "spearman": 0.07329296728647115,
+       "top_k_capture": 0.12962962962962962,
+       "top_k_lift": -0.002806585568336458
+      },
+      "hazard": {
+       "spearman": 0.07329296728647115,
+       "top_k_capture": 0.12962962962962962,
+       "top_k_lift": -0.002806585568336458
+      },
+      "k": 54,
+      "month": "2019-10",
+      "n_units": 536,
+      "naive": {
+       "spearman": 0.0716142048593767,
+       "top_k_capture": 0.16666666666666666,
+       "top_k_lift": -0.0012588904000851511
+      },
+      "name": "NESTOR",
+      "storm": "ibtracs:storm:2019291N22264",
+      "top_k_capture_null": 0.10074626865671642
+     },
+     {
+      "candidates": 470,
+      "date": "2019-10-25",
+      "exposure": {
+       "spearman": 0.1735659931586302,
+       "top_k_capture": 0.0425531914893617,
+       "top_k_lift": -0.0006112844718257531
+      },
+      "hazard": {
+       "spearman": 0.1735659931586302,
+       "top_k_capture": 0.0425531914893617,
+       "top_k_lift": -0.0006112844718257531
+      },
+      "k": 47,
+      "month": "2019-10",
+      "n_units": 470,
+      "naive": {
+       "spearman": 0.09831594356253888,
+       "top_k_capture": 0.10638297872340426,
+       "top_k_lift": 0.00026094059024917016
+      },
+      "name": "OLGA",
+      "storm": "ibtracs:storm:2019299N25265",
+      "top_k_capture_null": 0.1
+     },
+     {
+      "candidates": 83,
+      "date": "2020-05-16",
+      "exposure": {
+       "spearman": -0.13811342932706436,
+       "top_k_capture": 0.25,
+       "top_k_lift": -0.004955237937485183
+      },
+      "hazard": {
+       "spearman": -0.13811342932706436,
+       "top_k_capture": 0.25,
+       "top_k_lift": -0.004955237937485183
+      },
+      "k": 8,
+      "month": "2020-05",
+      "n_units": 83,
+      "naive": {
+       "spearman": -0.2308677217581126,
+       "top_k_capture": 0.25,
+       "top_k_lift": -0.011625183151354837
+      },
+      "name": "ARTHUR",
+      "storm": "ibtracs:storm:2020138N28281",
+      "top_k_capture_null": 0.0963855421686747
+     },
+     {
+      "candidates": 117,
+      "date": "2020-05-27",
+      "exposure": {
+       "spearman": 0.31759055283310106,
+       "top_k_capture": 0.0,
+       "top_k_lift": 0.004476825803796529
+      },
+      "hazard": {
+       "spearman": 0.31759055283310106,
+       "top_k_capture": 0.0,
+       "top_k_lift": 0.004476825803796529
+      },
+      "k": 12,
+      "month": "2020-05",
+      "n_units": 117,
+      "naive": {
+       "spearman": 0.32896491780185527,
+       "top_k_capture": 0.08333333333333333,
+       "top_k_lift": 0.00759524573524839
+      },
+      "name": "BERTHA",
+      "storm": "ibtracs:storm:2020148N32281",
+      "top_k_capture_null": 0.10256410256410256
+     },
+     {
+      "candidates": 225,
+      "date": "2020-06-01",
+      "exposure": {
+       "spearman": -0.06570681697108943,
+       "top_k_capture": 0.0,
+       "top_k_lift": -0.01252021488734778
+      },
+      "hazard": {
+       "spearman": -0.06570681697108943,
+       "top_k_capture": 0.0,
+       "top_k_lift": -0.01252021488734778
+      },
+      "k": 22,
+      "month": "2020-06",
+      "n_units": 225,
+      "naive": {
+       "spearman": -0.0818984407922461,
+       "top_k_capture": 0.0,
+       "top_k_lift": -0.011143433956668627
+      },
+      "name": "CRISTOBAL",
+      "storm": "ibtracs:storm:2020154N19269",
+      "top_k_capture_null": 0.09777777777777778
+     },
+     {
+      "candidates": 233,
+      "date": "2020-07-05",
+      "exposure": {
+       "spearman": -0.19259347451833983,
+       "top_k_capture": 0.0,
+       "top_k_lift": -0.028330531808154896
+      },
+      "hazard": {
+       "spearman": -0.19259347451833983,
+       "top_k_capture": 0.0,
+       "top_k_lift": -0.028330531808154896
+      },
+      "k": 23,
+      "month": "2020-07",
+      "n_units": 233,
+      "naive": {
+       "spearman": -0.34593849493213114,
+       "top_k_capture": 0.0,
+       "top_k_lift": -0.03126573931478656
+      },
+      "name": "FAY",
+      "storm": "ibtracs:storm:2020188N28271",
+      "top_k_capture_null": 0.09871244635193133
+     },
+     {
+      "candidates": 44,
+      "date": "2020-07-23",
+      "exposure": {
+       "spearman": -0.16152789044173174,
+       "top_k_capture": 0.0,
+       "top_k_lift": -0.006731993544888546
+      },
+      "hazard": {
+       "spearman": -0.16152789044173174,
+       "top_k_capture": 0.0,
+       "top_k_lift": -0.006731993544888546
+      },
+      "k": 4,
+      "month": "2020-07",
+      "n_units": 44,
+      "naive": {
+       "spearman": -0.16560958421423538,
+       "top_k_capture": 0.0,
+       "top_k_lift": -0.008857649135371713
+      },
+      "name": "HANNA",
+      "storm": "ibtracs:storm:2020205N26272",
+      "top_k_capture_null": 0.09090909090909091
+     },
+     {
+      "candidates": 529,
+      "date": "2020-07-28",
+      "exposure": {
+       "spearman": -0.06823845296604182,
+       "top_k_capture": 0.11320754716981132,
+       "top_k_lift": -0.0021986010449472973
+      },
+      "hazard": {
+       "spearman": -0.06823845296604182,
+       "top_k_capture": 0.11320754716981132,
+       "top_k_lift": -0.0021986010449472973
+      },
+      "k": 53,
+      "month": "2020-08",
+      "n_units": 529,
+      "naive": {
+       "spearman": -0.05240639803895502,
+       "top_k_capture": 0.1320754716981132,
+       "top_k_lift": 0.00034540141319720774
+      },
+      "name": "ISAIAS",
+      "storm": "ibtracs:storm:2020211N13306",
+      "top_k_capture_null": 0.1001890359168242
+     },
+     {
+      "candidates": 67,
+      "date": "2020-08-14",
+      "exposure": {
+       "spearman": -0.14901428685449755,
+       "top_k_capture": 0.0,
+       "top_k_lift": -0.009393684659857592
+      },
+      "hazard": {
+       "spearman": -0.14901428685449755,
+       "top_k_capture": 0.0,
+       "top_k_lift": -0.009393684659857592
+      },
+      "k": 7,
+      "month": "2020-08",
+      "n_units": 67,
+      "naive": {
+       "spearman": -0.14901428685449755,
+       "top_k_capture": 0.0,
+       "top_k_lift": -0.009393684659857592
+      },
+      "name": "KYLE",
+      "storm": "ibtracs:storm:2020228N37286",
+      "top_k_capture_null": 0.1044776119402985
+     },
+     {
+      "candidates": 254,
+      "date": "2020-08-20",
+      "exposure": {
+       "spearman": -0.03377025236612581,
+       "top_k_capture": 0.16,
+       "top_k_lift": 0.012077231588954497
+      },
+      "hazard": {
+       "spearman": -0.03377025236612581,
+       "top_k_capture": 0.16,
+       "top_k_lift": 0.012077231588954497
+      },
+      "k": 25,
+      "month": "2020-08",
+      "n_units": 254,
+      "naive": {
+       "spearman": 0.310144683437472,
+       "top_k_capture": 0.2,
+       "top_k_lift": 0.011758078141374766
+      },
+      "name": "LAURA",
+      "storm": "ibtracs:storm:2020233N14313",
+      "top_k_capture_null": 0.0984251968503937
+     },
+     {
+      "candidates": 46,
+      "date": "2020-08-20",
+      "exposure": {
+       "spearman": -0.06086956521739131,
+       "top_k_capture": 0.0,
+       "top_k_lift": 0.0029705597139329173
+      },
+      "hazard": {
+       "spearman": -0.06086956521739131,
+       "top_k_capture": 0.0,
+       "top_k_lift": 0.0029705597139329173
+      },
+      "k": 5,
+      "month": "2020-08",
+      "n_units": 46,
+      "naive": {
+       "spearman": -0.15337650323774282,
+       "top_k_capture": 0.0,
+       "top_k_lift": 0.0029705597139329173
+      },
+      "name": "MARCO",
+      "storm": "ibtracs:storm:2020234N14280",
+      "top_k_capture_null": 0.10869565217391304
+     },
+     {
+      "candidates": 197,
+      "date": "2020-09-11",
+      "exposure": {
+       "spearman": 0.35120984181786424,
+       "top_k_capture": 0.05,
+       "top_k_lift": 0.006787261419890979
+      },
+      "hazard": {
+       "spearman": 0.35120984181786424,
+       "top_k_capture": 0.05,
+       "top_k_lift": 0.006787261419890979
+      },
+      "k": 20,
+      "month": "2020-09",
+      "n_units": 197,
+      "naive": {
+       "spearman": 0.2869793972041978,
+       "top_k_capture": 0.05,
+       "top_k_lift": 0.00675838954572984
+      },
+      "name": "SALLY",
+      "storm": "ibtracs:storm:2020256N25281",
+      "top_k_capture_null": 0.10152284263959391
+     },
+     {
+      "candidates": 81,
+      "date": "2020-09-17",
+      "exposure": {
+       "spearman": 0.011766034327009936,
+       "top_k_capture": 0.0,
+       "top_k_lift": -0.007231826710776802
+      },
+      "hazard": {
+       "spearman": 0.011766034327009936,
+       "top_k_capture": 0.0,
+       "top_k_lift": -0.007231826710776802
+      },
+      "k": 8,
+      "month": "2020-09",
+      "n_units": 81,
+      "naive": {
+       "spearman": -0.12958446251129177,
+       "top_k_capture": 0.0,
+       "top_k_lift": -0.007231826710776802
+      },
+      "name": "BETA",
+      "storm": "ibtracs:storm:2020261N21265",
+      "top_k_capture_null": 0.09876543209876543
+     },
+     {
+      "candidates": 205,
+      "date": "2020-10-04",
+      "exposure": {
+       "spearman": -0.36038088419424585,
+       "top_k_capture": 0.0,
+       "top_k_lift": -0.007522171750491708
+      },
+      "hazard": {
+       "spearman": -0.36038088419424585,
+       "top_k_capture": 0.0,
+       "top_k_lift": -0.007522171750491708
+      },
+      "k": 20,
+      "month": "2020-10",
+      "n_units": 205,
+      "naive": {
+       "spearman": -0.32785307350503545,
+       "top_k_capture": 0.0,
+       "top_k_lift": -0.017927989178765754
+      },
+      "name": "DELTA",
+      "storm": "ibtracs:storm:2020279N16284",
+      "top_k_capture_null": 0.0975609756097561
+     },
+     {
+      "candidates": 840,
+      "date": "2020-10-24",
+      "exposure": {
+       "spearman": -0.09281552364867755,
+       "top_k_capture": 0.11904761904761904,
+       "top_k_lift": 0.006816524326432099
+      },
+      "hazard": {
+       "spearman": -0.09281552364867755,
+       "top_k_capture": 0.11904761904761904,
+       "top_k_lift": 0.006816524326432099
+      },
+      "k": 84,
+      "month": "2020-10",
+      "n_units": 840,
+      "naive": {
+       "spearman": 0.016833721622135436,
+       "top_k_capture": 0.08333333333333333,
+       "top_k_lift": 0.0025348304131702203
+      },
+      "name": "ZETA",
+      "storm": "ibtracs:storm:2020299N18277",
+      "top_k_capture_null": 0.1
+     },
+     {
+      "candidates": 203,
+      "date": "2020-10-31",
+      "exposure": {
+       "spearman": -0.023218366401543945,
+       "top_k_capture": 0.0,
+       "top_k_lift": -0.0019100420897616693
+      },
+      "hazard": {
+       "spearman": -0.023218366401543945,
+       "top_k_capture": 0.0,
+       "top_k_lift": -0.0019100420897616693
+      },
+      "k": 20,
+      "month": "2020-11",
+      "n_units": 203,
+      "naive": {
+       "spearman": -0.12966538612713777,
+       "top_k_capture": 0.0,
+       "top_k_lift": -0.002771499309339868
+      },
+      "name": "ETA",
+      "storm": "ibtracs:storm:2020306N15288",
+      "top_k_capture_null": 0.09852216748768473
+     },
+     {
+      "candidates": 400,
+      "date": "2021-06-17",
+      "exposure": {
+       "spearman": 0.0945237131497814,
+       "top_k_capture": 0.075,
+       "top_k_lift": 0.005635604285084847
+      },
+      "hazard": {
+       "spearman": 0.0945237131497814,
+       "top_k_capture": 0.075,
+       "top_k_lift": 0.005635604285084847
+      },
+      "k": 40,
+      "month": "2021-06",
+      "n_units": 400,
+      "naive": {
+       "spearman": 0.14916786979918625,
+       "top_k_capture": 0.1,
+       "top_k_lift": 0.006823851177129622
+      },
+      "name": "CLAUDETTE",
+      "storm": "ibtracs:storm:2021169N23268",
+      "top_k_capture_null": 0.1
+     },
+     {
+      "candidates": 114,
+      "date": "2021-06-27",
+      "exposure": {
+       "spearman": 0.03285069156153176,
+       "top_k_capture": 0.09090909090909091,
+       "top_k_lift": 0.010768683020786443
+      },
+      "hazard": {
+       "spearman": 0.03285069156153176,
+       "top_k_capture": 0.09090909090909091,
+       "top_k_lift": 0.010768683020786443
+      },
+      "k": 11,
+      "month": "2021-06",
+      "n_units": 114,
+      "naive": {
+       "spearman": -0.050379700694599135,
+       "top_k_capture": 0.09090909090909091,
+       "top_k_lift": 0.007894738283388915
+      },
+      "name": "DANNY",
+      "storm": "ibtracs:storm:2021179N30287",
+      "top_k_capture_null": 0.09649122807017543
+     },
+     {
+      "candidates": 679,
+      "date": "2021-06-30",
+      "exposure": {
+       "spearman": -0.011091052158309782,
+       "top_k_capture": 0.1323529411764706,
+       "top_k_lift": 0.0014280699820589243
+      },
+      "hazard": {
+       "spearman": -0.011091052158309782,
+       "top_k_capture": 0.1323529411764706,
+       "top_k_lift": 0.0014280699820589243
+      },
+      "k": 68,
+      "month": "2021-07",
+      "n_units": 679,
+      "naive": {
+       "spearman": -0.08863809733363284,
+       "top_k_capture": 0.11764705882352941,
+       "top_k_lift": 0.00011846613767904635
+      },
+      "name": "ELSA",
+      "storm": "ibtracs:storm:2021182N09317",
+      "top_k_capture_null": 0.10014727540500737
+     },
+     {
+      "candidates": 187,
+      "date": "2021-08-09",
+      "exposure": {
+       "spearman": -0.07413877978727645,
+       "top_k_capture": 0.21052631578947367,
+       "top_k_lift": -0.0005669003616210894
+      },
+      "hazard": {
+       "spearman": -0.07413877978727645,
+       "top_k_capture": 0.21052631578947367,
+       "top_k_lift": -0.0005669003616210894
+      },
+      "k": 19,
+      "month": "2021-08",
+      "n_units": 187,
+      "naive": {
+       "spearman": -0.120194231058618,
+       "top_k_capture": 0.21052631578947367,
+       "top_k_lift": -0.002003887739913425
+      },
+      "name": "FRED",
+      "storm": "ibtracs:storm:2021222N14301",
+      "top_k_capture_null": 0.10160427807486631
+     },
+     {
+      "candidates": 104,
+      "date": "2021-08-15",
+      "exposure": {
+       "spearman": -0.02835835227252268,
+       "top_k_capture": 0.1,
+       "top_k_lift": -0.0054686791060746115
+      },
+      "hazard": {
+       "spearman": -0.02835835227252268,
+       "top_k_capture": 0.1,
+       "top_k_lift": -0.0054686791060746115
+      },
+      "k": 10,
+      "month": "2021-08",
+      "n_units": 104,
+      "naive": {
+       "spearman": -0.15462498666382163,
+       "top_k_capture": 0.0,
+       "top_k_lift": -0.027860847425608178
+      },
+      "name": "HENRI",
+      "storm": "ibtracs:storm:2021227N36297",
+      "top_k_capture_null": 0.09615384615384616
+     },
+     {
+      "candidates": 393,
+      "date": "2021-08-26",
+      "exposure": {
+       "spearman": 0.1014321212790999,
+       "top_k_capture": 0.28205128205128205,
+       "top_k_lift": 0.009212202035216058
+      },
+      "hazard": {
+       "spearman": 0.1014321212790999,
+       "top_k_capture": 0.28205128205128205,
+       "top_k_lift": 0.009212202035216058
+      },
+      "k": 39,
+      "month": "2021-08",
+      "n_units": 393,
+      "naive": {
+       "spearman": 0.18208356694869213,
+       "top_k_capture": 0.3076923076923077,
+       "top_k_lift": 0.013700983238897946
+      },
+      "name": "IDA",
+      "storm": "ibtracs:storm:2021239N17281",
+      "top_k_capture_null": 0.09923664122137404
+     },
+     {
+      "candidates": 152,
+      "date": "2021-09-08",
+      "exposure": {
+       "spearman": -0.18016674227280755,
+       "top_k_capture": 0.0,
+       "top_k_lift": -0.010156966487378391
+      },
+      "hazard": {
+       "spearman": -0.18016674227280755,
+       "top_k_capture": 0.0,
+       "top_k_lift": -0.010156966487378391
+      },
+      "k": 15,
+      "month": "2021-09",
+      "n_units": 152,
+      "naive": {
+       "spearman": 0.12140255195839228,
+       "top_k_capture": 0.0,
+       "top_k_lift": -0.009792944798033956
+      },
+      "name": "MINDY",
+      "storm": "ibtracs:storm:2021252N28273",
+      "top_k_capture_null": 0.09868421052631579
+     },
+     {
+      "candidates": 101,
+      "date": "2021-09-12",
+      "exposure": {
+       "spearman": -0.016237623762376238,
+       "top_k_capture": 0.1,
+       "top_k_lift": 0.0026966207677547645
+      },
+      "hazard": {
+       "spearman": -0.016237623762376238,
+       "top_k_capture": 0.1,
+       "top_k_lift": 0.0026966207677547645
+      },
+      "k": 10,
+      "month": "2021-09",
+      "n_units": 101,
+      "naive": {
+       "spearman": -0.07114735002912057,
+       "top_k_capture": 0.1,
+       "top_k_lift": 0.003778652620023302
+      },
+      "name": "NICHOLAS",
+      "storm": "ibtracs:storm:2021256N21265",
+      "top_k_capture_null": 0.09900990099009901
+     },
+     {
+      "candidates": 58,
+      "date": "2021-10-25",
+      "exposure": {
+       "spearman": 0.4194223138207881,
+       "top_k_capture": 0.3333333333333333,
+       "top_k_lift": 0.02464025063729503
+      },
+      "hazard": {
+       "spearman": 0.4194223138207881,
+       "top_k_capture": 0.3333333333333333,
+       "top_k_lift": 0.02464025063729503
+      },
+      "k": 6,
+      "month": "2021-10",
+      "n_units": 58,
+      "naive": {
+       "spearman": 0.21123381217508996,
+       "top_k_capture": 0.3333333333333333,
+       "top_k_lift": 0.02464025063729503
+      },
+      "name": "WANDA",
+      "storm": "ibtracs:storm:2021299N33284",
+      "top_k_capture_null": 0.10344827586206896
+     },
+     {
+      "candidates": 34,
+      "date": "2022-06-02",
+      "exposure": {
+       "spearman": -0.36292787709807756,
+       "top_k_capture": 0.0,
+       "top_k_lift": -0.001019136290057717
+      },
+      "hazard": {
+       "spearman": -0.36292787709807756,
+       "top_k_capture": 0.0,
+       "top_k_lift": -0.001019136290057717
+      },
+      "k": 3,
+      "month": "2022-06",
+      "n_units": 34,
+      "naive": {
+       "spearman": -0.36287242169595113,
+       "top_k_capture": 0.0,
+       "top_k_lift": -0.003513189753721284
+      },
+      "name": "ALEX",
+      "storm": "ibtracs:storm:2022154N21273",
+      "top_k_capture_null": 0.08823529411764706
+     },
+     {
+      "candidates": 151,
+      "date": "2022-07-01",
+      "exposure": {
+       "spearman": -0.23017131706731925,
+       "top_k_capture": 0.0,
+       "top_k_lift": -0.006263619895546007
+      },
+      "hazard": {
+       "spearman": -0.23017131706731925,
+       "top_k_capture": 0.0,
+       "top_k_lift": -0.006263619895546007
+      },
+      "k": 15,
+      "month": "2022-07",
+      "n_units": 151,
+      "naive": {
+       "spearman": -0.2305158591843848,
+       "top_k_capture": 0.0,
+       "top_k_lift": -0.006263619895546007
+      },
+      "name": "COLIN",
+      "storm": "ibtracs:storm:2022183N32280",
+      "top_k_capture_null": 0.09933774834437085
+     },
+     {
+      "candidates": 236,
+      "date": "2022-09-22",
+      "exposure": {
+       "spearman": -0.09993435792191754,
+       "top_k_capture": 0.08333333333333333,
+       "top_k_lift": 0.0014633123112820189
+      },
+      "hazard": {
+       "spearman": -0.09993435792191754,
+       "top_k_capture": 0.08333333333333333,
+       "top_k_lift": 0.0014633123112820189
+      },
+      "k": 24,
+      "month": "2022-09",
+      "n_units": 236,
+      "naive": {
+       "spearman": 0.24791867328260303,
+       "top_k_capture": 0.125,
+       "top_k_lift": 0.005319369101809565
+      },
+      "name": "IAN",
+      "storm": "ibtracs:storm:2022266N12294",
+      "top_k_capture_null": 0.1016949152542373
+     },
+     {
+      "candidates": 146,
+      "date": "2022-11-06",
+      "exposure": {
+       "spearman": 0.05579939903127367,
+       "top_k_capture": 0.06666666666666667,
+       "top_k_lift": -6.883724572120074e-05
+      },
+      "hazard": {
+       "spearman": 0.05579939903127367,
+       "top_k_capture": 0.06666666666666667,
+       "top_k_lift": -6.883724572120074e-05
+      },
+      "k": 15,
+      "month": "2022-11",
+      "n_units": 146,
+      "naive": {
+       "spearman": 0.06169492832560516,
+       "top_k_capture": 0.0,
+       "top_k_lift": 0.0006484910161079892
+      },
+      "name": "NICOLE",
+      "storm": "ibtracs:storm:2022311N21293",
+      "top_k_capture_null": 0.10273972602739725
+     },
+     {
+      "candidates": 50,
+      "date": "2023-08-21",
+      "exposure": {
+       "spearman": 4.801920768307323e-05,
+       "top_k_capture": 0.0,
+       "top_k_lift": -0.019036038744858957
+      },
+      "hazard": {
+       "spearman": 4.801920768307323e-05,
+       "top_k_capture": 0.0,
+       "top_k_lift": -0.019036038744858957
+      },
+      "k": 5,
+      "month": "2023-08",
+      "n_units": 50,
+      "naive": {
+       "spearman": -0.06775510204081632,
+       "top_k_capture": 0.0,
+       "top_k_lift": -0.020851501628202554
+      },
+      "name": "HAROLD",
+      "storm": "ibtracs:storm:2023234N25271",
+      "top_k_capture_null": 0.1
+     },
+     {
+      "candidates": 297,
+      "date": "2023-08-26",
+      "exposure": {
+       "spearman": 0.014882071283229147,
+       "top_k_capture": 0.13333333333333333,
+       "top_k_lift": -0.0024153879333082707
+      },
+      "hazard": {
+       "spearman": 0.014882071283229147,
+       "top_k_capture": 0.13333333333333333,
+       "top_k_lift": -0.0024153879333082707
+      },
+      "k": 30,
+      "month": "2023-08",
+      "n_units": 297,
+      "naive": {
+       "spearman": -0.09210965083448305,
+       "top_k_capture": 0.06666666666666667,
+       "top_k_lift": -0.0053649080286184096
+      },
+      "name": "IDALIA",
+      "storm": "ibtracs:storm:2023239N21274",
+      "top_k_capture_null": 0.10101010101010101
+     },
+     {
+      "candidates": 219,
+      "date": "2023-09-21",
+      "exposure": {
+       "spearman": -0.09671372364212286,
+       "top_k_capture": 0.18181818181818182,
+       "top_k_lift": 0.0015855959038057288
+      },
+      "hazard": {
+       "spearman": -0.09671372364212286,
+       "top_k_capture": 0.18181818181818182,
+       "top_k_lift": 0.0015855959038057288
+      },
+      "k": 22,
+      "month": "2023-09",
+      "n_units": 219,
+      "naive": {
+       "spearman": 0.036048305094428,
+       "top_k_capture": 0.18181818181818182,
+       "top_k_lift": 0.0016836113254882175
+      },
+      "name": "OPHELIA",
+      "storm": "ibtracs:storm:2023265N29284",
+      "top_k_capture_null": 0.1004566210045662
+     },
+     {
+      "candidates": 156,
+      "date": "2024-06-28",
+      "exposure": {
+       "spearman": 0.1223326995508151,
+       "top_k_capture": 0.0,
+       "top_k_lift": -0.0016256566161998698
+      },
+      "hazard": {
+       "spearman": 0.1223326995508151,
+       "top_k_capture": 0.0,
+       "top_k_lift": -0.0016256566161998698
+      },
+      "k": 16,
+      "month": "2024-07",
+      "n_units": 156,
+      "naive": {
+       "spearman": -0.023110113638159662,
+       "top_k_capture": 0.0625,
+       "top_k_lift": -0.00010103827090737543
+      },
+      "name": "BERYL",
+      "storm": "ibtracs:storm:2024181N09320",
+      "top_k_capture_null": 0.10256410256410256
+     },
+     {
+      "candidates": 353,
+      "date": "2024-08-02",
+      "exposure": {
+       "spearman": -0.22742241932589227,
+       "top_k_capture": 0.02857142857142857,
+       "top_k_lift": -0.0072064043101477335
+      },
+      "hazard": {
+       "spearman": -0.22742241932589227,
+       "top_k_capture": 0.02857142857142857,
+       "top_k_lift": -0.0072064043101477335
+      },
+      "k": 35,
+      "month": "2024-08",
+      "n_units": 353,
+      "naive": {
+       "spearman": -0.15647602325652452,
+       "top_k_capture": 0.14285714285714285,
+       "top_k_lift": -0.00167192075061388
+      },
+      "name": "DEBBY",
+      "storm": "ibtracs:storm:2024216N20284",
+      "top_k_capture_null": 0.09915014164305949
+     },
+     {
+      "candidates": 137,
+      "date": "2024-09-08",
+      "exposure": {
+       "spearman": 0.2797777534120778,
+       "top_k_capture": 0.14285714285714285,
+       "top_k_lift": 0.0051297214608372315
+      },
+      "hazard": {
+       "spearman": 0.2797777534120778,
+       "top_k_capture": 0.14285714285714285,
+       "top_k_lift": 0.0051297214608372315
+      },
+      "k": 14,
+      "month": "2024-09",
+      "n_units": 137,
+      "naive": {
+       "spearman": 0.218604737991674,
+       "top_k_capture": 0.14285714285714285,
+       "top_k_lift": 0.005682181730151082
+      },
+      "name": "FRANCINE",
+      "storm": "ibtracs:storm:2024253N21266",
+      "top_k_capture_null": 0.10218978102189781
+     },
+     {
+      "candidates": 79,
+      "date": "2024-09-15",
+      "exposure": {
+       "spearman": 0.13515092502434276,
+       "top_k_capture": 0.0,
+       "top_k_lift": -0.0019293886587223837
+      },
+      "hazard": {
+       "spearman": 0.13515092502434276,
+       "top_k_capture": 0.0,
+       "top_k_lift": -0.0019293886587223837
+      },
+      "k": 8,
+      "month": "2024-09",
+      "n_units": 79,
+      "naive": {
+       "spearman": 0.04673807205452775,
+       "top_k_capture": 0.0,
+       "top_k_lift": -0.0001625252529120465
+      },
+      "name": "UNNAMED",
+      "storm": "ibtracs:storm:2024259N31284",
+      "top_k_capture_null": 0.10126582278481013
+     },
+     {
+      "candidates": 707,
+      "date": "2024-09-23",
+      "exposure": {
+       "spearman": -0.039739481788752674,
+       "top_k_capture": 0.056338028169014086,
+       "top_k_lift": -0.005857214399161934
+      },
+      "hazard": {
+       "spearman": -0.039739481788752674,
+       "top_k_capture": 0.056338028169014086,
+       "top_k_lift": -0.005857214399161934
+      },
+      "k": 71,
+      "month": "2024-09",
+      "n_units": 707,
+      "naive": {
+       "spearman": -0.02077629619206219,
+       "top_k_capture": 0.15492957746478872,
+       "top_k_lift": 0.0013746392186339577
+      },
+      "name": "HELENE",
+      "storm": "ibtracs:storm:2024268N17278",
+      "top_k_capture_null": 0.10042432814710042
+     },
+     {
+      "candidates": 51,
+      "date": "2024-10-04",
+      "exposure": {
+       "spearman": 0.2924500555059692,
+       "top_k_capture": 0.0,
+       "top_k_lift": 0.0001711498825363476
+      },
+      "hazard": {
+       "spearman": 0.2924500555059692,
+       "top_k_capture": 0.0,
+       "top_k_lift": 0.0001711498825363476
+      },
+      "k": 5,
+      "month": "2024-10",
+      "n_units": 51,
+      "naive": {
+       "spearman": 0.24850678733031675,
+       "top_k_capture": 0.0,
+       "top_k_lift": 0.00044118722957886547
+      },
+      "name": "MILTON",
+      "storm": "ibtracs:storm:2024279N21265",
+      "top_k_capture_null": 0.09803921568627451
+     }
+    ],
+    "lambda_selection": {
+     "chosen": 0.0,
+     "development_events": 65,
+     "development_mean_spearman": {
+      "0.0": 0.02392738670596185,
+      "0.25": 0.0239236844605938,
+      "0.5": 0.022375284525457506,
+      "1.0": 0.018979681348351138
+     },
+     "grid": [
+      0.0,
+      0.25,
+      0.5,
+      1.0
+     ]
+    }
+   },
+   "identification": {
+    "assumptions": [
+     "The realised track is the shock; using it is not look-ahead because the question is 'given this shock, who is reached'.",
+     "Migration flows from 2017-2018 precede every held-out event; development events before 2017 use a graph measured after them, which can only affect the choice of lambda, not the held-out score.",
+     "LAUS county employment is partly model-based and not seasonally adjusted; the year-earlier difference removes the seasonal pattern but not other shocks in the same months.",
+     "A predictive ranking is not an intervention response: the result is labelled predictive_association whichever way it comes out."
+    ],
+    "estimand": "mean over held-out events of the per-event Spearman correlation between a ranking and the outcome",
+    "label": "predictive_association",
+    "meaning": "A predictive association scored on held-out events. It says nothing about intervention responses.",
+    "strategy": "held_out_event_ranking_test"
+   },
+   "notes": [],
+   "registration": {
+    "commit": "c1bcbc2e7aa379f7d743b33aaa759bfc12b7b228",
+    "committed_at": "2026-09-18T18:32:51-07:00",
+    "committed_clean": true,
+    "path": "examples/natural-experiments/registrations/exposure_cyclones_county_employment.json",
+    "sha256": "721590f6dcdcb2634e47b9af773618e8c418019fb575c6d56596444d69b7c550"
+   },
+   "result_id": "e0ed82a9a36f0479a0030b5548dbd17ec15a46b42509d01c87d9b77cdbf2cc5b",
+   "schema": "worldmodel.causal_result/1",
+   "study_id": "exposure_cyclones_county_employment",
+   "verdict": "On 42 held-out storms (2019-2024) the exposure ranking (lambda=0.0, chosen on 65 development storms) has mean Spearman -0.019 with measured employment loss versus -0.036 for distance to track; difference +0.017, one-sided sign-flip p = 0.189. The pre-registered test fails: the exposure ranking is not shown to beat the naive ranking. This is a predictive association, not an intervention response."
+  }
+ ],
+ "schema": "worldmodel.natural_experiment_report/1",
+ "seconds": 28.4,
+ "study_id": "exposure_cyclones_county_employment"
+}
