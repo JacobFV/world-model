@@ -64,6 +64,17 @@ See [remaining concerns](docs/remaining-concerns.md) for what is still wrong, an
 [strategic affordances audit](docs/strategic-affordances-audit.md) for what the system
 can and cannot be used for.
 
+What the layers added on 2026-09-18 do, and what each one concluded:
+
+| Layer | What it does | Where it ends |
+| --- | --- | --- |
+| [Evidence products](docs/products.md) | `wm dossier`, `wm screen`, `wm place-brief` and a read-only local API over the unified graph | Every edge names its dataset and its rights; a screen's silence is not clearance |
+| [World-state embeddings](docs/world-state-embeddings.md) | Embeds any dated subgraph; forecasts places and actors; `wm embed-query` finds the places nearest to one county's state now | Six scored attempts over five domains ([actor domains](docs/actor-domains.md)); beats naive baselines, beats a gradient-boosted model only on county employment; none validated |
+| [Natural experiments](docs/natural-experiments.md) | Event library of dated shocks, staggered difference-in-differences, placebo and power suites | Eight designs, three identified nulls, no identified effect, every design underpowered |
+| [Decision layer](docs/decision-layer.md) | Decision contracts, fragility search, policy learning gated on validated mechanisms | A learned policy wins in-sample and loses out-of-sample; no recommendation rests on an identified response |
+| [Identity coverage](docs/identity-coverage.md) | Every published bridge mined, misleading identifiers refused, coverage estimated | 3.66% of entities join across two datasets; the rest cannot be joined by asserted identity |
+| Dated panels | [influence](docs/influence-panel.md), [county](docs/world-state-embeddings.md), [firm](docs/firm-panel.md), [trade](docs/trade-panel.md) | Each is only as joined as published identifiers allow: 0.58% of firm-panel issuers carry an LEI |
+
 ## Strategic systems and field foundations
 
 The project includes fields/topologies with lazy graph projections, multimodal
