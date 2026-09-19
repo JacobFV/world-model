@@ -123,7 +123,59 @@ any validation or test origin was scored.
   shock such as 2020 makes them overstate significance. Each report carries
   `test.year_clustered_dm`, a t-test on per-year mean loss differences.
 
+## Actors: 13F positions
+
+The same encoder, on a different graph. `worldmodel/embedding/holdings.py` extracts every holding
+of every *original* 13F-HR filing in `sec_13f_history` into a version-pinned array cache:
+71,968,683 rows, 11,977 managers, 130,215 securities, 49 quarters (2013Q2-2025Q2). The 4,867,350
+rows of amendments (13F-HR/A) are excluded, since a restatement can arrive long after the quarter.
+7,714,116 original rows were filed after their 45-day deadline; they label outcomes but never enter
+features.
+
+`worldmodel/embedding/actors.py` turns it into two quarterly decisions. A sample is one reported
+position (manager m, security s) at its quarter's filing deadline:
+
+* **exit**: s is absent from m's next original filing;
+* **increase**: s is kept and m's log change in shares beats, by 0.1, the median log change of every
+  holder that kept s (so splits, which move every holder at once, are not "increases").
+
+Every sample has the same template subgraph, so batching is pure GPU indexing: the query position
+(node 0, the root), the manager, the security, the security's top 12 other holders' positions, and
+the manager's top 12 other positions with their securities. Node features are four-quarter
+histories: position shares, value, portfolio weight, presence and share change; manager value,
+position count, exit and entry rates; security 13F value, holder count, holder exit and entry rates.
+
+Baselines: the training base rate (the Brier-skill reference), the manager's own exit rate at the
+origin, and LightGBM on the same template features. Criteria: Diebold-Mariano on Brier loss against
+the base rate and LightGBM (and the manager's rate, for exit), positive Brier skill, expected
+calibration error ≤ 0.02, and no timing or revision leakage (original filings only, so no
+revision enters). The worst-bin calibration deviation is reported but not judged: a bin holding a
+handful of forecasts decides it.
+
+## Running it
+
+The home GB10 is shared; heavy runs go to the dedicated second GB10 (`ssh gb10-direct`), with the
+repository and `.venv` mirrored at the same path and every job inside a cgroup memory cap:
+
+```sh
+systemd-run --user --scope -p MemoryMax=40G -p MemorySwapMax=0 \
+    .venv/bin/python -m worldmodel embed-assay places.county_root_readout_v2 --save run.json
+python3 -m worldmodel embed-publish run.json      # at home, from a checkout at the same commit
+```
+
+`embed-publish` re-derives each report id before writing, and every report records the commit and
+whether `worldmodel/` was modified when it ran. A GPU memory fraction (`WM_EMBED_GPU_GB`) is not a
+host-memory cap on a GB10: CPU and GPU share one pool, which is why the cgroup is required.
+
+## Record of attempts
+
+| Attempt | Status | Note |
+| --- | --- | --- |
+| `places.county_root_readout_v1` | not run (compute budget) | stopped at 29 min on the shared machine, projecting ~64 min against 60, before any validation score existed |
+| `places.county_root_readout_v2` | registered | identical but for the host |
+| `actors.13f_exit_increase_v1` | registered | |
+
 ## Results
 
-Filled in from the published reports once the attempt has run; see
+Filled in from the published reports once each attempt has run; see
 [data/embedding_reports](../data/embedding_reports/README.md).
