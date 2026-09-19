@@ -109,6 +109,27 @@ class EncoderTests(unittest.TestCase):
         b = encoder(x * 5, m, mask)[0, 0, 0]
         self.assertTrue(torch.allclose(a, b))
 
+    def test_feature_ids_let_one_encoder_serve_any_vocabulary(self):
+        from worldmodel.embedding.model import WorldStateEncoder
+        torch.manual_seed(0)
+        model = WorldStateEncoder(16, 3, 4, 5, d=16, layers=1, slots=2, passes=2, top_k=2, out_dim=8, n_targets=1)
+        B, N, F = 2, 3, 4
+        batch = {'x': torch.randn(B, N, F, 5), 'm': torch.ones(B, N, F, 5),
+                 'node_type': torch.zeros(B, N, dtype=torch.long), 'valid': torch.ones(B, N, dtype=torch.bool),
+                 'src': torch.tensor([0]), 'dst': torch.tensor([1]), 'rel': torch.tensor([0]), 'weight': torch.ones(1),
+                 'feature_ids': torch.randint(0, 16, (B, N, F))}
+        encoded = model.encode(batch)
+        self.assertEqual(tuple(encoded['state'].shape), (B, 8))
+        # Two nodes carrying the same metric id with the same history encode to the same token.
+        batch['feature_ids'][:] = 7
+        batch['x'][:] = batch['x'][:, :1]
+        tokens = model.encode(batch)['tokens']
+        self.assertTrue(torch.allclose(tokens[0, 0, 0], tokens[0, 1, 0], atol=1e-5))
+        mask = torch.zeros(B, N, F, dtype=torch.bool)
+        mask[0, 1, 2] = True
+        index, predicted = model.reconstruct(model.encode(batch, token_mask=mask), mask)
+        self.assertEqual(tuple(predicted.shape), (1, 5))
+
     def test_student_t_nll_matches_torch_distribution(self):
         from worldmodel.embedding.model import student_t_nll
         y, mean, scale, df = torch.tensor([0.3]), torch.tensor([0.1]), torch.tensor([0.5]), torch.tensor([4.0])

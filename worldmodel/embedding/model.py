@@ -37,6 +37,13 @@ def scatter_mean(values, index, size):
 
 
 class TokenEncoder(nn.Module):
+    """One token per (node, feature): its history, availability mask and first differences.
+
+    With a dense feature axis (a fixed template domain) slot ``f`` *is* feature ``f``. With
+    ``feature_ids`` (an arbitrary subgraph, where each node carries whichever metrics it has) slot
+    ``f`` carries the id in ``feature_ids[b, n, f]``, so one encoder serves any vocabulary.
+    """
+
     def __init__(self, n_features, history, d):
         super().__init__()
         width = 2 * history + 2 * (history - 1)
@@ -44,15 +51,15 @@ class TokenEncoder(nn.Module):
         self.feature = nn.Embedding(n_features, d)
         self.masked = nn.Parameter(torch.zeros(d))
 
-    def forward(self, x, m, token_mask=None):
-        # x, m: [B, N, F, H]
+    def forward(self, x, m, token_mask=None, feature_ids=None):
+        # x, m: [B, N, F, H]; feature_ids: [B, N, F] or None for a dense feature axis
         diff = (x[..., :-1] - x[..., 1:]) * (m[..., :-1] * m[..., 1:])
         dmask = m[..., :-1] * m[..., 1:]
         if token_mask is not None:            # hide masked tokens' contents entirely
             keep = (~token_mask).unsqueeze(-1).float()
             x, m, diff, dmask = x * keep, m * keep, diff * keep, dmask * keep
         tokens = self.mlp(torch.cat([x, m, diff, dmask], dim=-1))
-        tokens = tokens + self.feature.weight[None, None]
+        tokens = tokens + (self.feature.weight[None, None] if feature_ids is None else self.feature(feature_ids))
         if token_mask is not None:
             tokens = tokens + token_mask.unsqueeze(-1).float() * self.masked
         return tokens                          # [B, N, F, d]
@@ -161,7 +168,7 @@ class WorldStateEncoder(nn.Module):
     def encode(self, batch, token_mask=None):
         x, m, node_type, valid = batch['x'], batch['m'], batch['node_type'], batch['valid']
         B, N, Fn, H = x.shape
-        tokens = self.tokens(x, m, token_mask)
+        tokens = self.tokens(x, m, token_mask, batch.get('feature_ids'))
         present = m.amax(-1) > 0
         if token_mask is not None:
             present = present | token_mask
@@ -173,7 +180,8 @@ class WorldStateEncoder(nn.Module):
         root = h[:, 0]                                              # the seed is node 0 of every subgraph
         slots, attended = self.readout(h, valid, root)
         state = self.state(torch.cat([slots.mean(1), slots[:, 0], root], dim=-1))
-        return {'h': h, 'root': root, 'slots': slots, 'state': state, 'attended': attended, 'tokens': tokens}
+        return {'h': h, 'root': root, 'slots': slots, 'state': state, 'attended': attended, 'tokens': tokens,
+                'feature_ids': batch.get('feature_ids')}
 
     def predict(self, encoded):
         out = self.forecast(torch.cat([encoded['state'], encoded['root']], dim=-1))
@@ -186,7 +194,8 @@ class WorldStateEncoder(nn.Module):
         if index.numel() == 0:
             return index, None
         b, n, f = index.unbind(-1)
-        feature = self.tokens.feature.weight[f]
+        ids = encoded.get('feature_ids')
+        feature = self.tokens.feature.weight[f] if ids is None else self.tokens.feature(ids[b, n, f])
         query = self.decode_query(encoded['h'][b, n] + feature)
         read, _ = self.decode_attn(query.unsqueeze(1), encoded['slots'][b], encoded['slots'][b], need_weights=False)
         return index, self.decoder(torch.cat([query, read.squeeze(1)], dim=-1))
