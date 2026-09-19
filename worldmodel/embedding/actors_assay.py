@@ -370,9 +370,53 @@ def quarter_clustered_dm(rows, baseline):
             'per_quarter_mean_difference': means}
 
 
+def _prepare_newpos(store, attempt, protocol, config, log):
+    """Link prediction on 13F: candidate positions a manager does not hold, and whether it opens them."""
+    from . import newpos
+    source_ref = attempt['input']
+    path, meta = holdings_module.build(store, source_ref, log=log)
+    arrays, _ = holdings_module.load(path)
+    log(f'{attempt["id"]}: holdings {meta["counts"]["holdings"]:,} rows, {meta["managers"]:,} managers, '
+        f'{meta["securities"]:,} securities')
+    data = actors.Holdings13F(arrays, top=protocol['k'] + 1)
+    del arrays
+    q_of = {quarter_end(q): q for q in range(data.n_quarters)}
+    first = q_of[protocol['first_origin_quarter']]
+    blocks = [[q_of[a], q_of[b]] for a, b in protocol['blocks']]
+    tasks = newpos.build_tasks(data, range(first, blocks[-1][1] + 1), per_quarter=protocol['per_quarter'],
+                               per_manager=protocol['per_manager'], k=protocol['k'], history=protocol['history'],
+                               seed=config['seed'], log=log)
+    k = protocol['k']
+    deadline_day = lambda q: actors.day_number(actors.deadline(q))
+    return {'tasks': tasks, 'q_of': q_of, 'first': first, 'blocks': blocks, 'period_end': quarter_end,
+            'origin_day': deadline_day, 'label_public_by': lambda label_day, origin: label_day <= origin,
+            'feature_leakage': lambda q: int(tasks.max_feature_filed[q] > deadline_day(q)),
+            'template': actors.template(k), 'dims': (len(actors.NODE_TYPES), len(actors.RELATIONS)),
+            'targets': list(newpos.TARGETS), 'own_rate': newpos.OWN_RATE,
+            'gbdt_nodes': ((0, 1, 2), ((3, 3 + k), (3 + k, 3 + 2 * k), (3 + 2 * k, 3 + 3 * k))),
+            'inputs': [dict(source_ref)], 'component': '13f_link', 'target_suffix': 'next_quarter',
+            'series': {'sec_13f_history': {
+                'series': 'sec_13f_history', 'revisions': 'none', 'vintage_modes': ['original_filing'],
+                'revision_leakage_possible': False,
+                'note': 'Original 13F-HR filings only; amendments are excluded, so no later restatement enters.'}},
+            'audit_extra': {'input': dict(source_ref), 'holdings_meta': meta,
+                            'candidate_sampling': {'negatives_per_positive': newpos.NEGATIVES_PER_POSITIVE,
+                                                   'co_holding_pool': newpos.CO_HOLDING_POOL,
+                                                   'popularity_pool': newpos.POPULARITY_POOL}},
+            'origin_text': 'quarter end + 45 days (13F deadline)', 'vintage_policy': 'original_13F-HR_filings_only',
+            'actuals': 'the next quarter original 13F-HR filing',
+            'limitations': [
+                'The base rate is a property of the declared candidate sampling, not of the world: every forecaster, '
+                'including the baselines, faces the same sampled distribution.',
+                'Negatives drawn from the two-hop co-holding walk are deliberately hard; a different negative pool '
+                'would give a different base rate and different scores.',
+                'Samples are conditioned on the manager filing again next quarter.']}
+
+
 #: Domain name -> a function returning the tasks, template, targets, baselines and audit of one domain.
 #: Tests register a synthetic domain here; nothing else writes to it.
-DOMAINS = {'13f': _prepare_13f, 'votes': _prepare_votes, 'fec': _prepare_fec, 'fdic': _prepare_fdic}
+DOMAINS = {'13f': _prepare_13f, 'votes': _prepare_votes, 'fec': _prepare_fec, 'fdic': _prepare_fdic,
+           '13f_link': _prepare_newpos}
 
 
 def run_attempt(store, attempt_id, *, log=print, publish=True, device=None, spec=None):
