@@ -2,7 +2,7 @@
  "id": "fred_county_vintages",
  "schema_version": 2,
  "kind": "source",
- "status": "full_acquisition_configured",
+ "status": "full_acquired",
  "description": "County-level FRED series with every ALFRED real-time vintage: Census resident population, BEA per capita personal income, personal income, GDP and real GDP, QCEW private establishments, and the LAUS annual averages (unemployment rate, unemployed, employed, labor force). Subjects are geo:US:county:<SSCCC> with codes from GeoFRED's published geography. Each row carries the vintage it was published in and whether it is a first release, so a first-release county panel can be built without reading a revised level.",
  "source": {
   "publisher": "Federal Reserve Bank of St. Louis (FRED/ALFRED)",
@@ -44,7 +44,7 @@
    }
   ],
   "rate_limit": {
-   "requests_per_second": 1.5,
+   "requests_per_second": 1.9,
    "requests_per_day": null,
    "key": "api.stlouisfed.org"
   },

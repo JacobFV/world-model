@@ -80,7 +80,58 @@ capita personal income, personal income, GDP and real GDP; QCEW private establis
 LAUS annual averages. The dataset README carries the field contract, the county-code rules and the
 measured coverage.
 
-<!-- COVERAGE -->
+### Measured coverage
+
+Raw artifact `2bbca474` (31,452 shards, 461,245,177 bytes downloaded, 513 MiB on disk), normalized
+`8468fab9` (5,319,601 records, 136,909,829 bytes gzip). No configured series was refused: every one
+is in ALFRED.
+
+| family | series | county-equivalents | states+DC | vintages/series (min-median-max) | first vintage | refused |
+| --- | ---: | ---: | ---: | --- | --- | ---: |
+| population | 3,139 | 3,139 | 51 | 8-22-25 | 2004-04-09 | 0 |
+| per_capita_personal_income | 3,134 | 3,134 | 51 | 1-14-14 | 2014-05-30 | 0 |
+| personal_income | 3,134 | 3,134 | 51 | 1-13-13 | 2014-05-30 | 0 |
+| gdp | 3,113 | 3,113 | 51 | 7-8-8 | 2018-12-12 | 0 |
+| real_gdp | 3,113 | 3,113 | 51 | 7-8-8 | 2018-12-12 | 0 |
+| private_establishments | 3,142 | 3,142 | 51 | 1-39-40 | 2017-03-07 | 0 |
+| laus_unemployment_rate | 3,233 | 3,233 | 51 | 2-12-12 | 2017-08-30 | 0 |
+| laus_unemployed | 3,148 | 3,148 | 51 | 2-10-10 | 2019-08-28 | 0 |
+| laus_employed | 3,148 | 3,148 | 51 | 2-10-10 | 2019-08-28 | 0 |
+| laus_labor_force | 3,148 | 3,148 | 51 | 2-10-10 | 2019-08-28 | 0 |
+
+County-equivalents with a **first release** (a value published after the series' archive opened;
+all four quarters for establishments), by reference year:
+
+| year | population | per_capita_personal_income | personal_income | gdp | real_gdp | private_establishments | laus_unemployment_rate | laus_unemployed | laus_employed | laus_labor_force |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| 2000 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
+| 2001 | 0 | 0 | 0 | 3,107 | 3,107 | 0 | 0 | 0 | 0 | 0 |
+| 2002 | 0 | 0 | 0 | 3,108 | 3,108 | 0 | 0 | 0 | 0 | 0 |
+| 2003 | 0 | 0 | 0 | 3,108 | 3,108 | 0 | 0 | 0 | 0 | 0 |
+| 2004 | 330 | 0 | 0 | 3,108 | 3,108 | 0 | 0 | 0 | 0 | 0 |
+| 2005 | 330 | 0 | 0 | 3,108 | 3,108 | 0 | 0 | 0 | 0 | 0 |
+| 2006 | 330 | 0 | 0 | 3,108 | 3,108 | 0 | 0 | 0 | 0 | 0 |
+| 2007 | 3,116 | 0 | 0 | 3,108 | 3,108 | 0 | 0 | 0 | 0 | 0 |
+| 2008 | 3,139 | 0 | 0 | 3,110 | 3,110 | 0 | 0 | 0 | 0 | 0 |
+| 2009 | 3,139 | 0 | 0 | 3,113 | 3,113 | 0 | 0 | 0 | 0 | 0 |
+| 2010 | 3,139 | 0 | 0 | 3,113 | 3,113 | 0 | 0 | 0 | 0 | 0 |
+| 2011 | 3,139 | 0 | 0 | 3,113 | 3,113 | 0 | 0 | 0 | 0 | 0 |
+| 2012 | 3,139 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
+| 2013 | 3,139 | 3,082 | 3,082 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
+| 2014 | 3,138 | 3,081 | 3,081 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
+| 2015 | 3,137 | 3,108 | 3,108 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
+| 2016 | 3,136 | 3,108 | 3,108 | 3,113 | 3,113 | 0 | 0 | 0 | 0 | 0 |
+| 2017 | 3,136 | 3,108 | 3,108 | 3,113 | 3,113 | 3,139 | 3,219 | 0 | 0 | 0 |
+| 2018 | 3,136 | 3,108 | 3,108 | 3,113 | 3,113 | 3,139 | 3,219 | 0 | 0 | 0 |
+| 2019 | 3,136 | 3,108 | 3,108 | 3,113 | 3,113 | 3,139 | 3,219 | 3,128 | 3,128 | 3,128 |
+| 2020 | 3,135 | 3,107 | 3,107 | 3,112 | 3,112 | 3,138 | 3,141 | 3,137 | 3,137 | 3,137 |
+| 2021 | 3,135 | 3,107 | 3,107 | 3,112 | 3,112 | 3,138 | 3,218 | 3,136 | 3,136 | 3,136 |
+| 2022 | 3,127 | 3,107 | 3,107 | 3,112 | 3,112 | 3,138 | 3,218 | 3,136 | 3,136 | 3,136 |
+| 2023 | 3,127 | 3,107 | 3,107 | 3,112 | 3,112 | 3,138 | 3,218 | 3,136 | 3,136 | 3,136 |
+| 2024 | 3,127 | 3,098 | 3,099 | 3,104 | 3,103 | 3,130 | 3,210 | 3,128 | 3,128 | 3,128 |
+
+The full per-family, per-year numbers, including how many counties have any value at all for a year,
+are in `data/fred_county_vintages/coverage.json`.
 
 ## What does not exist, and what was left out
 

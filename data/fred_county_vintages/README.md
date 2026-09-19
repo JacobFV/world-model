@@ -54,7 +54,79 @@ the measured per-series numbers are in `coverage.json` and the tables below. Met
 counterpart without renaming. Note that LAUS `employment` counts **employed residents** and QCEW
 employment (not available here, see below) counts **jobs by place of work**.
 
-<!-- COVERAGE -->
+## Measured coverage
+
+Published stage `8468fab9`, raw artifact `2bbca474`: **31,452 shards, 461,245,177 bytes downloaded
+(513 MiB on disk), 5,319,601 records (5,250,026 observations, 441,884 of them first releases),
+136,909,829 bytes gzip**. FRED refused **no** series: every configured county series is in ALFRED.
+Everything below is counted from the published records by `measure_coverage.py`
+(`coverage.json`), not from metadata.
+
+| family | series | county-equivalents | states+DC | vintages/series (min-median-max) | first vintage | refused |
+| --- | ---: | ---: | ---: | --- | --- | ---: |
+| population | 3,139 | 3,139 | 51 | 8-22-25 | 2004-04-09 | 0 |
+| per_capita_personal_income | 3,134 | 3,134 | 51 | 1-14-14 | 2014-05-30 | 0 |
+| personal_income | 3,134 | 3,134 | 51 | 1-13-13 | 2014-05-30 | 0 |
+| gdp | 3,113 | 3,113 | 51 | 7-8-8 | 2018-12-12 | 0 |
+| real_gdp | 3,113 | 3,113 | 51 | 7-8-8 | 2018-12-12 | 0 |
+| private_establishments | 3,142 | 3,142 | 51 | 1-39-40 | 2017-03-07 | 0 |
+| laus_unemployment_rate | 3,233 | 3,233 | 51 | 2-12-12 | 2017-08-30 | 0 |
+| laus_unemployed | 3,148 | 3,148 | 51 | 2-10-10 | 2019-08-28 | 0 |
+| laus_employed | 3,148 | 3,148 | 51 | 2-10-10 | 2019-08-28 | 0 |
+| laus_labor_force | 3,148 | 3,148 | 51 | 2-10-10 | 2019-08-28 | 0 |
+
+"states+DC" excludes Puerto Rico; the 78 PR municipios appear only in `laus_unemployment_rate`.
+A series with 1-2 vintages is one FRED created recently (Connecticut planning regions, Chugach and
+Copper River).
+
+### County-equivalents with a first release, by reference year
+
+A cell counts county-equivalents whose value for that reference year was published for the first
+time in a vintage **after** the series' archive opened (for `private_establishments`, all four
+quarters of the year). Zeros before a family's archive are not gaps in the data: those years are
+present, but only as already-revised history, and a real-time panel must not read them as releases.
+
+| year | population | per_capita_personal_income | personal_income | gdp | real_gdp | private_establishments | laus_unemployment_rate | laus_unemployed | laus_employed | laus_labor_force |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| 2000 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
+| 2001 | 0 | 0 | 0 | 3,107 | 3,107 | 0 | 0 | 0 | 0 | 0 |
+| 2002 | 0 | 0 | 0 | 3,108 | 3,108 | 0 | 0 | 0 | 0 | 0 |
+| 2003 | 0 | 0 | 0 | 3,108 | 3,108 | 0 | 0 | 0 | 0 | 0 |
+| 2004 | 330 | 0 | 0 | 3,108 | 3,108 | 0 | 0 | 0 | 0 | 0 |
+| 2005 | 330 | 0 | 0 | 3,108 | 3,108 | 0 | 0 | 0 | 0 | 0 |
+| 2006 | 330 | 0 | 0 | 3,108 | 3,108 | 0 | 0 | 0 | 0 | 0 |
+| 2007 | 3,116 | 0 | 0 | 3,108 | 3,108 | 0 | 0 | 0 | 0 | 0 |
+| 2008 | 3,139 | 0 | 0 | 3,110 | 3,110 | 0 | 0 | 0 | 0 | 0 |
+| 2009 | 3,139 | 0 | 0 | 3,113 | 3,113 | 0 | 0 | 0 | 0 | 0 |
+| 2010 | 3,139 | 0 | 0 | 3,113 | 3,113 | 0 | 0 | 0 | 0 | 0 |
+| 2011 | 3,139 | 0 | 0 | 3,113 | 3,113 | 0 | 0 | 0 | 0 | 0 |
+| 2012 | 3,139 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
+| 2013 | 3,139 | 3,082 | 3,082 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
+| 2014 | 3,138 | 3,081 | 3,081 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
+| 2015 | 3,137 | 3,108 | 3,108 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
+| 2016 | 3,136 | 3,108 | 3,108 | 3,113 | 3,113 | 0 | 0 | 0 | 0 | 0 |
+| 2017 | 3,136 | 3,108 | 3,108 | 3,113 | 3,113 | 3,139 | 3,219 | 0 | 0 | 0 |
+| 2018 | 3,136 | 3,108 | 3,108 | 3,113 | 3,113 | 3,139 | 3,219 | 0 | 0 | 0 |
+| 2019 | 3,136 | 3,108 | 3,108 | 3,113 | 3,113 | 3,139 | 3,219 | 3,128 | 3,128 | 3,128 |
+| 2020 | 3,135 | 3,107 | 3,107 | 3,112 | 3,112 | 3,138 | 3,141 | 3,137 | 3,137 | 3,137 |
+| 2021 | 3,135 | 3,107 | 3,107 | 3,112 | 3,112 | 3,138 | 3,218 | 3,136 | 3,136 | 3,136 |
+| 2022 | 3,127 | 3,107 | 3,107 | 3,112 | 3,112 | 3,138 | 3,218 | 3,136 | 3,136 | 3,136 |
+| 2023 | 3,127 | 3,107 | 3,107 | 3,112 | 3,112 | 3,138 | 3,218 | 3,136 | 3,136 | 3,136 |
+| 2024 | 3,127 | 3,098 | 3,099 | 3,104 | 3,103 | 3,130 | 3,210 | 3,128 | 3,128 | 3,128 |
+
+Three things this table says:
+
+* **Population** is the deep family: 330 county-equivalents have a genuine 2004 first release and
+  3,116 have one for 2007, so a real-time population feature can start in 2007. (2000-2003 values
+  exist only in the opening snapshot.)
+* **BEA county GDP** opened its archive on 2018-12-12 holding 2012-2015, and BEA's next release
+  (2019-12-12) published 2001-2011 and 2016-2018 at once. Those backcast years therefore have a
+  first release, dated by *when they were published* rather than what they describe, which is what a
+  real-time panel needs; 2012-2015 have none.
+* **The LAUS annual averages and QCEW establishments start late.** A panel that needs all ten
+  families as first releases starts at reference year **2019**; dropping the three 2019 LAUS
+  families it starts at **2017**; with population, personal income and per-capita income alone it
+  starts at **2013**, and with population alone at **2007**.
 
 ## County codes
 
