@@ -191,12 +191,43 @@ host-memory cap on a GB10: CPU and GPU share one pool, which is why the cgroup i
 | --- | --- | --- |
 | `places.county_root_readout_v1` | not run (compute budget) | stopped at 29 min on the shared machine, projecting ~64 min against 60, before any validation score existed |
 | `places.county_root_readout_v2` | not run (compute budget) | shared the second GB10's GPU with the actors attempt; stopped after one validation origin, before any score |
-| `places.county_root_readout_v3` | running | identical in every scored respect; alone on its GPU |
+| `places.county_root_readout_v3` | **fail** (all three targets) | employment beats every baseline; all three fail the declared revision-leakage criterion; see below |
 | `actors.13f_exit_increase_v1` | **fail** (both tasks) | beats the base rate, loses to LightGBM; see below |
 | `actors.13f_exit_increase_v2` | queued | LightGBM plus the embedding, registered after v1's result |
 | `actors.votes_party_defection_v1` | queued | the same three candidates, on roll-call defections |
+| `actors.fec_repeat_contribution_v1` | queued | will a committee give to the same recipient again next cycle |
+| `actors.fdic_bank_distress_v1` | queued | will a bank's noncurrent ratio cross 3%, or deposits fall over 10% |
 
 ## Results
+
+### places.county_root_readout_v3
+
+Published `embedding_reports@8221e167` (employment), `@e0a5232d` (establishments), `@8afcd1ba`
+(population). Test origins 2018-2023, refit at every origin, 19,320 county-year forecasts per
+QCEW target. The full-subgraph encoder was selected over the seed-only one for all three targets on
+validation. Wall clock 64 minutes on the dedicated GB10, peak GPU 6.1 GiB.
+
+| Target | Encoder MSE | Persistence | Drift | LightGBM | 80% interval coverage |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| QCEW employment | **0.00467** | 0.00496 | 0.00612 | 0.00564 | 0.748 |
+| QCEW establishments | **0.00410** | 0.00488 | 0.00433 | 0.00411 | 0.694 |
+| BEA population | 0.000437 | 0.000641 | **0.000388** | **0.000336** | 0.766 |
+
+* **Employment** is the one real win: lower squared error than persistence, drift *and* LightGBM on
+  the same subgraph, with interval coverage inside the declared tolerance. **But** the pooled
+  Diebold-Mariano test that the criterion uses (p < 0.001 against all three) treats 19,320
+  county-years as independent; the conservative per-year test over the six test years gives p = 0.29
+  against persistence and p = 0.25 against LightGBM. On six years, the honest statement is that the
+  encoder's *average* loss is lowest and the year-to-year evidence is not significant.
+* **Establishments**: beats persistence and drift, ties LightGBM (p = 0.24).
+* **Population**: beats persistence, loses to drift and LightGBM. County population is close to a
+  smooth trend, which is exactly what drift extrapolates.
+* **None is validated**, and all three fail for the reason declared before the run:
+  `no_revision_leakage`. The panel holds current-vintage values, and QCEW, LAUS and BEA all revise.
+  A real-time county panel (ALFRED county vintages) is being acquired; until then no attempt on this
+  panel can pass, whatever its skill.
+* The graph helps: the seed-only encoder was worse on validation for every target
+  (0.00386 against 0.00422 for employment).
 
 ### actors.13f_exit_increase_v1
 
