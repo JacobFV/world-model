@@ -8,8 +8,14 @@ post-period outcome is read, every result carries its design, assumptions, pre-t
 outcomes, and the identification label follows mechanically from pre-registered acceptance
 criteria. Nulls, failed pre-trends and infeasible designs are published like any other result.
 
-**State as of 2026-09-18.** Four designs were registered and committed before any outcome was
-read, then run against the data on the shared machine (the FEMA study twice, see "Superseded run"). **None identifies an effect.**
+**State as of 2026-09-18.** Two waves of designs have been registered, committed and run. **No
+design identifies a non-zero effect.** Wave 1's four designs all failed; wave 2's four
+registrations were written against what wave 1 showed, and produced three *identified nulls* -
+effects bounded inside intervals that are still too wide to rule out the effects the literature
+would call plausible - alongside four more failed diagnostics. A registered power suite now says,
+for every design in both waves, what it could and could not have detected.
+
+### Wave 1 (four designs, none identified)
 
 | Study | Verdict | Label | Key numbers |
 | --- | --- | --- | --- |
@@ -25,6 +31,21 @@ assigns a spurious -0.068 "effect" to the pre-period). That is what a protection
 falling or surging imports, or front-running of announced increases, looks like, and it is exactly
 the threat the registration named.
 
+### Wave 2 (four registrations, three identified nulls, no non-zero effect)
+
+Every wave-2 registration names the wave-1 result it answers and discloses which outcome values
+wave 1 had already read. Full designs and numbers: [Wave 2](#wave-2).
+
+| Study and outcome | Verdict | Label | Key numbers |
+| --- | --- | --- | --- |
+| Heavy vs negligible storm damage inside the same FEMA declaration -> county employment | no causal claim: pre-trend fails | `did_failed_diagnostics` | ATT -0.010 log points (-0.039 to +0.018); 397 of 583 treated county-disasters contribute, 50 state clusters; pre-trend Wald p = 0.034 (bootstrap sup-t p = 0.62), placebo date p = 0.79 |
+| ... same design -> county establishments | **identified null** | `quasi_experimental_did` | ATT -0.004 (-0.028 to +0.020); pre-trend p = 0.18, placebo date p = 0.69, placebo units 0.06 |
+| First MFN cut >= 2 pp (anticipation 1, HS2022 concordance) -> BACI HS1992 import value | no causal claim: pre-trend and placebo date fail | `did_failed_diagnostics` | ATT -0.007 (-0.056 to +0.041); 6,121 treated importer-products, 4,518 clusters; pre-trend p = 0.027, placebo-date effect +0.054 (p = 0.003) |
+| ... same design -> import quantity | **identified null** | `quasi_experimental_did` | ATT -0.009 (-0.090 to +0.072); pre-trend p = 0.55, placebo date p = 0.55 |
+| OFAC country-programme wave -> target's exports to the US relative to its other exports | no causal claim: cluster placebo fails | `did_failed_diagnostics` | ATT -0.115 (-0.267 to +0.038); 16 target countries, 1,163 treated country-chapters, 221 country clusters; pre-trend p = 0.69, placebo date p = 0.94, cluster-placebo rejection 0.11 (limit 0.10) |
+| ... same design -> target's imports from the US relative to its other imports | **identified null** | `quasi_experimental_did` | ATT -0.121 (-0.309 to +0.068); cluster-placebo rejection 0.10 |
+| Power and negative controls for every wave-1 and wave-2 design | every design is underpowered | `design_power_analysis` | minimum detectable effect / plausible effect: 2.27 (W1 FEMA), 1.81 (W1 tariffs), 1.02 (W1 exposure), 1.67 (W2 dose), 1.39 (W2 tariffs), 1.34 (W2 sanctions); two designs reject a true null in 11.5% and 14.5% of synthetic panels |
+
 ## The pieces
 
 | Piece | Where | What it is |
@@ -33,6 +54,7 @@ the threat the registration named.
 | Engine | `worldmodel/causal` (stdlib only) | staggered DiD estimators, inference, pre-trend and placebo tests, result records |
 | Registrations | `examples/natural-experiments/registrations/*.json` | one committed design per study |
 | Runner | `examples/natural-experiments/run_studies.py` | refuses uncommitted registrations; writes `results/<study>.json` and publishes to `natural_experiment_reports` |
+| Power runner | `examples/natural-experiments/run_power.py` | `export` (real panels and calibration), `simulate` (null draws, runnable on another host), `assemble` (checks digests and calibration, publishes) |
 | Results | `examples/natural-experiments/results/*.json`, dataset `natural_experiment_reports` | aggregate estimates and diagnostics, content-addressed, inputs pinned |
 
 ## Event library
@@ -68,6 +90,8 @@ All numerics are pure Python.
 | `twfe_static` | the naive two-way fixed-effects coefficient (alternating projections, cluster-robust SE), kept only to show how far it moves |
 | `placebo_date_test` | treated units keep only pre-treatment data and are assigned treatment `shift` periods early; a credible design finds nothing |
 | `placebo_unit_test` | real treated units are removed and never-treated units receive cohorts drawn from the real distribution (within stratum); the rejection rate estimates the test's size and ranks the real estimate |
+| `placebo_cluster_test` (wave 2) | the same test with treatment assigned to whole clusters (e.g. all of a country's chapters), for designs whose real treatment is a cluster-level event; a unit-level placebo would count one country as many independent experiments |
+| `calibrate`, `calibrate_variogram`, `simulate_null_panel`, `null_draws`, `summarize_draws` (wave 2) | noise calibrated on a real panel's untreated cells, synthetic null panels with that panel's exact structure, and the size, diagnostic pass rates and minimum detectable effect that follow |
 | `run_did_design` | runs a registration end to end and returns a `worldmodel.causal_result/1` record |
 | `compare_rankings`, `score_event`, `paired_sign_flip` | per-event Spearman and top-k capture of a ranking against measured outcomes, and a paired sign-flip permutation test across events |
 
@@ -89,8 +113,11 @@ non-zero and cover when clusters equal strata and effects vary across strata.
 | `did_failed_diagnostics` | a pre-trend, placebo or robustness criterion failed; the estimate is shown for transparency and is not an effect |
 | `not_estimable` | too few treated units, clusters or events for the registered design |
 | `predictive_association` | a held-out predictive test (the exposure ranking); never an intervention response |
+| `design_power_analysis` (wave 2) | operating characteristics of a design measured on synthetic panels with no effect; says nothing about any real effect |
 
-An unmeasured criterion fails. The label is computed from the criteria, not chosen.
+An unmeasured criterion fails. The label is computed from the criteria, not chosen. A
+`quasi_experimental_did` result whose interval contains zero is a **null**, and a null is only as
+informative as the design's minimum detectable effect, which is why wave 2 measures it.
 
 ### Registration and the commit rule
 
@@ -194,41 +221,269 @@ employment is partly modelled and smooths local shocks; two post months may be t
 too long; 2020 storms fall in COVID-19 months; and the outcome may simply not move for most
 counties a storm reaches.
 
+## Wave 2
+
+Wave 1 left four lessons: counties hit first were on different growth paths; imports of
+tariff-raised products were already falling; the designated parties have no outcome in this
+repository; and a hazard ranking does not predict county employment. Wave 2 registered four
+designs against those lessons, each stating in its registration what wave 1 showed, what it
+changes, and **which outcome values wave 1 had already read** (none is a fresh sample in the
+time-window sense, and none is presented as one). All four registrations were committed at
+`c0e0f80` before any wave-2 outcome was read; the power registration was amended once, visibly,
+before its simulations ran (see below).
+
+New machinery, all stdlib and additive to wave 1: extractors for NOAA county-coded damage, BEA
+county population and BACI HS1992 panels (`worldmodel/causal/sources_wave2.py`); the wave-2 panel
+builders and runners (`studies_wave2.py`); a **cluster-level placebo test** (`placebo_cluster_test`)
+for designs whose treatment is assigned to whole clusters; and the power suite (`power.py`,
+`power_designs.py`, `examples/natural-experiments/run_power.py`).
+
+### 1. Damage dose inside a FEMA declaration -> county employment and establishments
+
+*Why.* Wave 1 compared counties declared after a quiet period with same-state counties not yet
+declared, and the leads rose steadily. This design holds the declaration fixed: treated and
+control counties are **in the same disaster**, so they share the declaration, its date, its state
+and the programmes it opened; only the physical damage differs. It also matches on the counties'
+own earlier growth.
+
+*Registered design.* Treated: a county declared in a severe-storm, flood or tornado DR whose
+NOAA county-coded damage during the incident period is at least **$100 per resident** (BEA
+population in g-1). Control: a county in the same declaration with under $1 per resident.
+Declared counties between those doses are excluded. Hurricane and winter declarations are excluded
+because NOAA records that damage against NWS zones (85,424 zone-coded damage rows), which cannot be
+attributed to a county. A (disaster, county) pair is dropped if the county had another qualifying
+DR in g-3..g-1. Strata: disaster x above/below-median growth of log employment from g-8 to g-5 -
+a window that ends before every tested lead, so the pre-trend test is not mechanically passed.
+Clusters: state. e = -4..4, overall = mean of e = 0..4. Placebo date shift 2; placebo units 100.
+
+*Sample.* 15,697 (disaster, county) pairs of those types in 1998-2020; 10,034 dropped for another
+disaster in g-3..g-1, 45 without population; 583 treated, 3,371 control, 1,664 in the excluded
+middle; treated dose quartiles $157 / $306 / $843 per resident. 397 of the 583 treated pairs have a
+control in their own disaster-and-growth-half stratum and so contribute to the estimate.
+
+*Result* (`natural_experiment_reports@ae0b70de...`):
+
+| Outcome | ATT (95% CI) | Pre-trend Wald p | Placebo date | Placebo units | Stacked | TWFE | Label |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| log QCEW employment | -0.010 (-0.039, +0.018) | **0.034** | +0.001, p = 0.79 | 0.03 | -0.010 (-0.025, +0.005) | -0.015 | `did_failed_diagnostics` |
+| log QCEW establishments | -0.004 (-0.028, +0.020) | 0.182 | +0.001, p = 0.69 | 0.06 | -0.004 (-0.015, +0.008) | -0.010 | `quasi_experimental_did` |
+
+The employment leads are small (+0.005, +0.000, +0.003 at e = -4, -3, -2) but jointly reject at
+0.034, so the registered criterion fails and no employment effect is claimed; the bootstrap sup-t
+pre-trend test on the same leads does not reject (p = 0.62), which is a disagreement between two
+registered diagnostics, not a licence to pick one. The establishment outcome passes every
+criterion and is a **null**: heavy damage does not move establishment counts by more than about
+2.8% down or 2.0% up over five years, under the listed assumptions. Event-time estimates decay
+(e = 0 +0.004 to e = +4 -0.014), so nothing rules out a small effect appearing later than e = 4.
+The unmatched variant (strata = disaster only, non-gating) gives -0.003 (-0.023, +0.018) for
+employment with a pre-trend p of 0.34; it is reported for transparency and cannot be substituted
+for the registered design.
+
+### 2. MFN tariff decreases -> imports
+
+*Why.* Wave 1's increases failed because imports were already falling. Decreases are the
+symmetric event and are dominated in this sample by broad schedule reforms (China 2019, Pakistan
+2020 and 2022, Sri Lanka 2021, the UK Global Tariff 2021, Kazakhstan, Ecuador), which should be
+less responsive to a single product's import trend. The design also allows one year of
+anticipation, matches on earlier import growth and uses a longer pre-period.
+
+*Registered design.* Treatment: the first MFN change of at least 0.5 pp between consecutive
+reported years, when it is a **decrease of at least 2 pp**. HS2022 reporting years are read
+through the UN HS2022-HS2017 correlation, one-to-one codes only (4,097), which is what makes the
+2022 and 2023 cohorts datable at all. Outcomes: BACI **HS1992** imports 2009-2024 for HS2017 codes
+with a one-to-one HS1992 code (3,332), so the pre-period starts in 2009. Anticipation = 1 (base
+g-2, e = -1 reported separately). Strata: importer x tercile of log import growth 2009-2013, a
+window that ends before every tested lead. Clusters: importer x HS2017 chapter. e = -5..3,
+overall = mean of e = 0..3. Placebo date shift 3; placebo units 100.
+
+*Sample.* Universe 258,651 importer-products with a 2018 HS2017 rate in 48 BACI importers:
+238,631 never changed, 10,509 first changes are decreases of at least 2 pp, 12,460 other first
+changes, 2,438 span a reporting gap. After the HS1992 and positive-import requirements the panel
+holds 138,020 units (2.19 M observations), of which **6,121 are treated** (2019: 1,915; 2020:
+1,442; 2021: 2,055; 2022: 512; 2023: 197) in 4,518 clusters.
+
+*Result* (`natural_experiment_reports@ca8df84d...`):
+
+| Outcome | ATT (95% CI) | Pre-trend Wald p | Placebo date | Placebo units | Stacked | TWFE | Label |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| log import value | -0.007 (-0.056, +0.041) | **0.027** | +0.054, p = **0.003** | 0.08 | -0.011 (-0.057, +0.034) | -0.003 | `did_failed_diagnostics` |
+| log import quantity | -0.009 (-0.090, +0.072) | 0.549 | +0.015, p = 0.55 | 0.08 | +0.033 (-0.087, +0.153) | -0.027 | `quasi_experimental_did` |
+
+The value design fails for the same reason wave 1's increases did, with the sign reversed: the
+placebo date puts a spurious **+0.054** on the pre-period, and the e = -5 lead is -0.040. Trade
+values of products that later get cut are not on the comparison products' path. The quantity
+outcome (units with a full quantity record) passes every criterion and is a **null** of
+-0.009, with an interval (-0.090, +0.072) far wider than the 5% the elasticity literature would
+predict. **The symmetric design does not rescue the tariff question: cutting a tariff by 2 pp or
+more is not shown to move imports, and the design that would have shown it is not powered to.**
+
+### 3. OFAC country-programme waves -> trade with the United States
+
+*Why.* Wave 1 could not give the designated parties an outcome (7 of 19,776 map to a 13F
+security) and rejected country waves because they coincide with the events that motivate them.
+This design gives the programme's **target country** an outcome it has - its bilateral trade -
+and removes the coinciding shock by differencing within country-chapter-year: the outcome is
+log(exports to the US) - log(exports to everyone else). A shock to the country's supply or to
+world demand cancels; what remains is the US-specific change.
+
+*Registered design.* Treatment: the first year with at least 5 OFAC designations under a
+programme aimed at the country (an explicit programme-to-target table in the registration;
+thematic, human-rights and multi-country programmes are not mapped). 16 targets have a first wave
+in 2000-2021: IRQ 2003; IRN, COD, BLR 2006; SOM, PRK 2010; LBY 2011; RUS, UKR 2014; CAF, VEN 2015;
+SSD 2017; NIC 2019; CHN 2020; MMR, ETH 2021. Units: exporting country x HS1992 chapter, 1995-2024.
+Strata: chapter. Clusters: country. e = -5..3. Placebo date shift 2; **placebo cluster** 100
+replications (whole never-targeted countries receive placebo cohorts, because unit-level placebos
+would treat 97 chapters of one country as 97 independent experiments).
+
+*Gate numbers, stated in the registration.* The alternative vessel design is closed: 2,094 OFAC
+parties carry an IMO number, 390 were first designated between 2025-02-01 and 2025-11-30 (a
+`marine_ais` month before and after), and **5** of those 390 appear anywhere in `marine_ais` (24
+of all 2,098 OFAC IMO numbers do); the gate was 30, and no AIS activity value was read.
+
+*Result* (`natural_experiment_reports@891589ff...`): 17,575 units, 1,163 treated country-chapters
+in 16 countries, 221 country clusters.
+
+| Outcome | ATT (95% CI) | Pre-trend Wald p | Placebo date | Placebo cluster | Stacked | TWFE | Label |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| log US share of exports | -0.115 (-0.267, +0.038) | 0.693 | -0.010, p = 0.94 | **0.11** | -0.087 (-0.222, +0.048) | -0.270 | `did_failed_diagnostics` |
+| log US share of imports | -0.121 (-0.309, +0.068) | 0.853 | +0.050, p = 0.38 | 0.10 | -0.115 (-0.280, +0.050) | -0.177 | `quasi_experimental_did` |
+
+The export design is the closest thing in either wave to a positive finding and **is not one**:
+the point estimate is a 11% fall in the target's exports to the US relative to its other exports,
+with an interval that includes zero, and it fails its registered cluster-placebo criterion by one
+replication in a hundred (0.11 against a limit of 0.10; with 100 replications the Monte Carlo
+error on that rate is about 3 points, so the test is close to its limit either way). The import
+side passes everything and is a **null** of -0.121 with an interval (-0.309, +0.068): with 16
+treated countries this design cannot see anything smaller than about a third.
+
+### 4. Power and negative controls for every design
+
+*Why.* Wave 1 published four failures without saying whether any of them could have succeeded. A
+null from a design that could not have seen the effect, and a failed diagnostic from a design whose
+checks reject correct designs a third of the time, mean very different things.
+
+*Registered design.* For each covered design, rebuild its real primary-outcome panel from its
+pinned inputs with its own code (the wave-1 panels must reproduce the digests their published
+results recorded, and they do: `ea51a8f6...` and `3d50cc96...`), calibrate noise on its **untreated
+cells only** (never-treated units and treated units before `g - anticipation`, in first
+differences, so no unit effect and no post-treatment outcome enters), then re-run the registered
+estimator and its placebo-date test on 200 synthetic panels that keep the real structure exactly
+and carry **no effect and exactly parallel trends**. Because the estimators are linear in the
+outcomes, a homogeneous effect `delta` shifts each estimate by exactly `delta` and leaves its
+standard error alone, so one set of null draws gives the whole power curve. Each design's
+*plausible effect* was fixed in the registration, with its source, before any wave-2 outcome was
+read. Simulations ran on the second machine from the exported panels; assembly at home rebuilds
+the panels, refuses to continue unless digests and calibration match, and only then publishes.
+
+*Amendment, disclosed.* The registered noise model is a stationary AR(1) in levels, whose
+differences can only be negatively autocorrelated; county employment growth is positively
+autocorrelated (+0.09), so the fitted coefficient hit its bound. The registered calibration check
+caught this. A second model - the untreated cells' empirical variogram fitted with AR(1),
+random-walk and random-trend components - was registered as an amendment and is simulated with the
+same seeds and reported beside the registered one; **verdicts still come from the registered model
+and its registered fallback** (when the mean simulated standard error is not within [0.67, 1.5] of
+the real one, the reported MDE is the analytic `2.80 x SE`).
+
+*Result* (`natural_experiment_reports@3262c1dc...`, label `design_power_analysis`):
+
+| Design (primary outcome) | Real SE | MDE at 80% power | Plausible effect | MDE / plausible | Size under the null | Both diagnostics pass |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| W1 FEMA first disaster -> employment | 0.0087 | 0.023 (simulated) | 0.01 | 2.27 | 0.080 | 0.73 |
+| W1 MFN increases -> import value | 0.0221 | 0.091 (simulated) | 0.05 | 1.81 | **0.115** | 0.91 |
+| W1 OFAC -> 13F holdings | - | not estimable (7 treated securities) | - | - | - | - |
+| W1 Cyclone exposure ranking | - | 0.051 Spearman (resampled storms) | 0.05 | 1.02 | 0.087 | - |
+| W2 FEMA damage dose -> employment | 0.0119 | 0.033 (analytic; calibration check failed) | 0.02 | 1.67 | 0.070 | 0.81 |
+| W2 MFN decreases -> import value | 0.0245 | 0.069 (simulated) | 0.05 | 1.39 | 0.060 | 0.91 |
+| W2 OFAC programme waves -> US export share | 0.0716 | 0.201 (analytic; calibration check failed) | 0.15 | 1.34 | **0.145** | 0.59 |
+
+**Every design in both waves is underpowered against the effect its own registration called
+plausible**, by factors of 1.0 to 2.3. The wave-1 FEMA design would have needed a 2.3% employment
+effect to find one reliably and called 1% plausible; its power at 1% was 0.30. The exposure
+ranking test is the closest to adequate (MDE 0.051 against 0.05, power 0.79 at the plausible
+value) and still failed. This is the main result of wave 2: **the nulls above are mostly the
+nulls of designs that could not have seen the effects anyway**, and reporting them without this
+would overstate them.
+
+Two designs also **over-reject under a true null**: the wave-1 tariff design claims an effect in
+11.5% of no-effect panels and the wave-2 sanctions design in 14.5% (nominal 5%). The sanctions
+design's pre-trend test rejects a correct design 37.5% of the time - with 16 treated clusters the
+clustered normal approximation is simply not accurate - so its passing diagnostics are weaker
+evidence than they look, and its identified null on the import side should be read with an
+interval wider than the one printed. The other five designs' sizes are 6-8.7%, close enough to
+nominal for 200 replications (Monte Carlo error about 2 points).
+
+The calibration check fired twice, in opposite directions, and both are informative about the
+designs rather than about the simulator. On the FEMA dose panel the simulated SE is 0.38 of the
+real one because the same county appears in several (disaster, county) stacks with an identical
+outcome series, which the design's state-level clustering handles and the independent-unit
+simulation does not. On the sanctions panel it is 1.73 times the real one: with 96 chapters per
+country and strong within-country correlation, calibrated independent chapter noise is more
+variable than the real chapter series. In both cases the registered fallback reports the analytic
+MDE, and the amended variogram model agrees (0.033 and 0.201).
+
 ## What is identified and what is not
 
-**Identified:** nothing. No registered design passed its own diagnostics, so the repository
-still holds no identified intervention response, and no simulator parameter may be bound to any
-estimate above.
+**Identified: three nulls, no effect.** Three wave-2 outcomes passed every pre-registered
+criterion, so under their listed assumptions the repository can now bound three intervention
+responses - all of them at zero:
+
+* heavy versus negligible storm damage inside the same FEMA declaration changes county
+  **establishment counts** by -0.028 to +0.020 log points (about -2.7% to +2.0%) over five years;
+* an MFN cut of at least 2 pp changes **import quantity** by -0.090 to +0.072 log points (about
+  -8.6% to +7.4%) over four years;
+* an OFAC country-programme wave changes the target's **imports from the US relative to its other
+  imports** by -0.309 to +0.068 log points (about -27% to +7%) over four years - and that interval
+  is if anything too narrow, because the same design rejects a true null in 14.5% of synthetic
+  panels.
+
+These are bounds, not effects: every interval contains zero, and every one of them is wider than
+the effect its own registration called plausible - the power suite puts each design's minimum
+detectable effect at 1.0 to 2.3 times that plausible effect. No simulator
+parameter may be bound to a non-zero effect from any estimate in this document, and no wave-1
+verdict changed.
 
 **Now possible that was not before:** a pre-registration and commit rule that the runner enforces;
 estimators for staggered adoption that are unbiased where naive TWFE is not (tested); inference
-that is clustered and bootstrapped with uniform bands; pre-trend, placebo-date and placebo-unit
-falsification that can and did fail designs; labels computed from acceptance criteria; and a
-versioned library of 255,012 dated shocks with explicit date semantics and ex-ante/ex-post
-intensity.
+that is clustered and bootstrapped with uniform bands; pre-trend, placebo-date, placebo-unit and
+(wave 2) placebo-cluster falsification that can and did fail designs; labels computed from
+acceptance criteria; a versioned library of 255,012 dated shocks; and a registered power suite that
+states, for every design, the smallest effect it could have detected and how often it would claim
+one when there is none.
 
 **Not identified, and why:**
 
-* Disaster effects on county employment: counties first hit after a quiet period were already on
-  different paths from same-state counties hit later.
-* Tariff effects on imports: a sizeable decline follows MFN increases, but a decline also precedes
-  them; the design cannot separate the tariff from what prompted it.
-* Sanctions effects: the designated population does not overlap the outcome data the repository
-  holds.
+* Disaster effects on county employment: wave 1's counties hit first were on different paths from
+  same-state counties hit later; wave 2's within-declaration dose contrast still fails its
+  pre-trend criterion on employment (while passing it on establishments), and could not have
+  detected the 2% effect its registration called plausible.
+* Tariff effects on import value: increases and decreases both fail, symmetrically. Values of
+  treated products move before the change in both directions (wave 1 placebo -0.068, wave 2
+  placebo +0.054), so neither design separates the tariff from what prompted it.
+* Sanctions effects: the designated parties still have no firm-level outcome here (7 of 19,776 map
+  to a 13F security; 5 of 390 in-window designated vessels appear in `marine_ais`). The
+  country-programme design gives them a trade outcome, but the export side fails its cluster
+  placebo and both sides are too imprecise to see anything smaller than about a third.
 * Exposure: hazard-based rankings of cyclone-reached counties do not predict their measured
-  employment change, so an exposure ranking is not yet validated for any shock type.
+  employment change, and the test had little chance of showing otherwise.
 
 ## Follow-ups
 
-* FEMA: an intensity design (damage or IHP per capita among declared counties), monthly QCEW
-  (2023+) or LAUS outcomes, and a matched comparison on pre-period growth; any of these needs a new
-  registration.
-* Tariffs: add the decrease events (18,751 in the library), a concordance to use HS2022 years, and
-  a design robust to anticipation (anticipation = 1 with the base at g - 2), each registered anew.
-* Sanctions: acquire an outcome the designated population actually has (vessel AIS histories,
-  bilateral trade of designated firms' sectors) before registering.
-* Exposure: other outcomes (IHP registrations, storm damage), other horizons, and the storm-events
-  county damage as a measured intensity, registered before scoring.
+* **Power first.** Every design in both waves is underpowered against the effect its registration
+  called plausible. A wave 3 should start from the power suite: pick outcomes and horizons whose
+  minimum detectable effect is below the effect worth finding, or say in advance that the design
+  can only bound.
+* FEMA: the employment pre-trend fails while establishments pass on the same units, which points
+  at composition (which employers are in QCEW) rather than at the design; a monthly outcome
+  (QCEW monthly within quarters exists for 2023-2025, LAUS monthly from 1990) and a larger dose
+  contrast (the top decile of damage per capita) are the obvious next registrations.
+* Tariffs: the remaining threat is anticipation longer than one year and reallocation across HS6
+  lines inside a chapter; a design at chapter level, or with the tariff change as a continuous dose
+  and importer-chapter-year fixed effects, would address both.
+* Sanctions: a treatment that is not a year-level wave (dated Federal Register listings by sector)
+  and an outcome measured monthly would raise power far more than more countries would; the trade
+  panel has 16 treated clusters and cannot get many more.
+* Exposure: other outcomes (IHP registrations, storm damage) and horizons, registered before
+  scoring, with the MDE computed first.
 
 ## Reproduce
 
@@ -237,5 +492,13 @@ intensity.
 WORLD_MODEL_RAW_VERIFY=size WORLD_MODEL_DATA=/path/to/data python3 -m worldmodel run event_library --input openfema/normalized@... (eight pins, see data/event_library/README.md)
 # studies (registrations must be committed)
 WORLD_MODEL_RAW_VERIFY=size WORLD_MODEL_DATA=/path/to/data python3 examples/natural-experiments/run_studies.py --study fema_disasters_county_employment
-python3 -m unittest tests.test_causal tests.test_causal_studies tests.test_causal_event_library
+WORLD_MODEL_RAW_VERIFY=size WORLD_MODEL_DATA=/path/to/data python3 examples/natural-experiments/run_studies.py --study tariff_mfn_decreases_imports   # and the other wave-2 studies
+# power and negative controls (simulate may run on another host; digests and calibration are checked on assembly)
+WORLD_MODEL_RAW_VERIFY=size WORLD_MODEL_DATA=/path/to/data python3 examples/natural-experiments/run_power.py export --dir DIR
+python3 examples/natural-experiments/run_power.py simulate --dir DIR --workers 10
+WORLD_MODEL_RAW_VERIFY=size WORLD_MODEL_DATA=/path/to/data python3 examples/natural-experiments/run_power.py assemble --dir DIR
+python3 -m unittest tests.test_causal tests.test_causal_studies tests.test_causal_event_library tests.test_causal_wave2
 ```
+
+The BACI HS1992 extractions (5.4 GB of gzip JSONL) were run on the second machine and the caches
+copied back; every other wave-2 step ran on the shared machine under a 6-12 GB memory cap.
