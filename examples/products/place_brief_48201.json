@@ -1,0 +1,6658 @@
+{
+ "product": "place-brief",
+ "product_schema": 1,
+ "query": {
+  "place": "48201"
+ },
+ "index": {
+  "path": "/home/brandonin/Documents/world-model/data/world_evidence/index.sqlite",
+  "schema_version": "3",
+  "inputs": 96,
+  "inputs_digest": "571dce5d9bac9463ad2a142e490afbcae651f1f2638f3968c15f2a2510826eff",
+  "resolution_view_digest": "f8a3169623beec055a0d2f64a5a5d2baa05e21e865204b3699195bb30ef20214",
+  "resolution_policy": {
+   "bridges": [
+    "gleif_companies_house",
+    "gleif_isin_cusip",
+    "gleif_sec_cik"
+   ],
+   "inferred_matches_attached": false,
+   "links": "published same_as assertions, shared unique identifiers and published crosswalk fields (resolution.bridges) only",
+   "max_cluster_size": 5000,
+   "namespaces": [
+    "bioguide",
+    "cusip",
+    "duns",
+    "eia_plant",
+    "fdic_cert",
+    "fec_candidate",
+    "fec_committee",
+    "figi",
+    "gb_company_number",
+    "iata",
+    "icao",
+    "icpsr",
+    "imo",
+    "isin",
+    "lei",
+    "mic",
+    "mmsi",
+    "ofac_sdn",
+    "opensanctions",
+    "permid",
+    "ru_inn",
+    "ru_ogrn",
+    "sec_cik",
+    "swift",
+    "uei",
+    "unlocode",
+    "wikidata"
+   ]
+  }
+ },
+ "answer": {
+  "county": {
+   "entity_id": "geo:US:county:48201",
+   "geoid": "48201",
+   "state": "Texas",
+   "labels": [
+    {
+     "from_dataset": "acs_5yr_tables",
+     "label": "Harris County, Texas"
+    },
+    {
+     "from_dataset": "bea_national_regional",
+     "label": "Harris, TX"
+    },
+    {
+     "from_dataset": "bls_labor",
+     "label": "Harris County, TX"
+    },
+    {
+     "from_dataset": "census_geography",
+     "label": "Harris County"
+    },
+    {
+     "from_dataset": "census_population",
+     "label": "Harris County"
+    },
+    {
+     "from_dataset": "fema_nri",
+     "label": "Harris County, TX"
+    },
+    {
+     "from_dataset": "lehd_lodes",
+     "label": "US county FIPS 48201"
+    },
+    {
+     "from_dataset": "lehd_lodes",
+     "label": "US county FIPS 48201"
+    },
+    {
+     "from_dataset": "noaa_storm_events",
+     "label": "Harris, Texas"
+    },
+    {
+     "from_dataset": "openfema",
+     "label": "Harris (County)"
+    },
+    {
+     "from_dataset": "usda_agriculture",
+     "label": "Harris, TX"
+    }
+   ],
+   "selection": {
+    "basis": "county GEOID supplied by the caller"
+   }
+  },
+  "geography": {
+   "dataset": "census_geography",
+   "what": "Land and water area and the internal point, from the Census gazetteer",
+   "observations": 4,
+   "metrics": {
+    "land_area": {
+     "name": null,
+     "observations": 1,
+     "first_valid_from": "2024-01-01",
+     "last_valid_from": "2024-01-01",
+     "headline": {
+      "value": 4421854725,
+      "unit": "m2",
+      "valid_from": "2024-01-01",
+      "valid_to": "2025-01-01",
+      "dimensions": {
+       "geography_vintage": 2024
+      },
+      "missing_reason": null,
+      "record_id": "tiger24:county:48201:land_area"
+     },
+     "headline_rule": "latest observation with the fewest non-total dimensions"
+    },
+    "latitude": {
+     "name": null,
+     "observations": 1,
+     "first_valid_from": "2024-01-01",
+     "last_valid_from": "2024-01-01",
+     "headline": {
+      "value": 29.857273,
+      "unit": "degrees",
+      "valid_from": "2024-01-01",
+      "valid_to": "2025-01-01",
+      "dimensions": {
+       "geography_vintage": 2024,
+       "point": "internal_point"
+      },
+      "missing_reason": null,
+      "record_id": "tiger24:county:48201:latitude"
+     },
+     "headline_rule": "latest observation with the fewest non-total dimensions"
+    },
+    "longitude": {
+     "name": null,
+     "observations": 1,
+     "first_valid_from": "2024-01-01",
+     "last_valid_from": "2024-01-01",
+     "headline": {
+      "value": -95.393037,
+      "unit": "degrees",
+      "valid_from": "2024-01-01",
+      "valid_to": "2025-01-01",
+      "dimensions": {
+       "geography_vintage": 2024,
+       "point": "internal_point"
+      },
+      "missing_reason": null,
+      "record_id": "tiger24:county:48201:longitude"
+     },
+     "headline_rule": "latest observation with the fewest non-total dimensions"
+    },
+    "water_area": {
+     "name": null,
+     "observations": 1,
+     "first_valid_from": "2024-01-01",
+     "last_valid_from": "2024-01-01",
+     "headline": {
+      "value": 181483397,
+      "unit": "m2",
+      "valid_from": "2024-01-01",
+      "valid_to": "2025-01-01",
+      "dimensions": {
+       "geography_vintage": 2024
+      },
+      "missing_reason": null,
+      "record_id": "tiger24:county:48201:water_area"
+     },
+     "headline_rule": "latest observation with the fewest non-total dimensions"
+    }
+   }
+  },
+  "employment_and_business": {
+   "dataset": "census_business",
+   "what": "County Business Patterns and nonemployer statistics",
+   "observations": 2642,
+   "metrics": {
+    "annual_payroll": {
+     "name": null,
+     "observations": 529,
+     "first_valid_from": "2019-01-01",
+     "last_valid_from": "2023-01-01",
+     "headline": {
+      "value": 175822349,
+      "unit": "thousand_USD",
+      "valid_from": "2023-01-01",
+      "valid_to": "2024-01-01",
+      "dimensions": {
+       "industry": "all",
+       "legal_form": "all",
+       "program": "cbp"
+      },
+      "missing_reason": null,
+      "record_id": "cbp23:co48201:all:-:ap"
+     },
+     "headline_rule": "latest observation with the fewest non-total dimensions"
+    },
+    "employment": {
+     "name": null,
+     "observations": 529,
+     "first_valid_from": "2019-03-12",
+     "last_valid_from": "2023-03-12",
+     "headline": {
+      "value": 2182164,
+      "unit": "people",
+      "valid_from": "2023-03-12",
+      "valid_to": "2023-03-19",
+      "dimensions": {
+       "industry": "all",
+       "legal_form": "all",
+       "program": "cbp"
+      },
+      "missing_reason": null,
+      "record_id": "cbp23:co48201:all:-:emp"
+     },
+     "headline_rule": "latest observation with the fewest non-total dimensions"
+    },
+    "establishment_count": {
+     "name": null,
+     "observations": 529,
+     "first_valid_from": "2019-01-01",
+     "last_valid_from": "2023-01-01",
+     "headline": {
+      "value": 111215,
+      "unit": "establishments",
+      "valid_from": "2023-01-01",
+      "valid_to": "2024-01-01",
+      "dimensions": {
+       "industry": "all",
+       "legal_form": "all",
+       "program": "cbp"
+      },
+      "missing_reason": null,
+      "record_id": "cbp23:co48201:all:-:est"
+     },
+     "headline_rule": "latest observation with the fewest non-total dimensions"
+    },
+    "first_quarter_payroll": {
+     "name": null,
+     "observations": 529,
+     "first_valid_from": "2019-01-01",
+     "last_valid_from": "2023-01-01",
+     "headline": {
+      "value": 49768877,
+      "unit": "thousand_USD",
+      "valid_from": "2023-01-01",
+      "valid_to": "2023-04-01",
+      "dimensions": {
+       "industry": "all",
+       "legal_form": "all",
+       "program": "cbp"
+      },
+      "missing_reason": null,
+      "record_id": "cbp23:co48201:all:-:qp1"
+     },
+     "headline_rule": "latest observation with the fewest non-total dimensions"
+    },
+    "nonemployer_establishments": {
+     "name": null,
+     "observations": 263,
+     "first_valid_from": "2022-01-01",
+     "last_valid_from": "2022-01-01",
+     "headline": {
+      "value": 547487,
+      "unit": "establishments",
+      "valid_from": "2022-01-01",
+      "valid_to": "2023-01-01",
+      "dimensions": {
+       "industry": "all",
+       "program": "nonemployer_statistics"
+      },
+      "missing_reason": null,
+      "record_id": "nes22:co48201:all:estab"
+     },
+     "headline_rule": "latest observation with the fewest non-total dimensions"
+    },
+    "nonemployer_receipts": {
+     "name": null,
+     "observations": 263,
+     "first_valid_from": "2022-01-01",
+     "last_valid_from": "2022-01-01",
+     "headline": {
+      "value": 32124257,
+      "unit": "thousand_USD",
+      "valid_from": "2022-01-01",
+      "valid_to": "2023-01-01",
+      "dimensions": {
+       "industry": "all",
+       "program": "nonemployer_statistics"
+      },
+      "missing_reason": null,
+      "record_id": "nes22:co48201:all:rcptot"
+     },
+     "headline_rule": "latest observation with the fewest non-total dimensions"
+    }
+   }
+  },
+  "jobs": {
+   "dataset": "lehd_lodes",
+   "what": "LEHD LODES jobs located in the county",
+   "observations": 2488,
+   "metrics": {
+    "commuting_jobs": {
+     "name": null,
+     "observations": 2461,
+     "first_valid_from": "2023-01-01",
+     "last_valid_from": "2023-01-01",
+     "headline": {
+      "value": 811,
+      "unit": "jobs",
+      "valid_from": "2023-01-01",
+      "valid_to": "2024-01-01",
+      "dimensions": {
+       "aggregation": "county_pair",
+       "flow_scope": "in_state_main",
+       "frequency": "annual",
+       "home_geography": "geo:US:county:48001",
+       "job_type": "primary_jobs",
+       "lodes_year": 2023,
+       "segment": "all_jobs",
+       "segment_type": "total"
+      },
+      "missing_reason": null,
+      "record_id": "lehd_lodes:observation:4a16879b8f8220f3d94d9344a1833b7679a4be9902be1e7968a3c2c819edacda"
+     },
+     "headline_rule": "latest observation with the fewest non-total dimensions"
+    },
+    "jobs_count": {
+     "name": null,
+     "observations": 27,
+     "first_valid_from": "2023-01-01",
+     "last_valid_from": "2023-01-01",
+     "headline": {
+      "value": 2547424,
+      "unit": "jobs",
+      "valid_from": "2023-01-01",
+      "valid_to": "2024-01-01",
+      "dimensions": {
+       "aggregation": "county",
+       "frequency": "annual",
+       "job_type": "all_jobs",
+       "lodes_year": 2023,
+       "place_basis": "workplace",
+       "segment": "all_jobs",
+       "segment_type": "total"
+      },
+      "missing_reason": null,
+      "record_id": "lehd_lodes:observation:b5fd899209a62b82658221a032b08c055ceb04cba0e3d0cd7652e29d7a04da46"
+     },
+     "headline_rule": "latest observation with the fewest non-total dimensions"
+    }
+   }
+  },
+  "population": {
+   "dataset": "census_population",
+   "what": "Population Estimates and components of change",
+   "observations": 650,
+   "metrics": {
+    "births": {
+     "name": null,
+     "observations": 25,
+     "first_valid_from": "2010-04-01",
+     "last_valid_from": "2023-07-01",
+     "headline": {
+      "value": 65668,
+      "unit": "people",
+      "valid_from": "2023-07-01",
+      "valid_to": "2024-07-01",
+      "dimensions": {
+       "vintage": 2024
+      },
+      "missing_reason": null,
+      "record_id": "pep24:county:48201:births:2024"
+     },
+     "headline_rule": "latest observation with the fewest non-total dimensions"
+    },
+    "births_rate": {
+     "name": null,
+     "observations": 20,
+     "first_valid_from": "2010-07-01",
+     "last_valid_from": "2023-07-01",
+     "headline": {
+      "value": 13.24919659,
+      "unit": "per_1000_population",
+      "valid_from": "2023-07-01",
+      "valid_to": "2024-07-01",
+      "dimensions": {
+       "vintage": 2024
+      },
+      "missing_reason": null,
+      "record_id": "pep24:county:48201:births_rate:2024"
+     },
+     "headline_rule": "latest observation with the fewest non-total dimensions"
+    },
+    "deaths": {
+     "name": null,
+     "observations": 25,
+     "first_valid_from": "2010-04-01",
+     "last_valid_from": "2023-07-01",
+     "headline": {
+      "value": 29835,
+      "unit": "people",
+      "valid_from": "2023-07-01",
+      "valid_to": "2024-07-01",
+      "dimensions": {
+       "vintage": 2024
+      },
+      "missing_reason": null,
+      "record_id": "pep24:county:48201:deaths:2024"
+     },
+     "headline_rule": "latest observation with the fewest non-total dimensions"
+    },
+    "deaths_rate": {
+     "name": null,
+     "observations": 20,
+     "first_valid_from": "2010-07-01",
+     "last_valid_from": "2023-07-01",
+     "headline": {
+      "value": 6.0195191002,
+      "unit": "per_1000_population",
+      "valid_from": "2023-07-01",
+      "valid_to": "2024-07-01",
+      "dimensions": {
+       "vintage": 2024
+      },
+      "missing_reason": null,
+      "record_id": "pep24:county:48201:deaths_rate:2024"
+     },
+     "headline_rule": "latest observation with the fewest non-total dimensions"
+    },
+    "group_quarters_population": {
+     "name": null,
+     "observations": 29,
+     "first_valid_from": "2010-07-01",
+     "last_valid_from": "2024-07-01",
+     "headline": {
+      "value": 52612,
+      "unit": "people",
+      "valid_from": "2024-07-01",
+      "valid_to": "2024-07-02",
+      "dimensions": {
+       "vintage": 2024
+      },
+      "missing_reason": null,
+      "record_id": "pep24:county:48201:group_quarters_population:2024"
+     },
+     "headline_rule": "latest observation with the fewest non-total dimensions"
+    },
+    "natural_change": {
+     "name": null,
+     "observations": 25,
+     "first_valid_from": "2010-04-01",
+     "last_valid_from": "2023-07-01",
+     "headline": {
+      "value": 35833,
+      "unit": "people",
+      "valid_from": "2023-07-01",
+      "valid_to": "2024-07-01",
+      "dimensions": {
+       "vintage": 2024
+      },
+      "missing_reason": null,
+      "record_id": "pep24:county:48201:natural_change:2024"
+     },
+     "headline_rule": "latest observation with the fewest non-total dimensions"
+    },
+    "natural_change_rate": {
+     "name": null,
+     "observations": 20,
+     "first_valid_from": "2010-07-01",
+     "last_valid_from": "2023-07-01",
+     "headline": {
+      "value": 7.2296774902,
+      "unit": "per_1000_population",
+      "valid_from": "2023-07-01",
+      "valid_to": "2024-07-01",
+      "dimensions": {
+       "vintage": 2024
+      },
+      "missing_reason": null,
+      "record_id": "pep24:county:48201:natural_change_rate:2024"
+     },
+     "headline_rule": "latest observation with the fewest non-total dimensions"
+    },
+    "net_domestic_migration": {
+     "name": null,
+     "observations": 25,
+     "first_valid_from": "2010-04-01",
+     "last_valid_from": "2023-07-01",
+     "headline": {
+      "value": -31165,
+      "unit": "people",
+      "valid_from": "2023-07-01",
+      "valid_to": "2024-07-01",
+      "dimensions": {
+       "vintage": 2024
+      },
+      "missing_reason": null,
+      "record_id": "pep24:county:48201:net_domestic_migration:2024"
+     },
+     "headline_rule": "latest observation with the fewest non-total dimensions"
+    },
+    "net_domestic_migration_rate": {
+     "name": null,
+     "observations": 20,
+     "first_valid_from": "2010-07-01",
+     "last_valid_from": "2023-07-01",
+     "headline": {
+      "value": -6.287860324,
+      "unit": "per_1000_population",
+      "valid_from": "2023-07-01",
+      "valid_to": "2024-07-01",
+      "dimensions": {
+       "vintage": 2024
+      },
+      "missing_reason": null,
+      "record_id": "pep24:county:48201:net_domestic_migration_rate:2024"
+     },
+     "headline_rule": "latest observation with the fewest non-total dimensions"
+    },
+    "net_international_migration": {
+     "name": null,
+     "observations": 25,
+     "first_valid_from": "2010-04-01",
+     "last_valid_from": "2023-07-01",
+     "headline": {
+      "value": 101126,
+      "unit": "people",
+      "valid_from": "2023-07-01",
+      "valid_to": "2024-07-01",
+      "dimensions": {
+       "vintage": 2024
+      },
+      "missing_reason": null,
+      "record_id": "pep24:county:48201:net_international_migration:2024"
+     },
+     "headline_rule": "latest observation with the fewest non-total dimensions"
+    },
+    "net_international_migration_rate": {
+     "name": null,
+     "observations": 20,
+     "first_valid_from": "2010-07-01",
+     "last_valid_from": "2023-07-01",
+     "headline": {
+      "value": 20.403213961,
+      "unit": "per_1000_population",
+      "valid_from": "2023-07-01",
+      "valid_to": "2024-07-01",
+      "dimensions": {
+       "vintage": 2024
+      },
+      "missing_reason": null,
+      "record_id": "pep24:county:48201:net_international_migration_rate:2024"
+     },
+     "headline_rule": "latest observation with the fewest non-total dimensions"
+    },
+    "net_migration": {
+     "name": null,
+     "observations": 25,
+     "first_valid_from": "2010-04-01",
+     "last_valid_from": "2023-07-01",
+     "headline": {
+      "value": 69961,
+      "unit": "people",
+      "valid_from": "2023-07-01",
+      "valid_to": "2024-07-01",
+      "dimensions": {
+       "vintage": 2024
+      },
+      "missing_reason": null,
+      "record_id": "pep24:county:48201:net_migration:2024"
+     },
+     "headline_rule": "latest observation with the fewest non-total dimensions"
+    },
+    "net_migration_rate": {
+     "name": null,
+     "observations": 20,
+     "first_valid_from": "2010-07-01",
+     "last_valid_from": "2023-07-01",
+     "headline": {
+      "value": 14.115353637,
+      "unit": "per_1000_population",
+      "valid_from": "2023-07-01",
+      "valid_to": "2024-07-01",
+      "dimensions": {
+       "vintage": 2024
+      },
+      "missing_reason": null,
+      "record_id": "pep24:county:48201:net_migration_rate:2024"
+     },
+     "headline_rule": "latest observation with the fewest non-total dimensions"
+    },
+    "population": {
+     "name": null,
+     "observations": 301,
+     "first_valid_from": "2010-04-01",
+     "last_valid_from": "2024-07-01",
+     "headline": {
+      "value": 5009302,
+      "unit": "people",
+      "valid_from": "2024-07-01",
+      "valid_to": "2024-07-02",
+      "dimensions": {
+       "vintage": 2024
+      },
+      "missing_reason": null,
+      "record_id": "pep24:county:48201:population:2024"
+     },
+     "headline_rule": "latest observation with the fewest non-total dimensions"
+    },
+    "population_change": {
+     "name": null,
+     "observations": 25,
+     "first_valid_from": "2010-04-01",
+     "last_valid_from": "2023-07-01",
+     "headline": {
+      "value": 105852,
+      "unit": "people",
+      "valid_from": "2023-07-01",
+      "valid_to": "2024-07-01",
+      "dimensions": {
+       "vintage": 2024
+      },
+      "missing_reason": null,
+      "record_id": "pep24:county:48201:population_change:2024"
+     },
+     "headline_rule": "latest observation with the fewest non-total dimensions"
+    },
+    "population_change_residual": {
+     "name": null,
+     "observations": 25,
+     "first_valid_from": "2010-04-01",
+     "last_valid_from": "2023-07-01",
+     "headline": {
+      "value": 58,
+      "unit": "people",
+      "valid_from": "2023-07-01",
+      "valid_to": "2024-07-01",
+      "dimensions": {
+       "vintage": 2024
+      },
+      "missing_reason": null,
+      "record_id": "pep24:county:48201:population_change_residual:2024"
+     },
+     "headline_rule": "latest observation with the fewest non-total dimensions"
+    }
+   }
+  },
+  "demographics": {
+   "dataset": "acs_5yr_tables",
+   "what": "American Community Survey 5-year estimates",
+   "observations": 331,
+   "metrics_published": 331,
+   "named_metrics": {
+    "acs_b01001_001": {
+     "name": "total population",
+     "observations": 1,
+     "first_valid_from": "2020-01-01",
+     "last_valid_from": "2020-01-01",
+     "headline": {
+      "value": 4838303,
+      "unit": "people",
+      "valid_from": "2020-01-01",
+      "valid_to": "2025-01-01",
+      "dimensions": {
+       "period": "2020-2024",
+       "survey": "acs5",
+       "table": "B01001",
+       "variable": "B01001_001E"
+      },
+      "missing_reason": null,
+      "record_id": "acs5y24:county:48201:B01001_001"
+     },
+     "headline_rule": "latest observation with the fewest non-total dimensions"
+    },
+    "acs_b01001_002": {
+     "name": "male population",
+     "observations": 1,
+     "first_valid_from": "2020-01-01",
+     "last_valid_from": "2020-01-01",
+     "headline": {
+      "value": 2404895,
+      "unit": "people",
+      "valid_from": "2020-01-01",
+      "valid_to": "2025-01-01",
+      "dimensions": {
+       "period": "2020-2024",
+       "survey": "acs5",
+       "table": "B01001",
+       "variable": "B01001_002E"
+      },
+      "missing_reason": null,
+      "record_id": "acs5y24:county:48201:B01001_002"
+     },
+     "headline_rule": "latest observation with the fewest non-total dimensions"
+    },
+    "acs_b01001_026": {
+     "name": "female population",
+     "observations": 1,
+     "first_valid_from": "2020-01-01",
+     "last_valid_from": "2020-01-01",
+     "headline": {
+      "value": 2433408,
+      "unit": "people",
+      "valid_from": "2020-01-01",
+      "valid_to": "2025-01-01",
+      "dimensions": {
+       "period": "2020-2024",
+       "survey": "acs5",
+       "table": "B01001",
+       "variable": "B01001_026E"
+      },
+      "missing_reason": null,
+      "record_id": "acs5y24:county:48201:B01001_026"
+     },
+     "headline_rule": "latest observation with the fewest non-total dimensions"
+    },
+    "acs_b15003_022": {
+     "name": "bachelor's degree (age 25+)",
+     "observations": 1,
+     "first_valid_from": "2020-01-01",
+     "last_valid_from": "2020-01-01",
+     "headline": {
+      "value": 660816,
+      "unit": "people",
+      "valid_from": "2020-01-01",
+      "valid_to": "2025-01-01",
+      "dimensions": {
+       "period": "2020-2024",
+       "survey": "acs5",
+       "table": "B15003",
+       "variable": "B15003_022E"
+      },
+      "missing_reason": null,
+      "record_id": "acs5y24:county:48201:B15003_022"
+     },
+     "headline_rule": "latest observation with the fewest non-total dimensions"
+    }
+   },
+   "other_metric_codes": [
+    "acs_b01001_003",
+    "acs_b01001_004",
+    "acs_b01001_005",
+    "acs_b01001_006",
+    "acs_b01001_007",
+    "acs_b01001_008",
+    "acs_b01001_009",
+    "acs_b01001_010",
+    "acs_b01001_011",
+    "acs_b01001_012",
+    "acs_b01001_013",
+    "acs_b01001_014",
+    "acs_b01001_015",
+    "acs_b01001_016",
+    "acs_b01001_017",
+    "acs_b01001_018",
+    "acs_b01001_019",
+    "acs_b01001_020",
+    "acs_b01001_021",
+    "acs_b01001_022",
+    "acs_b01001_023",
+    "acs_b01001_024",
+    "acs_b01001_025",
+    "acs_b01001_027",
+    "acs_b01001_028",
+    "acs_b01001_029",
+    "acs_b01001_030",
+    "acs_b01001_031",
+    "acs_b01001_032",
+    "acs_b01001_033",
+    "acs_b01001_034",
+    "acs_b01001_035",
+    "acs_b01001_036",
+    "acs_b01001_037",
+    "acs_b01001_038",
+    "acs_b01001_039",
+    "acs_b01001_040",
+    "acs_b01001_041",
+    "acs_b01001_042",
+    "acs_b01001_043",
+    "acs_b01001_044",
+    "acs_b01001_045",
+    "acs_b01001_046",
+    "acs_b01001_047",
+    "acs_b01001_048",
+    "acs_b01001_049",
+    "acs_b01002_002",
+    "acs_b01002_003",
+    "acs_b08301_002",
+    "acs_b08301_003",
+    "acs_b08301_004",
+    "acs_b08301_005",
+    "acs_b08301_006",
+    "acs_b08301_007",
+    "acs_b08301_008",
+    "acs_b08301_009",
+    "acs_b08301_010",
+    "acs_b08301_011",
+    "acs_b08301_012",
+    "acs_b08301_013",
+    "acs_b08301_014",
+    "acs_b08301_015",
+    "acs_b08301_016",
+    "acs_b08301_017",
+    "acs_b08301_018",
+    "acs_b08301_019",
+    "acs_b08301_020",
+    "acs_b08301_021",
+    "acs_b08303_002",
+    "acs_b08303_003",
+    "acs_b08303_004",
+    "acs_b08303_005",
+    "acs_b08303_006",
+    "acs_b08303_007",
+    "acs_b08303_008",
+    "acs_b08303_009",
+    "acs_b08303_010",
+    "acs_b08303_011",
+    "acs_b08303_012",
+    "acs_b08303_013",
+    "acs_b15003_002",
+    "acs_b15003_003",
+    "acs_b15003_004",
+    "acs_b15003_005",
+    "acs_b15003_006",
+    "acs_b15003_007",
+    "acs_b15003_008",
+    "acs_b15003_009",
+    "acs_b15003_010",
+    "acs_b15003_011",
+    "acs_b15003_012",
+    "acs_b15003_013",
+    "acs_b15003_014",
+    "acs_b15003_015",
+    "acs_b15003_016",
+    "acs_b15003_017",
+    "acs_b15003_018",
+    "acs_b15003_019",
+    "acs_b15003_020",
+    "acs_b15003_021",
+    "acs_b15003_023",
+    "acs_b15003_024",
+    "acs_b15003_025",
+    "acs_b17001_003",
+    "acs_b17001_004",
+    "acs_b17001_005",
+    "acs_b17001_006",
+    "acs_b17001_007",
+    "acs_b17001_008",
+    "acs_b17001_009",
+    "acs_b17001_010",
+    "acs_b17001_011",
+    "acs_b17001_012",
+    "acs_b17001_013",
+    "acs_b17001_014",
+    "acs_b17001_015",
+    "acs_b17001_016",
+    "acs_b17001_017",
+    "acs_b17001_018",
+    "acs_b17001_019",
+    "acs_b17001_020",
+    "acs_b17001_021",
+    "acs_b17001_022",
+    "acs_b17001_023",
+    "acs_b17001_024",
+    "acs_b17001_025",
+    "acs_b17001_026",
+    "acs_b17001_027",
+    "acs_b17001_028",
+    "acs_b17001_029",
+    "acs_b17001_030",
+    "acs_b17001_031",
+    "acs_b17001_032",
+    "acs_b17001_033",
+    "acs_b17001_034",
+    "acs_b17001_035",
+    "acs_b17001_036",
+    "acs_b17001_037",
+    "acs_b17001_038",
+    "acs_b17001_039",
+    "acs_b17001_040",
+    "acs_b17001_041",
+    "acs_b17001_042",
+    "acs_b17001_043",
+    "acs_b17001_044",
+    "acs_b17001_045",
+    "acs_b17001_046",
+    "acs_b17001_047",
+    "acs_b17001_048",
+    "acs_b17001_049",
+    "acs_b17001_050",
+    "acs_b17001_051",
+    "acs_b17001_052",
+    "acs_b17001_053",
+    "acs_b17001_054",
+    "acs_b17001_055",
+    "acs_b17001_056",
+    "acs_b17001_057",
+    "acs_b17001_058",
+    "acs_b17001_059",
+    "acs_b19001_001",
+    "acs_b19001_002",
+    "acs_b19001_003",
+    "acs_b19001_004",
+    "acs_b19001_005",
+    "acs_b19001_006",
+    "acs_b19001_007",
+    "acs_b19001_008",
+    "acs_b19001_009",
+    "acs_b19001_010",
+    "acs_b19001_011",
+    "acs_b19001_012",
+    "acs_b19001_013",
+    "acs_b19001_014",
+    "acs_b19001_015",
+    "acs_b19001_016",
+    "acs_b19001_017",
+    "acs_b23025_001",
+    "acs_b23025_003",
+    "acs_b23025_006",
+    "acs_b23025_007",
+    "acs_c24010_001",
+    "acs_c24010_002",
+    "acs_c24010_003",
+    "acs_c24010_004",
+    "acs_c24010_005",
+    "acs_c24010_006",
+    "acs_c24010_007",
+    "acs_c24010_008",
+    "acs_c24010_009",
+    "acs_c24010_010",
+    "acs_c24010_011",
+    "acs_c24010_012",
+    "acs_c24010_013",
+    "acs_c24010_014",
+    "acs_c24010_015",
+    "acs_c24010_016",
+    "acs_c24010_017",
+    "acs_c24010_018",
+    "acs_c24010_019",
+    "acs_c24010_020",
+    "acs_c24010_021",
+    "acs_c24010_022",
+    "acs_c24010_023",
+    "acs_c24010_024",
+    "acs_c24010_025",
+    "acs_c24010_026",
+    "acs_c24010_027",
+    "acs_c24010_028",
+    "acs_c24010_029",
+    "acs_c24010_030",
+    "acs_c24010_031",
+    "acs_c24010_032",
+    "acs_c24010_033",
+    "acs_c24010_034",
+    "acs_c24010_035",
+    "acs_c24010_036",
+    "acs_c24010_037",
+    "acs_c24010_038",
+    "acs_c24010_039",
+    "acs_c24010_040",
+    "acs_c24010_041",
+    "acs_c24010_042",
+    "acs_c24010_043",
+    "acs_c24010_044",
+    "acs_c24010_045",
+    "acs_c24010_046",
+    "acs_c24010_047",
+    "acs_c24010_048",
+    "acs_c24010_049",
+    "acs_c24010_050",
+    "acs_c24010_051",
+    "acs_c24010_052",
+    "acs_c24010_053",
+    "acs_c24010_054",
+    "acs_c24010_055",
+    "acs_c24010_056",
+    "acs_c24010_057",
+    "acs_c24010_058",
+    "acs_c24010_059",
+    "acs_c24010_060",
+    "acs_c24010_061",
+    "acs_c24010_062",
+    "acs_c24010_063",
+    "acs_c24010_064",
+    "acs_c24010_065",
+    "acs_c24010_066",
+    "acs_c24010_067",
+    "acs_c24010_068",
+    "acs_c24010_069",
+    "acs_c24010_070",
+    "acs_c24010_071",
+    "acs_c24010_072",
+    "acs_c24010_073",
+    "acs_c24030_001",
+    "acs_c24030_002",
+    "acs_c24030_003",
+    "acs_c24030_004",
+    "acs_c24030_005",
+    "acs_c24030_006",
+    "acs_c24030_007",
+    "acs_c24030_008",
+    "acs_c24030_009",
+    "acs_c24030_010",
+    "acs_c24030_011",
+    "acs_c24030_012",
+    "acs_c24030_013",
+    "acs_c24030_014",
+    "acs_c24030_015",
+    "acs_c24030_016",
+    "acs_c24030_017",
+    "acs_c24030_018",
+    "acs_c24030_019",
+    "acs_c24030_020",
+    "acs_c24030_021",
+    "acs_c24030_022",
+    "acs_c24030_023",
+    "acs_c24030_024",
+    "acs_c24030_025",
+    "acs_c24030_026",
+    "acs_c24030_027",
+    "acs_c24030_028",
+    "acs_c24030_029",
+    "acs_c24030_030",
+    "acs_c24030_031",
+    "acs_c24030_032",
+    "acs_c24030_033",
+    "acs_c24030_034",
+    "acs_c24030_035",
+    "acs_c24030_036",
+    "acs_c24030_037",
+    "acs_c24030_038",
+    "acs_c24030_039",
+    "acs_c24030_040",
+    "acs_c24030_041",
+    "acs_c24030_042",
+    "acs_c24030_043",
+    "acs_c24030_044",
+    "acs_c24030_045",
+    "acs_c24030_046",
+    "acs_c24030_047",
+    "acs_c24030_048",
+    "acs_c24030_049",
+    "acs_c24030_050",
+    "acs_c24030_051",
+    "acs_c24030_052",
+    "acs_c24030_053",
+    "acs_c24030_054",
+    "acs_c24030_055",
+    "employed_civilian_labor_force",
+    "housing_units",
+    "labor_force",
+    "median_age",
+    "median_gross_rent",
+    "median_home_value",
+    "median_household_income",
+    "occupied_housing_units",
+    "owner_occupied_housing_units",
+    "per_capita_income",
+    "population",
+    "population_25_plus",
+    "population_below_poverty",
+    "poverty_status_universe",
+    "renter_occupied_housing_units",
+    "unemployed_civilian_labor_force",
+    "workers_16_plus",
+    "workers_not_working_from_home"
+   ]
+  },
+  "agriculture": {
+   "dataset": "usda_agriculture",
+   "what": "USDA NASS county estimates and cotton ginnings",
+   "observations": 2146,
+   "metrics": {
+    "area_bearing": {
+     "observations": 174,
+     "first_valid_from": "2002-01-01",
+     "last_valid_from": "2022-01-01"
+    },
+    "area_bearing_non_bearing": {
+     "observations": 220,
+     "first_valid_from": "2002-01-01",
+     "last_valid_from": "2022-01-01"
+    },
+    "area_grown": {
+     "observations": 46,
+     "first_valid_from": "2007-01-01",
+     "last_valid_from": "2022-01-01"
+    },
+    "area_harvested": {
+     "observations": 914,
+     "first_valid_from": "2000-01-01",
+     "last_valid_from": "2022-01-01"
+    },
+    "area_in_production": {
+     "observations": 204,
+     "first_valid_from": "2002-01-01",
+     "last_valid_from": "2022-01-01"
+    },
+    "area_non_bearing": {
+     "observations": 156,
+     "first_valid_from": "2002-01-01",
+     "last_valid_from": "2022-01-01"
+    },
+    "area_not_harvested": {
+     "observations": 4,
+     "first_valid_from": "2012-01-01",
+     "last_valid_from": "2012-01-01"
+    },
+    "area_planted": {
+     "observations": 29,
+     "first_valid_from": "2000-01-01",
+     "last_valid_from": "2007-01-01"
+    },
+    "capacity": {
+     "observations": 9,
+     "first_valid_from": "2002-12-31",
+     "last_valid_from": "2012-12-31"
+    },
+    "operations": {
+     "observations": 3,
+     "first_valid_from": "2012-01-01",
+     "last_valid_from": "2022-01-01"
+    },
+    "production": {
+     "observations": 120,
+     "first_valid_from": "2000-01-01",
+     "last_valid_from": "2025-05-01"
+    },
+    "sales": {
+     "observations": 238,
+     "first_valid_from": "2002-01-01",
+     "last_valid_from": "2022-01-01"
+    },
+    "yield": {
+     "observations": 29,
+     "first_valid_from": "2000-01-01",
+     "last_valid_from": "2007-01-01"
+    }
+   },
+   "largest_by_commodity": {
+    "area_harvested (ACRES)": [
+     {
+      "commodity": "nass:commodity:hay_haylage",
+      "class": null,
+      "program": "census",
+      "value": 15527,
+      "valid_from": "2022-01-01",
+      "record_id": "nass:C:geo:US:county:48201:751aa9b17e0ef754bf8d:2022:year"
+     },
+     {
+      "commodity": "nass:commodity:hay",
+      "class": null,
+      "program": "census",
+      "value": 13569,
+      "valid_from": "2022-01-01",
+      "record_id": "nass:C:geo:US:county:48201:2755e6ab373861daba23:2022:year"
+     },
+     {
+      "commodity": "nass:commodity:hay",
+      "class": "(excl alfalfa)",
+      "program": "census",
+      "value": 13378,
+      "valid_from": "2022-01-01",
+      "record_id": "nass:C:geo:US:county:48201:0b7cabb3e391a6952bca:2022:year"
+     },
+     {
+      "commodity": "nass:commodity:sod",
+      "class": null,
+      "program": "census",
+      "value": 9316,
+      "valid_from": "2017-01-01",
+      "record_id": "nass:C:geo:US:county:48201:25377e4754d9fe9a5360:2017:year"
+     },
+     {
+      "commodity": "nass:commodity:hay",
+      "class": "wild",
+      "program": "census",
+      "value": 6762,
+      "valid_from": "2012-01-01",
+      "record_id": "nass:C:geo:US:county:48201:0447a61c4c5d7022b9eb:2012:year"
+     },
+     {
+      "commodity": "nass:commodity:corn",
+      "class": null,
+      "program": "census",
+      "value": 4913,
+      "valid_from": "2017-01-01",
+      "record_id": "nass:C:geo:US:county:48201:fc6bcc78c32b1d9dcb5a:2017:year"
+     },
+     {
+      "commodity": "nass:commodity:corn",
+      "class": null,
+      "program": "survey",
+      "value": 3900,
+      "valid_from": "2007-01-01",
+      "record_id": "nass:S:geo:US:county:48201:fc6bcc78c32b1d9dcb5a:2007:year"
+     },
+     {
+      "commodity": "nass:commodity:sorghum",
+      "class": null,
+      "program": "survey",
+      "value": 1200,
+      "valid_from": "2006-01-01",
+      "record_id": "nass:S:geo:US:county:48201:2d9c017a5a1ce8f8f097:2006:year"
+     }
+    ],
+    "area_harvested (OPERATIONS)": [
+     {
+      "commodity": "nass:commodity:hay",
+      "class": null,
+      "program": "census",
+      "value": 281,
+      "valid_from": "2022-01-01",
+      "record_id": "nass:C:geo:US:county:48201:b8a60aa4d2f6a55305d1:2022:year"
+     },
+     {
+      "commodity": "nass:commodity:hay",
+      "class": "(excl alfalfa)",
+      "program": "census",
+      "value": 266,
+      "valid_from": "2022-01-01",
+      "record_id": "nass:C:geo:US:county:48201:bd846b149e54ac3a9a74:2022:year"
+     },
+     {
+      "commodity": "nass:commodity:haylage",
+      "class": null,
+      "program": "census",
+      "value": 111,
+      "valid_from": "2022-01-01",
+      "record_id": "nass:C:geo:US:county:48201:e074b5280ffe39fbc349:2022:year"
+     },
+     {
+      "commodity": "nass:commodity:haylage",
+      "class": "(excl alfalfa)",
+      "program": "census",
+      "value": 108,
+      "valid_from": "2022-01-01",
+      "record_id": "nass:C:geo:US:county:48201:8d554404cb77a7852070:2022:year"
+     },
+     {
+      "commodity": "nass:commodity:hay_haylage",
+      "class": null,
+      "program": "census",
+      "value": 43,
+      "valid_from": "2022-01-01",
+      "record_id": "nass:C:geo:US:county:48201:ff71ad1927a480d1c877:2022:year"
+     },
+     {
+      "commodity": "nass:commodity:hay",
+      "class": "small grain",
+      "program": "census",
+      "value": 31,
+      "valid_from": "2012-01-01",
+      "record_id": "nass:C:geo:US:county:48201:46a9c4706b07d2f4351e:2012:year"
+     },
+     {
+      "commodity": "nass:commodity:vegetable_totals",
+      "class": null,
+      "program": "census",
+      "value": 30,
+      "valid_from": "2022-01-01",
+      "record_id": "nass:C:geo:US:county:48201:ce50af54f605d1869558:2022:year"
+     },
+     {
+      "commodity": "nass:commodity:greens",
+      "class": "mustard",
+      "program": "census",
+      "value": 18,
+      "valid_from": "2022-01-01",
+      "record_id": "nass:C:geo:US:county:48201:a3b426826a04d04b8434:2022:year"
+     }
+    ],
+    "area_harvested (TREES)": [
+     {
+      "commodity": "nass:commodity:cut_christmas_trees",
+      "class": null,
+      "program": "census",
+      "value": 5200,
+      "valid_from": "2002-01-01",
+      "record_id": "nass:C:geo:US:county:48201:d0e8281b9173143ae183:2002:year"
+     }
+    ],
+    "area_planted (ACRES)": [
+     {
+      "commodity": "nass:commodity:corn",
+      "class": null,
+      "program": "survey",
+      "value": 3900,
+      "valid_from": "2007-01-01",
+      "record_id": "nass:S:geo:US:county:48201:bc0d00fcaa6289aa773f:2007:year"
+     },
+     {
+      "commodity": "nass:commodity:soybeans",
+      "class": null,
+      "program": "survey",
+      "value": 1400,
+      "valid_from": "2006-01-01",
+      "record_id": "nass:S:geo:US:county:48201:a2ffc4a5146e45574280:2006:year"
+     },
+     {
+      "commodity": "nass:commodity:peanuts",
+      "class": null,
+      "program": "survey",
+      "value": 1400,
+      "valid_from": "2000-01-01",
+      "record_id": "nass:S:geo:US:county:48201:8a89790025feaa5e582b:2000:year"
+     },
+     {
+      "commodity": "nass:commodity:rice",
+      "class": null,
+      "program": "survey",
+      "value": 1200,
+      "valid_from": "2005-01-01",
+      "record_id": "nass:S:geo:US:county:48201:415068682323d8592530:2005:year"
+     },
+     {
+      "commodity": "nass:commodity:sorghum",
+      "class": null,
+      "program": "survey",
+      "value": 1200,
+      "valid_from": "2006-01-01",
+      "record_id": "nass:S:geo:US:county:48201:44f47fed278430998795:2006:year"
+     },
+     {
+      "commodity": "nass:commodity:wheat",
+      "class": null,
+      "program": "survey",
+      "value": 1000,
+      "valid_from": "2006-01-01",
+      "record_id": "nass:S:geo:US:county:48201:14fdc7d655b71e342812:2006:year"
+     },
+     {
+      "commodity": "nass:commodity:wheat",
+      "class": "winter",
+      "program": "survey",
+      "value": 1000,
+      "valid_from": "2006-01-01",
+      "record_id": "nass:S:geo:US:county:48201:01d3a913925e7ca86b73:2006:year"
+     }
+    ],
+    "production (BU)": [
+     {
+      "commodity": "nass:commodity:corn",
+      "class": null,
+      "program": "census",
+      "value": 605121,
+      "valid_from": "2017-01-01",
+      "record_id": "nass:C:geo:US:county:48201:f3d106769f7897cc0a82:2017:year"
+     },
+     {
+      "commodity": "nass:commodity:corn",
+      "class": null,
+      "program": "survey",
+      "value": 523000,
+      "valid_from": "2007-01-01",
+      "record_id": "nass:S:geo:US:county:48201:f3d106769f7897cc0a82:2007:year"
+     },
+     {
+      "commodity": "nass:commodity:sorghum",
+      "class": null,
+      "program": "survey",
+      "value": 88000,
+      "valid_from": "2006-01-01",
+      "record_id": "nass:S:geo:US:county:48201:e599837160bb06243d43:2006:year"
+     },
+     {
+      "commodity": "nass:commodity:sorghum",
+      "class": null,
+      "program": "census",
+      "value": 54869,
+      "valid_from": "2012-01-01",
+      "record_id": "nass:C:geo:US:county:48201:5959523997b01d4a7672:2012:year"
+     },
+     {
+      "commodity": "nass:commodity:wheat",
+      "class": null,
+      "program": "survey",
+      "value": 22000,
+      "valid_from": "2006-01-01",
+      "record_id": "nass:S:geo:US:county:48201:3d773755b68dd3691770:2006:year"
+     },
+     {
+      "commodity": "nass:commodity:wheat",
+      "class": "winter",
+      "program": "survey",
+      "value": 22000,
+      "valid_from": "2006-01-01",
+      "record_id": "nass:S:geo:US:county:48201:d5f8ac4119a86fb7a373:2006:year"
+     },
+     {
+      "commodity": "nass:commodity:soybeans",
+      "class": null,
+      "program": "census",
+      "value": 14121,
+      "valid_from": "2017-01-01",
+      "record_id": "nass:C:geo:US:county:48201:9b9596276016244ea48a:2017:year"
+     },
+     {
+      "commodity": "nass:commodity:soybeans",
+      "class": null,
+      "program": "survey",
+      "value": 8000,
+      "valid_from": "2006-01-01",
+      "record_id": "nass:S:geo:US:county:48201:9b9596276016244ea48a:2006:year"
+     }
+    ],
+    "production (CWT)": [
+     {
+      "commodity": "nass:commodity:rice",
+      "class": null,
+      "program": "census",
+      "value": 62265,
+      "valid_from": "2007-01-01",
+      "record_id": "nass:C:geo:US:county:48201:06592d121052099cefcf:2007:year"
+     },
+     {
+      "commodity": "nass:commodity:rice",
+      "class": null,
+      "program": "survey",
+      "value": 31000,
+      "valid_from": "2005-01-01",
+      "record_id": "nass:S:geo:US:county:48201:06592d121052099cefcf:2005:year"
+     },
+     {
+      "commodity": "nass:commodity:potatoes",
+      "class": null,
+      "program": "census",
+      "value": 381,
+      "valid_from": "2002-01-01",
+      "record_id": "nass:C:geo:US:county:48201:706771deef8b9dfdc051:2002:year"
+     }
+    ],
+    "production (LB)": [
+     {
+      "commodity": "nass:commodity:peanuts",
+      "class": null,
+      "program": "survey",
+      "value": 610000,
+      "valid_from": "2000-01-01",
+      "record_id": "nass:S:geo:US:county:48201:df79cc2884ca2e26fcdf:2000:year"
+     },
+     {
+      "commodity": "nass:commodity:hemp",
+      "class": "industrial",
+      "program": "census",
+      "value": 2190,
+      "valid_from": "2022-01-01",
+      "record_id": "nass:C:geo:US:county:48201:475ac95daa96cf693c95:2022:year"
+     }
+    ],
+    "production (TONS)": [
+     {
+      "commodity": "nass:commodity:hay",
+      "class": "tame, (excl alfalfa & small grain)",
+      "program": "census",
+      "value": 33932,
+      "valid_from": "2012-01-01",
+      "record_id": "nass:C:geo:US:county:48201:8b75a1f805722cc7d985:2012:year"
+     },
+     {
+      "commodity": "nass:commodity:hay",
+      "class": null,
+      "program": "census",
+      "value": 28742,
+      "valid_from": "2022-01-01",
+      "record_id": "nass:C:geo:US:county:48201:6c0769af7a2c8a147899:2022:year"
+     },
+     {
+      "commodity": "nass:commodity:hay",
+      "class": "(excl alfalfa)",
+      "program": "census",
+      "value": 28296,
+      "valid_from": "2022-01-01",
+      "record_id": "nass:C:geo:US:county:48201:f7afebab34e974e364f2:2022:year"
+     },
+     {
+      "commodity": "nass:commodity:hay",
+      "class": "wild",
+      "program": "census",
+      "value": 11937,
+      "valid_from": "2012-01-01",
+      "record_id": "nass:C:geo:US:county:48201:299963e1ad2952881c8f:2012:year"
+     },
+     {
+      "commodity": "nass:commodity:haylage",
+      "class": null,
+      "program": "census",
+      "value": 5243,
+      "valid_from": "2022-01-01",
+      "record_id": "nass:C:geo:US:county:48201:9ad71bd534fe5daf116f:2022:year"
+     },
+     {
+      "commodity": "nass:commodity:haylage",
+      "class": "(excl alfalfa)",
+      "program": "census",
+      "value": 5184,
+      "valid_from": "2022-01-01",
+      "record_id": "nass:C:geo:US:county:48201:13822c4d88831dfe2f1f:2022:year"
+     },
+     {
+      "commodity": "nass:commodity:hay",
+      "class": "small grain",
+      "program": "census",
+      "value": 828,
+      "valid_from": "2012-01-01",
+      "record_id": "nass:C:geo:US:county:48201:009ee1e545fb6458c1a9:2012:year"
+     },
+     {
+      "commodity": "nass:commodity:hay",
+      "class": "alfalfa",
+      "program": "census",
+      "value": 446,
+      "valid_from": "2022-01-01",
+      "record_id": "nass:C:geo:US:county:48201:24552d4252e44045ba37:2022:year"
+     }
+    ],
+    "production (TONS, DRY BASIS)": [
+     {
+      "commodity": "nass:commodity:hay_haylage",
+      "class": null,
+      "program": "census",
+      "value": 31316,
+      "valid_from": "2022-01-01",
+      "record_id": "nass:C:geo:US:county:48201:09911f69e8422ec52252:2022:year"
+     }
+    ],
+    "sales ($)": [
+     {
+      "commodity": "nass:commodity:crop_totals",
+      "class": null,
+      "program": "census",
+      "value": 73449000,
+      "valid_from": "2022-01-01",
+      "record_id": "nass:C:geo:US:county:48201:3109d0b3c39e5a6496ae:2022:year"
+     },
+     {
+      "commodity": "nass:commodity:horticulture_totals",
+      "class": "(excl cut trees & vegetable seeds & transplants)",
+      "program": "census",
+      "value": 65050000,
+      "valid_from": "2022-01-01",
+      "record_id": "nass:C:geo:US:county:48201:e99e53d6cc629253b4fb:2022:year"
+     },
+     {
+      "commodity": "nass:commodity:sod",
+      "class": null,
+      "program": "census",
+      "value": 27437453,
+      "valid_from": "2022-01-01",
+      "record_id": "nass:C:geo:US:county:48201:33477d5e7dcb010230d9:2022:year"
+     },
+     {
+      "commodity": "nass:commodity:floriculture_totals",
+      "class": null,
+      "program": "census",
+      "value": 20060548,
+      "valid_from": "2022-01-01",
+      "record_id": "nass:C:geo:US:county:48201:2aa3055fd143f9e334e1:2022:year"
+     },
+     {
+      "commodity": "nass:commodity:bedding_plant_totals",
+      "class": null,
+      "program": "census",
+      "value": 17172918,
+      "valid_from": "2022-01-01",
+      "record_id": "nass:C:geo:US:county:48201:0fe1e2111c0c47be60db:2022:year"
+     },
+     {
+      "commodity": "nass:commodity:nursery_totals",
+      "class": null,
+      "program": "census",
+      "value": 15621900,
+      "valid_from": "2022-01-01",
+      "record_id": "nass:C:geo:US:county:48201:09da49a4b2d6da552d3e:2022:year"
+     },
+     {
+      "commodity": "nass:commodity:field_crops_other",
+      "class": "incl hay",
+      "program": "census",
+      "value": 3235000,
+      "valid_from": "2022-01-01",
+      "record_id": "nass:C:geo:US:county:48201:90de157661c576380119:2022:year"
+     },
+     {
+      "commodity": "nass:commodity:vegetable_totals",
+      "class": "incl seeds & transplants",
+      "program": "census",
+      "value": 3061000,
+      "valid_from": "2022-01-01",
+      "record_id": "nass:C:geo:US:county:48201:c77463a2ab9208d9dbdf:2022:year"
+     }
+    ],
+    "sales (OPERATIONS)": [
+     {
+      "commodity": "nass:commodity:crop_totals",
+      "class": null,
+      "program": "census",
+      "value": 390,
+      "valid_from": "2022-01-01",
+      "record_id": "nass:C:geo:US:county:48201:023fa77b59a0c795edc6:2022:year"
+     },
+     {
+      "commodity": "nass:commodity:field_crops_other",
+      "class": "incl hay",
+      "program": "census",
+      "value": 262,
+      "valid_from": "2022-01-01",
+      "record_id": "nass:C:geo:US:county:48201:7429fa04c378e8b5ab54:2022:year"
+     },
+     {
+      "commodity": "nass:commodity:horticulture_totals",
+      "class": "(excl cut trees & vegetable seeds & transplants)",
+      "program": "census",
+      "value": 58,
+      "valid_from": "2022-01-01",
+      "record_id": "nass:C:geo:US:county:48201:6238963141ebb585a90b:2022:year"
+     },
+     {
+      "commodity": "nass:commodity:fruit_tree_nut_totals",
+      "class": null,
+      "program": "census",
+      "value": 53,
+      "valid_from": "2022-01-01",
+      "record_id": "nass:C:geo:US:county:48201:72bc31e52344f0c5db65:2022:year"
+     },
+     {
+      "commodity": "nass:commodity:fruit_tree_nut_totals",
+      "class": "(excl berries)",
+      "program": "census",
+      "value": 48,
+      "valid_from": "2022-01-01",
+      "record_id": "nass:C:geo:US:county:48201:d63139e9c1e3cf7decba:2022:year"
+     },
+     {
+      "commodity": "nass:commodity:floriculture_totals",
+      "class": null,
+      "program": "census",
+      "value": 33,
+      "valid_from": "2022-01-01",
+      "record_id": "nass:C:geo:US:county:48201:7c385bb892a87f114595:2022:year"
+     },
+     {
+      "commodity": "nass:commodity:vegetable_totals",
+      "class": "incl seeds & transplants",
+      "program": "census",
+      "value": 32,
+      "valid_from": "2022-01-01",
+      "record_id": "nass:C:geo:US:county:48201:616ae5277a5058e6a15e:2022:year"
+     },
+     {
+      "commodity": "nass:commodity:nursery_totals",
+      "class": null,
+      "program": "census",
+      "value": 29,
+      "valid_from": "2022-01-01",
+      "record_id": "nass:C:geo:US:county:48201:d0c8e7fcf0be209cba46:2022:year"
+     }
+    ]
+   },
+   "note": "NASS publishes one series per commodity, practice and program, so no single headline exists; the largest latest values per commodity are listed instead."
+  },
+  "hazard_risk": {
+   "dataset": "fema_nri",
+   "what": "FEMA National Risk Index",
+   "observations": 193,
+   "headlines": {
+    "agriculture_value_exposure": {
+     "name": null,
+     "observations": 1,
+     "first_valid_from": "2025-12-01",
+     "last_valid_from": "2025-12-01",
+     "headline": {
+      "value": 65130587,
+      "unit": "USD",
+      "valid_from": "2025-12-01",
+      "valid_to": "2026-12-01",
+      "dimensions": {
+       "hazard": "all",
+       "nri_version": "December 2025"
+      },
+      "missing_reason": null,
+      "record_id": "nri:county:48201:agrivalue"
+     },
+     "headline_rule": "latest observation with the fewest non-total dimensions"
+    },
+    "building_value_exposure": {
+     "name": null,
+     "observations": 1,
+     "first_valid_from": "2025-12-01",
+     "last_valid_from": "2025-12-01",
+     "headline": {
+      "value": 838838945279,
+      "unit": "USD",
+      "valid_from": "2025-12-01",
+      "valid_to": "2026-12-01",
+      "dimensions": {
+       "hazard": "all",
+       "nri_version": "December 2025"
+      },
+      "missing_reason": null,
+      "record_id": "nri:county:48201:buildvalue"
+     },
+     "headline_rule": "latest observation with the fewest non-total dimensions"
+    },
+    "community_resilience_score": {
+     "name": null,
+     "observations": 1,
+     "first_valid_from": "2025-12-01",
+     "last_valid_from": "2025-12-01",
+     "headline": {
+      "value": 17.87531806615776,
+      "unit": "score_0_100",
+      "valid_from": "2025-12-01",
+      "valid_to": "2026-12-01",
+      "dimensions": {
+       "hazard": "all",
+       "nri_version": "December 2025"
+      },
+      "missing_reason": null,
+      "record_id": "nri:county:48201:resl_score"
+     },
+     "headline_rule": "latest observation with the fewest non-total dimensions"
+    },
+    "expected_annual_loss_score": {
+     "name": null,
+     "observations": 16,
+     "first_valid_from": "2025-12-01",
+     "last_valid_from": "2025-12-01",
+     "headline": {
+      "value": 99.90717821782178,
+      "unit": "score_0_100",
+      "valid_from": "2025-12-01",
+      "valid_to": "2026-12-01",
+      "dimensions": {
+       "hazard": "all",
+       "nri_version": "December 2025"
+      },
+      "missing_reason": null,
+      "record_id": "nri:county:48201:eal_score"
+     },
+     "headline_rule": "latest observation with the fewest non-total dimensions"
+    },
+    "national_risk_index_score": {
+     "name": null,
+     "observations": 1,
+     "first_valid_from": "2025-12-01",
+     "last_valid_from": "2025-12-01",
+     "headline": {
+      "value": 99.93638676844783,
+      "unit": "score_0_100",
+      "valid_from": "2025-12-01",
+      "valid_to": "2026-12-01",
+      "dimensions": {
+       "hazard": "all",
+       "nri_version": "December 2025"
+      },
+      "missing_reason": null,
+      "record_id": "nri:county:48201:risk_score"
+     },
+     "headline_rule": "latest observation with the fewest non-total dimensions"
+    },
+    "population_exposure": {
+     "name": null,
+     "observations": 1,
+     "first_valid_from": "2025-12-01",
+     "last_valid_from": "2025-12-01",
+     "headline": {
+      "value": 4726200,
+      "unit": "people",
+      "valid_from": "2025-12-01",
+      "valid_to": "2026-12-01",
+      "dimensions": {
+       "hazard": "all",
+       "nri_version": "December 2025"
+      },
+      "missing_reason": null,
+      "record_id": "nri:county:48201:population"
+     },
+     "headline_rule": "latest observation with the fewest non-total dimensions"
+    },
+    "social_vulnerability_score": {
+     "name": null,
+     "observations": 1,
+     "first_valid_from": "2025-12-01",
+     "last_valid_from": "2025-12-01",
+     "headline": {
+      "value": 67.9389313,
+      "unit": "score_0_100",
+      "valid_from": "2025-12-01",
+      "valid_to": "2026-12-01",
+      "dimensions": {
+       "hazard": "all",
+       "nri_version": "December 2025"
+      },
+      "missing_reason": null,
+      "record_id": "nri:county:48201:sovi_score"
+     },
+     "headline_rule": "latest observation with the fewest non-total dimensions"
+    }
+   },
+   "largest_expected_annual_loss": [
+    {
+     "value": 2217702382.779429,
+     "unit": "USD/year",
+     "dimensions": {
+      "consequence": "total",
+      "hazard": "all",
+      "nri_version": "December 2025"
+     },
+     "valid_from": "2025-12-01",
+     "record_id": "nri:county:48201:eal_valt"
+    },
+    {
+     "value": 1594525898.8367593,
+     "unit": "USD/year",
+     "dimensions": {
+      "consequence": "buildings",
+      "hazard": "all",
+      "nri_version": "December 2025"
+     },
+     "valid_from": "2025-12-01",
+     "record_id": "nri:county:48201:eal_valb"
+    },
+    {
+     "value": 1122079278.4198725,
+     "unit": "USD/year",
+     "dimensions": {
+      "consequence": "total",
+      "hazard": "inland_flooding",
+      "nri_version": "December 2025"
+     },
+     "valid_from": "2025-12-01",
+     "record_id": "nri:county:48201:ifld_ealt"
+    },
+    {
+     "value": 1086745609.7751005,
+     "unit": "USD/year",
+     "dimensions": {
+      "consequence": "buildings",
+      "hazard": "inland_flooding",
+      "nri_version": "December 2025"
+     },
+     "valid_from": "2025-12-01",
+     "record_id": "nri:county:48201:ifld_ealb"
+    },
+    {
+     "value": 622063472.5088693,
+     "unit": "USD/year",
+     "dimensions": {
+      "consequence": "population_equivalence",
+      "hazard": "all",
+      "nri_version": "December 2025"
+     },
+     "valid_from": "2025-12-01",
+     "record_id": "nri:county:48201:eal_valpe"
+    },
+    {
+     "value": 457859275.1658155,
+     "unit": "USD/year",
+     "dimensions": {
+      "consequence": "total",
+      "hazard": "hurricane",
+      "nri_version": "December 2025"
+     },
+     "valid_from": "2025-12-01",
+     "record_id": "nri:county:48201:hrcn_ealt"
+    },
+    {
+     "value": 428046822.0946809,
+     "unit": "USD/year",
+     "dimensions": {
+      "consequence": "buildings",
+      "hazard": "hurricane",
+      "nri_version": "December 2025"
+     },
+     "valid_from": "2025-12-01",
+     "record_id": "nri:county:48201:hrcn_ealb"
+    },
+    {
+     "value": 407387921.4650874,
+     "unit": "USD/year",
+     "dimensions": {
+      "consequence": "total",
+      "hazard": "tornado",
+      "nri_version": "December 2025"
+     },
+     "valid_from": "2025-12-01",
+     "record_id": "nri:county:48201:trnd_ealt"
+    }
+   ],
+   "other_metrics": [
+    "area",
+    "community_resilience_value",
+    "community_risk_factor",
+    "expected_annual_loss",
+    "expected_annual_loss_risk_value",
+    "hazard_annualized_frequency",
+    "hazard_event_count",
+    "hazard_exposure_total",
+    "hazard_risk_index_score",
+    "historic_loss_ratio"
+   ]
+  },
+  "weather_and_climate": {
+   "dataset": "noaa_climdiv",
+   "what": "NOAA nClimDiv monthly county climate",
+   "observations": 1677,
+   "metrics": {
+    "average_temperature": {
+     "name": null,
+     "observations": 559,
+     "first_valid_from": "1895-01-01",
+     "last_valid_from": "2026-08-01",
+     "headline": {
+      "value": 86.6,
+      "unit": "degF",
+      "valid_from": "2026-08-01",
+      "valid_to": "2026-09-01",
+      "dimensions": {
+       "dataset_version": "20260904",
+       "frequency": "monthly"
+      },
+      "missing_reason": null,
+      "record_id": "climdiv:cy48201:tmpc:202608"
+     },
+     "headline_rule": "latest observation with the fewest non-total dimensions"
+    },
+    "palmer_drought_severity_index": {
+     "name": null,
+     "observations": 559,
+     "first_valid_from": "1895-01-01",
+     "last_valid_from": "2026-08-01",
+     "headline": {
+      "value": -2.9,
+      "unit": "index",
+      "valid_from": "2026-08-01",
+      "valid_to": "2026-09-01",
+      "dimensions": {
+       "dataset_version": "20260904",
+       "frequency": "monthly"
+      },
+      "missing_reason": null,
+      "record_id": "climdiv:cy48201:pdsi:202608"
+     },
+     "headline_rule": "latest observation with the fewest non-total dimensions"
+    },
+    "precipitation": {
+     "name": null,
+     "observations": 559,
+     "first_valid_from": "1895-01-01",
+     "last_valid_from": "2026-08-01",
+     "headline": {
+      "value": 1.3,
+      "unit": "inches",
+      "valid_from": "2026-08-01",
+      "valid_to": "2026-09-01",
+      "dimensions": {
+       "dataset_version": "20260904",
+       "frequency": "monthly"
+      },
+      "missing_reason": null,
+      "record_id": "climdiv:cy48201:pcpn:202608"
+     },
+     "headline_rule": "latest observation with the fewest non-total dimensions"
+    }
+   },
+   "annual_means_computed_here": {
+    "average_temperature": {
+     "latest_complete_year": "2025",
+     "latest_annual_mean": 74.109,
+     "mean_1991_2020": 71.178,
+     "years": 35,
+     "computed_here": "mean of the 12 published monthly values per calendar year",
+     "annual": [
+      {
+       "time": "1991-01-01",
+       "value": 70.626
+      },
+      {
+       "time": "1992-01-01",
+       "value": 69.962
+      },
+      {
+       "time": "1993-01-01",
+       "value": 69.377
+      },
+      {
+       "time": "1994-01-01",
+       "value": 70.698
+      },
+      {
+       "time": "1995-01-01",
+       "value": 70.683
+      },
+      {
+       "time": "1996-01-01",
+       "value": 70.76
+      },
+      {
+       "time": "1997-01-01",
+       "value": 69.633
+      },
+      {
+       "time": "1998-01-01",
+       "value": 72.002
+      },
+      {
+       "time": "1999-01-01",
+       "value": 71.764
+      },
+      {
+       "time": "2000-01-01",
+       "value": 71.258
+      },
+      {
+       "time": "2001-01-01",
+       "value": 70.49
+      },
+      {
+       "time": "2002-01-01",
+       "value": 70.043
+      },
+      {
+       "time": "2003-01-01",
+       "value": 70.447
+      },
+      {
+       "time": "2004-01-01",
+       "value": 70.978
+      },
+      {
+       "time": "2005-01-01",
+       "value": 71.307
+      },
+      {
+       "time": "2006-01-01",
+       "value": 71.366
+      },
+      {
+       "time": "2007-01-01",
+       "value": 71.072
+      },
+      {
+       "time": "2008-01-01",
+       "value": 71.195
+      },
+      {
+       "time": "2009-01-01",
+       "value": 71.155
+      },
+      {
+       "time": "2010-01-01",
+       "value": 70.423
+      },
+      {
+       "time": "2011-01-01",
+       "value": 72.79
+      },
+      {
+       "time": "2012-01-01",
+       "value": 72.501
+      },
+      {
+       "time": "2013-01-01",
+       "value": 70.277
+      },
+      {
+       "time": "2014-01-01",
+       "value": 70.039
+      },
+      {
+       "time": "2015-01-01",
+       "value": 71.846
+      },
+      {
+       "time": "2016-01-01",
+       "value": 73.183
+      },
+      {
+       "time": "2017-01-01",
+       "value": 72.963
+      },
+      {
+       "time": "2018-01-01",
+       "value": 72.024
+      },
+      {
+       "time": "2019-01-01",
+       "value": 71.771
+      },
+      {
+       "time": "2020-01-01",
+       "value": 72.704
+      },
+      {
+       "time": "2021-01-01",
+       "value": 72.09
+      },
+      {
+       "time": "2022-01-01",
+       "value": 72.104
+      },
+      {
+       "time": "2023-01-01",
+       "value": 73.624
+      },
+      {
+       "time": "2024-01-01",
+       "value": 74.399
+      },
+      {
+       "time": "2025-01-01",
+       "value": 74.109
+      }
+     ]
+    },
+    "precipitation": {
+     "latest_complete_year": "2025",
+     "latest_annual_mean": 6.267,
+     "mean_1991_2020": 8.566,
+     "years": 35,
+     "computed_here": "mean of the 12 published monthly values per calendar year",
+     "annual": [
+      {
+       "time": "1991-01-01",
+       "value": 10.437
+      },
+      {
+       "time": "1992-01-01",
+       "value": 9.624
+      },
+      {
+       "time": "1993-01-01",
+       "value": 8.861
+      },
+      {
+       "time": "1994-01-01",
+       "value": 8.851
+      },
+      {
+       "time": "1995-01-01",
+       "value": 7.661
+      },
+      {
+       "time": "1996-01-01",
+       "value": 6.282
+      },
+      {
+       "time": "1997-01-01",
+       "value": 11.006
+      },
+      {
+       "time": "1998-01-01",
+       "value": 8.98
+      },
+      {
+       "time": "1999-01-01",
+       "value": 5.326
+      },
+      {
+       "time": "2000-01-01",
+       "value": 7.39
+      },
+      {
+       "time": "2001-01-01",
+       "value": 11.203
+      },
+      {
+       "time": "2002-01-01",
+       "value": 9.79
+      },
+      {
+       "time": "2003-01-01",
+       "value": 7.594
+      },
+      {
+       "time": "2004-01-01",
+       "value": 9.995
+      },
+      {
+       "time": "2005-01-01",
+       "value": 6.161
+      },
+      {
+       "time": "2006-01-01",
+       "value": 9.103
+      },
+      {
+       "time": "2007-01-01",
+       "value": 10.326
+      },
+      {
+       "time": "2008-01-01",
+       "value": 7.676
+      },
+      {
+       "time": "2009-01-01",
+       "value": 8.006
+      },
+      {
+       "time": "2010-01-01",
+       "value": 6.5
+      },
+      {
+       "time": "2011-01-01",
+       "value": 3.513
+      },
+      {
+       "time": "2012-01-01",
+       "value": 7.538
+      },
+      {
+       "time": "2013-01-01",
+       "value": 6.902
+      },
+      {
+       "time": "2014-01-01",
+       "value": 7.402
+      },
+      {
+       "time": "2015-01-01",
+       "value": 11.625
+      },
+      {
+       "time": "2016-01-01",
+       "value": 10.393
+      },
+      {
+       "time": "2017-01-01",
+       "value": 12.389
+      },
+      {
+       "time": "2018-01-01",
+       "value": 9.771
+      },
+      {
+       "time": "2019-01-01",
+       "value": 8.352
+      },
+      {
+       "time": "2020-01-01",
+       "value": 8.334
+      },
+      {
+       "time": "2021-01-01",
+       "value": 8.546
+      },
+      {
+       "time": "2022-01-01",
+       "value": 5.817
+      },
+      {
+       "time": "2023-01-01",
+       "value": 5.865
+      },
+      {
+       "time": "2024-01-01",
+       "value": 9.135
+      },
+      {
+       "time": "2025-01-01",
+       "value": 6.267
+      }
+     ]
+    }
+   }
+  },
+  "series": {
+   "population": [
+    {
+     "time": "2020-07-01",
+     "value": 4735383,
+     "unit": "people",
+     "record_id": "pep24:county:48201:population:2020",
+     "from_dataset": "census_population",
+     "dimensions": {
+      "vintage": 2024
+     }
+    },
+    {
+     "time": "2021-07-01",
+     "value": 4736633,
+     "unit": "people",
+     "record_id": "pep24:county:48201:population:2021",
+     "from_dataset": "census_population",
+     "dimensions": {
+      "vintage": 2024
+     }
+    },
+    {
+     "time": "2022-07-01",
+     "value": 4806747,
+     "unit": "people",
+     "record_id": "pep24:county:48201:population:2022",
+     "from_dataset": "census_population",
+     "dimensions": {
+      "vintage": 2024
+     }
+    },
+    {
+     "time": "2023-07-01",
+     "value": 4903450,
+     "unit": "people",
+     "record_id": "pep24:county:48201:population:2023",
+     "from_dataset": "census_population",
+     "dimensions": {
+      "vintage": 2024
+     }
+    },
+    {
+     "time": "2024-07-01",
+     "value": 5009302,
+     "unit": "people",
+     "record_id": "pep24:county:48201:population:2024",
+     "from_dataset": "census_population",
+     "dimensions": {
+      "vintage": 2024
+     }
+    }
+   ],
+   "employment": [
+    {
+     "time": "2019-03-12",
+     "value": 2110957,
+     "unit": "people",
+     "record_id": "cbp19:co48201:all:-:emp",
+     "from_dataset": "census_business",
+     "dimensions": {
+      "industry": "all",
+      "legal_form": "all",
+      "program": "cbp"
+     }
+    },
+    {
+     "time": "2020-03-12",
+     "value": 2113874,
+     "unit": "people",
+     "record_id": "cbp20:co48201:all:-:emp",
+     "from_dataset": "census_business",
+     "dimensions": {
+      "industry": "all",
+      "legal_form": "all",
+      "program": "cbp"
+     }
+    },
+    {
+     "time": "2021-03-12",
+     "value": 1980428,
+     "unit": "people",
+     "record_id": "cbp21:co48201:all:-:emp",
+     "from_dataset": "census_business",
+     "dimensions": {
+      "industry": "all",
+      "legal_form": "all",
+      "program": "cbp"
+     }
+    },
+    {
+     "time": "2022-03-12",
+     "value": 2085860,
+     "unit": "people",
+     "record_id": "cbp22:co48201:all:-:emp",
+     "from_dataset": "census_business",
+     "dimensions": {
+      "industry": "all",
+      "legal_form": "all",
+      "program": "cbp"
+     }
+    },
+    {
+     "time": "2023-03-12",
+     "value": 2182164,
+     "unit": "people",
+     "record_id": "cbp23:co48201:all:-:emp",
+     "from_dataset": "census_business",
+     "dimensions": {
+      "industry": "all",
+      "legal_form": "all",
+      "program": "cbp"
+     }
+    }
+   ],
+   "average_temperature_monthly": [
+    {
+     "time": "2016-09-01",
+     "value": 82.4,
+     "unit": "degF",
+     "record_id": "climdiv:cy48201:tmpc:201609",
+     "from_dataset": "noaa_climdiv",
+     "dimensions": {
+      "dataset_version": "20260904",
+      "frequency": "monthly"
+     }
+    },
+    {
+     "time": "2016-10-01",
+     "value": 74.9,
+     "unit": "degF",
+     "record_id": "climdiv:cy48201:tmpc:201610",
+     "from_dataset": "noaa_climdiv",
+     "dimensions": {
+      "dataset_version": "20260904",
+      "frequency": "monthly"
+     }
+    },
+    {
+     "time": "2016-11-01",
+     "value": 67.2,
+     "unit": "degF",
+     "record_id": "climdiv:cy48201:tmpc:201611",
+     "from_dataset": "noaa_climdiv",
+     "dimensions": {
+      "dataset_version": "20260904",
+      "frequency": "monthly"
+     }
+    },
+    {
+     "time": "2016-12-01",
+     "value": 58.7,
+     "unit": "degF",
+     "record_id": "climdiv:cy48201:tmpc:201612",
+     "from_dataset": "noaa_climdiv",
+     "dimensions": {
+      "dataset_version": "20260904",
+      "frequency": "monthly"
+     }
+    },
+    {
+     "time": "2017-01-01",
+     "value": 59.9,
+     "unit": "degF",
+     "record_id": "climdiv:cy48201:tmpc:201701",
+     "from_dataset": "noaa_climdiv",
+     "dimensions": {
+      "dataset_version": "20260904",
+      "frequency": "monthly"
+     }
+    },
+    {
+     "time": "2017-02-01",
+     "value": 66.1,
+     "unit": "degF",
+     "record_id": "climdiv:cy48201:tmpc:201702",
+     "from_dataset": "noaa_climdiv",
+     "dimensions": {
+      "dataset_version": "20260904",
+      "frequency": "monthly"
+     }
+    },
+    {
+     "time": "2017-03-01",
+     "value": 68.1,
+     "unit": "degF",
+     "record_id": "climdiv:cy48201:tmpc:201703",
+     "from_dataset": "noaa_climdiv",
+     "dimensions": {
+      "dataset_version": "20260904",
+      "frequency": "monthly"
+     }
+    },
+    {
+     "time": "2017-04-01",
+     "value": 71.2,
+     "unit": "degF",
+     "record_id": "climdiv:cy48201:tmpc:201704",
+     "from_dataset": "noaa_climdiv",
+     "dimensions": {
+      "dataset_version": "20260904",
+      "frequency": "monthly"
+     }
+    },
+    {
+     "time": "2017-05-01",
+     "value": 75.4,
+     "unit": "degF",
+     "record_id": "climdiv:cy48201:tmpc:201705",
+     "from_dataset": "noaa_climdiv",
+     "dimensions": {
+      "dataset_version": "20260904",
+      "frequency": "monthly"
+     }
+    },
+    {
+     "time": "2017-06-01",
+     "value": 81.6,
+     "unit": "degF",
+     "record_id": "climdiv:cy48201:tmpc:201706",
+     "from_dataset": "noaa_climdiv",
+     "dimensions": {
+      "dataset_version": "20260904",
+      "frequency": "monthly"
+     }
+    },
+    {
+     "time": "2017-07-01",
+     "value": 85.2,
+     "unit": "degF",
+     "record_id": "climdiv:cy48201:tmpc:201707",
+     "from_dataset": "noaa_climdiv",
+     "dimensions": {
+      "dataset_version": "20260904",
+      "frequency": "monthly"
+     }
+    },
+    {
+     "time": "2017-08-01",
+     "value": 83.8,
+     "unit": "degF",
+     "record_id": "climdiv:cy48201:tmpc:201708",
+     "from_dataset": "noaa_climdiv",
+     "dimensions": {
+      "dataset_version": "20260904",
+      "frequency": "monthly"
+     }
+    },
+    {
+     "time": "2017-09-01",
+     "value": 79.9,
+     "unit": "degF",
+     "record_id": "climdiv:cy48201:tmpc:201709",
+     "from_dataset": "noaa_climdiv",
+     "dimensions": {
+      "dataset_version": "20260904",
+      "frequency": "monthly"
+     }
+    },
+    {
+     "time": "2017-10-01",
+     "value": 71.9,
+     "unit": "degF",
+     "record_id": "climdiv:cy48201:tmpc:201710",
+     "from_dataset": "noaa_climdiv",
+     "dimensions": {
+      "dataset_version": "20260904",
+      "frequency": "monthly"
+     }
+    },
+    {
+     "time": "2017-11-01",
+     "value": 67.1,
+     "unit": "degF",
+     "record_id": "climdiv:cy48201:tmpc:201711",
+     "from_dataset": "noaa_climdiv",
+     "dimensions": {
+      "dataset_version": "20260904",
+      "frequency": "monthly"
+     }
+    },
+    {
+     "time": "2017-12-01",
+     "value": 53.3,
+     "unit": "degF",
+     "record_id": "climdiv:cy48201:tmpc:201712",
+     "from_dataset": "noaa_climdiv",
+     "dimensions": {
+      "dataset_version": "20260904",
+      "frequency": "monthly"
+     }
+    },
+    {
+     "time": "2018-01-01",
+     "value": 48.2,
+     "unit": "degF",
+     "record_id": "climdiv:cy48201:tmpc:201801",
+     "from_dataset": "noaa_climdiv",
+     "dimensions": {
+      "dataset_version": "20260904",
+      "frequency": "monthly"
+     }
+    },
+    {
+     "time": "2018-02-01",
+     "value": 61.9,
+     "unit": "degF",
+     "record_id": "climdiv:cy48201:tmpc:201802",
+     "from_dataset": "noaa_climdiv",
+     "dimensions": {
+      "dataset_version": "20260904",
+      "frequency": "monthly"
+     }
+    },
+    {
+     "time": "2018-03-01",
+     "value": 66.8,
+     "unit": "degF",
+     "record_id": "climdiv:cy48201:tmpc:201803",
+     "from_dataset": "noaa_climdiv",
+     "dimensions": {
+      "dataset_version": "20260904",
+      "frequency": "monthly"
+     }
+    },
+    {
+     "time": "2018-04-01",
+     "value": 66.2,
+     "unit": "degF",
+     "record_id": "climdiv:cy48201:tmpc:201804",
+     "from_dataset": "noaa_climdiv",
+     "dimensions": {
+      "dataset_version": "20260904",
+      "frequency": "monthly"
+     }
+    },
+    {
+     "time": "2018-05-01",
+     "value": 79.0,
+     "unit": "degF",
+     "record_id": "climdiv:cy48201:tmpc:201805",
+     "from_dataset": "noaa_climdiv",
+     "dimensions": {
+      "dataset_version": "20260904",
+      "frequency": "monthly"
+     }
+    },
+    {
+     "time": "2018-06-01",
+     "value": 84.1,
+     "unit": "degF",
+     "record_id": "climdiv:cy48201:tmpc:201806",
+     "from_dataset": "noaa_climdiv",
+     "dimensions": {
+      "dataset_version": "20260904",
+      "frequency": "monthly"
+     }
+    },
+    {
+     "time": "2018-07-01",
+     "value": 84.8,
+     "unit": "degF",
+     "record_id": "climdiv:cy48201:tmpc:201807",
+     "from_dataset": "noaa_climdiv",
+     "dimensions": {
+      "dataset_version": "20260904",
+      "frequency": "monthly"
+     }
+    },
+    {
+     "time": "2018-08-01",
+     "value": 85.1,
+     "unit": "degF",
+     "record_id": "climdiv:cy48201:tmpc:201808",
+     "from_dataset": "noaa_climdiv",
+     "dimensions": {
+      "dataset_version": "20260904",
+      "frequency": "monthly"
+     }
+    },
+    {
+     "time": "2018-09-01",
+     "value": 80.5,
+     "unit": "degF",
+     "record_id": "climdiv:cy48201:tmpc:201809",
+     "from_dataset": "noaa_climdiv",
+     "dimensions": {
+      "dataset_version": "20260904",
+      "frequency": "monthly"
+     }
+    },
+    {
+     "time": "2018-10-01",
+     "value": 71.9,
+     "unit": "degF",
+     "record_id": "climdiv:cy48201:tmpc:201810",
+     "from_dataset": "noaa_climdiv",
+     "dimensions": {
+      "dataset_version": "20260904",
+      "frequency": "monthly"
+     }
+    },
+    {
+     "time": "2018-11-01",
+     "value": 58.3,
+     "unit": "degF",
+     "record_id": "climdiv:cy48201:tmpc:201811",
+     "from_dataset": "noaa_climdiv",
+     "dimensions": {
+      "dataset_version": "20260904",
+      "frequency": "monthly"
+     }
+    },
+    {
+     "time": "2018-12-01",
+     "value": 55.5,
+     "unit": "degF",
+     "record_id": "climdiv:cy48201:tmpc:201812",
+     "from_dataset": "noaa_climdiv",
+     "dimensions": {
+      "dataset_version": "20260904",
+      "frequency": "monthly"
+     }
+    },
+    {
+     "time": "2019-01-01",
+     "value": 53.3,
+     "unit": "degF",
+     "record_id": "climdiv:cy48201:tmpc:201901",
+     "from_dataset": "noaa_climdiv",
+     "dimensions": {
+      "dataset_version": "20260904",
+      "frequency": "monthly"
+     }
+    },
+    {
+     "time": "2019-02-01",
+     "value": 59.4,
+     "unit": "degF",
+     "record_id": "climdiv:cy48201:tmpc:201902",
+     "from_dataset": "noaa_climdiv",
+     "dimensions": {
+      "dataset_version": "20260904",
+      "frequency": "monthly"
+     }
+    },
+    {
+     "time": "2019-03-01",
+     "value": 61.7,
+     "unit": "degF",
+     "record_id": "climdiv:cy48201:tmpc:201903",
+     "from_dataset": "noaa_climdiv",
+     "dimensions": {
+      "dataset_version": "20260904",
+      "frequency": "monthly"
+     }
+    },
+    {
+     "time": "2019-04-01",
+     "value": 68.3,
+     "unit": "degF",
+     "record_id": "climdiv:cy48201:tmpc:201904",
+     "from_dataset": "noaa_climdiv",
+     "dimensions": {
+      "dataset_version": "20260904",
+      "frequency": "monthly"
+     }
+    },
+    {
+     "time": "2019-05-01",
+     "value": 77.8,
+     "unit": "degF",
+     "record_id": "climdiv:cy48201:tmpc:201905",
+     "from_dataset": "noaa_climdiv",
+     "dimensions": {
+      "dataset_version": "20260904",
+      "frequency": "monthly"
+     }
+    },
+    {
+     "time": "2019-06-01",
+     "value": 82.0,
+     "unit": "degF",
+     "record_id": "climdiv:cy48201:tmpc:201906",
+     "from_dataset": "noaa_climdiv",
+     "dimensions": {
+      "dataset_version": "20260904",
+      "frequency": "monthly"
+     }
+    },
+    {
+     "time": "2019-07-01",
+     "value": 84.1,
+     "unit": "degF",
+     "record_id": "climdiv:cy48201:tmpc:201907",
+     "from_dataset": "noaa_climdiv",
+     "dimensions": {
+      "dataset_version": "20260904",
+      "frequency": "monthly"
+     }
+    },
+    {
+     "time": "2019-08-01",
+     "value": 86.2,
+     "unit": "degF",
+     "record_id": "climdiv:cy48201:tmpc:201908",
+     "from_dataset": "noaa_climdiv",
+     "dimensions": {
+      "dataset_version": "20260904",
+      "frequency": "monthly"
+     }
+    },
+    {
+     "time": "2019-09-01",
+     "value": 83.8,
+     "unit": "degF",
+     "record_id": "climdiv:cy48201:tmpc:201909",
+     "from_dataset": "noaa_climdiv",
+     "dimensions": {
+      "dataset_version": "20260904",
+      "frequency": "monthly"
+     }
+    },
+    {
+     "time": "2019-10-01",
+     "value": 71.4,
+     "unit": "degF",
+     "record_id": "climdiv:cy48201:tmpc:201910",
+     "from_dataset": "noaa_climdiv",
+     "dimensions": {
+      "dataset_version": "20260904",
+      "frequency": "monthly"
+     }
+    },
+    {
+     "time": "2019-11-01",
+     "value": 59.2,
+     "unit": "degF",
+     "record_id": "climdiv:cy48201:tmpc:201911",
+     "from_dataset": "noaa_climdiv",
+     "dimensions": {
+      "dataset_version": "20260904",
+      "frequency": "monthly"
+     }
+    },
+    {
+     "time": "2019-12-01",
+     "value": 57.0,
+     "unit": "degF",
+     "record_id": "climdiv:cy48201:tmpc:201912",
+     "from_dataset": "noaa_climdiv",
+     "dimensions": {
+      "dataset_version": "20260904",
+      "frequency": "monthly"
+     }
+    },
+    {
+     "time": "2020-01-01",
+     "value": 57.7,
+     "unit": "degF",
+     "record_id": "climdiv:cy48201:tmpc:202001",
+     "from_dataset": "noaa_climdiv",
+     "dimensions": {
+      "dataset_version": "20260904",
+      "frequency": "monthly"
+     }
+    },
+    {
+     "time": "2020-02-01",
+     "value": 56.5,
+     "unit": "degF",
+     "record_id": "climdiv:cy48201:tmpc:202002",
+     "from_dataset": "noaa_climdiv",
+     "dimensions": {
+      "dataset_version": "20260904",
+      "frequency": "monthly"
+     }
+    },
+    {
+     "time": "2020-03-01",
+     "value": 70.5,
+     "unit": "degF",
+     "record_id": "climdiv:cy48201:tmpc:202003",
+     "from_dataset": "noaa_climdiv",
+     "dimensions": {
+      "dataset_version": "20260904",
+      "frequency": "monthly"
+     }
+    },
+    {
+     "time": "2020-04-01",
+     "value": 70.1,
+     "unit": "degF",
+     "record_id": "climdiv:cy48201:tmpc:202004",
+     "from_dataset": "noaa_climdiv",
+     "dimensions": {
+      "dataset_version": "20260904",
+      "frequency": "monthly"
+     }
+    },
+    {
+     "time": "2020-05-01",
+     "value": 77.0,
+     "unit": "degF",
+     "record_id": "climdiv:cy48201:tmpc:202005",
+     "from_dataset": "noaa_climdiv",
+     "dimensions": {
+      "dataset_version": "20260904",
+      "frequency": "monthly"
+     }
+    },
+    {
+     "time": "2020-06-01",
+     "value": 81.8,
+     "unit": "degF",
+     "record_id": "climdiv:cy48201:tmpc:202006",
+     "from_dataset": "noaa_climdiv",
+     "dimensions": {
+      "dataset_version": "20260904",
+      "frequency": "monthly"
+     }
+    },
+    {
+     "time": "2020-07-01",
+     "value": 85.6,
+     "unit": "degF",
+     "record_id": "climdiv:cy48201:tmpc:202007",
+     "from_dataset": "noaa_climdiv",
+     "dimensions": {
+      "dataset_version": "20260904",
+      "frequency": "monthly"
+     }
+    },
+    {
+     "time": "2020-08-01",
+     "value": 85.9,
+     "unit": "degF",
+     "record_id": "climdiv:cy48201:tmpc:202008",
+     "from_dataset": "noaa_climdiv",
+     "dimensions": {
+      "dataset_version": "20260904",
+      "frequency": "monthly"
+     }
+    },
+    {
+     "time": "2020-09-01",
+     "value": 80.4,
+     "unit": "degF",
+     "record_id": "climdiv:cy48201:tmpc:202009",
+     "from_dataset": "noaa_climdiv",
+     "dimensions": {
+      "dataset_version": "20260904",
+      "frequency": "monthly"
+     }
+    },
+    {
+     "time": "2020-10-01",
+     "value": 71.6,
+     "unit": "degF",
+     "record_id": "climdiv:cy48201:tmpc:202010",
+     "from_dataset": "noaa_climdiv",
+     "dimensions": {
+      "dataset_version": "20260904",
+      "frequency": "monthly"
+     }
+    },
+    {
+     "time": "2020-11-01",
+     "value": 66.3,
+     "unit": "degF",
+     "record_id": "climdiv:cy48201:tmpc:202011",
+     "from_dataset": "noaa_climdiv",
+     "dimensions": {
+      "dataset_version": "20260904",
+      "frequency": "monthly"
+     }
+    },
+    {
+     "time": "2020-12-01",
+     "value": 55.2,
+     "unit": "degF",
+     "record_id": "climdiv:cy48201:tmpc:202012",
+     "from_dataset": "noaa_climdiv",
+     "dimensions": {
+      "dataset_version": "20260904",
+      "frequency": "monthly"
+     }
+    },
+    {
+     "time": "2021-01-01",
+     "value": 55.1,
+     "unit": "degF",
+     "record_id": "climdiv:cy48201:tmpc:202101",
+     "from_dataset": "noaa_climdiv",
+     "dimensions": {
+      "dataset_version": "20260904",
+      "frequency": "monthly"
+     }
+    },
+    {
+     "time": "2021-02-01",
+     "value": 51.7,
+     "unit": "degF",
+     "record_id": "climdiv:cy48201:tmpc:202102",
+     "from_dataset": "noaa_climdiv",
+     "dimensions": {
+      "dataset_version": "20260904",
+      "frequency": "monthly"
+     }
+    },
+    {
+     "time": "2021-03-01",
+     "value": 64.1,
+     "unit": "degF",
+     "record_id": "climdiv:cy48201:tmpc:202103",
+     "from_dataset": "noaa_climdiv",
+     "dimensions": {
+      "dataset_version": "20260904",
+      "frequency": "monthly"
+     }
+    },
+    {
+     "time": "2021-04-01",
+     "value": 68.2,
+     "unit": "degF",
+     "record_id": "climdiv:cy48201:tmpc:202104",
+     "from_dataset": "noaa_climdiv",
+     "dimensions": {
+      "dataset_version": "20260904",
+      "frequency": "monthly"
+     }
+    },
+    {
+     "time": "2021-05-01",
+     "value": 75.8,
+     "unit": "degF",
+     "record_id": "climdiv:cy48201:tmpc:202105",
+     "from_dataset": "noaa_climdiv",
+     "dimensions": {
+      "dataset_version": "20260904",
+      "frequency": "monthly"
+     }
+    },
+    {
+     "time": "2021-06-01",
+     "value": 83.0,
+     "unit": "degF",
+     "record_id": "climdiv:cy48201:tmpc:202106",
+     "from_dataset": "noaa_climdiv",
+     "dimensions": {
+      "dataset_version": "20260904",
+      "frequency": "monthly"
+     }
+    },
+    {
+     "time": "2021-07-01",
+     "value": 83.3,
+     "unit": "degF",
+     "record_id": "climdiv:cy48201:tmpc:202107",
+     "from_dataset": "noaa_climdiv",
+     "dimensions": {
+      "dataset_version": "20260904",
+      "frequency": "monthly"
+     }
+    },
+    {
+     "time": "2021-08-01",
+     "value": 85.2,
+     "unit": "degF",
+     "record_id": "climdiv:cy48201:tmpc:202108",
+     "from_dataset": "noaa_climdiv",
+     "dimensions": {
+      "dataset_version": "20260904",
+      "frequency": "monthly"
+     }
+    },
+    {
+     "time": "2021-09-01",
+     "value": 79.4,
+     "unit": "degF",
+     "record_id": "climdiv:cy48201:tmpc:202109",
+     "from_dataset": "noaa_climdiv",
+     "dimensions": {
+      "dataset_version": "20260904",
+      "frequency": "monthly"
+     }
+    },
+    {
+     "time": "2021-10-01",
+     "value": 74.4,
+     "unit": "degF",
+     "record_id": "climdiv:cy48201:tmpc:202110",
+     "from_dataset": "noaa_climdiv",
+     "dimensions": {
+      "dataset_version": "20260904",
+      "frequency": "monthly"
+     }
+    },
+    {
+     "time": "2021-11-01",
+     "value": 61.6,
+     "unit": "degF",
+     "record_id": "climdiv:cy48201:tmpc:202111",
+     "from_dataset": "noaa_climdiv",
+     "dimensions": {
+      "dataset_version": "20260904",
+      "frequency": "monthly"
+     }
+    },
+    {
+     "time": "2021-12-01",
+     "value": 67.6,
+     "unit": "degF",
+     "record_id": "climdiv:cy48201:tmpc:202112",
+     "from_dataset": "noaa_climdiv",
+     "dimensions": {
+      "dataset_version": "20260904",
+      "frequency": "monthly"
+     }
+    },
+    {
+     "time": "2022-01-01",
+     "value": 53.2,
+     "unit": "degF",
+     "record_id": "climdiv:cy48201:tmpc:202201",
+     "from_dataset": "noaa_climdiv",
+     "dimensions": {
+      "dataset_version": "20260904",
+      "frequency": "monthly"
+     }
+    },
+    {
+     "time": "2022-02-01",
+     "value": 51.8,
+     "unit": "degF",
+     "record_id": "climdiv:cy48201:tmpc:202202",
+     "from_dataset": "noaa_climdiv",
+     "dimensions": {
+      "dataset_version": "20260904",
+      "frequency": "monthly"
+     }
+    },
+    {
+     "time": "2022-03-01",
+     "value": 62.3,
+     "unit": "degF",
+     "record_id": "climdiv:cy48201:tmpc:202203",
+     "from_dataset": "noaa_climdiv",
+     "dimensions": {
+      "dataset_version": "20260904",
+      "frequency": "monthly"
+     }
+    },
+    {
+     "time": "2022-04-01",
+     "value": 73.0,
+     "unit": "degF",
+     "record_id": "climdiv:cy48201:tmpc:202204",
+     "from_dataset": "noaa_climdiv",
+     "dimensions": {
+      "dataset_version": "20260904",
+      "frequency": "monthly"
+     }
+    },
+    {
+     "time": "2022-05-01",
+     "value": 80.5,
+     "unit": "degF",
+     "record_id": "climdiv:cy48201:tmpc:202205",
+     "from_dataset": "noaa_climdiv",
+     "dimensions": {
+      "dataset_version": "20260904",
+      "frequency": "monthly"
+     }
+    },
+    {
+     "time": "2022-06-01",
+     "value": 86.0,
+     "unit": "degF",
+     "record_id": "climdiv:cy48201:tmpc:202206",
+     "from_dataset": "noaa_climdiv",
+     "dimensions": {
+      "dataset_version": "20260904",
+      "frequency": "monthly"
+     }
+    },
+    {
+     "time": "2022-07-01",
+     "value": 87.6,
+     "unit": "degF",
+     "record_id": "climdiv:cy48201:tmpc:202207",
+     "from_dataset": "noaa_climdiv",
+     "dimensions": {
+      "dataset_version": "20260904",
+      "frequency": "monthly"
+     }
+    },
+    {
+     "time": "2022-08-01",
+     "value": 85.0,
+     "unit": "degF",
+     "record_id": "climdiv:cy48201:tmpc:202208",
+     "from_dataset": "noaa_climdiv",
+     "dimensions": {
+      "dataset_version": "20260904",
+      "frequency": "monthly"
+     }
+    },
+    {
+     "time": "2022-09-01",
+     "value": 80.5,
+     "unit": "degF",
+     "record_id": "climdiv:cy48201:tmpc:202209",
+     "from_dataset": "noaa_climdiv",
+     "dimensions": {
+      "dataset_version": "20260904",
+      "frequency": "monthly"
+     }
+    },
+    {
+     "time": "2022-10-01",
+     "value": 69.6,
+     "unit": "degF",
+     "record_id": "climdiv:cy48201:tmpc:202210",
+     "from_dataset": "noaa_climdiv",
+     "dimensions": {
+      "dataset_version": "20260904",
+      "frequency": "monthly"
+     }
+    },
+    {
+     "time": "2022-11-01",
+     "value": 60.9,
+     "unit": "degF",
+     "record_id": "climdiv:cy48201:tmpc:202211",
+     "from_dataset": "noaa_climdiv",
+     "dimensions": {
+      "dataset_version": "20260904",
+      "frequency": "monthly"
+     }
+    },
+    {
+     "time": "2022-12-01",
+     "value": 57.4,
+     "unit": "degF",
+     "record_id": "climdiv:cy48201:tmpc:202212",
+     "from_dataset": "noaa_climdiv",
+     "dimensions": {
+      "dataset_version": "20260904",
+      "frequency": "monthly"
+     }
+    },
+    {
+     "time": "2023-01-01",
+     "value": 58.8,
+     "unit": "degF",
+     "record_id": "climdiv:cy48201:tmpc:202301",
+     "from_dataset": "noaa_climdiv",
+     "dimensions": {
+      "dataset_version": "20260904",
+      "frequency": "monthly"
+     }
+    },
+    {
+     "time": "2023-02-01",
+     "value": 60.8,
+     "unit": "degF",
+     "record_id": "climdiv:cy48201:tmpc:202302",
+     "from_dataset": "noaa_climdiv",
+     "dimensions": {
+      "dataset_version": "20260904",
+      "frequency": "monthly"
+     }
+    },
+    {
+     "time": "2023-03-01",
+     "value": 67.1,
+     "unit": "degF",
+     "record_id": "climdiv:cy48201:tmpc:202303",
+     "from_dataset": "noaa_climdiv",
+     "dimensions": {
+      "dataset_version": "20260904",
+      "frequency": "monthly"
+     }
+    },
+    {
+     "time": "2023-04-01",
+     "value": 68.9,
+     "unit": "degF",
+     "record_id": "climdiv:cy48201:tmpc:202304",
+     "from_dataset": "noaa_climdiv",
+     "dimensions": {
+      "dataset_version": "20260904",
+      "frequency": "monthly"
+     }
+    },
+    {
+     "time": "2023-05-01",
+     "value": 76.9,
+     "unit": "degF",
+     "record_id": "climdiv:cy48201:tmpc:202305",
+     "from_dataset": "noaa_climdiv",
+     "dimensions": {
+      "dataset_version": "20260904",
+      "frequency": "monthly"
+     }
+    },
+    {
+     "time": "2023-06-01",
+     "value": 84.3,
+     "unit": "degF",
+     "record_id": "climdiv:cy48201:tmpc:202306",
+     "from_dataset": "noaa_climdiv",
+     "dimensions": {
+      "dataset_version": "20260904",
+      "frequency": "monthly"
+     }
+    },
+    {
+     "time": "2023-07-01",
+     "value": 87.4,
+     "unit": "degF",
+     "record_id": "climdiv:cy48201:tmpc:202307",
+     "from_dataset": "noaa_climdiv",
+     "dimensions": {
+      "dataset_version": "20260904",
+      "frequency": "monthly"
+     }
+    },
+    {
+     "time": "2023-08-01",
+     "value": 90.0,
+     "unit": "degF",
+     "record_id": "climdiv:cy48201:tmpc:202308",
+     "from_dataset": "noaa_climdiv",
+     "dimensions": {
+      "dataset_version": "20260904",
+      "frequency": "monthly"
+     }
+    },
+    {
+     "time": "2023-09-01",
+     "value": 84.9,
+     "unit": "degF",
+     "record_id": "climdiv:cy48201:tmpc:202309",
+     "from_dataset": "noaa_climdiv",
+     "dimensions": {
+      "dataset_version": "20260904",
+      "frequency": "monthly"
+     }
+    },
+    {
+     "time": "2023-10-01",
+     "value": 72.2,
+     "unit": "degF",
+     "record_id": "climdiv:cy48201:tmpc:202310",
+     "from_dataset": "noaa_climdiv",
+     "dimensions": {
+      "dataset_version": "20260904",
+      "frequency": "monthly"
+     }
+    },
+    {
+     "time": "2023-11-01",
+     "value": 61.2,
+     "unit": "degF",
+     "record_id": "climdiv:cy48201:tmpc:202311",
+     "from_dataset": "noaa_climdiv",
+     "dimensions": {
+      "dataset_version": "20260904",
+      "frequency": "monthly"
+     }
+    },
+    {
+     "time": "2023-12-01",
+     "value": 57.3,
+     "unit": "degF",
+     "record_id": "climdiv:cy48201:tmpc:202312",
+     "from_dataset": "noaa_climdiv",
+     "dimensions": {
+      "dataset_version": "20260904",
+      "frequency": "monthly"
+     }
+    },
+    {
+     "time": "2024-01-01",
+     "value": 50.9,
+     "unit": "degF",
+     "record_id": "climdiv:cy48201:tmpc:202401",
+     "from_dataset": "noaa_climdiv",
+     "dimensions": {
+      "dataset_version": "20260904",
+      "frequency": "monthly"
+     }
+    },
+    {
+     "time": "2024-02-01",
+     "value": 61.6,
+     "unit": "degF",
+     "record_id": "climdiv:cy48201:tmpc:202402",
+     "from_dataset": "noaa_climdiv",
+     "dimensions": {
+      "dataset_version": "20260904",
+      "frequency": "monthly"
+     }
+    },
+    {
+     "time": "2024-03-01",
+     "value": 66.3,
+     "unit": "degF",
+     "record_id": "climdiv:cy48201:tmpc:202403",
+     "from_dataset": "noaa_climdiv",
+     "dimensions": {
+      "dataset_version": "20260904",
+      "frequency": "monthly"
+     }
+    },
+    {
+     "time": "2024-04-01",
+     "value": 72.1,
+     "unit": "degF",
+     "record_id": "climdiv:cy48201:tmpc:202404",
+     "from_dataset": "noaa_climdiv",
+     "dimensions": {
+      "dataset_version": "20260904",
+      "frequency": "monthly"
+     }
+    },
+    {
+     "time": "2024-05-01",
+     "value": 79.1,
+     "unit": "degF",
+     "record_id": "climdiv:cy48201:tmpc:202405",
+     "from_dataset": "noaa_climdiv",
+     "dimensions": {
+      "dataset_version": "20260904",
+      "frequency": "monthly"
+     }
+    },
+    {
+     "time": "2024-06-01",
+     "value": 83.9,
+     "unit": "degF",
+     "record_id": "climdiv:cy48201:tmpc:202406",
+     "from_dataset": "noaa_climdiv",
+     "dimensions": {
+      "dataset_version": "20260904",
+      "frequency": "monthly"
+     }
+    },
+    {
+     "time": "2024-07-01",
+     "value": 83.4,
+     "unit": "degF",
+     "record_id": "climdiv:cy48201:tmpc:202407",
+     "from_dataset": "noaa_climdiv",
+     "dimensions": {
+      "dataset_version": "20260904",
+      "frequency": "monthly"
+     }
+    },
+    {
+     "time": "2024-08-01",
+     "value": 86.6,
+     "unit": "degF",
+     "record_id": "climdiv:cy48201:tmpc:202408",
+     "from_dataset": "noaa_climdiv",
+     "dimensions": {
+      "dataset_version": "20260904",
+      "frequency": "monthly"
+     }
+    },
+    {
+     "time": "2024-09-01",
+     "value": 81.6,
+     "unit": "degF",
+     "record_id": "climdiv:cy48201:tmpc:202409",
+     "from_dataset": "noaa_climdiv",
+     "dimensions": {
+      "dataset_version": "20260904",
+      "frequency": "monthly"
+     }
+    },
+    {
+     "time": "2024-10-01",
+     "value": 76.0,
+     "unit": "degF",
+     "record_id": "climdiv:cy48201:tmpc:202410",
+     "from_dataset": "noaa_climdiv",
+     "dimensions": {
+      "dataset_version": "20260904",
+      "frequency": "monthly"
+     }
+    },
+    {
+     "time": "2024-11-01",
+     "value": 68.8,
+     "unit": "degF",
+     "record_id": "climdiv:cy48201:tmpc:202411",
+     "from_dataset": "noaa_climdiv",
+     "dimensions": {
+      "dataset_version": "20260904",
+      "frequency": "monthly"
+     }
+    },
+    {
+     "time": "2024-12-01",
+     "value": 60.8,
+     "unit": "degF",
+     "record_id": "climdiv:cy48201:tmpc:202412",
+     "from_dataset": "noaa_climdiv",
+     "dimensions": {
+      "dataset_version": "20260904",
+      "frequency": "monthly"
+     }
+    },
+    {
+     "time": "2025-01-01",
+     "value": 49.4,
+     "unit": "degF",
+     "record_id": "climdiv:cy48201:tmpc:202501",
+     "from_dataset": "noaa_climdiv",
+     "dimensions": {
+      "dataset_version": "20260904",
+      "frequency": "monthly"
+     }
+    },
+    {
+     "time": "2025-02-01",
+     "value": 59.5,
+     "unit": "degF",
+     "record_id": "climdiv:cy48201:tmpc:202502",
+     "from_dataset": "noaa_climdiv",
+     "dimensions": {
+      "dataset_version": "20260904",
+      "frequency": "monthly"
+     }
+    },
+    {
+     "time": "2025-03-01",
+     "value": 68.1,
+     "unit": "degF",
+     "record_id": "climdiv:cy48201:tmpc:202503",
+     "from_dataset": "noaa_climdiv",
+     "dimensions": {
+      "dataset_version": "20260904",
+      "frequency": "monthly"
+     }
+    },
+    {
+     "time": "2025-04-01",
+     "value": 73.4,
+     "unit": "degF",
+     "record_id": "climdiv:cy48201:tmpc:202504",
+     "from_dataset": "noaa_climdiv",
+     "dimensions": {
+      "dataset_version": "20260904",
+      "frequency": "monthly"
+     }
+    },
+    {
+     "time": "2025-05-01",
+     "value": 78.8,
+     "unit": "degF",
+     "record_id": "climdiv:cy48201:tmpc:202505",
+     "from_dataset": "noaa_climdiv",
+     "dimensions": {
+      "dataset_version": "20260904",
+      "frequency": "monthly"
+     }
+    },
+    {
+     "time": "2025-06-01",
+     "value": 83.2,
+     "unit": "degF",
+     "record_id": "climdiv:cy48201:tmpc:202506",
+     "from_dataset": "noaa_climdiv",
+     "dimensions": {
+      "dataset_version": "20260904",
+      "frequency": "monthly"
+     }
+    },
+    {
+     "time": "2025-07-01",
+     "value": 85.0,
+     "unit": "degF",
+     "record_id": "climdiv:cy48201:tmpc:202507",
+     "from_dataset": "noaa_climdiv",
+     "dimensions": {
+      "dataset_version": "20260904",
+      "frequency": "monthly"
+     }
+    },
+    {
+     "time": "2025-08-01",
+     "value": 85.3,
+     "unit": "degF",
+     "record_id": "climdiv:cy48201:tmpc:202508",
+     "from_dataset": "noaa_climdiv",
+     "dimensions": {
+      "dataset_version": "20260904",
+      "frequency": "monthly"
+     }
+    },
+    {
+     "time": "2025-09-01",
+     "value": 81.2,
+     "unit": "degF",
+     "record_id": "climdiv:cy48201:tmpc:202509",
+     "from_dataset": "noaa_climdiv",
+     "dimensions": {
+      "dataset_version": "20260904",
+      "frequency": "monthly"
+     }
+    },
+    {
+     "time": "2025-10-01",
+     "value": 75.9,
+     "unit": "degF",
+     "record_id": "climdiv:cy48201:tmpc:202510",
+     "from_dataset": "noaa_climdiv",
+     "dimensions": {
+      "dataset_version": "20260904",
+      "frequency": "monthly"
+     }
+    },
+    {
+     "time": "2025-11-01",
+     "value": 67.5,
+     "unit": "degF",
+     "record_id": "climdiv:cy48201:tmpc:202511",
+     "from_dataset": "noaa_climdiv",
+     "dimensions": {
+      "dataset_version": "20260904",
+      "frequency": "monthly"
+     }
+    },
+    {
+     "time": "2025-12-01",
+     "value": 59.2,
+     "unit": "degF",
+     "record_id": "climdiv:cy48201:tmpc:202512",
+     "from_dataset": "noaa_climdiv",
+     "dimensions": {
+      "dataset_version": "20260904",
+      "frequency": "monthly"
+     }
+    },
+    {
+     "time": "2026-01-01",
+     "value": 55.0,
+     "unit": "degF",
+     "record_id": "climdiv:cy48201:tmpc:202601",
+     "from_dataset": "noaa_climdiv",
+     "dimensions": {
+      "dataset_version": "20260904",
+      "frequency": "monthly"
+     }
+    },
+    {
+     "time": "2026-02-01",
+     "value": 63.3,
+     "unit": "degF",
+     "record_id": "climdiv:cy48201:tmpc:202602",
+     "from_dataset": "noaa_climdiv",
+     "dimensions": {
+      "dataset_version": "20260904",
+      "frequency": "monthly"
+     }
+    },
+    {
+     "time": "2026-03-01",
+     "value": 69.6,
+     "unit": "degF",
+     "record_id": "climdiv:cy48201:tmpc:202603",
+     "from_dataset": "noaa_climdiv",
+     "dimensions": {
+      "dataset_version": "20260904",
+      "frequency": "monthly"
+     }
+    },
+    {
+     "time": "2026-04-01",
+     "value": 73.4,
+     "unit": "degF",
+     "record_id": "climdiv:cy48201:tmpc:202604",
+     "from_dataset": "noaa_climdiv",
+     "dimensions": {
+      "dataset_version": "20260904",
+      "frequency": "monthly"
+     }
+    },
+    {
+     "time": "2026-05-01",
+     "value": 75.7,
+     "unit": "degF",
+     "record_id": "climdiv:cy48201:tmpc:202605",
+     "from_dataset": "noaa_climdiv",
+     "dimensions": {
+      "dataset_version": "20260904",
+      "frequency": "monthly"
+     }
+    },
+    {
+     "time": "2026-06-01",
+     "value": 83.1,
+     "unit": "degF",
+     "record_id": "climdiv:cy48201:tmpc:202606",
+     "from_dataset": "noaa_climdiv",
+     "dimensions": {
+      "dataset_version": "20260904",
+      "frequency": "monthly"
+     }
+    },
+    {
+     "time": "2026-07-01",
+     "value": 84.6,
+     "unit": "degF",
+     "record_id": "climdiv:cy48201:tmpc:202607",
+     "from_dataset": "noaa_climdiv",
+     "dimensions": {
+      "dataset_version": "20260904",
+      "frequency": "monthly"
+     }
+    },
+    {
+     "time": "2026-08-01",
+     "value": 86.6,
+     "unit": "degF",
+     "record_id": "climdiv:cy48201:tmpc:202608",
+     "from_dataset": "noaa_climdiv",
+     "dimensions": {
+      "dataset_version": "20260904",
+      "frequency": "monthly"
+     }
+    }
+   ]
+  },
+  "containment": [
+   {
+    "subject": "geo:US:county:48201",
+    "predicate": "within",
+    "object": "geo:US:state:48",
+    "weight": 1.0,
+    "valid_from": null,
+    "valid_to": null,
+    "from_dataset": "acs_5yr_tables",
+    "record_id": "acs:within:geo:US:county:48201"
+   },
+   {
+    "subject": "geo:US:county:48201",
+    "predicate": "within",
+    "object": "geo:US:state:48",
+    "weight": 1.0,
+    "valid_from": null,
+    "valid_to": null,
+    "from_dataset": "bea_national_regional",
+    "record_id": "bea:ee50fcfbe614880f97298460dee54d523dd37b27473a6c2bbc9c9154e80e4ed0"
+   },
+   {
+    "subject": "geo:US:county:48201",
+    "predicate": "within",
+    "object": "geo:US:state:48",
+    "weight": 1.0,
+    "valid_from": null,
+    "valid_to": null,
+    "from_dataset": "bls_labor",
+    "record_id": "bls_labor:within:653c96eca1b782efd4022f69af25ed4152713637f8d6de72eb8a2a1b996073de"
+   },
+   {
+    "subject": "geo:US:county:48201",
+    "predicate": "within",
+    "object": "geo:US:state:48",
+    "weight": 1.0,
+    "valid_from": null,
+    "valid_to": null,
+    "from_dataset": "bls_labor",
+    "record_id": "bls_labor:within:9af9d85cb2ec22000d424de1362b2b9bbbc5571d019191e9411b31a98288aeb0"
+   },
+   {
+    "subject": "geo:US:county:48201",
+    "predicate": "within",
+    "object": "geo:US:state:48",
+    "weight": 1.0,
+    "valid_from": null,
+    "valid_to": null,
+    "from_dataset": "bls_labor",
+    "record_id": "bls_labor:within:da6eeee2e5b1173e5f4c83c0d98565de767af59749cd32de45118ab1a775e311"
+   },
+   {
+    "subject": "geo:US:county:48201",
+    "predicate": "within",
+    "object": "geo:US:state:48",
+    "weight": 1.0,
+    "valid_from": null,
+    "valid_to": null,
+    "from_dataset": "bls_labor",
+    "record_id": "bls_labor:within:8f55f6d979c3379e758441a07f17429b5d655ec92f2c51ddccb0341017e018ae"
+   },
+   {
+    "subject": "geo:US:county:48201",
+    "predicate": "within",
+    "object": "geo:US:cbsa:26420",
+    "weight": 1.0,
+    "valid_from": "2018-09-14T00:00:00+00:00",
+    "valid_to": "2020-03-06T00:00:00+00:00",
+    "from_dataset": "cbsa_delineations",
+    "record_id": "omb2018:omb_county_cbsa:48201:26420"
+   },
+   {
+    "subject": "geo:US:county:48201",
+    "predicate": "within",
+    "object": "geo:US:csa:288",
+    "weight": 1.0,
+    "valid_from": "2018-09-14T00:00:00+00:00",
+    "valid_to": "2020-03-06T00:00:00+00:00",
+    "from_dataset": "cbsa_delineations",
+    "record_id": "omb2018:omb_county_csa:48201:288"
+   },
+   {
+    "subject": "geo:US:county:48201",
+    "predicate": "within",
+    "object": "geo:US:cbsa:26420",
+    "weight": 1.0,
+    "valid_from": "2020-03-06T00:00:00+00:00",
+    "valid_to": "2023-07-21T00:00:00+00:00",
+    "from_dataset": "cbsa_delineations",
+    "record_id": "omb2020:omb_county_cbsa:48201:26420"
+   },
+   {
+    "subject": "geo:US:county:48201",
+    "predicate": "within",
+    "object": "geo:US:csa:288",
+    "weight": 1.0,
+    "valid_from": "2020-03-06T00:00:00+00:00",
+    "valid_to": "2023-07-21T00:00:00+00:00",
+    "from_dataset": "cbsa_delineations",
+    "record_id": "omb2020:omb_county_csa:48201:288"
+   },
+   {
+    "subject": "geo:US:county:48201",
+    "predicate": "within",
+    "object": "geo:US:cbsa:26420",
+    "weight": 1.0,
+    "valid_from": "2023-07-21T00:00:00+00:00",
+    "valid_to": null,
+    "from_dataset": "cbsa_delineations",
+    "record_id": "omb2023:omb_county_cbsa:48201:26420"
+   },
+   {
+    "subject": "geo:US:county:48201",
+    "predicate": "within",
+    "object": "geo:US:csa:288",
+    "weight": 1.0,
+    "valid_from": "2023-07-21T00:00:00+00:00",
+    "valid_to": null,
+    "from_dataset": "cbsa_delineations",
+    "record_id": "omb2023:omb_county_csa:48201:288"
+   },
+   {
+    "subject": "geo:US:county:48201",
+    "predicate": "within",
+    "object": "geo:US:state:48",
+    "weight": 1.0,
+    "valid_from": null,
+    "valid_to": null,
+    "from_dataset": "census_geography",
+    "record_id": "tiger:within:geo:US:county:48201"
+   },
+   {
+    "subject": "geo:US:county:48201",
+    "predicate": "within",
+    "object": "geo:US:state:48",
+    "weight": 1.0,
+    "valid_from": null,
+    "valid_to": null,
+    "from_dataset": "census_population",
+    "record_id": "pep:within:geo:US:county:48201:geo:US:state:48"
+   },
+   {
+    "subject": "geo:US:county:48201",
+    "predicate": "within",
+    "object": "geo:US:cbsa:26420",
+    "weight": 1.0,
+    "valid_from": null,
+    "valid_to": null,
+    "from_dataset": "census_population",
+    "record_id": "pep:within:geo:US:county:48201:geo:US:cbsa:26420"
+   },
+   {
+    "subject": "geo:US:county:48201",
+    "predicate": "within",
+    "object": "geo:US:state:48",
+    "weight": 1.0,
+    "valid_from": null,
+    "valid_to": null,
+    "from_dataset": "fema_nri",
+    "record_id": "nri:within:county:48201"
+   },
+   {
+    "subject": "geo:US:county:48201",
+    "predicate": "within",
+    "object": "geo:US:state:48",
+    "weight": 1.0,
+    "valid_from": null,
+    "valid_to": null,
+    "from_dataset": "lehd_lodes",
+    "record_id": "lehd_lodes:assertion:fcb2965822fd2aab4ba61a5df60809639c768661deee37027525a9924e79fb98"
+   },
+   {
+    "subject": "geo:US:county:48201",
+    "predicate": "within",
+    "object": "geo:US:state:48",
+    "weight": 1.0,
+    "valid_from": null,
+    "valid_to": null,
+    "from_dataset": "lehd_lodes",
+    "record_id": "lehd_lodes:assertion:d26d9c47148ad618399512e0cefc61f7d1916eb2b98ed71b3e2efc27ea12d29b"
+   },
+   {
+    "subject": "geo:US:county:48201",
+    "predicate": "within",
+    "object": "geo:US:state:48",
+    "weight": 1.0,
+    "valid_from": null,
+    "valid_to": null,
+    "from_dataset": "usda_agriculture",
+    "record_id": "nass:within:geo:US:county:48201"
+   }
+  ],
+  "migration_flows": {
+   "dataset": "irs_soi_migration",
+   "edges": 1083,
+   "truncated": false,
+   "examples": [
+    {
+     "subject": "irs:migration_flow:county:48201-01003",
+     "predicate": "flow_source",
+     "object": "geo:US:county:48201",
+     "weight": 1.0,
+     "valid_from": null,
+     "valid_to": null,
+     "from_dataset": "irs_soi_migration",
+     "record_id": "irsmig:flow:county:48201-01003:source"
+    },
+    {
+     "subject": "irs:migration_flow:county:48201-01073",
+     "predicate": "flow_source",
+     "object": "geo:US:county:48201",
+     "weight": 1.0,
+     "valid_from": null,
+     "valid_to": null,
+     "from_dataset": "irs_soi_migration",
+     "record_id": "irsmig:flow:county:48201-01073:source"
+    },
+    {
+     "subject": "irs:migration_flow:county:48201-01089",
+     "predicate": "flow_source",
+     "object": "geo:US:county:48201",
+     "weight": 1.0,
+     "valid_from": null,
+     "valid_to": null,
+     "from_dataset": "irs_soi_migration",
+     "record_id": "irsmig:flow:county:48201-01089:source"
+    },
+    {
+     "subject": "irs:migration_flow:county:48201-01097",
+     "predicate": "flow_source",
+     "object": "geo:US:county:48201",
+     "weight": 1.0,
+     "valid_from": null,
+     "valid_to": null,
+     "from_dataset": "irs_soi_migration",
+     "record_id": "irsmig:flow:county:48201-01097:source"
+    }
+   ]
+  },
+  "storms": {
+   "dataset": "noaa_storm_events",
+   "available": true,
+   "events": 1941,
+   "join_basis": "NOAA publishes the county GEOID among the event's participants (asserted by the publisher; no spatial join)",
+   "first": "1950-02-11T19:50:00Z",
+   "last": "2026-05-27T08:00:00Z",
+   "by_event_type": [
+    {
+     "event_type": "thunderstorm_wind",
+     "events": 716,
+     "deaths": 14.0,
+     "injuries": 50.0,
+     "damage_property_usd_nominal": 162771900.0,
+     "damage_crops_usd_nominal": 183000.0
+    },
+    {
+     "event_type": "hail",
+     "events": 603,
+     "deaths": 0.0,
+     "injuries": 0.0,
+     "damage_property_usd_nominal": 23287500.0,
+     "damage_crops_usd_nominal": 0.0
+    },
+    {
+     "event_type": "tornado",
+     "events": 254,
+     "deaths": 13.0,
+     "injuries": 325.0,
+     "damage_property_usd_nominal": 528477870.0,
+     "damage_crops_usd_nominal": 5000.0
+    },
+    {
+     "event_type": "flash_flood",
+     "events": 218,
+     "deaths": 70.0,
+     "injuries": 6.0,
+     "damage_property_usd_nominal": 10301770100.0,
+     "damage_crops_usd_nominal": 101000.0
+    },
+    {
+     "event_type": "lightning",
+     "events": 72,
+     "deaths": 12.0,
+     "injuries": 55.0,
+     "damage_property_usd_nominal": 7074000.0,
+     "damage_crops_usd_nominal": 1000.0
+    },
+    {
+     "event_type": "funnel_cloud",
+     "events": 62,
+     "deaths": 0.0,
+     "injuries": 0.0,
+     "damage_property_usd_nominal": 0.0,
+     "damage_crops_usd_nominal": 0.0
+    },
+    {
+     "event_type": "heavy_rain",
+     "events": 8,
+     "deaths": 1.0,
+     "injuries": 0.0,
+     "damage_property_usd_nominal": 1500.0,
+     "damage_crops_usd_nominal": 0.0
+    },
+    {
+     "event_type": "flood",
+     "events": 8,
+     "deaths": 0.0,
+     "injuries": 0.0,
+     "damage_property_usd_nominal": 6250000.0,
+     "damage_crops_usd_nominal": 10000.0
+    }
+   ],
+   "by_decade": {
+    "1950s": 13,
+    "1960s": 48,
+    "1970s": 119,
+    "1980s": 145,
+    "1990s": 398,
+    "2000s": 538,
+    "2010s": 373,
+    "2020s": 307
+   },
+   "latest": [
+    {
+     "record_id": "stormev:event:1338651",
+     "event": "noaa:storm_event:1338651",
+     "event_type": "thunderstorm_wind",
+     "label": "Thunderstorm Wind",
+     "occurred_at": "2026-05-27T08:00:00Z",
+     "deaths": 0.0,
+     "injuries": 0.0,
+     "damage_property_usd_nominal": 23000.0,
+     "latitude": 30.001,
+     "longitude": -95.2217
+    },
+    {
+     "record_id": "stormev:event:1338647",
+     "event": "noaa:storm_event:1338647",
+     "event_type": "thunderstorm_wind",
+     "label": "Thunderstorm Wind",
+     "occurred_at": "2026-05-27T07:42:00Z",
+     "deaths": 0.0,
+     "injuries": 0.0,
+     "damage_property_usd_nominal": 20000.0,
+     "latitude": 30.03,
+     "longitude": -95.41
+    },
+    {
+     "record_id": "stormev:event:1338563",
+     "event": "noaa:storm_event:1338563",
+     "event_type": "flash_flood",
+     "label": "Flash Flood",
+     "occurred_at": "2026-05-23T21:33:00Z",
+     "deaths": 0.0,
+     "injuries": 0.0,
+     "damage_property_usd_nominal": 33000.0,
+     "latitude": 29.8924,
+     "longitude": -95.5681
+    },
+    {
+     "record_id": "stormev:event:1338619",
+     "event": "noaa:storm_event:1338619",
+     "event_type": "thunderstorm_wind",
+     "label": "Thunderstorm Wind",
+     "occurred_at": "2026-05-23T11:27:00Z",
+     "deaths": 0.0,
+     "injuries": 0.0,
+     "damage_property_usd_nominal": 0.0,
+     "latitude": 29.79,
+     "longitude": -95.06
+    },
+    {
+     "record_id": "stormev:event:1327142",
+     "event": "noaa:storm_event:1327142",
+     "event_type": "hail",
+     "label": "Hail",
+     "occurred_at": "2026-05-01T05:28:00Z",
+     "deaths": 0.0,
+     "injuries": 0.0,
+     "damage_property_usd_nominal": 0.0,
+     "latitude": 29.5844,
+     "longitude": -95.2138
+    },
+    {
+     "record_id": "stormev:event:1327148",
+     "event": "noaa:storm_event:1327148",
+     "event_type": "hail",
+     "label": "Hail",
+     "occurred_at": "2026-05-01T05:28:00Z",
+     "deaths": 0.0,
+     "injuries": 0.0,
+     "damage_property_usd_nominal": 0.0,
+     "latitude": 29.58,
+     "longitude": -95.21
+    },
+    {
+     "record_id": "stormev:event:1327144",
+     "event": "noaa:storm_event:1327144",
+     "event_type": "hail",
+     "label": "Hail",
+     "occurred_at": "2026-05-01T05:25:00Z",
+     "deaths": 0.0,
+     "injuries": 0.0,
+     "damage_property_usd_nominal": 0.0,
+     "latitude": 29.58,
+     "longitude": -95.24
+    },
+    {
+     "record_id": "stormev:event:1322902",
+     "event": "noaa:storm_event:1322902",
+     "event_type": "flash_flood",
+     "label": "Flash Flood",
+     "occurred_at": "2026-04-18T21:45:00Z",
+     "deaths": 0.0,
+     "injuries": 0.0,
+     "damage_property_usd_nominal": 0.0,
+     "latitude": 29.777,
+     "longitude": -95.2889
+    }
+   ],
+   "costliest": [
+    {
+     "record_id": "stormev:event:720861",
+     "event": "noaa:storm_event:720861",
+     "event_type": "flash_flood",
+     "label": "Flash Flood",
+     "occurred_at": "2017-08-27T03:45:00Z",
+     "deaths": 38.0,
+     "injuries": 0.0,
+     "damage_property_usd_nominal": 10000000000.0,
+     "latitude": 29.5688,
+     "longitude": -95.0139
+    },
+    {
+     "record_id": "stormev:event:10153887",
+     "event": "noaa:storm_event:10153887",
+     "event_type": "tornado",
+     "label": "Tornado",
+     "occurred_at": "1992-11-21T21:27:00Z",
+     "deaths": 0.0,
+     "injuries": 15.0,
+     "damage_property_usd_nominal": 250000000.0,
+     "latitude": 29.73,
+     "longitude": -95.28
+    },
+    {
+     "record_id": "stormev:event:858108",
+     "event": "noaa:storm_event:858108",
+     "event_type": "flash_flood",
+     "label": "Flash Flood",
+     "occurred_at": "2019-09-19T12:55:00Z",
+     "deaths": 0.0,
+     "injuries": 0.0,
+     "damage_property_usd_nominal": 200000000.0,
+     "latitude": 30.0579,
+     "longitude": -95.1776
+    },
+    {
+     "record_id": "stormev:event:1188074",
+     "event": "noaa:storm_event:1188074",
+     "event_type": "thunderstorm_wind",
+     "label": "Thunderstorm Wind",
+     "occurred_at": "2024-05-16T23:00:00Z",
+     "deaths": 0.0,
+     "injuries": 0.0,
+     "damage_property_usd_nominal": 70000000.0,
+     "latitude": 29.79,
+     "longitude": -95.82
+    },
+    {
+     "record_id": "stormev:event:10351307",
+     "event": "noaa:storm_event:10351307",
+     "event_type": "thunderstorm_wind",
+     "label": "Thunderstorm Wind",
+     "occurred_at": "1993-05-02T09:00:00Z",
+     "deaths": 0.0,
+     "injuries": 0.0,
+     "damage_property_usd_nominal": 50000000.0,
+     "latitude": null,
+     "longitude": null
+    },
+    {
+     "record_id": "stormev:event:629833",
+     "event": "noaa:storm_event:629833",
+     "event_type": "flash_flood",
+     "label": "Flash Flood",
+     "occurred_at": "2016-04-18T05:00:00Z",
+     "deaths": 6.0,
+     "injuries": 0.0,
+     "damage_property_usd_nominal": 35000000.0,
+     "latitude": 30.0622,
+     "longitude": -95.8832
+    },
+    {
+     "record_id": "stormev:event:10129733",
+     "event": "noaa:storm_event:10129733",
+     "event_type": "tornado",
+     "label": "Tornado",
+     "occurred_at": "1977-12-13T14:05:00Z",
+     "deaths": 1.0,
+     "injuries": 35.0,
+     "damage_property_usd_nominal": 25000000.0,
+     "latitude": 29.78,
+     "longitude": -95.28
+    },
+    {
+     "record_id": "stormev:event:10141638",
+     "event": "noaa:storm_event:10141638",
+     "event_type": "tornado",
+     "label": "Tornado",
+     "occurred_at": "1984-10-22T06:30:00Z",
+     "deaths": 0.0,
+     "injuries": 0.0,
+     "damage_property_usd_nominal": 25000000.0,
+     "latitude": 29.62,
+     "longitude": -95.25
+    }
+   ],
+   "located": [
+    {
+     "record_id": "stormev:event:1093303",
+     "event": "noaa:storm_event:1093303",
+     "event_type": "thunderstorm_wind",
+     "label": "Thunderstorm Wind",
+     "occurred_at": "2023-06-11T02:09:00Z",
+     "deaths": 0.0,
+     "injuries": 0.0,
+     "damage_property_usd_nominal": 0.0,
+     "latitude": 29.98,
+     "longitude": -95.36
+    },
+    {
+     "record_id": "stormev:event:1093304",
+     "event": "noaa:storm_event:1093304",
+     "event_type": "thunderstorm_wind",
+     "label": "Thunderstorm Wind",
+     "occurred_at": "2023-06-11T02:25:00Z",
+     "deaths": 0.0,
+     "injuries": 0.0,
+     "damage_property_usd_nominal": 0.0,
+     "latitude": 29.95,
+     "longitude": -95.17
+    },
+    {
+     "record_id": "stormev:event:1095755",
+     "event": "noaa:storm_event:1095755",
+     "event_type": "thunderstorm_wind",
+     "label": "Thunderstorm Wind",
+     "occurred_at": "2023-06-22T01:35:00Z",
+     "deaths": 0.0,
+     "injuries": 0.0,
+     "damage_property_usd_nominal": 1000000.0,
+     "latitude": 30.08,
+     "longitude": -95.44
+    },
+    {
+     "record_id": "stormev:event:1095380",
+     "event": "noaa:storm_event:1095380",
+     "event_type": "thunderstorm_wind",
+     "label": "Thunderstorm Wind",
+     "occurred_at": "2023-06-22T01:41:00Z",
+     "deaths": 0.0,
+     "injuries": 0.0,
+     "damage_property_usd_nominal": 0.0,
+     "latitude": 30.0675,
+     "longitude": -95.5561
+    },
+    {
+     "record_id": "stormev:event:1095392",
+     "event": "noaa:storm_event:1095392",
+     "event_type": "thunderstorm_wind",
+     "label": "Thunderstorm Wind",
+     "occurred_at": "2023-06-22T01:41:00Z",
+     "deaths": 0.0,
+     "injuries": 0.0,
+     "damage_property_usd_nominal": 15000.0,
+     "latitude": 30.0675,
+     "longitude": -95.5561
+    },
+    {
+     "record_id": "stormev:event:1095754",
+     "event": "noaa:storm_event:1095754",
+     "event_type": "thunderstorm_wind",
+     "label": "Thunderstorm Wind",
+     "occurred_at": "2023-06-22T01:42:00Z",
+     "deaths": 0.0,
+     "injuries": 0.0,
+     "damage_property_usd_nominal": 0.0,
+     "latitude": 30.1,
+     "longitude": -95.55
+    },
+    {
+     "record_id": "stormev:event:1095819",
+     "event": "noaa:storm_event:1095819",
+     "event_type": "thunderstorm_wind",
+     "label": "Thunderstorm Wind",
+     "occurred_at": "2023-06-22T02:03:00Z",
+     "deaths": 0.0,
+     "injuries": 0.0,
+     "damage_property_usd_nominal": 500000.0,
+     "latitude": 30.01,
+     "longitude": -95.39
+    },
+    {
+     "record_id": "stormev:event:1095747",
+     "event": "noaa:storm_event:1095747",
+     "event_type": "thunderstorm_wind",
+     "label": "Thunderstorm Wind",
+     "occurred_at": "2023-06-22T02:06:00Z",
+     "deaths": 0.0,
+     "injuries": 0.0,
+     "damage_property_usd_nominal": 0.0,
+     "latitude": 29.98,
+     "longitude": -95.35
+    },
+    {
+     "record_id": "stormev:event:1095791",
+     "event": "noaa:storm_event:1095791",
+     "event_type": "thunderstorm_wind",
+     "label": "Thunderstorm Wind",
+     "occurred_at": "2023-06-22T02:35:00Z",
+     "deaths": 0.0,
+     "injuries": 0.0,
+     "damage_property_usd_nominal": 1000000.0,
+     "latitude": 30.05,
+     "longitude": -95.46
+    },
+    {
+     "record_id": "stormev:event:1095753",
+     "event": "noaa:storm_event:1095753",
+     "event_type": "thunderstorm_wind",
+     "label": "Thunderstorm Wind",
+     "occurred_at": "2023-06-22T02:57:00Z",
+     "deaths": 0.0,
+     "injuries": 0.0,
+     "damage_property_usd_nominal": 0.0,
+     "latitude": 29.8,
+     "longitude": -95.4
+    },
+    {
+     "record_id": "stormev:event:1095822",
+     "event": "noaa:storm_event:1095822",
+     "event_type": "thunderstorm_wind",
+     "label": "Thunderstorm Wind",
+     "occurred_at": "2023-06-24T00:45:00Z",
+     "deaths": 0.0,
+     "injuries": 0.0,
+     "damage_property_usd_nominal": 0.0,
+     "latitude": 29.8099,
+     "longitude": -95.3599
+    },
+    {
+     "record_id": "stormev:event:1098669",
+     "event": "noaa:storm_event:1098669",
+     "event_type": "hail",
+     "label": "Hail",
+     "occurred_at": "2023-06-24T00:46:00Z",
+     "deaths": 0.0,
+     "injuries": 0.0,
+     "damage_property_usd_nominal": 0.0,
+     "latitude": 29.7196,
+     "longitude": -95.312
+    },
+    {
+     "record_id": "stormev:event:1098670",
+     "event": "noaa:storm_event:1098670",
+     "event_type": "hail",
+     "label": "Hail",
+     "occurred_at": "2023-06-24T00:46:00Z",
+     "deaths": 0.0,
+     "injuries": 0.0,
+     "damage_property_usd_nominal": 0.0,
+     "latitude": 29.78,
+     "longitude": -95.3
+    },
+    {
+     "record_id": "stormev:event:1098671",
+     "event": "noaa:storm_event:1098671",
+     "event_type": "hail",
+     "label": "Hail",
+     "occurred_at": "2023-06-24T00:50:00Z",
+     "deaths": 0.0,
+     "injuries": 0.0,
+     "damage_property_usd_nominal": 0.0,
+     "latitude": 29.73,
+     "longitude": -95.32
+    },
+    {
+     "record_id": "stormev:event:1098672",
+     "event": "noaa:storm_event:1098672",
+     "event_type": "hail",
+     "label": "Hail",
+     "occurred_at": "2023-06-24T00:50:00Z",
+     "deaths": 0.0,
+     "injuries": 0.0,
+     "damage_property_usd_nominal": 0.0,
+     "latitude": 29.74,
+     "longitude": -95.33
+    },
+    {
+     "record_id": "stormev:event:1098673",
+     "event": "noaa:storm_event:1098673",
+     "event_type": "hail",
+     "label": "Hail",
+     "occurred_at": "2023-06-24T00:51:00Z",
+     "deaths": 0.0,
+     "injuries": 0.0,
+     "damage_property_usd_nominal": 0.0,
+     "latitude": 29.73,
+     "longitude": -95.33
+    },
+    {
+     "record_id": "stormev:event:1098674",
+     "event": "noaa:storm_event:1098674",
+     "event_type": "hail",
+     "label": "Hail",
+     "occurred_at": "2023-06-24T00:52:00Z",
+     "deaths": 0.0,
+     "injuries": 0.0,
+     "damage_property_usd_nominal": 0.0,
+     "latitude": 29.77,
+     "longitude": -95.36
+    },
+    {
+     "record_id": "stormev:event:1098675",
+     "event": "noaa:storm_event:1098675",
+     "event_type": "hail",
+     "label": "Hail",
+     "occurred_at": "2023-06-24T01:04:00Z",
+     "deaths": 0.0,
+     "injuries": 0.0,
+     "damage_property_usd_nominal": 0.0,
+     "latitude": 29.74,
+     "longitude": -95.38
+    },
+    {
+     "record_id": "stormev:event:1095824",
+     "event": "noaa:storm_event:1095824",
+     "event_type": "hail",
+     "label": "Hail",
+     "occurred_at": "2023-06-24T01:12:00Z",
+     "deaths": 0.0,
+     "injuries": 0.0,
+     "damage_property_usd_nominal": 0.0,
+     "latitude": 29.8,
+     "longitude": -95.4
+    },
+    {
+     "record_id": "stormev:event:1095820",
+     "event": "noaa:storm_event:1095820",
+     "event_type": "hail",
+     "label": "Hail",
+     "occurred_at": "2023-06-24T01:45:00Z",
+     "deaths": 0.0,
+     "injuries": 0.0,
+     "damage_property_usd_nominal": 0.0,
+     "latitude": 29.8675,
+     "longitude": -95.6399
+    },
+    {
+     "record_id": "stormev:event:1095823",
+     "event": "noaa:storm_event:1095823",
+     "event_type": "hail",
+     "label": "Hail",
+     "occurred_at": "2023-06-24T01:46:00Z",
+     "deaths": 0.0,
+     "injuries": 0.0,
+     "damage_property_usd_nominal": 0.0,
+     "latitude": 29.89,
+     "longitude": -95.62
+    },
+    {
+     "record_id": "stormev:event:1098680",
+     "event": "noaa:storm_event:1098680",
+     "event_type": "hail",
+     "label": "Hail",
+     "occurred_at": "2023-06-24T01:50:00Z",
+     "deaths": 0.0,
+     "injuries": 0.0,
+     "damage_property_usd_nominal": 0.0,
+     "latitude": 29.89,
+     "longitude": -95.65
+    },
+    {
+     "record_id": "stormev:event:1095821",
+     "event": "noaa:storm_event:1095821",
+     "event_type": "hail",
+     "label": "Hail",
+     "occurred_at": "2023-06-24T01:55:00Z",
+     "deaths": 0.0,
+     "injuries": 0.0,
+     "damage_property_usd_nominal": 0.0,
+     "latitude": 29.88,
+     "longitude": -95.65
+    },
+    {
+     "record_id": "stormev:event:1098681",
+     "event": "noaa:storm_event:1098681",
+     "event_type": "hail",
+     "label": "Hail",
+     "occurred_at": "2023-06-24T02:00:00Z",
+     "deaths": 0.0,
+     "injuries": 0.0,
+     "damage_property_usd_nominal": 0.0,
+     "latitude": 29.8937,
+     "longitude": -95.6621
+    },
+    {
+     "record_id": "stormev:event:1113871",
+     "event": "noaa:storm_event:1113871",
+     "event_type": "thunderstorm_wind",
+     "label": "Thunderstorm Wind",
+     "occurred_at": "2023-08-24T22:49:00Z",
+     "deaths": 0.0,
+     "injuries": 0.0,
+     "damage_property_usd_nominal": 0.0,
+     "latitude": 30.0459,
+     "longitude": -95.1417
+    },
+    {
+     "record_id": "stormev:event:1113872",
+     "event": "noaa:storm_event:1113872",
+     "event_type": "thunderstorm_wind",
+     "label": "Thunderstorm Wind",
+     "occurred_at": "2023-08-24T22:57:00Z",
+     "deaths": 0.0,
+     "injuries": 0.0,
+     "damage_property_usd_nominal": 0.0,
+     "latitude": 29.812,
+     "longitude": -95.1815
+    },
+    {
+     "record_id": "stormev:event:1122722",
+     "event": "noaa:storm_event:1122722",
+     "event_type": "thunderstorm_wind",
+     "label": "Thunderstorm Wind",
+     "occurred_at": "2023-09-14T19:35:00Z",
+     "deaths": 0.0,
+     "injuries": 0.0,
+     "damage_property_usd_nominal": null,
+     "latitude": 29.93,
+     "longitude": -95.26
+    },
+    {
+     "record_id": "stormev:event:1122723",
+     "event": "noaa:storm_event:1122723",
+     "event_type": "thunderstorm_wind",
+     "label": "Thunderstorm Wind",
+     "occurred_at": "2023-09-14T19:40:00Z",
+     "deaths": 0.0,
+     "injuries": 0.0,
+     "damage_property_usd_nominal": 0.0,
+     "latitude": 29.9193,
+     "longitude": -95.2135
+    },
+    {
+     "record_id": "stormev:event:1127153",
+     "event": "noaa:storm_event:1127153",
+     "event_type": "flash_flood",
+     "label": "Flash Flood",
+     "occurred_at": "2023-09-15T21:38:00Z",
+     "deaths": 0.0,
+     "injuries": 0.0,
+     "damage_property_usd_nominal": 2000.0,
+     "latitude": 29.7221,
+     "longitude": -95.1027
+    },
+    {
+     "record_id": "stormev:event:1126296",
+     "event": "noaa:storm_event:1126296",
+     "event_type": "thunderstorm_wind",
+     "label": "Thunderstorm Wind",
+     "occurred_at": "2023-09-25T22:36:00Z",
+     "deaths": 0.0,
+     "injuries": 0.0,
+     "damage_property_usd_nominal": 0.0,
+     "latitude": 29.68,
+     "longitude": -95.27
+    },
+    {
+     "record_id": "stormev:event:1127157",
+     "event": "noaa:storm_event:1127157",
+     "event_type": "thunderstorm_wind",
+     "label": "Thunderstorm Wind",
+     "occurred_at": "2023-09-27T00:41:00Z",
+     "deaths": 0.0,
+     "injuries": 0.0,
+     "damage_property_usd_nominal": 3000.0,
+     "latitude": 30.01,
+     "longitude": -95.26
+    },
+    {
+     "record_id": "stormev:event:1144805",
+     "event": "noaa:storm_event:1144805",
+     "event_type": "hail",
+     "label": "Hail",
+     "occurred_at": "2023-12-10T00:13:00Z",
+     "deaths": 0.0,
+     "injuries": 0.0,
+     "damage_property_usd_nominal": 0.0,
+     "latitude": 30.08,
+     "longitude": -95.19
+    },
+    {
+     "record_id": "stormev:event:1147055",
+     "event": "noaa:storm_event:1147055",
+     "event_type": "thunderstorm_wind",
+     "label": "Thunderstorm Wind",
+     "occurred_at": "2024-01-08T22:30:00Z",
+     "deaths": 0.0,
+     "injuries": 0.0,
+     "damage_property_usd_nominal": 0.0,
+     "latitude": 29.8,
+     "longitude": -95.43
+    },
+    {
+     "record_id": "stormev:event:1147056",
+     "event": "noaa:storm_event:1147056",
+     "event_type": "thunderstorm_wind",
+     "label": "Thunderstorm Wind",
+     "occurred_at": "2024-01-08T22:38:00Z",
+     "deaths": 0.0,
+     "injuries": 0.0,
+     "damage_property_usd_nominal": 0.0,
+     "latitude": 29.6657,
+     "longitude": -95.3184
+    },
+    {
+     "record_id": "stormev:event:1147057",
+     "event": "noaa:storm_event:1147057",
+     "event_type": "thunderstorm_wind",
+     "label": "Thunderstorm Wind",
+     "occurred_at": "2024-01-08T22:50:00Z",
+     "deaths": 0.0,
+     "injuries": 0.0,
+     "damage_property_usd_nominal": 0.0,
+     "latitude": 29.6743,
+     "longitude": -95.1981
+    },
+    {
+     "record_id": "stormev:event:1160143",
+     "event": "noaa:storm_event:1160143",
+     "event_type": "flood",
+     "label": "Flood",
+     "occurred_at": "2024-01-24T19:00:00Z",
+     "deaths": 0.0,
+     "injuries": 0.0,
+     "damage_property_usd_nominal": 0.0,
+     "latitude": 30.08,
+     "longitude": -95.74
+    },
+    {
+     "record_id": "stormev:event:1160174",
+     "event": "noaa:storm_event:1160174",
+     "event_type": "flood",
+     "label": "Flood",
+     "occurred_at": "2024-01-24T19:00:00Z",
+     "deaths": 0.0,
+     "injuries": 0.0,
+     "damage_property_usd_nominal": 0.0,
+     "latitude": 30.0958,
+     "longitude": -95.7602
+    },
+    {
+     "record_id": "stormev:event:1150598",
+     "event": "noaa:storm_event:1150598",
+     "event_type": "thunderstorm_wind",
+     "label": "Thunderstorm Wind",
+     "occurred_at": "2024-02-03T08:08:00Z",
+     "deaths": 0.0,
+     "injuries": 0.0,
+     "damage_property_usd_nominal": 0.0,
+     "latitude": 29.7333,
+     "longitude": -95.0563
+    },
+    {
+     "record_id": "stormev:event:1158835",
+     "event": "noaa:storm_event:1158835",
+     "event_type": "hail",
+     "label": "Hail",
+     "occurred_at": "2024-03-15T21:30:00Z",
+     "deaths": 0.0,
+     "injuries": 0.0,
+     "damage_property_usd_nominal": 0.0,
+     "latitude": 29.68,
+     "longitude": -95.39
+    },
+    {
+     "record_id": "stormev:event:1158839",
+     "event": "noaa:storm_event:1158839",
+     "event_type": "hail",
+     "label": "Hail",
+     "occurred_at": "2024-03-15T21:45:00Z",
+     "deaths": 0.0,
+     "injuries": 0.0,
+     "damage_property_usd_nominal": 0.0,
+     "latitude": 29.68,
+     "longitude": -95.27
+    },
+    {
+     "record_id": "stormev:event:1158867",
+     "event": "noaa:storm_event:1158867",
+     "event_type": "thunderstorm_wind",
+     "label": "Thunderstorm Wind",
+     "occurred_at": "2024-03-15T21:45:00Z",
+     "deaths": 0.0,
+     "injuries": 0.0,
+     "damage_property_usd_nominal": 0.0,
+     "latitude": 29.67,
+     "longitude": -95.39
+    },
+    {
+     "record_id": "stormev:event:1158879",
+     "event": "noaa:storm_event:1158879",
+     "event_type": "thunderstorm_wind",
+     "label": "Thunderstorm Wind",
+     "occurred_at": "2024-03-15T22:57:00Z",
+     "deaths": 0.0,
+     "injuries": 0.0,
+     "damage_property_usd_nominal": 0.0,
+     "latitude": 29.8,
+     "longitude": -95.06
+    },
+    {
+     "record_id": "stormev:event:1158804",
+     "event": "noaa:storm_event:1158804",
+     "event_type": "hail",
+     "label": "Hail",
+     "occurred_at": "2024-03-21T23:01:00Z",
+     "deaths": 0.0,
+     "injuries": 0.0,
+     "damage_property_usd_nominal": 0.0,
+     "latitude": 29.85,
+     "longitude": -95.76
+    },
+    {
+     "record_id": "stormev:event:1158806",
+     "event": "noaa:storm_event:1158806",
+     "event_type": "hail",
+     "label": "Hail",
+     "occurred_at": "2024-03-21T23:05:00Z",
+     "deaths": 0.0,
+     "injuries": 0.0,
+     "damage_property_usd_nominal": 0.0,
+     "latitude": 29.92,
+     "longitude": -95.68
+    },
+    {
+     "record_id": "stormev:event:1158809",
+     "event": "noaa:storm_event:1158809",
+     "event_type": "hail",
+     "label": "Hail",
+     "occurred_at": "2024-03-21T23:19:00Z",
+     "deaths": 0.0,
+     "injuries": 0.0,
+     "damage_property_usd_nominal": 0.0,
+     "latitude": 29.88,
+     "longitude": -95.65
+    },
+    {
+     "record_id": "stormev:event:1158813",
+     "event": "noaa:storm_event:1158813",
+     "event_type": "hail",
+     "label": "Hail",
+     "occurred_at": "2024-03-21T23:25:00Z",
+     "deaths": 0.0,
+     "injuries": 0.0,
+     "damage_property_usd_nominal": 0.0,
+     "latitude": 29.9,
+     "longitude": -95.57
+    },
+    {
+     "record_id": "stormev:event:1158814",
+     "event": "noaa:storm_event:1158814",
+     "event_type": "hail",
+     "label": "Hail",
+     "occurred_at": "2024-03-21T23:30:00Z",
+     "deaths": 0.0,
+     "injuries": 0.0,
+     "damage_property_usd_nominal": 0.0,
+     "latitude": 29.88,
+     "longitude": -95.56
+    },
+    {
+     "record_id": "stormev:event:1158815",
+     "event": "noaa:storm_event:1158815",
+     "event_type": "hail",
+     "label": "Hail",
+     "occurred_at": "2024-03-21T23:33:00Z",
+     "deaths": 0.0,
+     "injuries": 0.0,
+     "damage_property_usd_nominal": 0.0,
+     "latitude": 29.91,
+     "longitude": -95.53
+    },
+    {
+     "record_id": "stormev:event:1158816",
+     "event": "noaa:storm_event:1158816",
+     "event_type": "hail",
+     "label": "Hail",
+     "occurred_at": "2024-03-21T23:34:00Z",
+     "deaths": 0.0,
+     "injuries": 0.0,
+     "damage_property_usd_nominal": 0.0,
+     "latitude": 29.91,
+     "longitude": -95.51
+    },
+    {
+     "record_id": "stormev:event:1158817",
+     "event": "noaa:storm_event:1158817",
+     "event_type": "hail",
+     "label": "Hail",
+     "occurred_at": "2024-03-21T23:38:00Z",
+     "deaths": 0.0,
+     "injuries": 0.0,
+     "damage_property_usd_nominal": 0.0,
+     "latitude": 29.86,
+     "longitude": -95.43
+    },
+    {
+     "record_id": "stormev:event:1158818",
+     "event": "noaa:storm_event:1158818",
+     "event_type": "hail",
+     "label": "Hail",
+     "occurred_at": "2024-03-21T23:54:00Z",
+     "deaths": 0.0,
+     "injuries": 0.0,
+     "damage_property_usd_nominal": 0.0,
+     "latitude": 29.89,
+     "longitude": -95.34
+    },
+    {
+     "record_id": "stormev:event:1158819",
+     "event": "noaa:storm_event:1158819",
+     "event_type": "hail",
+     "label": "Hail",
+     "occurred_at": "2024-03-22T00:00:00Z",
+     "deaths": 0.0,
+     "injuries": 0.0,
+     "damage_property_usd_nominal": 0.0,
+     "latitude": 29.87,
+     "longitude": -95.3
+    },
+    {
+     "record_id": "stormev:event:1177728",
+     "event": "noaa:storm_event:1177728",
+     "event_type": "tornado",
+     "label": "Tornado",
+     "occurred_at": "2024-04-10T07:47:00Z",
+     "deaths": 0.0,
+     "injuries": 0.0,
+     "damage_property_usd_nominal": 500000.0,
+     "latitude": 29.7716,
+     "longitude": -95.7524
+    },
+    {
+     "record_id": "stormev:event:1163652",
+     "event": "noaa:storm_event:1163652",
+     "event_type": "thunderstorm_wind",
+     "label": "Thunderstorm Wind",
+     "occurred_at": "2024-04-10T07:58:00Z",
+     "deaths": 0.0,
+     "injuries": 0.0,
+     "damage_property_usd_nominal": null,
+     "latitude": 29.98,
+     "longitude": -95.7
+    },
+    {
+     "record_id": "stormev:event:1163638",
+     "event": "noaa:storm_event:1163638",
+     "event_type": "thunderstorm_wind",
+     "label": "Thunderstorm Wind",
+     "occurred_at": "2024-04-10T08:05:00Z",
+     "deaths": 0.0,
+     "injuries": 0.0,
+     "damage_property_usd_nominal": null,
+     "latitude": 29.9,
+     "longitude": -95.55
+    },
+    {
+     "record_id": "stormev:event:1163640",
+     "event": "noaa:storm_event:1163640",
+     "event_type": "thunderstorm_wind",
+     "label": "Thunderstorm Wind",
+     "occurred_at": "2024-04-10T08:26:00Z",
+     "deaths": 0.0,
+     "injuries": 0.0,
+     "damage_property_usd_nominal": null,
+     "latitude": 30.0674,
+     "longitude": -95.5557
+    },
+    {
+     "record_id": "stormev:event:1163657",
+     "event": "noaa:storm_event:1163657",
+     "event_type": "thunderstorm_wind",
+     "label": "Thunderstorm Wind",
+     "occurred_at": "2024-04-10T08:46:00Z",
+     "deaths": 0.0,
+     "injuries": 0.0,
+     "damage_property_usd_nominal": null,
+     "latitude": 29.85,
+     "longitude": -95.39
+    },
+    {
+     "record_id": "stormev:event:1177176",
+     "event": "noaa:storm_event:1177176",
+     "event_type": "flash_flood",
+     "label": "Flash Flood",
+     "occurred_at": "2024-04-29T10:21:00Z",
+     "deaths": 0.0,
+     "injuries": 0.0,
+     "damage_property_usd_nominal": 0.0,
+     "latitude": 29.66,
+     "longitude": -95.03
+    },
+    {
+     "record_id": "stormev:event:1177178",
+     "event": "noaa:storm_event:1177178",
+     "event_type": "flash_flood",
+     "label": "Flash Flood",
+     "occurred_at": "2024-04-29T10:30:00Z",
+     "deaths": 0.0,
+     "injuries": 0.0,
+     "damage_property_usd_nominal": 0.0,
+     "latitude": 29.75,
+     "longitude": -94.94
+    },
+    {
+     "record_id": "stormev:event:1188445",
+     "event": "noaa:storm_event:1188445",
+     "event_type": "flash_flood",
+     "label": "Flash Flood",
+     "occurred_at": "2024-05-02T13:04:00Z",
+     "deaths": 0.0,
+     "injuries": 0.0,
+     "damage_property_usd_nominal": 0.0,
+     "latitude": 30.0479,
+     "longitude": -95.4646
+    },
+    {
+     "record_id": "stormev:event:1165972",
+     "event": "noaa:storm_event:1165972",
+     "event_type": "thunderstorm_wind",
+     "label": "Thunderstorm Wind",
+     "occurred_at": "2024-05-02T13:23:00Z",
+     "deaths": 0.0,
+     "injuries": 0.0,
+     "damage_property_usd_nominal": null,
+     "latitude": 30.05,
+     "longitude": -95.17
+    },
+    {
+     "record_id": "stormev:event:1165964",
+     "event": "noaa:storm_event:1165964",
+     "event_type": "thunderstorm_wind",
+     "label": "Thunderstorm Wind",
+     "occurred_at": "2024-05-02T14:20:00Z",
+     "deaths": 0.0,
+     "injuries": 0.0,
+     "damage_property_usd_nominal": 3000.0,
+     "latitude": 30.06,
+     "longitude": -95.11
+    },
+    {
+     "record_id": "stormev:event:1188444",
+     "event": "noaa:storm_event:1188444",
+     "event_type": "flash_flood",
+     "label": "Flash Flood",
+     "occurred_at": "2024-05-02T14:47:00Z",
+     "deaths": 0.0,
+     "injuries": 0.0,
+     "damage_property_usd_nominal": 0.0,
+     "latitude": 29.99,
+     "longitude": -95.28
+    },
+    {
+     "record_id": "stormev:event:1165978",
+     "event": "noaa:storm_event:1165978",
+     "event_type": "thunderstorm_wind",
+     "label": "Thunderstorm Wind",
+     "occurred_at": "2024-05-02T16:05:00Z",
+     "deaths": 0.0,
+     "injuries": 0.0,
+     "damage_property_usd_nominal": null,
+     "latitude": 29.99,
+     "longitude": -95.69
+    },
+    {
+     "record_id": "stormev:event:1165967",
+     "event": "noaa:storm_event:1165967",
+     "event_type": "hail",
+     "label": "Hail",
+     "occurred_at": "2024-05-03T08:55:00Z",
+     "deaths": 0.0,
+     "injuries": 0.0,
+     "damage_property_usd_nominal": null,
+     "latitude": 30.03,
+     "longitude": -95.65
+    },
+    {
+     "record_id": "stormev:event:1167680",
+     "event": "noaa:storm_event:1167680",
+     "event_type": "hail",
+     "label": "Hail",
+     "occurred_at": "2024-05-13T19:54:00Z",
+     "deaths": 0.0,
+     "injuries": 0.0,
+     "damage_property_usd_nominal": 0.0,
+     "latitude": 29.54,
+     "longitude": -95.19
+    },
+    {
+     "record_id": "stormev:event:1188421",
+     "event": "noaa:storm_event:1188421",
+     "event_type": "thunderstorm_wind",
+     "label": "Thunderstorm Wind",
+     "occurred_at": "2024-05-16T23:00:00Z",
+     "deaths": 0.0,
+     "injuries": 0.0,
+     "damage_property_usd_nominal": 0.0,
+     "latitude": 30.06,
+     "longitude": -95.86
+    },
+    {
+     "record_id": "stormev:event:1188074",
+     "event": "noaa:storm_event:1188074",
+     "event_type": "thunderstorm_wind",
+     "label": "Thunderstorm Wind",
+     "occurred_at": "2024-05-16T23:00:00Z",
+     "deaths": 0.0,
+     "injuries": 0.0,
+     "damage_property_usd_nominal": 70000000.0,
+     "latitude": 29.79,
+     "longitude": -95.82
+    },
+    {
+     "record_id": "stormev:event:1188491",
+     "event": "noaa:storm_event:1188491",
+     "event_type": "lightning",
+     "label": "Lightning",
+     "occurred_at": "2024-05-16T23:00:00Z",
+     "deaths": 1.0,
+     "injuries": 0.0,
+     "damage_property_usd_nominal": 50000.0,
+     "latitude": 29.9529,
+     "longitude": -95.6585
+    },
+    {
+     "record_id": "stormev:event:1192624",
+     "event": "noaa:storm_event:1192624",
+     "event_type": "tornado",
+     "label": "Tornado",
+     "occurred_at": "2024-05-16T23:04:00Z",
+     "deaths": 0.0,
+     "injuries": 0.0,
+     "damage_property_usd_nominal": 750000.0,
+     "latitude": 29.9274,
+     "longitude": -95.7444
+    },
+    {
+     "record_id": "stormev:event:1167803",
+     "event": "noaa:storm_event:1167803",
+     "event_type": "tornado",
+     "label": "Tornado",
+     "occurred_at": "2024-05-16T23:08:00Z",
+     "deaths": 0.0,
+     "injuries": 0.0,
+     "damage_property_usd_nominal": 500000.0,
+     "latitude": 29.9232,
+     "longitude": -95.7019
+    },
+    {
+     "record_id": "stormev:event:1188414",
+     "event": "noaa:storm_event:1188414",
+     "event_type": "thunderstorm_wind",
+     "label": "Thunderstorm Wind",
+     "occurred_at": "2024-05-16T23:10:00Z",
+     "deaths": 0.0,
+     "injuries": 0.0,
+     "damage_property_usd_nominal": 300000.0,
+     "latitude": 29.9,
+     "longitude": -95.76
+    },
+    {
+     "record_id": "stormev:event:1167861",
+     "event": "noaa:storm_event:1167861",
+     "event_type": "thunderstorm_wind",
+     "label": "Thunderstorm Wind",
+     "occurred_at": "2024-05-16T23:15:00Z",
+     "deaths": 0.0,
+     "injuries": 0.0,
+     "damage_property_usd_nominal": 0.0,
+     "latitude": 29.95,
+     "longitude": -95.74
+    },
+    {
+     "record_id": "stormev:event:1167872",
+     "event": "noaa:storm_event:1167872",
+     "event_type": "thunderstorm_wind",
+     "label": "Thunderstorm Wind",
+     "occurred_at": "2024-05-16T23:15:00Z",
+     "deaths": 0.0,
+     "injuries": 0.0,
+     "damage_property_usd_nominal": 0.0,
+     "latitude": 29.89,
+     "longitude": -95.57
+    },
+    {
+     "record_id": "stormev:event:1188425",
+     "event": "noaa:storm_event:1188425",
+     "event_type": "thunderstorm_wind",
+     "label": "Thunderstorm Wind",
+     "occurred_at": "2024-05-16T23:30:00Z",
+     "deaths": 8.0,
+     "injuries": 0.0,
+     "damage_property_usd_nominal": 0.0,
+     "latitude": 29.81,
+     "longitude": -95.39
+    },
+    {
+     "record_id": "stormev:event:1188420",
+     "event": "noaa:storm_event:1188420",
+     "event_type": "thunderstorm_wind",
+     "label": "Thunderstorm Wind",
+     "occurred_at": "2024-05-16T23:30:00Z",
+     "deaths": 0.0,
+     "injuries": 0.0,
+     "damage_property_usd_nominal": 0.0,
+     "latitude": 29.86,
+     "longitude": -95.36
+    },
+    {
+     "record_id": "stormev:event:1188087",
+     "event": "noaa:storm_event:1188087",
+     "event_type": "thunderstorm_wind",
+     "label": "Thunderstorm Wind",
+     "occurred_at": "2024-05-16T23:39:00Z",
+     "deaths": 0.0,
+     "injuries": 0.0,
+     "damage_property_usd_nominal": 0.0,
+     "latitude": 29.77,
+     "longitude": -95.31
+    },
+    {
+     "record_id": "stormev:event:1188426",
+     "event": "noaa:storm_event:1188426",
+     "event_type": "thunderstorm_wind",
+     "label": "Thunderstorm Wind",
+     "occurred_at": "2024-05-16T23:41:00Z",
+     "deaths": 0.0,
+     "injuries": 0.0,
+     "damage_property_usd_nominal": 0.0,
+     "latitude": 29.78,
+     "longitude": -95.22
+    },
+    {
+     "record_id": "stormev:event:1188416",
+     "event": "noaa:storm_event:1188416",
+     "event_type": "thunderstorm_wind",
+     "label": "Thunderstorm Wind",
+     "occurred_at": "2024-05-16T23:43:00Z",
+     "deaths": 0.0,
+     "injuries": 0.0,
+     "damage_property_usd_nominal": 1000000.0,
+     "latitude": 29.76,
+     "longitude": -95.37
+    },
+    {
+     "record_id": "stormev:event:1167862",
+     "event": "noaa:storm_event:1167862",
+     "event_type": "thunderstorm_wind",
+     "label": "Thunderstorm Wind",
+     "occurred_at": "2024-05-16T23:45:00Z",
+     "deaths": 0.0,
+     "injuries": 0.0,
+     "damage_property_usd_nominal": 0.0,
+     "latitude": 30.0,
+     "longitude": -95.37
+    },
+    {
+     "record_id": "stormev:event:1167863",
+     "event": "noaa:storm_event:1167863",
+     "event_type": "thunderstorm_wind",
+     "label": "Thunderstorm Wind",
+     "occurred_at": "2024-05-16T23:54:00Z",
+     "deaths": 0.0,
+     "injuries": 0.0,
+     "damage_property_usd_nominal": 0.0,
+     "latitude": 29.71,
+     "longitude": -95.12
+    },
+    {
+     "record_id": "stormev:event:1167864",
+     "event": "noaa:storm_event:1167864",
+     "event_type": "thunderstorm_wind",
+     "label": "Thunderstorm Wind",
+     "occurred_at": "2024-05-16T23:55:00Z",
+     "deaths": 0.0,
+     "injuries": 0.0,
+     "damage_property_usd_nominal": 0.0,
+     "latitude": 29.72,
+     "longitude": -95.4
+    },
+    {
+     "record_id": "stormev:event:1167865",
+     "event": "noaa:storm_event:1167865",
+     "event_type": "thunderstorm_wind",
+     "label": "Thunderstorm Wind",
+     "occurred_at": "2024-05-17T00:00:00Z",
+     "deaths": 0.0,
+     "injuries": 0.0,
+     "damage_property_usd_nominal": 0.0,
+     "latitude": 29.63,
+     "longitude": -95.28
+    },
+    {
+     "record_id": "stormev:event:1188417",
+     "event": "noaa:storm_event:1188417",
+     "event_type": "thunderstorm_wind",
+     "label": "Thunderstorm Wind",
+     "occurred_at": "2024-05-17T00:00:00Z",
+     "deaths": 0.0,
+     "injuries": 0.0,
+     "damage_property_usd_nominal": 0.0,
+     "latitude": 29.72,
+     "longitude": -95.0
+    },
+    {
+     "record_id": "stormev:event:1167866",
+     "event": "noaa:storm_event:1167866",
+     "event_type": "thunderstorm_wind",
+     "label": "Thunderstorm Wind",
+     "occurred_at": "2024-05-17T00:02:00Z",
+     "deaths": 0.0,
+     "injuries": 0.0,
+     "damage_property_usd_nominal": 0.0,
+     "latitude": 29.76,
+     "longitude": -95.08
+    },
+    {
+     "record_id": "stormev:event:1167868",
+     "event": "noaa:storm_event:1167868",
+     "event_type": "thunderstorm_wind",
+     "label": "Thunderstorm Wind",
+     "occurred_at": "2024-05-17T00:15:00Z",
+     "deaths": 0.0,
+     "injuries": 0.0,
+     "damage_property_usd_nominal": 0.0,
+     "latitude": 29.68,
+     "longitude": -95.01
+    },
+    {
+     "record_id": "stormev:event:1170641",
+     "event": "noaa:storm_event:1170641",
+     "event_type": "thunderstorm_wind",
+     "label": "Thunderstorm Wind",
+     "occurred_at": "2024-05-28T18:19:00Z",
+     "deaths": 0.0,
+     "injuries": 0.0,
+     "damage_property_usd_nominal": 0.0,
+     "latitude": 29.99,
+     "longitude": -95.34
+    },
+    {
+     "record_id": "stormev:event:1170616",
+     "event": "noaa:storm_event:1170616",
+     "event_type": "hail",
+     "label": "Hail",
+     "occurred_at": "2024-05-28T18:23:00Z",
+     "deaths": 0.0,
+     "injuries": 0.0,
+     "damage_property_usd_nominal": 0.0,
+     "latitude": 29.96,
+     "longitude": -95.53
+    },
+    {
+     "record_id": "stormev:event:1170650",
+     "event": "noaa:storm_event:1170650",
+     "event_type": "thunderstorm_wind",
+     "label": "Thunderstorm Wind",
+     "occurred_at": "2024-05-28T18:23:00Z",
+     "deaths": 0.0,
+     "injuries": 0.0,
+     "damage_property_usd_nominal": 0.0,
+     "latitude": 29.97,
+     "longitude": -95.12
+    },
+    {
+     "record_id": "stormev:event:1170618",
+     "event": "noaa:storm_event:1170618",
+     "event_type": "hail",
+     "label": "Hail",
+     "occurred_at": "2024-05-28T18:40:00Z",
+     "deaths": 0.0,
+     "injuries": 0.0,
+     "damage_property_usd_nominal": 0.0,
+     "latitude": 29.6842,
+     "longitude": -95.2735
+    },
+    {
+     "record_id": "stormev:event:1170619",
+     "event": "noaa:storm_event:1170619",
+     "event_type": "hail",
+     "label": "Hail",
+     "occurred_at": "2024-05-28T18:44:00Z",
+     "deaths": 0.0,
+     "injuries": 0.0,
+     "damage_property_usd_nominal": 0.0,
+     "latitude": 29.73,
+     "longitude": -95.32
+    },
+    {
+     "record_id": "stormev:event:1170651",
+     "event": "noaa:storm_event:1170651",
+     "event_type": "thunderstorm_wind",
+     "label": "Thunderstorm Wind",
+     "occurred_at": "2024-05-28T18:45:00Z",
+     "deaths": 0.0,
+     "injuries": 0.0,
+     "damage_property_usd_nominal": 0.0,
+     "latitude": 29.76,
+     "longitude": -95.36
+    },
+    {
+     "record_id": "stormev:event:1170642",
+     "event": "noaa:storm_event:1170642",
+     "event_type": "thunderstorm_wind",
+     "label": "Thunderstorm Wind",
+     "occurred_at": "2024-05-28T18:53:00Z",
+     "deaths": 0.0,
+     "injuries": 0.0,
+     "damage_property_usd_nominal": 0.0,
+     "latitude": 29.6459,
+     "longitude": -95.277
+    },
+    {
+     "record_id": "stormev:event:1170620",
+     "event": "noaa:storm_event:1170620",
+     "event_type": "hail",
+     "label": "Hail",
+     "occurred_at": "2024-05-28T18:55:00Z",
+     "deaths": 0.0,
+     "injuries": 0.0,
+     "damage_property_usd_nominal": 0.0,
+     "latitude": 29.58,
+     "longitude": -95.16
+    },
+    {
+     "record_id": "stormev:event:1170652",
+     "event": "noaa:storm_event:1170652",
+     "event_type": "thunderstorm_wind",
+     "label": "Thunderstorm Wind",
+     "occurred_at": "2024-05-28T19:07:00Z",
+     "deaths": 0.0,
+     "injuries": 0.0,
+     "damage_property_usd_nominal": 0.0,
+     "latitude": 29.56,
+     "longitude": -95.13
+    },
+    {
+     "record_id": "stormev:event:1170621",
+     "event": "noaa:storm_event:1170621",
+     "event_type": "hail",
+     "label": "Hail",
+     "occurred_at": "2024-05-28T19:15:00Z",
+     "deaths": 0.0,
+     "injuries": 0.0,
+     "damage_property_usd_nominal": 0.0,
+     "latitude": 29.54,
+     "longitude": -95.12
+    },
+    {
+     "record_id": "stormev:event:1170622",
+     "event": "noaa:storm_event:1170622",
+     "event_type": "hail",
+     "label": "Hail",
+     "occurred_at": "2024-05-28T19:18:00Z",
+     "deaths": 0.0,
+     "injuries": 0.0,
+     "damage_property_usd_nominal": 0.0,
+     "latitude": 29.56,
+     "longitude": -95.13
+    },
+    {
+     "record_id": "stormev:event:1170623",
+     "event": "noaa:storm_event:1170623",
+     "event_type": "hail",
+     "label": "Hail",
+     "occurred_at": "2024-05-28T19:23:00Z",
+     "deaths": 0.0,
+     "injuries": 0.0,
+     "damage_property_usd_nominal": 0.0,
+     "latitude": 29.5407,
+     "longitude": -95.1745
+    },
+    {
+     "record_id": "stormev:event:1170624",
+     "event": "noaa:storm_event:1170624",
+     "event_type": "hail",
+     "label": "Hail",
+     "occurred_at": "2024-05-28T19:28:00Z",
+     "deaths": 0.0,
+     "injuries": 0.0,
+     "damage_property_usd_nominal": 0.0,
+     "latitude": 29.58,
+     "longitude": -95.12
+    },
+    {
+     "record_id": "stormev:event:1170625",
+     "event": "noaa:storm_event:1170625",
+     "event_type": "hail",
+     "label": "Hail",
+     "occurred_at": "2024-05-28T19:30:00Z",
+     "deaths": 0.0,
+     "injuries": 0.0,
+     "damage_property_usd_nominal": 0.0,
+     "latitude": 29.55,
+     "longitude": -95.1
+    },
+    {
+     "record_id": "stormev:event:1170607",
+     "event": "noaa:storm_event:1170607",
+     "event_type": "hail",
+     "label": "Hail",
+     "occurred_at": "2024-05-29T22:10:00Z",
+     "deaths": 0.0,
+     "injuries": 0.0,
+     "damage_property_usd_nominal": 0.0,
+     "latitude": 29.84,
+     "longitude": -95.48
+    },
+    {
+     "record_id": "stormev:event:1170658",
+     "event": "noaa:storm_event:1170658",
+     "event_type": "thunderstorm_wind",
+     "label": "Thunderstorm Wind",
+     "occurred_at": "2024-05-31T02:10:00Z",
+     "deaths": 0.0,
+     "injuries": 0.0,
+     "damage_property_usd_nominal": 0.0,
+     "latitude": 29.93,
+     "longitude": -95.16
+    },
+    {
+     "record_id": "stormev:event:1222031",
+     "event": "noaa:storm_event:1222031",
+     "event_type": "funnel_cloud",
+     "label": "Funnel Cloud",
+     "occurred_at": "2024-12-24T21:05:00Z",
+     "deaths": 0.0,
+     "injuries": 0.0,
+     "damage_property_usd_nominal": 0.0,
+     "latitude": 29.98,
+     "longitude": -95.81
+    },
+    {
+     "record_id": "stormev:event:1222026",
+     "event": "noaa:storm_event:1222026",
+     "event_type": "hail",
+     "label": "Hail",
+     "occurred_at": "2024-12-24T21:30:00Z",
+     "deaths": 0.0,
+     "injuries": 0.0,
+     "damage_property_usd_nominal": 0.0,
+     "latitude": 29.95,
+     "longitude": -95.72
+    },
+    {
+     "record_id": "stormev:event:1222025",
+     "event": "noaa:storm_event:1222025",
+     "event_type": "hail",
+     "label": "Hail",
+     "occurred_at": "2024-12-24T21:30:00Z",
+     "deaths": 0.0,
+     "injuries": 0.0,
+     "damage_property_usd_nominal": 0.0,
+     "latitude": 29.97,
+     "longitude": -95.69
+    },
+    {
+     "record_id": "stormev:event:1222029",
+     "event": "noaa:storm_event:1222029",
+     "event_type": "hail",
+     "label": "Hail",
+     "occurred_at": "2024-12-25T07:10:00Z",
+     "deaths": 0.0,
+     "injuries": 0.0,
+     "damage_property_usd_nominal": 0.0,
+     "latitude": 30.05,
+     "longitude": -95.56
+    },
+    {
+     "record_id": "stormev:event:1222037",
+     "event": "noaa:storm_event:1222037",
+     "event_type": "tornado",
+     "label": "Tornado",
+     "occurred_at": "2024-12-26T21:30:00Z",
+     "deaths": 0.0,
+     "injuries": 0.0,
+     "damage_property_usd_nominal": 0.0,
+     "latitude": 29.67,
+     "longitude": -95.59
+    },
+    {
+     "record_id": "stormev:event:1223999",
+     "event": "noaa:storm_event:1223999",
+     "event_type": "tornado",
+     "label": "Tornado",
+     "occurred_at": "2024-12-26T21:51:00Z",
+     "deaths": 0.0,
+     "injuries": 0.0,
+     "damage_property_usd_nominal": 0.0,
+     "latitude": 30.02,
+     "longitude": -95.12
+    },
+    {
+     "record_id": "stormev:event:1224016",
+     "event": "noaa:storm_event:1224016",
+     "event_type": "funnel_cloud",
+     "label": "Funnel Cloud",
+     "occurred_at": "2024-12-26T21:57:00Z",
+     "deaths": 0.0,
+     "injuries": 0.0,
+     "damage_property_usd_nominal": 0.0,
+     "latitude": 30.04,
+     "longitude": -95.08
+    },
+    {
+     "record_id": "stormev:event:1229122",
+     "event": "noaa:storm_event:1229122",
+     "event_type": "funnel_cloud",
+     "label": "Funnel Cloud",
+     "occurred_at": "2024-12-28T16:40:00Z",
+     "deaths": 0.0,
+     "injuries": 0.0,
+     "damage_property_usd_nominal": 0.0,
+     "latitude": 29.87,
+     "longitude": -95.83
+    },
+    {
+     "record_id": "stormev:event:1224050",
+     "event": "noaa:storm_event:1224050",
+     "event_type": "hail",
+     "label": "Hail",
+     "occurred_at": "2024-12-28T20:55:00Z",
+     "deaths": 0.0,
+     "injuries": 0.0,
+     "damage_property_usd_nominal": 0.0,
+     "latitude": 30.05,
+     "longitude": -95.23
+    },
+    {
+     "record_id": "stormev:event:1235565",
+     "event": "noaa:storm_event:1235565",
+     "event_type": "thunderstorm_wind",
+     "label": "Thunderstorm Wind",
+     "occurred_at": "2025-03-04T16:08:00Z",
+     "deaths": 0.0,
+     "injuries": 0.0,
+     "damage_property_usd_nominal": 0.0,
+     "latitude": 29.81,
+     "longitude": -95.45
+    },
+    {
+     "record_id": "stormev:event:1240918",
+     "event": "noaa:storm_event:1240918",
+     "event_type": "thunderstorm_wind",
+     "label": "Thunderstorm Wind",
+     "occurred_at": "2025-03-24T08:20:00Z",
+     "deaths": 0.0,
+     "injuries": 0.0,
+     "damage_property_usd_nominal": 0.0,
+     "latitude": 29.68,
+     "longitude": -95.01
+    },
+    {
+     "record_id": "stormev:event:1240919",
+     "event": "noaa:storm_event:1240919",
+     "event_type": "thunderstorm_wind",
+     "label": "Thunderstorm Wind",
+     "occurred_at": "2025-03-24T08:21:00Z",
+     "deaths": 0.0,
+     "injuries": 0.0,
+     "damage_property_usd_nominal": 0.0,
+     "latitude": 29.65,
+     "longitude": -95.28
+    },
+    {
+     "record_id": "stormev:event:1255606",
+     "event": "noaa:storm_event:1255606",
+     "event_type": "hail",
+     "label": "Hail",
+     "occurred_at": "2025-05-02T17:26:00Z",
+     "deaths": 0.0,
+     "injuries": 0.0,
+     "damage_property_usd_nominal": 0.0,
+     "latitude": 30.03,
+     "longitude": -95.09
+    },
+    {
+     "record_id": "stormev:event:1255609",
+     "event": "noaa:storm_event:1255609",
+     "event_type": "hail",
+     "label": "Hail",
+     "occurred_at": "2025-05-02T19:58:00Z",
+     "deaths": 0.0,
+     "injuries": 0.0,
+     "damage_property_usd_nominal": 0.0,
+     "latitude": 30.05,
+     "longitude": -95.15
+    },
+    {
+     "record_id": "stormev:event:1255634",
+     "event": "noaa:storm_event:1255634",
+     "event_type": "hail",
+     "label": "Hail",
+     "occurred_at": "2025-05-02T20:00:00Z",
+     "deaths": 0.0,
+     "injuries": 0.0,
+     "damage_property_usd_nominal": 0.0,
+     "latitude": 30.05,
+     "longitude": -95.15
+    },
+    {
+     "record_id": "stormev:event:1256263",
+     "event": "noaa:storm_event:1256263",
+     "event_type": "thunderstorm_wind",
+     "label": "Thunderstorm Wind",
+     "occurred_at": "2025-05-27T05:09:00Z",
+     "deaths": 0.0,
+     "injuries": 0.0,
+     "damage_property_usd_nominal": 0.0,
+     "latitude": 30.08,
+     "longitude": -95.42
+    },
+    {
+     "record_id": "stormev:event:1256273",
+     "event": "noaa:storm_event:1256273",
+     "event_type": "thunderstorm_wind",
+     "label": "Thunderstorm Wind",
+     "occurred_at": "2025-05-27T05:24:00Z",
+     "deaths": 0.0,
+     "injuries": 0.0,
+     "damage_property_usd_nominal": null,
+     "latitude": 29.98,
+     "longitude": -95.52
+    },
+    {
+     "record_id": "stormev:event:1256287",
+     "event": "noaa:storm_event:1256287",
+     "event_type": "thunderstorm_wind",
+     "label": "Thunderstorm Wind",
+     "occurred_at": "2025-05-27T05:26:00Z",
+     "deaths": 0.0,
+     "injuries": 0.0,
+     "damage_property_usd_nominal": 0.0,
+     "latitude": 30.0,
+     "longitude": -95.37
+    },
+    {
+     "record_id": "stormev:event:1256276",
+     "event": "noaa:storm_event:1256276",
+     "event_type": "thunderstorm_wind",
+     "label": "Thunderstorm Wind",
+     "occurred_at": "2025-05-27T05:30:00Z",
+     "deaths": 0.0,
+     "injuries": 0.0,
+     "damage_property_usd_nominal": 0.0,
+     "latitude": 30.06,
+     "longitude": -95.19
+    },
+    {
+     "record_id": "stormev:event:1256293",
+     "event": "noaa:storm_event:1256293",
+     "event_type": "thunderstorm_wind",
+     "label": "Thunderstorm Wind",
+     "occurred_at": "2025-05-27T05:48:00Z",
+     "deaths": 0.0,
+     "injuries": 0.0,
+     "damage_property_usd_nominal": 0.0,
+     "latitude": 30.02,
+     "longitude": -95.12
+    },
+    {
+     "record_id": "stormev:event:1266223",
+     "event": "noaa:storm_event:1266223",
+     "event_type": "flash_flood",
+     "label": "Flash Flood",
+     "occurred_at": "2025-06-04T21:35:00Z",
+     "deaths": 0.0,
+     "injuries": 0.0,
+     "damage_property_usd_nominal": 0.0,
+     "latitude": 29.7577,
+     "longitude": -95.3531
+    },
+    {
+     "record_id": "stormev:event:1266262",
+     "event": "noaa:storm_event:1266262",
+     "event_type": "hail",
+     "label": "Hail",
+     "occurred_at": "2025-06-09T10:52:00Z",
+     "deaths": 0.0,
+     "injuries": 0.0,
+     "damage_property_usd_nominal": 0.0,
+     "latitude": 30.0989,
+     "longitude": -95.6154
+    },
+    {
+     "record_id": "stormev:event:1266362",
+     "event": "noaa:storm_event:1266362",
+     "event_type": "flood",
+     "label": "Flood",
+     "occurred_at": "2025-06-12T10:32:00Z",
+     "deaths": 0.0,
+     "injuries": 0.0,
+     "damage_property_usd_nominal": 0.0,
+     "latitude": 29.902,
+     "longitude": -95.3133
+    },
+    {
+     "record_id": "stormev:event:1269924",
+     "event": "noaa:storm_event:1269924",
+     "event_type": "thunderstorm_wind",
+     "label": "Thunderstorm Wind",
+     "occurred_at": "2025-08-04T15:55:00Z",
+     "deaths": 0.0,
+     "injuries": 0.0,
+     "damage_property_usd_nominal": 0.0,
+     "latitude": 29.72,
+     "longitude": -95.4
+    },
+    {
+     "record_id": "stormev:event:1281240",
+     "event": "noaa:storm_event:1281240",
+     "event_type": "hail",
+     "label": "Hail",
+     "occurred_at": "2025-08-19T00:40:00Z",
+     "deaths": 0.0,
+     "injuries": 0.0,
+     "damage_property_usd_nominal": 0.0,
+     "latitude": 29.99,
+     "longitude": -95.5
+    },
+    {
+     "record_id": "stormev:event:1281241",
+     "event": "noaa:storm_event:1281241",
+     "event_type": "hail",
+     "label": "Hail",
+     "occurred_at": "2025-08-19T00:40:00Z",
+     "deaths": 0.0,
+     "injuries": 0.0,
+     "damage_property_usd_nominal": 0.0,
+     "latitude": 30.0,
+     "longitude": -95.54
+    },
+    {
+     "record_id": "stormev:event:1281242",
+     "event": "noaa:storm_event:1281242",
+     "event_type": "hail",
+     "label": "Hail",
+     "occurred_at": "2025-08-19T01:08:00Z",
+     "deaths": 0.0,
+     "injuries": 0.0,
+     "damage_property_usd_nominal": 0.0,
+     "latitude": 29.99,
+     "longitude": -95.48
+    },
+    {
+     "record_id": "stormev:event:1281243",
+     "event": "noaa:storm_event:1281243",
+     "event_type": "hail",
+     "label": "Hail",
+     "occurred_at": "2025-08-19T01:36:00Z",
+     "deaths": 0.0,
+     "injuries": 0.0,
+     "damage_property_usd_nominal": 0.0,
+     "latitude": 29.73,
+     "longitude": -95.48
+    },
+    {
+     "record_id": "stormev:event:1281246",
+     "event": "noaa:storm_event:1281246",
+     "event_type": "thunderstorm_wind",
+     "label": "Thunderstorm Wind",
+     "occurred_at": "2025-08-19T13:18:00Z",
+     "deaths": 0.0,
+     "injuries": 0.0,
+     "damage_property_usd_nominal": 0.0,
+     "latitude": 30.08,
+     "longitude": -95.87
+    },
+    {
+     "record_id": "stormev:event:1281249",
+     "event": "noaa:storm_event:1281249",
+     "event_type": "flash_flood",
+     "label": "Flash Flood",
+     "occurred_at": "2025-08-31T19:05:00Z",
+     "deaths": 0.0,
+     "injuries": 0.0,
+     "damage_property_usd_nominal": 75000.0,
+     "latitude": 29.68,
+     "longitude": -95.42
+    },
+    {
+     "record_id": "stormev:event:1293766",
+     "event": "noaa:storm_event:1293766",
+     "event_type": "thunderstorm_wind",
+     "label": "Thunderstorm Wind",
+     "occurred_at": "2025-10-25T08:10:00Z",
+     "deaths": 0.0,
+     "injuries": 0.0,
+     "damage_property_usd_nominal": 0.0,
+     "latitude": 30.05,
+     "longitude": -95.59
+    },
+    {
+     "record_id": "stormev:event:1293771",
+     "event": "noaa:storm_event:1293771",
+     "event_type": "thunderstorm_wind",
+     "label": "Thunderstorm Wind",
+     "occurred_at": "2025-10-25T08:54:00Z",
+     "deaths": 0.0,
+     "injuries": 0.0,
+     "damage_property_usd_nominal": 0.0,
+     "latitude": 29.63,
+     "longitude": -95.28
+    },
+    {
+     "record_id": "stormev:event:1293772",
+     "event": "noaa:storm_event:1293772",
+     "event_type": "thunderstorm_wind",
+     "label": "Thunderstorm Wind",
+     "occurred_at": "2025-10-25T08:55:00Z",
+     "deaths": 0.0,
+     "injuries": 0.0,
+     "damage_property_usd_nominal": 0.0,
+     "latitude": 29.72,
+     "longitude": -95.4
+    },
+    {
+     "record_id": "stormev:event:1293773",
+     "event": "noaa:storm_event:1293773",
+     "event_type": "thunderstorm_wind",
+     "label": "Thunderstorm Wind",
+     "occurred_at": "2025-10-25T09:33:00Z",
+     "deaths": 0.0,
+     "injuries": 0.0,
+     "damage_property_usd_nominal": 0.0,
+     "latitude": 30.05,
+     "longitude": -95.21
+    },
+    {
+     "record_id": "stormev:event:1296584",
+     "event": "noaa:storm_event:1296584",
+     "event_type": "tornado",
+     "label": "Tornado",
+     "occurred_at": "2025-11-24T19:23:00Z",
+     "deaths": 0.0,
+     "injuries": 0.0,
+     "damage_property_usd_nominal": null,
+     "latitude": 29.919,
+     "longitude": -95.693
+    },
+    {
+     "record_id": "stormev:event:1296585",
+     "event": "noaa:storm_event:1296585",
+     "event_type": "tornado",
+     "label": "Tornado",
+     "occurred_at": "2025-11-24T19:41:00Z",
+     "deaths": 0.0,
+     "injuries": 0.0,
+     "damage_property_usd_nominal": null,
+     "latitude": 30.003,
+     "longitude": -95.559
+    },
+    {
+     "record_id": "stormev:event:1314265",
+     "event": "noaa:storm_event:1314265",
+     "event_type": "thunderstorm_wind",
+     "label": "Thunderstorm Wind",
+     "occurred_at": "2026-02-15T00:38:00Z",
+     "deaths": 0.0,
+     "injuries": 0.0,
+     "damage_property_usd_nominal": 45000.0,
+     "latitude": 29.638,
+     "longitude": -95.38
+    },
+    {
+     "record_id": "stormev:event:1314263",
+     "event": "noaa:storm_event:1314263",
+     "event_type": "thunderstorm_wind",
+     "label": "Thunderstorm Wind",
+     "occurred_at": "2026-02-15T00:40:00Z",
+     "deaths": 0.0,
+     "injuries": 0.0,
+     "damage_property_usd_nominal": 42000.0,
+     "latitude": 29.6306,
+     "longitude": -95.3372
+    },
+    {
+     "record_id": "stormev:event:1314307",
+     "event": "noaa:storm_event:1314307",
+     "event_type": "thunderstorm_wind",
+     "label": "Thunderstorm Wind",
+     "occurred_at": "2026-02-15T00:55:00Z",
+     "deaths": 0.0,
+     "injuries": 0.0,
+     "damage_property_usd_nominal": 1000.0,
+     "latitude": 29.54,
+     "longitude": -95.15
+    },
+    {
+     "record_id": "stormev:event:1314308",
+     "event": "noaa:storm_event:1314308",
+     "event_type": "thunderstorm_wind",
+     "label": "Thunderstorm Wind",
+     "occurred_at": "2026-02-15T00:58:00Z",
+     "deaths": 0.0,
+     "injuries": 0.0,
+     "damage_property_usd_nominal": 5000.0,
+     "latitude": 29.53,
+     "longitude": -95.13
+    },
+    {
+     "record_id": "stormev:event:1322902",
+     "event": "noaa:storm_event:1322902",
+     "event_type": "flash_flood",
+     "label": "Flash Flood",
+     "occurred_at": "2026-04-18T21:45:00Z",
+     "deaths": 0.0,
+     "injuries": 0.0,
+     "damage_property_usd_nominal": 0.0,
+     "latitude": 29.777,
+     "longitude": -95.2889
+    },
+    {
+     "record_id": "stormev:event:1327144",
+     "event": "noaa:storm_event:1327144",
+     "event_type": "hail",
+     "label": "Hail",
+     "occurred_at": "2026-05-01T05:25:00Z",
+     "deaths": 0.0,
+     "injuries": 0.0,
+     "damage_property_usd_nominal": 0.0,
+     "latitude": 29.58,
+     "longitude": -95.24
+    },
+    {
+     "record_id": "stormev:event:1327148",
+     "event": "noaa:storm_event:1327148",
+     "event_type": "hail",
+     "label": "Hail",
+     "occurred_at": "2026-05-01T05:28:00Z",
+     "deaths": 0.0,
+     "injuries": 0.0,
+     "damage_property_usd_nominal": 0.0,
+     "latitude": 29.58,
+     "longitude": -95.21
+    },
+    {
+     "record_id": "stormev:event:1327142",
+     "event": "noaa:storm_event:1327142",
+     "event_type": "hail",
+     "label": "Hail",
+     "occurred_at": "2026-05-01T05:28:00Z",
+     "deaths": 0.0,
+     "injuries": 0.0,
+     "damage_property_usd_nominal": 0.0,
+     "latitude": 29.5844,
+     "longitude": -95.2138
+    },
+    {
+     "record_id": "stormev:event:1338619",
+     "event": "noaa:storm_event:1338619",
+     "event_type": "thunderstorm_wind",
+     "label": "Thunderstorm Wind",
+     "occurred_at": "2026-05-23T11:27:00Z",
+     "deaths": 0.0,
+     "injuries": 0.0,
+     "damage_property_usd_nominal": 0.0,
+     "latitude": 29.79,
+     "longitude": -95.06
+    },
+    {
+     "record_id": "stormev:event:1338563",
+     "event": "noaa:storm_event:1338563",
+     "event_type": "flash_flood",
+     "label": "Flash Flood",
+     "occurred_at": "2026-05-23T21:33:00Z",
+     "deaths": 0.0,
+     "injuries": 0.0,
+     "damage_property_usd_nominal": 33000.0,
+     "latitude": 29.8924,
+     "longitude": -95.5681
+    },
+    {
+     "record_id": "stormev:event:1338647",
+     "event": "noaa:storm_event:1338647",
+     "event_type": "thunderstorm_wind",
+     "label": "Thunderstorm Wind",
+     "occurred_at": "2026-05-27T07:42:00Z",
+     "deaths": 0.0,
+     "injuries": 0.0,
+     "damage_property_usd_nominal": 20000.0,
+     "latitude": 30.03,
+     "longitude": -95.41
+    },
+    {
+     "record_id": "stormev:event:1338651",
+     "event": "noaa:storm_event:1338651",
+     "event_type": "thunderstorm_wind",
+     "label": "Thunderstorm Wind",
+     "occurred_at": "2026-05-27T08:00:00Z",
+     "deaths": 0.0,
+     "injuries": 0.0,
+     "damage_property_usd_nominal": 23000.0,
+     "latitude": 30.001,
+     "longitude": -95.2217
+    }
+   ]
+  },
+  "disaster_assistance": {
+   "dataset": "openfema",
+   "available": true,
+   "declarations": {
+    "count": 41,
+    "join_basis": "FEMA publishes the county FIPS among the declaration's participants (asserted by the publisher)",
+    "by_incident_type": {
+     "Flood": 12,
+     "Hurricane": 12,
+     "Severe Storm": 8,
+     "Fire": 3,
+     "Biological": 2,
+     "Severe Ice Storm": 2,
+     "Tornado": 1,
+     "Coastal Storm": 1
+    },
+    "latest": [
+     {
+      "record_id": "openfema:declaration:DR-4798-TX:48201:99201",
+      "disaster": "fema:disaster:4798",
+      "declaration": "DR-4798-TX HURRICANE BERYL",
+      "incident_type": "Hurricane",
+      "declared": "2024-07-09T00:00:00.000Z"
+     },
+     {
+      "record_id": "openfema:declaration:DR-4781-TX:48201:99201",
+      "disaster": "fema:disaster:4781",
+      "declaration": "DR-4781-TX SEVERE STORMS, STRAIGHT-LINE WINDS, TORNADOES, AND FLOODING",
+      "incident_type": "Flood",
+      "declared": "2024-05-17T00:00:00.000Z"
+     },
+     {
+      "record_id": "openfema:declaration:DR-4586-TX:48201:99201",
+      "disaster": "fema:disaster:4586",
+      "declaration": "DR-4586-TX SEVERE WINTER STORMS",
+      "incident_type": "Severe Ice Storm",
+      "declared": "2021-02-19T00:00:00.000Z"
+     },
+     {
+      "record_id": "openfema:declaration:EM-3554-TX:48201:99201",
+      "disaster": "fema:disaster:3554",
+      "declaration": "EM-3554-TX SEVERE WINTER STORM",
+      "incident_type": "Severe Ice Storm",
+      "declared": "2021-02-14T00:00:00.000Z"
+     },
+     {
+      "record_id": "openfema:declaration:EM-3540-TX:48201:99201",
+      "disaster": "fema:disaster:3540",
+      "declaration": "EM-3540-TX TROPICAL STORMS MARCO AND LAURA",
+      "incident_type": "Hurricane",
+      "declared": "2020-08-24T00:00:00.000Z"
+     },
+     {
+      "record_id": "openfema:declaration:EM-3530-TX:48201:99201",
+      "disaster": "fema:disaster:3530",
+      "declaration": "EM-3530-TX HURRICANE HANNA",
+      "incident_type": "Hurricane",
+      "declared": "2020-07-26T00:00:00.000Z"
+     },
+     {
+      "record_id": "openfema:declaration:DR-4485-TX:48201:99201",
+      "disaster": "fema:disaster:4485",
+      "declaration": "DR-4485-TX COVID-19 PANDEMIC",
+      "incident_type": "Biological",
+      "declared": "2020-03-25T00:00:00.000Z"
+     },
+     {
+      "record_id": "openfema:declaration:EM-3458-TX:48201:99201",
+      "disaster": "fema:disaster:3458",
+      "declaration": "EM-3458-TX COVID-19",
+      "incident_type": "Biological",
+      "declared": "2020-03-13T00:00:00.000Z"
+     }
+    ]
+   },
+   "household_and_public_assistance": {
+    "matched_county_name": "Harris (County)",
+    "state": "TX",
+    "join_basis": "OpenFEMA assistance rows publish a county name and a state, not a FIPS. They are matched to FEMA's own label for this GEOID (\"Harris (County)\") - a name match within one publisher, INFERRED, not asserted",
+    "totals_by_metric": [
+     {
+      "metric": "fema_inspected_damage",
+      "unit": "USD",
+      "total": 1609185818.7999995,
+      "observations": 3121,
+      "disasters": 14
+     },
+     {
+      "metric": "ihp_amount_approved",
+      "unit": "USD",
+      "total": 1874484199.8100007,
+      "observations": 6942,
+      "disasters": 14
+     },
+     {
+      "metric": "ihp_approved_registrations",
+      "unit": "registrations",
+      "total": 830894.0,
+      "observations": 6942,
+      "disasters": 14
+     },
+     {
+      "metric": "ihp_inspections",
+      "unit": "inspections",
+      "total": 819095.0,
+      "observations": 6942,
+      "disasters": 14
+     },
+     {
+      "metric": "ihp_other_needs_amount",
+      "unit": "USD",
+      "total": 882109560.8200002,
+      "observations": 6942,
+      "disasters": 14
+     },
+     {
+      "metric": "ihp_rental_amount",
+      "unit": "USD",
+      "total": 320572690.6999999,
+      "observations": 6942,
+      "disasters": 14
+     },
+     {
+      "metric": "ihp_repair_replace_amount",
+      "unit": "USD",
+      "total": 643243523.96,
+      "observations": 6942,
+      "disasters": 14
+     },
+     {
+      "metric": "ihp_valid_registrations",
+      "unit": "registrations",
+      "total": 1968709.0,
+      "observations": 6942,
+      "disasters": 14
+     },
+     {
+      "metric": "pa_federal_obligated",
+      "unit": "USD",
+      "total": 3085840680.280001,
+      "observations": 1040,
+      "disasters": 19
+     },
+     {
+      "metric": "pa_project_count",
+      "unit": "projects",
+      "total": 7192.0,
+      "observations": 1040,
+      "disasters": 19
+     }
+    ],
+    "computed_here": "sums of the published per-zip and per-applicant values, across disasters"
+   }
+  }
+ },
+ "where_the_evidence_runs_out": [
+  "Storm events that NOAA files against a forecast zone rather than a county (heat, winter weather, drought, coastal and marine events) name no county and are not counted here; nothing maps zones to counties.",
+  "Disaster assistance amounts are summed from OpenFEMA rows matched by county name; a county whose name FEMA spells differently in its assistance files is undercounted, not zero.",
+  "epa_aqs_daily (air quality) is not in this index.",
+  "usaspending_assistance (federal assistance awards) is not in this index."
+ ],
+ "what_this_does_not_establish": [
+  "Joining on a GEOID joins a geography vintage, not a stable place: Connecticut replaced its counties with planning regions from 2022, and county splits and renames change what a code covers. Cross-vintage totals need worldmodel.crosswalks, not a string match.",
+  "Periods differ by leg: County Business Patterns is a March pay period, Population Estimates are 1 July stocks, ACS is a five-year average, nClimDiv is monthly, the NRI is one vintage, LODES an annual snapshot. Nothing here puts them on one timeline.",
+  "Suppressed cells are null with a missing_reason, not zero.",
+  "No causal claim: hazard risk, employment, climate, storms and assistance are separate measurements of one polygon.",
+  "Storm damage is nominal USD as reported to NOAA, not inflation-adjusted and not insured loss; storm reports are not a complete census of events, especially before 1996.",
+  "The NRI is modelled expected annual loss and a relative rating, not a forecast or an insurance price.",
+  "A headline value is the latest observation with the fewest non-total dimensions; it is a reading aid, and the dimensions it carries say what it measures.",
+  "Absence of an edge, observation or event here is absence of published evidence in this index scope, not absence in the world. The index pins one version of each input dataset.",
+  "Nothing is merged: records are the publishers' own claims, copied verbatim, and contradictory claims stay side by side.",
+  "Identity is asserted only (published same_as links, shared unique identifiers, published crosswalk fields). Entities whose names merely look alike are never joined; where a product had to use a name, it says INFERRED, not asserted.",
+  "Rights and use-policy metadata are an inventory, not a legal determination, and nothing here authorises republishing the acquired data."
+ ],
+ "datasets_used": [
+  "acs_5yr_tables",
+  "bea_national_regional",
+  "bls_labor",
+  "cbsa_delineations",
+  "census_business",
+  "census_geography",
+  "census_population",
+  "fema_nri",
+  "irs_soi_migration",
+  "lehd_lodes",
+  "noaa_climdiv",
+  "noaa_storm_events",
+  "openfema",
+  "usda_agriculture"
+ ],
+ "rights": {
+  "declared_purpose": "commercial",
+  "datasets": [
+   {
+    "dataset": "acs_5yr_tables",
+    "stage": "normalized",
+    "version": "296cdb213a7b09216c274369aef43d9c9e6929e86d64545c8f9fb9f918dd10af",
+    "rights_metadata_from": "compact manifest of the pinned version",
+    "publisher": [
+     "U.S. Census Bureau, American Community Survey"
+    ],
+    "license_id": [],
+    "license": [],
+    "license_status": [
+     "public_domain"
+    ],
+    "redistribution": [],
+    "attribution": [],
+    "terms_url": [],
+    "non_commercial_only": false,
+    "redistribution_review_required": true,
+    "identified_persons": {
+     "policy": "prohibited",
+     "condition": null,
+     "authority": null,
+     "declared_purpose": "commercial",
+     "identified_persons_retained": false
+    }
+   },
+   {
+    "dataset": "bea_national_regional",
+    "stage": "normalized",
+    "version": "5fdb83db0ff92858d40cfa9f36961ccd0fb0013f4afaa3ab7b349ce771758e8e",
+    "rights_metadata_from": "compact manifest of the pinned version",
+    "publisher": [
+     "U.S. Bureau of Economic Analysis"
+    ],
+    "license_id": [],
+    "license": [],
+    "license_status": [
+     "public_domain_us_government"
+    ],
+    "redistribution": [],
+    "attribution": [],
+    "terms_url": [],
+    "non_commercial_only": false,
+    "redistribution_review_required": true,
+    "identified_persons": {
+     "policy": "prohibited",
+     "condition": null,
+     "authority": null,
+     "declared_purpose": "commercial",
+     "identified_persons_retained": false
+    }
+   },
+   {
+    "dataset": "bls_labor",
+    "stage": "normalized",
+    "version": "50917b81afeff14cab61d2f9b08ba353f64ead625c01790e043d0ac363b7fa59",
+    "rights_metadata_from": "compact manifest of the pinned version",
+    "publisher": [
+     "U.S. Bureau of Labor Statistics"
+    ],
+    "license_id": [],
+    "license": [],
+    "license_status": [
+     "public_domain_us_government"
+    ],
+    "redistribution": [],
+    "attribution": [],
+    "terms_url": [],
+    "non_commercial_only": false,
+    "redistribution_review_required": true,
+    "identified_persons": {
+     "policy": "prohibited",
+     "condition": null,
+     "authority": null,
+     "declared_purpose": "commercial",
+     "identified_persons_retained": false
+    }
+   },
+   {
+    "dataset": "cbsa_delineations",
+    "stage": "normalized",
+    "version": "23b867d48b6dd4c7f7587eb14b7a4b03fca5ef43b584c799624ba7b3dfe5c5b3",
+    "rights_metadata_from": "compact manifest of the pinned version",
+    "publisher": [
+     "U.S. Office of Management and Budget; files prepared by U.S. Census Bureau, Population Division"
+    ],
+    "license_id": [],
+    "license": [],
+    "license_status": [
+     "public_domain_us_federal"
+    ],
+    "redistribution": [],
+    "attribution": [],
+    "terms_url": [],
+    "non_commercial_only": false,
+    "redistribution_review_required": true,
+    "identified_persons": {
+     "policy": "prohibited",
+     "condition": null,
+     "authority": null,
+     "declared_purpose": "commercial",
+     "identified_persons_retained": false
+    }
+   },
+   {
+    "dataset": "census_business",
+    "stage": "normalized",
+    "version": "5b0995c7a7c38f378632da57c73a053041aba721e381fc240506edfecbc21860",
+    "rights_metadata_from": "compact manifest of the pinned version",
+    "publisher": [
+     "U.S. Census Bureau"
+    ],
+    "license_id": [],
+    "license": [],
+    "license_status": [
+     "public_domain"
+    ],
+    "redistribution": [],
+    "attribution": [],
+    "terms_url": [],
+    "non_commercial_only": false,
+    "redistribution_review_required": true,
+    "identified_persons": {
+     "policy": "prohibited",
+     "condition": null,
+     "authority": null,
+     "declared_purpose": "commercial",
+     "identified_persons_retained": false
+    }
+   },
+   {
+    "dataset": "census_geography",
+    "stage": "normalized",
+    "version": "d58c9aa2a11e9246046131a078bffd26a738d4e9174e2159b2fd5c79d046aa8f",
+    "rights_metadata_from": "compact manifest of the pinned version",
+    "publisher": [
+     "U.S. Census Bureau, Geography Division"
+    ],
+    "license_id": [],
+    "license": [],
+    "license_status": [
+     "public_domain"
+    ],
+    "redistribution": [],
+    "attribution": [],
+    "terms_url": [],
+    "non_commercial_only": false,
+    "redistribution_review_required": true,
+    "identified_persons": {
+     "policy": "prohibited",
+     "condition": null,
+     "authority": null,
+     "declared_purpose": "commercial",
+     "identified_persons_retained": false
+    }
+   },
+   {
+    "dataset": "census_population",
+    "stage": "normalized",
+    "version": "d621c9622f6e9b93b8e2bc4bd36ab89859b18b906e46446cb8012925120c10aa",
+    "rights_metadata_from": "compact manifest of the pinned version",
+    "publisher": [
+     "U.S. Census Bureau, Population Estimates Program"
+    ],
+    "license_id": [],
+    "license": [],
+    "license_status": [
+     "public_domain"
+    ],
+    "redistribution": [],
+    "attribution": [],
+    "terms_url": [],
+    "non_commercial_only": false,
+    "redistribution_review_required": true,
+    "identified_persons": {
+     "policy": "prohibited",
+     "condition": null,
+     "authority": null,
+     "declared_purpose": "commercial",
+     "identified_persons_retained": false
+    }
+   },
+   {
+    "dataset": "fema_nri",
+    "stage": "normalized",
+    "version": "1dc31f7e677fba8d5fc5b016101878e5748ef81d1b4927a24684e00ff5a17dd1",
+    "rights_metadata_from": "compact manifest of the pinned version",
+    "publisher": [
+     "Federal Emergency Management Agency (FEMA), National Risk Index"
+    ],
+    "license_id": [],
+    "license": [],
+    "license_status": [
+     "public_domain"
+    ],
+    "redistribution": [],
+    "attribution": [],
+    "terms_url": [],
+    "non_commercial_only": false,
+    "redistribution_review_required": true,
+    "identified_persons": {
+     "policy": "prohibited",
+     "condition": null,
+     "authority": null,
+     "declared_purpose": "commercial",
+     "identified_persons_retained": false
+    }
+   },
+   {
+    "dataset": "irs_soi_migration",
+    "stage": "normalized",
+    "version": "2f03942b9dcb298b2ac3a0c3f432c0b11214a807af1a686f9a53117a621da07c",
+    "rights_metadata_from": "compact manifest of the pinned version",
+    "publisher": [
+     "Internal Revenue Service, Statistics of Income Division"
+    ],
+    "license_id": [],
+    "license": [],
+    "license_status": [
+     "public_domain"
+    ],
+    "redistribution": [],
+    "attribution": [],
+    "terms_url": [],
+    "non_commercial_only": false,
+    "redistribution_review_required": true,
+    "identified_persons": {
+     "policy": "prohibited",
+     "condition": null,
+     "authority": null,
+     "declared_purpose": "commercial",
+     "identified_persons_retained": false
+    }
+   },
+   {
+    "dataset": "lehd_lodes",
+    "stage": "normalized",
+    "version": "97435e2dbd725af66df7b8c72ea4d93a1d1bf81522a97137bca361fc2c23980c",
+    "rights_metadata_from": "compact manifest of the pinned version",
+    "publisher": [
+     "U.S. Census Bureau, Longitudinal Employer-Household Dynamics"
+    ],
+    "license_id": [],
+    "license": [],
+    "license_status": [
+     "public_domain_us_government"
+    ],
+    "redistribution": [],
+    "attribution": [],
+    "terms_url": [],
+    "non_commercial_only": false,
+    "redistribution_review_required": true,
+    "identified_persons": {
+     "policy": "prohibited",
+     "condition": null,
+     "authority": null,
+     "declared_purpose": "commercial",
+     "identified_persons_retained": false
+    }
+   },
+   {
+    "dataset": "noaa_climdiv",
+    "stage": "normalized",
+    "version": "34ff1169f0ef77db646e14cf2e1203a6eed29df4ffb7763c2db9652acc6afe5e",
+    "rights_metadata_from": "compact manifest of the pinned version",
+    "publisher": [
+     "NOAA National Centers for Environmental Information (nClimDiv)"
+    ],
+    "license_id": [],
+    "license": [],
+    "license_status": [
+     "public_domain"
+    ],
+    "redistribution": [],
+    "attribution": [],
+    "terms_url": [],
+    "non_commercial_only": false,
+    "redistribution_review_required": true,
+    "identified_persons": {
+     "policy": "prohibited",
+     "condition": null,
+     "authority": null,
+     "declared_purpose": "commercial",
+     "identified_persons_retained": false
+    }
+   },
+   {
+    "dataset": "noaa_storm_events",
+    "stage": "normalized",
+    "version": "7d19dd57135ac4cf628d790add0d6bb250ac74504598e5d2687cb1ddda10d927",
+    "rights_metadata_from": "compact manifest of the pinned version",
+    "publisher": [
+     "NOAA National Centers for Environmental Information"
+    ],
+    "license_id": [],
+    "license": [],
+    "license_status": [
+     "public_domain"
+    ],
+    "redistribution": [],
+    "attribution": [],
+    "terms_url": [],
+    "non_commercial_only": false,
+    "redistribution_review_required": true,
+    "identified_persons": {
+     "policy": "prohibited",
+     "condition": null,
+     "authority": null,
+     "declared_purpose": "commercial",
+     "identified_persons_retained": false
+    }
+   },
+   {
+    "dataset": "openfema",
+    "stage": "normalized",
+    "version": "8a09c1b92722831137d40b70f09acbc221e4af117240fa372cb5b01a8b363d24",
+    "rights_metadata_from": "compact manifest of the pinned version",
+    "publisher": [
+     "Federal Emergency Management Agency (OpenFEMA)"
+    ],
+    "license_id": [],
+    "license": [],
+    "license_status": [
+     "public_domain"
+    ],
+    "redistribution": [],
+    "attribution": [],
+    "terms_url": [],
+    "non_commercial_only": false,
+    "redistribution_review_required": true,
+    "identified_persons": {
+     "policy": "prohibited",
+     "condition": null,
+     "authority": null,
+     "declared_purpose": "commercial",
+     "identified_persons_retained": false
+    }
+   },
+   {
+    "dataset": "usda_agriculture",
+    "stage": "normalized",
+    "version": "2aaa751dc040ebf0e2b6ee38c8841a7cc2ca783a76910bdaf6b7a1317b54315c",
+    "rights_metadata_from": "compact manifest of the pinned version",
+    "publisher": [
+     "U.S. Department of Agriculture, National Agricultural Statistics Service"
+    ],
+    "license_id": [],
+    "license": [
+     "US-Government-Work-Public-Domain"
+    ],
+    "license_status": [
+     "public_domain_us_federal_work"
+    ],
+    "redistribution": [
+     "True"
+    ],
+    "attribution": [
+     "USDA National Agricultural Statistics Service, Quick Stats"
+    ],
+    "terms_url": [
+     "https://www.usa.gov/government-works"
+    ],
+    "non_commercial_only": false,
+    "redistribution_review_required": false,
+    "identified_persons": {
+     "policy": "prohibited",
+     "condition": null,
+     "authority": null,
+     "declared_purpose": "commercial",
+     "identified_persons_retained": false
+    }
+   }
+  ],
+  "non_commercial_only": [],
+  "redistribution_restricted": [],
+  "redistribution_review_required": [
+   "acs_5yr_tables",
+   "bea_national_regional",
+   "bls_labor",
+   "cbsa_delineations",
+   "census_business",
+   "census_geography",
+   "census_population",
+   "fema_nri",
+   "irs_soi_migration",
+   "lehd_lodes",
+   "noaa_climdiv",
+   "noaa_storm_events",
+   "openfema"
+  ],
+  "notices": [
+   "Redistribution review is required before sharing evidence from: acs_5yr_tables, bea_national_regional, bls_labor, cbsa_delineations, census_business, census_geography, census_population, fema_nri, irs_soi_migration, lehd_lodes, noaa_climdiv, noaa_storm_events, openfema."
+  ],
+  "computation_policy": "metadata_only_no_local_execution_gate",
+  "interpretation": "Source metadata inventory; compatibility and derivative-work obligations are not automatically adjudicated. See DATA_RIGHTS.md and docs/use-policy.md."
+ },
+ "products_index": {
+  "available": true,
+  "built_at": "2026-09-19T02:28:06Z",
+  "counts": {
+   "labels": 9812370,
+   "entity_records_read": 9925686,
+   "aliases": 306119,
+   "storm_events_with_a_county": 1303048,
+   "storm_events_on_a_forecast_zone": 763671,
+   "disaster_declarations_with_a_county": 68792,
+   "fema_named_county_observations": 2697024,
+   "fema_named_county_groups": 144538
+  },
+  "resolution_view_digest_at_build": "f8a3169623beec055a0d2f64a5a5d2baa05e21e865204b3699195bb30ef20214"
+ },
+ "timings_s": {
+  "open": 0.0008,
+  "resolve": 0.0003,
+  "describe": 0.0056,
+  "observations": 1.1967,
+  "legs": 0.1381,
+  "containment_and_migration": 0.1332,
+  "storms_and_assistance": 0.2161,
+  "total": 1.7322
+ }
+}

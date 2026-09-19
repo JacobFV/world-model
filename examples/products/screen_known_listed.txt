@@ -1,0 +1,14 @@
+# wm screen input: one entity ID or name per line. Lines starting with # are ignored.
+#
+# Known listings (expect status "listed", hop 0)
+ofac:party:17248
+mmsi:215193000
+# A LUKOIL group member (expect "path_found")
+lei:213800FXBZXOXNXKWP95
+# A 13F manager: no ownership or control path; run with --groups ownership,control,holdings to
+# reach the issuers of the securities it reports holding
+sec:cik:0001050470
+# A US bank holding company (expect "no_path_within_bound", which is NOT clearance)
+lei:N1GZ7BBF3NP8GI976H15
+# Names are matched on published label text: INFERRED, not asserted
+Sovcomflot
