@@ -23,15 +23,17 @@ in the repository:
 
 | | |
 | --- | --- |
-| Dataset declarations | 125 (120 source, 5 derived) |
+| Dataset declarations | 130 (120 source, 10 derived) |
 | Published normalized datasets | 113 |
 | Normalized records | ~1.56 billion (48.5 GiB gzipped) |
 | Raw acquired data | 90.0 GiB of a 100 GiB fair-share budget |
-| Pre-registered estimation attempts | 61 registered; 33 current, 28 superseded and kept |
-| Current attempts that met every declared acceptance criterion | 9 of 33 |
+| Pre-registered estimation attempts | 63 registered; 35 current, 28 superseded and kept |
+| Current attempts that met every declared acceptance criterion | 9 of 35 |
 | **Registry processes that are validated** | **5 of 22 — `monetary_model`, `resource_inventory`, `elections_model`, `assets_model`, `legislative_model`** |
 | Model families declaring themselves validated | 0 of 11 (a family's descriptor never claims it; validation comes only from a passing report) |
-| Tests | 1,268 discovered; the 1,005 that run here pass, and 263 skip without the optional `agents` extra (`tensorcode`) or local data payloads |
+| World-state embedding attempts | 8 registered, 2 not run on compute budget; 5 scored, none validated (see [world-state embeddings](docs/world-state-embeddings.md)) |
+| Natural-experiment designs run | 4; none identified an effect (see [natural experiments](docs/natural-experiments.md)) |
+| Tests | 1,447 discovered; the 1,175 that run here pass, and 272 skip without the optional `agents` extra (`tensorcode`) or local data payloads |
 
 The validation rows are the ones that matter. This system can acquire, version, join and
 query a great deal of real data, and it can score a model honestly against a frozen
