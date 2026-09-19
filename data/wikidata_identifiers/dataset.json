@@ -7,8 +7,14 @@
   "description": "Wikidata items and the external identifiers they carry, one published statement per Wikidata property: LEI, SEC CIK, Bioguide, GovTrack, Vote Smart, OpenSecrets, Ballotpedia, FEC committee, ISIN, IMO, MMSI, ROR, IATA, ICAO, MIC, ISO 9362 BIC, PermID, Companies House, FDIC certificate, EIA plant and utility, D-U-N-S, EIN, UN/LOCODE, OpenCorporates (gb), ISO 3166-1/-2 and FIPS",
   "source": {
     "publisher": "Wikidata / Wikimedia Foundation",
+    "documentation": "https://www.wikidata.org/wiki/Wikidata:SPARQL_query_service",
+    "terms_url": "https://www.wikidata.org/wiki/Wikidata:Licensing",
+    "license": "Creative Commons CC0 1.0 Universal Public Domain Dedication",
+    "license_id": "CC0-1.0",
     "license_status": "CC0-1.0",
-    "license_notes": "Wikidata content is released under CC0 1.0 Universal (public domain dedication); https://www.wikidata.org/wiki/Wikidata:Licensing. The Wikidata Query Service is free to use under the Wikimedia user-agent policy; this acquisition sends a contact User-Agent and honours Retry-After.",
+    "attribution": "Not required. Wikidata content is dedicated to the public domain under CC0 1.0; the publisher and the retrieval date are recorded in every record's evidence anyway.",
+    "redistribution": true,
+    "license_notes": "Wikidata content is released under CC0 1.0 Universal (public domain dedication); https://www.wikidata.org/wiki/Wikidata:Licensing. The query service is used under the Wikimedia user-agent policy: a contact User-Agent is sent, requests are rate limited to one every five seconds, and Retry-After is honoured by the runner.",
     "authority": "collaborative_knowledge_base"
   },
   "expected_outputs": [
@@ -190,7 +196,7 @@
         "property": "P1320",
         "property_label": "OpenCorporates organization ID",
         "namespace": "opencorporates",
-        "statements_counted_2026_09_19": 20000,
+        "statements_counted_2026_09_19": 7609,
         "value_filter": "FILTER(STRSTARTS(?value,\"gb/\"))"
       },
       {

@@ -271,12 +271,20 @@ class PipelineTests(unittest.TestCase):
 
     @staticmethod
     def _pipeline():
+        """pipeline.py and its generated sibling, loaded the way the runner's snapshot loads them."""
         import importlib.util
-        path = (Path(__file__).resolve().parent.parent / 'data' / 'wikidata_identifiers' / 'pipeline.py')
-        spec = importlib.util.spec_from_file_location('wikidata_identifiers_pipeline', path)
-        module = importlib.util.module_from_spec(spec)
-        spec.loader.exec_module(module)
-        return module
+        root = Path(__file__).resolve().parent.parent / 'data' / 'wikidata_identifiers'
+        package = importlib.util.module_from_spec(
+            importlib.util.spec_from_loader('wikidata_identifiers_pipeline', loader=None, is_package=True))
+        package.__path__ = [str(root)]
+        sys.modules['wikidata_identifiers_pipeline'] = package
+        for name in ('entity_types', 'pipeline'):
+            spec = importlib.util.spec_from_file_location(
+                'wikidata_identifiers_pipeline.' + name, root / (name + '.py'))
+            module = importlib.util.module_from_spec(spec)
+            sys.modules[spec.name] = module
+            spec.loader.exec_module(module)
+        return sys.modules['wikidata_identifiers_pipeline.pipeline']
 
     def test_the_most_specific_class_an_item_carries_decides_its_type(self):
         entity_type = self._pipeline().entity_type

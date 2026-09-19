@@ -69,7 +69,7 @@ was cut".
 | P2771 D-U-N-S number | `duns` | 628 |
 | P1297 IRS Employer Identification Number | `ein` | 17,260 |
 | P1937 UN/LOCODE | `unlocode` | 45,717 |
-| P1320 OpenCorporates organization ID (`gb/` only) | `opencorporates` | ~15,000 of 578,070 |
+| P1320 OpenCorporates organization ID (`gb/` only) | `gb_company_number` | 7,609 of 578,070 |
 | P297/P298/P299 ISO 3166-1 alpha-2/alpha-3/numeric | `iso3166_1_*` | 262 / 274 / 270 |
 | P300 ISO 3166-2 code | `iso3166_2` | 5,459 |
 | P882 FIPS 6-4 ID | `fips_county` | 3,793 |

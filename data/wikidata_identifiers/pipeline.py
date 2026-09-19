@@ -19,67 +19,13 @@ the count the declaration measured against the service.
 """
 import re
 
+from .entity_types import entity_type
+
 MIN_SHARE_OF_DECLARED_COUNT = 0.98
 
 _QID = re.compile(r'Q[1-9][0-9]*')
 _ITEM_IRI = re.compile(r'https?://www\.wikidata\.org/entity/(Q[1-9][0-9]*)')
 _HEADER = ('item', 'label', 'value', 'types')
-
-# Wikidata ``P31 instance of`` classes mapped to this catalog's entity types. The map is read from
-# the classes the acquired extract actually uses, most specific first; an item whose classes are
-# all unmapped is typed ``entity``, which is what it is - something Wikidata identifies and this
-# ontology does not have a name for. Typing matters beyond documentation in one place: the
-# resolution layer reads an ``imo`` claim on a subject that is not a vessel as an IMO *company*
-# number, so the vessel classes have to be complete enough that a ship is typed as one.
-ENTITY_TYPE_BY_CLASS = {
-    # -- vessels (IMO ship numbers) ------------------------------------------------------------
-    'Q11446': 'vessel', 'Q2055880': 'vessel', 'Q17210': 'vessel', 'Q328464': 'vessel',
-    'Q14970': 'vessel', 'Q106678': 'vessel', 'Q25653': 'vessel', 'Q1229765': 'vessel',
-    'Q2072352': 'vessel', 'Q178193': 'vessel', 'Q1201871': 'vessel', 'Q190334': 'vessel',
-    'Q11997': 'vessel', 'Q205198': 'vessel', 'Q193468': 'vessel', 'Q1207505': 'vessel',
-    'Q1445518': 'vessel', 'Q2093545': 'vessel', 'Q3050756': 'vessel', 'Q216916': 'vessel',
-    'Q1407378': 'vessel', 'Q170013': 'vessel', 'Q220869': 'vessel', 'Q18704604': 'vessel',
-    # -- transport facilities -------------------------------------------------------------------
-    'Q1248784': 'airport', 'Q644371': 'airport', 'Q62447': 'airport', 'Q46124': 'airport',
-    'Q44782': 'port', 'Q283202': 'port', 'Q1069940': 'port',
-    # -- people ---------------------------------------------------------------------------------
-    'Q5': 'person',
-    # -- companies and other organisations ------------------------------------------------------
-    'Q4830453': 'business', 'Q783794': 'business', 'Q891723': 'business', 'Q6881511': 'business',
-    'Q270791': 'business', 'Q161726': 'business', 'Q210167': 'business', 'Q18388277': 'business',
-    'Q1589009': 'business', 'Q219577': 'business', 'Q2624520': 'business',
-    'Q327333': 'government_agency', 'Q2659904': 'government_agency', 'Q1530022': 'government_agency',
-    'Q7188': 'government_agency', 'Q12047392': 'government_agency',
-    'Q3918': 'institution', 'Q875538': 'institution', 'Q31855': 'institution', 'Q902104': 'institution',
-    'Q2385804': 'institution', 'Q38723': 'institution', 'Q4671277': 'institution', 'Q189004': 'institution',
-    'Q16917': 'institution', 'Q1244442': 'institution', 'Q9826': 'institution', 'Q3914': 'institution',
-    'Q163740': 'organization', 'Q157031': 'organization', 'Q43229': 'organization',
-    'Q15911314': 'organization', 'Q48204': 'organization', 'Q17127659': 'organization',
-    'Q79913': 'organization', 'Q1156831': 'organization', 'Q1664720': 'organization',
-    'Q7075': 'organization',
-    'Q22687': 'business', 'Q806718': 'business', 'Q2085381': 'business',
-    'Q11032': 'organization', 'Q1002697': 'organization', 'Q15265344': 'organization',
-    'Q1058914': 'business', 'Q167037': 'business', 'Q4830454': 'business',
-    'Q18811583': 'investment_fund', 'Q2114521': 'investment_fund', 'Q1752459': 'investment_fund',
-    'Q1149652': 'investment_fund',
-    # -- jurisdictions and places ---------------------------------------------------------------
-    'Q6256': 'country', 'Q3624078': 'country', 'Q7275': 'jurisdiction', 'Q1520223': 'country',
-    'Q35657': 'state', 'Q107390': 'state', 'Q10864048': 'jurisdiction', 'Q13220204': 'jurisdiction',
-    'Q56061': 'jurisdiction', 'Q15916867': 'jurisdiction', 'Q1799794': 'jurisdiction',
-    'Q47168': 'county', 'Q28575': 'county', 'Q13410428': 'county', 'Q13360155': 'county',
-    'Q515': 'location', 'Q486972': 'location', 'Q3957': 'location', 'Q532': 'location',
-    'Q1549591': 'location', 'Q62049': 'location', 'Q755707': 'location', 'Q15284': 'location',
-    'Q2074737': 'location', 'Q82794': 'location', 'Q618123': 'location',
-    # -- facilities ------------------------------------------------------------------------------
-    'Q159719': 'facility', 'Q11891': 'facility', 'Q134447': 'facility', 'Q12772819': 'facility',
-    'Q1497649': 'facility', 'Q41176': 'facility', 'Q811979': 'facility', 'Q33506': 'facility',
-    'Q43501': 'facility', 'Q207694': 'facility', 'Q2143825': 'facility',
-    # -- securities and markets -------------------------------------------------------------------
-    'Q11691': 'organization', 'Q1155472': 'organization',
-    # -- refused: a Wikimedia page is not a thing in the world -------------------------------------
-    'Q4167410': None, 'Q4167836': None, 'Q13406463': None, 'Q11266439': None, 'Q17362920': None,
-    'Q15407973': None, 'Q14204246': None, 'Q11753321': None,
-}
 
 
 def _properties(context):
@@ -102,27 +48,6 @@ def _shard_requests(context, index):
     if not requests:
         raise ValueError('No acquisition shards to read')
     return requests
-
-
-# Wikidata gives an item its P31 classes in no particular order, and one item is routinely an
-# instance of several. This is the order the catalog type is chosen in: the most specific type an
-# item's own classes support wins, so a "public company" that is also an "organization" is a
-# business, and a container ship that is also a "ship" is a vessel.
-TYPE_PRECEDENCE = ('vessel', 'airport', 'port', 'person', 'county', 'state', 'country',
-                   'jurisdiction', 'government_agency', 'institution', 'investment_fund',
-                   'business', 'organization', 'facility', 'location')
-
-
-def entity_type(classes):
-    """The catalog entity type of an item, from its own P31 classes, or ``None`` to refuse it."""
-    mapped = [ENTITY_TYPE_BY_CLASS[c] for c in classes if c in ENTITY_TYPE_BY_CLASS]
-    if mapped and all(value is None for value in mapped):
-        return None  # every class Wikidata gives it is a Wikimedia page type
-    named = {value for value in mapped if value is not None}
-    for candidate in TYPE_PRECEDENCE:
-        if candidate in named:
-            return candidate
-    return 'entity'
 
 
 def _qid(iri):
