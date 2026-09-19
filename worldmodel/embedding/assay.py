@@ -130,12 +130,16 @@ def _mse(rows):
 
 # ----------------------------------------------------------------------------- the attempt
 
-def run_attempt(store, attempt_id, *, log=print, publish=True, device=None):
+def run_attempt(store, attempt_id, *, log=print, publish=True, device=None, spec=None):
+    """Run one attempt. ``spec`` replaces the plan entry for smoke tests only; it cannot be published."""
     import torch
-    from .train import Samples, SubgraphCache, build_samples, fit, label_public
+    from .train import SubgraphCache, build_samples, fit, label_public, limit_gpu_memory
+    limit_gpu_memory()
 
     started = time.time()
-    attempt = attempt_spec(attempt_id)
+    if spec is not None and publish:
+        raise ValueError('An attempt that is not in plan.json cannot be published')
+    attempt = json.loads(json.dumps(spec)) if spec is not None else attempt_spec(attempt_id)
     protocol, config = attempt['protocol'], attempt['config']
     targets = attempt['targets']
     panel_ref, panel = load_panel(store, history=protocol['history'])
@@ -183,6 +187,7 @@ def run_attempt(store, attempt_id, *, log=print, publish=True, device=None):
                                       cache=caches[name], log=None)
             pred = forecaster.predict(batcher, samples.snap[evaluate], samples.seed[evaluate])
             fits.append({'origin': T, 'stage': stage, 'candidate': name, **forecaster.diagnostics})
+            log(f'    peak GPU {forecaster.diagnostics["peak_gpu_gib"]} GiB')
             if T == test[-1] and publish:
                 from .query import save_checkpoint
                 path = Path(store.root) / REPORTS / 'scratch' / 'checkpoints' / f'{attempt_id}.{name}.{T}.pt'
@@ -211,6 +216,9 @@ def run_attempt(store, attempt_id, *, log=print, publish=True, device=None):
                         'predictive': predictive,
                         'baselines': {'persistence': persistence, 'drift': drift,
                                       'gbdt': {'mean': anchor + float(gbdt_pred[k, j]), 'sd': gbdt_sd[j]}}})
+            del forecaster, batcher, pred
+            if device.type == 'cuda':
+                torch.cuda.empty_cache()
         if T == validation[-1]:
             attempt['_selected'] = {}
             for j, feature in enumerate(targets):

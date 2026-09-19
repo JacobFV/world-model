@@ -10,10 +10,25 @@ Requires numpy and torch.
 """
 from dataclasses import dataclass
 import math
+import os
 import time
+
+# The GB10 shares one memory pool between CPU and GPU with other people's jobs: fragmenting the
+# caching allocator there takes memory from everyone. Set before the first CUDA allocation.
+os.environ.setdefault('PYTORCH_CUDA_ALLOC_CONF', 'expandable_segments:True')
 
 import numpy as np
 import torch
+
+#: Default ceiling for this process's GPU allocations, in GiB (override with WM_EMBED_GPU_GB).
+GPU_GB = float(os.environ.get('WM_EMBED_GPU_GB', '12'))
+
+
+def limit_gpu_memory(gb=None):
+    """Cap the caching allocator; an attempt that needs more fails loudly instead of starving the machine."""
+    if torch.cuda.is_available():
+        total = torch.cuda.get_device_properties(0).total_memory
+        torch.cuda.set_per_process_memory_fraction(min(1.0, (gb or GPU_GB) * 2 ** 30 / total))
 
 from .model import WorldStateEncoder, student_t_nll
 from .tensors import NODE_TYPES, RELATIONS
@@ -144,7 +159,7 @@ class Forecaster:
             model, y_scale, multipliers, config, diagnostics)
 
     @torch.no_grad()
-    def predict(self, batcher, rows, seeds, *, batch=512, return_state=False):
+    def predict(self, batcher, rows, seeds, *, batch=256, return_state=False):
         self.model.eval()
         means, scales, states, attention = [], [], [], []
         for start in range(0, len(rows), batch):
@@ -209,16 +224,19 @@ def fit(panel, snapshots, samples, public, targets, *, config=None, x_all=None, 
             model.readout.gumbel = cfg['gumbel'] * (1 - progress)
             b = batcher(samples.snap[chosen], samples.seed[chosen])
             idx = torch.as_tensor(chosen, device=device)
+            # One forward pass serves both losses: reconstruction masks tokens on the seed's neighbours
+            # only, so the forecast head always sees the seed's own history intact.
+            present = b['m'].amax(-1) > 0
+            eligible = present & b['valid'].unsqueeze(-1)
+            eligible[:, 0] = False
+            token_mask = eligible & (torch.rand(present.shape, device=device) < cfg['mask_rate'])
             with torch.autocast(device_type=device.type, dtype=torch.bfloat16, enabled=device.type == 'cuda'):
-                encoded = model.encode(b)
+                encoded = model.encode(b, token_mask=token_mask)
                 mean, scale, df = model.predict(encoded)
                 have = have_t[idx]
                 nll = student_t_nll(y_t[idx].float(), mean.float(), scale.float(), df.float())
                 forecast_loss = (nll * have).sum() / have.sum().clamp_min(1)
-                present = b['m'].amax(-1) > 0
-                token_mask = present & (torch.rand(present.shape, device=device) < cfg['mask_rate']) & b['valid'].unsqueeze(-1)
-                masked = model.encode(b, token_mask=token_mask)
-                index, predicted = model.reconstruct(masked, token_mask)
+                index, predicted = model.reconstruct(encoded, token_mask)
                 if predicted is not None:
                     bb, nn_, ff = index.unbind(-1)
                     target, weight = b['x'][bb, nn_, ff], b['m'][bb, nn_, ff]
@@ -233,9 +251,9 @@ def fit(panel, snapshots, samples, public, targets, *, config=None, x_all=None, 
             scheduler.step()
             step += 1
             if step % 100 == 0 or step == steps:
-                history.append({'step': step, 'forecast_nll': float(forecast_loss), 'recon_mse': float(recon)})
+                history.append({'step': step, 'forecast_nll': float(forecast_loss.detach()), 'recon_mse': float(recon.detach())})
                 if log:
-                    log(f'  step {step}/{steps} nll={float(forecast_loss):.3f} recon={float(recon):.3f}')
+                    log(f'  step {step}/{steps} nll={history[-1]["forecast_nll"]:.3f} recon={history[-1]["recon_mse"]:.3f}')
     model.readout.top_k = cfg['top_k']
     model.readout.gumbel = 0.0
     forecaster = Forecaster(model, y_scale, np.ones(len(targets)), cfg, {})
@@ -254,7 +272,12 @@ def fit(panel, snapshots, samples, public, targets, *, config=None, x_all=None, 
             coverage_before[targets[j]] = float(np.mean(u <= t80))
             multipliers[j] = float(np.quantile(u, 0.8) / t80)
     forecaster.multipliers = multipliers
+    peak = torch.cuda.max_memory_allocated() / 2 ** 30 if device.type == 'cuda' else None
+    if device.type == 'cuda':
+        torch.cuda.empty_cache()
+        torch.cuda.reset_peak_memory_stats()
     forecaster.diagnostics = {'train_samples': int(train.sum()), 'calibration_samples': int(calibrate.sum()),
+                              'peak_gpu_gib': round(peak, 2) if peak is not None else None,
                               'calibration_label_years': sorted(calibration_years), 'steps': steps,
                               'seconds': round(time.time() - started, 1), 'loss_history': history,
                               'degrees_of_freedom': [float(v) for v in model.degrees_of_freedom().detach().cpu()],

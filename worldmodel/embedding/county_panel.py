@@ -77,6 +77,12 @@ BEA_METRICS = ('personal_income', 'population', 'per_capita_personal_income', 'w
                'farm_earnings', 'nonfarm_earnings', 'inflows_of_earnings', 'outflows_of_earnings')
 #: BEA publishes gdp, real_gdp and earnings by industry under the same metric name; the panel keeps totals only.
 BEA_TOTAL_INDUSTRY = 'all_industry_total'
+#: Levels that cannot be zero or negative for a county that exists. The normalized BEA records carry 0 where
+#: the area did not exist (Broomfield CO before 2001, reorganized Alaska boroughs); the panel treats those as
+#: absent. Components that can be negative or zero (farm earnings, proprietors' income) are kept as published.
+BEA_POSITIVE = ('population', 'personal_income', 'per_capita_personal_income', 'wages_and_salaries', 'gdp', 'real_gdp',
+                'earnings_by_place_of_work', 'supplements_to_wages_and_salaries', 'dividends_interest_and_rent',
+                'personal_current_transfer_receipts')
 CLIMDIV_METRICS = ('average_temperature', 'precipitation', 'palmer_drought_severity_index')
 STORM_METRICS = ('storm_damage_property', 'storm_damage_crops', 'storm_deaths', 'storm_injuries')
 GEOGRAPHY_METRICS = ('latitude', 'longitude', 'land_area', 'water_area')
@@ -126,6 +132,7 @@ class Collector:
         self.source, self.ref = source, ref
         self.values, self.ids, self.units = {}, defaultdict(list), {}
         self.duplicates = 0
+        self.excluded = defaultdict(int)     # reason -> source values deliberately not used
 
     def unique(self, county, feature, year, value, unit, record_id):
         key = (county, feature, int(year))
@@ -145,7 +152,7 @@ class Collector:
 
     def result(self):
         return {'source': self.source, 'ref': self.ref, 'values': self.values, 'ids': dict(self.ids),
-                'units': self.units, 'duplicates': self.duplicates}
+                'units': self.units, 'duplicates': self.duplicates, 'excluded': dict(self.excluded)}
 
 
 def _collect_qcew(data_root):
@@ -160,6 +167,9 @@ def _collect_qcew(data_root):
         if record.get('kind') != 'observation' or metric not in QCEW_METRICS or not is_county(county):
             continue
         if dims.get('frequency') != 'annual' or record.get('value') is None:
+            continue
+        if (record.get('attributes') or {}).get('disclosure_code') == 'N':
+            out.excluded['qcew_not_disclosed'] += 1      # BLS publishes 0 with code N for suppressed cells
             continue
         year = int(str(record['valid_from'])[:4])
         if year >= FIRST_YEAR:
@@ -180,6 +190,9 @@ def _collect_qcew_sectors(data_root):
         if record.get('kind') != 'observation' or not is_county(county) or record.get('value') is None:
             continue
         if dims.get('frequency') != 'annual' or dims.get('ownership') != 'private':
+            continue
+        if (record.get('attributes') or {}).get('disclosure_code') == 'N':
+            out.excluded['qcew_not_disclosed'] += 1
             continue
         code = str(dims.get('industry') or '').split(':')[-1]
         if not code or not all(len(p) == 2 and p.isdigit() for p in code.split('-')):
@@ -220,6 +233,9 @@ def _collect_bea(data_root):
             continue
         industry = (record.get('dimensions') or {}).get('industry')
         if industry is not None and industry != BEA_TOTAL_INDUSTRY:
+            continue
+        if metric in BEA_POSITIVE and float(record['value']) <= 0:
+            out.excluded['bea_nonpositive_level'] += 1   # e.g. population 0 before a county existed
             continue
         year = int(str(record['valid_from'])[:4])
         if year >= FIRST_YEAR:
@@ -402,9 +418,12 @@ def summary(results):
     edges = results['_collect_edges']
     inputs += [ref for ref in (edges['migration_ref'], edges['cbsa_ref']) if ref not in inputs]
     duplicates = {name: result['duplicates'] for name, result in results.items() if name != '_collect_edges'}
+    excluded = {name: result.get('excluded', {}) for name, result in results.items()
+                if name != '_collect_edges' and result.get('excluded')}
     return {'schema': 'worldmodel.county_panel/1', 'counties': len(counties), 'features': dict(sorted(features.items())),
             'edges': {'migration_flow': len(edges['flows']), 'within_cbsa': len(edges['cbsa'])},
             'targets': list(TARGETS), 'sources': SOURCES, 'first_year': FIRST_YEAR, 'duplicates_dropped': duplicates,
+            'excluded': excluded,
             'inputs': inputs,
             'does_not_establish': [
                 'Values are the current vintage at retrieval; sources marked revisions=major or minor were revised after '

@@ -50,7 +50,8 @@ def embed_origin(panel, snapshot, model, cache, row, x_all, m_all, device, batch
 def nearest(store, county, as_of, *, checkpoint, across='time', limit=10):
     import torch
     from .assay import load_panel
-    from .train import SubgraphCache
+    from .train import SubgraphCache, limit_gpu_memory
+    limit_gpu_memory()
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     model, meta = load_encoder(checkpoint, device)
     panel_ref, panel = load_panel(store, history=model.config['history'], ref=meta['panel_ref'])
