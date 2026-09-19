@@ -1,0 +1,829 @@
+{
+  "evidence": {
+    "identities_enforced": [],
+    "index": {
+      "dataset": "calibration_reports",
+      "plan_attempts": 63,
+      "reports": 75,
+      "source": "store",
+      "validated_processes": [
+        "assets_model",
+        "elections_model",
+        "legislative_model",
+        "monetary_model",
+        "resource_inventory"
+      ]
+    },
+    "mechanisms": {
+      "policy_rate_reaction": {
+        "attempt": "monetary_model.fred_realtime_v2",
+        "binding": {
+          "assumed": [],
+          "bound_from_report": [
+            "elb",
+            "inflation_target",
+            "phi_pi",
+            "phi_y",
+            "policy_shock_sd",
+            "r_star",
+            "rho"
+          ]
+        },
+        "caveats": [
+          "current attempt monetary_model.cpi_okun_proxy_v2 on the same component fails beats_persistence_dm, no_revision_leakage (a different specification or series)",
+          "current attempt monetary_model.okun_unrate_realtime_v2 on the same component fails beats_persistence_dm, parameters_within_declared_bounds (a different specification or series)",
+          "scored at horizon 1 (native steps); rollouts iterate it for 8 quarters, and multi-step skill was never tested",
+          "scored conditional on realized inflation, output_gap; here they are scenario inputs, and forecasting them was never tested",
+          "holdout after 2014-12-31 through cutoff 2024-12-31; nothing says the fitted conduct persists outside that window"
+        ],
+        "component": "monetary_model_parameters",
+        "declared_status": "validated",
+        "mechanism": "policy_rate_reaction",
+        "reasons": [
+          "report re-verified and passes every declared criterion; attempt monetary_model.fred_realtime_v2 is current"
+        ],
+        "report_id": "9b6457990c9388d18745e4cf3e692efafced7f552dbfa892795df91d76f927ef",
+        "scope": {
+          "attempt": "monetary_model.fred_realtime_v2",
+          "conditional_inputs": [
+            "inflation",
+            "output_gap"
+          ],
+          "cutoff": "2024-12-31",
+          "data_inputs": [
+            {
+              "dataset": "fred_macro_panel",
+              "stage": "normalized",
+              "version": "7dcce89cb6e95530779f76504e0c29230b965310ce4e98180e8de3e4ec27f678"
+            },
+            {
+              "dataset": "fred_cpi",
+              "stage": "normalized",
+              "version": "34fe03f554da0743957878c02ee54b3460ce00f86082dc4e136589df507de2eb"
+            }
+          ],
+          "frequency": null,
+          "horizon": 1,
+          "interval_level": 0.8,
+          "train_end": "2007-12-31",
+          "validation_end": "2014-12-31"
+        },
+        "status": "validated",
+        "verified": true,
+        "version": "4b7e1066d4f43aceb644c8996f8145cab13d1ed17a6b5b7aaebd718917159e68"
+      }
+    }
+  },
+  "nominal_scenario": {
+    "coef.b_pi": 0.201059460088426,
+    "coef.b_y": 0.15117037489309226,
+    "coef.const": -0.07575670674076153,
+    "coef.rho": 0.8547122504549384,
+    "input.inflation_end": 2.2,
+    "input.inflation_start": 2.6,
+    "input.output_gap_end": 0.5,
+    "input.output_gap_start": 1.8,
+    "shock.q1": 0.0,
+    "shock.q2": 0.0,
+    "shock.q3": 0.0,
+    "shock.q4": 0.0,
+    "shock.q5": 0.0,
+    "shock.q6": 0.0,
+    "shock.q7": 0.0,
+    "shock.q8": 0.0
+  },
+  "recommendation": {
+    "does_not_establish": [
+      "Holdout forecast skill does not identify an intervention response: a validated mechanism forecast well on data it had not seen, conditional on realized inputs; it was never tested on what happens when someone intervenes.",
+      "No mechanism here is causally identified; estimates are reduced-form and labelled as such by their reports.",
+      "Declared bounds on uncertain inputs and assumed parameters are author statements, not probabilities or confidence sets.",
+      "A policy that does well under this environment is optimal (or robust) only for the environment's assumptions.",
+      "Inflation and output-gap paths are declared ranges, not forecasts; no validated mechanism forecasts them.",
+      "The initial state is the last first-release quarter in the fitted panel (2024Q4), not a live reading."
+    ],
+    "label": {
+      "by_status": {
+        "assumed": [],
+        "estimated but not validated": [],
+        "validated": [
+          "policy_rate_reaction"
+        ]
+      },
+      "label": "conditional_on_validated_fitted_dynamics",
+      "text": "Validated forecast skill is not a validated counterfactual response. Every mechanism used passed its pre-registered holdout criteria, so the result is conditional on the fitted dynamics being right about responses they were only ever scored on forecasting.",
+      "unvalidated_mechanisms": []
+    },
+    "not_an_optimality_claim": "Ranks the supplied candidates only; a better policy may exist outside them.",
+    "ranking": [
+      {
+        "feasible_everywhere": true,
+        "mean_weighted_score": -0.47435376192559686,
+        "policy": "hold_at_4.65",
+        "scenarios": 1,
+        "success_rate": 1.0,
+        "worst_severity": -0.8300646521305177
+      },
+      {
+        "feasible_everywhere": true,
+        "mean_weighted_score": -1.1559530716338389,
+        "policy": "last_rate_plus_50bp",
+        "scenarios": 1,
+        "success_rate": 1.0,
+        "worst_severity": -0.3333333333333333
+      },
+      {
+        "feasible_everywhere": true,
+        "mean_weighted_score": -4.45592938817335,
+        "policy": "cuts_to_3.40_then_hold",
+        "scenarios": 1,
+        "success_rate": 0.0,
+        "worst_severity": 7.882478368462266
+      },
+      {
+        "feasible_everywhere": true,
+        "mean_weighted_score": -5.58092938817335,
+        "policy": "cuts_25bp_every_quarter",
+        "scenarios": 1,
+        "success_rate": 0.0,
+        "worst_severity": 10.882478368462266
+      }
+    ],
+    "recommended": "hold_at_4.65"
+  },
+  "rollouts": {
+    "cuts_25bp_every_quarter": {
+      "constraints": [
+        {
+          "aggregate": "sum",
+          "id": "budget",
+          "metric": "action_cost",
+          "observed": 0.0,
+          "operator": "lte",
+          "passed": true,
+          "severity": -1.0,
+          "threshold": 6.0
+        }
+      ],
+      "contract": "monetary-treasury-stress",
+      "decision_maker": "org:example-treasury",
+      "does_not_establish": [
+        "Holdout forecast skill does not identify an intervention response: a validated mechanism forecast well on data it had not seen, conditional on realized inputs; it was never tested on what happens when someone intervenes.",
+        "No mechanism here is causally identified; estimates are reduced-form and labelled as such by their reports.",
+        "Declared bounds on uncertain inputs and assumed parameters are author statements, not probabilities or confidence sets.",
+        "A policy that does well under this environment is optimal (or robust) only for the environment's assumptions.",
+        "Inflation and output-gap paths are declared ranges, not forecasts; no validated mechanism forecasts them.",
+        "The initial state is the last first-release quarter in the fitted panel (2024Q4), not a live reading."
+      ],
+      "environment_return": -5.58092938817335,
+      "failed": [
+        "total_shortfall",
+        "worst_quarter_shortfall"
+      ],
+      "feasible": true,
+      "identities_enforced": [],
+      "label": {
+        "by_status": {
+          "assumed": [],
+          "estimated but not validated": [],
+          "validated": [
+            "policy_rate_reaction"
+          ]
+        },
+        "label": "conditional_on_validated_fitted_dynamics",
+        "text": "Validated forecast skill is not a validated counterfactual response. Every mechanism used passed its pre-registered holdout criteria, so the result is conditional on the fitted dynamics being right about responses they were only ever scored on forecasting.",
+        "unvalidated_mechanisms": []
+      },
+      "mechanisms_used": {
+        "policy_rate_reaction": {
+          "attempt": "monetary_model.fred_realtime_v2",
+          "binding": {
+            "assumed": [],
+            "bound_from_report": [
+              "elb",
+              "inflation_target",
+              "phi_pi",
+              "phi_y",
+              "policy_shock_sd",
+              "r_star",
+              "rho"
+            ]
+          },
+          "caveats": [
+            "current attempt monetary_model.cpi_okun_proxy_v2 on the same component fails beats_persistence_dm, no_revision_leakage (a different specification or series)",
+            "current attempt monetary_model.okun_unrate_realtime_v2 on the same component fails beats_persistence_dm, parameters_within_declared_bounds (a different specification or series)",
+            "scored at horizon 1 (native steps); rollouts iterate it for 8 quarters, and multi-step skill was never tested",
+            "scored conditional on realized inflation, output_gap; here they are scenario inputs, and forecasting them was never tested",
+            "holdout after 2014-12-31 through cutoff 2024-12-31; nothing says the fitted conduct persists outside that window"
+          ],
+          "component": "monetary_model_parameters",
+          "declared_status": "validated",
+          "mechanism": "policy_rate_reaction",
+          "reasons": [
+            "report re-verified and passes every declared criterion; attempt monetary_model.fred_realtime_v2 is current"
+          ],
+          "report_id": "9b6457990c9388d18745e4cf3e692efafced7f552dbfa892795df91d76f927ef",
+          "scope": {
+            "attempt": "monetary_model.fred_realtime_v2",
+            "conditional_inputs": [
+              "inflation",
+              "output_gap"
+            ],
+            "cutoff": "2024-12-31",
+            "data_inputs": [
+              {
+                "dataset": "fred_macro_panel",
+                "stage": "normalized",
+                "version": "7dcce89cb6e95530779f76504e0c29230b965310ce4e98180e8de3e4ec27f678"
+              },
+              {
+                "dataset": "fred_cpi",
+                "stage": "normalized",
+                "version": "34fe03f554da0743957878c02ee54b3460ce00f86082dc4e136589df507de2eb"
+              }
+            ],
+            "frequency": null,
+            "horizon": 1,
+            "interval_level": 0.8,
+            "train_end": "2007-12-31",
+            "validation_end": "2014-12-31"
+          },
+          "status": "validated",
+          "steps_used": 8,
+          "verified": true,
+          "version": "4b7e1066d4f43aceb644c8996f8145cab13d1ed17a6b5b7aaebd718917159e68"
+        }
+      },
+      "objectives": [
+        {
+          "aggregate": "sum",
+          "contribution": -5.58092938817335,
+          "direction": "minimize",
+          "id": "under_reserved",
+          "metric": "shortfall",
+          "value": 7.441239184231133,
+          "weight": 0.75
+        },
+        {
+          "aggregate": "sum",
+          "contribution": -0.0,
+          "direction": "minimize",
+          "id": "idle_reserve",
+          "metric": "excess",
+          "value": 0.0,
+          "weight": 0.25
+        }
+      ],
+      "policy": "cuts_25bp_every_quarter",
+      "scenario": {
+        "coef.b_pi": 0.201059460088426,
+        "coef.b_y": 0.15117037489309226,
+        "coef.const": -0.07575670674076153,
+        "coef.rho": 0.8547122504549384,
+        "input.inflation_end": 2.2,
+        "input.inflation_start": 2.6,
+        "input.output_gap_end": 0.5,
+        "input.output_gap_start": 1.8,
+        "shock.q1": 0.0,
+        "shock.q2": 0.0,
+        "shock.q3": 0.0,
+        "shock.q4": 0.0,
+        "shock.q5": 0.0,
+        "shock.q6": 0.0,
+        "shock.q7": 0.0,
+        "shock.q8": 0.0
+      },
+      "schema": "worldmodel.decision_rollout/1",
+      "seed": 0,
+      "steps": 8,
+      "success": false,
+      "success_criteria": [
+        {
+          "aggregate": "max",
+          "id": "worst_quarter_shortfall",
+          "metric": "shortfall",
+          "observed": 1.376187713464645,
+          "operator": "lte",
+          "passed": false,
+          "severity": 2.50475085385858,
+          "threshold": 0.75
+        },
+        {
+          "aggregate": "sum",
+          "id": "total_shortfall",
+          "metric": "shortfall",
+          "observed": 7.441239184231133,
+          "operator": "lte",
+          "passed": false,
+          "severity": 10.882478368462266,
+          "threshold": 2.0
+        }
+      ],
+      "weighted_score": -5.58092938817335,
+      "worst_severity": 10.882478368462266
+    },
+    "cuts_to_3.40_then_hold": {
+      "constraints": [
+        {
+          "aggregate": "sum",
+          "id": "budget",
+          "metric": "action_cost",
+          "observed": 0.0,
+          "operator": "lte",
+          "passed": true,
+          "severity": -1.0,
+          "threshold": 6.0
+        }
+      ],
+      "contract": "monetary-treasury-stress",
+      "decision_maker": "org:example-treasury",
+      "does_not_establish": [
+        "Holdout forecast skill does not identify an intervention response: a validated mechanism forecast well on data it had not seen, conditional on realized inputs; it was never tested on what happens when someone intervenes.",
+        "No mechanism here is causally identified; estimates are reduced-form and labelled as such by their reports.",
+        "Declared bounds on uncertain inputs and assumed parameters are author statements, not probabilities or confidence sets.",
+        "A policy that does well under this environment is optimal (or robust) only for the environment's assumptions.",
+        "Inflation and output-gap paths are declared ranges, not forecasts; no validated mechanism forecasts them.",
+        "The initial state is the last first-release quarter in the fitted panel (2024Q4), not a live reading."
+      ],
+      "environment_return": -4.45592938817335,
+      "failed": [
+        "total_shortfall",
+        "worst_quarter_shortfall"
+      ],
+      "feasible": true,
+      "identities_enforced": [],
+      "label": {
+        "by_status": {
+          "assumed": [],
+          "estimated but not validated": [],
+          "validated": [
+            "policy_rate_reaction"
+          ]
+        },
+        "label": "conditional_on_validated_fitted_dynamics",
+        "text": "Validated forecast skill is not a validated counterfactual response. Every mechanism used passed its pre-registered holdout criteria, so the result is conditional on the fitted dynamics being right about responses they were only ever scored on forecasting.",
+        "unvalidated_mechanisms": []
+      },
+      "mechanisms_used": {
+        "policy_rate_reaction": {
+          "attempt": "monetary_model.fred_realtime_v2",
+          "binding": {
+            "assumed": [],
+            "bound_from_report": [
+              "elb",
+              "inflation_target",
+              "phi_pi",
+              "phi_y",
+              "policy_shock_sd",
+              "r_star",
+              "rho"
+            ]
+          },
+          "caveats": [
+            "current attempt monetary_model.cpi_okun_proxy_v2 on the same component fails beats_persistence_dm, no_revision_leakage (a different specification or series)",
+            "current attempt monetary_model.okun_unrate_realtime_v2 on the same component fails beats_persistence_dm, parameters_within_declared_bounds (a different specification or series)",
+            "scored at horizon 1 (native steps); rollouts iterate it for 8 quarters, and multi-step skill was never tested",
+            "scored conditional on realized inflation, output_gap; here they are scenario inputs, and forecasting them was never tested",
+            "holdout after 2014-12-31 through cutoff 2024-12-31; nothing says the fitted conduct persists outside that window"
+          ],
+          "component": "monetary_model_parameters",
+          "declared_status": "validated",
+          "mechanism": "policy_rate_reaction",
+          "reasons": [
+            "report re-verified and passes every declared criterion; attempt monetary_model.fred_realtime_v2 is current"
+          ],
+          "report_id": "9b6457990c9388d18745e4cf3e692efafced7f552dbfa892795df91d76f927ef",
+          "scope": {
+            "attempt": "monetary_model.fred_realtime_v2",
+            "conditional_inputs": [
+              "inflation",
+              "output_gap"
+            ],
+            "cutoff": "2024-12-31",
+            "data_inputs": [
+              {
+                "dataset": "fred_macro_panel",
+                "stage": "normalized",
+                "version": "7dcce89cb6e95530779f76504e0c29230b965310ce4e98180e8de3e4ec27f678"
+              },
+              {
+                "dataset": "fred_cpi",
+                "stage": "normalized",
+                "version": "34fe03f554da0743957878c02ee54b3460ce00f86082dc4e136589df507de2eb"
+              }
+            ],
+            "frequency": null,
+            "horizon": 1,
+            "interval_level": 0.8,
+            "train_end": "2007-12-31",
+            "validation_end": "2014-12-31"
+          },
+          "status": "validated",
+          "steps_used": 8,
+          "verified": true,
+          "version": "4b7e1066d4f43aceb644c8996f8145cab13d1ed17a6b5b7aaebd718917159e68"
+        }
+      },
+      "objectives": [
+        {
+          "aggregate": "sum",
+          "contribution": -4.45592938817335,
+          "direction": "minimize",
+          "id": "under_reserved",
+          "metric": "shortfall",
+          "value": 5.941239184231133,
+          "weight": 0.75
+        },
+        {
+          "aggregate": "sum",
+          "contribution": -0.0,
+          "direction": "minimize",
+          "id": "idle_reserve",
+          "metric": "excess",
+          "value": 0.0,
+          "weight": 0.25
+        }
+      ],
+      "policy": "cuts_to_3.40_then_hold",
+      "scenario": {
+        "coef.b_pi": 0.201059460088426,
+        "coef.b_y": 0.15117037489309226,
+        "coef.const": -0.07575670674076153,
+        "coef.rho": 0.8547122504549384,
+        "input.inflation_end": 2.2,
+        "input.inflation_start": 2.6,
+        "input.output_gap_end": 0.5,
+        "input.output_gap_start": 1.8,
+        "shock.q1": 0.0,
+        "shock.q2": 0.0,
+        "shock.q3": 0.0,
+        "shock.q4": 0.0,
+        "shock.q5": 0.0,
+        "shock.q6": 0.0,
+        "shock.q7": 0.0,
+        "shock.q8": 0.0
+      },
+      "schema": "worldmodel.decision_rollout/1",
+      "seed": 0,
+      "steps": 8,
+      "success": false,
+      "success_criteria": [
+        {
+          "aggregate": "max",
+          "id": "worst_quarter_shortfall",
+          "metric": "shortfall",
+          "observed": 1.0706869262199397,
+          "operator": "lte",
+          "passed": false,
+          "severity": 1.2827477048797586,
+          "threshold": 0.75
+        },
+        {
+          "aggregate": "sum",
+          "id": "total_shortfall",
+          "metric": "shortfall",
+          "observed": 5.941239184231133,
+          "operator": "lte",
+          "passed": false,
+          "severity": 7.882478368462266,
+          "threshold": 2.0
+        }
+      ],
+      "weighted_score": -4.45592938817335,
+      "worst_severity": 7.882478368462266
+    },
+    "hold_at_4.65": {
+      "constraints": [
+        {
+          "aggregate": "sum",
+          "id": "budget",
+          "metric": "action_cost",
+          "observed": 1.0196120872168937,
+          "operator": "lte",
+          "passed": true,
+          "severity": -0.8300646521305177,
+          "threshold": 6.0
+        }
+      ],
+      "contract": "monetary-treasury-stress",
+      "decision_maker": "org:example-treasury",
+      "does_not_establish": [
+        "Holdout forecast skill does not identify an intervention response: a validated mechanism forecast well on data it had not seen, conditional on realized inputs; it was never tested on what happens when someone intervenes.",
+        "No mechanism here is causally identified; estimates are reduced-form and labelled as such by their reports.",
+        "Declared bounds on uncertain inputs and assumed parameters are author statements, not probabilities or confidence sets.",
+        "A policy that does well under this environment is optimal (or robust) only for the environment's assumptions.",
+        "Inflation and output-gap paths are declared ranges, not forecasts; no validated mechanism forecasts them.",
+        "The initial state is the last first-release quarter in the fitted panel (2024Q4), not a live reading."
+      ],
+      "environment_return": -0.47435376192559686,
+      "failed": [],
+      "feasible": true,
+      "identities_enforced": [],
+      "label": {
+        "by_status": {
+          "assumed": [],
+          "estimated but not validated": [],
+          "validated": [
+            "policy_rate_reaction"
+          ]
+        },
+        "label": "conditional_on_validated_fitted_dynamics",
+        "text": "Validated forecast skill is not a validated counterfactual response. Every mechanism used passed its pre-registered holdout criteria, so the result is conditional on the fitted dynamics being right about responses they were only ever scored on forecasting.",
+        "unvalidated_mechanisms": []
+      },
+      "mechanisms_used": {
+        "policy_rate_reaction": {
+          "attempt": "monetary_model.fred_realtime_v2",
+          "binding": {
+            "assumed": [],
+            "bound_from_report": [
+              "elb",
+              "inflation_target",
+              "phi_pi",
+              "phi_y",
+              "policy_shock_sd",
+              "r_star",
+              "rho"
+            ]
+          },
+          "caveats": [
+            "current attempt monetary_model.cpi_okun_proxy_v2 on the same component fails beats_persistence_dm, no_revision_leakage (a different specification or series)",
+            "current attempt monetary_model.okun_unrate_realtime_v2 on the same component fails beats_persistence_dm, parameters_within_declared_bounds (a different specification or series)",
+            "scored at horizon 1 (native steps); rollouts iterate it for 8 quarters, and multi-step skill was never tested",
+            "scored conditional on realized inflation, output_gap; here they are scenario inputs, and forecasting them was never tested",
+            "holdout after 2014-12-31 through cutoff 2024-12-31; nothing says the fitted conduct persists outside that window"
+          ],
+          "component": "monetary_model_parameters",
+          "declared_status": "validated",
+          "mechanism": "policy_rate_reaction",
+          "reasons": [
+            "report re-verified and passes every declared criterion; attempt monetary_model.fred_realtime_v2 is current"
+          ],
+          "report_id": "9b6457990c9388d18745e4cf3e692efafced7f552dbfa892795df91d76f927ef",
+          "scope": {
+            "attempt": "monetary_model.fred_realtime_v2",
+            "conditional_inputs": [
+              "inflation",
+              "output_gap"
+            ],
+            "cutoff": "2024-12-31",
+            "data_inputs": [
+              {
+                "dataset": "fred_macro_panel",
+                "stage": "normalized",
+                "version": "7dcce89cb6e95530779f76504e0c29230b965310ce4e98180e8de3e4ec27f678"
+              },
+              {
+                "dataset": "fred_cpi",
+                "stage": "normalized",
+                "version": "34fe03f554da0743957878c02ee54b3460ce00f86082dc4e136589df507de2eb"
+              }
+            ],
+            "frequency": null,
+            "horizon": 1,
+            "interval_level": 0.8,
+            "train_end": "2007-12-31",
+            "validation_end": "2014-12-31"
+          },
+          "status": "validated",
+          "steps_used": 8,
+          "verified": true,
+          "version": "4b7e1066d4f43aceb644c8996f8145cab13d1ed17a6b5b7aaebd718917159e68"
+        }
+      },
+      "objectives": [
+        {
+          "aggregate": "sum",
+          "contribution": -0.06349766848753458,
+          "direction": "minimize",
+          "id": "under_reserved",
+          "metric": "shortfall",
+          "value": 0.08466355798337943,
+          "weight": 0.75
+        },
+        {
+          "aggregate": "sum",
+          "contribution": -0.4108560934380623,
+          "direction": "minimize",
+          "id": "idle_reserve",
+          "metric": "excess",
+          "value": 1.6434243737522491,
+          "weight": 0.25
+        }
+      ],
+      "policy": "hold_at_4.65",
+      "scenario": {
+        "coef.b_pi": 0.201059460088426,
+        "coef.b_y": 0.15117037489309226,
+        "coef.const": -0.07575670674076153,
+        "coef.rho": 0.8547122504549384,
+        "input.inflation_end": 2.2,
+        "input.inflation_start": 2.6,
+        "input.output_gap_end": 0.5,
+        "input.output_gap_start": 1.8,
+        "shock.q1": 0.0,
+        "shock.q2": 0.0,
+        "shock.q3": 0.0,
+        "shock.q4": 0.0,
+        "shock.q5": 0.0,
+        "shock.q6": 0.0,
+        "shock.q7": 0.0,
+        "shock.q8": 0.0
+      },
+      "schema": "worldmodel.decision_rollout/1",
+      "seed": 0,
+      "steps": 8,
+      "success": true,
+      "success_criteria": [
+        {
+          "aggregate": "max",
+          "id": "worst_quarter_shortfall",
+          "metric": "shortfall",
+          "observed": 0.04351652891217572,
+          "operator": "lte",
+          "passed": true,
+          "severity": -2.825933884351297,
+          "threshold": 0.75
+        },
+        {
+          "aggregate": "sum",
+          "id": "total_shortfall",
+          "metric": "shortfall",
+          "observed": 0.08466355798337943,
+          "operator": "lte",
+          "passed": true,
+          "severity": -3.830672884033241,
+          "threshold": 2.0
+        }
+      ],
+      "weighted_score": -0.47435376192559686,
+      "worst_severity": -0.8300646521305177
+    },
+    "last_rate_plus_50bp": {
+      "constraints": [
+        {
+          "aggregate": "sum",
+          "id": "budget",
+          "metric": "action_cost",
+          "observed": 4.0,
+          "operator": "lte",
+          "passed": true,
+          "severity": -0.3333333333333333,
+          "threshold": 6.0
+        }
+      ],
+      "contract": "monetary-treasury-stress",
+      "decision_maker": "org:example-treasury",
+      "does_not_establish": [
+        "Holdout forecast skill does not identify an intervention response: a validated mechanism forecast well on data it had not seen, conditional on realized inputs; it was never tested on what happens when someone intervenes.",
+        "No mechanism here is causally identified; estimates are reduced-form and labelled as such by their reports.",
+        "Declared bounds on uncertain inputs and assumed parameters are author statements, not probabilities or confidence sets.",
+        "A policy that does well under this environment is optimal (or robust) only for the environment's assumptions.",
+        "Inflation and output-gap paths are declared ranges, not forecasts; no validated mechanism forecasts them.",
+        "The initial state is the last first-release quarter in the fitted panel (2024Q4), not a live reading."
+      ],
+      "environment_return": -1.1559530716338389,
+      "failed": [],
+      "feasible": true,
+      "identities_enforced": [],
+      "label": {
+        "by_status": {
+          "assumed": [],
+          "estimated but not validated": [],
+          "validated": [
+            "policy_rate_reaction"
+          ]
+        },
+        "label": "conditional_on_validated_fitted_dynamics",
+        "text": "Validated forecast skill is not a validated counterfactual response. Every mechanism used passed its pre-registered holdout criteria, so the result is conditional on the fitted dynamics being right about responses they were only ever scored on forecasting.",
+        "unvalidated_mechanisms": []
+      },
+      "mechanisms_used": {
+        "policy_rate_reaction": {
+          "attempt": "monetary_model.fred_realtime_v2",
+          "binding": {
+            "assumed": [],
+            "bound_from_report": [
+              "elb",
+              "inflation_target",
+              "phi_pi",
+              "phi_y",
+              "policy_shock_sd",
+              "r_star",
+              "rho"
+            ]
+          },
+          "caveats": [
+            "current attempt monetary_model.cpi_okun_proxy_v2 on the same component fails beats_persistence_dm, no_revision_leakage (a different specification or series)",
+            "current attempt monetary_model.okun_unrate_realtime_v2 on the same component fails beats_persistence_dm, parameters_within_declared_bounds (a different specification or series)",
+            "scored at horizon 1 (native steps); rollouts iterate it for 8 quarters, and multi-step skill was never tested",
+            "scored conditional on realized inflation, output_gap; here they are scenario inputs, and forecasting them was never tested",
+            "holdout after 2014-12-31 through cutoff 2024-12-31; nothing says the fitted conduct persists outside that window"
+          ],
+          "component": "monetary_model_parameters",
+          "declared_status": "validated",
+          "mechanism": "policy_rate_reaction",
+          "reasons": [
+            "report re-verified and passes every declared criterion; attempt monetary_model.fred_realtime_v2 is current"
+          ],
+          "report_id": "9b6457990c9388d18745e4cf3e692efafced7f552dbfa892795df91d76f927ef",
+          "scope": {
+            "attempt": "monetary_model.fred_realtime_v2",
+            "conditional_inputs": [
+              "inflation",
+              "output_gap"
+            ],
+            "cutoff": "2024-12-31",
+            "data_inputs": [
+              {
+                "dataset": "fred_macro_panel",
+                "stage": "normalized",
+                "version": "7dcce89cb6e95530779f76504e0c29230b965310ce4e98180e8de3e4ec27f678"
+              },
+              {
+                "dataset": "fred_cpi",
+                "stage": "normalized",
+                "version": "34fe03f554da0743957878c02ee54b3460ce00f86082dc4e136589df507de2eb"
+              }
+            ],
+            "frequency": null,
+            "horizon": 1,
+            "interval_level": 0.8,
+            "train_end": "2007-12-31",
+            "validation_end": "2014-12-31"
+          },
+          "status": "validated",
+          "steps_used": 8,
+          "verified": true,
+          "version": "4b7e1066d4f43aceb644c8996f8145cab13d1ed17a6b5b7aaebd718917159e68"
+        }
+      },
+      "objectives": [
+        {
+          "aggregate": "sum",
+          "contribution": -0.0,
+          "direction": "minimize",
+          "id": "under_reserved",
+          "metric": "shortfall",
+          "value": 0.0,
+          "weight": 0.75
+        },
+        {
+          "aggregate": "sum",
+          "contribution": -1.1559530716338389,
+          "direction": "minimize",
+          "id": "idle_reserve",
+          "metric": "excess",
+          "value": 4.6238122865353555,
+          "weight": 0.25
+        }
+      ],
+      "policy": "last_rate_plus_50bp",
+      "scenario": {
+        "coef.b_pi": 0.201059460088426,
+        "coef.b_y": 0.15117037489309226,
+        "coef.const": -0.07575670674076153,
+        "coef.rho": 0.8547122504549384,
+        "input.inflation_end": 2.2,
+        "input.inflation_start": 2.6,
+        "input.output_gap_end": 0.5,
+        "input.output_gap_start": 1.8,
+        "shock.q1": 0.0,
+        "shock.q2": 0.0,
+        "shock.q3": 0.0,
+        "shock.q4": 0.0,
+        "shock.q5": 0.0,
+        "shock.q6": 0.0,
+        "shock.q7": 0.0,
+        "shock.q8": 0.0
+      },
+      "schema": "worldmodel.decision_rollout/1",
+      "seed": 0,
+      "steps": 8,
+      "success": true,
+      "success_criteria": [
+        {
+          "aggregate": "max",
+          "id": "worst_quarter_shortfall",
+          "metric": "shortfall",
+          "observed": 0.0,
+          "operator": "lte",
+          "passed": true,
+          "severity": -3.0,
+          "threshold": 0.75
+        },
+        {
+          "aggregate": "sum",
+          "id": "total_shortfall",
+          "metric": "shortfall",
+          "observed": 0.0,
+          "operator": "lte",
+          "passed": true,
+          "severity": -4.0,
+          "threshold": 2.0
+        }
+      ],
+      "weighted_score": -1.1559530716338389,
+      "worst_severity": -0.3333333333333333
+    }
+  }
+}

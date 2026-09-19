@@ -1,0 +1,61 @@
+{
+  "allowed": false,
+  "evidence_index": {
+    "dataset": "calibration_reports",
+    "plan_attempts": 63,
+    "reports": 75,
+    "source": "store",
+    "validated_processes": [
+      "assets_model",
+      "elections_model",
+      "legislative_model",
+      "monetary_model",
+      "resource_inventory"
+    ]
+  },
+  "mechanisms": {
+    "demand_response": {
+      "declared_status": "assumed",
+      "reasons": [
+        "declared assumed: its values are written in the contract or kernel configuration"
+      ],
+      "report_id": null,
+      "status": "assumed"
+    },
+    "loan_rate_pass_through": {
+      "declared_status": "validated",
+      "reasons": [
+        "report re-verified and passes every declared criterion; attempt interest_pass_through.fred_realtime_v2 is current"
+      ],
+      "report_id": "0ab6414b3656c052228d20850439b44eabc70f7c759f0a6b56057ea895bf5d4e",
+      "status": "validated"
+    },
+    "policy_rate_rule": {
+      "declared_status": "estimated but not validated",
+      "reasons": [
+        "estimated: parameters come from the cited report, which fails beats_persistence_dm"
+      ],
+      "report_id": "f188e4198071718485505af6edc2eb7a489a973178cfd20bb11ea620f306fe0e",
+      "status": "estimated but not validated"
+    },
+    "price_adjustment": {
+      "declared_status": "assumed",
+      "reasons": [
+        "declared assumed: its values are written in the contract or kernel configuration"
+      ],
+      "report_id": null,
+      "status": "assumed"
+    }
+  },
+  "reasons": [
+    "mechanism demand_response is assumed: declared assumed: its values are written in the contract or kernel configuration",
+    "mechanism policy_rate_rule is estimated but not validated: estimated: parameters come from the cited report, which fails beats_persistence_dm",
+    "mechanism price_adjustment is assumed: declared assumed: its values are written in the contract or kernel configuration",
+    "training scenarios are not drawn from observed data (no training-scenario source configured); an invented driver distribution is an assumed mechanism"
+  ],
+  "training_source": {
+    "observed": false,
+    "reason": "no training-scenario source configured",
+    "source": null
+  }
+}

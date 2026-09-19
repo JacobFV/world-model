@@ -1,0 +1,100 @@
+{
+  "schema": "worldmodel.decision_contract/1",
+  "id": "economy-firm-stress",
+  "title": "A firm's production and credit line in the synthetic commercial-bank economy",
+  "description": "One firm in the closed synthetic economy (worldmodel.coupled_economy) chooses a constant daily production quantity and credit line for 30 days. A household buys through lagged demand feedback; the policy rate follows a rule; the loan rate passes it through; quotes adjust to inventory. On day 10 unit costs and rate expectations shift. Every quantity is fictional; only two mechanisms carry estimated parameters, and one of those failed its holdout.",
+  "decision_maker": {
+    "id": "firm",
+    "role": "Owner-manager of the economy's only firm",
+    "description": "Fictional. Its production and borrowing move its own cash, the household's cash and the bank's book; they do not move the policy rate."
+  },
+  "environment": {
+    "kernel": "coupled_economy_firm",
+    "config": {
+      "firm": "firm",
+      "household": "worker",
+      "shock_day": 10,
+      "initial_state": {
+        "banks": [
+          {"id": "a", "reserves": 220, "equity": 200, "accounts": {"firm": 20}, "loans": {}},
+          {"id": "b", "reserves": 400, "equity": 200, "accounts": {"worker": 200}, "loans": {}}
+        ],
+        "firms": [{"id": "firm", "bank": "a", "worker": "worker", "inventory": 0, "capacity": 12, "unit_cost": 5}],
+        "households": [{"id": "worker", "bank": "b"}],
+        "mechanisms": {
+          "inventory_valuation": true,
+          "interest": {
+            "policy_rate": 0.04, "spread": 0.02, "pass_through": 1.0, "adjustment_speed": 1.0, "impact_pass_through": 0.0,
+            "day_count": 365, "duration_days": 1, "insufficient": "bankrupt",
+            "policy_rule": {"reference_rate": 0.04, "inflation_target": 0.02, "inflation_response": 1.5,
+                            "output_response": 0.5, "minimum_rate": 0, "maximum_rate": 0.25}
+          },
+          "price_feedback": {"initial_price": 8, "minimum_price": 4, "maximum_price": 20, "target_inventory": 6,
+                             "adjustment": 0.25, "unmet_demand_response": 0.1},
+          "demand_feedback": {"reference_price": 8, "elasticity": 1.0, "energy_response": 1.0, "rate_response": 1.0}
+        }
+      }
+    }
+  },
+  "actions": {
+    "production": {"type": "number", "unit": "goods_per_day", "minimum": 0, "maximum": 12,
+                   "description": "Goods ordered from the worker each day; rationed by cash, credit, capacity and labor."},
+    "credit_limit": {"type": "number", "unit": "USD", "minimum": 0, "maximum": 200,
+                     "description": "Credit line requested from bank a."}
+  },
+  "objectives": [
+    {"id": "cash_after_interest", "metric": "cash_surplus_after_interest", "aggregate": "sum", "direction": "maximize",
+     "weight": 0.7, "scale": 100},
+    {"id": "average_debt", "metric": "loan_principal", "aggregate": "mean", "direction": "minimize", "weight": 0.3, "scale": 100}
+  ],
+  "horizon": {"steps": 30, "step": "day"},
+  "success_criteria": [
+    {"id": "never_bankrupt", "metric": "bankrupt", "aggregate": "max", "operator": "lte", "value": 0, "scale": 1,
+     "description": "The firm never misses an interest payment (unpaid interest bankrupts it)."},
+    {"id": "solvent_at_end", "metric": "net_cash", "aggregate": "final", "operator": "gte", "value": 0, "scale": 50,
+     "description": "Deposits cover loan principal on day 30."},
+    {"id": "debt_ceiling", "metric": "loan_principal", "aggregate": "max", "operator": "lte", "value": 150, "scale": 50,
+     "description": "Borrowing never exceeds $150."}
+  ],
+  "mechanisms": {
+    "policy_rate_rule": {
+      "description": "Smoothed Taylor-type rule on daily inflation and output-gap inputs.",
+      "evidence": {"status": "estimated but not validated", "report_id": "f188e4198071718485505af6edc2eb7a489a973178cfd20bb11ea620f306fe0e",
+                   "component": "policy_rule", "attempt": "policy_rule.fred_realtime_v3",
+                   "note": "Fitted on quarterly first releases; fails beats_persistence_dm, so it has no demonstrated forecast edge over a random walk."}
+    },
+    "loan_rate_pass_through": {
+      "description": "Error-correction of the annual loan rate toward spread + pass_through * policy rate.",
+      "evidence": {"status": "validated", "report_id": "0ab6414b3656c052228d20850439b44eabc70f7c759f0a6b56057ea895bf5d4e",
+                   "component": "interest_pass_through", "attempt": "interest_pass_through.fred_realtime_v2",
+                   "note": "Prime rate on the federal funds rate, monthly; the estimate's per-month speed is carried to a daily step by the component's own conversion."}
+    },
+    "price_adjustment": {
+      "description": "Automatic quote from the inventory gap and lagged unmet demand.",
+      "evidence": {"status": "assumed",
+                   "note": "price_adjustment.eia_monthly estimates adjustment = -0.0035, outside this mechanism's [0, 1] and failing parameters_within_declared_bounds; it cannot be bound."}
+    },
+    "demand_response": {
+      "description": "Household demand scaled by (reference/price)^elasticity and lagged rate expectations.",
+      "evidence": {"status": "assumed",
+                   "note": "demand_price_elasticity.eia_monthly estimates elasticity = -0.124 (gasoline, wrong sign for this mechanism) and fails parameters_within_declared_bounds; it cannot be bound."}
+    }
+  },
+  "uncertain_inputs": {
+    "unit_cost_multiplier": {"unit": "ratio", "minimum": 0.8, "maximum": 2.0, "nominal": 1.0, "description": "Unit-cost shock applied on day 10."},
+    "household_demand": {"unit": "goods_per_day", "minimum": 1, "maximum": 8, "nominal": 4, "description": "Base daily purchase request before price and rate feedback."},
+    "inflation": {"unit": "fraction_per_year", "minimum": -0.02, "maximum": 0.1, "nominal": 0.02, "description": "Inflation input to the policy rule, every day."},
+    "output_gap": {"unit": "fraction", "minimum": -0.05, "maximum": 0.03, "nominal": 0.0, "description": "Output-gap input to the policy rule, every day."},
+    "expected_rate_change": {"unit": "fraction", "minimum": -0.1, "maximum": 0.3, "nominal": 0.0, "description": "Household rate expectation set on day 10; lowers demand the next day onward."}
+  },
+  "assumed_parameters": {
+    "demand_elasticity": {"mechanism": "demand_response", "unit": "dimensionless", "minimum": 0.2, "maximum": 2.5, "nominal": 1.0},
+    "rate_response": {"mechanism": "demand_response", "unit": "dimensionless", "minimum": 0.0, "maximum": 2.0, "nominal": 1.0},
+    "price_adjustment": {"mechanism": "price_adjustment", "unit": "fraction", "minimum": 0.05, "maximum": 0.6, "nominal": 0.25},
+    "unmet_demand_response": {"mechanism": "price_adjustment", "unit": "fraction", "minimum": 0.0, "maximum": 0.5, "nominal": 0.1}
+  },
+  "does_not_establish": [
+    "The economy has one firm, one household and two banks; its money, goods and prices are fictional.",
+    "A rate estimated on monthly US prime and federal funds data is applied to a fictional daily loan; the transfer is itself an assumption."
+  ]
+}

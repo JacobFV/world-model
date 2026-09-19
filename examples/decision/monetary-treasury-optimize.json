@@ -1,0 +1,50 @@
+{
+  "schema": "worldmodel.decision_contract/1",
+  "id": "monetary-treasury-optimize",
+  "title": "Treasury reserve margin learned on the fitted real-time Taylor rule",
+  "description": "The same fictional floating-rate treasury as monetary-treasury-stress, now choosing a reserve margin each quarter from what it observed last quarter. Episodes resample contiguous two-year blocks of the first-release quarters the validated attempt was fitted on, and draw policy shocks from the fitted residual distribution. The mechanism is validated; the treasury, its costs and its tolerance are invented.",
+  "decision_maker": {
+    "id": "org:example-treasury",
+    "role": "Treasury of a floating-rate borrower; takes the policy rate as given",
+    "description": "Fictional. Its reserve decision does not move the policy rate."
+  },
+  "environment": {
+    "kernel": "monetary_policy_rate",
+    "config": {
+      "initial": {"policy_rate": 4.65, "inflation": 2.58, "output_gap": 1.81},
+      "drivers": {"source": "historical_resample", "evaluation_from": "2015-01-01"}
+    }
+  },
+  "actions": {
+    "reserve_margin": {
+      "type": "number", "unit": "percentage_points", "minimum": -3.0, "maximum": 3.0,
+      "cost_per_unit": 1.0, "cost_basis": "positive_part", "cost_unit": "pp-quarters of reserved liquidity",
+      "description": "Reserve next quarter's interest at the last observed quarterly policy rate plus this margin."
+    }
+  },
+  "budget": {"limit": 6.0, "unit": "pp-quarters of reserved liquidity"},
+  "objectives": [
+    {"id": "under_reserved", "metric": "shortfall", "aggregate": "sum", "direction": "minimize", "weight": 0.75, "scale": 1.0},
+    {"id": "idle_reserve", "metric": "excess", "aggregate": "sum", "direction": "minimize", "weight": 0.25, "scale": 1.0}
+  ],
+  "horizon": {"steps": 8, "step": "quarter"},
+  "success_criteria": [
+    {"id": "worst_quarter_shortfall", "metric": "shortfall", "aggregate": "max", "operator": "lte", "value": 0.75, "scale": 0.25},
+    {"id": "total_shortfall", "metric": "shortfall", "aggregate": "sum", "operator": "lte", "value": 2.0, "scale": 0.5}
+  ],
+  "mechanisms": {
+    "policy_rate_reaction": {
+      "description": "Quarterly smoothed Taylor rule fitted to first-release FEDFUNDS, CPI and CBO output gap (monetary family).",
+      "evidence": {
+        "status": "validated",
+        "report_id": "9b6457990c9388d18745e4cf3e692efafced7f552dbfa892795df91d76f927ef",
+        "component": "monetary_model_parameters",
+        "attempt": "monetary_model.fred_realtime_v2"
+      }
+    }
+  },
+  "does_not_establish": [
+    "Training and evaluation episodes resample the same 1995-2024 first-release quarters the mechanism was fitted on; held-out seeds are held-out draws, not held-out history.",
+    "Resampling history assumes the next two years look like a block of the last thirty."
+  ]
+}

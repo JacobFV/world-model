@@ -1,0 +1,1038 @@
+{
+  "claim_type": "fragility",
+  "comparison": [
+    {
+      "drivers": [],
+      "nominal_success": true,
+      "policy": "last_rate_plus_50bp",
+      "random_failure_rate": 0.0,
+      "worst_severity": 3.155645904149887
+    },
+    {
+      "drivers": [],
+      "nominal_success": true,
+      "policy": "hold_at_4.65",
+      "random_failure_rate": 0.6706706706706707,
+      "worst_severity": 50.02974437229923
+    },
+    {
+      "drivers": [
+        "input.output_gap_start",
+        "input.output_gap_end",
+        "input.inflation_end"
+      ],
+      "nominal_success": false,
+      "policy": "cuts_to_3.40_then_hold",
+      "random_failure_rate": 0.6756756756756757,
+      "worst_severity": 52.70309845682472
+    },
+    {
+      "drivers": [
+        "input.output_gap_end",
+        "input.inflation_end",
+        "input.output_gap_start"
+      ],
+      "nominal_success": false,
+      "policy": "cuts_25bp_every_quarter",
+      "random_failure_rate": 0.7097097097097097,
+      "worst_severity": 52.70309845682472
+    }
+  ],
+  "contract": "monetary-treasury-stress",
+  "decision_maker": "org:example-treasury",
+  "dimensions": [
+    {
+      "high": 0.16229282816344737,
+      "kind": "estimated_uncertainty",
+      "low": -0.3138062416449704,
+      "name": "coef.const",
+      "nominal": -0.07575670674076153,
+      "source": "report 9b6457990c93...: joint Wald ellipsoid, radius 2, HC1 covariance"
+    },
+    {
+      "high": 0.9221578992922682,
+      "kind": "estimated_uncertainty",
+      "low": 0.7872666016176085,
+      "name": "coef.rho",
+      "nominal": 0.8547122504549384,
+      "source": "report 9b6457990c93...: joint Wald ellipsoid, radius 2, HC1 covariance"
+    },
+    {
+      "high": 0.26781640431792486,
+      "kind": "estimated_uncertainty",
+      "low": 0.13430251585892714,
+      "name": "coef.b_pi",
+      "nominal": 0.201059460088426,
+      "source": "report 9b6457990c93...: joint Wald ellipsoid, radius 2, HC1 covariance"
+    },
+    {
+      "high": 0.23865206585165777,
+      "kind": "estimated_uncertainty",
+      "low": 0.06368868393452676,
+      "name": "coef.b_y",
+      "nominal": 0.15117037489309226,
+      "source": "report 9b6457990c93...: joint Wald ellipsoid, radius 2, HC1 covariance"
+    },
+    {
+      "high": 4.5,
+      "kind": "uncertain_input",
+      "low": 1.5,
+      "name": "input.inflation_start",
+      "nominal": 2.6,
+      "source": "declared range"
+    },
+    {
+      "high": 6.0,
+      "kind": "uncertain_input",
+      "low": 0.5,
+      "name": "input.inflation_end",
+      "nominal": 2.2,
+      "source": "declared range"
+    },
+    {
+      "high": 3.0,
+      "kind": "uncertain_input",
+      "low": -3.0,
+      "name": "input.output_gap_start",
+      "nominal": 1.8,
+      "source": "declared range"
+    },
+    {
+      "high": 3.0,
+      "kind": "uncertain_input",
+      "low": -6.0,
+      "name": "input.output_gap_end",
+      "nominal": 0.5,
+      "source": "declared range"
+    },
+    {
+      "high": 1.2815515655446004,
+      "kind": "shock",
+      "low": -1.2815515655446004,
+      "name": "shock.q1",
+      "nominal": 0.0,
+      "source": "standardized policy shock within +/-1.28155 (the fitted rule's residual sd 0.457 scales it)"
+    },
+    {
+      "high": 1.2815515655446004,
+      "kind": "shock",
+      "low": -1.2815515655446004,
+      "name": "shock.q2",
+      "nominal": 0.0,
+      "source": "standardized policy shock within +/-1.28155 (the fitted rule's residual sd 0.457 scales it)"
+    },
+    {
+      "high": 1.2815515655446004,
+      "kind": "shock",
+      "low": -1.2815515655446004,
+      "name": "shock.q3",
+      "nominal": 0.0,
+      "source": "standardized policy shock within +/-1.28155 (the fitted rule's residual sd 0.457 scales it)"
+    },
+    {
+      "high": 1.2815515655446004,
+      "kind": "shock",
+      "low": -1.2815515655446004,
+      "name": "shock.q4",
+      "nominal": 0.0,
+      "source": "standardized policy shock within +/-1.28155 (the fitted rule's residual sd 0.457 scales it)"
+    },
+    {
+      "high": 1.2815515655446004,
+      "kind": "shock",
+      "low": -1.2815515655446004,
+      "name": "shock.q5",
+      "nominal": 0.0,
+      "source": "standardized policy shock within +/-1.28155 (the fitted rule's residual sd 0.457 scales it)"
+    },
+    {
+      "high": 1.2815515655446004,
+      "kind": "shock",
+      "low": -1.2815515655446004,
+      "name": "shock.q6",
+      "nominal": 0.0,
+      "source": "standardized policy shock within +/-1.28155 (the fitted rule's residual sd 0.457 scales it)"
+    },
+    {
+      "high": 1.2815515655446004,
+      "kind": "shock",
+      "low": -1.2815515655446004,
+      "name": "shock.q7",
+      "nominal": 0.0,
+      "source": "standardized policy shock within +/-1.28155 (the fitted rule's residual sd 0.457 scales it)"
+    },
+    {
+      "high": 1.2815515655446004,
+      "kind": "shock",
+      "low": -1.2815515655446004,
+      "name": "shock.q8",
+      "nominal": 0.0,
+      "source": "standardized policy shock within +/-1.28155 (the fitted rule's residual sd 0.457 scales it)"
+    }
+  ],
+  "does_not_establish": [
+    "Holdout forecast skill does not identify an intervention response: a validated mechanism forecast well on data it had not seen, conditional on realized inputs; it was never tested on what happens when someone intervenes.",
+    "No mechanism here is causally identified; estimates are reduced-form and labelled as such by their reports.",
+    "Declared bounds on uncertain inputs and assumed parameters are author statements, not probabilities or confidence sets.",
+    "A policy that does well under this environment is optimal (or robust) only for the environment's assumptions.",
+    "Inflation and output-gap paths are declared ranges, not forecasts; no validated mechanism forecasts them.",
+    "The initial state is the last first-release quarter in the fitted panel (2024Q4), not a live reading.",
+    "This is a fragility claim, not an optimality claim: it reports where supplied policies fail inside a declared box. It does not say any policy is best, and finding no failure is not evidence that none exists.",
+    "Failure rates are shares of uniform draws over declared bounds. The bounds are not a probability distribution, so a rate is not the chance of failure in the world."
+  ],
+  "failure_rates_are_not_probabilities": "Failure rates are shares of uniform draws over declared bounds. The bounds are not a probability distribution, so a rate is not the chance of failure in the world.",
+  "kernel": "monetary_policy_rate",
+  "label": {
+    "by_status": {
+      "assumed": [],
+      "estimated but not validated": [],
+      "validated": [
+        "policy_rate_reaction"
+      ]
+    },
+    "label": "conditional_on_validated_fitted_dynamics",
+    "text": "Validated forecast skill is not a validated counterfactual response. Every mechanism used passed its pre-registered holdout criteria, so the result is conditional on the fitted dynamics being right about responses they were only ever scored on forecasting.",
+    "unvalidated_mechanisms": []
+  },
+  "mechanisms": {
+    "policy_rate_reaction": {
+      "attempt": "monetary_model.fred_realtime_v2",
+      "binding": {
+        "assumed": [],
+        "bound_from_report": [
+          "elb",
+          "inflation_target",
+          "phi_pi",
+          "phi_y",
+          "policy_shock_sd",
+          "r_star",
+          "rho"
+        ]
+      },
+      "caveats": [
+        "current attempt monetary_model.cpi_okun_proxy_v2 on the same component fails beats_persistence_dm, no_revision_leakage (a different specification or series)",
+        "current attempt monetary_model.okun_unrate_realtime_v2 on the same component fails beats_persistence_dm, parameters_within_declared_bounds (a different specification or series)",
+        "scored at horizon 1 (native steps); rollouts iterate it for 8 quarters, and multi-step skill was never tested",
+        "scored conditional on realized inflation, output_gap; here they are scenario inputs, and forecasting them was never tested",
+        "holdout after 2014-12-31 through cutoff 2024-12-31; nothing says the fitted conduct persists outside that window"
+      ],
+      "component": "monetary_model_parameters",
+      "declared_status": "validated",
+      "mechanism": "policy_rate_reaction",
+      "reasons": [
+        "report re-verified and passes every declared criterion; attempt monetary_model.fred_realtime_v2 is current"
+      ],
+      "report_id": "9b6457990c9388d18745e4cf3e692efafced7f552dbfa892795df91d76f927ef",
+      "scope": {
+        "attempt": "monetary_model.fred_realtime_v2",
+        "conditional_inputs": [
+          "inflation",
+          "output_gap"
+        ],
+        "cutoff": "2024-12-31",
+        "data_inputs": [
+          {
+            "dataset": "fred_macro_panel",
+            "stage": "normalized",
+            "version": "7dcce89cb6e95530779f76504e0c29230b965310ce4e98180e8de3e4ec27f678"
+          },
+          {
+            "dataset": "fred_cpi",
+            "stage": "normalized",
+            "version": "34fe03f554da0743957878c02ee54b3460ce00f86082dc4e136589df507de2eb"
+          }
+        ],
+        "frequency": null,
+        "horizon": 1,
+        "interval_level": 0.8,
+        "train_end": "2007-12-31",
+        "validation_end": "2014-12-31"
+      },
+      "status": "validated",
+      "steps_used": 8,
+      "verified": true,
+      "version": "4b7e1066d4f43aceb644c8996f8145cab13d1ed17a6b5b7aaebd718917159e68"
+    }
+  },
+  "not_an_optimality_claim": "This is a fragility claim, not an optimality claim: it reports where supplied policies fail inside a declared box. It does not say any policy is best, and finding no failure is not evidence that none exists.",
+  "parameter_uncertainty": {
+    "method": "joint_wald_ellipsoid",
+    "radius": 2.0,
+    "refit_check": {
+      "max_relative_difference": 0.0,
+      "observations": 72,
+      "reproduced": true,
+      "se_type": "hc1"
+    },
+    "statement": "reduced-form coefficients within Mahalanobis distance 2 of the estimate under the HC1 covariance recomputed from the report's pinned inputs"
+  },
+  "policies": {
+    "cuts_25bp_every_quarter": {
+      "claim": "cuts_25bp_every_quarter: fails in 709 of 999 random draws (71%; budget 67, total_shortfall 614, worst_quarter_shortfall 623). It breaks when input.output_gap_end in [0, 3] and input.inflation_end in [4.17, 6]: 127 of 128 draws there fail (99%). It holds best when input.output_gap_end in [-6, -3] and input.inflation_end in [0.5, 2.33] (51% fail). The refined worst case violates worst_quarter_shortfall, total_shortfall by 52.7 scales.",
+      "nominal": {
+        "failed": [
+          "worst_quarter_shortfall",
+          "total_shortfall"
+        ],
+        "observed": {
+          "budget": 0.0,
+          "total_shortfall": 7.441239184231133,
+          "worst_quarter_shortfall": 1.376187713464645
+        },
+        "severity": 10.882478368462266,
+        "success": false
+      },
+      "random": {
+        "draws": 999,
+        "failure_rate": 0.7097097097097097,
+        "failures": 709
+      },
+      "refinement": {
+        "evaluations": 709,
+        "found_failure": true,
+        "worst_severity": 52.70309845682472
+      },
+      "regions": {
+        "driver_directions": {
+          "input.inflation_end": "higher",
+          "input.output_gap_end": "higher",
+          "input.output_gap_start": "higher"
+        },
+        "drivers": [
+          "input.output_gap_end",
+          "input.inflation_end",
+          "input.output_gap_start"
+        ],
+        "failure_rate": 0.7097097097097097,
+        "failures": 709,
+        "failures_by_criterion": {
+          "budget": 67,
+          "total_shortfall": 614,
+          "worst_quarter_shortfall": 623
+        },
+        "per_dimension": [
+          {
+            "bins": null,
+            "dimension": "input.output_gap_end",
+            "fails_more_when": "higher",
+            "kind": "uncertain_input",
+            "spread": 0.4024846579853315
+          },
+          {
+            "bins": null,
+            "dimension": "input.inflation_end",
+            "fails_more_when": "higher",
+            "kind": "uncertain_input",
+            "spread": 0.31388821088601415
+          },
+          {
+            "bins": null,
+            "dimension": "input.output_gap_start",
+            "fails_more_when": "higher",
+            "kind": "uncertain_input",
+            "spread": 0.30189829327760365
+          },
+          {
+            "bins": null,
+            "dimension": "input.inflation_start",
+            "fails_more_when": "higher",
+            "kind": "uncertain_input",
+            "spread": 0.2345071560687414
+          },
+          {
+            "bins": null,
+            "dimension": "shock.q1",
+            "fails_more_when": "higher",
+            "kind": "shock",
+            "spread": 0.13655353706050788
+          },
+          {
+            "bins": null,
+            "dimension": "shock.q3",
+            "fails_more_when": "higher",
+            "kind": "shock",
+            "spread": 0.11409677419354836
+          }
+        ],
+        "safest_cell": {
+          "dimensions": {
+            "input.inflation_end": [
+              0.5,
+              2.333333333333333
+            ],
+            "input.output_gap_end": [
+              -6.0,
+              -3.0
+            ]
+          },
+          "failure_rate": 0.509090909090909,
+          "failures": 56,
+          "samples": 110
+        },
+        "samples": 999,
+        "worst_cell": {
+          "dimensions": {
+            "input.inflation_end": [
+              4.166666666666666,
+              6.0
+            ],
+            "input.output_gap_end": [
+              0.0,
+              3.0
+            ]
+          },
+          "failure_rate": 0.9921875,
+          "failures": 127,
+          "samples": 128
+        }
+      },
+      "worst_cases": [
+        {
+          "at_bounds": {
+            "input.inflation_end": "maximum",
+            "input.inflation_start": "maximum",
+            "input.output_gap_end": "maximum",
+            "input.output_gap_start": "maximum",
+            "shock.q1": "maximum",
+            "shock.q2": "maximum",
+            "shock.q3": "maximum",
+            "shock.q4": "maximum",
+            "shock.q5": "maximum",
+            "shock.q6": "maximum",
+            "shock.q7": "maximum",
+            "shock.q8": "maximum"
+          },
+          "failed": [
+            "worst_quarter_shortfall",
+            "total_shortfall"
+          ],
+          "observed": {
+            "budget": 0.0,
+            "total_shortfall": 28.35154922841236,
+            "worst_quarter_shortfall": 4.1305185083122655
+          },
+          "point": {
+            "coef.b_pi": 0.21811574443681409,
+            "coef.b_y": 0.15331804780308894,
+            "coef.const": -0.16883972445163203,
+            "coef.rho": 0.8859296962191439,
+            "input.inflation_end": 6.0,
+            "input.inflation_start": 4.5,
+            "input.output_gap_end": 3.0,
+            "input.output_gap_start": 3.0,
+            "shock.q1": 1.2815515655446004,
+            "shock.q2": 1.2815515655446004,
+            "shock.q3": 1.2815515655446004,
+            "shock.q4": 1.2815515655446004,
+            "shock.q5": 1.2815515655446004,
+            "shock.q6": 1.2815515655446004,
+            "shock.q7": 1.2815515655446004,
+            "shock.q8": 1.2815515655446004
+          },
+          "severity": 52.70309845682472
+        },
+        {
+          "at_bounds": {
+            "input.inflation_end": "maximum",
+            "input.inflation_start": "maximum",
+            "input.output_gap_end": "maximum",
+            "input.output_gap_start": "maximum",
+            "shock.q1": "maximum",
+            "shock.q2": "maximum",
+            "shock.q3": "maximum",
+            "shock.q4": "maximum",
+            "shock.q5": "maximum",
+            "shock.q6": "maximum",
+            "shock.q7": "maximum",
+            "shock.q8": "maximum"
+          },
+          "failed": [
+            "worst_quarter_shortfall",
+            "total_shortfall"
+          ],
+          "observed": {
+            "budget": 0.0,
+            "total_shortfall": 28.18189010679382,
+            "worst_quarter_shortfall": 4.117752876759003
+          },
+          "point": {
+            "coef.b_pi": 0.22832649495405097,
+            "coef.b_y": 0.1616190032282354,
+            "coef.const": -0.1433856627835227,
+            "coef.rho": 0.870710245266107,
+            "input.inflation_end": 6.0,
+            "input.inflation_start": 4.5,
+            "input.output_gap_end": 3.0,
+            "input.output_gap_start": 3.0,
+            "shock.q1": 1.2815515655446004,
+            "shock.q2": 1.2815515655446004,
+            "shock.q3": 1.2815515655446004,
+            "shock.q4": 1.2815515655446004,
+            "shock.q5": 1.2815515655446004,
+            "shock.q6": 1.2815515655446004,
+            "shock.q7": 1.2815515655446004,
+            "shock.q8": 1.2815515655446004
+          },
+          "severity": 52.36378021358764
+        }
+      ]
+    },
+    "cuts_to_3.40_then_hold": {
+      "claim": "cuts_to_3.40_then_hold: fails in 675 of 999 random draws (68%; budget 93, total_shortfall 561, worst_quarter_shortfall 550). It breaks when input.output_gap_start in [1, 3] and input.output_gap_end in [0, 3]: 117 of 119 draws there fail (98%). It holds best when input.output_gap_start in [-3, -1] and input.output_gap_end in [-3, 0] (43% fail). The refined worst case violates worst_quarter_shortfall, total_shortfall by 52.7 scales.",
+      "nominal": {
+        "failed": [
+          "worst_quarter_shortfall",
+          "total_shortfall"
+        ],
+        "observed": {
+          "budget": 0.0,
+          "total_shortfall": 5.941239184231133,
+          "worst_quarter_shortfall": 1.0706869262199397
+        },
+        "severity": 7.882478368462266,
+        "success": false
+      },
+      "random": {
+        "draws": 999,
+        "failure_rate": 0.6756756756756757,
+        "failures": 675
+      },
+      "refinement": {
+        "evaluations": 872,
+        "found_failure": true,
+        "worst_severity": 52.70309845682472
+      },
+      "regions": {
+        "driver_directions": {
+          "input.inflation_end": "higher",
+          "input.output_gap_end": "higher",
+          "input.output_gap_start": "higher"
+        },
+        "drivers": [
+          "input.output_gap_start",
+          "input.output_gap_end",
+          "input.inflation_end"
+        ],
+        "failure_rate": 0.6756756756756757,
+        "failures": 675,
+        "failures_by_criterion": {
+          "budget": 93,
+          "total_shortfall": 561,
+          "worst_quarter_shortfall": 550
+        },
+        "per_dimension": [
+          {
+            "bins": null,
+            "dimension": "input.output_gap_start",
+            "fails_more_when": "higher",
+            "kind": "uncertain_input",
+            "spread": 0.3532466223028836
+          },
+          {
+            "bins": null,
+            "dimension": "input.output_gap_end",
+            "fails_more_when": "higher",
+            "kind": "uncertain_input",
+            "spread": 0.32828917826672643
+          },
+          {
+            "bins": null,
+            "dimension": "input.inflation_end",
+            "fails_more_when": "higher",
+            "kind": "uncertain_input",
+            "spread": 0.24676592628752747
+          },
+          {
+            "bins": null,
+            "dimension": "input.inflation_start",
+            "fails_more_when": "higher",
+            "kind": "uncertain_input",
+            "spread": 0.23342970531721952
+          },
+          {
+            "bins": null,
+            "dimension": "coef.rho",
+            "fails_more_when": "higher",
+            "kind": "estimated_uncertainty",
+            "spread": 0.20723684210526316
+          },
+          {
+            "bins": null,
+            "dimension": "shock.q1",
+            "fails_more_when": "higher",
+            "kind": "shock",
+            "spread": 0.15583094712794754
+          }
+        ],
+        "safest_cell": {
+          "dimensions": {
+            "input.output_gap_end": [
+              -3.0,
+              0.0
+            ],
+            "input.output_gap_start": [
+              -3.0,
+              -1.0
+            ]
+          },
+          "failure_rate": 0.4339622641509434,
+          "failures": 46,
+          "samples": 106
+        },
+        "samples": 999,
+        "worst_cell": {
+          "dimensions": {
+            "input.output_gap_end": [
+              0.0,
+              3.0
+            ],
+            "input.output_gap_start": [
+              1.0,
+              3.0
+            ]
+          },
+          "failure_rate": 0.9831932773109243,
+          "failures": 117,
+          "samples": 119
+        }
+      },
+      "worst_cases": [
+        {
+          "at_bounds": {
+            "input.inflation_end": "maximum",
+            "input.inflation_start": "maximum",
+            "input.output_gap_end": "maximum",
+            "input.output_gap_start": "maximum",
+            "shock.q1": "maximum",
+            "shock.q2": "maximum",
+            "shock.q3": "maximum",
+            "shock.q4": "maximum",
+            "shock.q5": "maximum",
+            "shock.q6": "maximum",
+            "shock.q7": "maximum",
+            "shock.q8": "maximum"
+          },
+          "failed": [
+            "worst_quarter_shortfall",
+            "total_shortfall"
+          ],
+          "observed": {
+            "budget": 0.0,
+            "total_shortfall": 28.35154922841236,
+            "worst_quarter_shortfall": 4.1305185083122655
+          },
+          "point": {
+            "coef.b_pi": 0.21811574443681409,
+            "coef.b_y": 0.15331804780308894,
+            "coef.const": -0.16883972445163203,
+            "coef.rho": 0.8859296962191439,
+            "input.inflation_end": 6.0,
+            "input.inflation_start": 4.5,
+            "input.output_gap_end": 3.0,
+            "input.output_gap_start": 3.0,
+            "shock.q1": 1.2815515655446004,
+            "shock.q2": 1.2815515655446004,
+            "shock.q3": 1.2815515655446004,
+            "shock.q4": 1.2815515655446004,
+            "shock.q5": 1.2815515655446004,
+            "shock.q6": 1.2815515655446004,
+            "shock.q7": 1.2815515655446004,
+            "shock.q8": 1.2815515655446004
+          },
+          "severity": 52.70309845682472
+        },
+        {
+          "at_bounds": {
+            "input.inflation_end": "maximum",
+            "input.inflation_start": "maximum",
+            "input.output_gap_end": "maximum",
+            "input.output_gap_start": "maximum",
+            "shock.q1": "maximum",
+            "shock.q2": "maximum",
+            "shock.q3": "maximum",
+            "shock.q4": "maximum",
+            "shock.q5": "maximum",
+            "shock.q6": "maximum",
+            "shock.q7": "maximum",
+            "shock.q8": "maximum"
+          },
+          "failed": [
+            "worst_quarter_shortfall",
+            "total_shortfall"
+          ],
+          "observed": {
+            "budget": 0.0,
+            "total_shortfall": 27.852271087778377,
+            "worst_quarter_shortfall": 4.083101078255863
+          },
+          "point": {
+            "coef.b_pi": 0.2073813066263173,
+            "coef.b_y": 0.16988024468857732,
+            "coef.const": -0.07784934077639748,
+            "coef.rho": 0.866754056837343,
+            "input.inflation_end": 6.0,
+            "input.inflation_start": 4.5,
+            "input.output_gap_end": 3.0,
+            "input.output_gap_start": 3.0,
+            "shock.q1": 1.2815515655446004,
+            "shock.q2": 1.2815515655446004,
+            "shock.q3": 1.2815515655446004,
+            "shock.q4": 1.2815515655446004,
+            "shock.q5": 1.2815515655446004,
+            "shock.q6": 1.2815515655446004,
+            "shock.q7": 1.2815515655446004,
+            "shock.q8": 1.2815515655446004
+          },
+          "severity": 51.70454217555675
+        }
+      ]
+    },
+    "hold_at_4.65": {
+      "claim": "hold_at_4.65: fails in 670 of 999 random draws (67%; budget 414, total_shortfall 227, worst_quarter_shortfall 248). No single dimension separates failing from passing draws at this sample size. The refined worst case violates worst_quarter_shortfall, total_shortfall by 50 scales.",
+      "nominal": {
+        "failed": [],
+        "observed": {
+          "budget": 1.0196120872168937,
+          "total_shortfall": 0.08466355798337943,
+          "worst_quarter_shortfall": 0.04351652891217572
+        },
+        "severity": -0.8300646521305177,
+        "success": true
+      },
+      "random": {
+        "draws": 999,
+        "failure_rate": 0.6706706706706707,
+        "failures": 670
+      },
+      "refinement": {
+        "evaluations": 821,
+        "found_failure": true,
+        "worst_severity": 50.02974437229923
+      },
+      "regions": {
+        "driver_directions": {},
+        "drivers": [],
+        "failure_rate": 0.6706706706706707,
+        "failures": 670,
+        "failures_by_criterion": {
+          "budget": 414,
+          "total_shortfall": 227,
+          "worst_quarter_shortfall": 248
+        },
+        "per_dimension": [
+          {
+            "bins": null,
+            "dimension": "coef.b_pi",
+            "fails_more_when": "higher",
+            "kind": "estimated_uncertainty",
+            "spread": 0.1696808510638298
+          },
+          {
+            "bins": null,
+            "dimension": "input.output_gap_end",
+            "fails_more_when": "lower",
+            "kind": "uncertain_input",
+            "spread": 0.16738512198772637
+          },
+          {
+            "bins": null,
+            "dimension": "input.output_gap_start",
+            "fails_more_when": "lower",
+            "kind": "uncertain_input",
+            "spread": 0.15539541759053954
+          },
+          {
+            "bins": null,
+            "dimension": "coef.b_y",
+            "fails_more_when": "higher",
+            "kind": "estimated_uncertainty",
+            "spread": 0.12539492784561523
+          },
+          {
+            "bins": null,
+            "dimension": "shock.q4",
+            "fails_more_when": "lower",
+            "kind": "shock",
+            "spread": 0.1111761644548529
+          },
+          {
+            "bins": null,
+            "dimension": "shock.q6",
+            "fails_more_when": "lower",
+            "kind": "shock",
+            "spread": 0.1034090909090909
+          }
+        ],
+        "safest_cell": null,
+        "samples": 999,
+        "worst_cell": null
+      },
+      "worst_cases": [
+        {
+          "at_bounds": {
+            "input.inflation_end": "maximum",
+            "input.inflation_start": "maximum",
+            "input.output_gap_end": "maximum",
+            "input.output_gap_start": "maximum",
+            "shock.q1": "maximum",
+            "shock.q2": "maximum",
+            "shock.q3": "maximum",
+            "shock.q4": "maximum",
+            "shock.q5": "maximum",
+            "shock.q6": "maximum",
+            "shock.q7": "maximum",
+            "shock.q8": "maximum"
+          },
+          "failed": [
+            "worst_quarter_shortfall",
+            "total_shortfall"
+          ],
+          "observed": {
+            "budget": 0.0,
+            "total_shortfall": 27.014872186149613,
+            "worst_quarter_shortfall": 4.023148048032072
+          },
+          "point": {
+            "coef.b_pi": 0.22935874104976106,
+            "coef.b_y": 0.15920581329654293,
+            "coef.const": -0.14594588710480005,
+            "coef.rho": 0.8713158801568972,
+            "input.inflation_end": 6.0,
+            "input.inflation_start": 4.5,
+            "input.output_gap_end": 3.0,
+            "input.output_gap_start": 3.0,
+            "shock.q1": 1.2815515655446004,
+            "shock.q2": 1.2815515655446004,
+            "shock.q3": 1.2815515655446004,
+            "shock.q4": 1.2815515655446004,
+            "shock.q5": 1.2815515655446004,
+            "shock.q6": 1.2815515655446004,
+            "shock.q7": 1.2815515655446004,
+            "shock.q8": 1.2815515655446004
+          },
+          "severity": 50.02974437229923
+        },
+        {
+          "at_bounds": {
+            "input.inflation_end": "maximum",
+            "input.inflation_start": "maximum",
+            "input.output_gap_end": "maximum",
+            "input.output_gap_start": "maximum",
+            "shock.q1": "maximum",
+            "shock.q2": "maximum",
+            "shock.q3": "maximum",
+            "shock.q4": "maximum",
+            "shock.q5": "maximum",
+            "shock.q6": "maximum",
+            "shock.q7": "maximum",
+            "shock.q8": "maximum"
+          },
+          "failed": [
+            "worst_quarter_shortfall",
+            "total_shortfall"
+          ],
+          "observed": {
+            "budget": 0.0,
+            "total_shortfall": 26.744290560504453,
+            "worst_quarter_shortfall": 3.9896410237357998
+          },
+          "point": {
+            "coef.b_pi": 0.2165239999991805,
+            "coef.b_y": 0.17415349127042148,
+            "coef.const": -0.09347440084154525,
+            "coef.rho": 0.8629284133452769,
+            "input.inflation_end": 6.0,
+            "input.inflation_start": 4.5,
+            "input.output_gap_end": 3.0,
+            "input.output_gap_start": 3.0,
+            "shock.q1": 1.2815515655446004,
+            "shock.q2": 1.2815515655446004,
+            "shock.q3": 1.2815515655446004,
+            "shock.q4": 1.2815515655446004,
+            "shock.q5": 1.2815515655446004,
+            "shock.q6": 1.2815515655446004,
+            "shock.q7": 1.2815515655446004,
+            "shock.q8": 1.2815515655446004
+          },
+          "severity": 49.488581121008906
+        }
+      ]
+    },
+    "last_rate_plus_50bp": {
+      "claim": "last_rate_plus_50bp: fails in 0 of 999 random draws (0%). The refined worst case violates worst_quarter_shortfall by 3.16 scales.",
+      "nominal": {
+        "failed": [],
+        "observed": {
+          "budget": 4.0,
+          "total_shortfall": 0.0,
+          "worst_quarter_shortfall": 0.0
+        },
+        "severity": -0.3333333333333333,
+        "success": true
+      },
+      "random": {
+        "draws": 999,
+        "failure_rate": 0.0,
+        "failures": 0
+      },
+      "refinement": {
+        "evaluations": 756,
+        "found_failure": true,
+        "worst_severity": 3.155645904149887
+      },
+      "regions": {
+        "driver_directions": {},
+        "drivers": [],
+        "failure_rate": 0.0,
+        "failures": 0,
+        "failures_by_criterion": {},
+        "per_dimension": [
+          {
+            "bins": null,
+            "dimension": "coef.b_pi",
+            "fails_more_when": "none",
+            "kind": "estimated_uncertainty",
+            "spread": 0.0
+          },
+          {
+            "bins": null,
+            "dimension": "coef.b_y",
+            "fails_more_when": "none",
+            "kind": "estimated_uncertainty",
+            "spread": 0.0
+          },
+          {
+            "bins": null,
+            "dimension": "coef.const",
+            "fails_more_when": "none",
+            "kind": "estimated_uncertainty",
+            "spread": 0.0
+          },
+          {
+            "bins": null,
+            "dimension": "coef.rho",
+            "fails_more_when": "none",
+            "kind": "estimated_uncertainty",
+            "spread": 0.0
+          },
+          {
+            "bins": null,
+            "dimension": "input.inflation_end",
+            "fails_more_when": "none",
+            "kind": "uncertain_input",
+            "spread": 0.0
+          },
+          {
+            "bins": null,
+            "dimension": "input.inflation_start",
+            "fails_more_when": "none",
+            "kind": "uncertain_input",
+            "spread": 0.0
+          }
+        ],
+        "safest_cell": null,
+        "samples": 999,
+        "worst_cell": null
+      },
+      "worst_cases": [
+        {
+          "at_bounds": {
+            "input.inflation_end": "maximum",
+            "input.inflation_start": "minimum",
+            "input.output_gap_end": "maximum",
+            "input.output_gap_start": "minimum",
+            "shock.q1": "minimum",
+            "shock.q2": "minimum",
+            "shock.q3": "minimum",
+            "shock.q4": "minimum",
+            "shock.q5": "minimum",
+            "shock.q6": "minimum",
+            "shock.q7": "minimum",
+            "shock.q8": "maximum"
+          },
+          "failed": [
+            "worst_quarter_shortfall"
+          ],
+          "observed": {
+            "budget": 4.0,
+            "total_shortfall": 1.6925923127884928,
+            "worst_quarter_shortfall": 1.5389114760374718
+          },
+          "point": {
+            "coef.b_pi": 0.2110115178225756,
+            "coef.b_y": 0.20150472438154687,
+            "coef.const": -0.09560284924621451,
+            "coef.rho": 0.8548514723841514,
+            "input.inflation_end": 6.0,
+            "input.inflation_start": 1.5,
+            "input.output_gap_end": 3.0,
+            "input.output_gap_start": -3.0,
+            "shock.q1": -1.2815515655446004,
+            "shock.q2": -1.2815515655446004,
+            "shock.q3": -1.2815515655446004,
+            "shock.q4": -1.2815515655446004,
+            "shock.q5": -1.2815515655446004,
+            "shock.q6": -1.2815515655446004,
+            "shock.q7": -1.2815515655446004,
+            "shock.q8": 1.2815515655446004
+          },
+          "severity": 3.155645904149887
+        },
+        {
+          "at_bounds": {
+            "input.inflation_end": "maximum",
+            "input.inflation_start": "minimum",
+            "input.output_gap_end": "maximum",
+            "input.output_gap_start": "minimum",
+            "shock.q1": "minimum",
+            "shock.q2": "minimum",
+            "shock.q3": "minimum",
+            "shock.q4": "minimum",
+            "shock.q5": "minimum",
+            "shock.q6": "minimum",
+            "shock.q7": "minimum",
+            "shock.q8": "maximum"
+          },
+          "failed": [
+            "worst_quarter_shortfall"
+          ],
+          "observed": {
+            "budget": 4.0,
+            "total_shortfall": 1.6598800148995685,
+            "worst_quarter_shortfall": 1.5208221983717372
+          },
+          "point": {
+            "coef.b_pi": 0.2065197236330842,
+            "coef.b_y": 0.19836008669620192,
+            "coef.const": -0.07566196544994337,
+            "coef.rho": 0.8548424253342073,
+            "input.inflation_end": 6.0,
+            "input.inflation_start": 1.5,
+            "input.output_gap_end": 3.0,
+            "input.output_gap_start": -3.0,
+            "shock.q1": -1.2815515655446004,
+            "shock.q2": -1.2815515655446004,
+            "shock.q3": -1.2815515655446004,
+            "shock.q4": -1.2815515655446004,
+            "shock.q5": -1.2815515655446004,
+            "shock.q6": -1.2815515655446004,
+            "shock.q7": -1.2815515655446004,
+            "shock.q8": 1.2815515655446004
+          },
+          "severity": 3.0832887934869486
+        }
+      ]
+    }
+  },
+  "schema": "worldmodel.decision_fragility/1",
+  "search": {
+    "bins": 4,
+    "evaluations_per_policy": 2000,
+    "method": "uniform random search plus coordinate pattern search from the worst draws",
+    "min_bin_samples": 8,
+    "random_draws": 999,
+    "refinement_budget": 1000,
+    "refinement_starts": 4,
+    "seed": 7
+  }
+}

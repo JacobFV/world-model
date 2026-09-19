@@ -1,0 +1,9 @@
+{
+  "hold_at_4.65": {"kind": "target_path", "action": "reserve_margin", "observation": "policy_rate",
+                   "path": [4.65, 4.65, 4.65, 4.65, 4.65, 4.65, 4.65, 4.65]},
+  "cuts_25bp_every_quarter": {"kind": "target_path", "action": "reserve_margin", "observation": "policy_rate",
+                              "path": [4.40, 4.15, 3.90, 3.65, 3.40, 3.15, 2.90, 2.65]},
+  "cuts_to_3.40_then_hold": {"kind": "target_path", "action": "reserve_margin", "observation": "policy_rate",
+                             "path": [4.40, 4.15, 3.90, 3.65, 3.40, 3.40, 3.40, 3.40]},
+  "last_rate_plus_50bp": {"kind": "constant", "actions": {"reserve_margin": 0.5}}
+}
