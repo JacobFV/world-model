@@ -27,6 +27,7 @@ Three rules shape the implementation:
 ``requirement`` names the series in ``requirements.json``. Values are multiplied
 by ``scale`` when the publisher's unit differs from the requirement's unit.
 """
+from copy import deepcopy
 from dataclasses import dataclass
 from datetime import date, timedelta
 import gzip
@@ -351,6 +352,30 @@ DEPOSIT_RATE_SUBSTITUTES = {
     # The weighted average rate paid on the deposit components of M2 (Board of Governors).
     'M2OWN': ('m2_own_rate', 'fred_deposit_rates'),
 }
+
+
+DEFAULT_HAZARD_SUBSTITUTES = {
+    # requirements.json names this as the business-loan alternative to DRCCLACBS. The simulator
+    # hook the component binds to draws FIRM defaults, and this is the one FRED delinquency
+    # series on business borrowers; it carries ALFRED vintages from 2011-05 like DRCCLACBS.
+    'DRBLACBS': 'business_loan_delinquency_rate',
+}
+
+
+def default_hazard_series_data(store, *, series_id, versions=None, estimator=None):
+    """``default_hazard`` with a different real-time FRED delinquency series in place of DRCCLACBS.
+
+    Unemployment (UNRATE) and the policy rate (DFF) are the declared series. The delinquency
+    series is a *different estimand* from the declared credit-card rate, and the attempt that
+    uses it declares that in its overrides, as the FDIC substitution did.
+    """
+    if series_id not in DEFAULT_HAZARD_SUBSTITUTES:
+        raise MissingData(f'Unknown default_hazard delinquency substitute {series_id!r}; '
+                          f'known: {sorted(DEFAULT_HAZARD_SUBSTITUTES)}')
+    declared = {source.requirement: source for source in COMPONENT_SOURCES['default_hazard']}
+    sources = (panel('delinquency_rate', series_id, DEFAULT_HAZARD_SUBSTITUTES[series_id], 'percent'),
+               declared['unemployment_rate'], declared['policy_rate'])
+    return observation_set('default_hazard', store, sources=sources, versions=versions, estimator=estimator)
 
 
 def population_popthm_data(store, *, versions=None, estimator=None):
@@ -1795,6 +1820,103 @@ def elections_data(store, *, start_year=2000, end_year=2024, lean_lookback=3, ec
     return data, evidence.reference()
 
 
+#: Voteview position groups mapped onto the family's yea/nay coding (cast codes 1-3 yea, 4-6 nay;
+#: ``present``, ``not_voting`` and ``not_member`` are missing), as in ``legislative.from_voteview``.
+VOTEVIEW_YEA = ('yea', 'paired_yea', 'announced_yea')
+VOTEVIEW_NAY = ('announced_nay', 'paired_nay', 'nay')
+
+
+def legislative_data(store, *, congress=117, chamber='Senate', dimensions=1, anchors=None, holdout_revealed_members=None, versions=None):
+    """One chamber-Congress of Voteview member positions as the ``legislative`` fit mapping.
+
+    Roll calls are keyed ``congress:chamber:rollnumber`` and dated by the vote
+    (``occurred_at``); members are ICPSR ids with the party code of their
+    ``congressional_service`` in that chamber-Congress. A member who votes but has no
+    service assertion is kept with no party (the discipline signal is then zero for
+    them), and the count is reported.
+    """
+    congress = int(congress)
+    if chamber not in ('House', 'Senate'):
+        raise ValueError('chamber must be House or Senate')
+    ref = catalog_ref(store, 'voteview_rollcalls', DEFAULT_STAGE, (versions or {}).get('voteview_rollcalls'))
+    evidence = Evidence()
+    rollcalls, votes, parties = [], [], {}
+    for record in stream_records(store, ref, needles=('"event_type":"roll_call_member_positions"',
+                                                      '"predicate":"congressional_service"')):
+        attributes = record.get('attributes') or {}
+        if record.get('kind') == 'assertion' and record.get('predicate') == 'congressional_service':
+            value = record.get('value') or {}
+            if value.get('congress') != congress or value.get('chamber') != chamber:
+                continue
+            member = str(record.get('subject', '')).split(':', 1)[-1]
+            parties.setdefault(member, set()).add(str(value.get('party_code')))
+            evidence.add(ref, record.get('id'), 'service')
+            continue
+        if record.get('event_type') != 'roll_call_member_positions':
+            continue
+        if attributes.get('congress') != congress or attributes.get('chamber') != chamber:
+            continue
+        call = f"{congress}:{chamber}:{attributes['rollnumber']}"
+        rollcalls.append({'id': call, 'date': str(record['occurred_at'])[:10]})
+        positions = attributes.get('positions') or {}
+        for groups, value in ((VOTEVIEW_YEA, 1), (VOTEVIEW_NAY, 0)):
+            for group in groups:
+                for member in positions.get(group) or ():
+                    votes.append({'member': str(member), 'rollcall': call, 'vote': value})
+        evidence.add(ref, record.get('id'), 'rollcall_positions')
+    if not rollcalls:
+        raise MissingData(f'No roll_call_member_positions for Congress {congress} {chamber} in voteview_rollcalls')
+    voters = {v['member'] for v in votes}
+    multi = sorted(m for m, codes in parties.items() if len(codes) > 1)
+    members = [{'id': m, 'party': sorted(parties[m])[0] if m in parties else None} for m in sorted(voters | set(parties))]
+    options = {'dimensions': int(dimensions)}
+    if anchors:
+        options['anchors'] = list(anchors)
+    if holdout_revealed_members is not None:
+        options['holdout_revealed_members'] = list(holdout_revealed_members)
+    rollcalls.sort(key=lambda r: (r['date'], int(r['id'].rsplit(':', 1)[1])))
+    data = {'members': members, 'rollcalls': rollcalls, 'votes': votes, 'options': options,
+            'information_time': 'valid_time', 'revisions': 'none',
+            'construction': {'congress': congress, 'chamber': chamber, 'rollcalls': len(rollcalls), 'votes': len(votes),
+                             'members': len(members), 'voters_without_service_record': len(voters - set(parties)),
+                             'members_with_several_party_codes': multi,
+                             'first_date': rollcalls[0]['date'], 'last_date': rollcalls[-1]['date']}}
+    return data, evidence.reference()
+
+
+def market_abm_data(store, *, symbol='SPY', start='2016-01-04', end='2024-12-31', window_length=21, grid=None, base_config=None, seed=1000,
+                    holdout_seed=2000, holdout_simulation_runs=10, burn_in=0, versions=None):
+    """One symbol's adjusted daily closes as the ``market_abm`` SMM and holdout mapping.
+
+    The declared SMM configuration (``grid``, ``base_config``, seeds, runs, burn-in)
+    comes from the attempt; ``simulation_horizon_steps`` is set to the full sample so each
+    simulated configuration is drawn once and every origin reads a prefix of it (the
+    simulator's paths are prefix-consistent, so this changes no value).
+    """
+    from ..models import market_abm
+    evidence = Evidence()
+    ref, rows, ids = _daily_bars(store, [symbol], start=start, end=end, versions=versions)
+    for record_id in ids:
+        evidence.add(ref, record_id, 'bars')
+    by_day = {}
+    for row in rows:
+        by_day[row['date']] = row['close']
+    bars = [{'date': day, 'close': close} for day, close in sorted(by_day.items()) if close > 0]
+    if len(bars) < 3 * int(window_length):
+        raise MissingData(f'Only {len(bars)} daily closes for {symbol} between {start} and {end}')
+    config = deepcopy(base_config) if base_config is not None else market_abm.example_config()
+    config.pop('steps', None)
+    data = {'bars': bars, 'grid': grid or {'chartist_strength': [0.0, 20.0, 40.0, 80.0]}, 'base_config': config,
+            'seed': seed, 'windows': market_abm.moment_windows(bars, window_length), 'holdout_seed': holdout_seed,
+            'holdout_simulation_runs': holdout_simulation_runs, 'simulation_horizon_steps': int(burn_in) + len(bars) - 1,
+            'information_time': 'valid_time', 'revisions': 'minor',
+            'construction': {'symbol': symbol, 'bars': len(bars), 'duplicate_days': len(rows) - len(by_day),
+                             'first_date': bars[0]['date'], 'last_date': bars[-1]['date'], 'window_length': int(window_length)}}
+    if burn_in:
+        data['burn_in'] = int(burn_in)
+    return data, evidence.reference()
+
+
 FAMILY_LOADERS = {'conflict': conflict_data, 'assets': assets_data, 'commodities': commodities_data, 'regional': regional_data,
                   'monetary': monetary_data, 'elections': elections_data}
 
@@ -1808,15 +1930,12 @@ BLOCKED_FAMILIES = {
                          'flows are normalized, but the client/registrant-to-legislator attribution panel that the family '
                          'fit contract needs is not built, and no published crosswalk links LDA clients to FEC committees.',
                          missing=(('panel(unit, period, exposure, outcome)', 'lda_lobbying + fec + voteview_rollcalls'),)),
-    'market_abm': Blocked('Declared but not run: the SMM grid fit at every holdout origin exceeds this run\'s compute budget '
-                          'on real bars. Daily closes are available (alpaca_daily_bars), so this is a compute limit, not a data gap.',
-                          available=(('daily closes', 'alpaca_daily_bars'),)),
     'sanctions': Blocked('worldmodel.models.sanctions declares NON_ESTIMABLE: a legal-rule determination with no held-out '
                          'observable, so it can never be validated.'),
-    'legislative': Blocked('Roll-call member positions are published (voteview_rollcalls, Congresses 110-119), but the '
-                           'ideal-point refit at every holdout origin exceeds this run\'s compute budget.',
-                           available=(('roll_call_member_positions', 'voteview_rollcalls'),)),
 }
+# legislative and market_abm were listed here as over the compute budget until 2026-09-18 (see
+# real_data_plan.json, not_run and not_run_wave); both now have catalog loaders.
+FAMILY_LOADERS.update({'legislative': legislative_data, 'market_abm': market_abm_data})
 
 
 def family_data(family, store, options=None):
@@ -1871,7 +1990,9 @@ LOADER_FUNCTIONS.update({'observation_set': observation_set, 'cash_balance_data'
                          'assets_fred_realtime_data': assets_fred_realtime_data,
                          'monetary_okun_realtime_data': monetary_okun_realtime_data,
                          'population_popthm_data': population_popthm_data,
-                         'deposit_rate_substitute_data': deposit_rate_substitute_data})
+                         'deposit_rate_substitute_data': deposit_rate_substitute_data,
+                         'default_hazard_series_data': default_hazard_series_data,
+                         'legislative_data': legislative_data, 'market_abm_data': market_abm_data})
 
 
 def availability():

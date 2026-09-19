@@ -99,7 +99,9 @@
         "refit_every": 1,
         "horizon": 1
       },
-      "rationale": "companyfacts carries filing dates as knowledge time, so the strict policy is admissible. Quarters are labeled by the calendar quarter containing the fiscal period end; fourth-quarter flows are derived as the annual duration minus the three reported quarters."
+      "rationale": "companyfacts carries filing dates as knowledge time, so the strict policy is admissible. Quarters are labeled by the calendar quarter containing the fiscal period end; fourth-quarter flows are derived as the annual duration minus the three reported quarters.",
+      "superseded_by": "cash_balance.sec_companyfacts_fat_tails",
+      "superseded_reason": "Interval wave (2026-09-18): re-run with its own predictive as the incumbent candidate beside three fat-tail methods, chosen by the declared validation-window CRPS rule. This record and its report are kept unchanged."
     },
     {
       "id": "population_growth_rate.census_pep",
@@ -929,7 +931,9 @@
         "horizon": 1
       },
       "rationale": "population_growth_rate.census_pep failed minimum_test_forecasts with n=4 because the published PEP vintages covered only 2010-2024. calibration-status.md named POPTHM ALFRED vintages as the fix and they are already published in fred_macro_panel: 811 monthly periods and 325 real vintages, the earliest 1999-07-30. Under the strict policy the first usable annual origin is therefore 2000, so the splits are taken from vintage coverage alone: train to 2005, validation 2006-2009, holdout 2010-2025 (16 annual forecasts against a declared minimum of 8). The cutoff stops at 2026-06-30 so the incomplete 2026 annual period is never aggregated.",
-      "expected_limits": "A longer window with real vintages is a harder test, not an easier one: it spans the 2010 and 2020 census rebasings, each of which moves the level discontinuously, and beats_persistence_dm now has 16 forecasts to fail on rather than 4. interval_coverage failed at 0.50 on n=4 and is not addressed here; the interval method is left at its default so the only change is the panel."
+      "expected_limits": "A longer window with real vintages is a harder test, not an easier one: it spans the 2010 and 2020 census rebasings, each of which moves the level discontinuously, and beats_persistence_dm now has 16 forecasts to fail on rather than 4. interval_coverage failed at 0.50 on n=4 and is not addressed here; the interval method is left at its default so the only change is the panel.",
+      "superseded_by": "population_growth_rate.fred_popthm_fat_tails",
+      "superseded_reason": "Interval wave (2026-09-18): re-run with its own predictive as the incumbent candidate beside three fat-tail methods, chosen by the declared validation-window CRPS rule. This record and its report are kept unchanged."
     },
     {
       "id": "population_growth_rate.census_pep_v2",
@@ -951,7 +955,9 @@
       },
       "rationale": "The declared primary source, on a longer panel. census_population now carries every PEP national/state ALLDATA vintage file the Census server still serves (V2004-V2007, V2011-V2025) plus the 2000-2010 national intercensal series, so national annual coverage runs 2000-2025 instead of 2010-2024 and there are twelve vintages instead of two. Availability is still the HTTP Last-Modified of each published file, which for every file older than the 2016 site migration is 2016-07-19 or later rather than its original December release date; that is an upper bound, so it delays availability and cannot leak. It does mean the first origin with the eight observations the component needs is 2016 (vintage 2015, 2016-09-01, with the intercensal series available from 2016-08-24). Splits are taken from that coverage: train to 2015, validation 2016, holdout 2017-2025 (9 annual forecasts against a declared minimum of 8).",
       "expected_limits": "Nine forecasts only just clears the declared minimum, and every one of them sits inside a single PEP vintage era plus the 2020 rebasing. The 2016 migration timestamps are the binding constraint: with the true December release dates the same files would give origins back to 2012. interval_coverage (0.50 on the four-forecast run) is not addressed.",
-      "supersedes": "population_growth_rate.census_pep"
+      "supersedes": "population_growth_rate.census_pep",
+      "superseded_by": "population_growth_rate.census_pep_v2_fat_tails",
+      "superseded_reason": "Interval wave (2026-09-18): re-run with its own predictive as the incumbent candidate beside three fat-tail methods, chosen by the declared validation-window CRPS rule. This record and its report are kept unchanged."
     },
     {
       "id": "deposit_rate_pass_through.fred_realtime_v2",
@@ -974,7 +980,9 @@
       "rationale": "The declared series, with the splits recut to the minimum the declared criteria demand. SNDR cannot be extended backwards -- the series does not exist before 2021-04 -- but the published panel now holds 65 months, and the component needs 36 to fit and 24 holdout forecasts. The split rule is mechanical and outcome-free: train is exactly the first 36 months (2021-04..2024-03), the holdout is the last 25 (2024-08..2026-08, one more than the declared minimum), and validation is the four months left in between. v1 declared a twelve-month validation window and was left with 17 origins against 24.",
       "expected_limits": "The holdout is a single easing cycle, so beats_persistence_dm (p = 0.871 on v1's 16 forecasts) is likely to fail again: a national deposit rate is close to a random walk at monthly frequency. interval_coverage was 0.438 on v1. Clearing minimum_test_forecasts makes those two verdicts real rather than unevaluable; it does not make them pass.",
       "run_note": "RUN NOTE (2026-09-17, after the run): the rationale predicted 25 holdout forecasts from the declared boundaries; the realized count is 24, because the first target after validation_end has no informative origin (its anchor's first publication already covers it). 24 is exactly the declared minimum, so minimum_test_forecasts passes with no margin. The split boundaries are as declared and were not changed.",
-      "supersedes": "deposit_rate_pass_through.fred_realtime"
+      "supersedes": "deposit_rate_pass_through.fred_realtime",
+      "superseded_by": "deposit_rate_pass_through.fred_realtime_v2_fat_tails",
+      "superseded_reason": "Interval wave (2026-09-18): re-run with its own predictive as the incumbent candidate beside three fat-tail methods, chosen by the declared validation-window CRPS rule. This record and its report are kept unchanged."
     },
     {
       "id": "deposit_rate_pass_through.savnrnj_substitute",
@@ -1037,7 +1045,9 @@
         "horizon": 1
       },
       "rationale": "The second substitute, registered at the same time as the first and for the opposite reason: SAVNRNJ is close to SNDR in construction but covers only a floor-bound decade, while M2OWN covers 1959-2019 and therefore many complete tightening and easing cycles. Its ALFRED vintages also begin 2014-03, so origins start 2014-04 and the splits follow coverage: train 1959-02..2015-12, validation 2016, holdout 2017-01..2019-06 (30 forecasts). Registering both makes the disagreement visible if the two substitutes give different pass-through signs, which is how default_hazard's two variants were read.",
-      "expected_limits": "M2OWN is revised (118 vintages for some periods), so the scored error carries revisions the origin could not see, which is the mechanism that made credit_growth's intervals too narrow. The interval method is left at its default, so interval_coverage may well fail from that direction. Substitution caveat as above."
+      "expected_limits": "M2OWN is revised (118 vintages for some periods), so the scored error carries revisions the origin could not see, which is the mechanism that made credit_growth's intervals too narrow. The interval method is left at its default, so interval_coverage may well fail from that direction. Substitution caveat as above.",
+      "superseded_by": "deposit_rate_pass_through.m2own_substitute_fat_tails",
+      "superseded_reason": "Interval wave (2026-09-18): re-run with its own predictive as the incumbent candidate beside three fat-tail methods, chosen by the declared validation-window CRPS rule. This record and its report are kept unchanged."
     },
     {
       "id": "interest_pass_through.fred_realtime_v2",
@@ -1121,7 +1131,9 @@
       "interval_method": "gaussian_in_sample residual scale plus an independent data-revision component: the standard deviation of the log revisions the publisher has ALREADY made by the origin, over the most recent 120 mature periods, where mature means at least 24 months old. Twenty-four months is the age at which a CES period has been through both its level benchmark (published with January data each February, revising from the previous March forward) and the following year's seasonal-factor revision. Ten years keeps the estimate inside the current benchmark methodology instead of averaging over the 1950s, whose log-revision root mean square is 0.0185 against 0.0046 in the 2000s. The mean revision is reported and deliberately not used to shift the point forecast, so systematic revision bias stays visible in the bias statistic. Candidate interval methods are compared on the SELECTION window only (train_end -> validation_end, evaluated at validation_end, the same view validate_process uses to select candidates) and the declared rule is LOWEST VALIDATION-WINDOW CRPS, a proper score that is blind to interval coverage. Choosing the candidate whose coverage sits closest to 0.80 would be tuning to the acceptance criterion and was not used. Validation-window CRPS over the declared candidates: default 440.1; +revision 431.0; gaussian_trailing(60) 489.5; gaussian_trailing(60)+revision 437.5; gaussian_trailing(120)+revision 437.6; empirical_trailing(60)+revision 434.9; empirical_trailing(120)+revision 437.0. The rule selects the revision component alone. The heteroskedasticity argument that fixed interest_pass_through is real here too (residual root mean square 0.0065 in the 1940s against 0.0011 in the 1990s) but points the other way: a trailing scale NARROWS this interval (mean sd 206.1 against 414.5) and drives validation coverage down to 0.358, so it is not adopted.",
       "rationale": "Identical data, splits, vintage policy and acceptance criteria to labor_demand.fred_realtime_v3.",
       "supersedes": "labor_demand.fred_realtime_v3",
-      "run_note": "2026-09-17, after scoring. THE DECLARED SELECTION RULE PICKED THE WORSE CANDIDATE HERE, and that is recorded rather than repaired. On the selection window the revision component had the lower CRPS (431.0 against 440.1) and much better coverage (0.8105 against 0.600), so the rule selected it. On the holdout it is worse on both: CRPS 431.0 against v3's 405.1, and interval_coverage 0.958 (FAIL, outside 0.80 +/- 0.15 by 0.008) against v3's 0.874 (PASS). The selection window 2005-2012 spans the financial crisis and its benchmark revisions, which made the revision component look necessary; 2013-2024 has smaller PAYEMS revisions, so adding it over-covers. v3 is NOT retro-selected on this basis -- doing so would be choosing a specification on holdout evidence, which is the thing pre-registration exists to prevent. Both attempts stand with their own numbers. Nothing turns on the choice for the verdict: beats_persistence_dm fails in both at p = 0.160, so labor_demand fails either way."
+      "run_note": "2026-09-17, after scoring. THE DECLARED SELECTION RULE PICKED THE WORSE CANDIDATE HERE, and that is recorded rather than repaired. On the selection window the revision component had the lower CRPS (431.0 against 440.1) and much better coverage (0.8105 against 0.600), so the rule selected it. On the holdout it is worse on both: CRPS 431.0 against v3's 405.1, and interval_coverage 0.958 (FAIL, outside 0.80 +/- 0.15 by 0.008) against v3's 0.874 (PASS). The selection window 2005-2012 spans the financial crisis and its benchmark revisions, which made the revision component look necessary; 2013-2024 has smaller PAYEMS revisions, so adding it over-covers. v3 is NOT retro-selected on this basis -- doing so would be choosing a specification on holdout evidence, which is the thing pre-registration exists to prevent. Both attempts stand with their own numbers. Nothing turns on the choice for the verdict: beats_persistence_dm fails in both at p = 0.160, so labor_demand fails either way.",
+      "superseded_by": "labor_demand.fred_realtime_v4_fat_tails",
+      "superseded_reason": "Interval wave (2026-09-18): re-run with its own predictive as the incumbent candidate beside three fat-tail methods, chosen by the declared validation-window CRPS rule. This record and its report are kept unchanged."
     },
     {
       "id": "regional_model.qcew_state_sectors_v2",
@@ -1193,7 +1205,9 @@
       "rationale": "Identical data, splits and acceptance criteria to regional_model.cbp_state_sectors_v2.",
       "expected_limits": "interval_coverage is expected to fail WORSE than v2. With one holdout year all 51 forecasts share one draw of the common component, so coverage here is one Bernoulli trial and not a coverage estimate; no_revision_leakage also fails, as CBP publishes no vintages.",
       "supersedes": "regional_model.cbp_state_sectors_v2",
-      "run_note": "Same status as regional_model.qcew_state_sectors_v2: per_unit_year_draw is a candidate the declared lowest-validation-CRPS rule rejects. Run and published as a rejected candidate, not as the answer."
+      "run_note": "Same status as regional_model.qcew_state_sectors_v2: per_unit_year_draw is a candidate the declared lowest-validation-CRPS rule rejects. Run and published as a rejected candidate, not as the answer.",
+      "superseded_by": "regional_model.cbp_state_sectors_v3_fat_tails",
+      "superseded_reason": "Interval wave (2026-09-18): re-run with its own predictive as the incumbent candidate beside three fat-tail methods, chosen by the declared validation-window CRPS rule. This record and its report are kept unchanged."
     },
     {
       "id": "monetary_model.okun_unrate_realtime",
@@ -1445,6 +1459,547 @@
       "entity_rule": "National series only; no entity selection.",
       "expected_limits": "beats_persistence_dm is expected to fail again, for the reason the v1 record already gives: a smoothed quarterly rule scored at monthly frequency is worse than a random walk on the policy rate. This attempt is registered for the revision criterion. The gap is still an Okun proxy, not the declared GDPC1/GDPPOT gap, so monetary_model.fred_realtime_v2 remains the passing attempt for the family.",
       "supersedes": "monetary_model.cpi_okun_proxy; monetary_model.cpi_okun_proxy_v2; monetary_model.okun_unrate_realtime"
+    },
+    {
+      "id": "cash_balance.sec_companyfacts_fat_tails",
+      "kind": "component",
+      "target": "cash_balance",
+      "process_id": "investment_cash_flow",
+      "loader": {
+        "function": "cash_balance_data",
+        "per_entity": "issuer"
+      },
+      "entities": [
+        "sec:cik:0001070412",
+        "sec:cik:0000093556",
+        "sec:cik:0000314808",
+        "sec:cik:0001061219",
+        "sec:cik:0000078814"
+      ],
+      "entity_rule": "The five issuers with the most published companyfacts records across all four required concepts (CashAndCashEquivalentsAtCarryingValue, Revenues, CostsAndExpenses, PaymentsToAcquirePropertyPlantAndEquipment), ranked by the smallest per-concept record count and then by CIK. Availability only: no fit or forecast was run before this list was frozen.",
+      "data": "sec_company_assets@normalized (companyfacts; observed_at is the filing date)",
+      "protocol": {
+        "train_end": "2016-12-31",
+        "validation_end": "2019-12-31",
+        "cutoff": "2025-12-31",
+        "vintage_policy": "strict",
+        "window": "expanding",
+        "refit_every": 1,
+        "horizon": 1
+      },
+      "interval_candidates": [
+        {
+          "name": "incumbent",
+          "options": {}
+        },
+        {
+          "name": "student_t_mle",
+          "options": {
+            "interval_method": "student_t_mle"
+          }
+        },
+        {
+          "name": "empirical_quantile",
+          "options": {
+            "interval_method": "empirical_quantile",
+            "interval_nodes": 40
+          }
+        },
+        {
+          "name": "conformal_rolling",
+          "options": {
+            "interval_method": "conformal_rolling",
+            "interval_window": 40
+          }
+        }
+      ],
+      "interval_selection": {
+        "metric": "crps",
+        "min_periods": 8,
+        "score_unselected": true
+      },
+      "diagnosis": "Quarterly, conformal window 40 quarters (ten years). Coverage fails on 3 of 5 issuers at 1.00: a level sigma estimated on noisy quarterly differences is far too wide (WS-E). The validation window 2017-2019 yields 0 or 1 usable forecast per issuer, so the declared rule cannot compare and the incumbent is EXPECTED to be kept for all five issuers; the rejected candidates' holdout numbers are recorded. beats_persistence_dm fails on all five and two breach declared bounds, which no interval method reaches.",
+      "interval_method": "incumbent = gaussian_in_sample (no declared interval options). student_t_mle: location-zero Student-t, scale and degrees of freedom by maximum likelihood on all in-sample residuals (df in [2.5, 100]; n/(n-k) variance correction). empirical_quantile: the 40 (i+0.5)/40 empirical quantiles of all in-sample residuals, same correction. conformal_rolling: rolling split-conformal order statistics (ranks floor/ceil((n+1)tau), 45 nodes so 0.1/0.5/0.9 are exact) of pre-origin OUT-OF-SAMPLE one-step errors: each is the forecast of a fit that excluded its target, computed inside the origin's own frame, so nothing after the origin enters.",
+      "selection_rule": "Candidates are the incumbent (the base attempt's own declared predictive, unchanged) and the three fat-tail methods, each on top of the base attempt's other declared options. They differ only in the predictive distribution, so their point forecasts, MSE and DM tests are identical and the default MSE selection could not tell them apart. The selection rule is the one the record already uses (WS-E): LOWEST VALIDATION-WINDOW CRPS, a proper score blind to coverage, computed by validate_process itself over the validation rows every candidate produced (selection_metric='crps'). If fewer than 8 distinct validation PERIODS are common to the candidates, no comparison is made and the incumbent is kept (a panel's units in one year are one draw of the common shock, so rows are not periods). The selection is hashed and frozen before the holdout is scored. Every rejected candidate is then also scored on the holdout and recorded under unselected_holdout, for the record only: those numbers enter neither the selection nor the verdict, and no candidate is retro-selected on them.",
+      "rationale": "Identical data, loader, splits, vintage policy, estimator options and acceptance criteria to cash_balance.sec_companyfacts; the declared set of predictive distributions and the rule that chooses between them on the validation window are the only change.",
+      "supersedes": "cash_balance.sec_companyfacts",
+      "run_note": "2026-09-18, after scoring. FAIL on all five issuers, as registered. The rule compared on one issuer only: 0001061219 had 10 common validation quarters and selected empirical_quantile (validation CRPS 1.699e8 against the incumbent 2.041e8); its holdout coverage is 0.750 (pass; the incumbent had 0.800) and it still fails beats_persistence_dm and bounds. The other four had 0 or 1 validation quarter and kept the incumbent, reproducing their base verdicts: 0001070412 (DM, coverage 1.000), 0000093556 (DM, coverage 1.000), 0000314808 (DM only; coverage 0.938), 0000078814 (DM, coverage 1.000, bounds). Rejected candidates on the holdout (record only): every method still covers 1.000 on those three issuers, so no interval method reaches the over-coverage -- the level sigma is too wide because the point forecast of a quarterly cash level is poor, not because of its tails. Artifacts 6d9c9ed0e255, 5fed1ce53e92, d053c2563ce6, b29512940aab, 3428903a26f8. 8 min 8 s for the whole wave (all seven), peak RSS 347 MB."
+    },
+    {
+      "id": "regional_model.cbp_state_sectors_v3_fat_tails",
+      "kind": "family",
+      "target": "regional",
+      "process_id": "regional_model",
+      "loader": {
+        "function": "regional_data",
+        "options": {
+          "program": "cbp",
+          "level": "state",
+          "start_year": 2019,
+          "end_year": 2023
+        }
+      },
+      "estimator_options": {
+        "interval_method": "per_unit_year_draw"
+      },
+      "data": "census_business@5b0995c7 (County Business Patterns employment by state and NAICS sector)",
+      "protocol": {
+        "train_end": "2021-12-31",
+        "validation_end": "2022-12-31",
+        "cutoff": "2023-12-31",
+        "vintage_policy": "family_rows",
+        "refit_every": 1,
+        "horizon": 1
+      },
+      "interval_candidates": [
+        {
+          "name": "incumbent",
+          "options": {}
+        },
+        {
+          "name": "student_t_mle",
+          "options": {
+            "family_interval_method": "student_t_mle"
+          }
+        },
+        {
+          "name": "empirical_quantile",
+          "options": {
+            "family_interval_method": "empirical_quantile"
+          }
+        },
+        {
+          "name": "conformal_rolling",
+          "options": {
+            "family_interval_method": "conformal_rolling"
+          }
+        }
+      ],
+      "interval_selection": {
+        "metric": "crps",
+        "min_periods": 8,
+        "score_unselected": true
+      },
+      "diagnosis": "Family attempt. family_interval_method replaces the SHAPE of the regional forecaster's own predictive with one estimated from its pre-origin out-of-sample errors standardized by the sd each carried (per_unit_year_draw, the base's declared method); family_interval_window is not declared, so every earlier forecastable year is pooled. Validation is the single year 2022 and the holdout the single year 2023: one validation period is fewer than 8, so the incumbent is EXPECTED to be kept, and coverage over 51 states in one year remains one draw of the common component (WS-E). no_revision_leakage fails structurally (CBP publishes no vintages).",
+      "interval_method": "incumbent = per_unit_year_draw (the base's estimator_options). student_t_mle: location-zero Student-t, scale and degrees of freedom by maximum likelihood on all in-sample residuals (df in [2.5, 100]; n/(n-k) variance correction). empirical_quantile: the 40 (i+0.5)/40 empirical quantiles of all in-sample residuals, same correction. conformal_rolling: rolling split-conformal order statistics (ranks floor/ceil((n+1)tau), 45 nodes so 0.1/0.5/0.9 are exact) of pre-origin OUT-OF-SAMPLE one-step errors: each is the forecast of a fit that excluded its target, computed inside the origin's own frame, so nothing after the origin enters.",
+      "selection_rule": "Candidates are the incumbent (the base attempt's own declared predictive, unchanged) and the three fat-tail methods, each on top of the base attempt's other declared options. They differ only in the predictive distribution, so their point forecasts, MSE and DM tests are identical and the default MSE selection could not tell them apart. The selection rule is the one the record already uses (WS-E): LOWEST VALIDATION-WINDOW CRPS, a proper score blind to coverage, computed by validate_process itself over the validation rows every candidate produced (selection_metric='crps'). If fewer than 8 distinct validation PERIODS are common to the candidates, no comparison is made and the incumbent is kept (a panel's units in one year are one draw of the common shock, so rows are not periods). The selection is hashed and frozen before the holdout is scored. Every rejected candidate is then also scored on the holdout and recorded under unselected_holdout, for the record only: those numbers enter neither the selection nor the verdict, and no candidate is retro-selected on them.",
+      "rationale": "Identical data, loader, splits, vintage policy, estimator options and acceptance criteria to regional_model.cbp_state_sectors_v3; the declared set of predictive distributions and the rule that chooses between them on the validation window are the only change.",
+      "supersedes": "regional_model.cbp_state_sectors_v3",
+      "run_note": "2026-09-18, after scoring. FAIL (interval_coverage 1.000, no_revision_leakage), identical to the base: one validation year, so the incumbent per_unit_year_draw was kept. For the record: pooled standardized errors from a single earlier year describe one draw of the common component, and the shape they give collapses -- conformal_rolling and empirical_quantile cover 0.000 on the validation year and 0.157 / 0.137 on the holdout year, student_t_mle 1.000 on both. The same effective-sample problem WS-E recorded, now visible in the methods too. Artifact 5792ec8b31c6."
+    },
+    {
+      "id": "population_growth_rate.census_pep_v2_fat_tails",
+      "kind": "component",
+      "target": "population_growth_rate",
+      "process_id": "population_growth",
+      "loader": {
+        "function": "observation_set"
+      },
+      "data": "census_population@normalized, extended with PEP national/state vintage files 2004-2007, 2011-2019 and 2025 and the 2000-2010 national intercensal series (annual national July-1 population 2000-2025, twelve vintages)",
+      "protocol": {
+        "train_end": "2015-12-31",
+        "validation_end": "2016-12-31",
+        "cutoff": "2026-09-30",
+        "vintage_policy": "strict",
+        "window": "expanding",
+        "refit_every": 1,
+        "horizon": 1
+      },
+      "interval_candidates": [
+        {
+          "name": "incumbent",
+          "options": {}
+        },
+        {
+          "name": "student_t_mle",
+          "options": {
+            "interval_method": "student_t_mle"
+          }
+        },
+        {
+          "name": "empirical_quantile",
+          "options": {
+            "interval_method": "empirical_quantile",
+            "interval_nodes": 40
+          }
+        },
+        {
+          "name": "conformal_rolling",
+          "options": {
+            "interval_method": "conformal_rolling"
+          }
+        }
+      ],
+      "interval_selection": {
+        "metric": "crps",
+        "min_periods": 8,
+        "score_unselected": true
+      },
+      "diagnosis": "Annual, conformal window undeclared (all recursive errors: annual series are short). Coverage 0.333 with a Gaussian in-sample scale against a series whose growth shifts level. Validation is the single year 2016, so the incumbent is EXPECTED to be kept; the three methods are still scored on the holdout for the record.",
+      "interval_method": "incumbent = gaussian_in_sample. student_t_mle: location-zero Student-t, scale and degrees of freedom by maximum likelihood on all in-sample residuals (df in [2.5, 100]; n/(n-k) variance correction). empirical_quantile: the 40 (i+0.5)/40 empirical quantiles of all in-sample residuals, same correction. conformal_rolling: rolling split-conformal order statistics (ranks floor/ceil((n+1)tau), 45 nodes so 0.1/0.5/0.9 are exact) of pre-origin OUT-OF-SAMPLE one-step errors: each is the forecast of a fit that excluded its target, computed inside the origin's own frame, so nothing after the origin enters.",
+      "selection_rule": "Candidates are the incumbent (the base attempt's own declared predictive, unchanged) and the three fat-tail methods, each on top of the base attempt's other declared options. They differ only in the predictive distribution, so their point forecasts, MSE and DM tests are identical and the default MSE selection could not tell them apart. The selection rule is the one the record already uses (WS-E): LOWEST VALIDATION-WINDOW CRPS, a proper score blind to coverage, computed by validate_process itself over the validation rows every candidate produced (selection_metric='crps'). If fewer than 8 distinct validation PERIODS are common to the candidates, no comparison is made and the incumbent is kept (a panel's units in one year are one draw of the common shock, so rows are not periods). The selection is hashed and frozen before the holdout is scored. Every rejected candidate is then also scored on the holdout and recorded under unselected_holdout, for the record only: those numbers enter neither the selection nor the verdict, and no candidate is retro-selected on them.",
+      "rationale": "Identical data, loader, splits, vintage policy, estimator options and acceptance criteria to population_growth_rate.census_pep_v2; the declared set of predictive distributions and the rule that chooses between them on the validation window are the only change.",
+      "supersedes": "population_growth_rate.census_pep_v2",
+      "correction": "2026-09-18, after the first run and before the second. The conformal_rolling candidate produced no forecast at any origin (0 of 9 holdout, 0 validation) because recursive_errors refused components that declare a rolling estimation window, and population_growth_rate declares window 15 in its default options. That is a code defect that kept one declared candidate from producing any result, not a specification choice: recursive_errors now honours the rolling window (the fit for year t uses years t-15..t-1, exactly what an origin at t-1 fits), tested in tests/test_intervals_fat_tails.py. Nothing in this registration changed. The verdict cannot move: the declared rule keeps the incumbent below 8 common validation periods, and this attempt has at most 4 in any case. Re-run under the same id; the first report (1514be8aab34..., artifact 67bda5656b0a...) stays published and the later one is the one counted.",
+      "run_note": "2026-09-18, after scoring. FAIL on interval_coverage alone (0.333, 9 holdout years), identical to the base: zero validation forecasts, so the incumbent was kept. Rejected candidates on the holdout: student_t_mle 0.333, empirical_quantile 0.333, conformal_rolling 0.222 (after the correction; the first run produced none). No method reaches nominal: the error is a level shift in growth (immigration, the pandemic, census rebasing), which no residual shape estimated before the origin describes. Counted artifact 43e20b2fd1d4 (second run); the first run's 67bda5656b0a stays published."
+    },
+    {
+      "id": "population_growth_rate.fred_popthm_fat_tails",
+      "kind": "component",
+      "target": "population_growth_rate",
+      "process_id": "population_growth",
+      "loader": {
+        "function": "population_popthm_data"
+      },
+      "overrides": {
+        "population": {
+          "source_series": "POPTHM",
+          "native_frequency": "monthly",
+          "publication_lag_days": 30,
+          "description": "Monthly national population (Board of Governors/BEA POPTHM on FRED), aggregated to annual with the declared 'last' rule so an annual point is that year's December level. requirements.json names POPTHM as a source for this series alongside Census PEP; it is a total-resident-population measure rather than the PEP July-1 estimate, and it is rebased at each decennial census exactly as PEP is."
+        }
+      },
+      "data": "fred_macro_panel@normalized (POPTHM), monthly 1959-01..2026-07 with 325 ALFRED vintages from 1999-07-30, aggregated to annual",
+      "protocol": {
+        "train_end": "2005-12-31",
+        "validation_end": "2009-12-31",
+        "cutoff": "2026-06-30",
+        "vintage_policy": "strict",
+        "window": "expanding",
+        "refit_every": 1,
+        "horizon": 1
+      },
+      "interval_candidates": [
+        {
+          "name": "incumbent",
+          "options": {}
+        },
+        {
+          "name": "student_t_mle",
+          "options": {
+            "interval_method": "student_t_mle"
+          }
+        },
+        {
+          "name": "empirical_quantile",
+          "options": {
+            "interval_method": "empirical_quantile",
+            "interval_nodes": 40
+          }
+        },
+        {
+          "name": "conformal_rolling",
+          "options": {
+            "interval_method": "conformal_rolling"
+          }
+        }
+      ],
+      "interval_selection": {
+        "metric": "crps",
+        "min_periods": 8,
+        "score_unselected": true
+      },
+      "diagnosis": "Annual, conformal window undeclared. Coverage 0.500; the 80% half-width is smaller than the average error. Validation 2006-2009 is 4 periods, fewer than 8, so the incumbent is EXPECTED to be kept.",
+      "interval_method": "incumbent = gaussian_in_sample. student_t_mle: location-zero Student-t, scale and degrees of freedom by maximum likelihood on all in-sample residuals (df in [2.5, 100]; n/(n-k) variance correction). empirical_quantile: the 40 (i+0.5)/40 empirical quantiles of all in-sample residuals, same correction. conformal_rolling: rolling split-conformal order statistics (ranks floor/ceil((n+1)tau), 45 nodes so 0.1/0.5/0.9 are exact) of pre-origin OUT-OF-SAMPLE one-step errors: each is the forecast of a fit that excluded its target, computed inside the origin's own frame, so nothing after the origin enters.",
+      "selection_rule": "Candidates are the incumbent (the base attempt's own declared predictive, unchanged) and the three fat-tail methods, each on top of the base attempt's other declared options. They differ only in the predictive distribution, so their point forecasts, MSE and DM tests are identical and the default MSE selection could not tell them apart. The selection rule is the one the record already uses (WS-E): LOWEST VALIDATION-WINDOW CRPS, a proper score blind to coverage, computed by validate_process itself over the validation rows every candidate produced (selection_metric='crps'). If fewer than 8 distinct validation PERIODS are common to the candidates, no comparison is made and the incumbent is kept (a panel's units in one year are one draw of the common shock, so rows are not periods). The selection is hashed and frozen before the holdout is scored. Every rejected candidate is then also scored on the holdout and recorded under unselected_holdout, for the record only: those numbers enter neither the selection nor the verdict, and no candidate is retro-selected on them.",
+      "rationale": "Identical data, loader, splits, vintage policy, estimator options and acceptance criteria to population_growth_rate.fred_popthm; the declared set of predictive distributions and the rule that chooses between them on the validation window are the only change.",
+      "supersedes": "population_growth_rate.fred_popthm",
+      "correction": "2026-09-18, after the first run and before the second. The conformal_rolling candidate produced no forecast at any origin (0 of 16 holdout, 0 validation) because recursive_errors refused components that declare a rolling estimation window, and population_growth_rate declares window 15 in its default options. That is a code defect that kept one declared candidate from producing any result, not a specification choice: recursive_errors now honours the rolling window (the fit for year t uses years t-15..t-1, exactly what an origin at t-1 fits), tested in tests/test_intervals_fat_tails.py. Nothing in this registration changed. The verdict cannot move: the declared rule keeps the incumbent below 8 common validation periods, and this attempt has at most 4 in any case. Re-run under the same id; the first report (e7e6e4875665..., artifact 306082ecfbfe...) stays published and the later one is the one counted.",
+      "run_note": "2026-09-18, after scoring. FAIL on interval_coverage alone (0.500, 16 holdout years), identical to the base: 3 common validation years, so the incumbent was kept. Rejected candidates on the holdout (record only, not claimed): conformal_rolling 0.6875 -- inside this component's 0.80 +/- 0.20 -- with a WORSE holdout CRPS (7.50e5 against 6.13e5); student_t_mle 0.500; empirical_quantile 0.5625. conformal_rolling also had the lowest validation CRPS (4.79e5 against 8.33e5) on three years, which the declared rule does not treat as a comparison. Counted artifact fdb694e5391d (second run); the first run's 306082ecfbfe stays published."
+    },
+    {
+      "id": "deposit_rate_pass_through.fred_realtime_v2_fat_tails",
+      "kind": "component",
+      "target": "deposit_rate_pass_through",
+      "process_id": "coupled_economy",
+      "loader": {
+        "function": "observation_set"
+      },
+      "data": "fred_macro_panel@normalized (SNDR, 65 monthly periods 2021-04..2026-08 with 64 vintages) + fred_policy_rate@normalized (DFF), monthly",
+      "protocol": {
+        "train_end": "2024-03-31",
+        "validation_end": "2024-07-31",
+        "cutoff": "2026-08-31",
+        "vintage_policy": "strict",
+        "window": "expanding",
+        "refit_every": 1,
+        "horizon": 1
+      },
+      "interval_candidates": [
+        {
+          "name": "incumbent",
+          "options": {}
+        },
+        {
+          "name": "student_t_mle",
+          "options": {
+            "interval_method": "student_t_mle"
+          }
+        },
+        {
+          "name": "empirical_quantile",
+          "options": {
+            "interval_method": "empirical_quantile",
+            "interval_nodes": 40
+          }
+        },
+        {
+          "name": "conformal_rolling",
+          "options": {
+            "interval_method": "conformal_rolling",
+            "interval_window": 60
+          }
+        }
+      ],
+      "interval_selection": {
+        "metric": "crps",
+        "min_periods": 8,
+        "score_unselected": true
+      },
+      "diagnosis": "Monthly, conformal window 60 months (all that exist here). Coverage 0.458 comes from a point forecast worse than persistence (WS-E); no interval repairs that and beats_persistence_dm fails. Validation is 4 months, so the incumbent is EXPECTED to be kept.",
+      "interval_method": "incumbent = gaussian_in_sample. student_t_mle: location-zero Student-t, scale and degrees of freedom by maximum likelihood on all in-sample residuals (df in [2.5, 100]; n/(n-k) variance correction). empirical_quantile: the 40 (i+0.5)/40 empirical quantiles of all in-sample residuals, same correction. conformal_rolling: rolling split-conformal order statistics (ranks floor/ceil((n+1)tau), 45 nodes so 0.1/0.5/0.9 are exact) of pre-origin OUT-OF-SAMPLE one-step errors: each is the forecast of a fit that excluded its target, computed inside the origin's own frame, so nothing after the origin enters.",
+      "selection_rule": "Candidates are the incumbent (the base attempt's own declared predictive, unchanged) and the three fat-tail methods, each on top of the base attempt's other declared options. They differ only in the predictive distribution, so their point forecasts, MSE and DM tests are identical and the default MSE selection could not tell them apart. The selection rule is the one the record already uses (WS-E): LOWEST VALIDATION-WINDOW CRPS, a proper score blind to coverage, computed by validate_process itself over the validation rows every candidate produced (selection_metric='crps'). If fewer than 8 distinct validation PERIODS are common to the candidates, no comparison is made and the incumbent is kept (a panel's units in one year are one draw of the common shock, so rows are not periods). The selection is hashed and frozen before the holdout is scored. Every rejected candidate is then also scored on the holdout and recorded under unselected_holdout, for the record only: those numbers enter neither the selection nor the verdict, and no candidate is retro-selected on them.",
+      "rationale": "Identical data, loader, splits, vintage policy, estimator options and acceptance criteria to deposit_rate_pass_through.fred_realtime_v2; the declared set of predictive distributions and the rule that chooses between them on the validation window are the only change.",
+      "supersedes": "deposit_rate_pass_through.fred_realtime_v2",
+      "run_note": "2026-09-18, after scoring. FAIL (beats_persistence_dm, interval_coverage 0.458), identical to the base: 3 common validation months, incumbent kept. Rejected candidates on the holdout: conformal_rolling 0.625, empirical_quantile 0.458, student_t_mle 0.292. The point forecast is worse than persistence, which no interval repairs. Artifact 5d77ac4ab9f2."
+    },
+    {
+      "id": "deposit_rate_pass_through.m2own_substitute_fat_tails",
+      "kind": "component",
+      "target": "deposit_rate_pass_through",
+      "process_id": "coupled_economy",
+      "loader": {
+        "function": "deposit_rate_substitute_data",
+        "options": {
+          "series_id": "M2OWN"
+        }
+      },
+      "overrides": {
+        "deposit_rate": {
+          "metric": "m2_own_rate",
+          "source_series": "M2OWN",
+          "description": "SUBSTITUTION, not the declared series. M2 Own Rate (FRED M2OWN, discontinued 2019-07-12): the weighted average of the rates received on the interest-bearing assets in M2 -- other checkable deposits, thrift savings deposits, money market mutual fund holdings and small time deposits -- monthly 1959-02..2019-06. It is an aggregate realised return on M2 rather than an advertised retail deposit rate, and its money-fund component is not a bank deposit at all, so it is a different object from SNDR and from SAVNRNJ; a pass here is a pass on the M2 own rate."
+        }
+      },
+      "data": "fred_deposit_rates@normalized (M2OWN, 10,515 vintage observations over 725 monthly periods, ALFRED vintages from 2014-03-07) + fred_policy_rate@normalized (DFF), monthly",
+      "protocol": {
+        "train_end": "2015-12-31",
+        "validation_end": "2016-12-31",
+        "cutoff": "2019-06-30",
+        "vintage_policy": "strict",
+        "window": "expanding",
+        "refit_every": 1,
+        "horizon": 1
+      },
+      "interval_candidates": [
+        {
+          "name": "incumbent",
+          "options": {}
+        },
+        {
+          "name": "student_t_mle",
+          "options": {
+            "interval_method": "student_t_mle"
+          }
+        },
+        {
+          "name": "empirical_quantile",
+          "options": {
+            "interval_method": "empirical_quantile",
+            "interval_nodes": 40
+          }
+        },
+        {
+          "name": "conformal_rolling",
+          "options": {
+            "interval_method": "conformal_rolling",
+            "interval_window": 60
+          }
+        }
+      ],
+      "interval_selection": {
+        "metric": "crps",
+        "min_periods": 8,
+        "score_unselected": true
+      },
+      "diagnosis": "SUBSTITUTE series (M2OWN), monthly, conformal window 60 months. Coverage fails from above (0.966, width 0.324pp against MAE 0.029pp). Validation 2016 is 12 months, so the rule CAN compare here. beats_persistence_dm fails (p = 0.725) whatever the interval does, so the attempt cannot pass.",
+      "interval_method": "incumbent = gaussian_in_sample. student_t_mle: location-zero Student-t, scale and degrees of freedom by maximum likelihood on all in-sample residuals (df in [2.5, 100]; n/(n-k) variance correction). empirical_quantile: the 40 (i+0.5)/40 empirical quantiles of all in-sample residuals, same correction. conformal_rolling: rolling split-conformal order statistics (ranks floor/ceil((n+1)tau), 45 nodes so 0.1/0.5/0.9 are exact) of pre-origin OUT-OF-SAMPLE one-step errors: each is the forecast of a fit that excluded its target, computed inside the origin's own frame, so nothing after the origin enters.",
+      "selection_rule": "Candidates are the incumbent (the base attempt's own declared predictive, unchanged) and the three fat-tail methods, each on top of the base attempt's other declared options. They differ only in the predictive distribution, so their point forecasts, MSE and DM tests are identical and the default MSE selection could not tell them apart. The selection rule is the one the record already uses (WS-E): LOWEST VALIDATION-WINDOW CRPS, a proper score blind to coverage, computed by validate_process itself over the validation rows every candidate produced (selection_metric='crps'). If fewer than 8 distinct validation PERIODS are common to the candidates, no comparison is made and the incumbent is kept (a panel's units in one year are one draw of the common shock, so rows are not periods). The selection is hashed and frozen before the holdout is scored. Every rejected candidate is then also scored on the holdout and recorded under unselected_holdout, for the record only: those numbers enter neither the selection nor the verdict, and no candidate is retro-selected on them.",
+      "rationale": "Identical data, loader, splits, vintage policy, estimator options and acceptance criteria to deposit_rate_pass_through.m2own_substitute; the declared set of predictive distributions and the rule that chooses between them on the validation window are the only change.",
+      "supersedes": "deposit_rate_pass_through.m2own_substitute",
+      "run_note": "2026-09-18, after scoring. FAIL (beats_persistence_dm, interval_coverage). The rule compared on 11 validation months and SELECTED conformal_rolling (validation CRPS 0.0084 against the incumbent 0.0306; its validation coverage was 0.273, which the rule does not read). On the holdout it improves CRPS (0.0220 against the incumbent's 0.0372) and moves coverage from 0.966 (too wide) to 0.483 (too narrow). A likely reason, not tested: the 60 recursive errors before each 2016-2019 origin come mostly from the zero-bound years, when the rate barely moved, and 2016-2019 was a hiking cycle. The other candidates cover 0.966. No candidate would have passed coverage. Report 9ebc2a3eca3f / artifact 9908caf06859."
+    },
+    {
+      "id": "labor_demand.fred_realtime_v4_fat_tails",
+      "kind": "component",
+      "target": "labor_demand",
+      "process_id": "coupled_economy",
+      "loader": {
+        "function": "observation_set"
+      },
+      "estimator_options": {
+        "interval_revision": {
+          "window": 120,
+          "maturity": 24
+        }
+      },
+      "data": "fred_macro_panel@7dcce89c (PAYEMS, INDPRO across all index bases), monthly",
+      "protocol": {
+        "vintage_policy": "strict",
+        "window": "expanding",
+        "refit_every": 1,
+        "horizon": 1,
+        "train_end": "2004-12-31",
+        "validation_end": "2012-12-31",
+        "cutoff": "2024-12-31"
+      },
+      "interval_candidates": [
+        {
+          "name": "incumbent",
+          "options": {}
+        },
+        {
+          "name": "student_t_mle",
+          "options": {
+            "interval_method": "student_t_mle"
+          }
+        },
+        {
+          "name": "empirical_quantile",
+          "options": {
+            "interval_method": "empirical_quantile",
+            "interval_nodes": 40
+          }
+        },
+        {
+          "name": "conformal_rolling",
+          "options": {
+            "interval_method": "conformal_rolling",
+            "interval_window": 60
+          }
+        }
+      ],
+      "interval_selection": {
+        "metric": "crps",
+        "min_periods": 8,
+        "score_unselected": true
+      },
+      "diagnosis": "Monthly, conformal window 60 months. Coverage 0.958 (over by 0.008) with the revision component the WS-E rule selected on a validation window spanning the financial crisis. Every new candidate KEEPS the declared interval_revision component (window 120, maturity 24), so only the residual distribution changes. Validation 2005-2012 is 96 months, so the rule CAN compare. beats_persistence_dm fails (p = 0.160) whatever the interval does, so the attempt cannot pass.",
+      "interval_method": "incumbent = gaussian_in_sample plus interval_revision {window 120, maturity 24} (the base's estimator_options). student_t_mle: location-zero Student-t, scale and degrees of freedom by maximum likelihood on all in-sample residuals (df in [2.5, 100]; n/(n-k) variance correction). empirical_quantile: the 40 (i+0.5)/40 empirical quantiles of all in-sample residuals, same correction. conformal_rolling: rolling split-conformal order statistics (ranks floor/ceil((n+1)tau), 45 nodes so 0.1/0.5/0.9 are exact) of pre-origin OUT-OF-SAMPLE one-step errors: each is the forecast of a fit that excluded its target, computed inside the origin's own frame, so nothing after the origin enters.",
+      "selection_rule": "Candidates are the incumbent (the base attempt's own declared predictive, unchanged) and the three fat-tail methods, each on top of the base attempt's other declared options. They differ only in the predictive distribution, so their point forecasts, MSE and DM tests are identical and the default MSE selection could not tell them apart. The selection rule is the one the record already uses (WS-E): LOWEST VALIDATION-WINDOW CRPS, a proper score blind to coverage, computed by validate_process itself over the validation rows every candidate produced (selection_metric='crps'). If fewer than 8 distinct validation PERIODS are common to the candidates, no comparison is made and the incumbent is kept (a panel's units in one year are one draw of the common shock, so rows are not periods). The selection is hashed and frozen before the holdout is scored. Every rejected candidate is then also scored on the holdout and recorded under unselected_holdout, for the record only: those numbers enter neither the selection nor the verdict, and no candidate is retro-selected on them.",
+      "rationale": "Identical data, loader, splits, vintage policy, estimator options and acceptance criteria to labor_demand.fred_realtime_v4; the declared set of predictive distributions and the rule that chooses between them on the validation window are the only change.",
+      "supersedes": "labor_demand.fred_realtime_v4",
+      "run_note": "2026-09-18, after scoring. FAIL (beats_persistence_dm p = 0.160, interval_coverage 0.958), identical to the base. The rule compared on 95 validation months and kept the incumbent (validation CRPS 431.0 against student_t_mle 443.6, empirical_quantile 440.7, conformal_rolling 471.3). THE SAME REVERSAL WS-E RECORDED, AGAIN: on the holdout the rejected student_t_mle (coverage 0.790, CRPS 406.0) and empirical_quantile (0.804, 408.4) are better on both coverage and CRPS than the incumbent (0.958, 431.0); conformal_rolling is 0.741 / 464.4. The 2005-2012 validation window contains the financial crisis and 2013-2024 does not. Not retro-selected; beats_persistence_dm fails regardless. Report 23151e451497 / artifact 301f55f09713."
+    },
+    {
+      "id": "default_hazard.fred_business_loans_realtime",
+      "kind": "component",
+      "target": "default_hazard",
+      "process_id": "coupled_economy",
+      "loader": {
+        "function": "default_hazard_series_data",
+        "options": {
+          "series_id": "DRBLACBS",
+          "versions": {
+            "fred_macro_panel": "7dcce89cb6e95530779f76504e0c29230b965310ce4e98180e8de3e4ec27f678",
+            "fred_policy_rate": "966a00996df4bcca5c91c712b9703e21d607905f4e71bf0deba416a2fd039b58"
+          }
+        }
+      },
+      "overrides": {
+        "delinquency_rate": {
+          "metric": "business_loan_delinquency_rate",
+          "source_series": "DRBLACBS",
+          "description": "SUBSTITUTION, not the declared series. Delinquency Rate on Business Loans, All Commercial Banks (FRED DRBLACBS, 30+ days past due, seasonally adjusted, quarterly from 1987, ALFRED vintages from 2011-05), which requirements.json names as the business-loan delinquency alternative to DRCCLACBS. Chosen because the simulator hook this component binds to draws FIRM defaults and this is the catalog series whose borrowers are firms; a pass here is a pass on business-loan delinquency and does not validate the declared credit-card series."
+        }
+      },
+      "data": "fred_macro_panel@7dcce89c (DRBLACBS, UNRATE) + fred_policy_rate@966a0099 (DFF), quarterly, ALFRED vintages",
+      "protocol": {
+        "vintage_policy": "strict",
+        "window": "expanding",
+        "refit_every": 1,
+        "horizon": 1,
+        "train_end": "2016-12-31",
+        "validation_end": "2019-12-31",
+        "cutoff": "2025-12-31"
+      },
+      "diagnosis": "docs/research-log/default-hazard-sign.md. The declared pair gives unemployment_sensitivity -1.26 and persistence 1.0038 while the FDIC substitutes give +2.12/+2.19. Units and quarter alignment were checked and are identical across sources; the sample window is not the cause (the declared pair on the substitutes' own 2010-2025 window gives -1.55, SE 0.46). The cause is the definition of the left-hand side: card 30+ day delinquency is purged by 180-day charge-off and falls while unemployment is still high (halved 2009Q2-2011Q4 at 8.6-10% unemployment; fell in 2020 as unemployment hit 13%), so with persistence near one its change correlates -0.50 with the unemployment level; the FDIC 90+day/nonaccrual stock of all loans clears slowly and its level correlates +0.81 with unemployment. The mechanism the component binds to draws firm defaults, and neither series is a firm-default measure.",
+      "disclosure": "Registered AFTER the diagnosis fitted DRBLACBS in-sample on frames running to the 2025-12-31 cutoff, i.e. including this protocol's holdout years: full-sample persistence 0.954 (SE 0.014), unemployment_sensitivity +0.49 (SE 0.72), rate_sensitivity +1.09 (SE 0.33). parameters_within_declared_bounds is evaluated on exactly that final fit, so its outcome was effectively known and this attempt is NOT blind on that criterion. No validation-window or holdout forecast on DRBLACBS had been computed, so beats_persistence_dm, interval_coverage and the leakage criteria were unseen. Nothing else about the declared attempt was changed.",
+      "rationale": "Identical splits, vintage policy, design, declared unemployment (UNRATE) and policy-rate (DFF) series and acceptance criteria to default_hazard.fred_primary_realtime; the delinquency series is the only change, declared as a substitution. The declared credit-card attempt keeps its failing verdict and stays current beside this one.",
+      "expected_limits": "unemployment_sensitivity is statistically indistinguishable from zero on the full sample and after 2010, so even a pass would bind a weakly identified unemployment channel; the business-loan rate is the delinquency of bank C&I borrowers, not the default hazard of all firms.",
+      "run_note": "2026-09-18, after scoring. FAIL on interval_coverage alone. Report 61bea0ac3c3b..., artifact d0f5cc649b79.... 23 holdout quarters (2020Q1-2025Q3), 0 skipped origins, 31.7 s wall clock. minimum_test_forecasts PASS (23 >= 12); beats_persistence_dm PASS (p = 0.0545, MAE 0.0521 against persistence 0.0604); parameters_within_declared_bounds PASS (not blind, see disclosure: persistence 0.9542 (0.0136), unemployment_sensitivity +0.490 (0.718), rate_sensitivity +1.090 (0.331), hazard_intercept -0.248 (0.092)); no_timing_leakage PASS; no_revision_leakage PASS (strict, ALFRED vintages); interval_coverage FAIL at 1.000 (mean 80% width 0.552pp against an MAE of 0.052pp). The Gaussian in-sample scale is set by the 1990-91 and 2008-09 business-loan delinquency cycles and is far too wide for 2020-2025. This was not re-specified: choosing an interval now would be choosing it on this holdout. The substitution does not validate the declared credit-card series, and the unemployment channel it estimates is not distinguishable from zero."
+    },
+    {
+      "id": "legislative_model.voteview",
+      "kind": "family",
+      "target": "legislative",
+      "process_id": "legislative_model",
+      "loader": {
+        "function": "legislative_data",
+        "options": {
+          "congress": 117,
+          "chamber": "Senate",
+          "dimensions": 1
+        }
+      },
+      "data": "voteview_rollcalls@fce7b752 (roll_call_member_positions: 949 Senate roll calls of the 117th Congress, 2021-01-06..2022-12-22, 91,623 yea/nay positions; congressional_service for party codes)",
+      "protocol": {
+        "train_end": "2021-12-02",
+        "validation_end": "2022-04-26",
+        "cutoff": "2022-12-22",
+        "vintage_policy": "family_rows",
+        "refit_every": 1,
+        "horizon": 1
+      },
+      "entity_rule": "The Senate of the 117th Congress: the chamber-Congress the not_run record named when the attempt was first declared (949 roll calls), which is also the Senate with the most roll calls among the Congresses voteview_rollcalls publishes member positions for (110-119; 119 is still in session). Counted from roll_call_member_positions events only; no fit or forecast was run before this was frozen. One chamber is scored because the family fits one chamber-Congress at a time; the House is not attempted here.",
+      "split_rule": "Coverage only. Roll calls are ordered by (date, rollnumber); train_end is the date of the roll call at the 50th percentile of the 949 (2021-12-02), validation_end the date at the 70th percentile (2022-04-26) and cutoff the last roll-call date (2022-12-22). The holdout is therefore every roll call after 2022-04-26 (about 30% of the Congress), refit at every roll-call date.",
+      "model_options": "Family defaults, unmodified: one dimension, lopsided threshold 0.025, minimum 20 scaled votes, prior sd 1, bill prior sd 5, no anchors (predicted probabilities do not depend on the polarity of the scale), revealed members = every third member by ICPSR id (legislative.revealed_members), backend auto (numpy sweeps when numpy is importable; the backend is recorded in each estimate).",
+      "rationale": "The family forecasts held-out roll-call votes of unrevealed members given the origin ideal points and the revealed members' votes on the same roll call, and is scored against the member yea rate and the revealed yea share. Voteview position groups map onto the family's coding exactly as legislative.from_voteview does (yea/paired_yea/announced_yea = 1; nay/paired_nay/announced_nay = 0; present, not_voting and not_member are missing). Roll-call dates are the dates of the recorded votes; a recorded position is final when the vote closes, so the rows are declared revisions none (Voteview transcription corrections are possible and unmeasured).",
+      "expected_limits": "The conditional input is strong: the new roll call's (a, b) are fit to one third of the chamber's votes on that same roll call, so the revealed-share baseline is demanding and the member-base-rate baseline is weak. Two voters have no Senate service assertion for this Congress (vice-presidential tie-breaking votes); they are kept with no party and the minimum-vote screen decides whether they are scaled. Pooled DM tests across members and roll calls ignore their dependence.",
+      "compute_budget": "Measured before registration on a synthetic fixture of this attempt's size (104 senators, 949 roll calls on 252 dates, 95,715 positions, the same 50/70/100% date splits; numpy backend): the whole validate_process takes 75.1 s with the frozen pre-change module and 61.7 s after the speed-up, peak RSS 177 MB, and both produce the same report_id (fcf65265e257...). Per refit, cProfile attributes 55% of the time to estimate_discipline's one-coefficient Newton loop in pure Python and 30% to estimate_ideal_points; the speed-up removes most of the former. The not_run record's claim that the per-origin refit exceeds 30 minutes was not a measurement: on this size the unmodified code already fits the budget. Loading Senate 117 from voteview_rollcalls takes 1 s. Budget: 30 minutes wall clock, unchanged.",
+      "run_note": "2026-09-18 (UTC 2026-09-19T01:10-01:11), after scoring. Ran inside the budget: 70.2 s wall clock including the load, peak RSS 190 MB, 0 skipped origins, run from a frozen copy of the code at commit 6cf509d. PASS on all eight declared criteria, so legislative_model is VALIDATED: minimum_test_forecasts 18,725 (>= 200); Brier skill against the member base rate 0.794 (>= 0.05); DM against the revealed yea share p < 1e-15, mean squared-loss difference -0.170; DM against persistence p < 1e-15; calibration maximum absolute deviation 0.082 (<= 0.15, in the 0.7-0.8 bin, where the model under-predicts yeas); parameters within bounds (discipline 0.0277); no timing leakage; no revision leakage (rows declared revisions none). Brier 0.0436. Report 7f567c06342f..., artifact calibration_reports@73ccbd12b0b9 (estimate artifact fa9fa8d9cac9). Caveats that belong next to the pass: the forecast conditions on one third of the chamber's votes on the same roll call, which is the declared contract but a strong input; the DM p-values pool 18,725 member-votes that share roll calls, so they overstate the evidence; and no_revision_leakage passes by the loader's declaration that recorded positions are not revised."
+    },
+    {
+      "id": "market_abm_model.alpaca",
+      "kind": "family",
+      "target": "market_abm",
+      "process_id": "market_abm_model",
+      "loader": {
+        "function": "market_abm_data",
+        "options": {
+          "symbol": "SPY",
+          "start": "2016-01-04",
+          "end": "2024-12-31",
+          "window_length": 21,
+          "grid": {
+            "chartist_strength": [
+              0.0,
+              20.0,
+              40.0,
+              80.0
+            ]
+          },
+          "seed": 1000,
+          "holdout_seed": 2000,
+          "holdout_simulation_runs": 10
+        }
+      },
+      "data": "alpaca_daily_bars@ce41ae57 (SPY total-return adjusted daily closes, 2016-01-04..2024-12-31, 2,264 bars; 107 non-overlapping 21-return windows)",
+      "protocol": {
+        "train_end": "2021-12-31",
+        "validation_end": "2023-06-30",
+        "cutoff": "2024-12-31",
+        "vintage_policy": "family_rows",
+        "refit_every": 1,
+        "horizon": 1
+      },
+      "entity_rule": "SPY only, the broad-market series of the universe assets_model.alpaca_daily declared in advance (its market factor). The family simulates one aggregate market price, so the market index is the series it describes; the five single-name issuers are not attempted. Chosen by declaration, with no fit run.",
+      "split_rule": "The same train_end, validation_end and cutoff as assets_model.alpaca_daily on the same bars, so the two families are scored over the same calendar; windows are 21 returns (one trading month) counted from the first bar, and a window is a target when its end date falls in the scored interval.",
+      "model_options": "The family's declared example configuration, unmodified (market_abm.example_config: 20 fundamentalist, 20 chartist and 20 noise traders, Walrasian clearing, fundamentalist_strength 2, chartist_strength 20, noise_sd 0.1, fundamental_volatility 0.01, initial price 10,000 cents), the family synthetic grid chartist_strength in {0, 20, 40, 80}, SMM seed 1000, holdout seeds 2000..2009 (10 runs), no burn-in. simulation_horizon_steps is the full sample (2,263 steps), so each configuration is simulated once and every origin reads a prefix of the same path; paths are prefix-consistent (tested), so this changes no value.",
+      "rationale": "The primary target is the return sd of the next non-overlapping window, scored against the previous window and the mean of past windows; absolute-return autocorrelation and excess kurtosis are secondary. Only the return moments are matched, so the price level of the stylized market is immaterial.",
+      "expected_limits": "Total-return adjusted closes are restated by later distributions, so revisions are declared minor and no_revision_leakage is expected to fail, as it does for assets_model.alpaca_daily. The SMM distance matches four moments with a one-parameter grid, so the fitted model can reproduce at most the volatility level, not its clustering; beating the previous-window baseline on window sd is not expected. Alpaca bars are personal/internal use only, so the report stays local.",
+      "compute_budget": "Measured before registration on a synthetic fixture of this attempt's size (2,264 daily closes, 107 windows of 21 returns, the same splits and SMM configuration): the whole validate_process takes 69.0 s with the frozen pre-change module and 29.3 s after the speed-up, peak RSS 35 MB, same report_id (2707d66a958c...). cProfile puts 97% of the time in the Walrasian price search, where _theta was re-evaluated for every agent at every one of ~102 bisection prices per step although only fundamentalist allocations depend on the price. simulation_horizon_steps (set by the loader to the full sample) makes each configuration a single simulated path shared by every origin, so the grid SMM refit at each window origin costs moments over cached prefixes, not new simulations. Loading SPY from alpaca_daily_bars takes 27 s (a streaming scan of the 3.8 GB dataset). Budget: 30 minutes wall clock, unchanged.",
+      "run_note": "2026-09-18 (UTC 2026-09-19T01:11-01:13), after scoring. Ran inside the budget: 106.3 s wall clock including the 27 s scan of alpaca_daily_bars, peak RSS 77 MB, 0 skipped origins, run from a frozen copy of the code at commit 6cf509d. FAIL on four criteria: beats_persistence_dm (p = 0.819), beats_historical_mean_dm (p = 0.998), interval_coverage 0.222 against 0.80 +/- 0.20, and no_revision_leakage (adjusted closes, as expected). minimum_test_forecasts (18 windows >= 10), parameter bounds and timing leakage pass. The SMM selects chartist_strength 0 at the final cutoff; the simulated window sd is biased up by 0.0033 (MAE 0.0035 against persistence 0.0023) and its 10-run spread is narrow (mean 80% width 0.0041), so the intervals miss from above. Report 1f9fadd315a2..., artifact calibration_reports@0e7bd72c9f17 (estimate artifact f4c6f5924ac8)."
     }
   ],
   "not_run": [
@@ -1452,13 +2007,17 @@
       "id": "legislative_model.voteview",
       "target": "legislative",
       "reason": "compute_budget",
-      "note": "voteview_rollcalls publishes roll_call_member_positions for Congresses 110-119 (e.g. Senate 117: 949 roll calls), so the data exist. The ideal-point MAP refit at every holdout origin exceeds the declared 30-minute budget per attempt."
+      "note": "voteview_rollcalls publishes roll_call_member_positions for Congresses 110-119 (e.g. Senate 117: 949 roll calls), so the data exist. The ideal-point MAP refit at every holdout origin exceeds the declared 30-minute budget per attempt.",
+      "reattempted_by": "legislative_model.voteview",
+      "reattempt_note": "Kept as recorded. Re-attempted under the same id in the not_run wave (2026-09-18) after the code was profiled and made faster without changing any output; see not_run_wave and the attempt of the same id at the end of attempts."
     },
     {
       "id": "market_abm_model.alpaca",
       "target": "market_abm",
       "reason": "compute_budget",
-      "note": "Daily closes are available; the grid SMM fit at every window origin exceeds the declared budget."
+      "note": "Daily closes are available; the grid SMM fit at every window origin exceeds the declared budget.",
+      "reattempted_by": "market_abm_model.alpaca",
+      "reattempt_note": "Kept as recorded. Re-attempted under the same id in the not_run wave (2026-09-18) after the code was profiled and made faster without changing any output; see not_run_wave and the attempt of the same id at the end of attempts."
     }
   ],
   "blocked_on_data": "See worldmodel.estimation.loaders.availability(): BLOCKED_COMPONENTS and BLOCKED_FAMILIES name the exact missing series and the dataset that must publish them. As of the fifth wave the elections family is no longer blocked (mit_election_returns published House district returns) and regional has a long panel (bls_labor QCEW). What remains blocked is field_diffusion_transport (epa_aqs_daily), bilateral_flow_gravity (freight FAF5), trade (cepii_baci) and influence (no unit-period exposure panel).",
@@ -1469,5 +2028,8 @@
   "fifth_wave": "2026-09-16. Three strands. (a) Interval calibration on the three attempts that beat their baselines on point accuracy and failed ONLY interval_coverage: inventory_balance (0.640), credit_growth (0.596) and regional_model (1.000). Each was diagnosed first, and each new attempt records the diagnosis and the interval method it declares; the diagnoses differ, so the methods differ. Predictive distributions are now a declared choice in the estimator (worldmodel/estimation/intervals.py: gaussian_in_sample, gaussian_trailing, student_t_trailing, empirical_trailing, with optional coefficient-uncertainty and data-revision components; regional: pooled_year_draw or per_unit_year_mean), not a tuned multiplier, and the default keeps every earlier run bit-identical. (b) elections_model is no longer blocked: mit_election_returns published 33,805 U.S. House district rows, so the family is scored on real district returns with the split taken by election year. (c) bls_labor was rebuilt from 18.2M to 60.9M rows (the earlier build was an incomplete download), so every attempt that read it is rerun with the version as the only change, the newly available national CPS unemployment rate replaces one of the two substitutions in the passing default_hazard attempt, and QCEW makes the long regional panel possible.",
   "panel_length_wave": "2026-09-17 (WS-D, panel length). Two attempts failed minimum_test_forecasts, which is a data-quantity failure and not a modelling one: population_growth_rate.census_pep had 14 annual observations and n=4 against a declared 8, and deposit_rate_pass_through.fred_realtime had 62 monthly observations and n=16 against a declared 24. Five attempts are registered below and every split is taken from data coverage alone. Population is attempted twice: on the declared primary source, with census_population extended from two PEP vintages to twelve (V2004-V2007, V2011-V2025, plus the 2000-2010 national intercensal series, so annual national coverage is 2000-2025 instead of 2010-2024); and on POPTHM, which requirements.json already names as a source for the same series and which fred_macro_panel already publishes with 325 ALFRED vintages back to 1999-07-30. The deposit rate cannot be extended backwards -- SNDR does not exist before 2021-04 -- so it is attempted three ways: the declared series with the splits recut to the minimum the criteria demand (train = exactly the 36 months needed to fit, holdout = the last 25 months, validation = what is left), and two SUBSTITUTE series in a new fred_deposit_rates dataset (SAVNRNJ, SNDR's discontinued predecessor from the same FDIC programme, 2009-2021; and M2OWN, the M2 own rate, 1959-2019). Both substitutions are declared as overrides and neither can be read as the declared SNDR component passing, following the precedent of default_hazard.fdic_laus_quarterly.",
   "sixth_wave": "2026-09-17, WS-E. interval_coverage blocked 16 of the 35 attempts, more than any other criterion, and needs no new data. Each of the 16 was diagnosed separately into one of two causes the record already distinguishes: a SCORING BUG (a real-time forecast graded against a later vintage, as credit_growth was) or GENUINE MISCALIBRATION (the predictive distribution is the wrong shape or the wrong width for the right reason). One new scoring bug was found and fixed in the code: the backtest handed a declared conditional input's value at the target period from the evaluation vintage while its own lag in the same design row came from the origin's vintage, so labor_demand's output-growth regressor was the INDPRO rebasing factor (-0.2177) rather than realized growth (+0.0005). Components now declare conditional_rebase per input; only labor_demand declares one, and the other six conditional inputs were measured and left unchanged. The regional family gains per_unit_year_draw, which pairs per_unit_year_mean's per-region within-year scale with the fresh-draw common term the default already used, because between/Y is the predictive variance of a year effect treated as a fixed level and the forecast error contains next year's own draw. Every candidate interval method was compared on the SELECTION window under a declared rule of lowest CRPS -- a proper score, blind to coverage -- and no threshold was relaxed. Attempts with no principled fix are recorded as still failing: see docs/research-log/ws-e-interval-coverage.md for the count and the reason for each.",
-  "seventh_wave": "2026-09-17, WS-B. The first regional attempts whose rows are publication-dated. The earlier conclusion that no published employment source carries vintages was wrong about the world: ALFRED archives the BLS CES State and Area state-by-supersector series with 229 vintages from 2007-06-19, and fred_state_employment_vintages publishes them. regional_model.ces_sae_realtime and _v2 are the two attempts, differing only in the declared interval method, and both were registered before either ran. The audit of every source checked, with URLs and HTTP statuses, is docs/research-log/ws-b-employment-vintages.md."
+  "seventh_wave": "2026-09-17, WS-B. The first regional attempts whose rows are publication-dated. The earlier conclusion that no published employment source carries vintages was wrong about the world: ALFRED archives the BLS CES State and Area state-by-supersector series with 229 vintages from 2007-06-19, and fred_state_employment_vintages publishes them. regional_model.ces_sae_realtime and _v2 are the two attempts, differing only in the declared interval method, and both were registered before either ran. The audit of every source checked, with URLs and HTTP statuses, is docs/research-log/ws-b-employment-vintages.md.",
+  "interval_wave": "2026-09-18 (validation track, interval wave). Gaussian intervals from an in-sample residual scale are too narrow (or too wide) for fat-tailed forecast errors, and interval_coverage blocked 7 of the 30 current attempts on 2026-09-17. Three methods that admit fat tails and use only information available before each origin were added to worldmodel/estimation/intervals.py and tested on synthetic data with known coverage (tests/test_intervals_fat_tails.py): student_t_mle, empirical_quantile and conformal_rolling (rolling split-conformal on pre-origin out-of-sample errors). Every current attempt failing interval_coverage is re-registered once, as <id>_fat_tails, with four declared candidates -- its own predictive as the incumbent plus the three methods -- and the record's existing validation-window rule (lowest validation CRPS, now computed by validate_process over common rows; incumbent kept below 8 common validation periods). All seven registrations, every candidate and every conformal window were written and committed before any of them was run. Rejected candidates are scored on the holdout after the selection is frozen and recorded for the record only. The seven base attempts are superseded by their re-runs and stay in the record with their reports. Attempts: cash_balance.sec_companyfacts_fat_tails, regional_model.cbp_state_sectors_v3_fat_tails, population_growth_rate.census_pep_v2_fat_tails, population_growth_rate.fred_popthm_fat_tails, deposit_rate_pass_through.fred_realtime_v2_fat_tails, deposit_rate_pass_through.m2own_substitute_fat_tails, labor_demand.fred_realtime_v4_fat_tails. RESULT (2026-09-18): no interval_coverage failure was resolved and no attempt changed verdict. The declared rule could compare on three of the eleven runs (cash_balance issuer 0001061219, m2own, labor_demand) and fell back to the incumbent on the rest; see each run_note.",
+  "default_hazard_respecification": "2026-09-18 (validation track). The default_hazard sign disagreement was diagnosed (docs/research-log/default-hazard-sign.md): it is the definition of the delinquency series, not units, lags or the sample window. One re-specification is registered, default_hazard.fred_business_loans_realtime, on the business-loan delinquency rate requirements.json already names as an alternative, because the simulator mechanism draws firm defaults. It was registered after in-sample diagnostics on data through 2025 and says so in its disclosure field.",
+  "not_run_wave": "2026-09-18. The two attempts recorded not_run for compute budget are re-attempted. Nothing about either model changed: the legislative and market_abm modules were profiled on fixtures of the real sizes and made faster only by removing repeated work (a one- and two-coefficient Newton step and dot products written out operation for operation; chartist and noise allocations computed once per step instead of once per bisection evaluation), and tests/test_estimation_not_run_speed.py proves every fit, forecast, simulated path and whole validation report bit-identical to frozen copies of the pre-change modules (tests/legacy_legislative.py, tests/legacy_market_abm.py). Both families gained catalog loaders (legislative_data, market_abm_data) and left BLOCKED_FAMILIES. The 30-minute per-attempt budget is unchanged; an attempt that exceeds it is recorded not_run again with the measurement. Profiles, measurements and verdicts: docs/research-log/not-run-profiling.md."
 }

@@ -74,7 +74,8 @@ and `--refit-every`.
 | `simulation` | Simulated method of moments (common random numbers, sandwich SEs with (1+1/S), J test), rejection ABC, and adapters that treat configuration evaluators (`simulate_coupled_economy`, `materialize_composition`) and `Environment` episodes as black boxes |
 | `bootstrap` | iid, moving-block, circular-block and stationary bootstrap with seeds and failure counts |
 | `validation` | Baselines, MAE/RMSE/MASE, Gaussian and ensemble CRPS, pinball loss, interval coverage, log score, Brier score and skill, calibration curves, Diebold–Mariano (HLN-corrected), rolling-origin backtests, `validate_process`, publication helpers |
-| `intervals` | Declared predictive distributions (normal, Student-t, empirical quantile nodes) with their quantiles, CRPS and log score; trailing scale, kurtosis-matched degrees of freedom, standardized quantile nodes, variance-component combination |
+| `intervals` | Declared predictive distributions (normal, Student-t, empirical quantile nodes) with their quantiles, CRPS and log score; trailing scale, kurtosis-matched and maximum-likelihood degrees of freedom, standardized and raw quantile nodes, split-conformal order statistics, variance-component combination |
+| `status` | `plan_status`: headline counts re-derived from every published validation report joined to the plan (`wm calibration-status --all`) |
 | `acceptance` | Declared criteria and `evaluate_criteria` |
 | `families` | Estimators for each process component, loaded from `requirements.json` |
 | `registry` | `calibration_record`, `attach_calibration`, `load_calibrations` |
@@ -177,6 +178,9 @@ described by `sd`, so only the other two families are stored on a row.
 | `interval_method: empirical_trailing` | Trailing scale with the empirical quantiles of residuals standardized by their own trailing scale (`interval_nodes`, default 40) |
 | `interval_parameter_uncertainty: true` | Adds `x'Vx` at the forecast row (undefined through a link function) |
 | `interval_revision: {window, maturity}` | Adds the dispersion of the revisions the publisher has **already made** by the origin: for every period at least `maturity` periods old, `value / first_value` (in logs for multiplicative components), over the most recent `window` mature periods. The mean revision is reported and deliberately not used to shift the point forecast |
+| `interval_method: student_t_mle` | Student-t with location zero and scale and degrees of freedom by maximum likelihood (profile likelihood over df in [2.5, 100]) on the in-sample residuals, with the default's n/(n−k) correction; `interval_window` restricts it to the last residuals |
+| `interval_method: empirical_quantile` | The empirical quantiles of the raw in-sample residuals (`interval_nodes`, default 40), same correction — the shape with no standardization and no trailing window |
+| `interval_method: conformal_rolling` | Rolling split-conformal: the ⌊(n+1)τ⌋ / ⌈(n+1)τ⌉ order statistics of the last `interval_window` **out-of-sample** one-step errors, each predicted by a fit on the rows before it inside the origin's frame (a declared rolling estimation `window` is honoured). 45 nodes put τ = 0.1, 0.5 and 0.9 exactly on a node. Needs at least 9 errors |
 
 `interval_revision` exists because of a mismatch the protocol itself creates: a
 real-time forecast is anchored on the vintage available at the origin while the actual is
@@ -188,7 +192,23 @@ vintage, or immature periods with no revision yet deflate the estimate.
 
 Model families declare their own methods. A forecaster with `options: True` receives the
 estimator's declared options; `regional` uses `interval_method` ∈ {`pooled_year_draw`,
-`per_unit_year_mean`}.
+`per_unit_year_mean`, `per_unit_year_draw`}. Any family also accepts `family_interval_method` ∈
+{`student_t_mle`, `empirical_quantile`, `conformal_rolling`} (optional
+`family_interval_window`): the forecaster keeps its mean and standard deviation and the adapter
+replaces the primary target's predictive *shape* with one estimated from the family's own
+pre-origin forecast errors, standardized by the sd each carried.
+
+**Choosing between predictive distributions.** Candidates that differ only in their interval
+have identical point forecasts, so the default validation-MSE selection cannot tell them apart.
+`validate_process(..., selection_metric='crps', min_selection_periods=N, score_unselected=True)`
+selects the lowest validation-window CRPS over the forecast rows every candidate produced, keeps
+the first declared candidate (the incumbent) when fewer than N distinct validation periods are
+common to them, hashes the selection before the holdout is scored, and — with
+`score_unselected` — scores the rejected candidates on the holdout afterwards under
+`unselected_holdout`, for the record only. A plan attempt declares this with
+`interval_candidates` and `interval_selection`; the default keeps every earlier report
+byte-identical. The 2026-09-18 interval wave is the worked example, including the case where the
+rule's choice reversed on the holdout (docs/calibration-status.md).
 
 Tests (`tests/test_estimation_intervals.py`) build synthetic data whose predictive
 distribution is known and require nominal coverage where the method should hold —
@@ -439,7 +459,12 @@ report = validate_process(estimator_for('interest_pass_through'), ObservationSet
 print(report['validated'], report['final_estimate']['parameters'], ds['truth'])
 ```
 
-Tests: `python3 -m unittest tests.test_estimation_methods tests.test_estimation_validation tests.test_estimation_families tests.test_estimation_model_families tests.test_estimation_intervals`.
+`wm calibration-status --all` re-verifies every published validation report (digests and a
+re-evaluation of its criteria), keys each by the attempt its manifest names and joins that to
+the plan, so the headline counts — registered, current, passing, failing criteria, validated
+processes — come from the reports rather than from any document.
+
+Tests: `python3 -m unittest tests.test_estimation_methods tests.test_estimation_validation tests.test_estimation_families tests.test_estimation_model_families tests.test_estimation_intervals tests.test_intervals_fat_tails tests.test_estimation_status`.
 
 ## Limits
 

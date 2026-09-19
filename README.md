@@ -14,21 +14,24 @@ a set of simulation kernels over it. It keeps source observations, entity descri
 relationship assertions and events separate, and it does not choose a single truth when
 sources disagree.
 
-**State as of 2026-09-15**, measured on the machine that holds the data (a fresh checkout
-has the declarations and pipeline code but none of the payloads). Read this before
-anything else in the repository:
+**State as of 2026-09-18**, measured that day on the machine that holds the data (a fresh
+checkout has the declarations and pipeline code but none of the payloads). Every row was
+re-derived rather than carried over: the data rows from `wm catalog`, `wm budget` and the latest
+normalized manifests, the estimation rows from the published validation reports with
+`wm calibration-status --all`, and the test row from a full run. Read this before anything else
+in the repository:
 
 | | |
 | --- | --- |
-| Dataset declarations | 121 (116 source, 5 derived) |
-| Published normalized datasets | 107 |
-| Normalized records | ~1.31 billion (36.9 GiB gzipped) |
-| Raw acquired data | 87.7 GiB of a 100 GiB fair-share budget |
-| Pre-registered estimation attempts run on that data | 24 |
-| Attempts that met every declared acceptance criterion | 2 |
-| **Registry processes that are validated** | **1 of 22 — `monetary_model`** |
-| Model families declaring themselves validated | 0 of 11 |
-| Tests | 839, 8 skipped, passing |
+| Dataset declarations | 125 (120 source, 5 derived) |
+| Published normalized datasets | 113 |
+| Normalized records | ~1.56 billion (48.5 GiB gzipped) |
+| Raw acquired data | 90.0 GiB of a 100 GiB fair-share budget |
+| Pre-registered estimation attempts | 61 registered; 33 current, 28 superseded and kept |
+| Current attempts that met every declared acceptance criterion | 9 of 33 |
+| **Registry processes that are validated** | **5 of 22 — `monetary_model`, `resource_inventory`, `elections_model`, `assets_model`, `legislative_model`** |
+| Model families declaring themselves validated | 0 of 11 (a family's descriptor never claims it; validation comes only from a passing report) |
+| Tests | 1,268 discovered; the 1,005 that run here pass, and 263 skip without the optional `agents` extra (`tensorcode`) or local data payloads |
 
 The validation rows are the ones that matter. This system can acquire, version, join and
 query a great deal of real data, and it can score a model honestly against a frozen
@@ -46,7 +49,7 @@ python3 -m worldmodel catalog          # every declaration and its status
 python3 -m worldmodel budget           # download budget and per-dataset allocation
 python3 -m worldmodel models list      # the 11 model families and their validation state
 python3 -m worldmodel estimation-load  # which estimation components can load real data
-python3 -m unittest discover -s tests  # 904 tests, 8 skipped, ~4 minutes
+python3 -m unittest discover -s tests  # 1,268 tests; skips depend on extras and data; ~7 minutes
 ```
 
 None of those touch the network. Acquired payloads, generated dashboards and runtime
@@ -216,18 +219,27 @@ python3 -m worldmodel estimation-requirements   # what each component needs
 python3 -m worldmodel estimation-load           # what can actually be loaded today
 python3 -m worldmodel calibrate-all --help      # rerun attempts (slow; not offline-free)
 python3 -m worldmodel calibration-status calibration_reports@VERSION
+python3 -m worldmodel calibration-status --all   # every published report, joined to the plan
 ```
 
 `calibration-status` re-reads a published report, recomputes its digest and re-evaluates
 the declared criteria; it does not trust the stored `validated` flag.
 
-Of 24 attempts, two runs pass and one process — `monetary_model` — is validated.
-`coupled_economy` needs nine components: seven fail and two have not been re-run against
-the corrected panel. Four components have no forecast skill against a
-persistence baseline at all. `default_hazard` passes on a substituted series and fails on
-its declared primary series with the opposite sign on unemployment sensitivity, so it must
-be read as not validated. Interval coverage is the most common failing criterion.
-[The full record, attempt by attempt](docs/calibration-status.md).
+`calibration-status --all` does that for every published report and joins them to the plan,
+which is where the headline numbers above come from.
+
+Of 33 current attempts, nine pass, and five processes are validated: `monetary_model`,
+`resource_inventory`, `elections_model`, `assets_model` and `legislative_model`. Each is
+validated on the specification and series it declared, and several sit beside failing attempts
+of the same process that stay on the record. `coupled_economy` needs nine components and has
+three passing, one of them only on a substituted series. The most common failing criterion is
+now skill: 15 current attempts do not beat a persistence baseline. Interval coverage fails on 9;
+fat-tailed predictive distributions (Student-t by maximum likelihood, empirical quantiles,
+rolling split-conformal) were tried on every attempt failing it on 2026-09-18 and resolved none.
+`default_hazard` passes on a substituted FDIC series and fails on its declared credit-card
+series with the opposite sign on unemployment sensitivity; the difference is the definition of
+the delinquency series, not units, lags or the sample window, so it must be read as not
+validated. [The full record, attempt by attempt](docs/calibration-status.md).
 
 Eleven political, market and geopolitical model families
 ([guide](docs/political-market-geopolitical-models.md)) plus a multi-actor game layer are

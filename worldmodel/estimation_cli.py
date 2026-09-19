@@ -36,7 +36,11 @@ def add_commands(sub):
     requirements.add_argument('process', nargs='?')
     requirements.add_argument('--full', action='store_true', help='Print the complete requirements.json document')
     status = sub.add_parser('calibration-status', help='Verify validation reports and show resulting process validation state')
-    status.add_argument('reports', nargs='+', help='validation report DATASET[@version]')
+    status.add_argument('reports', nargs='*', help='validation report DATASET[@version]')
+    status.add_argument('--all', action='store_true',
+                        help='Re-verify every published validation report and derive the headline counts, joined to the plan')
+    status.add_argument('--plan', type=Path, help='Alternative pre-registered plan file (with --all)')
+    status.add_argument('--dataset', default=REPORT_DATASET, help='Report dataset (with --all)')
     load = sub.add_parser('estimation-load', help='Build estimator inputs from published catalog datasets and summarize them')
     load.add_argument('target', nargs='?', help='Component id or model family id; omitted lists catalog availability')
     load.add_argument('--option', action='append', default=[], help='KEY=JSON loader option (e.g. issuer="sec:cik:0000320193")')
@@ -171,11 +175,28 @@ def _run_attempt(attempt, store, *, publish=True, dataset=None):
             if declared not in (None, policy):
                 run['vintage_policy_note'] = f'plan declares {declared}; loader supports {policy}'
             inputs = [dict(ref) for ref in evidence['inputs']]
+            # Declared interval candidates (interval wave, 2026-09-18): each candidate is the
+            # attempt's own estimator_options plus its declared changes, the first is the
+            # incumbent, and the selection rule is the one the attempt declares.
+            selection = attempt.get('interval_selection') or {}
+            candidates = None
+            if attempt.get('interval_candidates'):
+                candidates = []
+                for declared_candidate in attempt['interval_candidates']:
+                    candidate_options = dict(declared_options or {}, **(declared_candidate.get('options') or {}))
+                    if attempt['kind'] == 'component':
+                        candidate = estimator_for(attempt['target'], overrides=attempt.get('overrides'), options=candidate_options)
+                    else:
+                        candidate = estimator_for(f"{attempt['target']}_model_parameters", options=candidate_options)
+                    candidates.append((declared_candidate['name'], candidate))
             report = validate_process(estimator, data, train_end=protocol['train_end'], validation_end=protocol['validation_end'],
                                       cutoff=protocol['cutoff'], vintage_policy=declared or policy,
                                       window=protocol.get('window', 'expanding'), window_size=protocol.get('window_size'),
                                       refit_every=protocol.get('refit_every', 1), horizon=protocol.get('horizon', 1),
-                                      data_inputs=inputs)
+                                      data_inputs=inputs, candidates=candidates,
+                                      **({'selection_metric': selection['metric'],
+                                          'min_selection_periods': selection.get('min_periods'),
+                                          'score_unselected': bool(selection.get('score_unselected'))} if selection else {}))
             artifact = None
             if publish:
                 # The estimate is published first so the dataset pointer ends on a validation report.
@@ -192,6 +213,8 @@ def _run_attempt(attempt, store, *, publish=True, dataset=None):
             run.update({'status': 'ran', 'validated': report['validated'], 'report_id': report['report_id'], 'artifact': artifact,
                         'process_id': report['process_id'], 'component': report['component'],
                         'selection_hash': report['selection']['selection_hash'],
+                        **({'selection': {k: report['selection'].get(k) for k in ('selected', 'scores', 'rule')},
+                            'unselected_holdout': report.get('unselected_holdout')} if candidates else {}),
                         'evidence': {k: v for k, v in evidence.items() if k != 'record_ids'},
                         'sample': report['final_estimate']['sample'],
                         'parameters': report['final_estimate']['parameters'],
@@ -267,7 +290,12 @@ def execute(args, catalog, store, project, reference):
         return _calibrate_all(args, store)
     if args.command == 'estimation-requirements':
         return load_requirements() if args.full else requirements_summary(args.process)
+    if args.command == 'calibration-status' and args.all:
+        from .estimation.status import plan_status
+        return plan_status(store, load_plan(args.plan), dataset=args.dataset)
     if args.command == 'calibration-status':
+        if not args.reports:
+            raise ValueError('calibration-status needs report references, or --all')
         registry = default_registry()
         records = load_calibrations(store, registry, [reference(value, store) for value in args.reports])
         processes = {}

@@ -287,6 +287,60 @@ class FamilyLoaderTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             assets_data(self.store, symbols=['AAPL', 'SPY'], factor_symbol='SPY')
 
+    def test_legislative_positions_become_yea_nay_votes_for_one_chamber_congress(self):
+        def positions(chamber, congress, rollnumber, day, groups):
+            return {'kind': 'event', 'event_type': 'roll_call_member_positions', 'id': f'vv:positions:{chamber[0]}{congress}:{rollnumber}',
+                    'occurred_at': day, 'observed_at': '2026-09-15T00:00:00+00:00',
+                    'attributes': {'chamber': chamber, 'congress': congress, 'rollnumber': rollnumber, 'positions': groups}}
+
+        def service(icpsr, chamber, congress, party):
+            return {'kind': 'assertion', 'predicate': 'congressional_service', 'id': f'vv:service:{congress}:{chamber}:{icpsr}',
+                    'subject': f'icpsr:{icpsr}', 'value': {'chamber': chamber, 'congress': congress, 'party_code': party}}
+
+        records = [positions('Senate', 117, 2, '2021-01-07', {'yea': [1, 2], 'paired_nay': [3], 'present': [4], 'not_voting': [5]}),
+                   positions('Senate', 117, 1, '2021-01-06', {'announced_yea': [3], 'nay': [1, 2]}),
+                   positions('House', 117, 1, '2021-01-06', {'yea': [9]}),
+                   positions('Senate', 116, 1, '2019-01-06', {'yea': [1]}),
+                   service(1, 'Senate', 117, '100'), service(2, 'Senate', 117, '200'), service(4, 'Senate', 117, '200'),
+                   service(9, 'House', 117, '100')]
+        self.store.write('voteview_rollcalls', records)
+        data, evidence = load_for('legislative', self.store, {'congress': 117, 'chamber': 'Senate'})[:2]
+        self.assertEqual([r['id'] for r in data['rollcalls']], ['117:Senate:1', '117:Senate:2'])      # date order
+        self.assertEqual(sorted((v['rollcall'], v['member'], v['vote']) for v in data['votes']),
+                         [('117:Senate:1', '1', 0), ('117:Senate:1', '2', 0), ('117:Senate:1', '3', 1),
+                          ('117:Senate:2', '1', 1), ('117:Senate:2', '2', 1), ('117:Senate:2', '3', 0)])
+        parties = {m['id']: m['party'] for m in data['members']}
+        self.assertEqual(parties, {'1': '100', '2': '200', '3': None, '4': '200'})   # present/not voting are missing votes
+        self.assertEqual(data['construction']['voters_without_service_record'], 1)
+        self.assertEqual(evidence['series_counts'], {'rollcall_positions': 2, 'service': 3})
+        with self.assertRaises(MissingData):
+            load_for('legislative', self.store, {'congress': 118, 'chamber': 'Senate'})
+
+    def test_market_abm_bars_carry_the_declared_smm_configuration(self):
+        from datetime import date, timedelta
+        bars, day = [], date(2020, 1, 2)
+        for index in range(70):
+            bars.append(observation(id=f'alpaca:SPY:{day}', metric='close_price_total_return_adjusted', unit='USD/share',
+                                    subject='ticker:US:SPY', value=300.0 + index, valid_from=day.isoformat(),
+                                    valid_to=day.isoformat(), dimensions={'frequency': 'daily'}))
+            bars.append(observation(id=f'alpaca:AAPL:{day}', metric='close_price_total_return_adjusted', unit='USD/share',
+                                    subject='ticker:US:AAPL', value=100.0, valid_from=day.isoformat(),
+                                    valid_to=day.isoformat(), dimensions={'frequency': 'daily'}))
+            day += timedelta(days=1)
+        self.store.write('alpaca_daily_bars', bars)
+        grid = {'chartist_strength': [0.0, 40.0]}
+        data, evidence = load_for('market_abm', self.store, {'symbol': 'SPY', 'start': '2020-01-01', 'end': '2020-12-31',
+                                                             'window_length': 20, 'grid': grid})[:2]
+        self.assertEqual(len(data['bars']), 70)
+        self.assertEqual(data['bars'][0], {'date': '2020-01-02', 'close': 300.0})
+        self.assertEqual(len(data['windows']), 3)               # windows end at bars 20, 40 and 60
+        self.assertEqual(data['grid'], grid)
+        self.assertNotIn('steps', data['base_config'])
+        self.assertEqual(data['simulation_horizon_steps'], 69)
+        self.assertEqual(evidence['series_counts'], {'bars': 70})
+        with self.assertRaises(MissingData):
+            load_for('market_abm', self.store, {'symbol': 'SPY', 'start': '2020-01-01', 'end': '2020-01-31'})
+
     def test_commodities_converts_daily_flows_to_weekly_barrels(self):
         weeks = []
         for index, ending in enumerate(['2020-01-03', '2020-01-10']):
@@ -572,6 +626,27 @@ class RebasedVintageTests(unittest.TestCase):
             growth = [b / a for a, b in zip(series.values, series.values[1:])]
             self.assertTrue(all(abs(g - 1.04) < 1e-9 for g in growth), 'growth must be base-invariant')
 
+    def test_default_hazard_business_loan_substitute_keeps_the_declared_drivers(self):
+        from worldmodel.estimation.loaders import default_hazard_series_data
+        records = []
+        for series, metric in (('DRBLACBS', 'business_loan_delinquency_rate'), ('DRCCLACBS', 'credit_card_delinquency_rate'),
+                               ('UNRATE', 'unemployment_rate')):
+            records.append(self._fred(series, metric, 'percent', None, '2015-01-01', '2015-05-20', 1.5))
+        self.store.write('fred_macro_panel', records)
+        self.store.write('fred_policy_rate', [observation(
+            id='dff:2015-01-01', metric='policy_rate', unit='percent', subject='geo:US', value=0.1,
+            valid_from='2015-01-01', valid_to='2015-01-02', attributes={'realtime_start': '2015-01-02'})])
+        override = {'delinquency_rate': {'metric': 'business_loan_delinquency_rate', 'source_series': 'DRBLACBS'}}
+        estimator = estimator_for('default_hazard', overrides=override)
+        data, evidence, policy = default_hazard_series_data(self.store, series_id='DRBLACBS', estimator=estimator)
+        self.assertEqual(policy, 'strict')
+        delinquency = [r for r in data.records if r['metric'] == 'business_loan_delinquency_rate']
+        self.assertEqual(len(delinquency), 1)
+        self.assertNotIn('credit_card_delinquency_rate', {r['metric'] for r in data.records})
+        self.assertEqual(set(evidence['series_counts']), {'delinquency_rate', 'unemployment_rate', 'policy_rate'})
+        with self.assertRaises(MissingData):
+            default_hazard_series_data(self.store, series_id='CORCCACBS')
+
     def test_monetary_gap_uses_the_2012_pair_when_2017_potential_is_missing(self):
         from worldmodel.estimation.loaders import _bases
         items = [('2020-04-15', 20100.0, 'a', '2012'), ('2020-05-01', 23115.0, 'b', '2017')]
@@ -580,7 +655,20 @@ class RebasedVintageTests(unittest.TestCase):
         self.assertEqual(shared, ['2012'])        # the 2017 GDP vintage is ignored until potential follows
 
 
-@unittest.skipUnless((DATA_ROOT / 'census_population' / 'manifests' / 'latest.json').exists(),
+def _local_build(dataset):
+    """True when the latest build's payload is present, not only its committed manifest.
+
+    A git worktree carries ``manifests/`` (tracked) but no ``artifacts/`` (ignored), so the
+    manifest alone does not mean the data are here.
+    """
+    latest = DATA_ROOT / dataset / 'manifests' / 'latest.json'
+    if not latest.exists():
+        return False
+    ref = json.loads(latest.read_text(encoding='utf-8'))
+    return (DATA_ROOT / dataset / 'artifacts' / ref.get('stage', 'normalized') / ref['version'] / 'manifest.json').exists()
+
+
+@unittest.skipUnless(_local_build('census_population'),
                      'No local census_population build; skipping the real-data smoke test')
 class RealDataSmokeTests(unittest.TestCase):
     """Loads one small real slice: national PEP population, which is a few dozen records."""

@@ -1,10 +1,77 @@
 # Calibration status on real data
 
 What the estimation layer produced when it was run on the normalized datasets published
-in this catalog on 2026-09-15, 2026-09-16 and 2026-09-17. Every attempt was pre-registered in
+in this catalog on 2026-09-15, 2026-09-16, 2026-09-17 and 2026-09-18. Every attempt was
+pre-registered in
 [`worldmodel/estimation/real_data_plan.json`](../worldmodel/estimation/real_data_plan.json)
 — splits, loader options, entity-selection rules and acceptance criteria were frozen
-before any holdout was scored. Nothing below was re-specified after seeing a test result.
+before any holdout was scored. No attempt was re-specified after seeing its test result: a
+change made afterwards is a new attempt with a new id, the old one stays in the record, and
+where the new registration was written with knowledge of earlier results it says so (the
+`disclosure` field on `default_hazard.fred_business_loans_realtime`).
+
+## Headline — verified 2026-09-18
+
+**Nine of the 33 current attempts pass, and five of the 22 processes are validated:**
+`monetary_model`, `resource_inventory`, `elections_model`, `assets_model` and — new on
+2026-09-18 — `legislative_model`. Counted by `wm calibration-status --all`, which re-reads every
+published validation report in `data/calibration_reports/`, recomputes its digests, re-evaluates
+its declared criteria, keys it by the attempt its manifest names and joins that to the plan for
+supersession; it does not read this file. Run on the 2026-09-17 plan, the same command reproduces
+that day's headline exactly (51 / 30 / 21, 8 pass, the same criterion counts, the same four
+processes), which is the check that the tool and the earlier hand count agree.
+
+| | 2026-09-17 | **2026-09-18** |
+| --- | ---: | ---: |
+| Attempts registered | 51 | **61** |
+| Current / superseded | 30 / 21 | **33 / 28** |
+| Current attempts passing / failing | 8 / 22 | **9 / 24** |
+| Superseded attempts that passed | 2 | 2 |
+| Attempts with no report (raised before scoring) | 1 | 1 |
+| Processes validated (of the 22 in `requirements.json`) | 4 | **5** |
+
+What blocks the 24 failing current attempts, one count per criterion per attempt:
+
+| Criterion | 2026-09-17 | **2026-09-18** | Why it moved |
+| --- | ---: | ---: | --- |
+| `beats_persistence_dm` | 14 | **15** | `market_abm_model.alpaca` |
+| `interval_coverage` | 7 | **9** | the interval wave resolved none of the 7; `market_abm_model.alpaca` and `default_hazard.fred_business_loans_realtime` add one each |
+| `no_revision_leakage` | 6 | **7** | `market_abm_model.alpaca` (adjusted closes carry no vintages, as registered) |
+| `parameters_within_declared_bounds` | 7 | 7 | |
+| `beats_year_effect_only_dm` | 2 | 2 | |
+| `beats_historical_mean_dm` | — | **1** | `market_abm_model.alpaca` (a family-declared criterion) |
+| `volatility_crps_skill` | 1 | 1 | |
+
+Three things about the count itself. (1) **`taylor_rule_policy_rate` is not counted**, as it was
+not on 2026-09-17: its only required component is `monetary_model_parameters`, which passes, and
+`attach_calibration(..., process_id='taylor_rule_policy_rate')` would validate it, but
+`calibrate-all` attaches each record only to its own process. Counted by component it would be
+six of 22. (2) Three attempt labels carry two or three published reports each
+(`price_adjustment.eia_monthly`, `demand_price_elasticity.eia_monthly`, one `cash_balance` issuer)
+from reruns against rebuilt inputs; every copy has the same verdict and failing criteria, and the
+most recent is the one counted. The two population interval-wave attempts were rerun after a
+recorded correction (see below), and their second reports are counted. (3) Two
+`influence_model.*` reports are published in the same dataset by another track whose
+registrations are not in this branch's plan; they are listed as unmatched and not counted here.
+
+What happened on 2026-09-18, in one paragraph each (full records in the sections at the end):
+
+- **Fat-tail intervals resolved nothing.** Three methods that admit fat tails and read only
+  pre-origin information were added and re-run on all seven current attempts failing
+  `interval_coverage`, with the incumbent as a candidate and the existing validation-CRPS rule
+  choosing. The rule could compare on three of eleven runs; no coverage failure was resolved and
+  no verdict moved. On `labor_demand` the rejected Student-t and empirical candidates covered
+  0.790 and 0.804 on the holdout while the kept incumbent covered 0.958 — the validation-window
+  reversal WS-E already recorded, happening again. It is recorded, not retro-selected.
+- **The `default_hazard` sign is a data-definition effect.** Units, lags and the sample window
+  were ruled out; card delinquency falls while unemployment is high and the FDIC stock tracks its
+  level. A business-loan re-specification (the series the hook's firm-default mechanism points to)
+  beats persistence at p = 0.054 with every parameter in bounds and fails on coverage at 1.000.
+- **The two `not_run` attempts ran, in under two minutes each.** The old budget reason had never
+  been measured: neither family had a catalog loader. `legislative_model.voteview` passes all eight
+  criteria, so `legislative_model` validates; `market_abm_model.alpaca` fails four.
+
+### The 2026-09-17 headline, kept as it was written
 
 **Eight current attempt runs pass (ten including two superseded ones), and four of the 22
 processes are validated** — reconciled 2026-09-17, after all seven waves.
@@ -90,6 +157,16 @@ from the sources.
 
 ## Summary
 
+Sixty-one rows since 2026-09-18: the ten registered that day are at the end of the table, and the
+seven attempts the interval wave re-ran are tagged superseded where they stand, with their
+original verdicts unchanged. Every row's verdict and failing criteria were compared
+mechanically with `wm calibration-status --all` on 2026-09-18 and all 60 rows with a report
+agree. The same check found the *superseded* tags inconsistent: fifteen rows the plan supersedes
+carried no tag, and `monetary_model.cpi_okun_proxy_v2`, which the plan does not supersede (and
+which every count, including 2026-09-17's, treats as current), carried one. The tags now follow
+the plan's `superseded_by` field exactly; no verdict or count changed.
+
+The paragraph below is the 2026-09-17 check, kept as written.
 Fifty-one rows, one per pre-registered attempt id, checked row for row against the published
 validation reports on 2026-09-17: the failing-criteria column now matches
 `acceptance.results` in every case. Two corrections came out of that check.
@@ -103,57 +180,67 @@ criterion was ever evaluated, and it is excluded from every pass/fail count belo
 
 | Attempt | Process / component | Data (dataset@version, window) | n test | Verdict | Failing criteria |
 | --- | --- | --- | --- | --- | --- |
-| `inventory_balance.eia_weekly` | resource_inventory / inventory_balance | eia_energy@f5cd9308, weekly 1991-02..2024-12 (1,767 obs) | 258 | **fail** | interval_coverage |
+| `inventory_balance.eia_weekly` | resource_inventory / inventory_balance | eia_energy@f5cd9308, weekly 1991-02..2024-12 (1,767 obs) | 258 | **fail** (superseded) | interval_coverage |
 | `demand_price_elasticity.eia_monthly` | coupled_economy / demand_price_elasticity | eia_energy@f5cd9308 + fred_oil_price@847b0f93, monthly 1990-09..2024-10 (409) | 106 | **fail** | parameters_within_declared_bounds |
 | `price_adjustment.eia_monthly` | coupled_economy / price_adjustment | eia_energy@f5cd9308 + fred_oil_price@847b0f93, monthly 1991-10..2024-11 (398) | 106 | **fail** | parameters_within_declared_bounds |
-| `cash_balance.sec_companyfacts` (5 issuers) | investment_cash_flow / cash_balance | sec_company_assets@68335122, quarterly 2008-2025 | 14–23 each | **fail** (5/5) | beats_persistence_dm (all), interval_coverage (3), bounds (2) |
+| `cash_balance.sec_companyfacts` (5 issuers) | investment_cash_flow / cash_balance | sec_company_assets@68335122, quarterly 2008-2025 | 14–23 each | **fail** (5/5, superseded) | beats_persistence_dm (all), interval_coverage (3), bounds (2) |
 | `population_growth_rate.census_pep` | population_growth / population_growth_rate | census_population@d621c962, annual 2010-2024 (14) | 4 | **fail** (superseded) | minimum_test_forecasts, interval_coverage |
-| `conflict_model.ucdp_monthly` | conflict_model | ucdp_conflicts@65486acc + vdem@9ca2ac85, 20 countries × 300 months (6,000 rows) | 1,200 | **fail** | beats_persistence_dm, interval_coverage, no_revision_leakage |
+| `conflict_model.ucdp_monthly` | conflict_model | ucdp_conflicts@65486acc + vdem@9ca2ac85, 20 countries × 300 months (6,000 rows) | 1,200 | **fail** (superseded) | beats_persistence_dm, interval_coverage, no_revision_leakage |
 | `assets_model.alpaca_daily` | assets_model | alpaca_daily_bars@a825e6f0 + fred_policy_rate@2a3197b9, 5 symbols, daily 2016-2024 | 1,890 | **fail** | volatility_crps_skill, no_revision_leakage |
 | `commodities_model.eia_weekly_balance` | commodities_model | eia_energy@f5cd9308 + fred_oil_price@847b0f93, weekly 2010-2024 (782) | 20 | **fail** | beats_persistence_dm, bounds, no_revision_leakage |
-| `regional_model.cbp_state_sectors` | regional_model | census_business@5b0995c7, 51 states × NAICS sectors, 2019-2023 | 51 | **fail** | interval_coverage, no_revision_leakage |
-| `default_hazard.fdic_laus_quarterly` | coupled_economy / default_hazard | fdic_bank_financials@6283087f + bls_labor@50917b81 + fred_policy_rate@2a3197b9, quarterly 2010-2025 (62 obs) | 19 | **pass** | none |
+| `regional_model.cbp_state_sectors` | regional_model | census_business@5b0995c7, 51 states × NAICS sectors, 2019-2023 | 51 | **fail** (superseded) | interval_coverage, no_revision_leakage |
+| `default_hazard.fdic_laus_quarterly` | coupled_economy / default_hazard | fdic_bank_financials@6283087f + bls_labor@50917b81 + fred_policy_rate@2a3197b9, quarterly 2010-2025 (62 obs) | 19 | **pass** (superseded) | none |
 | `monetary_model.cpi_okun_proxy` | monetary_model | fred_cpi@c92b26cd + fred_policy_rate@2a3197b9 + bls_labor@50917b81, monthly 1990-2024 (420) | 120 | **fail** (superseded) | beats_persistence_dm, no_revision_leakage |
-| `interest_pass_through.fred_realtime` | coupled_economy / interest_pass_through | fred_macro_panel@b395bda0 (DPRIME) + fred_policy_rate@2a3197b9, monthly 1955-2024 (830) | 83 | **fail** | interval_coverage |
+| `interest_pass_through.fred_realtime` | coupled_economy / interest_pass_through | fred_macro_panel@b395bda0 (DPRIME) + fred_policy_rate@2a3197b9, monthly 1955-2024 (830) | 83 | **fail** (superseded) | interval_coverage |
 | `deposit_rate_pass_through.fred_realtime` | coupled_economy / deposit_rate_pass_through (optional) | fred_macro_panel@b395bda0 (SNDR) + DFF, monthly 2021-2026 (62) | 16 | **fail** (superseded) | minimum_test_forecasts, beats_persistence_dm, interval_coverage |
 | `default_hazard.fred_primary_realtime` | coupled_economy / default_hazard | fred_macro_panel@b395bda0 (DRCCLACBS, UNRATE) + DFF, quarterly 1991-2025 (138) | 23 | **fail** | parameters_within_declared_bounds |
 | `deposit_growth.fred_realtime` | coupled_economy / deposit_growth | fred_macro_panel@b395bda0 (DPSACBW027SBOG) + DFF, monthly 1973-2024 (622) | 59 | **fail** | beats_persistence_dm |
-| `credit_growth.fred_realtime` | coupled_economy / credit_growth | fred_macro_panel@b395bda0 (TOTALSL), monthly 1943-2024 (975) | 141 | **fail** | interval_coverage |
-| `energy_purchasing.fred_realtime` | coupled_economy / energy_purchasing | fred_macro_panel@b395bda0 (RRSFS) + fred_oil_price + DFF, monthly 1992-2024 (393) | 83 | **fail** | beats_persistence_dm, interval_coverage, bounds |
-| `labor_demand.fred_realtime` | coupled_economy / labor_demand | fred_macro_panel@b395bda0 (PAYEMS, INDPRO), monthly 1939-2024 (1,029) | 143 | **fail** | beats_persistence_dm, interval_coverage |
-| `policy_rule.fred_realtime` | coupled_economy / policy_rule | fred_macro_panel@b395bda0 (FEDFUNDS, CPIAUCSL, GDPC1, GDPPOT), quarterly 1955-2024 (277) | 47 | **fail** | beats_persistence_dm, interval_coverage |
+| `credit_growth.fred_realtime` | coupled_economy / credit_growth | fred_macro_panel@b395bda0 (TOTALSL), monthly 1943-2024 (975) | 141 | **fail** (superseded) | interval_coverage |
+| `energy_purchasing.fred_realtime` | coupled_economy / energy_purchasing | fred_macro_panel@b395bda0 (RRSFS) + fred_oil_price + DFF, monthly 1992-2024 (393) | 83 | **fail** (superseded) | beats_persistence_dm, interval_coverage, bounds |
+| `labor_demand.fred_realtime` | coupled_economy / labor_demand | fred_macro_panel@b395bda0 (PAYEMS, INDPRO), monthly 1939-2024 (1,029) | 143 | **fail** (superseded) | beats_persistence_dm, interval_coverage |
+| `policy_rule.fred_realtime` | coupled_economy / policy_rule | fred_macro_panel@b395bda0 (FEDFUNDS, CPIAUCSL, GDPC1, GDPPOT), quarterly 1955-2024 (277) | 47 | **fail** (superseded) | beats_persistence_dm, interval_coverage |
 | `monetary_model.fred_realtime_quarterly` | monetary_model | fred_macro_panel@b395bda0 (FEDFUNDS, GDPC1, GDPPOT) + fred_cpi@c92b26cd, quarterly 1995-2024 (120) | 40 | **pass** (superseded) | none |
-| `policy_rule.fred_realtime_v2` | coupled_economy / policy_rule | fred_macro_panel@7dcce89c, quarterly 1955-2024 (277) | 47 | **fail** | beats_persistence_dm, interval_coverage |
-| `credit_growth.fred_realtime_v2` | coupled_economy / credit_growth | fred_macro_panel@7dcce89c (TOTALSL corrected), monthly 1943-2024 (975) | 141 | **fail** | interval_coverage |
-| `labor_demand.fred_realtime_v2` | coupled_economy / labor_demand | fred_macro_panel@7dcce89c (INDPRO all bases), monthly 1939-2024 (1,029) | 143 | **fail** | beats_persistence_dm, interval_coverage |
+| `policy_rule.fred_realtime_v2` | coupled_economy / policy_rule | fred_macro_panel@7dcce89c, quarterly 1955-2024 (277) | 47 | **fail** (superseded) | beats_persistence_dm, interval_coverage |
+| `credit_growth.fred_realtime_v2` | coupled_economy / credit_growth | fred_macro_panel@7dcce89c (TOTALSL corrected), monthly 1943-2024 (975) | 141 | **fail** (superseded) | interval_coverage |
+| `labor_demand.fred_realtime_v2` | coupled_economy / labor_demand | fred_macro_panel@7dcce89c (INDPRO all bases), monthly 1939-2024 (1,029) | 143 | **fail** (superseded) | beats_persistence_dm, interval_coverage |
 | `energy_purchasing.fred_realtime_v2` | coupled_economy / energy_purchasing | fred_macro_panel@7dcce89c (RRSFS) + fred_oil_price@a42622a0 + DFF, monthly 1992-2024 (393) | 83 | **fail** (superseded) | beats_persistence_dm, interval_coverage, bounds |
 | `monetary_model.fred_realtime_v2` | monetary_model | fred_macro_panel@7dcce89c + fred_cpi@34fe03f5, quarterly first releases, base-paired (106) | 36 | **pass** | none |
 | `inventory_balance.eia_weekly_v2` | resource_inventory / inventory_balance | eia_energy@f5cd9308, weekly 1991-02..2024-12 (1,767) | 258 | **pass** | none |
 | `credit_growth.fred_realtime_v3` | coupled_economy / credit_growth | fred_macro_panel@7dcce89c (TOTALSL), monthly 1943-2024 (975) | 141 | **pass** | none |
-| `regional_model.cbp_state_sectors_v2` | regional_model | census_business@5b0995c7, 51 states × NAICS sectors, 2019-2023 | 51 | **fail** | interval_coverage, no_revision_leakage |
-| `regional_model.qcew_state_sectors` | regional_model | bls_labor@ffd7f43a (QCEW private, 53 areas × 20 sectors, 2005-2024) | 318 | **fail** | interval_coverage, no_revision_leakage |
+| `regional_model.cbp_state_sectors_v2` | regional_model | census_business@5b0995c7, 51 states × NAICS sectors, 2019-2023 | 51 | **fail** (superseded) | interval_coverage, no_revision_leakage |
+| `regional_model.qcew_state_sectors` | regional_model | bls_labor@ffd7f43a (QCEW private, 53 areas × 20 sectors, 2005-2024) | 318 | **fail** (superseded) | interval_coverage, no_revision_leakage |
 | `elections_model.medsl_house_districts` | elections_model | mit_election_returns@017e0d4f + fec_candidates@a46824fd + fec@93722c10 + fred_macro_panel@7dcce89c, 13 cycles (5,476 district-cycles) | 774 | **pass** | none |
 | `default_hazard.fdic_cps_quarterly` | coupled_economy / default_hazard | fdic_bank_financials@6283087f + bls_labor@ffd7f43a (LNS14000000) + DFF, quarterly 2010-2025 (62) | 19 | **pass** | none |
 | `default_hazard.fdic_laus_quarterly_v2` | coupled_economy / default_hazard | same on the completed bls_labor@ffd7f43a | 19 | **pass** | none |
-| `monetary_model.cpi_okun_proxy_v2` | monetary_model | fred_cpi@34fe03f5 + DFF + bls_labor@ffd7f43a (LAUS states), monthly 1990-2024 (420) | 120 | **fail** (superseded) | beats_persistence_dm, no_revision_leakage |
+| `monetary_model.cpi_okun_proxy_v2` | monetary_model | fred_cpi@34fe03f5 + DFF + bls_labor@ffd7f43a (LAUS states), monthly 1990-2024 (420) | 120 | **fail** | beats_persistence_dm, no_revision_leakage |
 | `assets_model.fred_fx_realtime` | assets_model | fred_macro_panel@7dcce89c (DEXJPUS, DEXUSUK, DEXCAUS, DEXSZUS, DEXUSAL, DEXUSEU, DFF first releases), daily 2014-03..2024-12 (13,480 bars) | 1,875 | **pass** | none |
 | `monetary_model.okun_unrate_realtime` | monetary_model | fred_macro_panel@7dcce89c (CPIAUCSL, UNRATE, DFF first releases), monthly 2005-06..2024-12 (235) | — | **failed to fit** | smoothing not below one (unidentified) |
 | `monetary_model.okun_unrate_realtime_v2` | monetary_model | fred_macro_panel@7dcce89c (CPIAUCSL, UNRATE, FEDFUNDS first releases), monthly 1996-12..2024-12 (337) | 120 | **fail** | beats_persistence_dm, parameters_within_declared_bounds |
-| `population_growth_rate.census_pep_v2` | population_growth / population_growth_rate | census_population@063a1413 (20 PEP vintages), annual 2000-2025 (26) | 9 | **fail** | interval_coverage |
-| `population_growth_rate.fred_popthm` | population_growth / population_growth_rate | fred_macro_panel@7dcce89c (POPTHM, 325 ALFRED vintages), annual 1959-2025 (67) | 16 | **fail** | interval_coverage |
-| `deposit_rate_pass_through.fred_realtime_v2` | coupled_economy / deposit_rate_pass_through (optional) | fred_macro_panel@7dcce89c (SNDR) + DFF, monthly 2021-04..2026-07 (64), splits recut | 24 | **fail** | beats_persistence_dm, interval_coverage |
+| `population_growth_rate.census_pep_v2` | population_growth / population_growth_rate | census_population@063a1413 (20 PEP vintages), annual 2000-2025 (26) | 9 | **fail** (superseded) | interval_coverage |
+| `population_growth_rate.fred_popthm` | population_growth / population_growth_rate | fred_macro_panel@7dcce89c (POPTHM, 325 ALFRED vintages), annual 1959-2025 (67) | 16 | **fail** (superseded) | interval_coverage |
+| `deposit_rate_pass_through.fred_realtime_v2` | coupled_economy / deposit_rate_pass_through (optional) | fred_macro_panel@7dcce89c (SNDR) + DFF, monthly 2021-04..2026-07 (64), splits recut | 24 | **fail** (superseded) | beats_persistence_dm, interval_coverage |
 | `deposit_rate_pass_through.savnrnj_substitute` | coupled_economy / deposit_rate_pass_through (optional) | fred_deposit_rates@ec9e94d6 (**SAVNRNJ substitute**) + DFF, monthly 2009-05..2021-02 (142) | 38 | **fail** | beats_persistence_dm |
-| `deposit_rate_pass_through.m2own_substitute` | coupled_economy / deposit_rate_pass_through (optional) | fred_deposit_rates@ec9e94d6 (**M2OWN substitute**) + DFF, monthly 1959-02..2019-05 (724) | 29 | **fail** | beats_persistence_dm, interval_coverage |
+| `deposit_rate_pass_through.m2own_substitute` | coupled_economy / deposit_rate_pass_through (optional) | fred_deposit_rates@ec9e94d6 (**M2OWN substitute**) + DFF, monthly 1959-02..2019-05 (724) | 29 | **fail** (superseded) | beats_persistence_dm, interval_coverage |
 | `interest_pass_through.fred_realtime_v2` | coupled_economy / interest_pass_through | fred_macro_panel@7dcce89c (DPRIME) + DFF, monthly 1955-2024 (830) | 83 | **pass** | none |
-| `labor_demand.fred_realtime_v3` | coupled_economy / labor_demand | fred_macro_panel@7dcce89c (PAYEMS, INDPRO), monthly 1939-2024 (1,029) | 143 | **fail** | beats_persistence_dm |
-| `labor_demand.fred_realtime_v4` | coupled_economy / labor_demand | same | 143 | **fail** | beats_persistence_dm, interval_coverage |
+| `labor_demand.fred_realtime_v3` | coupled_economy / labor_demand | fred_macro_panel@7dcce89c (PAYEMS, INDPRO), monthly 1939-2024 (1,029) | 143 | **fail** (superseded) | beats_persistence_dm |
+| `labor_demand.fred_realtime_v4` | coupled_economy / labor_demand | same | 143 | **fail** (superseded) | beats_persistence_dm, interval_coverage |
 | `policy_rule.fred_realtime_v3` | coupled_economy / policy_rule | fred_macro_panel@7dcce89c (FEDFUNDS, CPIAUCSL, GDPC1, GDPPOT), quarterly 1955-2024 (277) | 47 | **fail** | beats_persistence_dm |
 | `energy_purchasing.fred_realtime_v3` | coupled_economy / energy_purchasing | fred_macro_panel@7dcce89c (RRSFS) + fred_oil_price + DFF, monthly 1992-2024 (393) | 83 | **fail** | beats_persistence_dm, parameters_within_declared_bounds |
 | `conflict_model.ucdp_monthly_v2` | conflict_model | ucdp_conflicts@65486acc + vdem@9ca2ac85, 20 countries × 300 months (6,000) | 1,200 | **fail** | beats_persistence_dm, no_revision_leakage |
 | `regional_model.qcew_state_sectors_v2` | regional_model | bls_labor@ffd7f43a (QCEW private, 53 areas × 20 sectors, 2005-2024) | 318 | **fail** (rejected candidate) | no_revision_leakage |
-| `regional_model.cbp_state_sectors_v3` | regional_model | census_business@5b0995c7, 51 states × NAICS sectors, 2019-2023 | 51 | **fail** | interval_coverage, no_revision_leakage |
+| `regional_model.cbp_state_sectors_v3` | regional_model | census_business@5b0995c7, 51 states × NAICS sectors, 2019-2023 | 51 | **fail** (superseded) | interval_coverage, no_revision_leakage |
 | `regional_model.ces_sae_realtime` | regional_model | fred_state_employment_vintages@07d42b0a (CES SAE first releases, 51 states × 10 supersectors, 2012-2025) | 306 | **fail** | beats_persistence_dm, beats_year_effect_only_dm |
 | `regional_model.ces_sae_realtime_v2` | regional_model | same panel, `per_unit_year_draw` intervals | 306 | **fail** | beats_persistence_dm, beats_year_effect_only_dm |
+| `cash_balance.sec_companyfacts_fat_tails` (5 issuers) | investment_cash_flow / cash_balance | as `cash_balance.sec_companyfacts`; four interval candidates, validation-CRPS rule | 14–23 each | **fail** (5/5) | beats_persistence_dm (all), interval_coverage (3), bounds (2) |
+| `regional_model.cbp_state_sectors_v3_fat_tails` | regional_model | as `cbp_state_sectors_v3`; four candidates | 51 | **fail** | interval_coverage, no_revision_leakage |
+| `population_growth_rate.census_pep_v2_fat_tails` | population_growth / population_growth_rate | as `census_pep_v2`; four candidates (rerun after a recorded correction) | 9 | **fail** | interval_coverage |
+| `population_growth_rate.fred_popthm_fat_tails` | population_growth / population_growth_rate | as `fred_popthm`; four candidates (rerun after a recorded correction) | 16 | **fail** | interval_coverage |
+| `deposit_rate_pass_through.fred_realtime_v2_fat_tails` | coupled_economy / deposit_rate_pass_through (optional) | as `fred_realtime_v2`; four candidates | 24 | **fail** | beats_persistence_dm, interval_coverage |
+| `deposit_rate_pass_through.m2own_substitute_fat_tails` | coupled_economy / deposit_rate_pass_through (optional) | as `m2own_substitute` (**M2OWN substitute**); rule selected `conformal_rolling` | 29 | **fail** | beats_persistence_dm, interval_coverage |
+| `labor_demand.fred_realtime_v4_fat_tails` | coupled_economy / labor_demand | as `fred_realtime_v4`; four candidates, rule kept the incumbent | 143 | **fail** | beats_persistence_dm, interval_coverage |
+| `default_hazard.fred_business_loans_realtime` | coupled_economy / default_hazard | fred_macro_panel@7dcce89c (**DRBLACBS substitute**, UNRATE) + fred_policy_rate@966a0099 (DFF), quarterly 1987-2025 (154) | 23 | **fail** | interval_coverage |
+| `legislative_model.voteview` | legislative_model | voteview_rollcalls@fce7b752, Senate 117th Congress, 949 roll calls, 91,623 positions | 18,725 member-votes | **pass** | none |
+| `market_abm_model.alpaca` | market_abm_model | alpaca_daily_bars@ce41ae57, SPY daily 2016-2024 (2,264 bars, 107 windows) | 18 windows | **fail** | beats_persistence_dm, beats_historical_mean_dm, interval_coverage, no_revision_leakage |
 
 Baseline names below: *persistence* = last value, *drift* = linear extrapolation,
 *mean* = historical mean, plus each family's supplied mechanism-off baseline. All
@@ -1089,6 +1176,11 @@ that use a national unemployment rate.
 | `legislative_model.voteview` | compute budget. The data exist: `voteview_rollcalls` publishes `roll_call_member_positions` for Congresses 110-119 (Senate 117 alone has 949 roll calls). The ideal-point MAP refit at every holdout origin exceeds the declared 30-minute per-attempt budget. |
 | `market_abm_model.alpaca` | compute budget. Daily closes are available; the grid SMM fit at every window origin exceeds the budget. |
 
+**Both were re-attempted on 2026-09-18 and ran inside the budget** (70 s and 106 s). The reason
+above was never measured — neither family had a catalog loader, so neither could have run — and
+it is kept as recorded, with a `reattempted_by` pointer in the plan. See the 2026-09-18 section
+below.
+
 ## Data-quality findings
 
 0. **[FIXED 2026-09-15] Chained-dollar ALFRED vintages carried no base-year metadata.** Each GDPC1/GDPPOT vintage is
@@ -1676,3 +1768,169 @@ time only back to its shallowest series (state Information enters ALFRED on 2011
 industry formed as the within-vintage residual `total_nonfarm − Σ nine`, because five
 state-equivalents publish no aliased mining/logging/construction series. The residual is exact where
 it can be checked (Texas 2019-06: 1,031.0 = 778.6 + 252.4).
+
+## 2026-09-18 (validation track): fat-tail intervals, the `default_hazard` sign, the two `not_run` attempts
+
+Ten attempts were registered and run on 2026-09-18, each committed before it was scored. The
+headline at the top of this file already counts them.
+
+### Fat-tail predictive intervals — the interval wave
+
+**The question.** Seven current attempts failed `interval_coverage` on 2026-09-17. Gaussian
+intervals built from an in-sample residual scale are the default, and fat-tailed errors are the
+standing suspicion. Would a predictive distribution that admits fat tails, and uses only
+information available before each origin, fix any of them?
+
+**Three methods** were added to `worldmodel/estimation/intervals.py`:
+
+| Method | What it is | Information it uses |
+| --- | --- | --- |
+| `student_t_mle` | location-zero Student-t, scale and degrees of freedom by maximum likelihood (profile likelihood, df in [2.5, 100]) — not the kurtosis match `student_t_trailing` uses | all in-sample residuals, with the same n/(n−k) correction as the default |
+| `empirical_quantile` | the 40 empirical quantiles of the raw residuals, unstandardized | all in-sample residuals, same correction |
+| `conformal_rolling` | rolling split-conformal: order statistics at ranks ⌊(n+1)τ⌋ / ⌈(n+1)τ⌉ of *out-of-sample* one-step errors, 45 nodes so the 0.1/0.5/0.9 quantiles are exact | each error is a forecast from a fit that excluded its target, computed inside the origin's frame (a declared rolling estimation window is honoured) |
+
+Model families take the same three as `family_interval_method`: the forecaster keeps its mean and
+standard deviation, and the shape comes from its own pre-origin forecast errors standardized by
+the sd each carried. `tests/test_intervals_fat_tails.py` checks them on synthetic data with a
+known answer: on contaminated-normal errors the Gaussian covers 0.94 of an 80% interval while
+`student_t_mle`, `empirical_quantile` and `conformal_rolling` cover 0.81, 0.785 and 0.75; on
+Student-t(3) errors all three land within 0.06 of nominal; exchangeable errors with n = 19 give
+the conformal interval exactly 16/20 = 0.80; and an error scale that trends upward through the
+holdout still defeats every method, as it must.
+
+**The registration** (`interval_wave` in the plan, commit `53009e0`). Each of the seven was
+re-registered once as `<id>_fat_tails` with four candidates — its own predictive as the
+*incumbent*, then the three methods on top of its other declared options (`labor_demand` keeps its
+revision component) — and the record's existing rule: **lowest validation-window CRPS**, now
+computed by `validate_process(selection_metric='crps')` over the validation rows every candidate
+produced, with the incumbent kept when fewer than **8 distinct validation periods** are common to
+the candidates. Periods, not rows, because 51 states in one year are one draw of the common
+shock. Conformal windows were fixed in the registration (60 months, 40 quarters, all years for
+annual and regional series). The registration wrote down in advance that five of the seven had
+too short a validation window to compare. After the selection is frozen, every rejected
+candidate is also scored on the holdout and stored under `unselected_holdout` **for the record
+only** — those numbers enter neither the selection nor any verdict.
+
+**Which method won where:**
+
+| Attempt | Common validation periods | Selected | Selected's holdout coverage | Rejected candidates' holdout coverage (t-MLE / empirical / conformal; incumbent where rejected) | Verdict |
+| --- | ---: | --- | ---: | --- | --- |
+| `cash_balance` 0001070412 | 1 | incumbent (fallback) | 1.000 | 1.000 / 1.000 / 1.000 | fail (DM, coverage) |
+| `cash_balance` 0000093556 | 0 | incumbent (fallback) | 1.000 | 1.000 / 1.000 / 1.000 | fail (DM, coverage) |
+| `cash_balance` 0000314808 | 0 | incumbent (fallback) | 0.938 | 0.813 / 0.938 / 0.938 | fail (DM) |
+| `cash_balance` 0001061219 | 10 | **`empirical_quantile`** | 0.750 | 0.700 / — / 0.850; incumbent 0.800 | fail (DM, bounds) |
+| `cash_balance` 0000078814 | 1 | incumbent (fallback) | 1.000 | 1.000 / 1.000 / 1.000 | fail (DM, coverage, bounds) |
+| `regional_model.cbp_state_sectors_v3` | 1 (51 rows) | incumbent (fallback) | 1.000 | 1.000 / 0.137 / 0.157 | fail (coverage, revision) |
+| `population_growth_rate.census_pep_v2` | 0 | incumbent (fallback) | 0.333 | 0.333 / 0.333 / 0.222 | fail (coverage) |
+| `population_growth_rate.fred_popthm` | 3 | incumbent (fallback) | 0.500 | 0.500 / 0.563 / **0.688** | fail (coverage) |
+| `deposit_rate_pass_through.fred_realtime_v2` | 3 | incumbent (fallback) | 0.458 | 0.292 / 0.458 / 0.625 | fail (DM, coverage) |
+| `deposit_rate_pass_through.m2own_substitute` | 11 | **`conformal_rolling`** | 0.483 | 0.966 / 0.966 / —; incumbent 0.966 | fail (DM, coverage) |
+| `labor_demand.fred_realtime_v4` | 95 | incumbent | 0.958 | **0.790 / 0.804** / 0.741 | fail (DM, coverage) |
+
+Coverage passes inside 0.80 ± 0.15 (± 0.20 for population). The whole wave took 8 min 8 s at a
+peak of 347 MB.
+
+**Verdict: no `interval_coverage` failure was resolved and no attempt changed its verdict.** The
+rule compared on three of eleven runs. What the rest of the table says, stated plainly:
+
+1. **The tails were mostly not the problem.** Three of the `cash_balance` issuers cover 1.000
+   under *every* method: the interval is wide because the point forecast of a quarterly cash
+   level is poor, and no residual shape changes that. `m2own` covers 0.966 under the three
+   in-sample methods alike. `census_pep_v2` covers a third of its years whatever the shape — the
+   error is a level shift in growth, which no pre-origin residual describes.
+2. **The validation window reversed again on `labor_demand`.** The rule compared 95 months and
+   kept the incumbent (validation CRPS 431.0 against 443.6, 440.7 and 471.3). On the holdout the
+   rejected Student-t and empirical candidates cover 0.790 and 0.804 *and* have the lower CRPS
+   (406.0 and 408.4 against 431.0). This is the failure WS-E recorded for the same attempt: the
+   2005-2012 window contains the financial crisis and 2013-2024 does not. Not retro-selected;
+   `beats_persistence_dm` fails either way.
+3. **CRPS buys sharpness, and on `m2own` it bought too much.** `conformal_rolling` won validation
+   on 11 months with a CRPS a quarter of the incumbent's while covering only 0.273 there — the rule
+   does not read coverage, by design — and on the holdout it moved coverage from 0.966 to 0.483
+   while improving CRPS from 0.0372 to 0.0220. A better distribution by the proper score, a
+   failing one by the criterion.
+4. **One rejected candidate would have validated a process, and it is not claimed.**
+   `population_growth_rate.fred_popthm` fails on `interval_coverage` alone. Its rejected
+   `conformal_rolling` candidate covers 0.688, inside the component's ± 0.20, so with it the
+   attempt would have passed every criterion and `population_growth` would be validated. The
+   declared rule kept the incumbent because three validation years are not a comparison, and
+   choosing the conformal interval now would be choosing it on the holdout. (Its holdout CRPS is
+   also *worse*, 7.50e5 against 6.13e5.) A future attempt could only claim it on data this
+   holdout has not seen.
+5. **Pooling one earlier year of a panel collapses.** On `cbp_state_sectors_v3` the empirical
+   and conformal shapes, estimated from one prior year's standardized errors, cover 0.137 and
+   0.157: one draw of the common component is not a distribution.
+
+**A correction, recorded before the rerun.** In the first run the `conformal_rolling` candidate of
+both population attempts produced no forecast at all: `recursive_errors` refused components that
+declare a rolling estimation window, and `population_growth_rate` declares one (15 years). That
+defect kept a declared candidate from producing any result; it was fixed (the recursive fit for
+year *t* uses years *t*−15..*t*−1, exactly what an origin at *t*−1 fits), the correction was
+written into both attempts (`9147ce5`), and both were rerun under the same ids. The verdicts
+could not move — both fall back to the incumbent on period count — and they did not. The first
+reports (`67bda5656b0a…`, `306082ecfbfe…`) stay published; the reruns (`43e20b2fd1d4…`,
+`fdb694e5391d…`) are the ones counted.
+
+### `default_hazard` — the sign is the definition of the series
+
+Full working: [`research-log/default-hazard-sign.md`](research-log/default-hazard-sign.md).
+
+The declared pair (`DRCCLACBS` credit-card delinquency, `UNRATE`) gives
+`unemployment_sensitivity` −1.26 with persistence 1.0038; the FDIC substitutes give +2.12 and
++2.19. Four causes were checked:
+
+| Candidate cause | Finding |
+| --- | --- |
+| Units | ruled out — every delinquency series is percent of loans, divided by 100 identically |
+| Lags / quarter alignment | ruled out as the cause of the difference — the design is identical for every source and the quarters line up |
+| Sample window | **ruled out** — the declared pair on the substitutes' own 2010-2025 quarters gives **−1.55** (SE 0.46), still the opposite sign |
+| Data definition | **the cause** — card 30+ day delinquency is purged by 180-day charge-off and falls while unemployment is still high (halved 2009Q2-2011Q4 at 8.6-10% unemployment; fell in 2020 as unemployment reached 13%): its quarterly change correlates **−0.50** with the unemployment level. The FDIC rate is a slow-clearing 90+-day/nonaccrual stock of all loans whose level correlates **+0.81** with unemployment. With persistence near one the coefficient reports which phase of the cycle a series peaks in |
+
+The diagnosis also found that the simulator hook the component binds to draws **firm** defaults,
+while the declared series is household card credit. `requirements.json` already names `DRBLACBS`
+(business-loan delinquency) as an alternative, so one re-specification was registered
+(`default_hazard.fred_business_loans_realtime`, commit `54cc8d1`) as a declared substitution with
+the declared attempt's splits, drivers and criteria. **Its registration discloses that in-sample
+fits of `DRBLACBS` through 2025 were seen first**, so `parameters_within_declared_bounds` was not
+blind; no forecast on it had been computed.
+
+| Criterion | Result |
+| --- | --- |
+| `minimum_test_forecasts` | pass, 23 (≥ 12) |
+| `beats_persistence_dm` | **pass**, p = 0.054 (MAE 0.0521 against 0.0604) |
+| `interval_coverage` | **fail, 1.000** (mean width 0.552pp against an MAE of 0.052pp) |
+| `parameters_within_declared_bounds` | pass (not blind): persistence 0.954 (0.014), unemployment_sensitivity +0.49 (0.72), rate_sensitivity +1.09 (0.33) |
+| `no_timing_leakage`, `no_revision_leakage` | pass (strict, ALFRED vintages) |
+
+**Verdict: fail, on coverage alone.** The Gaussian in-sample scale carries the 1990-91 and 2008-09
+business-loan cycles into a calm 2020-2025. It was not re-specified: an interval chosen now would
+be chosen on this holdout. Even a pass would bind an unemployment channel that is statistically
+indistinguishable from zero, and it would not validate the declared credit-card series, whose
+failing attempt stays current beside it. Report `61bea0ac3c3b…`, artifact `d0f5cc649b79…`, 32 s.
+
+### The two `not_run` attempts — profiled, sped up, run
+
+Full working: [`research-log/not-run-profiling.md`](research-log/not-run-profiling.md). The
+compute-budget reason had never been measured: neither family had a catalog loader, so neither
+attempt could have run. On synthetic fixtures of the real sizes the unchanged code already fit
+the 30-minute budget (75 s and 69 s). The speedups — the legislative one- and two-coefficient
+Newton steps written out operation for operation, and the market ABM price search computing
+price-independent agents once per step — are **bit-identical**: frozen copies of the old modules
+(`tests/legacy_legislative.py`, `tests/legacy_market_abm.py`) are compared byte for byte, down to
+whole validation reports and their `report_id`. Loaders `legislative_data` and `market_abm_data`
+were added and both families left `BLOCKED_FAMILIES`.
+
+| Attempt | Data | Wall clock | Peak RSS | Verdict |
+| --- | --- | ---: | ---: | --- |
+| `legislative_model.voteview` | Senate, 117th Congress: 949 roll calls, 91,623 positions | 70 s | 190 MB | **pass, 8 of 8** — `legislative_model` is validated |
+| `market_abm_model.alpaca` | SPY closes 2016-2024, 107 windows of 21 returns | 106 s | 77 MB | **fail**: `beats_persistence_dm` (p = 0.819), `beats_historical_mean_dm` (0.998), `interval_coverage` (0.222), `no_revision_leakage` |
+
+Three caveats belong next to the legislative pass. The forecast conditions on the votes of every
+third senator on the same roll call — the family's declared contract, but a strong input, which is
+why the revealed-share baseline it beats (p < 1e-15, Brier skill 0.794 against the member base
+rate) is the one that matters. The Diebold-Mariano p-values pool 18,725 member-votes that share
+roughly 285 roll calls, so they overstate the evidence. And `no_revision_leakage` passes on the
+loader's declaration that a recorded vote is final. The market ABM simulates a window volatility
+of 0.0104 against a realized 0.0071, with a narrow run-to-run spread, so its intervals miss from
+above; with one grid parameter and a fixed fundamental volatility the stylized market is simply
+more volatile than SPY was in 2023-2024.

@@ -141,6 +141,25 @@ def _conflict_forecast(parameters, history, rows, data):
     return out
 
 
+def _recalibrated(prediction, pool, method):
+    """``prediction`` with its predictive shape estimated from standardized pre-origin errors ``pool``."""
+    from . import intervals
+    sd = prediction['sd']
+    if not sd or sd <= 0:
+        raise ValueError('A recalibrated predictive needs a positive family standard deviation')
+    if method == 'student_t_mle':
+        scale, df = intervals.student_t_mle(pool)
+        predictive = intervals.student_t(sd * scale, df)
+    elif method == 'empirical_quantile':
+        scale, nodes = intervals.residual_quantile_nodes(pool, sign=1.0)
+        predictive = intervals.empirical(sd * scale, nodes)
+    else:
+        scale, nodes = intervals.conformal_nodes(pool, sign=1.0)
+        predictive = intervals.empirical(sd * scale, nodes)
+    out = dict(prediction, predictive=intervals.strip(predictive), sd=intervals.standard_deviation(predictive))
+    return out
+
+
 FORECASTERS = {
     'monetary': {'rows_key': 'observations', 'time_key': 'date', 'target': 'policy_rate', 'forecast': _monetary_forecast,
                  'fit_keys': ['observations', 'inflation_target', 'elb', 'exclude_elb', 'information_time', 'revisions'],
@@ -233,6 +252,62 @@ class ModelFamilyEstimator:
                         limitations=self.limitations + [f'Identification: {evidence["identification"]}; not causally calibrated.'],
                         options=dict(self.options, **options))
 
+    def _recalibration(self):
+        """Declared ``family_interval_method`` (and optional ``family_interval_window``), or ``None``.
+
+        The family forecaster keeps its own mean and standard deviation. The declared
+        method then replaces the *shape* of the primary target's predictive with one
+        estimated from the family's own pre-origin out-of-sample errors, standardized by
+        the standard deviation each of those forecasts carried: ``student_t_mle`` (a
+        Student-t fitted by maximum likelihood), ``empirical_quantile`` (their empirical
+        quantiles) or ``conformal_rolling`` (split-conformal order statistics). Absent,
+        the backtest is unchanged.
+        """
+        from . import intervals
+        method = self.options.get('family_interval_method')
+        if method is None:
+            return None
+        if method not in intervals.FAT_TAIL_METHODS:
+            raise ValueError(f'Unknown family_interval_method {method!r}; declared: {list(intervals.FAT_TAIL_METHODS)}')
+        window = self.options.get('family_interval_window')
+        if window is not None and (type(window) is not int or window < 1):
+            raise ValueError('family_interval_window must be a positive integer number of target periods')
+        return {'method': method, 'window': window}
+
+    def _pre_origin_errors(self, target_time, times, rows, time_key, fit_data, data, spec, primary, vintage_policy,
+                           fit_options, cache, recalibration):
+        """Standardized one-step errors ``(actual - mean)/sd`` of primary forecasts whose targets precede the origin.
+
+        Each is the forecast the backtest itself would have made for that earlier period —
+        refit at the period before it, fed rows at or before it — so every error is out of
+        sample and every value read is at or before the current origin. Computed once per
+        period and cached for the rest of the backtest.
+        """
+        earlier = [t for t in times if _time(t) < _time(target_time)]
+        pool_times = earlier[1:]                       # the first period has no history to forecast from
+        if recalibration['window']:
+            pool_times = pool_times[-recalibration['window']:]
+        errors = []
+        for t in pool_times:
+            if t not in cache:
+                previous = [p for p in times if _time(p) < _time(t)]
+                origin = _time(previous[-1]).isoformat()
+                try:
+                    estimate = self.fit(fit_data, cutoff=origin, vintage_policy=vintage_policy, **(fit_options or {}))
+                    history = sorted((r for r in rows if _time(r[time_key]) <= _time(origin)), key=lambda r: _time(r[time_key]))
+                    current = [r for r in rows if r[time_key] == t]
+                    parameters = dict(estimate.diagnostics['structured_estimate'], **estimate.parameters)
+                    extra = {'options': dict(self.options)} if spec.get('options') else {}
+                    predictions = spec['forecast'](parameters, history, current, self.visible_data(data, t), **extra)
+                    cache[t] = [(p['actual'] - p['mean']) / p['sd'] for p in predictions
+                                if p.get('group', primary) == primary and p.get('sd') and p['sd'] > 0]
+                except LeakageError:
+                    raise
+                except ValueError:
+                    cache[t] = []
+            errors.extend(cache[t])
+        return errors
+
     def backtest(self, data, *, start, end, evaluation_cutoff, vintage_policy='family_rows', interval_level=0.8,
                  baselines=('persistence', 'historical_mean'), refit_every=1, fit_options=None, **_):
         if not self.forecaster:
@@ -252,6 +327,8 @@ class ModelFamilyEstimator:
         supplied_names = list(spec.get('baselines', ()))
         usable_baselines = naive + [b for b in supplied_names if b not in naive]
         targets = [t for t in times if lo < _time(t) <= hi]
+        recalibration = self._recalibration()
+        pool_cache = {}
         for position, target_time in enumerate(targets):
             previous = [t for t in times if _time(t) < _time(target_time)]
             if not previous:
@@ -284,6 +361,17 @@ class ModelFamilyEstimator:
             except ValueError as error:
                 skipped.append({'time': str(target_time), 'reason': 'forecast_failed', 'error': str(error)})
                 continue
+            if recalibration:
+                try:
+                    pool = self._pre_origin_errors(target_time, times, rows, time_key, fit_data, data, spec, primary,
+                                                   vintage_policy, fit_options, pool_cache, recalibration)
+                    predictions = [_recalibrated(p, pool, recalibration['method']) if p.get('group', primary) == primary else p
+                                   for p in predictions]
+                except ValueError as error:
+                    if isinstance(error, LeakageError):
+                        raise
+                    skipped.append({'time': str(target_time), 'reason': 'interval_recalibration_failed', 'error': str(error)})
+                    continue
             for prediction in predictions:
                 past = prediction.pop('history_values')
                 supplied = prediction.pop('baselines', {})

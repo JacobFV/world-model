@@ -236,14 +236,92 @@ class DynamicRegression(ComponentEstimator):
                        'model_sigma': fit.get('sigma'), 'r2': fit.get('r2'), 'pseudo_r2': fit.get('pseudo_r2'),
                        'cov_type': 'HC0' if self.link else cov_type, 'nobs': len(rows),
                        'first_stage': fit.get('first_stage'), 'overidentification': fit.get('overidentification')}
-        predictive = self.predictive_specification(frame, errors, len(names), options)
+        out_of_sample = None
+        if options.get('interval_method') in intervals.OUT_OF_SAMPLE_METHODS:
+            recursive_rows = rows
+            if options.get('window'):
+                # The fit itself saw only the last `window` rows; the recursive fits walk the whole frame.
+                recursive_rows = []
+                for t in range(self.lags(options), len(frame)):
+                    try:
+                        recursive_rows.append((t, self.response(cols, t, options), self.design(cols, t, options),
+                                               self.instruments(cols, t, options)))
+                    except (ValueError, ZeroDivisionError, OverflowError):
+                        continue
+            out_of_sample = self.recursive_errors(cols, recursive_rows, names, options)
+        predictive = self.predictive_specification(frame, errors, len(names), options, out_of_sample=out_of_sample)
         if predictive is not None:
             diagnostics['predictive'] = predictive
         return {'parameters': parameters, 'standard_errors': ses, 'nobs': len(rows), 'first_index': rows[0][0],
                 'covariance': {'names': ['coefficient:' + n for n in fit['cov']['names']], 'matrix': fit['cov']['matrix']},
                 'diagnostics': diagnostics}
 
-    def predictive_specification(self, frame, errors, coefficients, options):
+    def recursive_errors(self, cols, rows, names, options):
+        """Pre-origin out-of-sample one-step errors for ``conformal_rolling``.
+
+        For each of the last ``interval_window`` usable rows (all of them when no window
+        is declared), the coefficients are re-estimated on the rows *before* it only and
+        the row is predicted through the same ``level`` mapping as a real forecast; the
+        error is in the same units as the in-sample residuals (relative for
+        multiplicative components). ``rows`` span the whole origin frame, so every value
+        read is in the origin's own frame and nothing after the origin enters. A declared
+        rolling estimation ``window`` is honoured: the fit for frame row t uses rows
+        t-window..t-1, exactly the rows the estimator would use at an origin ending at
+        t-1. The first recursive fit needs ``len(names) + 3`` rows, the estimator's own
+        minimum. Plain expanding least squares accumulates X'X and X'y row by row (the
+        same normal equations ``ols`` solves); everything else refits its training rows.
+        """
+        window = options.get('interval_window')
+        rolling = int(options['window']) if options.get('window') else None
+        k = len(names)
+        first = k + 3
+        start = first if window is None else max(first, len(rows) - int(window))
+        errors = []
+        incremental = not self.endogenous and not self.link and rolling is None
+        if incremental:
+            xtx = [[0.0] * k for _ in range(k)]
+            xty = [0.0] * k
+            for _, y, row, _ in rows[:start]:
+                for i in range(k):
+                    xty[i] += row[i] * y
+                    for j in range(k):
+                        xtx[i][j] += row[i] * row[j]
+        for index in range(start, len(rows)):
+            t, y, row, _ = rows[index]
+            try:
+                if incremental:
+                    beta = la.solve(xtx, xty)
+                else:
+                    training = [r for r in rows[:index] if rolling is None or r[0] >= t - rolling]
+                    if len(training) < first:
+                        raise ValueError('too few rows for a recursive fit')
+                    ys, xs = [r[1] for r in training], [r[2] for r in training]
+                    if self.endogenous:
+                        exog = [j for j, n in enumerate(names) if n not in self.endogenous]
+                        endog = [j for j, n in enumerate(names) if n in self.endogenous]
+                        fit = tsls(ys, [[r[j] for j in exog] for r in xs], [[r[j] for j in endog] for r in xs],
+                                   [r[3] for r in training], exog_names=[names[j] for j in exog],
+                                   endog_names=[names[j] for j in endog], cov_type='nonrobust')
+                        beta = [fit['params'][n] for n in names]
+                    elif self.link:
+                        fit = binomial_glm(ys, xs, names=names, link=self.link, cov_type='HC0')
+                        beta = [fit['params'][n] for n in names]
+                    else:
+                        beta = la.solve(la.xtwx(xs), la.xtwy(xs, ys))
+                eta = math.fsum(b * v for b, v in zip(beta, row))
+                predicted = self.level(cols, t, _inv_logit(eta) if self.link else eta, options)
+                error = predicted - cols[self.target][t]
+                errors.append(error / predicted if self.multiplicative else error)
+            except (ValueError, ZeroDivisionError, OverflowError):
+                pass
+            if incremental:
+                for i in range(k):
+                    xty[i] += row[i] * y
+                    for j in range(k):
+                        xtx[i][j] += row[i] * row[j]
+        return errors
+
+    def predictive_specification(self, frame, errors, coefficients, options, out_of_sample=None):
         """Declared predictive distribution of a one-step error, or ``None`` for the default.
 
         ``None`` means "Gaussian with ``level_sigma``", which is what every
@@ -260,7 +338,7 @@ class DynamicRegression(ComponentEstimator):
             extra['revision'] = scale
         spec = intervals.from_errors(errors, method=method, window=options.get('interval_window'),
                                      nodes=int(options.get('interval_nodes', intervals.DEFAULT_NODES)),
-                                     dof=coefficients, extra=extra)
+                                     dof=coefficients, extra=extra, out_of_sample=out_of_sample)
         if revision:
             spec['revision_diagnostics'] = diagnostics
         return spec
