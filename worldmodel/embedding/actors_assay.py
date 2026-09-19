@@ -370,6 +370,11 @@ def quarter_clustered_dm(rows, baseline):
             'per_quarter_mean_difference': means}
 
 
+#: Domain name -> a function returning the tasks, template, targets, baselines and audit of one domain.
+#: Tests register a synthetic domain here; nothing else writes to it.
+DOMAINS = {'13f': _prepare_13f, 'votes': _prepare_votes, 'fec': _prepare_fec, 'fdic': _prepare_fdic}
+
+
 def run_attempt(store, attempt_id, *, log=print, publish=True, device=None, spec=None):
     import lightgbm
     import torch
@@ -382,8 +387,7 @@ def run_attempt(store, attempt_id, *, log=print, publish=True, device=None, spec
         raise ValueError('An attempt that is not in plan.json cannot be published')
     attempt = spec if spec is not None else attempt_spec(attempt_id)
     protocol, config = attempt['protocol'], attempt['config']
-    prepare = {'13f': _prepare_13f, 'votes': _prepare_votes, 'fec': _prepare_fec,
-               'fdic': _prepare_fdic}[attempt.get('domain', '13f')]
+    prepare = DOMAINS[attempt.get('domain', '13f')]
     dom = prepare(store, attempt, protocol, config, log)
     tasks, q_of, first, blocks = dom['tasks'], dom['q_of'], dom['first'], dom['blocks']
     quarter_end_ = dom['period_end']
