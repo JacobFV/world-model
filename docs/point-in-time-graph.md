@@ -251,8 +251,10 @@ this section is the record of what the number was before it.
   the default policy its rows are therefore unknown-publication, even though the honest date is
   sitting in the record. Giving it `dimensions.available_at` is an adapter change, in
   `data/sec_13f_history`, and it is one of the highest-value ones available: 78.6M rows with a real,
-  measured filing date. It is outside the default unify profile (a bulk dataset), so it does not move
-  the headline number, but it moves `--datasets sec_13f_history` from 0% to nearly 100%.
+  measured filing date. Spot-checked here: its records are stamped `observed_at` 2025-02-07 under
+  accession `0000004962-25-000018`, which is the filing date and not an ingest clock. It is outside
+  the default unify profile (a bulk dataset), so it does not move the headline number, but it would
+  date essentially every row of a `--datasets sec_13f_history` index, which today has none.
 - **91.40% of the default index is `NULL`, and the three biggest wins are not in the index yet.**
   The measurement above is a statement about `worldmodel.unify.OBSERVATION_DATASETS`, not only about
   the publishers: the records that carry a real availability date are observations, and the default
