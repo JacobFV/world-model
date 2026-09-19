@@ -27,8 +27,16 @@ OWNERSHIP = ['ultimately_consolidated_by', 'directly_consolidated_by', 'fund_man
 
 
 def cluster_shapes(connection):
-    """Asserted-identity clusters, split by the identity kinds they join."""
-    sanctioned, filers, both = [], 0, 0
+    """Asserted-identity clusters, split by the identity kinds they join.
+
+    ``both`` counts the clusters that carry all three kinds -- a sanctions listing, an LEI and an
+    SEC CIK. It was zero every time this query ran before the Wikidata bridge was merged, which is
+    why the counts are broken down here: how many of those clusters carry a listing from an actual
+    *designation* list rather than an ownership or politically-exposed-person record, and how many
+    of them only hold together because a ``wikidata:`` member bridges the LEI to the CIK. Both
+    breakdowns are what keeps a non-zero count from being read as "sanctioned issuers are listed".
+    """
+    sanctioned, filers, both, both_designated, both_via_wikidata = [], 0, 0, 0, 0
     for row in common.rows(connection, "SELECT canonical_id, GROUP_CONCAT(entity_id, '|') AS members "
                                        'FROM resolved GROUP BY canonical_id'):
         members = row['members'].split('|')
@@ -42,7 +50,11 @@ def cluster_shapes(connection):
                                'ciks': ciks, 'members': sorted(members)})
             if ciks:
                 both += 1
-    return sanctioned, filers, both
+                if any(m.startswith(DESIGNATION_PREFIXES) for m in listings):
+                    both_designated += 1
+                if any(m.startswith('wikidata:') for m in members):
+                    both_via_wikidata += 1
+    return sanctioned, filers, both, both_designated, both_via_wikidata
 
 
 def issuers_with_bridged_securities(connection):
@@ -74,7 +86,7 @@ def holders_of(graph, connection, security, limit):
 def main():
     args = common.parser(__doc__).parse_args()
     graph, connection = common.open_index(args.index)
-    clusters, lei_cik_clusters, both = cluster_shapes(connection)
+    clusters, lei_cik_clusters, both, both_designated, both_via_wikidata = cluster_shapes(connection)
     if not clusters:
         return common.emit('q1_sanctioned_to_listed_holders',
                            {'answer': None,
@@ -133,6 +145,8 @@ def main():
         'counts': {'clusters_joining_a_sanctions_listing_to_an_lei': len(clusters),
                    'clusters_joining_an_lei_to_an_sec_cik': lei_cik_clusters,
                    'clusters_joining_all_three': both,
+                   'all_three_clusters_whose_listing_is_a_designation': both_designated,
+                   'all_three_clusters_holding_together_through_wikidata': both_via_wikidata,
                    'sanctions_linked_leis_reaching_a_13f_named_security': sanctioned_issuers_with_holders,
                    'clusters_whose_listing_is_on_a_designation_list': len(designation_clusters),
                    'designation_list_leis_reaching_a_13f_named_security': designated_with_holders,
@@ -144,17 +158,23 @@ def main():
             'sanctions listing to a GLEIF LEI and %d of those LEIs issue a security that the 13F '
             'information tables also name (GLEIF publishes the ISIN, the 13F tables publish the CUSIP, '
             'and ISO 6166 makes them the same instrument), so institutional holdings are reachable. '
-            'The filer leg does not fire: %d clusters join an LEI to an SEC CIK and %d join all three. '
-            'That is not an extraction gap. Measured on the published golden copy, the LEIs that '
-            'sanctions publishers name and the LEIs whose GLEIF registration authority is the SEC are '
-            'two disjoint populations: zero of 1,928 sanctions-published LEIs carry an SEC EDGAR '
-            'registration-authority entity ID, because a US entity on a sanctions or ownership list is '
-            'a state-registered company (546 of 1,927 are Russian, 139 carry a Delaware file number) '
-            'rather than an SEC registrant. Sharper still: %d of these clusters carry a listing from an '
-            'actual designation list (OFAC SDN, the UK and UN lists, the US Consolidated Screening '
-            'List) and %d of those reach a security the 13F tables name, so the anchor chosen above is '
-            'an ownership or politically-exposed-person record rather than a designation.'
-            % (len(clusters), sanctioned_issuers_with_holders, lei_cik_clusters, both,
+            'The filer leg: %d clusters join an LEI to an SEC CIK and %s. %s Sharper still: %d of the '
+            'listing-to-LEI clusters carry a listing from an actual designation list (OFAC SDN, the UK '
+            'and UN lists, the US Consolidated Screening List) and %d of those reach a security the 13F '
+            'tables name.'
+            % (len(clusters), sanctioned_issuers_with_holders, lei_cik_clusters,
+               ('none joins all three' if not both else '%d join all three' % both),
+               ('That leg used to be empty, and the reason was not extraction: measured on the published '
+                'golden copy, zero of 1,928 sanctions-published LEIs carry an SEC EDGAR '
+                'registration-authority entity ID, because a US entity on a sanctions or ownership list '
+                'is a state-registered company (546 of 1,927 are Russian, 139 carry a Delaware file '
+                'number) rather than an SEC registrant.' if not both else
+                'It is no longer empty, and the breakdown is what the number means: %d of the %d carry a '
+                'listing from an actual designation list rather than an ownership or '
+                'politically-exposed-person record, and %d hold together only because a wikidata: member '
+                'bridges the LEI to the CIK -- a community assertion, not a registration authority. '
+                'GLEIF itself still publishes no SEC EDGAR registration-authority entity ID for any of '
+                'the 1,928 sanctions-published LEIs.' % (both_designated, both, both_via_wikidata)),
                len(designation_clusters), designated_with_holders)),
         'which_dataset_supplied_which_edge': {
             'sanctions listing and its published LEI': 'ofac_sanctions / other_sanctions_lists / opensanctions',
