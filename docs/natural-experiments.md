@@ -273,7 +273,10 @@ The employment leads are small (+0.005, +0.000, +0.003 at e = -4, -3, -2) but jo
 pre-trend test on the same leads does not reject (p = 0.62), which is a disagreement between two
 registered diagnostics, not a licence to pick one. The establishment outcome passes every
 criterion and is a **null**: heavy damage does not move establishment counts by more than about
-2.8% down or 2.0% up over five years, under the listed assumptions. Event-time estimates decay
+2.7% down or 2.0% up over five years, under the listed assumptions. That interval is wider than
+the effect the design called plausible - its minimum detectable effect is 0.033 log points against
+a plausible 0.02 (see [the power suite](#4-power-and-negative-controls-for-every-design)).
+Event-time estimates decay
 (e = 0 +0.004 to e = +4 -0.014), so nothing rules out a small effect appearing later than e = 4.
 The unmatched variant (strata = disaster only, non-gating) gives -0.003 (-0.023, +0.018) for
 employment with a pre-trend p of 0.34; it is reported for transparency and cannot be substituted
@@ -315,7 +318,8 @@ values of products that later get cut are not on the comparison products' path. 
 outcome (units with a full quantity record) passes every criterion and is a **null** of
 -0.009, with an interval (-0.090, +0.072) far wider than the 5% the elasticity literature would
 predict. **The symmetric design does not rescue the tariff question: cutting a tariff by 2 pp or
-more is not shown to move imports, and the design that would have shown it is not powered to.**
+more is not shown to move imports, and the design is not powered to show it** - its minimum
+detectable effect is 0.069 log points against a plausible 0.05.
 
 ### 3. OFAC country-programme waves -> trade with the United States
 
@@ -333,7 +337,7 @@ in 2000-2021: IRQ 2003; IRN, COD, BLR 2006; SOM, PRK 2010; LBY 2011; RUS, UKR 20
 SSD 2017; NIC 2019; CHN 2020; MMR, ETH 2021. Units: exporting country x HS1992 chapter, 1995-2024.
 Strata: chapter. Clusters: country. e = -5..3. Placebo date shift 2; **placebo cluster** 100
 replications (whole never-targeted countries receive placebo cohorts, because unit-level placebos
-would treat 97 chapters of one country as 97 independent experiments).
+would treat one country's 96 chapters as 96 independent experiments).
 
 *Gate numbers, stated in the registration.* The alternative vessel design is closed: 2,094 OFAC
 parties carry an IMO number, 390 were first designated between 2025-02-01 and 2025-11-30 (a
@@ -349,12 +353,14 @@ in 16 countries, 221 country clusters.
 | log US share of imports | -0.121 (-0.309, +0.068) | 0.853 | +0.050, p = 0.38 | 0.10 | -0.115 (-0.280, +0.050) | -0.177 | `quasi_experimental_did` |
 
 The export design is the closest thing in either wave to a positive finding and **is not one**:
-the point estimate is a 11% fall in the target's exports to the US relative to its other exports,
+the point estimate is an 11% fall in the target's exports to the US relative to its other exports,
 with an interval that includes zero, and it fails its registered cluster-placebo criterion by one
 replication in a hundred (0.11 against a limit of 0.10; with 100 replications the Monte Carlo
 error on that rate is about 3 points, so the test is close to its limit either way). The import
 side passes everything and is a **null** of -0.121 with an interval (-0.309, +0.068): with 16
-treated countries this design cannot see anything smaller than about a third.
+treated countries this design cannot see anything smaller than about a fifth (minimum detectable
+effect 0.201 log points against a plausible 0.15), and its inference is anti-conservative: on
+synthetic panels with no effect it rejects 14.5% of the time.
 
 ### 4. Power and negative controls for every design
 
@@ -409,17 +415,20 @@ Two designs also **over-reject under a true null**: the wave-1 tariff design cla
 design's pre-trend test rejects a correct design 37.5% of the time - with 16 treated clusters the
 clustered normal approximation is simply not accurate - so its passing diagnostics are weaker
 evidence than they look, and its identified null on the import side should be read with an
-interval wider than the one printed. The other five designs' sizes are 6-8.7%, close enough to
-nominal for 200 replications (Monte Carlo error about 2 points).
+interval wider than the one printed. The other four measurable designs' sizes are 6.0-8.7%, close
+enough to nominal for 200 replications (Monte Carlo error about 2 points).
 
 The calibration check fired twice, in opposite directions, and both are informative about the
 designs rather than about the simulator. On the FEMA dose panel the simulated SE is 0.38 of the
-real one because the same county appears in several (disaster, county) stacks with an identical
-outcome series, which the design's state-level clustering handles and the independent-unit
-simulation does not. On the sanctions panel it is 1.73 times the real one: with 96 chapters per
-country and strong within-country correlation, calibrated independent chapter noise is more
+real one because the panel's 3,953 units are only 2,328 distinct counties (1,141 counties appear in
+two or more declarations, one in seven) with an identical outcome series each time, which the
+design's state-level clustering handles and the independent-unit simulation does not. On the
+sanctions panel it is 1.73 times the real one: with 96 chapters per country and strong
+within-country correlation, calibrated independent chapter noise is more
 variable than the real chapter series. In both cases the registered fallback reports the analytic
-MDE, and the amended variogram model agrees (0.033 and 0.201).
+MDE; the amended variogram model does not rescue either panel - its own check fails too - so it
+reports the same analytic values (0.033 and 0.201). Where both checks pass, the two models agree
+closely (wave-1 FEMA 0.023 against 0.023; wave-2 tariffs 0.069 against 0.086).
 
 ## What is identified and what is not
 
