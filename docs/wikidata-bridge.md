@@ -552,6 +552,16 @@ become if it does not.
    0.016% failure rate over 50,000 real values, and the fact that `orcid` is **already** in
    `resolution.UNIQUE_NAMESPACES` - no resolution-layer change is needed, and the eleven
    namespaces this bridge had to add did not include it.
+
+   *Decided 2026-09-19: the mirror is not taken, and the follow-up is closed rather than left
+   open.* The question was escalated with the measurements above, and the arithmetic settles it.
+   The whole prize is 20,334 entities against 9,048,525 in the resolution's scope - **0.22
+   percentage points** on a figure that currently reads 5.821% - and every one of those joins
+   would be two community assertions deep, through a self-registered identifier, between a
+   third-party dump of one date and the publisher's own extract of another. That is a real cost in
+   provenance for a fifth of a point. It is reopened only if the publisher's own service becomes
+   able to page P496, or if a second `orcid:`-keyed publisher enters the catalog and makes the
+   partner side worth more than 20,334.
 2. **Rebuild the index and attach.** The scope measurement is only realised once
    `data/world_evidence/index.sqlite` holds the new entity records; until then the bridge is worth
    the +5,386 in the index measurement rather than the +215,062 in the scope measurement.
