@@ -6,6 +6,7 @@ import sys
 import tempfile
 import unittest
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))  # discover and dotted module paths alike
 from test_unify_scale import Fixture, entity
 
 from worldmodel import coverage_estimator as C

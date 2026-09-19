@@ -8,9 +8,11 @@ value its own publisher flags as fraudulent, or across IMO's two number series.
 import json
 from pathlib import Path
 import sqlite3
+import sys
 import tempfile
 import unittest
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))  # discover and dotted module paths alike
 from test_unify_scale import EVIDENCE, Fixture, entity
 
 from worldmodel import unify as U
