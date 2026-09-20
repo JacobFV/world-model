@@ -246,9 +246,18 @@ Per-month numbers for all 423 months, with counties-holding-any-value beside the
   any form, or monthly employed and unemployed persons, which exist at county level only in the
   structured ids from 2019-08-28. Those walls stand exactly where the survey above put them.
 
-## What a consumer still needs
+## What a consumer needed, and now has
 
-`worldmodel/embedding/realtime_panel.py:first_releases` indexes a value by the **calendar year** of
-its `valid_from`, so pointing it at this dataset unchanged would collapse twelve months onto one year
-and keep whichever was published first. A monthly panel needs a month key there. That file is not
-this track's to change, and the change is reported rather than made.
+`worldmodel/embedding/realtime_panel.py:first_releases` indexed a value by the **calendar year** of
+its `valid_from`, so pointing it at this dataset unchanged would have collapsed twelve months onto
+one year and kept whichever was published first. It now takes a `PeriodScheme`: `ANNUAL` (the
+default, so every existing caller is unchanged) keys by year, `MONTHLY` keys by `YYYY-MM`.
+
+The monthly panel itself is
+[`county_monthly_realtime_panel`](../data/county_monthly_realtime_panel/README.md), built by
+`worldmodel/embedding/county_monthly_realtime.py` (`python3 -m worldmodel embed-panel
+--realtime-monthly`): **1,459,133 first releases, 3,140 county-equivalents, reference months 2005-04
+to 2026-07, 255 months with a first release**. That reconciles with this dataset exactly - 1,459,534
+first releases here, less the 233 months where Hancock County KY's two aliases both released and the
+earlier was kept, less the 168 months of the 1976-1989 `DCDIST5URN` back-extension, which a panel of
+contemporaneous releases has no business carrying.

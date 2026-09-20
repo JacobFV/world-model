@@ -722,6 +722,12 @@ DERIVED = {
         'derived_from': ['fred_county_vintages', 'county_panel'],
         'reason': 'first releases selected from the ALFRED vintages in fred_county_vintages, with static '
                   'geography carried from county_panel; it covers what those two hold and nothing else'},
+    'county_monthly_realtime_panel': {
+        'derived_from': ['fred_county_laus_monthly_vintages'],
+        'reason': 'monthly first releases selected from the ALFRED vintages in '
+                  'fred_county_laus_monthly_vintages; it covers the counties and reference months that '
+                  'archive released in real time and nothing else, which before reference month 2007-05 '
+                  'is the Federal Reserve Eighth District rather than the nation'},
     'firm_panel': {
         'derived_from': ['sec_financial_statements', 'sec_company_assets', 'sec_gleif', 'sec_issuer_reference',
                          'sec_13f_history', 'sec_ownership_datasets'],

@@ -1,0 +1,33 @@
+{
+  "id": "county_monthly_realtime_panel",
+  "schema_version": 2,
+  "kind": "derived",
+  "status": "published_by_embedding_layer",
+  "description": "Monthly first releases of the county LAUS vintages (fred_county_laus_monthly_vintages): for each county, family and reference month, the value from the earliest vintage that released it, dated by that vintage, so the panel is never revised and an as-of view of it carries no revision leakage. The archive's opening snapshot of already-revised history is excluded, values carry the units the source harmonised each vintage to, and coverage before reference month 2007-05 is the Federal Reserve Eighth District rather than the nation. Written by the embedding layer's realtime_panel builder, not by a stage pipeline.",
+  "dependencies": [
+    "fred_county_laus_monthly_vintages"
+  ],
+  "entrypoint": "pipeline.py:run",
+  "parameters": {
+    "producer": "worldmodel.embedding.county_monthly_realtime:build",
+    "basis": "first_release",
+    "period": "monthly"
+  },
+  "stages": [
+    {
+      "id": "final",
+      "entrypoint": "pipeline.py:run",
+      "depends_on": [],
+      "schema": {
+        "format": "jsonl"
+      },
+      "validation": {
+        "allow_empty": false,
+        "max_rows": 20000000
+      },
+      "cache": "off",
+      "retention": "retain"
+    }
+  ],
+  "output_stage": "final"
+}
