@@ -488,6 +488,34 @@ one when there is none.
   at composition (which employers are in QCEW) rather than at the design; a monthly outcome
   (QCEW monthly within quarters exists for 2023-2025, LAUS monthly from 1990) and a larger dose
   contrast (the top decile of damage per capita) are the obvious next registrations.
+  **Started, not registered.** The monthly outcome now exists: `county_monthly_realtime_panel`
+  (`@197658b2...`) holds 1,459,133 LAUS first releases over 3,140 county-equivalents and 255 reference
+  months, each value dated by the vintage that published it. Power for the monthly top-decile design
+  was measured on it *before* any design was registered, by the method above
+  (`examples/natural-experiments/run_power_wave3_draft.py`), and is recorded in
+  `examples/natural-experiments/drafts/fema_monthly_dose_county_employment.draft.json`. **No wave-3
+  design is registered, no wave-3 study has been run, and no treated-versus-control contrast has been
+  computed for it** - the real panel's own leads, pre-trend and placebo tests were deliberately not
+  run, because they are contrasts too.
+
+  | Horizon | Real SE | MDE at 80% power | Effect worth finding | MDE / worth finding | Size under the null | Verdict |
+  | --- | ---: | ---: | ---: | ---: | ---: | --- |
+  | 3 months | 0.0024 | 0.0096 | 0.02 | 0.48 | 0.075 | detects it |
+  | 6 months | 0.0026 | 0.0116 | 0.02 | 0.58 | 0.090 | detects it |
+  | 12 months | 0.0034 | 0.0148 | 0.02 | 0.74 | **0.115** | bound only |
+  | 24 months | 0.0058 | 0.0193 | 0.02 | 0.97 | **0.115** | bound only |
+
+  This is **the first design in this repository whose minimum detectable effect is below the effect its
+  own registration calls worth finding** - wave 2's annual version of the same contrast had an MDE of
+  0.033 against the same 0.02 - and the gain is the monthly outcome, not more counties (176 treated
+  pairs against wave 2's 583). Two things keep it honest. At 12 and 24 months the design rejects a
+  true null in 11.5% of no-effect panels, above the 10% limit the power registration uses, so at those
+  horizons it **can only bound**. And the pre-trend window had to be chosen on measured size: a joint
+  Wald test over eleven monthly leads passes only 26% of correct no-effect designs at 47 state
+  clusters, so the draft gates on five leads (72%) and reports the longer window without gating on it.
+  A small MDE here also does not promise a visible effect: LAUS county series are modelled and
+  smoothed toward the state, and the smoothness that makes these standard errors small attenuates the
+  signal too.
 * Tariffs: the remaining threat is anticipation longer than one year and reallocation across HS6
   lines inside a chapter; a design at chapter level, or with the tariff change as a continuous dose
   and importer-chapter-year fixed effects, would address both.

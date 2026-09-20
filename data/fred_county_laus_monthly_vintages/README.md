@@ -197,7 +197,11 @@ are in `coverage.json`.
 * **A real-time monthly county panel can take its first origin on 2005-07-06** — the day the first
   releases for reference months 2005-04 and 2005-05 were published — for the 339 Eighth District
   counties, and **on 2007-07-05** for the whole country (3,131 of 3,140 that day, 3,140 by
-  2008-05-07).
+  2008-05-07). That panel is now built:
+  [`county_monthly_realtime_panel`](../county_monthly_realtime_panel/README.md) holds **1,459,133
+  first releases** over 3,140 county-equivalents and 255 reference months, which is this dataset's
+  1,459,534 less the 233 months where Hancock County KY's two aliases both released and the earlier
+  was kept, and less the 168 months of the `DCDIST5URN` back-extension to 1976.
 * **A monthly county outcome can be scored from reference month 2005-04** for those 339 counties and
   from **2007-05** for 3,137 of 3,140. Against `county_realtime_panel`'s LAUS, which starts at
   reference *year* 2019, that is **twelve more years and 140 more monthly observations per county**

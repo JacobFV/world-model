@@ -18,6 +18,11 @@ what was known, not of what was true. Both are recorded on every record.
 
 The output uses the same record shape as ``county_panel``, so :mod:`worldmodel.embedding.tensors`
 reads either one.
+
+A *period* is whatever the source's reference periods are: :data:`ANNUAL` keys a value by the
+calendar year of its ``valid_from`` and :data:`MONTHLY` by its calendar month. The scheme is
+explicit because it is not a formatting choice -- keying a monthly source by year would collapse
+twelve reference months onto one and silently keep only the earliest.
 """
 from collections import defaultdict
 import gzip
@@ -29,17 +34,50 @@ from ..util import now
 ENTRYPOINT = 'worldmodel.embedding.realtime_panel:build'
 
 
-def first_releases(store, ref, *, subject_prefix, metric_of, log=print):
-    """``(unit, feature, year) -> (value, available_at, record_id)`` from the earliest vintage of each value.
+class PeriodScheme:
+    """How a vintaged record's reference period is keyed, bounded and named.
 
-    ``metric_of(record)`` returns the panel feature name for a record, or None to skip it. Only
-    annual periods are kept: a period is indexed by the calendar year of its ``valid_from``.
+    ``key(record)`` is the period a value belongs to, ``bounds(key)`` its half-open
+    ``(valid_from, valid_to)`` and ``label(key)`` the string that names it inside a record id.
+    ``field`` names the period in a summary (``first_year`` for :data:`ANNUAL`). Keys must sort in
+    period order, because the panel's coverage is reported as their minimum and maximum.
+    """
+
+    def __init__(self, name, field, key, bounds, label=str):
+        self.name, self.field, self.key, self.bounds, self.label = name, field, key, bounds, label
+
+
+def _annual_bounds(year):
+    return f'{year}-01-01', f'{year + 1}-01-01'
+
+
+def _monthly_bounds(month):
+    year, index = int(month[:4]), int(month[5:7])
+    return f'{month}-01', (f'{year + 1}-01-01' if index == 12 else f'{year}-{index + 1:02d}-01')
+
+
+#: A period is the calendar year of ``valid_from``: twelve monthly rows would collapse onto one.
+ANNUAL = PeriodScheme('annual', 'year', lambda record: int(str(record['valid_from'])[:4]), _annual_bounds)
+#: A period is the calendar month of ``valid_from``, keyed ``YYYY-MM`` so it still sorts in time order.
+MONTHLY = PeriodScheme('monthly', 'month', lambda record: str(record['valid_from'])[:7], _monthly_bounds)
+
+
+def first_releases(store, ref, *, subject_prefix, metric_of, log=print, period=ANNUAL, line_contains=()):
+    """``(unit, feature, period) -> (value, available_at, record_id)`` from the earliest vintage of each value.
+
+    ``metric_of(record)`` returns the panel feature name for a record, or None to skip it. ``period``
+    is the :class:`PeriodScheme` that says which reference period a record belongs to; the default
+    keys by calendar year, so a monthly source must pass :data:`MONTHLY` or twelve months of a year
+    would collapse onto one and only the earliest survive. ``line_contains`` are canonical-JSON
+    fragments every kept line must hold, a prefilter that saves parsing rows the caller will drop.
     """
     best, counts = {}, defaultdict(int)
     path = _records_path(store, ref)
     with gzip.open(path, 'rt', encoding='utf-8') as stream:
         for line in stream:
             if '"kind":"observation"' not in line or subject_prefix not in line:
+                continue
+            if any(fragment not in line for fragment in line_contains):
                 continue
             record = json.loads(line)
             subject = record.get('subject') or (record.get('dimensions') or {}).get('geography')
@@ -52,8 +90,7 @@ def first_releases(store, ref, *, subject_prefix, metric_of, log=print):
             if not start:
                 counts['no_realtime_start'] += 1
                 continue
-            year = int(str(record['valid_from'])[:4])
-            key = (subject, feature, year)
+            key = (subject, feature, period.key(record))
             current = best.get(key)
             if current is None or start < current[1]:
                 best[key] = (float(record['value']), start, record['id'])
@@ -66,24 +103,28 @@ def first_releases(store, ref, *, subject_prefix, metric_of, log=print):
     return best, dict(counts)
 
 
-def records(values, ref, dataset, observed_at, unit_of):
+def records(values, ref, dataset, observed_at, unit_of, period=ANNUAL):
     """Panel observations in the ``county_panel`` record shape, one per first release."""
-    for (subject, feature, year), (value, available_at, record_id) in sorted(values.items()):
-        yield {'id': f'{dataset}:{subject}:{feature}:{year}', 'kind': 'observation', 'subject': subject,
+    for (subject, feature, key), (value, available_at, record_id) in sorted(values.items()):
+        valid_from, valid_to = period.bounds(key)
+        yield {'id': f'{dataset}:{subject}:{feature}:{period.label(key)}', 'kind': 'observation', 'subject': subject,
                'metric': feature, 'unit': unit_of(feature), 'value': value,
-               'valid_from': f'{year}-01-01', 'valid_to': f'{year + 1}-01-01', 'observed_at': observed_at,
+               'valid_from': valid_from, 'valid_to': valid_to, 'observed_at': observed_at,
                'dimensions': {'available_at': available_at, 'revisions': 'none', 'source': 'first_release'},
                'evidence': [{'input': dict(ref), 'record_id': record_id}]}
 
 
-def summary(values, counts, ref, dataset, source_dataset):
-    features, units, years = defaultdict(int), {}, defaultdict(set)
-    for (subject, feature, year) in values:
+def summary(values, counts, ref, dataset, source_dataset, period=ANNUAL):
+    features, periods = defaultdict(int), defaultdict(set)
+    for (subject, feature, key) in values:
         features[feature] += 1
-        years[feature].add(year)
+        periods[feature].add(key)
+    first, last = f'first_{period.field}', f'last_{period.field}'
     return {'schema': 'worldmodel.realtime_panel/1', 'dataset': dataset, 'source': source_dataset,
+            'period': period.name,
             'units': len({s for (s, _, _) in values}), 'values': len(values),
-            'features': {f: {'rows': n, 'first_year': min(years[f]), 'last_year': max(years[f])}
+            'features': {f: {'rows': n, first: min(periods[f]), last: max(periods[f]),
+                             f'{period.field}s': len(periods[f])}
                          for f, n in sorted(features.items())},
             'extraction': counts, 'inputs': [dict(ref)],
             'does_not_establish': [
@@ -95,16 +136,18 @@ def summary(values, counts, ref, dataset, source_dataset):
                 'A period with no vintage in the archive is absent, not zero.']}
 
 
-def build(store, *, dataset, source_dataset, subject_prefix, metric_of, unit_of, publish=True, log=print):
+def build(store, *, dataset, source_dataset, subject_prefix, metric_of, unit_of, publish=True, log=print,
+          period=ANNUAL, line_contains=()):
     """Collect first releases from ``source_dataset`` and publish them as ``dataset``."""
     from ..artifacts import publish_report
     ref = catalog_ref(store, source_dataset)
-    values, counts = first_releases(store, ref, subject_prefix=subject_prefix, metric_of=metric_of, log=log)
-    report = summary(values, counts, ref, dataset, source_dataset)
+    values, counts = first_releases(store, ref, subject_prefix=subject_prefix, metric_of=metric_of, log=log,
+                                    period=period, line_contains=line_contains)
+    report = summary(values, counts, ref, dataset, source_dataset, period=period)
     if not publish:
         return None, report
     observed_at = now()
     output = publish_report(store, dataset, report, {'source': source_dataset, 'basis': 'first_release'},
-                            inputs=[ref], records=records(values, ref, dataset, observed_at, unit_of),
+                            inputs=[ref], records=records(values, ref, dataset, observed_at, unit_of, period=period),
                             entrypoint=ENTRYPOINT)
     return output, report
