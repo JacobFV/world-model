@@ -84,10 +84,15 @@ def read_sec_issuers(data_root):
             issuers, refused)
 
 
-def read_openfigi(data_root, sec_listings, counts):
-    """``{cusip: cik}`` composed from the published OpenFIGI answers and the SEC listing edges."""
+def read_openfigi(data_root, sec_listings, counts, rows_dir=None):
+    """``{cusip: cik}`` composed from the published OpenFIGI answers and the SEC listing edges.
+
+    With ``rows_dir`` the two mapping-specification row sets are written alongside, ready for
+    ``wm link-identifiers --spec openfigi_cusip_figi`` and ``--spec figi_ticker``.
+    """
     cusip_pairs, mic_pairs, us_pairs = [], [], []
     figi_composite = {}
+    spec_rows = {'openfigi_cusip_figi': [], 'figi_ticker': []}
     for line in _lines(data_root, MAPPINGS):
         if '"openfigi_mapping"' not in line:
             continue
@@ -103,6 +108,7 @@ def read_openfigi(data_root, sec_listings, counts):
         if claim is not None:
             counts['cusip_claims'] += 1
             cusip_pairs.append((claim[1], figi))
+            spec_rows['openfigi_cusip_figi'].append({'left': claim[1], 'right': figi})
             continue
         if query['id_type'] != 'TICKER':
             continue
@@ -110,9 +116,17 @@ def read_openfigi(data_root, sec_listings, counts):
         if row is not None:                       # a listing OpenFIGI scoped to a MIC itself
             counts['mic_scoped_listings'] += 1
             mic_pairs.append(((row['scope'], query['id_value']), figi))
+            spec_rows['figi_ticker'].append(row)
         elif query.get('exch_code') == 'US' and value.get('figi_level') == 'us_composite':
             counts['us_composite_listings'] += 1
             us_pairs.append((query['id_value'], figi))
+    if rows_dir:
+        Path(rows_dir).mkdir(parents=True, exist_ok=True)
+        for spec, rows in spec_rows.items():
+            with (Path(rows_dir) / (spec + '.jsonl')).open('w', encoding='utf-8') as handle:
+                for row in rows:
+                    handle.write(json.dumps(row, sort_keys=True) + '\n')
+            counts['rows_written_' + spec] = len(rows)
 
     cusip_figi = _one_to_one(cusip_pairs, counts, 'cusip_figi')
     counts['cusip_figi_links'] = len(cusip_figi)
@@ -229,7 +243,7 @@ def main():
     counts['sec_issuer_listings'] = len(sec_listings)
     counts['sec_symbols_on_several_ciks'] = refused_symbols
     print('sec listings', len(sec_listings), flush=True)
-    after = read_openfigi(data_root, sec_listings, counts)
+    after = read_openfigi(data_root, sec_listings, counts, rows_dir=os.environ.get('OPENFIGI_ROWS_DIR'))
     print('openfigi cusip->cik', len(after), counts, flush=True)
     before = read_baseline(data_root)
     print('baseline cusip->cik', len(before), flush=True)
