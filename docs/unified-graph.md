@@ -18,26 +18,33 @@ which is why the measured build below pins 96 inputs and 1,312,082,952 catalog r
 ## What the default build produced
 
 ```
-131.5 GB   data/world_evidence/index.sqlite   (graph schema 3)
-111,378,669 records     9,925,686 entities
-                       33,282,618 assertions
-                       51,517,125 observations
-                       16,653,240 events
- 26,409,127 edges       (entity-to-entity assertions, weighted, bitemporal)
-    109,801 resolved entity IDs in 49,705 asserted-identity clusters
+139 GB     data/world_evidence/index.sqlite   (graph schema 3, rebuilt 2026-09-19)
+126,880,144 records    10,687,168 entities
+                       34,471,880 assertions
+                       62,719,625 observations
+                       19,001,471 events
+ 27,045,865 edges       (entity-to-entity assertions, weighted, bitemporal)
+    328,164 resolved entity IDs in 148,123 asserted-identity clusters
 ```
 
-Of the index's 8,590,782 distinct entity IDs, **314,178 (3.66%)** have entity records from two or
-more datasets; [identity-coverage.md](identity-coverage.md) measures that before and after, by
-dataset, domain and entity type, and says what blocks the rest.
+The build read 1,138,520,492 published records over 112 selected datasets in 86 minutes; the
+resolve pass that produced the clusters took 48.4 minutes at 1.24 GiB peak RSS. It is the first
+build that holds `wikidata_identifiers` and the six datasets earlier resolve runs had to exclude,
+and the previous build's figures (111,378,669 records, 9,925,686 entities, 49,705 clusters) are
+kept in the git history rather than here.
+
+Of the index's 9,177,244 distinct entity IDs, **532,823 (5.81%)** have entity records from two or
+more datasets and 430,551 (4.69%) from two or more publishers;
+[identity-coverage.md](identity-coverage.md) measures that before and after, by dataset, domain and
+entity type, and says what blocks the rest.
 
 The ten largest edge predicates: `reported_holding` 10,416,598, `issuer_security` 2,291,868,
-`supports_candidate` 1,935,688, `cosponsored_measure` 1,283,245, `holds_position` 996,250,
-`within` 844,313, `associated_country` 645,486, `citizenship` 600,695, `contains_resource` 560,947,
-`located_in` 555,907.
+`supports_candidate` 1,935,688, `cosponsored_measure` 1,283,245, `within` 1,073,508,
+`holds_position` 996,250, `associated_country` 645,486, `citizenship` 600,695,
+`contains_resource` 560,947, `located_in` 555,907.
 
-Queries on it are interactive: counting all records by kind takes 3.9 s (index-only), grouping all
-26.4M edges by predicate 0.9 s, a point lookup on a subject 0.2 s.
+Queries on it are interactive at the new size: counting all records by kind takes 4.8 s
+(index-only), grouping all 27.0M edges by predicate 0.9 s.
 
 ## What is in the index
 

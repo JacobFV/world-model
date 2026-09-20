@@ -20,7 +20,7 @@ them.
 > published LEIs ([unified-graph.md](unified-graph.md)).
 
 ```sh
-# the measurement (read-only; 3 min 22 s on the 131 GB index, 566 MiB peak RSS)
+# the measurement (read-only; 5 min 0 s on the 139 GB index, and 3 min 22 s on the 131 GB one before it)
 python3 -m worldmodel identity-coverage --workdir /tmp/jc --mentions
 # the same for a candidate resolution, before it is attached
 python3 -m worldmodel identity-coverage --workdir /tmp/jc --clusters /tmp/resolve/clusters.jsonl
@@ -30,7 +30,8 @@ python3 -m worldmodel coverage-estimate --datasets fema_nri,sec_gleif
 
 ## Before and after
 
-`unify-resolve` over the index's 96 pinned datasets, 52 min 57 s, 661 MiB peak RSS. "Joined" means
+`unify-resolve` over the index's 96 pinned datasets, 52 min 57 s, 661 MiB peak RSS (the 2026-09-18 run;
+the rebuilt index's own run is below). "Joined" means
 the entity records of an entity's asserted-identity group (its cluster, or itself) come from at
 least two datasets; "independent" additionally requires two publishers, so `sec_gleif` +
 `gleif_parent_relationships`, or two Census products, do not count.
