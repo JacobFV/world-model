@@ -329,10 +329,15 @@ def run_fixture(registration=None, **kwargs):
 
 
 class DraftDesignTests(unittest.TestCase):
-    """The drafted wave-3 design, read as a registration. Nothing here touches outcome data."""
+    """The wave-3 design, read as a registration. Nothing here touches outcome data.
+
+    It was drafted outside ``registrations/`` while its power was measured, and registered on
+    2026-09-19 once a runner existed for it. These tests followed it into ``registrations/``: what
+    they check is the document, and the document is the same one either way.
+    """
 
     DRAFT = (Path(__file__).resolve().parents[1]
-             / 'examples/natural-experiments/drafts/fema_monthly_dose_county_employment.draft.json')
+             / 'examples/natural-experiments/registrations/fema_monthly_dose_county_employment.json')
 
     @classmethod
     def setUpClass(cls):
@@ -340,7 +345,18 @@ class DraftDesignTests(unittest.TestCase):
 
     def test_the_draft_is_a_valid_registration(self):
         self.assertEqual(validate_registration(self.draft)['study_id'], 'fema_monthly_dose_county_employment')
-        self.assertIsNone(self.draft['registered_at'])
+        self.assertEqual(self.draft['registered_at'], '2026-09-19')
+
+    def test_registering_it_did_not_touch_a_single_acceptance_threshold(self):
+        """The four clarifications made at registration are additive; the criteria are the draft's."""
+        self.assertEqual([(c['id'], c['type'], c.get('value')) for c in self.draft['acceptance_criteria']],
+                         [('enough_treated_counties', 'min_treated_units', 100),
+                          ('enough_state_clusters', 'min_clusters', 20),
+                          ('no_pre_trends', 'pre_trend_wald_p_min', 0.05),
+                          ('placebo_date_null', 'placebo_date_p_min', 0.05),
+                          ('placebo_unit_size', 'placebo_unit_rejection_rate_max', 0.1),
+                          ('stacked_agrees', 'robustness_ci_overlap', None)])
+        self.assertEqual(self.draft['windows']['bounding_only_horizons'], [12, 24])
 
     def test_month_dated_windows_resolve_and_nothing_else_is_derived(self):
         resolved = w3.resolved_registration(self.draft)

@@ -1,0 +1,592 @@
+{
+ "acceptance_criteria": [
+  {
+   "id": "enough_treated_counties",
+   "type": "min_treated_units",
+   "value": 100
+  },
+  {
+   "id": "enough_state_clusters",
+   "type": "min_clusters",
+   "value": 20
+  },
+  {
+   "id": "no_pre_trends",
+   "type": "pre_trend_wald_p_min",
+   "value": 0.05
+  },
+  {
+   "id": "placebo_date_null",
+   "type": "placebo_date_p_min",
+   "value": 0.05
+  },
+  {
+   "id": "placebo_unit_size",
+   "type": "placebo_unit_rejection_rate_max",
+   "value": 0.1
+  },
+  {
+   "against": "stacked_ci",
+   "id": "stacked_agrees",
+   "type": "robustness_ci_overlap"
+  }
+ ],
+ "acceptance_criteria_note": "The treated-unit gate is 100 rather than wave 2's 150 because the larger dose contrast is what the follow-up asked for and it costs treated units; the gate is set here, before any estimate, and may not be lowered afterwards. Every diagnostic threshold is wave 2's. The one thing that is not wave 2's is the pre-trend lead window, which was chosen on its measured size on no-effect panels before registration and is documented with the rate it passes; that is a choice about a test's accuracy, made in advance and in the open, not a threshold relaxed after a result.",
+ "assumptions": [
+  "Within a declaration and a pre-growth half, which counties NOAA records as heavily damaged is unrelated to their employment path: storm paths, not local economic conditions, decide where damage falls.",
+  "NOAA county-coded damage measures the physical damage with error unrelated to the employment path; unreported damage in 'control' counties biases the estimate toward zero.",
+  "Nominal damage thresholds are applied across 2009-2024 without deflation (prices rose about 45%), so the treated group in later years includes relatively smaller real damage.",
+  "LAUS county employment is partly modelled: BLS builds county estimates from a state model and disaggregates them, so a county-specific shock may be smoothed toward its state. This attenuates any real effect and is the main reason a monthly LAUS outcome may be less sensitive than its frequency suggests. The wave-1 cyclone exposure test named the same property as a reason its ranking may have failed.",
+  "First releases are noisier than later vintages: the outcome is what was known then, which is the point, and it is not the best estimate of what happened.",
+  "The outcome is not seasonally adjusted, so seasonality is absorbed by the stratum-by-month comparison rather than by the series; the design compares counties in the same declaration and therefore in the same calendar months.",
+  "Spillovers from heavily damaged to lightly damaged counties of the same disaster (commuting, reconstruction demand) are small; they would bias the estimate toward zero.",
+  "The estimand is the effect of top-decile relative to negligible damage given a declaration; it is not the effect of the declaration or of federal aid."
+ ],
+ "controls": {
+  "control_group": "never_treated",
+  "definition": "counties declared in the same disaster with NOAA damage under $1 per resident, in the same pre-growth half; they are never treated within their stack"
+ },
+ "data": {
+  "input_notes": "county_monthly_realtime_panel@197658b2... is the monthly first-release county panel: 1,459,133 first releases, 3,140 county-equivalents, reference months 2005-04..2026-07, built from fred_county_laus_monthly_vintages@4b58e747... bls_labor is not an input to this design: the outcome is LAUS, not QCEW.",
+  "inputs": [
+   {
+    "dataset": "event_library",
+    "stage": "events",
+    "version": "dbf0c37f15cb15933ddf2452ae00cf196981aef02045a2b642d1582643b2819a"
+   },
+   {
+    "dataset": "noaa_storm_events",
+    "stage": "normalized",
+    "version": "7d19dd57135ac4cf628d790add0d6bb250ac74504598e5d2687cb1ddda10d927"
+   },
+   {
+    "dataset": "bea_national_regional",
+    "stage": "normalized",
+    "version": "5fdb83db0ff92858d40cfa9f36961ccd0fb0013f4afaa3ab7b349ce771758e8e"
+   },
+   {
+    "dataset": "county_monthly_realtime_panel",
+    "stage": "final",
+    "version": "197658b2354e6c5e56e3288a64f4122e98796fe98fae9f591d60b44532dae53e"
+   }
+  ]
+ },
+ "does_not_establish": [
+  "Coverage before reference month 2007-05 is the Federal Reserve Eighth District, not the nation, which is why no cohort before 2009-05 is estimated: its matching window would fall in months when only seven states were in the archive.",
+  "A monthly outcome raises the number of periods, not the number of states. Inference is clustered on state, so the design's precision is bounded by roughly 50 clusters however many months it holds."
+ ],
+ "estimator": {
+  "anticipation": 0,
+  "balance": null,
+  "estimand": "ATT: equal-weight mean over event months 0..H of treated-count-weighted ATT(g, g+e), for top-decile-damage declared counties relative to negligible-damage counties of the same declaration. H = 6 is primary; H = 3 is reported beside it; H = 12 and H = 24 are reported as bounds only (see windows.horizons_note).",
+  "non_gating_robustness": [
+   "unmatched_strata_disaster_only: same units, strata = disaster (no growth matching)",
+   "long_lead_window: the same design estimated with e_min = -12, reported in full. Its pre-trend Wald test is NOT gating, because it passes only 26% of correct no-effect panels."
+  ],
+  "non_gating_robustness_inference": "The long_lead_window variant is \"reported in full\" and so uses the registered bootstrap and seed; the other extra-robustness variants use bootstrap 0, as in wave 2.",
+  "primary": "callaway_santanna_unconditional_within_disaster_and_growth_half",
+  "robustness": [
+   "stacked_did",
+   "twfe_static"
+  ],
+  "robustness_gating": {
+   "stacked_did": "gating, through the stacked_agrees acceptance criterion",
+   "twfe_static": "reported, not gating: no acceptance criterion reads it. It is here because a static two-way fixed-effects estimate is what a reader would compute by default, and showing it beside the estimator that handles staggered timing is worth more than hiding it."
+  }
+ },
+ "identification_strategy": "staggered_difference_in_differences",
+ "inference": {
+  "alpha": 0.05,
+  "bootstrap": 999,
+  "bootstrap_weights": "rademacher multiplier on state influence functions",
+  "cluster": "state",
+  "seed": 20260919
+ },
+ "outcome_data_examined_before_registration": "No outcome contrast. Design-stage work used treatment-side data only: event-library DR declarations, NOAA county-coded damage (the dose distribution and every count above) and BEA county population (the dose denominator). The monthly LAUS outcome panel was read to build the panel and to compute standard errors and the untreated-cell noise calibration reported under 'power'; standard errors and calibration are properties of the design's geometry and of untreated cells, and no treated-versus-control estimate, lead, pre-trend test or placebo test was computed on the real panel. Wave 2 read QCEW annual employment and establishments for an overlapping unit set (see relation_to_wave_2); no monthly LAUS value has been read for any FEMA contrast.",
+ "outcomes": {
+  "primary": {
+   "construction": "LAUS publishes employment as an identity on these two series, and the monthly county employed series with a deep ALFRED archive does not exist (the structured LAUCN form opens only in 2019). A month enters only when the county has a first release of both features for it, and the month's availability is the later of the two vintages.",
+   "id": "laus_log_employment",
+   "label": "log LAUS county employment as first published: log(civilian labour force x (1 - unemployment rate / 100))",
+   "source": "county_monthly_realtime_panel features rt:laus_monthly_labor_force and rt:laus_monthly_unemployment_rate",
+   "unit": "log points",
+   "why_primary": "It is the monthly analogue of wave 2's primary outcome, so the effect worth finding carries over to it unchanged."
+  },
+  "secondary": [
+   {
+    "id": "laus_log_labor_force",
+    "label": "log LAUS civilian labour force as first published",
+    "source": "county_monthly_realtime_panel rt:laus_monthly_labor_force",
+    "unit": "log points",
+    "why": "the same denominator without the rate, so a reader can see how much of the employment series is participation rather than unemployment"
+   },
+   {
+    "id": "laus_unemployment_rate",
+    "label": "LAUS county unemployment rate as first published",
+    "source": "county_monthly_realtime_panel rt:laus_monthly_unemployment_rate",
+    "unit": "percentage points",
+    "why": "not logged; the effect worth finding for employment does not apply to it and it is reported in its own units"
+   }
+  ],
+  "transform": "natural log of positive values for the two log outcomes; the rate is used in levels; months without a first release of both features are absent, not zero"
+ },
+ "placebo_tests": {
+  "placebo_date": {
+   "definition": "treated units keep only months before g; placebo cohort g-6; placebo effect averaged over placebo event months 0..5, all of which precede the declaration",
+   "shift": 6
+  },
+  "placebo_unit": {
+   "definition": "real treated units removed; control counties receive cohorts drawn from their stratum's real cohorts at the stratum's real treated share",
+   "min_never_treated": 20,
+   "post_window": "the primary post window, event months 0..6, so the placebo rejection rate is the size of the test that gates the primary estimand",
+   "replications": 100,
+   "seed": 13
+  }
+ },
+ "power": {
+  "dose_variants": [
+   {
+    "id": "top_decile_damaged",
+    "over": "damaged",
+    "quantile": 0.9,
+    "threshold_usd_per_capita": null
+   },
+   {
+    "id": "top_decile_in_scope",
+    "over": "all",
+    "quantile": 0.9,
+    "threshold_usd_per_capita": null
+   },
+   {
+    "id": "wave2_threshold",
+    "over": "all",
+    "quantile": null,
+    "threshold_usd_per_capita": 100.0
+   }
+  ],
+  "effect_worth_finding": {
+   "applies_to": "laus_log_employment and laus_log_labor_force. The unemployment-rate outcome is in percentage points and no effect worth finding is declared for it here; its standard errors are reported so that one could be declared before it is scored.",
+   "source": "The wave-2 registration's own plausible effect for this contrast, carried over unchanged: 'Treated counties had at least $100 (median about $300) of recorded damage per resident, roughly 0.5-1% of annual per-capita income concentrated in one event; a 2% employment difference over four years is within the range found for severe local disasters.' It is kept at 0.02 rather than raised for the larger dose, because raising the effect worth finding to fit a weaker design is exactly the move this discipline exists to prevent.",
+   "unit": "log points",
+   "value": 0.02
+  },
+  "horizons": [
+   3,
+   6,
+   12,
+   24
+  ],
+  "measured": {
+   "diagnostics": {
+    "both_diagnostics_pass_rate_at_the_drafted_gate": 0.685,
+    "honest_reading_of_a_failed_pre_trend": "Even at the drafted window this design fails its own pre-trend check on about 28% of correct, no-effect panels. A failed pre-trend here is therefore weaker evidence against the design than it looks. The criterion is gating anyway, and this rate is declared before any real lead is computed rather than produced afterwards to explain a failure away.",
+    "note": "The pre-trend and placebo-date tests do not depend on the post window, so these rates are the same at every horizon. They are the share of 200 synthetic panels with no effect and exactly parallel trends on which a correct design passes.",
+    "placebo_date_pass_rate": 0.92,
+    "pre_trend_pass_rate_by_lead_window": {
+     "e >= -12 (11 leads)": 0.26,
+     "e >= -3 (2 leads)": 0.87,
+     "e >= -6 (5 leads)": 0.72
+    },
+    "pre_trend_pass_rate_by_lead_window_amended_variogram": {
+     "e >= -12 (11 leads)": 0.22,
+     "e >= -3 (2 leads)": 0.855,
+     "e >= -6 (5 leads)": 0.705
+    },
+    "why_the_lead_window_is_six_months": "The design was first drafted with leads over e = -12..-2 and that window was rejected on its measured size, before registration and on panels with no effect in them: the joint Wald test over eleven leads passes only 26% of correct designs, so it would have failed this design roughly three times in four whatever the data said. With clustered inference on 47 states and strongly autocorrelated monthly residuals, a joint test on eleven leads is simply not accurate. The drafted window, e = -6..-2, passes 72%. The two-lead window (e = -3..-2) would pass 87%, closest to wave 2's 0.81, and is not chosen: a falsification test that looks at two months is too weak to be worth gating on, and picking the window with the highest pass rate is choosing the test least able to fail. The longer window is still estimated and reported as a non-gating robustness variant, so nothing is hidden."
+   },
+   "horizons": {
+    "12": {
+     "amended_variogram_mde_80": 0.011854443401063609,
+     "amended_variogram_mde_source": "simulated",
+     "amended_variogram_null_rejection_rate": 0.105,
+     "calibration_ok": true,
+     "detects_effect_worth_finding": true,
+     "mde_80": 0.014838207269434482,
+     "mde_over_effect_worth_finding": 0.7419103634717241,
+     "mde_source": "simulated",
+     "null_rejection_rate": 0.115,
+     "power_at_effect_worth_finding": 0.935,
+     "real_se": 0.0033675873261008096,
+     "se_ratio_simulated_to_real": 1.4381533028894302,
+     "size_acceptable": false,
+     "size_limit": 0.1,
+     "verdict": "can only bound: the minimum detectable effect clears but the test over-rejects a true null"
+    },
+    "24": {
+     "amended_variogram_mde_80": 0.016295137279293274,
+     "amended_variogram_mde_source": "analytic (calibration check failed)",
+     "amended_variogram_null_rejection_rate": 0.1,
+     "calibration_ok": true,
+     "detects_effect_worth_finding": true,
+     "mde_80": 0.019309826300559132,
+     "mde_over_effect_worth_finding": 0.9654913150279566,
+     "mde_source": "simulated",
+     "null_rejection_rate": 0.115,
+     "power_at_effect_worth_finding": 0.81,
+     "real_se": 0.005816398935124665,
+     "se_ratio_simulated_to_real": 1.0713570019604552,
+     "size_acceptable": false,
+     "size_limit": 0.1,
+     "verdict": "can only bound: the minimum detectable effect clears but the test over-rejects a true null"
+    },
+    "3": {
+     "amended_variogram_mde_80": 0.010181403929904699,
+     "amended_variogram_mde_source": "simulated",
+     "amended_variogram_null_rejection_rate": 0.115,
+     "calibration_ok": true,
+     "detects_effect_worth_finding": true,
+     "mde_80": 0.009605748195175318,
+     "mde_over_effect_worth_finding": 0.4802874097587659,
+     "mde_source": "simulated",
+     "null_rejection_rate": 0.075,
+     "power_at_effect_worth_finding": 1.0,
+     "real_se": 0.0024231588753536853,
+     "se_ratio_simulated_to_real": 1.2975760690102474,
+     "size_acceptable": true,
+     "size_limit": 0.1,
+     "verdict": "can detect the effect worth finding"
+    },
+    "6": {
+     "amended_variogram_mde_80": 0.01094720227988847,
+     "amended_variogram_mde_source": "simulated",
+     "amended_variogram_null_rejection_rate": 0.115,
+     "calibration_ok": true,
+     "detects_effect_worth_finding": true,
+     "mde_80": 0.011621284248697988,
+     "mde_over_effect_worth_finding": 0.5810642124348994,
+     "mde_source": "simulated",
+     "null_rejection_rate": 0.09,
+     "power_at_effect_worth_finding": 0.995,
+     "real_se": 0.0025914822238767296,
+     "se_ratio_simulated_to_real": 1.4807950379649106,
+     "size_acceptable": true,
+     "size_limit": 0.1,
+     "verdict": "can detect the effect worth finding"
+    }
+   },
+   "lead_window_does_not_move_the_post_period": "Checked, not assumed: the analytic standard error of the overall ATT is identical to twelve decimal places for e_min = -12, -6 and -3, because the overall estimand aggregates post cells only. The minimum detectable effects and sizes below therefore apply to the drafted e_min = -6 design exactly as measured.",
+   "measured_on": "2026-09-19",
+   "panel": {
+    "control_units": 1902,
+    "note": "the drafted dose and primary outcome; the other variants are under standard_errors",
+    "observations": 101669,
+    "state_clusters": 47,
+    "strata": 659,
+    "treated_units": 176,
+    "units": 2078
+   },
+   "panel_digest": "0e2dc733f11d4958b3b619990ad2d5aa725e7bb55b317f0a19454f2d1904c132",
+   "replications": 200,
+   "standard_errors_of_every_variant": {
+    "top_decile_damaged": {
+     "laus_log_employment": {
+      "analytic_mde_80_by_horizon": {
+       "12": 0.009434582138994138,
+       "24": 0.016295136010661234,
+       "3": 0.006788685557807755,
+       "6": 0.007260257726179688
+      },
+      "control_units": 1902,
+      "dose_threshold_usd_per_capita": 302.7929257931367,
+      "real_se_by_horizon": {
+       "12": 0.0033675873261008096,
+       "24": 0.005816398935124665,
+       "3": 0.0024231588753536853,
+       "6": 0.0025914822238767296
+      },
+      "state_clusters": 47,
+      "treated_units": 176
+     },
+     "laus_log_labor_force": {
+      "analytic_mde_80_by_horizon": {
+       "12": 0.006122307525550641,
+       "24": 0.013600839396660078,
+       "3": 0.006473255251595359,
+       "6": 0.00587311525957425
+      },
+      "control_units": 1902,
+      "dose_threshold_usd_per_capita": 302.7929257931367,
+      "real_se_by_horizon": {
+       "12": 0.0021853013653166478,
+       "24": 0.004854694537792028,
+       "3": 0.0023105689285155932,
+       "6": 0.002096354477759643
+      },
+      "state_clusters": 47,
+      "treated_units": 176
+     },
+     "laus_unemployment_rate": {
+      "analytic_mde_80_by_horizon": {
+       "12": 0.2726857885429531,
+       "24": 0.2842250185225722,
+       "3": 0.34205885686526677,
+       "6": 0.3266425597565852
+      },
+      "control_units": 1902,
+      "dose_threshold_usd_per_capita": 302.7929257931367,
+      "real_se_by_horizon": {
+       "12": 0.09733268437079477,
+       "24": 0.10145150638748145,
+       "3": 0.12209476309491475,
+       "6": 0.11659205762330437
+      },
+      "state_clusters": 47,
+      "treated_units": 176
+     }
+    },
+    "top_decile_in_scope": {
+     "laus_log_employment": {
+      "analytic_mde_80_by_horizon": {
+       "12": 0.007175662445721906,
+       "24": 0.01235346860979902,
+       "3": 0.0048463487357387584,
+       "6": 0.004931106398210066
+      },
+      "control_units": 1902,
+      "dose_threshold_usd_per_capita": 114.65751853435242,
+      "real_se_by_horizon": {
+       "12": 0.0025612867165272176,
+       "24": 0.004409457007300874,
+       "3": 0.001729859610091701,
+       "6": 0.001760113078207538
+      },
+      "state_clusters": 48,
+      "treated_units": 337
+     },
+     "laus_log_labor_force": {
+      "analytic_mde_80_by_horizon": {
+       "12": 0.006823551813581918,
+       "24": 0.01245726239414434,
+       "3": 0.004339132034369781,
+       "6": 0.004064672793711716
+      },
+      "control_units": 1902,
+      "dose_threshold_usd_per_capita": 114.65751853435242,
+      "real_se_by_horizon": {
+       "12": 0.0024356040646926354,
+       "24": 0.00444650524404733,
+       "3": 0.001548813273332696,
+       "6": 0.0014508475715395805
+      },
+      "state_clusters": 48,
+      "treated_units": 337
+     },
+     "laus_unemployment_rate": {
+      "analytic_mde_80_by_horizon": {
+       "12": 0.18928831263931972,
+       "24": 0.21719011579401362,
+       "3": 0.2593457367013096,
+       "6": 0.24045209778096185
+      },
+      "control_units": 1902,
+      "dose_threshold_usd_per_capita": 114.65751853435242,
+      "real_se_by_horizon": {
+       "12": 0.06756472234086051,
+       "24": 0.07752401436829995,
+       "3": 0.09257107555234255,
+       "6": 0.08582716490164026
+      },
+      "state_clusters": 48,
+      "treated_units": 337
+     }
+    },
+    "wave2_threshold": {
+     "laus_log_employment": {
+      "analytic_mde_80_by_horizon": {
+       "12": 0.0070911902297482315,
+       "24": 0.011965387534064731,
+       "3": 0.0049815993542899695,
+       "6": 0.004971342068966928
+      },
+      "control_units": 1902,
+      "dose_threshold_usd_per_capita": 100.0,
+      "real_se_by_horizon": {
+       "12": 0.002531135135913503,
+       "24": 0.00427093503643999,
+       "3": 0.0017781360745042429,
+       "6": 0.001774474830842872
+      },
+      "state_clusters": 48,
+      "treated_units": 363
+     },
+     "laus_log_labor_force": {
+      "analytic_mde_80_by_horizon": {
+       "12": 0.006703062381437258,
+       "24": 0.012001875720596532,
+       "3": 0.004598400811622401,
+       "6": 0.004190752506577932
+      },
+      "control_units": 1902,
+      "dose_threshold_usd_per_capita": 100.0,
+      "real_se_by_horizon": {
+       "12": 0.0023925964700115317,
+       "24": 0.00428395915904623,
+       "3": 0.001641356878917613,
+       "6": 0.0014958505655112845
+      },
+      "state_clusters": 48,
+      "treated_units": 363
+     },
+     "laus_unemployment_rate": {
+      "analytic_mde_80_by_horizon": {
+       "12": 0.1725001992075479,
+       "24": 0.19695210883811842,
+       "3": 0.24363584192615254,
+       "6": 0.21541720669058925
+      },
+      "control_units": 1902,
+      "dose_threshold_usd_per_capita": 100.0,
+      "real_se_by_horizon": {
+       "12": 0.061572359649108586,
+       "24": 0.0703002439112568,
+       "3": 0.0869635730938567,
+       "6": 0.07689119076900727
+      },
+      "state_clusters": 48,
+      "treated_units": 363
+     }
+    }
+   },
+   "verdict": {
+    "can_only_bound_at": [
+     "12 months",
+     "24 months"
+    ],
+    "detects_the_effect_worth_finding_at": [
+     "3 months",
+     "6 months"
+    ],
+    "statement": "The minimum detectable effect is below the 0.02 effect worth finding at every horizon (0.0096, 0.0116, 0.0148 and 0.0193 log points at 3, 6, 12 and 24 months, or 0.48 to 0.97 times it), which no design in wave 1 or wave 2 achieved: wave 2's annual version of this contrast had a minimum detectable effect of 0.033 against the same 0.02. But the design is only correctly sized at the short horizons. On synthetic panels with no effect it claims one in 7.5% of panels at 3 months and 9.0% at 6 months, inside the 10% limit the committed power registration uses, but in 11.5% at both 12 and 24 months, outside it. At 12 and 24 months this design CAN ONLY BOUND: its stated 95% interval is really closer to 89%, so an interval from those horizons must be read as wider than it prints and a rejection at those horizons must not be called an effect. At 3 and 6 months it can detect a 2% employment difference, and that is the registration worth committing. With 200 replications the Monte Carlo error on a rejection rate is about 2 points, so the 6-month horizon sits close to its limit and the 12- and 24-month horizons are outside it by more than that error.",
+    "what_would_have_to_change_for_the_long_horizons": "More state clusters is not available - there are 50 - so the long-horizon size problem is not fixed by more counties. It would need either inference that does not lean on the clustered normal approximation at 47 clusters (the wild cluster bootstrap the registration already specifies for intervals, used for the test as well), or an estimand at a single event month rather than a 25-month average. Neither is drafted here, because neither has been measured."
+   },
+   "what_this_does_not_establish": [
+    "A minimum detectable effect below the effect worth finding says the design could see a 2% effect in the LAUS measure. It does not say LAUS would show one. BLS builds county LAUS from a state model and disaggregates it, so a county-specific shock is smoothed toward its state; the same smoothness that makes these standard errors small also attenuates the signal. Clearing the MDE bar is necessary, not sufficient, and the wave-1 cyclone exposure test named this same property as a reason it may have failed.",
+    "The power calculation assumes the estimator is linear in the outcomes and that a homogeneous effect shifts every treated post cell, which is what lets one set of null draws give the whole power curve. A heterogeneous or delayed effect is not covered by it.",
+    "The synthetic panels carry exactly parallel trends. They say what the design does when nothing is wrong; they say nothing about how it behaves under the confounding its pre-trend test exists to catch."
+   ]
+  },
+  "measured_before_registration": true,
+  "method": "The committed power suite's method (worldmodel/causal/power.py), run by examples/natural-experiments/run_power_wave3_draft.py: noise is calibrated on untreated cells only (control units, and treated units before g), in first differences, so no unit effect and no post-treatment outcome of a treated unit enters; the real analytic clustered standard error is computed for each horizon from one att_gt pass; and 200 synthetic panels that keep this panel's exact structure and carry no effect and exactly parallel trends give the null distribution. Because the estimator is linear in the outcomes, a homogeneous effect shifts every estimate by exactly that effect and leaves its standard error alone, so one set of null draws gives the whole power curve. The registered fallback applies: when the mean simulated standard error is outside [0.67, 1.5] of the real one, the reported MDE is the analytic 2.80 x SE.",
+  "no_contrast_read": "No treated-versus-control contrast was computed, printed or stored at any point. worldmodel.causal.studies_wave3.horizon_standard_errors returns standard errors and discards the point estimate; the real panel's pre-trend and placebo-date diagnostics, which are also treated-versus-control contrasts, were deliberately NOT run. Every point estimate that appears in the power table is from a synthetic panel with no effect in it.",
+  "outcome_variants": [
+   "laus_log_employment",
+   "laus_log_labor_force",
+   "laus_unemployment_rate"
+  ],
+  "pre_trend_gates": [
+   -12,
+   -6,
+   -3
+  ],
+  "primary_dose": "top_decile_damaged",
+  "simulation": {
+   "power": 0.8,
+   "replications": 200,
+   "seed": 20260919
+  }
+ },
+ "question": "Among US counties declared in the same FEMA major disaster (severe storm, flood or tornado), how does county employment as first published change over the following 3, 6, 12 and 24 months in counties in the top decile of recorded damage per resident relative to declared counties where almost no damage was recorded, comparing counties that were on similar employment paths beforehand?",
+ "registered_at": "2026-09-19",
+ "registration_note": "Registered from the draft of the same name after four clarifications, none of which touches a threshold: the bounding-only horizons were made machine-readable rather than inferred from the power block; which robustness variant can gate was stated (stacked_did through stacked_agrees; twfe_static reported only); the per-outcome matching that differs from wave 2 was disclosed; and two operational details the runner would otherwise have chosen on its own were pinned. The six acceptance criteria are unchanged in id, type and threshold from the draft, which was written before any wave-3 outcome contrast was read.",
+ "relation_to_wave_2": {
+  "outcome_values_wave_2_read": "QCEW annual county employment and establishment counts, 1990-2024, for the wave-2 treated and control counties, aggregated into the published estimates above. No monthly LAUS value was read for any FEMA contrast in wave 1 or wave 2.",
+  "overlap_disclosed": "Not a fresh sample and not an out-of-sample replication. The treated and control counties are drawn from the same FEMA declarations and the same NOAA county-coded damage that wave 2 used, and wave 2's declarations for 2009-2020 are a subset of this design's 2009-2024 window, so most of this design's units are units wave 2 already scored. What is new is the outcome: wave 2 read QCEW annual county employment and establishments; this design reads monthly LAUS first releases, which no design in either wave has read for this contrast, and reads them at horizons wave 2 could not resolve. The dose threshold is also different, so the treated set is a strict subset of wave 2's. A result from this design must be reported as a second look at the same event population with a different outcome, never as an independent confirmation.",
+  "wave_2_result": "natural_experiment_reports@ae0b70de...: log QCEW annual employment ATT -0.010 (-0.039, +0.018), pre-trend Wald p = 0.034 so did_failed_diagnostics; log QCEW establishments -0.004 (-0.028, +0.020), quasi_experimental_did, an identified null. The power suite (natural_experiment_reports@3262c1dc...) put that design's minimum detectable effect at 0.033 log points against the 0.02 its own registration called plausible: it could not have seen the effect it was looking for.",
+  "wave_2_study_id": "fema_damage_dose_county_employment",
+  "what_changes": [
+   "The outcome is monthly, not annual. Wave 2 could only ask what an annual average did over four years; this design asks what happened 3, 6, 12 and 24 months after the declaration, which is the horizon at which a disaster's labour-market effect is expected to be visible at all.",
+   "The outcome is a first release. Every value is the number BLS published for that reference month, dated by the vintage that published it, so no part of the outcome path is a later revision and the horizon is measured against what was known then.",
+   "The dose contrast is larger. Wave 2 treated a county at $100 of recorded damage per resident, which is the 90th percentile of all declared counties in scope but only the 25th percentile of its own treated group. This design treats the top decile of the damaged counties instead, roughly three times that threshold.",
+   "The matching window and the lead window are in months: pre-growth over g-24..g-13, gating leads over e = -6..-2 and a longer non-gating lead window to e = -12, so the window used to match still ends before every tested lead."
+  ]
+ },
+ "schema": "worldmodel.causal_registration/1",
+ "study_id": "fema_monthly_dose_county_employment",
+ "treatment": {
+  "absorbing": "a stack's treated county stays treated; later disasters are part of its post-period path",
+  "control_max_usd_per_capita": 1.0,
+  "design_stage_counts": "9,336 (disaster, county) pairs of the four types with an incident beginning 2009-05..2024-07; 5,955 dropped for another qualifying DR in the previous 36 months; 19 without BEA population; 3,362 pairs remain across 451 disasters, of which 1,759 have a strictly positive recorded dose. At the pinned threshold: 176 treated, 1,903 control, 1,283 in the excluded middle. Dose percentiles over damaged pairs: p50 $13.91, p75 $65.85, p90 $302.79, p95 $935.18, p99 $4,155.97.",
+  "dose": "sum of NOAA storm_damage_property + storm_damage_crops (nominal USD) over county-coded storm events in the declared county whose begin date falls in [incident_begin_date, incident_end_date], divided by the county's BEA population in calendar year (g // 12) - 1",
+  "dose_incident_types": [
+   "Severe Storm",
+   "Severe Storm(s)",
+   "Flood",
+   "Tornado"
+  ],
+  "dose_incident_types_reason": "Unchanged from wave 2: NOAA records these hazards against counties, while hurricane, tropical-storm, winter and heat damage is recorded against NWS forecast zones and cannot be attributed to a county, so a 'zero-damage' control inside a hurricane declaration could in fact be heavily damaged.",
+  "dose_quantile": 0.9,
+  "dose_quantile_over": "damaged",
+  "dose_quantile_reason": "The quantile is taken over damaged pairs, not over all declared pairs, so the threshold is a statement about damaged counties and does not move when a declaration happens to include many undamaged ones. Over all in-scope pairs the 90th percentile is $114.66, which is wave 2's $100 threshold by another name and not a larger contrast; over damaged pairs it is $302.79.",
+  "dose_rule": "treated = dose at or above the 90th percentile of the dose distribution over in-scope (disaster, county) pairs with a strictly positive recorded dose; control = dose below $1 per resident; pairs between the two are excluded",
+  "dose_timing": "Damage is estimated by NWS offices from the physical event within weeks: a property of the shock, measured after it, but not derived from any employment outcome. As in wave 2 this is a disclosed use of an ex-post intensity, and the assumption that damage is not predicted by the county's employment path is what the leads test.",
+  "estimated_cohort_months": [
+   "2009-05",
+   "2024-07"
+  ],
+  "estimated_cohort_months_reason": "The monthly first-release panel has national coverage from reference month 2007-05 and runs to 2026-07. A cohort needs its matching window at g-24 and its longest horizon at g+24, so 2009-05 is the earliest datable cohort and 2024-07 the latest. Every horizon is estimated on this one cohort set, so the four horizons are comparable rather than four different samples.",
+  "match_window": [
+   -24,
+   -13
+  ],
+  "quiet_months": 36,
+  "quiet_period_incident_types": [
+   "Hurricane",
+   "Severe Storm",
+   "Severe Storm(s)",
+   "Flood",
+   "Tornado",
+   "Fire",
+   "Snowstorm",
+   "Severe Ice Storm",
+   "Winter Storm",
+   "Earthquake",
+   "Tropical Storm",
+   "Coastal Storm",
+   "Typhoon",
+   "Straight-Line Winds",
+   "Mud/Landslide",
+   "Dam/Levee Break",
+   "Tsunami",
+   "Volcanic Eruption",
+   "Freezing"
+  ],
+  "quiet_period_rule": "a (disaster, county) pair is dropped when the county has another qualifying DR whose incident begins in the 36 months before g; other disasters in the same month or later are part of the post-period path",
+  "source": "event_library: library_type fema_major_disaster_declaration (county rows, 50 states + DC); dose from noaa_storm_events county-coded damage; population from bea_national_regional CAINC1",
+  "timing": "g = the calendar month of the disaster's incident_begin_date, indexed year * 12 + (month - 1)",
+  "treated_min_usd_per_capita": 302.7929257931367,
+  "treated_min_usd_per_capita_measured": "Measured on treatment-side data only (FEMA declarations, NOAA county damage, BEA population) before any outcome was read. Pinned here as a number so that the design does not move if the sample does."
+ },
+ "units": {
+  "definition": "(disaster, county) pairs: each disaster is a stack holding its treated and control counties; a county may appear in several stacks",
+  "notes": "County definitional changes are not bridged. The two FRED aliases for Hancock County, KY are one county in the outcome panel, which keeps the earlier of the two releases for a month.",
+  "sample": "units need the outcome in month g-24 and month g-13; others are dropped",
+  "strata": "disaster x pre-growth half: comparisons are only within the same disaster and the same half of the outcome's growth from g-24 to g-13 (split at the median of the disaster's treated and control counties by (growth, id) rank)",
+  "strata_differs_from_wave_2": "Wave 2 matched every outcome on employment growth. Here each outcome is matched on its own growth from g-24 to g-13, as units.strata says, so the secondary outcomes sit on partly different unit sets from the primary one and their samples are reported separately. This is the sample the power measurement was computed on, so it is kept rather than changed after the fact; the cost is that a secondary outcome is not a decomposition of the primary one.",
+  "unit_window": "each unit's series is clipped to event months -24..+24 around its own stack's declaration month. Every unit belongs to exactly one declaration and every unit in a stack shares that declaration's month, so a month outside that window can enter no group-time cell this design estimates; the clip is exact, not an approximation."
+ },
+ "wave": 3,
+ "windows": {
+  "bounding_only_horizons": [
+   12,
+   24
+  ],
+  "bounding_only_reason": "Stated explicitly so no reader and no runner has to infer it from power.measured. It agrees with power.measured.verdict.can_only_bound_at, and the runner raises if the two ever disagree. Their minimum detectable effects clear 0.02, but the test rejects a true null 11.5% of the time at both, past the power registration's 10% limit, so no rejection at these horizons may be reported as an effect.",
+  "calendar_months": [
+   "2007-05",
+   "2026-07"
+  ],
+  "e_max": 24,
+  "e_min": -6,
+  "e_min_reason": "Leads e = -6..-2 are the gating pre-trend window, chosen on measured size before registration; see power.measured.diagnostics.why_the_lead_window_is_six_months. The matching window ends at g-13, so it still ends before every tested lead.",
+  "horizons": [
+   3,
+   6,
+   12,
+   24
+  ],
+  "horizons_note": "All four horizons are estimated on the same cohort set and the same panel. The primary estimand is the mean ATT over event months 0..6: it is the longest horizon at which the design is both powered against the effect worth finding and correctly sized (measured minimum detectable effect 0.0116 against 0.02, rejection rate under a true null 9.0% against a 10% limit). The 3-month horizon is reported beside it. The 12- and 24-month horizons are registered as BOUNDING ONLY: their minimum detectable effects also clear 0.02, but the test rejects a true null 11.5% of the time at both, so no rejection at those horizons may be reported as an effect and their intervals must be read as wider than they print.",
+  "long_lead_window_non_gating": -12,
+  "primary_horizon_months": 6,
+  "reference_event_time": -1
+ }
+}

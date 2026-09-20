@@ -492,11 +492,16 @@ one when there is none.
   (`@197658b2...`) holds 1,459,133 LAUS first releases over 3,140 county-equivalents and 255 reference
   months, each value dated by the vintage that published it. Power for the monthly top-decile design
   was measured on it *before* any design was registered, by the method above
-  (`examples/natural-experiments/run_power_wave3_draft.py`), and is recorded in
-  `examples/natural-experiments/drafts/fema_monthly_dose_county_employment.draft.json`. **No wave-3
-  design is registered, no wave-3 study has been run, and no treated-versus-control contrast has been
-  computed for it** - the real panel's own leads, pre-trend and placebo tests were deliberately not
-  run, because they are contrasts too.
+  (`examples/natural-experiments/run_power_wave3_draft.py`), and the design was then **registered** as
+  `examples/natural-experiments/registrations/fema_monthly_dose_county_employment.json` on
+  2026-09-19, once `worldmodel/causal/studies_wave3.py` held a runner for it. Registering it changed
+  no threshold: the six acceptance criteria are the draft's in id, type and value, and the four
+  clarifications made on the way in were additive (the bounding-only horizons made machine-readable,
+  which robustness variant can gate, the per-outcome matching that differs from wave 2, and two
+  operational details the runner would otherwise have chosen for itself). **The study has not been
+  run, and no treated-versus-control contrast has been computed for it** - the real panel's own
+  leads, pre-trend and placebo tests were deliberately not run while the design was written, because
+  they are contrasts too, and the runner was tested on fixtures with planted effects alone.
 
   | Horizon | Real SE | MDE at 80% power | Effect worth finding | MDE / worth finding | Size under the null | Verdict |
   | --- | ---: | ---: | ---: | ---: | ---: | --- |
@@ -516,6 +521,13 @@ one when there is none.
   A small MDE here also does not promise a visible effect: LAUS county series are modelled and
   smoothed toward the state, and the smoothness that makes these standard errors small attenuates the
   signal too.
+
+  **What remains is the run itself.** `python3 examples/natural-experiments/run_studies.py --study
+  fema_monthly_dose_county_employment` is the whole of it, against the registration as committed. It
+  is expected to take hours and to be dominated by the 100-replication placebo-unit test over a
+  2,078-unit monthly panel, so it belongs on the second GB10 under a memory cap rather than on the
+  shared machine. Whatever it returns is the result: the criteria are fixed, the bounding-only
+  horizons are fixed, and a rejection at 12 or 24 months may not be reported as an effect.
 * Tariffs: the remaining threat is anticipation longer than one year and reallocation across HS6
   lines inside a chapter; a design at chapter level, or with the tariff change as a continuous dose
   and importer-chapter-year fixed effects, would address both.
