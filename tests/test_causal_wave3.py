@@ -1,10 +1,20 @@
-"""Wave-3 monthly panel construction on fictional inputs: months as periods, a top-decile dose, the
-exact unit window, and the rule that a design's power is measured without reading its effect."""
+"""Wave-3 on fictional inputs: months as periods, a top-decile dose, the exact unit window, the rule
+that a design's power is measured without reading its effect, and the registered study runner.
+
+Every panel here is built in this file and every effect in it was planted here. The runner is checked
+against planted effects, not against the real monthly panel, because the contrast the real panel would
+give is the thing the registration exists to bind.
+"""
+import importlib.util
+import json
 import math
+import random
 import unittest
+from pathlib import Path
 
 from worldmodel.causal.did import event_study
 from worldmodel.causal.power import calibrate
+from worldmodel.causal.registration import validate_registration
 from worldmodel.causal import studies_wave3 as w3
 
 
@@ -215,6 +225,345 @@ class HorizonTests(unittest.TestCase):
         self.assertIsNotNone(first['pre_trend_p'])
         self.assertIsNotNone(first['placebo_date_p'])
 
+# -- the registered wave-3 study ----------------------------------------------------------------------
+#
+# Every panel below is built in this file and every effect in it was planted here. No test reads the
+# real monthly panel: producing a treated-versus-control contrast is what the runner is for, and the
+# design that binds it is registered before the contrast is read, never after.
+
+STATUS = {'path': 'fixtures/registration.json', 'sha256': 'f' * 64, 'commit': None, 'committed_clean': False}
+
+#: A measured power table in the shape the draft records: two horizons correctly sized, one outside the
+#: size limit and therefore registered as a bound.
+FIXTURE_SIZES = {
+    '3': {'mde_80': 0.010, 'null_rejection_rate': 0.075, 'size_limit': 0.1, 'size_acceptable': True,
+          'verdict': 'can detect the effect worth finding'},
+    '6': {'mde_80': 0.012, 'null_rejection_rate': 0.090, 'size_limit': 0.1, 'size_acceptable': True,
+          'verdict': 'can detect the effect worth finding'},
+    '12': {'mde_80': 0.015, 'null_rejection_rate': 0.115, 'size_limit': 0.1, 'size_acceptable': False,
+           'verdict': 'can only bound: the minimum detectable effect clears but the test over-rejects a true null'}}
+
+
+def fixture_registration(**overrides):
+    """A registration shaped like the wave-3 draft, sized so that the fixtures below can pass it."""
+    registration = {
+        'schema': 'worldmodel.causal_registration/1', 'study_id': 'fixture_monthly_dose', 'registered_at': None,
+        'question': 'fictional', 'identification_strategy': 'staggered_difference_in_differences',
+        'treatment': {'estimated_cohort_months': ['2010-01', '2014-12'], 'match_window': [-24, -13],
+                      'treated_min_usd_per_capita': 300.0, 'control_max_usd_per_capita': 1.0,
+                      'dose_quantile': 0.9, 'dose_quantile_over': 'damaged'},
+        'units': {'definition': '(disaster, county) pairs, fictional'},
+        'windows': {'e_min': -6, 'e_max': 12, 'calendar_months': ['2007-05', '2026-07'], 'reference_event_time': -1,
+                    'horizons': [3, 6, 12], 'primary_horizon_months': 6, 'long_lead_window_non_gating': -12},
+        'controls': {'control_group': 'never_treated'},
+        'outcomes': {'primary': {'id': 'laus_log_employment', 'label': 'log LAUS employment', 'unit': 'log points'},
+                     'secondary': [{'id': 'laus_log_labor_force', 'label': 'log LAUS labour force',
+                                    'unit': 'log points'},
+                                   {'id': 'laus_unemployment_rate', 'label': 'LAUS unemployment rate',
+                                    'unit': 'percentage points'}]},
+        'estimator': {'primary': 'callaway_santanna_unconditional_within_disaster_and_growth_half',
+                      'estimand': 'fictional', 'anticipation': 0, 'balance': None,
+                      'robustness': ['stacked_did', 'twfe_static'],
+                      'non_gating_robustness': ['unmatched_strata_disaster_only: strata = disaster',
+                                                'long_lead_window: e_min = -12, reported, not gating']},
+        'inference': {'cluster': 'state', 'bootstrap': 99, 'seed': 7, 'alpha': 0.05},
+        'placebo_tests': {'placebo_date': {'shift': 6},
+                          'placebo_unit': {'replications': 10, 'seed': 13, 'min_never_treated': 20}},
+        'acceptance_criteria': [{'id': 'enough_treated_counties', 'type': 'min_treated_units', 'value': 20},
+                                {'id': 'enough_state_clusters', 'type': 'min_clusters', 'value': 5},
+                                {'id': 'no_pre_trends', 'type': 'pre_trend_wald_p_min', 'value': 0.05},
+                                {'id': 'placebo_date_null', 'type': 'placebo_date_p_min', 'value': 0.05},
+                                {'id': 'placebo_unit_size', 'type': 'placebo_unit_rejection_rate_max', 'value': 0.1},
+                                {'id': 'stacked_agrees', 'type': 'robustness_ci_overlap', 'against': 'stacked_ci'}],
+        'assumptions': ['the panel is fictional'],
+        'power': {'measured': {'horizons': FIXTURE_SIZES, 'verdict': {'can_only_bound_at': ['12 months']}}},
+        'does_not_establish': ['A fixture establishes nothing.'],
+        'data': {'inputs': []},
+        'outcome_data_examined_before_registration': 'none: the panel is fictional',
+    }
+    registration.update(overrides)
+    return registration
+
+
+def primary_only(registration):
+    """The same registration with one outcome, for tests that do not need the secondary ones."""
+    return {**registration, 'outcomes': {'primary': registration['outcomes']['primary'], 'secondary': []}}
+
+
+def fixture_inputs(effect=0.0, early_lead=0.0, seed=11, stacks=20, treated=3, controls=7, noise=0.004, states=16):
+    """Fictional ``(units, laus)``: 20 declarations, 3 damaged and 7 undamaged counties each.
+
+    ``effect`` is planted on the damaged counties' labour force from event month 0 on, so it reaches the
+    two log outcomes and not the unemployment rate. ``early_lead`` is planted on event months -12..-8
+    only: it is invisible to the gating lead window (-6..-2) and to the match window (g-24, g-13), and
+    visible only to the longer, non-gating one.
+    """
+    rng = random.Random(seed)
+    units, laus = [], {}
+    for stack in range(stacks):
+        g = w3.month_index('2011-01') + 2 * stack
+        for i in range(treated + controls):
+            fips = f'{10 + stack % states:02d}{stack * 10 + i:03d}'
+            damaged = i < treated
+            units.append({'unit': f'dr{stack}|{fips}', 'disaster': f'dr{stack}', 'fips': fips, 'g': g,
+                          'dose': 1000.0 if damaged else 0.5, 'role': None})
+            level, months = rng.gauss(0.0, 0.1), {}
+            for month in range(g - 30, g + 18):
+                e = month - g
+                value = 11.0 + level + 0.001 * e + rng.gauss(0.0, noise)
+                if damaged and e >= 0:
+                    value += effect
+                if damaged and -12 <= e <= -8:
+                    value += early_lead
+                months[month] = (5.0 + rng.gauss(0.0, 0.2), math.exp(value), '2020-01-01')
+            laus[fips] = months
+    return units, laus
+
+
+def run_fixture(registration=None, **kwargs):
+    """``{outcome id: result record}`` from the runner's core on fictional inputs."""
+    registration = registration or fixture_registration()
+    units, laus = fixture_inputs(**kwargs)
+    results = w3.monthly_dose_results(registration, STATUS, units, laus)
+    return {r['estimates']['outcome']['id']: r for r in results}
+
+
+class DraftDesignTests(unittest.TestCase):
+    """The drafted wave-3 design, read as a registration. Nothing here touches outcome data."""
+
+    DRAFT = (Path(__file__).resolve().parents[1]
+             / 'examples/natural-experiments/drafts/fema_monthly_dose_county_employment.draft.json')
+
+    @classmethod
+    def setUpClass(cls):
+        cls.draft = json.loads(cls.DRAFT.read_text())
+
+    def test_the_draft_is_a_valid_registration(self):
+        self.assertEqual(validate_registration(self.draft)['study_id'], 'fema_monthly_dose_county_employment')
+        self.assertIsNone(self.draft['registered_at'])
+
+    def test_month_dated_windows_resolve_and_nothing_else_is_derived(self):
+        resolved = w3.resolved_registration(self.draft)
+        self.assertEqual(resolved['windows']['post'], list(range(0, 7)))         # the primary estimand, 0..6
+        self.assertEqual(resolved['treatment']['estimated_cohorts'],
+                         [w3.month_index('2009-05'), w3.month_index('2024-07')])
+        added = {k: v for k, v in resolved['windows'].items() if self.draft['windows'].get(k) != v}
+        self.assertEqual(sorted(added), ['post'])
+        self.assertEqual(sorted(k for k, v in resolved['treatment'].items() if self.draft['treatment'].get(k) != v),
+                         ['estimated_cohorts'])
+        self.assertEqual({k: v for k, v in resolved.items() if k not in ('windows', 'treatment')},
+                         {k: v for k, v in self.draft.items() if k not in ('windows', 'treatment')})
+
+    def test_the_bounding_only_horizons_are_the_ones_measured_outside_the_size_limit(self):
+        self.assertEqual(w3.bounding_only_horizons(self.draft), [12, 24])
+        self.assertEqual(self.draft['windows']['primary_horizon_months'], 6)
+        statement = w3.bounding_only_statement(self.draft)
+        self.assertIn('BOUNDING ONLY', statement)
+        self.assertIn('12 months 11.5%', statement)
+        self.assertIn('24 months 11.5%', statement)
+        self.assertIn('not an effect', statement)
+
+    def test_a_design_whose_prose_and_measured_sizes_disagree_is_refused(self):
+        draft = json.loads(self.DRAFT.read_text())
+        draft['power']['measured']['horizons']['24']['size_acceptable'] = True
+        with self.assertRaises(ValueError):
+            w3.bounding_only_horizons(draft)
+        draft = json.loads(self.DRAFT.read_text())
+        draft['power']['measured']['horizons'].pop('24')
+        with self.assertRaises(ValueError):
+            w3.bounding_only_horizons(draft)
+
+    def test_the_gating_lead_window_is_shorter_than_the_one_reported_beside_it(self):
+        self.assertEqual(self.draft['windows']['e_min'], -6)
+        self.assertEqual(self.draft['windows']['long_lead_window_non_gating'], -12)
+        self.assertLess(self.draft['windows']['long_lead_window_non_gating'], self.draft['windows']['e_min'])
+        # the window used to match still ends before every tested lead
+        self.assertLess(self.draft['treatment']['match_window'][1],
+                        self.draft['windows']['long_lead_window_non_gating'])
+
+    def test_every_variant_the_draft_names_is_implemented_and_none_gates(self):
+        roles = w3.robustness_roles(self.draft)
+        self.assertEqual({name: role['gating'] for name, role in roles.items()},
+                         {'stacked_did': True, 'twfe_static': False,
+                          'unmatched_strata_disaster_only': False, 'long_lead_window': False})
+        extra = w3.non_gating_panels(self.draft, unmatched='a panel')
+        self.assertEqual(extra['unmatched_strata_disaster_only'], 'a panel')
+        self.assertEqual(extra['long_lead_window']['e_min'], -12)
+        self.assertEqual(extra['long_lead_window']['seed'], self.draft['inference']['seed'])
+
+    def test_an_unimplemented_variant_is_refused_rather_than_silently_dropped(self):
+        draft = json.loads(self.DRAFT.read_text())
+        draft['estimator']['non_gating_robustness'].append('donut_hole: a variant nobody wrote')
+        with self.assertRaises(ValueError):
+            w3.non_gating_panels(draft, unmatched=None)
+
+    def test_the_study_is_wired_into_the_runner(self):
+        self.assertEqual(w3.RUNNERS, {'fema_monthly_dose_county_employment': w3.run_fema_monthly_dose})
+        path = Path(__file__).resolve().parents[1] / 'examples/natural-experiments/run_studies.py'
+        spec = importlib.util.spec_from_file_location('run_studies_for_test', path)
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+        self.assertIs(module.ALL['fema_monthly_dose_county_employment'], w3.run_fema_monthly_dose)
+        self.assertEqual(module.MODULES['fema_monthly_dose_county_employment'], 'studies_wave3')
+
+
+class MonthlyDoseStudyTests(unittest.TestCase):
+    """The runner on fictional panels: one with a planted effect, one with none."""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.registration = fixture_registration()
+        cls.planted = run_fixture(effect=0.05)
+        cls.null = run_fixture(effect=0.0)
+
+    def test_the_planted_effect_is_recovered_on_every_outcome_that_carries_it(self):
+        primary = self.planted['laus_log_employment']['estimates']['primary']['overall']
+        self.assertAlmostEqual(primary['att'], 0.05, delta=0.005)
+        self.assertGreater(primary['ci_low'], 0.0)
+        self.assertEqual(self.planted['laus_log_employment']['identification']['label'], 'quasi_experimental_did')
+        self.assertTrue(all(a['passed'] for a in self.planted['laus_log_employment']['acceptance']))
+        self.assertIn('increase', self.planted['laus_log_employment']['verdict'])
+        # planted on the labour force, so the two log outcomes carry it and the rate does not
+        self.assertAlmostEqual(self.planted['laus_log_labor_force']['estimates']['primary']['overall']['att'],
+                               0.05, delta=0.005)
+        rate = self.planted['laus_unemployment_rate']['estimates']['primary']['overall']
+        self.assertLess(rate['ci_low'], 0.0)
+        self.assertGreater(rate['ci_high'], 0.0)
+
+    def test_a_panel_with_no_effect_gives_an_identified_null(self):
+        for outcome, record in self.null.items():
+            overall = record['estimates']['primary']['overall']
+            self.assertLess(overall['ci_low'], 0.0, outcome)
+            self.assertGreater(overall['ci_high'], 0.0, outcome)
+            self.assertEqual(record['identification']['label'], 'quasi_experimental_did', outcome)
+            self.assertIn('null', record['verdict'], outcome)
+        self.assertLess(abs(self.null['laus_log_employment']['estimates']['primary']['overall']['att']), 0.01)
+
+    def test_every_registered_outcome_is_returned_with_its_role(self):
+        self.assertEqual(sorted(self.planted), ['laus_log_employment', 'laus_log_labor_force',
+                                                'laus_unemployment_rate'])
+        self.assertEqual(self.planted['laus_log_employment']['estimates']['outcome']['role'], 'primary')
+        self.assertEqual(self.planted['laus_unemployment_rate']['estimates']['outcome']['role'], 'secondary')
+        self.assertEqual(self.planted['laus_unemployment_rate']['estimates']['outcome']['unit'], 'percentage points')
+
+    def test_the_horizon_rows_carry_the_role_the_registration_gives_them(self):
+        rows = {row['horizon_months']: row for row in self.planted['laus_log_employment']['estimates']['horizons']}
+        self.assertEqual(sorted(rows), [3, 6, 12])
+        self.assertEqual({h: row['role'] for h, row in rows.items()},
+                         {3: 'reported', 6: 'primary', 12: 'bounding_only'})
+        self.assertEqual([h for h, row in rows.items() if row['bounding_only']], [12])
+        self.assertNotIn('reported_as', rows[3])
+        self.assertNotIn('reported_as', rows[6])
+        self.assertIn('may not be reported as an effect', rows[12]['reported_as'])
+        self.assertEqual(rows[12]['measured_before_registration']['null_rejection_rate'], 0.115)
+        self.assertEqual(rows[12]['measured_before_registration']['size_limit'], 0.1)
+        # the primary row is the primary estimate, not a second estimate of it
+        self.assertEqual(rows[6]['overall'], self.planted['laus_log_employment']['estimates']['primary']['overall'])
+        self.assertEqual(rows[3]['estimand'], 'equal-weight mean of ATT(e) over event months 0..3')
+
+    def test_a_rejection_at_a_bounding_horizon_is_still_reported_as_a_bound(self):
+        record = self.planted['laus_log_employment']
+        rows = {row['horizon_months']: row for row in record['estimates']['horizons']}
+        self.assertGreater(rows[12]['overall']['ci_low'], 0.0)        # the 12-month horizon does reject
+        self.assertTrue(rows[12]['bounding_only'])                    # and is still not an effect
+        self.assertIn('not an effect', rows[12]['reported_as'])
+        # the label and the verdict come from the primary horizon alone
+        span = f"{rows[6]['overall']['att']:+.4f} log points"
+        self.assertIn(span, record['verdict'])
+        self.assertTrue(any('BOUNDING ONLY' in line for line in record['does_not_establish']))
+
+    def test_the_result_says_what_it_does_not_establish(self):
+        record = self.planted['laus_log_employment']
+        self.assertIn('A fixture establishes nothing.', record['does_not_establish'])
+        bounds = [line for line in record['does_not_establish'] if 'BOUNDING ONLY' in line]
+        self.assertEqual(len(bounds), 1)
+        self.assertIn('12 months 11.5%', bounds[0])
+        self.assertIn('is not reported as one here', bounds[0])
+        self.assertEqual(len(record['notes']), 3)
+
+    def test_the_acceptance_criteria_are_the_registration_s_own(self):
+        for record in self.planted.values():
+            self.assertEqual([(a['id'], a['type'], a['threshold']) for a in record['acceptance']],
+                             [(c['id'], c['type'], c.get('value')) for c in self.registration['acceptance_criteria']])
+        gates = {a['id']: a for a in self.planted['laus_log_employment']['acceptance']}
+        record = self.planted['laus_log_employment']
+        self.assertEqual(gates['no_pre_trends']['value'], record['diagnostics']['pre_trend']['wald']['p'])
+        self.assertEqual(gates['placebo_date_null']['value'], record['diagnostics']['placebo_date']['p'])
+        self.assertEqual(gates['placebo_unit_size']['value'], record['diagnostics']['placebo_unit']['rejection_rate'])
+        self.assertEqual(gates['enough_treated_counties']['value'], 60)
+
+    def test_the_panel_is_the_registered_one(self):
+        facts = self.planted['laus_log_employment']['data']['treatment_facts']
+        self.assertEqual((facts['treated_in_panel'], facts['controls_in_panel']), (60, 140))
+        self.assertEqual(facts['disasters_in_panel'], 20)
+        self.assertEqual(facts['cohort_months_in_panel'], ['2011-01', '2014-03'])
+        panel = self.planted['laus_log_employment']['data']['panel']
+        self.assertEqual(panel['strata'], 40)                       # disaster x growth half
+        self.assertEqual(panel['clusters'], 16)                     # state
+        self.assertEqual(panel['observations'], 200 * 37)           # event months -24..+12, clipped per stack
+
+
+class GatingTests(unittest.TestCase):
+    """What gates the identification label and what only reports beside it."""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.registration = primary_only(fixture_registration())
+        cls.record = run_fixture(registration=cls.registration, early_lead=0.02)['laus_log_employment']
+
+    def test_a_pre_trend_outside_the_gating_window_fails_only_the_non_gating_variant(self):
+        gate = {a['id']: a for a in self.record['acceptance']}['no_pre_trends']
+        self.assertEqual(self.record['estimates']['primary']['pre_trend']['leads'], [-6, -5, -4, -3, -2])
+        self.assertTrue(gate['passed'])
+        self.assertEqual(gate['value'], self.record['diagnostics']['pre_trend']['wald']['p'])
+        long_lead = self.record['estimates']['robustness']['long_lead_window']
+        self.assertEqual(long_lead['pre_trend']['leads'], list(range(-12, -1)))
+        self.assertLess(long_lead['pre_trend']['wald']['p'], 0.05)          # the longer window sees it
+        self.assertEqual(self.record['identification']['label'], 'quasi_experimental_did')   # and does not gate
+
+    def test_only_the_stacked_estimate_gates(self):
+        roles = self.record['estimates']['robustness_roles']
+        self.assertEqual({name: role['gating'] for name, role in roles.items()},
+                         {'stacked_did': True, 'twfe_static': False,
+                          'unmatched_strata_disaster_only': False, 'long_lead_window': False})
+        self.assertEqual(sorted(self.record['estimates']['robustness']), sorted(roles))
+        self.assertEqual([a['id'] for a in self.record['acceptance'] if a['type'] == 'robustness_ci_overlap'],
+                         ['stacked_agrees'])
+        overlap = {a['id']: a for a in self.record['acceptance']}['stacked_agrees']
+        self.assertEqual(overlap['value'][1],
+                         [self.record['estimates']['robustness']['stacked_did']['overall']['ci_low'],
+                          self.record['estimates']['robustness']['stacked_did']['overall']['ci_high']])
+        self.assertEqual(roles['long_lead_window']['registered_under'], 'estimator.non_gating_robustness')
+
+    def test_the_non_gating_variants_are_the_same_design_reported_beside_it(self):
+        unmatched = self.record['estimates']['robustness']['unmatched_strata_disaster_only']
+        self.assertEqual(unmatched['reference_event_time'], -1)
+        self.assertEqual(unmatched['control_group'], 'never_treated')
+        self.assertIsNotNone(unmatched['overall'])
+
+
+class AcceptanceAndDoseTests(unittest.TestCase):
+    def test_a_treated_unit_gate_above_the_sample_makes_the_design_not_estimable(self):
+        registration = primary_only(fixture_registration(
+            acceptance_criteria=[{'id': 'enough_treated_counties', 'type': 'min_treated_units', 'value': 1000}]))
+        record = run_fixture(registration=registration, effect=0.05)['laus_log_employment']
+        self.assertEqual([(a['id'], a['passed'], a['value']) for a in record['acceptance']],
+                         [('enough_treated_counties', False, 60)])
+        self.assertEqual(record['identification']['label'], 'not_estimable')
+        self.assertIn('is not an effect', record['verdict'])
+
+    def test_roles_follow_the_pinned_threshold_and_not_this_sample_s_quantile(self):
+        registration = primary_only(fixture_registration())
+        units, laus = fixture_inputs()
+        for unit in units[:2]:                      # two damaged pairs into the excluded middle
+            unit['dose'] = 100.0
+        record = w3.monthly_dose_results(registration, STATUS, units, laus)[0]
+        facts = record['data']['treatment_facts']
+        self.assertEqual(facts['dose_threshold_usd_per_capita'], 300.0)
+        self.assertEqual((facts['treated'], facts['middle'], facts['control']), (58, 2, 140))
+        self.assertEqual(facts['treated_in_panel'], 58)
+        self.assertEqual(facts['dose_quantile_recomputed_on_this_sample'], 1000.0)
+        self.assertIn('pinned before any outcome was read', facts['dose_threshold_source'])
 
 if __name__ == '__main__':
     unittest.main()

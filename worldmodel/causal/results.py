@@ -103,7 +103,7 @@ def result_id(record):
 
 
 def build_result(*, study_id, registration, registration_status, identification_label, verdict, estimates, diagnostics,
-                 acceptance, data, assumptions, notes=()):
+                 acceptance, data, assumptions, notes=(), does_not_establish=()):
     record = {
         'schema': RESULT_SCHEMA,
         'study_id': study_id,
@@ -121,6 +121,9 @@ def build_result(*, study_id, registration, registration_status, identification_
         'diagnostics': diagnostics,
         'acceptance': acceptance,
         'verdict': verdict,
+        # Present only when a design declares limits of its own: a registration that says an estimand is
+        # registered as a bound, not an effect, says so here in the result as well as in its design.
+        **({'does_not_establish': list(does_not_establish)} if does_not_establish else {}),
         'data': data,
         'notes': list(notes),
     }
