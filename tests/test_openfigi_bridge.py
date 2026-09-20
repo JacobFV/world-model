@@ -319,6 +319,24 @@ class PipelineTests(unittest.TestCase):
                          {'id_type': 'TICKER', 'id_value': 'AAPL', 'mic_code': 'XNAS'})
         self.assertEqual(query_of({'idType': 'TICKER', 'idValue': 'AAPL', 'exchCode': 'US'})['exch_code'], 'US')
 
+    def test_a_request_level_error_is_a_counted_failure_not_a_misalignment(self):
+        # OpenFIGI answers a request it did not process with HTTP 200 and a one-element error
+        # body. Six of the 11,246 requests came back this way, and all six answered correctly
+        # when re-sent, so it is transient - but the runner cannot retry a 200.
+        pipeline = self._pipeline()
+        request = {'group': 'cusip', 'batch': 0, 'jobs': [{'idType': 'ID_CUSIP', 'idValue': APPLE}] * 10}
+        error = {'error': 'There was an error while processing this request.'}
+        self.assertTrue(pipeline.request_level_failure(request, 0, error))
+        self.assertEqual(pipeline._check_complete({0: request}, {0: 1}, {0}),
+                         {'failed_requests': [0], 'identifiers_not_mapped': 10})
+        # not a request-level failure: a per-job warning, a later position, a single-job request
+        self.assertFalse(pipeline.request_level_failure(request, 3, error))
+        self.assertFalse(pipeline.request_level_failure(request, 0, {'warning': 'No identifier found.'}))
+        self.assertFalse(pipeline.request_level_failure({**request, 'jobs': request['jobs'][:1]}, 0, error))
+        # and a shard that carries an error *and* other results is still a misalignment
+        with self.assertRaises(ValueError):
+            pipeline._check_complete({0: request}, {0: 4}, {0})
+
     def test_an_answer_that_is_not_one_result_per_job_fails_the_build(self):
         # The endpoint does not echo the identifier it answered, so a short or long answer
         # re-aligns every following result with the wrong CUSIP.

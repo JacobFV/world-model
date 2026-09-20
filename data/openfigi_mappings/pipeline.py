@@ -20,6 +20,14 @@ Completeness is checked, not assumed. The mapping endpoint answers positionally 
 job, in request order, with no echo of what was asked - so a response with a different number of
 results than its request had jobs is either a truncated body or a shifted answer, and either makes
 every CUSIP in the shard wrong. Both fail the build.
+
+The one answer that is *not* a misalignment is the service's own request-level failure: it replies
+``HTTP 200`` with the single-element body ``[{"error": "There was an error while processing this
+request."}]``, which says it did not process the request at all. Because the status is 200 the
+runner cannot retry it, so it is read here as a **failed request**, counted, and nothing is
+published for the identifiers it was asked about. Six of the 11,246 requests came back this way on
+2026-09-19; re-sending all six by hand answered correctly, so it is transient and a re-acquisition
+recovers them.
 """
 _FIELDS = ('figi', 'name', 'ticker', 'exchCode', 'compositeFIGI', 'shareClassFIGI', 'securityType',
            'securityType2', 'marketSector', 'securityDescription')
@@ -84,13 +92,16 @@ def run(context):
             raise ValueError('openfigi_mappings reads full acquisition shards only')
         observed = receipt['retrieved_at']
         requests = _shard_requests(context, index)
-        results, entities = {}, set()
+        results, entities, failed_requests = {}, set(), set()
         for locator, result in context.raw_rows(index, format='json'):
             shard, number = _locator_parts(locator)
             request = requests.get(shard)
             if request is None:
                 raise ValueError(f'{locator}: no recorded request for this shard')
             results[shard] = results.get(shard, 0) + 1
+            if request_level_failure(request, number, result):
+                failed_requests.add(shard)
+                continue
             if number >= len(request['jobs']):
                 raise ValueError(f'{locator}: the answer carries more results than the request had jobs, '
                                  'so the results no longer line up with the identifiers asked about')
@@ -136,19 +147,38 @@ def run(context):
                                  'matches_for_query': len(rows), 'published': published},
                        'attributes': {'validity_basis': 'OpenFIGI does not date a mapping; the retrieval date '
                                                         'in the evidence is the only date there is'}}
-        _check_complete(requests, results)
+        _check_complete(requests, results, failed_requests)
 
 
-def _check_complete(requests, results):
+def request_level_failure(request, number, result):
+    """Whether this answer is the service saying it did not process the request at all.
+
+    OpenFIGI replies to a request-level failure with ``HTTP 200`` and a one-element body whose only
+    member is an ``error`` - no ``data`` and no per-job results. It is distinguishable from a
+    truncated answer only because the request carried more than one job and exactly one result came
+    back, so a single-job request is never read this way.
+    """
+    return (number == 0 and len(request['jobs']) > 1 and isinstance(result, dict)
+            and result.get('error') and 'data' not in result)
+
+
+def _check_complete(requests, results, failed_requests=()):
     """Every request must be answered with exactly one result per job, in request order.
 
     The endpoint does not echo the identifier it answered, so a short or long answer silently
     re-aligns every following result with the wrong CUSIP. There is no way to detect that after the
-    fact and no safe way to publish it, so it fails the build.
+    fact and no safe way to publish it, so it fails the build. A request the service reports it did
+    not process is the one exception: it is counted here and nothing is published for it.
     """
     for shard, request in sorted(requests.items()):
         expected, got = len(request['jobs']), results.get(shard, 0)
+        if shard in failed_requests:
+            if got != 1:
+                raise ValueError(f'Shard {shard} carries {got} results alongside a request-level error')
+            continue
         if got != expected:
             raise ValueError(f'Shard {shard} ({request["group"]} batch {request["batch"]}) asked {expected} '
                              f'mapping jobs and its answer carries {got} results; a positional answer that is '
                              'not one result per job cannot be matched back to the identifiers asked about')
+    return {'failed_requests': sorted(failed_requests),
+            'identifiers_not_mapped': sum(len(requests[shard]['jobs']) for shard in failed_requests)}

@@ -2,7 +2,8 @@
   "access": {
     "blockers": [
       "Unkeyed the service allows 10 jobs per request and 25 requests per minute, so the full CUSIP scope is about 9.5k requests and six hours of wall clock",
-      "The response is positional: it carries one result per job in request order and does not echo the identifier asked about, so the request list in this declaration is what maps a result back to its CUSIP or ticker"
+      "The response is positional: it carries one result per job in request order and does not echo the identifier asked about, so the request list in this declaration is what maps a result back to its CUSIP or ticker",
+      "A request-level failure is returned as HTTP 200 with the body [{\"error\": \"There was an error while processing this request.\"}], so the runner cannot retry it on status; the pipeline counts those requests and publishes nothing for the identifiers they asked about. Six occurred on 2026-09-19 and all six answered correctly when re-sent by hand, so the failure is transient and a re-acquisition recovers them."
     ],
     "credentials": "None. An OpenFIGI API key raises the limits to 25 requests per 6 seconds and 100 jobs per request; no key is held, so the unkeyed limits are declared and honoured.",
     "probe": "POST https://api.openfigi.com/v3/mapping answered 2026-09-19 unkeyed; 11 jobs in one request is refused with HTTP 413 'Request may only contain 10 mapping jobs.' and the response carries ratelimit-policy 25;w=60"
@@ -11281,9 +11282,9 @@
     "user_agent": "world-model-substrate/0.3 (https://github.com/; jacobspam0123456789@gmail.com) full-acquisition"
   },
   "coverage": {
-    "completeness": "complete_for_declared_scope",
+    "completeness": "complete_for_declared_scope_except_counted_failures",
     "representative": false,
-    "scope": "every distinct nine-character CUSIP with a valid modulus-10 check digit that appears on a 13F information table in sec_13f_history or sec_ownership_datasets, plus every ticker symbol sec_issuer_reference publishes in an issuer_listing assertion, asked for at the SEC's own MIC where that scope value is an ISO 10383 MIC and at OpenFIGI's US composite scope. Not an OpenFIGI dump and not a security master: an instrument nobody reported on a 13F and no SEC issuer lists is not asked about."
+    "scope": "every distinct nine-character CUSIP with a valid modulus-10 check digit that appears on a 13F information table in sec_13f_history or sec_ownership_datasets, plus every ticker symbol sec_issuer_reference publishes in an issuer_listing assertion, asked for at the SEC's own MIC where that scope value is an ISO 10383 MIC and at OpenFIGI's US composite scope. Not an OpenFIGI dump and not a security master: an instrument nobody reported on a 13F and no SEC issuer lists is not asked about. Six of the 11,246 requests were answered with the service's own request-level error (HTTP 200 with a one-element error body); the 60 CUSIPs they asked about are counted as unmapped rather than published."
   },
   "dependencies": [],
   "description": "OpenFIGI v3 mapping answers for every check-digit-valid CUSIP on a 13F information table and every ticker sec_issuer_reference publishes: the share-class, composite and venue-level FIGI, the ticker, the exchange code, the security type and the security name, as OpenFIGI published them",
@@ -11327,6 +11328,18 @@
         "version": "b5923f5238ffd3758933cb2e797c6c9df27e35915e55bdecd13f3a04bb594562"
       }
     ],
+    "failed_requests_2026_09_19": {
+      "identifiers_not_mapped": 60,
+      "requests": 6,
+      "shards": [
+        2264,
+        2288,
+        2289,
+        2310,
+        2311,
+        2889
+      ]
+    },
     "jobs_per_request": 10,
     "requests": {
       "cusip": 9493,
