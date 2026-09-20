@@ -292,11 +292,17 @@ def _place_brief(connection, index, place, *, timer, products_path, events, data
     with timer.step('containment_and_migration'):
         from ..graph import Graph
         graph = Graph(index)
-        containment = describe_edges(connection, graph.neighborhood(county, hops=1, predicates=['within'],
-                                                                   direction='out', limit=20)['edges'])
+        # The cap has to clear every publisher that asserts the same containment, not just the
+        # distinct containers: 50 of Harris County's 57 `within` edges say "in Texas", and a cap of
+        # 20 silently dropped its CBSA and CSA once enough datasets were indexed to fill it. The
+        # widest subject in the index carries 65, so 200 leaves room, and truncation is reported
+        # rather than left to be inferred from a missing container.
+        within = graph.neighborhood(county, hops=1, predicates=['within'], direction='out', limit=200)
+        containment = describe_edges(connection, within['edges'])
         flows = graph.neighborhood(county, hops=1, predicates=['flow_source', 'flow_destination'], direction='in',
                                    limit=2000)
         answer['containment'] = containment
+        answer['containment_truncated'] = within['truncated']
         answer['migration_flows'] = {('dataset' if flows['edges'] else 'expected_dataset'): 'irs_soi_migration',
                                      'edges': len(flows['edges']),
                                      'truncated': flows['truncated'],

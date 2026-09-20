@@ -252,7 +252,12 @@ Each metric shows a headline - the latest observation with the fewest non-total 
 its dimensions, so a reader can see what it measures. The population series takes the newest
 vintage only; a plot that spliced vintages would draw a revision as a change.
 
-**Example: `wm place-brief 48201`** ([output](../examples/products/place_brief_48201.json)).
+**Example: `wm place-brief 48201`** ([output](../examples/products/place_brief_48201.json)),
+re-run against the 2026-09-19 index. Its containment leg is also where a cap turned into a wrong
+answer: the query took the first 20 `within` edges, and Harris County has 57 of which 50 say "in
+Texas", so once enough datasets were indexed to fill the cap the brief silently stopped reporting
+the county's CBSA and CSA. The cap is 200 now — the widest subject in the index carries 65 — and
+the answer reports `containment_truncated` rather than leaving a missing container to be inferred.
 Harris County, Texas: population 5,009,302 (1 July 2024, vintage 2024), employment 2,182,164
 (March 2023 pay period), NRI national risk index score 99.94 with expected annual loss of
 USD 2.22 bn a year, half of it inland flooding. 1,941 storm events name the county from 1950 to
