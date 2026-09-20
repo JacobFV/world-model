@@ -68,12 +68,14 @@ event rather than the county. `wm products-index` reads the unified index once a
 
 | Table | Rows on the default index | What it is |
 | --- | ---: | --- |
-| `labels` (+ FTS5) | 9,812,370 entity labels + 306,119 sanctions aliases | name search; mirrors `wm search-entities` (case- and accent-insensitive label and alias match, grouped by asserted cluster) over the unified index |
+| `labels` (+ FTS5) | 10,443,084 entity labels + 306,119 sanctions aliases | name search; mirrors `wm search-entities` (case- and accent-insensitive label and alias match, grouped by asserted cluster) over the unified index |
 | `place_events` | 1,303,048 storm events and 68,792 disaster declarations | events whose publisher names a county GEOID among the participants |
 | `place_named` | 144,538 groups from 2,697,024 OpenFEMA rows | assistance rows that publish a county *name* and a state, summed per (state, county name, disaster, metric) |
 
-Measured on 2026-09-18 on the 131.5 GB default index: **6 min 33 s wall, 485 MiB peak RSS,
-2.97 GB on disk** (labels 179 s, aliases 7 s, places 61 s, FTS and B-tree indexes 145 s).
+Rebuilt on 2026-09-19 against the 139 GB index: **5 min 4 s wall, 2.9 GB on disk** (labels 117 s,
+aliases 7 s, places 57 s, FTS and B-tree indexes 123 s), reading 10,687,168 entity records. The
+2026-09-18 build against the 131.5 GB index took 6 min 33 s at 485 MiB peak RSS. Only the label
+count moved: the place tables are identical, because the datasets that feed them did not change.
 763,671 storm events filed against NWS forecast zones name no county and are counted, not
 placed. The file pins the unified index's input digest; a product refuses a companion built for
 a different index. Without it, dossier and screen still accept entity IDs and place-brief still
