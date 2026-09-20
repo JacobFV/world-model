@@ -669,6 +669,19 @@ POPULATIONS = {
                                             'than missing; counties are counted separately by '
                                             'fred_county_vintages:counties; the underlying BEA, Census and BLS '
                                             'estimates, which FRED republishes rather than produces'},
+    'openfigi_mappings': {
+        'kind': 'register',
+        'population': 'the securities OpenFIGI returned for the identifiers this dataset asked about: every '
+                      'check-digit-valid nine-character CUSIP on a 13F information table in sec_13f_history or '
+                      'sec_ownership_datasets, plus every SEC-published ticker symbol whose exchange is an ISO '
+                      '10383 MIC. The published entities are the FIGIs those questions resolved to, so this counts '
+                      'answers, not questions: an identifier OpenFIGI does not know contributes none',
+        'unit': 'FIGI', 'count': {'prefix': 'figi:'},
+        'not_covered': 'securities OpenFIGI knows that this catalog never asked about, which is most of them; a '
+                       'CUSIP whose check digit fails, which is not sent; and the request-level failures the '
+                       "acquisition counts rather than hides. A mapping statement is OpenFIGI's assertion that an "
+                       'identifier names an instrument, not evidence that the instrument exists or that the 13F '
+                       'filer held it'},
     'fred_county_laus_monthly_vintages': {
         'kind': 'register',
         'population': 'the monthly LAUS county alias series configured for this dataset (unemployment rate and '

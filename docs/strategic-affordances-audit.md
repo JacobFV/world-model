@@ -239,9 +239,9 @@ it could have seen.
 
 ### 5. Coverage that is known rather than assumed
 
-**Partly closed.** `wm coverage-estimate` publishes 113 coverage estimates over 107 of the 136
+**Partly closed.** `wm coverage-estimate` publishes 114 coverage estimates over 108 of the 138
 declarations, 40 of them against a sourced denominator and 16 against a count quoted from the
-dataset's own `dataset.json`. It found two real gaps (`sec_company_assets` holds 0.837 of its
+dataset's own `dataset.json`; 19 more are reported as `derived` and 11 as uncurated with a reason. It found two real gaps (`sec_company_assets` holds 0.837 of its
 declared companyfacts CIKs; `openalex_people` publishes 1.258x its declared scope). The newest
 declaration, `fred_county_laus_monthly_vintages`, was curated as it landed rather than added to the
 pile: 6,282 series measured against 6,282 declared, and 3,135 of 3,222 US counties (97.3%), the 5
