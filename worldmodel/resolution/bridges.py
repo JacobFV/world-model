@@ -21,6 +21,7 @@ number belongs to. A bridge fires only where the publisher names the register.
 import re
 
 from .deterministic import MAPPING_SPECS
+from .openfigi import identity_claim as openfigi_identity_claim
 from .wikidata import geo_entity_id_claim, statement_claim
 
 # GLEIF LEI-CDF 3.1 publishes, for every LEI, the business register that registered the entity
@@ -301,7 +302,7 @@ def normalize_value(namespace, value):
 # ``issuer_security`` only on issuer-to-security edges. Identity documents and uniqueEntityId values
 # travel on ``identifier`` assertions, which the prefilter already keeps.
 BRIDGE_TAGS = (b'"registration_authority"', b'"predicate":"issuer_security"', b'"predicate":"same_designation_as"',
-               b'"predicate":"external_identifier"')
+               b'"predicate":"external_identifier"', b'"predicate":"openfigi_mapping"')
 
 BRIDGES = {
     'gleif_sec_cik': {
@@ -329,6 +330,19 @@ BRIDGES = {
         'does_not_assert': ('anything about the issuer. This links a security to the same security, '
                             'so that a GLEIF issuer_security edge and a 13F CUSIP holding meet; the '
                             'issuer identity still has to come from a published issuer identifier.'),
+    },
+    'openfigi_cusip_figi': {
+        'spec': 'openfigi_cusip_figi', 'namespace': 'cusip',
+        'reads': ('openfigi_mappings openfigi_mapping assertions whose query was idType ID_CUSIP and whose '
+                  'answer is the US composite (exchCode US) or an instrument with no composite at all'),
+        'published_basis': ('OpenFIGI, the FIGI registration authority, answered "which security is this CUSIP" '
+                            'with this FIGI. The CUSIP is held to its own modulus-10 double-add-double check '
+                            'digit before it is read, so the option pseudo-CUSIPs 13F filers construct - 9 in '
+                            'the seventh position - are refused rather than mapped'),
+        'does_not_assert': ('anything about the issuer, and nothing about a venue. A FIGI names an instrument; '
+                            'the exchange-level rows of the same answer (a US equity\'s Frankfurt or Mexican '
+                            'line, or one US exchange\'s book) are published as statements and are never read '
+                            'as identity, because a CUSIP does not name a listing.'),
     },
     'sanctions_register_number': {
         'spec': 'sanctions_register_number', 'namespace': 'ru_inn / ru_ogrn / gb_company_number',
@@ -434,6 +448,13 @@ def record_claims(record):
         # The subject of the claim is the *security*, never the issuer: this bridge says
         # "isin:US14149Y1082 and cusip:14149Y108 are one security", nothing about the issuer.
         return [(obj, 'cusip', cusip, None, 'gleif_isin_cusip')]
+    if kind == 'assertion' and record.get('predicate') == 'openfigi_mapping':
+        subject, claim = record.get('subject'), openfigi_identity_claim(record.get('value'))
+        if claim is None or not isinstance(subject, str) or not subject.startswith('figi:'):
+            return []
+        # The subject is the *security* OpenFIGI answered with, never its issuer: this bridge says
+        # "figi:BBG000B9XRY4 and cusip:037833100 are one security", nothing about Apple Inc.
+        return [(subject, claim[0], claim[1], None, 'openfigi_cusip_figi')]
     if kind == 'assertion' and record.get('predicate') == 'external_identifier':
         subject, claim = record.get('subject'), statement_claim(record.get('value'))
         if claim is None or not isinstance(subject, str):
