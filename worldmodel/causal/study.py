@@ -9,12 +9,17 @@ def _strip(result):
 
 
 def run_did_design(panel, registration, status, *, outcome, data=None, notes=(), include_att_gt=False,
-                   extra_robustness=None):
+                   extra_robustness=None, extra_estimates=None, does_not_establish=()):
     """Estimate, diagnose and judge one outcome exactly as the registration specifies.
 
     ``outcome`` is ``{'id', 'label', 'unit'}`` naming the registered outcome being analysed.
-    ``extra_robustness`` maps a name to an alternative panel (e.g. without matching strata); each is
-    estimated with the primary estimator and reported, never used by the acceptance criteria.
+    ``extra_robustness`` maps a name either to an alternative panel (e.g. without matching strata) or
+    to a mapping of :func:`event_study` overrides, which may include ``panel`` (e.g. a longer lead
+    window on the same panel); each is estimated with the primary estimator and reported, and
+    **never** enters the facts the acceptance criteria are evaluated against.
+    ``extra_estimates`` adds further reported estimates under ``estimates`` (again never read by the
+    criteria), and ``does_not_establish`` records limits of the design in the result itself; a
+    registration's own ``does_not_establish`` entries are carried into the record automatically.
     Returns a result record (``worldmodel.causal_result/1``).
     """
     windows, estimator = registration['windows'], registration['estimator']
@@ -42,9 +47,13 @@ def run_did_design(panel, registration, status, *, outcome, data=None, notes=(),
                                                   balance=balance, bootstrap=0, cohorts=cohorts, **alt))
         else:
             raise ValueError(f'unknown robustness estimator {name}')
-    for name, alt_panel in (extra_robustness or {}).items():
-        robustness[name] = _strip(event_study(alt_panel, e_min=windows['e_min'], e_max=windows['e_max'], post=post,
-                                              balance=balance, bootstrap=0, cohorts=cohorts, **common))
+    for name, alt in (extra_robustness or {}).items():
+        options = dict(alt) if isinstance(alt, dict) else {'panel': alt}
+        alt_panel = options.pop('panel', panel)
+        settings = dict(e_min=windows['e_min'], e_max=windows['e_max'], post=post, balance=balance, bootstrap=0,
+                        cohorts=cohorts, **common)
+        settings.update(options)
+        robustness[name] = _strip(event_study(alt_panel, **settings))
     diagnostics = {'pre_trend': primary['pre_trend']}
     if 'placebo_date' in placebo:
         cfg = placebo['placebo_date']
@@ -77,9 +86,11 @@ def run_did_design(panel, registration, status, *, outcome, data=None, notes=(),
         facts['stacked_ci'] = [stacked['ci_low'], stacked['ci_high']]
     acceptance = evaluate_acceptance(registration['acceptance_criteria'], facts)
     label, verdict = did_verdict(acceptance, overall, outcome_label=outcome['label'], unit=outcome.get('unit', 'log points'))
-    estimates = {'outcome': outcome, 'primary': primary if include_att_gt else _strip(primary), 'robustness': robustness}
+    estimates = {'outcome': outcome, 'primary': primary if include_att_gt else _strip(primary),
+                 'robustness': robustness, **(extra_estimates or {})}
     assumptions = list(DID_ASSUMPTIONS) + list(registration.get('assumptions', []))
+    limits = list(registration.get('does_not_establish') or []) + list(does_not_establish)
     return build_result(study_id=registration['study_id'], registration=registration, registration_status=status,
                         identification_label=label, verdict=verdict, estimates=estimates, diagnostics=diagnostics,
                         acceptance=acceptance, data={**(data or {}), 'panel': panel.summary(), 'panel_digest': panel.digest()},
-                        assumptions=assumptions, notes=notes)
+                        assumptions=assumptions, notes=notes, does_not_establish=limits)
