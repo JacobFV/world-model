@@ -32,7 +32,7 @@ in the repository:
 | **Registry processes that are validated** | **5 of 22 — `monetary_model`, `resource_inventory`, `elections_model`, `assets_model`, `legislative_model`** |
 | Model families declaring themselves validated | 0 of 11 (a family's descriptor never claims it; validation comes only from a passing report) |
 | World-state embedding attempts | 10 registered, 2 not run on compute budget; the 8 scored produced 12 reports (one per target) over 5 domains, none validated. The pre-declared stop rule fired on the last one (see [world-state embeddings](docs/world-state-embeddings.md)) |
-| Natural-experiment designs run | 8 across two waves; three identified nulls, no non-zero effect, and every design underpowered against its own registered effect (see [natural experiments](docs/natural-experiments.md)) |
+| Natural-experiment designs run | 9 across three waves; three identified nulls and no non-zero effect. Every wave-1 and wave-2 design was underpowered against its own registered effect; wave 3 fixed that and failed its pre-trend test instead (see [natural experiments](docs/natural-experiments.md)) |
 | Tests | 1,447 discovered; the 1,175 that run here pass, and 272 skip without the optional `agents` extra (`tensorcode`) or local data payloads |
 
 The validation rows are the ones that matter. This system can acquire, version, join and

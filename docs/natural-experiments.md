@@ -8,12 +8,16 @@ post-period outcome is read, every result carries its design, assumptions, pre-t
 outcomes, and the identification label follows mechanically from pre-registered acceptance
 criteria. Nulls, failed pre-trends and infeasible designs are published like any other result.
 
-**State as of 2026-09-18.** Two waves of designs have been registered, committed and run. **No
+**State as of 2026-09-21.** Three waves of designs have been registered, committed and run. **No
 design identifies a non-zero effect.** Wave 1's four designs all failed; wave 2's four
 registrations were written against what wave 1 showed, and produced three *identified nulls* -
 effects bounded inside intervals that are still too wide to rule out the effects the literature
-would call plausible - alongside four more failed diagnostics. A registered power suite now says,
-for every design in both waves, what it could and could not have detected.
+would call plausible - alongside four more failed diagnostics. A registered power suite says, for
+every design in both waves, what it could and could not have detected. Wave 3's single design
+answered the power suite's own follow-up and is the first in this repository whose minimum
+detectable effect is below the effect worth finding; it then failed its pre-trend test on all three
+outcomes, so it identifies nothing either. What it did establish is where the obstacle actually
+lies: not in power, and not in the frequency of the outcome.
 
 ### Wave 1 (four designs, none identified)
 
@@ -45,6 +49,20 @@ wave 1 had already read. Full designs and numbers: [Wave 2](#wave-2).
 | OFAC country-programme wave -> target's exports to the US relative to its other exports | no causal claim: cluster placebo fails | `did_failed_diagnostics` | ATT -0.115 (-0.267 to +0.038); 16 target countries, 1,163 treated country-chapters, 221 country clusters; pre-trend p = 0.69, placebo date p = 0.94, cluster-placebo rejection 0.11 (limit 0.10) |
 | ... same design -> target's imports from the US relative to its other imports | **identified null** | `quasi_experimental_did` | ATT -0.121 (-0.309 to +0.068); cluster-placebo rejection 0.10 |
 | Power and negative controls for every wave-1 and wave-2 design | every design is underpowered | `design_power_analysis` | minimum detectable effect / plausible effect: 2.27 (W1 FEMA), 1.81 (W1 tariffs), 1.02 (W1 exposure), 1.67 (W2 dose), 1.39 (W2 tariffs), 1.34 (W2 sanctions); two designs reject a true null in 11.5% and 14.5% of synthetic panels |
+
+### Wave 3 (one design, powered at last, and it still fails its pre-trend test)
+
+| Study and outcome | Verdict | Label | Key numbers |
+| --- | --- | --- | --- |
+| Top-decile storm damage inside a FEMA declaration -> monthly county employment, as first published | no causal claim: pre-trend fails | `did_failed_diagnostics` | ATT +0.0034 log points at 6 months (-0.0018 to +0.0085); 176 treated pairs, 47 state clusters; pre-trend Wald p = 0.0096, placebo date p = 0.57, placebo units 0.08 |
+| ... same design -> monthly labour force | no causal claim: pre-trend and unit placebo fail | `did_failed_diagnostics` | ATT +0.0018 (-0.0025 to +0.0060); pre-trend p = 0.0499, placebo units 0.12 (limit 0.10) |
+| ... same design -> monthly unemployment rate | no causal claim: pre-trend fails | `did_failed_diagnostics` | ATT -0.189 pp (-0.429 to +0.052); pre-trend p = 0.0006, placebo date p = 0.28, placebo units 0.05 |
+
+The design cleared the bar that had blocked both earlier waves - measured minimum detectable effect
+0.0116 log points against the 0.02 its registration called worth finding - and the point estimates
+came in well inside that. It is the pre-trend test that refuses, on every outcome, as it did on
+annual QCEW in wave 1 and on the within-disaster dose in wave 2. Full numbers and the reason this
+verdict is less decisive than it looks: [Follow-ups](#follow-ups).
 
 ## The pieces
 
@@ -522,12 +540,38 @@ one when there is none.
   smoothed toward the state, and the smoothness that makes these standard errors small attenuates the
   signal too.
 
-  **What remains is the run itself.** `python3 examples/natural-experiments/run_studies.py --study
-  fema_monthly_dose_county_employment` is the whole of it, against the registration as committed. It
-  is expected to take hours and to be dominated by the 100-replication placebo-unit test over a
-  2,078-unit monthly panel, so it belongs on the second GB10 under a memory cap rather than on the
-  shared machine. Whatever it returns is the result: the criteria are fixed, the bounding-only
-  horizons are fixed, and a rejection at 12 or 24 months may not be reported as an effect.
+  **Run 2026-09-21, and it failed its diagnostics.** `natural_experiment_reports@163ebd9b`, against
+  registration `711f7f8` recorded as committed and clean, 284.6 s (the estimate of "hours" was
+  wrong by two orders of magnitude). All three outcomes fail `no_pre_trends`, so the verdict on each
+  is **no causal claim**: the parallel-trends design is not credible on this panel, and the
+  estimates below are reported only for transparency.
+
+  | Outcome | pre-trend Wald p | placebo date | placebo unit | ATT at 6 months | 95% CI |
+  | --- | ---: | ---: | ---: | ---: | --- |
+  | log employment | **0.0096** | 0.572 | 0.08 | +0.0034 | -0.0018 to +0.0085 |
+  | log labour force | **0.0499** | 0.460 | **0.12** | +0.0018 | -0.0025 to +0.0060 |
+  | unemployment rate | **0.0006** | 0.282 | 0.05 | -0.189 pp | -0.429 to +0.052 |
+
+  Three things have to be said about that, and the last one is uncomfortable.
+
+  First, the design was powered and the point estimates are small: +0.0034 log points at six months
+  against a minimum detectable effect of 0.0116 and an effect worth finding of 0.02. Had the
+  diagnostics passed, this would have been an identified null rather than a discovery.
+
+  Second, the bounding-only horizons behaved as registered: 12 months +0.0008 (-0.0058, +0.0074) and
+  24 months +0.0014 (-0.0100, +0.0127), neither rejecting, and neither reportable as an effect
+  whatever they had shown.
+
+  Third, **the gating pre-trend test is a weak instrument for this verdict, and that was known
+  before the run.** The five-lead window passes only 72% of correct no-effect panels at 47 state
+  clusters, so it rejects a sound design more than a quarter of the time; the eleven-lead window it
+  replaced was worse at 26%. A failure at p = 0.0096 is stronger than a marginal one, but "these
+  counties were on diverging paths" and "this test is badly sized at this cluster count" both remain
+  live explanations, and nothing here separates them. The honest reading is that the monthly design
+  removed the *power* problem of waves 1 and 2 and did not remove the *pre-trend* problem that has
+  now failed FEMA employment designs three times, on annual QCEW, on within-disaster dose and on
+  monthly LAUS. That is a property of the counties FEMA declares, not of the outcome frequency, and
+  the next design has to attack it directly rather than change the outcome again.
 * Tariffs: the remaining threat is anticipation longer than one year and reallocation across HS6
   lines inside a chapter; a design at chapter level, or with the tariff change as a continuous dose
   and importer-chapter-year fixed effects, would address both.

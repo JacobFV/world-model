@@ -38,10 +38,15 @@ Three layers added on 2026-09-18 each end in the same place, and each says so in
   node -- the design's best case -- also lost to that model. None is validated, and the stop rule
   declared with the last attempt has been kept: the encoder line is closed and only the Student-t +
   split-conformal interval head continues.
-* **Natural experiments.** Eight designs over two waves ([natural experiments](natural-experiments.md)):
+* **Natural experiments.** Nine designs over three waves ([natural experiments](natural-experiments.md)):
   three identified nulls whose bounds all contain zero and are wider than the effect worth finding,
-  five failed diagnostics, and a power suite showing every design underpowered against its own
-  registered plausible effect. No intervention response is identified anywhere in this repository.
+  and six failed diagnostics. A power suite showed every wave-1 and wave-2 design underpowered
+  against its own registered plausible effect; wave 3 was built to fix exactly that and did - its
+  minimum detectable effect is 0.0116 log points against the 0.02 worth finding, the first in this
+  repository below its own bar - and then failed its pre-trend test on all three outcomes. So the
+  obstacle is now located rather than removed: it is the counties FEMA declares being on diverging
+  paths, not the power of the test or the frequency of the outcome. No intervention response is
+  identified anywhere in this repository.
 * **Identity.** Mining every published bridge moved cross-source joins from 3.17% to 3.66% of
   entities; acquiring Wikidata's identifier statements and rebuilding the index over them moved it
   to **5.81%** of 9.18 million, and 4.69% across two publishers
